@@ -1,0 +1,37 @@
+# Lives only on sandbox/** branches: exercises tools/check.sh end to end on known cases.
+name: sandbox
+on:
+  push:
+    branches: ["sandbox/**"]
+permissions:
+  contents: read
+jobs:
+  checker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pinned formal-conjectures
+        id: fc
+        run: |
+          C=$(python3 -I -c 'import json;print(json.load(open("data/catalog.json"))["meta"]["upstreamCommit"])')
+          echo "commit=$C" >> "$GITHUB_OUTPUT"
+          git init -q "$RUNNER_TEMP/fc" && cd "$RUNNER_TEMP/fc"
+          git remote add origin https://github.com/google-deepmind/formal-conjectures
+          git fetch -q --depth 1 origin "$C" && git checkout -q FETCH_HEAD
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            ${{ runner.temp }}/fc/.lake
+          key: fc-${{ steps.fc.outputs.commit }}
+      - name: Lean toolchain and Mathlib cache
+        run: |
+          if [ ! -x ~/.elan/bin/lake ]; then
+            curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+            sh /tmp/elan-init.sh -y --default-toolchain none
+          fi
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          cd "$RUNNER_TEMP/fc" && ~/.elan/bin/lake exe cache get
+      - name: Run the checker on each case
+        run: OMA_FC="$RUNNER_TEMP/fc" python3 sandbox/run.py
