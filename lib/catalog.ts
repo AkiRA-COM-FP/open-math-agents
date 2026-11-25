@@ -1,0 +1,184 @@
+import "server-only";
+import MiniSearch from "minisearch";
+import raw from "@/data/catalog.json";
+
+export type Kind = "open" | "known" | "warmup";
+
+export type Problem = {
+  id: string;
+  decl: string;
+  title: string;
+  source: string;
+  kind: Kind;
+  category: string;
+  fields: string[];
+  tags: string[];
+  statement: string;
+  lean: string;
+  module: string;
+  file: string;
+  line: number;
+  ref: string | null;
+  prize: string | null;
+  erdos: number | null;
+  erdosState: string | null;
+  forumPosts: number;
+  difficulty: number;
+};
+
+type Catalog = {
+  meta: { upstream: string; upstreamCommit: string; license: string; counts: Record<Kind, number>; total: number };
+  problems: Problem[];
+};
+
+const catalog = raw as unknown as Catalog;
+export const META = catalog.meta;
+export const PROBLEMS = catalog.problems;
+const BY_ID = new Map(PROBLEMS.map((p) => [p.id, p]));
+
+export const KIND_LABEL: Record<Kind, string> = {
+  open: "Open problem",
+  known: "Known result, no formal proof",
+  warmup: "Warm-up",
+};
+
+export function getProblem(id: string) {
+  return BY_ID.get(id);
+}
+
+export const SOURCES = Array.from(new Set(PROBLEMS.map((p) => p.source))).sort();
+export const FIELDS = Array.from(new Set(PROBLEMS.flatMap((p) => p.fields))).sort();
+
+let index: MiniSearch<Problem> | null = null;
+function getIndex() {
+  if (index) return index;
+  index = new MiniSearch<Problem>({
+    fields: ["title", "statement", "decl", "source", "fieldsText", "tagsText", "erdosText"],
+    storeFields: [],
+    extractField: (doc, field) => {
+      if (field === "fieldsText") return doc.fields.join(" ");
+      if (field === "tagsText") return doc.tags.join(" ");
+      if (field === "erdosText") return doc.erdos ? `erdos ${doc.erdos} erdős ${doc.erdos}` : "";
+      if (field === "statement") return doc.statement.replace(/[\\${}_^]/g, " ");
+      return (doc as unknown as Record<string, string>)[field];
+    },
+    searchOptions: {
+      boost: { title: 4, decl: 2, tagsText: 2, fieldsText: 1.5, erdosText: 3 },
+      prefix: true,
+      fuzzy: 0.15,
+      combineWith: "AND",
+    },
+  });
+  index.addAll(PROBLEMS);
+  return index;
+}
+
+export type Query = {
+  q?: string;
+  kind?: string;
+  source?: string;
+  field?: string;
+  sort?: "relevance" | "hardest" | "easiest" | "prize" | "active";
+  limit?: number;
+  offset?: number;
+  live?: Map<string, number>;
+  solved?: Set<string>;
+  hideSolved?: boolean;
+};
+
+export function prizeValue(p: Problem) {
+  if (!p.prize) return 0;
+  const m = p.prize.replace(/,/g, "").match(/[$£](\d+)/);
+  return m ? Number(m[1]) : 0;
+}
+
+export function search(query: Query) {
+  let list: Problem[];
+  const q = query.q?.trim();
+  const erdos = q?.match(/^erd(?:o|ő|oe)s\s*#?\s*(\d+)$/i);
+  if (erdos) {
+    list = PROBLEMS.filter((p) => p.erdos === Number(erdos[1]));
+  } else if (q) {
+    let hits = getIndex().search(q);
+    if (hits.length === 0) hits = getIndex().search(q, { combineWith: "OR" });
+    list = hits.map((h) => BY_ID.get(h.id as string)!).filter(Boolean);
+  } else {
+    list = PROBLEMS.slice();
+  }
+  if (query.kind && query.kind !== "all") list = list.filter((p) => p.kind === query.kind);
+  if (query.source && query.source !== "all") list = list.filter((p) => p.source === query.source);
+  if (query.field && query.field !== "all") list = list.filter((p) => p.fields.includes(query.field!));
+  if (query.hideSolved && query.solved) list = list.filter((p) => !query.solved!.has(p.id));
+  const sort = query.sort ?? (q ? "relevance" : "hardest");
+  if (sort === "hardest") list.sort((a, b) => b.difficulty - a.difficulty || a.id.localeCompare(b.id));
+  if (sort === "easiest") list.sort((a, b) => a.difficulty - b.difficulty || a.id.localeCompare(b.id));
+  if (sort === "prize") list.sort((a, b) => prizeValue(b) - prizeValue(a) || b.difficulty - a.difficulty);
+  if (sort === "active" && query.live) {
+    const live = query.live;
+    list.sort((a, b) => (live.get(b.id) ?? 0) - (live.get(a.id) ?? 0) || b.difficulty - a.difficulty);
+  }
+  const total = list.length;
+  const offset = Math.max(0, query.offset ?? 0);
+  const limit = Math.min(200, Math.max(1, query.limit ?? 30));
+  return { total, items: list.slice(offset, offset + limit) };
+}
+
+const TEX: Record<string, string> = {
+  mathbb: "", mathbf: "", mathrm: "", mathcal: "", operatorname: "", text: "", textrm: "", mathfrak: "",
+  le: "≤", leq: "≤", ge: "≥", geq: "≥", ne: "≠", neq: "≠", in: "∈", notin: "∉", subset: "⊂", subseteq: "⊆",
+  cup: "∪", cap: "∩", infty: "∞", to: "→", rightarrow: "→", mapsto: "↦", times: "×", cdot: "·", cdots: "…", ldots: "…", dots: "…",
+  sum: "∑", prod: "∏", int: "∫", sqrt: "√", log: "log", exp: "exp", lim: "lim", liminf: "liminf", limsup: "limsup", sim: "∼",
+  approx: "≈", ll: "≪", gg: "≫", forall: "∀", exists: "∃", neg: "¬", land: "∧", lor: "∨", mid: "|", lvert: "|", rvert: "|", vert: "|",
+  alpha: "α", beta: "β", gamma: "γ", delta: "δ", epsilon: "ε", varepsilon: "ε", zeta: "ζ", eta: "η", theta: "θ", lambda: "λ",
+  mu: "μ", nu: "ν", pi: "π", rho: "ρ", sigma: "σ", tau: "τ", phi: "φ", varphi: "φ", chi: "χ", psi: "ψ", omega: "ω",
+  Gamma: "Γ", Delta: "Δ", Lambda: "Λ", Sigma: "Σ", Phi: "Φ", Omega: "Ω", left: "", right: "", lfloor: "⌊", rfloor: "⌋",
+  lceil: "⌈", rceil: "⌉", binom: "binom", frac: "", pmod: "mod", bmod: "mod", equiv: "≡", setminus: "∖", emptyset: "∅",
+};
+const BB: Record<string, string> = { N: "ℕ", Z: "ℤ", Q: "ℚ", R: "ℝ", C: "ℂ", P: "ℙ", F: "𝔽" };
+
+/** Rough TeX → Unicode for one-line excerpts (the problem page renders real KaTeX). */
+export function texPlain(s: string) {
+  return s
+    .replace(/\\mathbb\s*\{?([A-Z])\}?/g, (_, c) => BB[c] ?? c)
+    .replace(/\\frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, "($1)/($2)")
+    .replace(/\\([A-Za-z]+)/g, (m, w) => (w in TEX ? TEX[w] : w))
+    .replace(/\\[,;!: ]/g, " ")
+    .replace(/[{}$*`]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Compact card shape sent to the browser. */
+export function toCard(p: Problem) {
+  return {
+    id: p.id,
+    title: p.title,
+    source: p.source,
+    kind: p.kind,
+    fields: p.fields,
+    difficulty: p.difficulty,
+    prize: p.prize,
+    excerpt: texPlain(p.statement).slice(0, 260),
+  };
+}
+export type Card = ReturnType<typeof toCard>;
+
+/** The Lean skeleton an agent fills in. `type_of%` pins the exact upstream statement. */
+export function skeleton(p: Problem, polarity: "proof" | "disproof" = "proof") {
+  const target = polarity === "proof" ? `type_of% @${p.decl}` : `¬ (type_of% @${p.decl})`;
+  return [
+    `import ${p.module}`,
+    ``,
+    `-- Problem: ${p.title}`,
+    `-- Upstream: formal-conjectures ${p.file}:${p.line} (declaration ${p.decl})`,
+    `-- Prove EXACTLY this target. No sorry, no axiom, no native_decide.`,
+    ``,
+    `theorem OMA.${polarity === "proof" ? "solution" : "disproof"} : ${target} := by`,
+    `  sorry`,
+    ``,
+  ].join("\n");
+}
+
+export function proofPath(p: Problem) {
+  return `proofs/${p.id}.lean`;
+}

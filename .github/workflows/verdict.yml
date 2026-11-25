@@ -1,0 +1,94 @@
+# Trusted stage. Never checks out or runs PR code.
+name: verdict
+on:
+  workflow_run:
+    workflows: [check-proof]
+    types: [completed]
+  pull_request_target:
+    types: [closed]
+    paths: ["proofs/**"]
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+jobs:
+  report:
+    if: github.event_name == 'workflow_run'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: verdict
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: base
+      - name: Re-check the diff from the API, comment, merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          PR=$(tr -cd '0-9' < pr.txt)
+          [ -n "$PR" ] || exit 0
+          gh api "repos/$REPO/pulls/$PR" > pr.json
+          gh api "repos/$REPO/pulls/$PR/files" > files.json
+          python3 -I - <<'PY' > decision.txt
+          import json, os, re
+          pr = json.load(open("pr.json")); files = json.load(open("files.json")); v = json.load(open("verdict.json"))
+          cat = {p["id"]: p for p in json.load(open("base/data/catalog.json"))["problems"]}
+          verdict, reason = v.get("verdict", "fault"), v.get("reason", "")
+          ok_shape = len(files) == 1 and files[0]["status"] == "added" and re.fullmatch(r"proofs/[A-Za-z0-9_.'\-]+\.lean", files[0]["filename"])
+          pid = files[0]["filename"][7:-5] if ok_shape else None
+          if pr["head"]["sha"] != os.environ["HEAD_SHA"]:
+              verdict, reason = "stale", "the pull request changed after this check; a newer check will report"
+          elif not ok_shape or pid not in cat or v.get("problem") not in (None, pid):
+              verdict, reason = "rejected", "a pull request must add exactly one file proofs/<known id>.lean"
+          kind = cat[pid]["kind"] if pid in cat else ""
+          print(verdict); print(pid or ""); print(kind); print(v.get("polarity", "proof")); print(reason.replace("\n", " ")[:900])
+          PY
+          mapfile -t D < decision.txt
+          VERDICT="${D[0]}"; PID="${D[1]}"; KIND="${D[2]}"; POL="${D[3]}"; REASON="${D[4]}"
+          [ "$VERDICT" = "stale" ] && exit 0
+          case "$VERDICT" in
+            accepted)
+              if [ "$KIND" = "open" ]; then
+                MSG="**ACCEPTED by the Lean checker** ($POL of \`$PID\`). This is an open problem: before it is marked solved, a maintainer checks that the formal statement really says what the problem says (a mistranslated statement is the usual reason an 'open problem' falls easily). Label: needs-human-review. [Run]($RUN_URL)"
+                gh label create needs-human-review --repo "$REPO" --color E8C547 2>/dev/null || true
+                gh pr edit "$PR" --repo "$REPO" --add-label needs-human-review || true
+                gh pr comment "$PR" --repo "$REPO" --body "$MSG"
+              else
+                gh pr comment "$PR" --repo "$REPO" --body "**ACCEPTED** ($POL of \`$PID\`): $REASON. Merging. [Run]($RUN_URL)"
+                gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$HEAD_SHA" || gh pr comment "$PR" --repo "$REPO" --body "Could not merge automatically (probably already proved by someone else first)."
+              fi ;;
+            rejected) gh pr comment "$PR" --repo "$REPO" --body "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)" ;;
+            *) gh pr comment "$PR" --repo "$REPO" --body "**FAULT** (our side, not your proof): $REASON. It will be re-run. [Run]($RUN_URL)" ;;
+          esac
+  credit:
+    # A merged proof is the canonical acceptance: tell the site.
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report to the desk
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SECRET: ${{ secrets.OMA_VERDICT_SECRET }}
+          SITE: ${{ vars.OMA_SITE || 'https://shipfastwith.me' }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          set -euo pipefail
+          F=$(gh api "repos/$REPO/pulls/$PR/files" --jq '.[] | select(.status=="added") | .filename' | grep '^proofs/.*\.lean$' | head -1)
+          [ -n "$F" ] || exit 0
+          PID="${F#proofs/}"; PID="${PID%.lean}"
+          POL=$(gh api "repos/$REPO/contents/$F?ref=main" --jq .content | base64 -d | grep -q 'theorem OMA.disproof' && echo disproof || echo proof)
+          [ -n "$SECRET" ] || { echo "OMA_VERDICT_SECRET not set; skipping"; exit 0; }
+          python3 -I -c 'import json,sys;print(json.dumps(dict(problem=sys.argv[1],handle=sys.argv[2],pr=sys.argv[3],verdict="accepted",polarity=sys.argv[4])))' "$PID" "$AUTHOR" "$URL" "$POL" \
+            | curl -sS -m 30 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" -H "x-oma-secret: $SECRET" --data-binary @-

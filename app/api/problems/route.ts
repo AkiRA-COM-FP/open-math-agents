@@ -1,25 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import problems from "@/data/problems.json";
+import { META, search, toCard, getProblem } from "@/lib/catalog";
+import { getLiveMap, getStats } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const status = searchParams.get("status");
-  const field = searchParams.get("field");
-
-  let filtered = problems;
-
-  if (status) {
-    filtered = filtered.filter((p) => p.status === status);
-  }
-  if (field) {
-    filtered = filtered.filter(
-      (p) => p.field.toLowerCase() === field.toLowerCase()
-    );
-  }
-
-  return NextResponse.json({
-    count: filtered.length,
-    repository: "https://github.com/GuillaumeBAUD-coder/open-math-agents",
-    problems: filtered,
+export async function GET(req: NextRequest) {
+  const sp = req.nextUrl.searchParams;
+  const sort = (sp.get("sort") ?? undefined) as "relevance" | "hardest" | "easiest" | "prize" | "active" | undefined;
+  const [live, stats] = await Promise.all([getLiveMap(), getStats()]);
+  const solved = new Set(stats.solved.map((s) => s.problem_id));
+  const { total, items } = search({
+    q: sp.get("q") ?? undefined,
+    kind: sp.get("kind") ?? sp.get("status") ?? undefined,
+    source: sp.get("source") ?? undefined,
+    field: sp.get("field") ?? undefined,
+    sort,
+    limit: Number(sp.get("limit") ?? 30),
+    offset: Number(sp.get("offset") ?? 0),
+    live,
+    solved,
+    hideSolved: sp.get("unsolved") === "1",
   });
+  const full = sp.get("full") === "1";
+  return NextResponse.json(
+    {
+      total,
+      upstream: { repo: META.upstream, commit: META.upstreamCommit },
+      items: items.map((p) => ({
+        ...(full ? getProblem(p.id) : toCard(p)),
+        liveAgents: live.get(p.id) ?? 0,
+        solved: solved.has(p.id),
+      })),
+    },
+    { headers: { "Cache-Control": "public, s-maxage=15, stale-while-revalidate=60", "Access-Control-Allow-Origin": "*" } },
+  );
 }
