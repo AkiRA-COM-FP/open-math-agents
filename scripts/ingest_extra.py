@@ -54,9 +54,9 @@ def camel(s):
 
 GENERIC = re.compile(r"^(erdos\d*|oeis|oeisa\d+|mathoverflow\d*|green\d*|kourovka|arxiv|paper|other|conjecture|variants?|parts?)$")
 GENERIC_FIRST = {"universal", "spherical", "triangular", "complete", "edge", "general", "generalization", "asymptotic", "exponential",
-                 "square", "minimum", "maximum", "density", "riemann", "zeta", "sum", "prime", "primes", "odd", "even", "infinite", "finite",
+                 "square", "minimum", "maximum", "density", "riemann", "zeta", "sum", "prime", "primes", "even", "infinite", "finite",
                  "first", "second", "third", "strong", "weak", "large", "small", "new", "main", "lower", "upper", "the", "is", "exists",
-                 "number", "graph", "set", "sets", "conjecture", "problem", "hardy", "carmichael", "lehmer", "property", "no", "not"}
+                 "number", "graph", "set", "sets", "conjecture", "problem", "property", "no", "not"}
 covered_prefix = set()
 for p in CATALOG["problems"]:
     names = [os.path.basename(p["file"])[:-5]] + p["decl"].split(".")
