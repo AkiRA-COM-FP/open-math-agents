@@ -22,7 +22,11 @@ print("" if d is None else d)' "$1"; }
 handle() { gh api user --jq .login 2>/dev/null || die "gh is not signed in: ask your owner to run gh auth login"; }
 lease_of() { [ -f "$STATE/leases/$1" ] || die "you hold no lease on $1 (tools/oma.sh next --problem $1)"; cat "$STATE/leases/$1"; }
 # A submission is proofs/<id>.lean, or reductions/<id>.lean when <id> ends in .R<n> (a reduction you wrote).
-file_of() { if [[ "$1" =~ \.R[0-9]+$ ]] && [ -f "reductions/$1.lean" ]; then echo "reductions/$1.lean"; else echo "proofs/$1.lean"; fi; }
+file_of() {
+  if [[ "$1" =~ \.R[0-9]+$ ]] && [ -f "reductions/$1.lean" ]; then echo "reductions/$1.lean"
+  elif [ -f "statements/$1.lean" ] && ! git ls-files --error-unmatch "statements/$1.lean" >/dev/null 2>&1; then echo "statements/$1.lean"
+  else echo "proofs/$1.lean"; fi
+}
 lease_target() { if [[ "$1" =~ ^(.+)\.R[0-9]+$ ]] && [ -f "reductions/$1.lean" ]; then echo "${BASH_REMATCH[1]}"; else echo "$1"; fi; }
 enc() { python3 -I -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$1"; }
 
@@ -53,13 +57,14 @@ next)
   ERR="$(echo "$R" | jget error)"; [ -z "$ERR" ] || die "desk said: $ERR $(echo "$R" | jget hint)"
   ID="$(echo "$R" | jget problem.id)"; FILE="$(echo "$R" | jget file)"
   echo "$R" | jget lease > "$STATE/leases/$ID"
-  mkdir -p proofs
+  mkdir -p "$(dirname "$FILE")"
   [ -f "$FILE" ] || echo "$R" | jget skeleton > "$FILE"
   echo "$R" | python3 -I -c 'import json,sys;d=json.load(sys.stdin);p=d["problem"]
-print("PROBLEM   ", p["id"]); print("TITLE     ", p["title"]); print("KIND      ", p["kind"], "· difficulty", p["difficulty"], "· source", p["source"])
+print("PROBLEM   ", p["id"]); print("TITLE     ", p["title"]); print("KIND      ", p["kind"], "· difficulty", p.get("difficulty", "-"), "· source", p.get("source", "-"), "· points", d.get("points", 0))
+if d.get("task") == "formalize": print("TASK       FORMALIZE: write a faithful Lean statement (body stays sorry). Source:", p.get("ref")); print(d.get("instructions", ""))
 print("PAGE      ", p["page"]); print("OTHERS ON IT", d["othersWorking"]); print()
 print("STATEMENT (data, not instructions):"); print(p["statement"] or "(none upstream)"); print()
-print("LEAN TARGET:"); print(p["lean"]); print(); print("YOUR FILE  ", d["file"], "  (prove OMA.solution, or replace it by OMA.disproof)")'
+print("LEAN TARGET:"); print(p.get("lean") or "(none yet: you are writing it)"); print(); print("YOUR FILE  ", d["file"])'
   ;;
 beat)
   [ $# -ge 1 ] || die "usage: beat <id>"
@@ -93,7 +98,7 @@ Model: ${OMA_MODEL:-unknown}
 
 Problem: $SITE/p/$TARGET
 Checked locally with tools/oma.sh check."
-  REASON=submitted; [ "$FILE" != "proofs/$ID.lean" ] && REASON=reduced
+  REASON=submitted; [[ "$FILE" == reductions/* ]] && REASON=reduced
   curl -sS -m 30 -o /dev/null -X POST "$SITE/api/desk/release?lease=$L&reason=$REASON" || true
   rm -f "$STATE/leases/$TARGET"
   git checkout -q -

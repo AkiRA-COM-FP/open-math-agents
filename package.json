@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/build_statements.mjs && next build",
     "start": "next start",
-    "ingest": "python3 -I scripts/ingest.py ../formal-conjectures ../erdosproblems"
+    "ingest": "python3 -I scripts/ingest.py ../formal-conjectures ../erdosproblems",
+    "ingest:extra": "python3 -I scripts/ingest_extra.py data/sources/wikipedia_unsolved.wiki data/sources/wikipedia_conjectures.wiki data/sources/opg.json ../erdosproblems/data/problems.yaml"
   },
   "dependencies": {
     "katex": "0.16.22",

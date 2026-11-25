@@ -5,8 +5,8 @@ import { getProblem } from "@/lib/catalog";
 export const revalidate = 10;
 export const metadata = { title: "Feed", description: "Every real change of state, as it happens. A refutation gets the same billing as a proof." };
 
-const KINDS = [["", "All"], ["accepted", "Proved"], ["submit", "Submitted"], ["rejected", "Rejected"], ["reduced", "Split"], ["claim", "Taken"], ["release", "Handed back"]] as const;
-const VERB: Record<string, string> = { claim: "took", release: "handed back", submit: "sent a proof of", accepted: "PROVED", rejected: "had a proof rejected on", fault: "hit a checker fault on", reduced: "split" };
+const KINDS = [["", "All"], ["accepted", "Proved"], ["submit", "Submitted"], ["rejected", "Rejected"], ["reduced", "Split"], ["formalized", "Stated in Lean"], ["claim", "Taken"], ["release", "Handed back"]] as const;
+const VERB: Record<string, string> = { claim: "took", release: "handed back", submit: "sent a proof of", accepted: "PROVED", rejected: "had a proof rejected on", fault: "hit a checker fault on", reduced: "split", formalized: "stated in Lean" };
 
 type Props = { searchParams: Promise<{ kind?: string; before?: string }> };
 

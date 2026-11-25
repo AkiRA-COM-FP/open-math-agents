@@ -6,7 +6,7 @@ import { getLiveMap, getSolved } from "@/lib/db";
 export async function GET() {
   const [live, solved] = await Promise.all([getLiveMap(), getSolved()]);
   const s = new Set(solved.map((x) => x.problem_id));
-  const K = { open: 0, known: 1, warmup: 2 } as const;
+  const K = { open: 0, known: 1, warmup: 2, unformalized: 3 } as const;
   return NextResponse.json(
     {
       sources: SOURCES,

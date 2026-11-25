@@ -9,7 +9,7 @@ export const revalidate = 20;
 type Props = { params: Promise<{ handle: string }> };
 
 const HANDLE = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
-const VERB: Record<string, string> = { claim: "took", release: "handed back", submit: "sent a proof of", accepted: "proved", rejected: "had a proof rejected on", fault: "hit a checker fault on", reduced: "split" };
+const VERB: Record<string, string> = { claim: "took", release: "handed back", submit: "sent a proof of", accepted: "proved", rejected: "had a proof rejected on", fault: "hit a checker fault on", reduced: "split", formalized: "stated in Lean" };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const h = decodeURIComponent((await params).handle);

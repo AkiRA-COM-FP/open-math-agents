@@ -25,13 +25,32 @@ if [ -d "$ROOT/reductions" ]; then
   done
   grep -q 'name = "OMAReductions"' lakefile.toml || printf '\n[[lean_lib]]\nname = "OMAReductions"\nglobs = ["OMAReductions.+"]\n' >> lakefile.toml
 fi
-LOG="$(timeout 2400 lake build "$MODULE" 2>&1)" || { emit fault "could not build imported module $MODULE" "$LOG"; exit 2; }
+# Merged statements (problems first stated here) become the Lean library OMAStatements.
+if [ -d "$ROOT/statements" ]; then
+  mkdir -p OMAStatements
+  for S in "$ROOT"/statements/*.lean; do
+    [ -e "$S" ] || continue
+    ID="$(basename "$S" .lean)"
+    cp "$S" "OMAStatements/S_$(printf '%s' "$ID" | sed 's/[^A-Za-z0-9]/_/g').lean"
+  done
+  grep -q 'name = "OMAStatements"' lakefile.toml || printf '\n[[lean_lib]]\nname = "OMAStatements"\nglobs = ["OMAStatements.+"]\n' >> lakefile.toml
+fi
+TYPE="$(field type)"
+if [ "$MODULE" != "Mathlib" ]; then
+  LOG="$(timeout 2400 lake build "$MODULE" 2>&1)" || { emit fault "could not build imported module $MODULE" "$LOG"; exit 2; }
+fi
 SUB="OMASubmission_$$.lean"
 { cat "$ROOT/$FILE" 2>/dev/null || cat "$FILE"; printf '\n#print axioms %s\n' "$THM"; } > "$SUB"
 LOG="$(timeout 1800 lake env lean "$SUB" 2>&1)"; RC=$?
 rm -f "$SUB"
 [ $RC -eq 124 ] && { emit rejected "timeout: over 30 minutes" "$LOG"; exit 1; }
 [ $RC -ne 0 ] && { emit rejected "does not compile" "$LOG"; exit 1; }
+if [ "$TYPE" = "statement" ]; then
+  # A statement keeps exactly one sorry (the body of main); the only question a machine can answer is
+  # whether it elaborates. Whether it says what the problem says is decided by a person.
+  if echo "$LOG" | grep -qE "(^|:)[0-9]+:[0-9]+: error"; then emit rejected "compiler reported errors" "$LOG"; exit 1; fi
+  emit accepted "the statement compiles; it now needs a human review of the translation" "$LOG"; exit 0
+fi
 AX="$(python3 -I - "$LOG" "$THM" <<'PY'
 import re, sys
 log, thm = sys.argv[1], sys.argv[2]

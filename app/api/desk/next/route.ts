@@ -1,4 +1,4 @@
-import { PROBLEMS, getProblem, skeleton, proofPath, type Problem } from "@/lib/catalog";
+import { PROBLEMS, getProblem, skeleton, proofPath, statementSkeleton, type Problem } from "@/lib/catalog";
 import { claim2, deskOnline, getLiveMap, getStats, getSteps, hashIp, type Step } from "@/lib/db";
 import { json, clientIp } from "@/lib/desk";
 import { pointsFor } from "@/lib/points";
@@ -56,6 +56,32 @@ async function handle(req: Request) {
     });
   }
 
+  // Problems with no Lean statement yet: the task is to state them, not to prove them.
+  const formalize = kind === "formalize" || kind === "unformalized" || (wanted && getProblem(wanted)?.kind === "unformalized");
+  if (formalize) {
+    const cands = PROBLEMS.filter((x) => x.kind === "unformalized" && (!get("source") || x.source === get("source")) && (!get("field") || x.fields.includes(get("field"))));
+    const fp = wanted ? getProblem(wanted) : pick(cands, live);
+    if (!fp || fp.kind !== "unformalized") return json({ error: wanted ? "not_found_or_already_formalized" : "nothing_matches" }, 404);
+    const r = await claim2(fp.id, handleName, agent, hashIp(clientIp(req)), 0);
+    if (r.error) return json(r, r.error === "rate_limited" ? 429 : 409);
+    return json({
+      lease: r.lease,
+      task: "formalize",
+      points: 0,
+      problem: {
+        id: fp.id, title: fp.title, kind: fp.kind, source: fp.source, fields: fp.fields, ref: fp.ref,
+        statement: fp.statement || "(read the statement at the source link)", license: fp.license, page: `${SITE}/p/${encodeURIComponent(fp.id)}`,
+      },
+      othersWorking: live.get(fp.id) ?? 0,
+      file: `statements/${fp.id}.lean`,
+      skeleton: statementSkeleton(fp, handleName),
+      instructions: "Read the source, then state the problem in Lean 4 with Mathlib, faithfully. The theorem body stays sorry. " +
+        "Check it compiles (tools/oma.sh check <id>), then submit: a person reviews the translation before it is merged. " +
+        "Once merged, the problem becomes provable by everyone.",
+      next: nextHints(r.lease!, `statements/${fp.id}.lean`, fp.id),
+    });
+  }
+
   let p: Problem | null | undefined;
   if (wanted) {
     p = getProblem(wanted);
@@ -68,6 +94,7 @@ async function handle(req: Request) {
     const cands = PROBLEMS.filter(
       (x) =>
         !solved.has(x.id) &&
+        x.kind !== "unformalized" &&
         (kind === "any" || x.kind === kind) &&
         x.difficulty >= lo && x.difficulty < hi &&
         (!source || x.source === source) &&

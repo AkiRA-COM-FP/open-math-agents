@@ -1,5 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
-import { verdict2, registerReduction, deskOnline, getSteps } from "@/lib/db";
+import { verdict2, registerReduction, deskOnline, getSteps, logEvent } from "@/lib/db";
 import { getProblem } from "@/lib/catalog";
 import { json } from "@/lib/desk";
 import { pointsFor } from "@/lib/points";
@@ -81,12 +81,22 @@ export async function POST(req: Request) {
     return json(await registerReduction({ id, problem: target, handle, pr: pr.html_url, module: reductionModule(id), statements, points }));
   }
 
+  // A Lean statement for a problem that had none: merged only after human review. Logged and credited;
+  // the problem becomes provable at the next build (scripts/build_statements.mjs).
+  const stm = path.match(/^statements\/([^/]+)\.lean$/);
+  if (stm) {
+    const sp = getProblem(stm[1]);
+    if (!sp) return json({ error: "unknown_problem", id: stm[1] }, 409);
+    return json(await logEvent("formalized", sp.id, handle, pr.html_url));
+  }
+
   const m = path.match(/^proofs\/([^/]+)\.lean$/);
   if (!m) return json({ error: "not_a_proof" }, 409);
   const id = m[1];
   const polarity = /\btheorem\s+OMA\.disproof\b/.test(src) ? "disproof" : "proof";
   const p = getProblem(id);
   let points: number;
+  if (p && p.kind === "unformalized") return json({ error: "not_formalized_yet", id }, 409);
   if (p) points = pointsFor(p.difficulty, p.kind);
   else if (STEP_RE.test(id)) {
     const step = (await getSteps(id)).find((s) => s.id === id);

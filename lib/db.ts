@@ -154,3 +154,6 @@ export const getCalendar = (days = 90) => safe<Day[]>("calendar", { days }, [], 
 
 export type Step = { id: string; reduction: string; parent: string; k: number; statement: string; module: string; points: number; created_at: string; solved: boolean; reduction_pr: string; reduction_by: string };
 export const getSteps = (parent?: string) => safe<Step[]>("steps", parent ? { parent } : {}, [], 15);
+
+export const logEvent = (kind: string, problem: string, handle: string, detail: string) =>
+  api<{ ok?: boolean; error?: string }>("log", { kind, problem, handle, detail });

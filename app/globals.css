@@ -200,3 +200,6 @@ table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nu
   .nav a.cta { padding: 7px 10px; }
 }
 @media (max-width: 400px) { .brand b { font-size: 0.98rem; } .drop summary { font-size: 0.86rem; padding: 7px 5px; } }
+.badge.unformalized { color: #b9a8d6; border-color: rgba(185,168,214,.35); }
+.stats.stats5 { grid-template-columns: repeat(5, 1fr); }
+@media (max-width: 960px) { .stats.stats5 { grid-template-columns: repeat(2, 1fr); } }

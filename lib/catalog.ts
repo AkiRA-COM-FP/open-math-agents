@@ -1,8 +1,11 @@
 import "server-only";
 import MiniSearch from "minisearch";
 import raw from "@/data/catalog.json";
+import extraRaw from "@/data/extra.json";
+import statementsRaw from "@/data/statements.json";
 
-export type Kind = "open" | "known" | "warmup";
+/** open/known/warmup: has a Lean statement, provable now. unformalized: open, but nobody has stated it in Lean yet. */
+export type Kind = "open" | "known" | "warmup" | "unformalized";
 
 export type Problem = {
   id: string;
@@ -24,23 +27,49 @@ export type Problem = {
   erdosState: string | null;
   forumPosts: number;
   difficulty: number;
+  // extra sources only
+  license?: string;
+  authors?: string[];
+  area?: string;
+  alsoIn?: string[];
+  formalizedHere?: boolean;
 };
 
 type Catalog = {
-  meta: { upstream: string; upstreamCommit: string; license: string; counts: Record<Kind, number>; total: number };
+  meta: { upstream: string; upstreamCommit: string; license: string; counts: Record<"open" | "known" | "warmup", number>; total: number };
   problems: Problem[];
 };
 
 const catalog = raw as unknown as Catalog;
-export const META = catalog.meta;
-export const PROBLEMS = catalog.problems;
+const extra = extraRaw as unknown as { meta: { counts: Record<string, number>; total: number; note: string }; problems: Problem[] };
+const statements = statementsRaw as unknown as Record<string, { decl: string; module: string; lean: string; file: string }>;
+
+// A merged statements/<id>.lean turns an unformalized problem into a provable open problem.
+const extraProblems: Problem[] = extra.problems.map((p) => {
+  const st = statements[p.id];
+  return st ? { ...p, kind: "open", category: "research open (formalized here)", decl: st.decl, module: st.module, lean: st.lean, file: st.file, formalizedHere: true } : p;
+});
+
+export const PROBLEMS: Problem[] = [...catalog.problems, ...extraProblems];
+const count = (k: Kind) => PROBLEMS.filter((p) => p.kind === k).length;
+export const META = {
+  ...catalog.meta,
+  counts: { open: count("open"), known: count("known"), warmup: count("warmup"), unformalized: count("unformalized") } as Record<Kind, number>,
+  total: PROBLEMS.length,
+  extra: extra.meta,
+};
+/** Every open problem, stated in Lean or not. */
+export const OPEN_TOTAL = META.counts.open + META.counts.unformalized;
 const BY_ID = new Map(PROBLEMS.map((p) => [p.id, p]));
 
 export const KIND_LABEL: Record<Kind, string> = {
   open: "Open problem",
   known: "Known result, no formal proof",
   warmup: "Warm-up",
+  unformalized: "Open, not yet stated in Lean",
 };
+
+export const isProvable = (p: Problem) => p.kind !== "unformalized";
 
 export function getProblem(id: string) {
   return BY_ID.get(id);
@@ -197,6 +226,34 @@ export function reductionSkeleton(p: Problem, n = 1, handle = "<your GitHub hand
     `def H2 : Prop := sorry -- another one`,
     ``,
     `theorem main : H1 → H2 → type_of% @${p.decl} := by`,
+    `  sorry`,
+    ``,
+    `end ${ns}`,
+    ``,
+  ].join("\n");
+}
+
+/** Skeleton of a Lean statement for a problem that has none. Reviewed by a person before it is merged. */
+export function statementSkeleton(p: Problem, handle = "<your GitHub handle>") {
+  const ns = "OMA.S_" + p.id.replace(/[^A-Za-z0-9]/g, "_");
+  return [
+    `import Mathlib`,
+    ``,
+    `/-!`,
+    `# ${p.title}`,
+    ``,
+    `Source: ${p.ref ?? p.source}`,
+    `Credit: @${handle}`,
+    ``,
+    `State the problem EXACTLY as the source states it: same quantifiers, same ranges, no simplification.`,
+    `Do not prove it here: the theorem body stays \`sorry\`. A person reviews the translation before merging.`,
+    `-/`,
+    ``,
+    `namespace ${ns}`,
+    ``,
+    `-- definitions the statement needs (no sorry, no axiom)`,
+    ``,
+    `theorem main : sorry := by`,
     `  sorry`,
     ``,
     `end ${ns}`,

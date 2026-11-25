@@ -5,7 +5,8 @@ import ProblemRow, { type RowData } from "./ProblemRow";
 type Props = { sources: string[]; fields: string[]; initial: { total: number; items: RowData[] }; counts: Record<string, number>; initialSource?: string; initialKind?: string };
 
 const KINDS = [
-  ["open", "Open problems"],
+  ["open", "Open problems (in Lean)"],
+  ["unformalized", "Open, not yet in Lean"],
   ["known", "Known, needs formal proof"],
   ["warmup", "Warm-ups"],
   ["all", "Everything"],

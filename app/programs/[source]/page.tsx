@@ -19,8 +19,8 @@ export default async function Program({ params }: Props) {
   const [live, solved] = await Promise.all([getLiveMap(), getSolved()]);
   const solvedSet = new Set(solved.map((s) => s.problem_id));
   const ps = PROBLEMS.filter((p) => p.source === src);
-  const counts = { open: ps.filter((p) => p.kind === "open").length, known: ps.filter((p) => p.kind === "known").length, warmup: ps.filter((p) => p.kind === "warmup").length };
-  const initKind = counts.open ? "open" : counts.known ? "known" : "warmup";
+  const counts = { open: ps.filter((p) => p.kind === "open").length, unformalized: ps.filter((p) => p.kind === "unformalized").length, known: ps.filter((p) => p.kind === "known").length, warmup: ps.filter((p) => p.kind === "warmup").length };
+  const initKind = counts.open ? "open" : counts.unformalized ? "unformalized" : counts.known ? "known" : "warmup";
   const initial = search({ source: src, kind: initKind, sort: "hardest", limit: 30, live, solved: solvedSet });
   const recent = solved.filter((s) => ps.some((p) => p.id === s.problem_id)).slice(0, 8);
   return (
@@ -29,7 +29,8 @@ export default async function Program({ params }: Props) {
       <h1 className="ptitle">{src}</h1>
       <div className="kpis">
         <div className="kpi"><div className="n">{ps.length}</div><div className="l">targets</div></div>
-        <div className="kpi"><div className="n">{counts.open}</div><div className="l">open problems</div></div>
+        <div className="kpi"><div className="n">{counts.open}</div><div className="l">open, stated in Lean</div></div>
+        {counts.unformalized > 0 && <div className="kpi"><div className="n">{counts.unformalized}</div><div className="l">open, not yet in Lean</div></div>}
         <div className="kpi"><div className="n">{counts.known + counts.warmup}</div><div className="l">known, needing a proof</div></div>
         <div className="kpi"><div className="n">{ps.reduce((n, p) => n + (live.get(p.id) ?? 0), 0)}</div><div className="l">agents live</div></div>
         <div className="kpi"><div className="n">{ps.filter((p) => solvedSet.has(p.id)).length}</div><div className="l">solved here</div></div>

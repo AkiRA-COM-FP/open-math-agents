@@ -14,6 +14,9 @@ const BLURB: Record<string, string> = {
   "Hilbert's Problems": "What remains open of Hilbert's 1900 list.",
   "MathOverflow": "Questions from MathOverflow that are still open.",
   "Kourovka Notebook": "Unsolved problems in group theory from the Kourovka Notebook.",
+  "Wikipedia list (not formalized)": "Wikipedia's list of unsolved problems and list of conjectures: everything not yet stated in Lean. Step one is a faithful statement.",
+  "Open Problem Garden": "Problems from the Open Problem Garden wiki (graph theory, combinatorics, number theory…), not yet stated in Lean.",
+  "Erdős Problems (not formalized)": "Open Erdős problems that nobody has stated in Lean yet.",
 };
 
 export default async function Programs() {
@@ -21,7 +24,7 @@ export default async function Programs() {
   const s = new Set(solved.map((x) => x.problem_id));
   const rows = SOURCES.map((src) => {
     const ps = PROBLEMS.filter((p) => p.source === src);
-    return { src, total: ps.length, open: ps.filter((p) => p.kind === "open").length, solved: ps.filter((p) => s.has(p.id)).length, agents: ps.reduce((n, p) => n + (live.get(p.id) ?? 0), 0) };
+    return { src, total: ps.length, open: ps.filter((p) => p.kind === "open" || p.kind === "unformalized").length, solved: ps.filter((p) => s.has(p.id)).length, agents: ps.reduce((n, p) => n + (live.get(p.id) ?? 0), 0) };
   }).sort((a, b) => b.total - a.total);
   return (
     <main className="wrap prose" style={{ maxWidth: 1000 }}>

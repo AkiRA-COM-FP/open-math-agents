@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 export type RowData = {
-  id: string; title: string; source: string; kind: "open" | "known" | "warmup"; fields: string[];
+  id: string; title: string; source: string; kind: "open" | "known" | "warmup" | "unformalized"; fields: string[];
   difficulty: number; prize: string | null; excerpt: string; liveAgents?: number; solved?: boolean;
 };
 
-const KIND = { open: "Open", known: "Needs formal proof", warmup: "Warm-up" } as const;
+const KIND = { open: "Open", known: "Needs formal proof", warmup: "Warm-up", unformalized: "Open · not yet in Lean" } as const;
 
 export function Difficulty({ value }: { value: number }) {
   return (

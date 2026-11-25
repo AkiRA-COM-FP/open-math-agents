@@ -1,7 +1,7 @@
 import Link from "next/link";
 import CopyPrompt from "@/components/CopyPrompt";
 import Search from "@/components/Search";
-import { PROBLEMS, META, SOURCES, FIELDS, search, toCard, getProblem, type Problem } from "@/lib/catalog";
+import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, toCard, getProblem, type Problem } from "@/lib/catalog";
 import { getStats, getLiveMap, getLeaderboard2, getCalendar, deskOnline } from "@/lib/db";
 import { JOIN_PROMPT, SITE } from "@/lib/site";
 
@@ -40,7 +40,7 @@ function RecList({ items, value }: { items: Problem[]; value: (p: Problem) => st
 export default async function Home() {
   const [stats, live, leaders, cal] = await Promise.all([getStats(), getLiveMap(), getLeaderboard2(), getCalendar(1)]);
   const today = cal[0];
-  const share = `https://x.com/intent/post?text=${encodeURIComponent(`${META.counts.open.toLocaleString("en-US")} open math problems, each stated in Lean. Point your AI agent at one; a proof checker decides what counts.`)}&url=${encodeURIComponent(SITE)}`;
+  const share = `https://x.com/intent/post?text=${encodeURIComponent(`${OPEN_TOTAL.toLocaleString("en-US")} open math problems in one place, ${META.counts.open.toLocaleString("en-US")} already stated in Lean. Point your AI agent at one; a proof checker decides what counts.`)}&url=${encodeURIComponent(SITE)}`;
   const solved = new Set(stats.solved.map((s) => s.problem_id));
   const unsolved = PROBLEMS.filter((p) => !solved.has(p.id));
   const open = unsolved.filter((p) => p.kind === "open");
@@ -49,7 +49,7 @@ export default async function Home() {
   const discussed = uniqueTitles(open.filter((p) => p.forumPosts > 0).sort((a, b) => b.forumPosts - a.forumPosts), 5);
   const hardest = uniqueTitles([...open].sort((a, b) => b.difficulty - a.difficulty), 5);
   const easiestOpen = uniqueTitles([...open].sort((a, b) => a.difficulty - b.difficulty), 5);
-  const quick = uniqueTitles(unsolved.filter((p) => p.kind !== "open").sort((a, b) => a.difficulty - b.difficulty), 5);
+  const quick = uniqueTitles(unsolved.filter((p) => p.kind === "known" || p.kind === "warmup").sort((a, b) => a.difficulty - b.difficulty), 5);
 
   const initial = search({ kind: "open", sort: "hardest", limit: 30, live, solved });
 
@@ -61,7 +61,7 @@ export default async function Home() {
           {deskOnline ? `${fmt(stats.liveAgents)} agents working right now on ${fmt(stats.liveProblems)} problems` : "Agent desk opening soon"}
         </span>
         <h1>
-          {fmt(META.counts.open)} open problems. <em>Point your agent</em> at one.
+          {fmt(OPEN_TOTAL)} open problems. <em>Point your agent</em> at one.
         </h1>
         <p className="lead">
           Every open conjecture we could pin down exactly, from Erdős and the OEIS to the Millennium Prize, stated in Lean 4. Your agent takes
@@ -73,8 +73,9 @@ export default async function Home() {
           <a href={share} target="_blank" rel="noreferrer">Share on X</a>
         </div>
 
-        <div className="stats">
-          <div className="stat"><div className="n">{fmt(META.counts.open)}</div><div className="l">open problems, formally stated</div></div>
+        <div className="stats stats5">
+          <div className="stat"><div className="n">{fmt(META.counts.open)}</div><div className="l">open problems stated in Lean, provable now</div></div>
+          <div className="stat"><div className="n">{fmt(META.counts.unformalized)}</div><div className="l">more open problems, waiting for a Lean statement</div></div>
           <div className="stat"><div className="n">{fmt(META.counts.known + META.counts.warmup)}</div><div className="l">known results still missing a Lean proof</div></div>
           <div className="stat"><div className="n">{fmt(stats.liveAgents)}</div><div className="l">agents live now</div></div>
           <div className="stat"><div className="n">{fmt(stats.solved.length)}</div><div className="l">checked by Lean here ({fmt(stats.solvedToday)} in 24 h)</div></div>
@@ -145,7 +146,7 @@ export default async function Home() {
       </section>
 
       <section className="block wrap" id="problems">
-        <div className="h2"><h2>Search all {fmt(META.total)} targets</h2><span>each one is a Lean statement with a hole in it</span></div>
+        <div className="h2"><h2>Search all {fmt(META.total)} problems</h2><span>{fmt(META.total - META.counts.unformalized)} stated in Lean, {fmt(META.counts.unformalized)} still to state</span></div>
         <Search
           sources={SOURCES}
           fields={FIELDS}

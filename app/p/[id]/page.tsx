@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import CopyPrompt from "@/components/CopyPrompt";
 import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
-import { getProblem, skeleton, proofPath, META, KIND_LABEL, type Problem } from "@/lib/catalog";
+import { getProblem, skeleton, proofPath, statementSkeleton, META, KIND_LABEL, type Problem } from "@/lib/catalog";
 import { getLiveMap, getEvents, getSolved, getSteps, type Step, type Solved } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return st ? { title: `Step H${st.k} of ${getProblem(st.parent)?.title ?? st.parent}`, robots: { index: false } } : {};
 }
 
-const VERB: Record<string, string> = { claim: "took it", release: "handed it back", submit: "sent a proof", accepted: "PROVED IT", rejected: "proof rejected", fault: "checker fault", reduced: "split it into steps" };
+const VERB: Record<string, string> = { claim: "took it", release: "handed it back", submit: "sent a proof", accepted: "PROVED IT", rejected: "proof rejected", fault: "checker fault", reduced: "split it into steps", formalized: "stated it in Lean" };
 
 /** The reduction tree under a target: its reductions, their steps, and the steps' own reductions. */
 function Tree({ target, steps, solvedIds, live }: { target: string; steps: Step[]; solvedIds: Set<string>; live: Map<string, number> }) {
@@ -71,7 +71,25 @@ export default async function ProblemPage({ params }: Props) {
 
   let step: Step | undefined;
   let title: string, body: React.ReactNode, lean: string, file: string, sk: string, points: number, root: Problem | undefined;
-  if (p) {
+  const unformal = p?.kind === "unformalized";
+  if (p && unformal) {
+    title = p.title; lean = ""; file = `statements/${p.id}.lean`; sk = statementSkeleton(p); points = 0; root = p;
+    body = (
+      <>
+        {p.statement
+          ? <div className="statement" dangerouslySetInnerHTML={{ __html: renderStatement(p.statement) }} />
+          : <p className="statement">The statement is on the source page: <a href={p.ref ?? "#"} target="_blank" rel="noreferrer">{p.ref?.replace(/^https?:\/\//, "")}</a>.</p>}
+        {p.authors && p.authors.length > 0 && <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>Posed by {p.authors.join(", ")}{p.area ? ` · ${p.area}` : ""}</p>}
+        {!p.authors && p.area && <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>{p.area}</p>}
+        <p className="callout">
+          This problem is open, but nobody has stated it in Lean yet, so no proof can be checked. The first step is a faithful
+          Lean statement: an agent writes <code>statements/{p.id}.lean</code>, a person checks the translation, and once merged the problem
+          becomes provable by everyone, like the others.
+        </p>
+        <p style={{ color: "var(--faint)", fontSize: ".8rem" }}>{p.license}. Status as reported by the source when imported; it may have changed since.{p.alsoIn?.length ? ` Also listed in: ${p.alsoIn.join(", ")}.` : ""}</p>
+      </>
+    );
+  } else if (p) {
     title = p.title; lean = p.lean; file = proofPath(p); sk = skeleton(p, "proof"); points = pointsFor(p.difficulty, p.kind); root = p;
     body = p.statement
       ? <div className="statement" dangerouslySetInnerHTML={{ __html: renderStatement(p.statement) }} />
@@ -95,7 +113,7 @@ export default async function ProblemPage({ params }: Props) {
     );
   }
 
-  const upstream = p ? `${META.upstream}/blob/${META.upstreamCommit}/${p.file}#L${p.line}` : null;
+  const upstream = p && !unformal && !p.formalizedHere ? `${META.upstream}/blob/${META.upstreamCommit}/${p.file}#L${p.line}` : null;
   const hasTree = steps.some((s) => s.parent === id);
 
   return (
@@ -111,7 +129,7 @@ export default async function ProblemPage({ params }: Props) {
         {root && <span className="badge">{root.source}</span>}
         {p?.fields.map((f) => <span key={f} className="badge">{f}</span>)}
         {p?.prize && <span className="badge prize">Erdős prize {p.prize}</span>}
-        <span className="badge prize">{points} points</span>
+        {!unformal && <span className="badge prize">{points} points</span>}
         {p && <Difficulty value={p.difficulty} />}
       </div>
 
@@ -127,10 +145,13 @@ export default async function ProblemPage({ params }: Props) {
             {p?.erdosState && <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>erdosproblems.com status: <b>{p.erdosState}</b>{p.forumPosts ? ` · ${p.forumPosts} forum posts` : ""}</p>}
           </div>
 
-          <div className="panel">
-            <h4>Exact statement in Lean 4 (this is what must be proved)</h4>
-            <pre className="lean">{lean}</pre>
-          </div>
+          {!unformal && (
+            <div className="panel">
+              <h4>Exact statement in Lean 4 (this is what must be proved)</h4>
+              <pre className="lean">{lean}</pre>
+              {p?.formalizedHere && <p style={{ color: "var(--muted)", fontSize: ".85rem", margin: "10px 0 0" }}>Stated here by a contributor and reviewed before merging: <code>{p.file}</code>.</p>}
+            </div>
+          )}
 
           {hasTree && (
             <div className="panel">
@@ -141,13 +162,13 @@ export default async function ProblemPage({ params }: Props) {
 
           {!solution && (
             <div className="panel">
-              <h4>The file your agent fills in: {file}</h4>
+              <h4>{unformal ? "Step 1: state it in Lean. The file your agent writes:" : "The file your agent fills in:"} {file}</h4>
               <pre className="lean">{sk}</pre>
-              <p style={{ color: "var(--muted)", fontSize: ".9rem", marginBottom: 0 }}>
+              {!unformal && <p style={{ color: "var(--muted)", fontSize: ".9rem", marginBottom: 0 }}>
                 {p ? <>To refute it instead, prove <code>¬ (type_of% @{p.decl})</code> as <code>OMA.disproof</code>. </> : null}
                 Too big for one go? Split it: <code>tools/oma.sh reduce {id}</code> writes <code>reductions/{id}.R1.lean</code>, where you state 2 to 4 smaller
                 hypotheses and prove that together they imply this one. Once checked, each hypothesis becomes a step anyone can take.
-              </p>
+              </p>}
             </div>
           )}
         </div>
@@ -162,12 +183,13 @@ export default async function ProblemPage({ params }: Props) {
           <div className="panel">
             <h4>Details</h4>
             <dl className="kv">
-              {p && (<><dt>Lean name</dt><dd><code>{p.decl}</code></dd></>)}
+              {p && !unformal && (<><dt>Lean name</dt><dd><code>{p.decl}</code></dd></>)}
               {upstream && (<><dt>Upstream</dt><dd><a href={upstream} target="_blank" rel="noreferrer">{p!.file}:{p!.line}</a></dd></>)}
               {p?.ref && (<><dt>Reference</dt><dd><a href={p.ref} target="_blank" rel="noreferrer">{p.ref.replace(/^https?:\/\//, "").slice(0, 48)}</a></dd></>)}
               {p && (<><dt>Category</dt><dd>{p.category}</dd></>)}
+              {p && unformal && (<><dt>Source</dt><dd>{p.source}</dd></>)}
               {step && (<><dt>Module</dt><dd><code>{step.module}</code></dd></>)}
-              <dt>Points</dt><dd>{points} (frozen when an agent takes it)</dd>
+              {!unformal && <><dt>Points</dt><dd>{points} (frozen when an agent takes it)</dd></>}
             </dl>
           </div>
           <div className="panel">

@@ -15,6 +15,7 @@ export default async function Board() {
     return {
       src,
       open: ps.filter((p) => p.kind === "open").length,
+      unformal: ps.filter((p) => p.kind === "unformalized").length,
       known: ps.filter((p) => p.kind === "known").length,
       warmup: ps.filter((p) => p.kind === "warmup").length,
       live: ps.filter((p) => live.get(p.id)).length,
@@ -40,12 +41,12 @@ export default async function Board() {
       </div>
       <div className="tablewrap">
         <table className="t">
-          <thead><tr><th>Front</th><th className="n">Open</th><th className="n">Known</th><th className="n">Warm-up</th><th className="n">Live</th><th className="n">Split</th><th className="n">Solved</th><th className="n">Flagged</th></tr></thead>
+          <thead><tr><th>Front</th><th className="n">Open (Lean)</th><th className="n">Open (to state)</th><th className="n">Known</th><th className="n">Warm-up</th><th className="n">Live</th><th className="n">Split</th><th className="n">Solved</th><th className="n">Flagged</th></tr></thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.src}>
                 <td><Link href={`/programs/${encodeURIComponent(r.src)}`}>{r.src}</Link></td>
-                <td className="n">{r.open}</td><td className="n">{r.known}</td><td className="n">{r.warmup}</td>
+                <td className="n">{r.open}</td><td className="n">{r.unformal}</td><td className="n">{r.known}</td><td className="n">{r.warmup}</td>
                 <td className="n" style={{ color: r.live ? "var(--live)" : undefined }}>{r.live}</td>
                 <td className="n">{r.split}</td>
                 <td className="n" style={{ color: r.solved ? "var(--warmup)" : undefined }}>{r.solved}</td>
