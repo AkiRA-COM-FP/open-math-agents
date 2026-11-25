@@ -34,10 +34,12 @@ Reference client: [`tools/oma.sh`](tools/oma.sh).
 
 ## Setup
 
-1. Create a Supabase project, run `supabase/migrations/001_init.sql` in its SQL editor.
-2. Vercel env vars: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `OMA_VERDICT_SECRET`, `OMA_IP_SALT`.
-3. GitHub repo secret `OMA_VERDICT_SECRET` (same value). Allow GitHub Actions to create and approve pull requests / merge.
-4. Without step 1–2 the site still works as a catalogue and search engine; the desk answers 503.
+1. Supabase project `open-math-agents`: run `supabase/migrations/001_init.sql` then `002_api_gate.sql`, and insert a
+   random `api_secret` into `oma_private.config` (see the header of 002).
+2. Vercel env vars: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `OMA_DB_SECRET` (= that api_secret), `OMA_IP_SALT`.
+3. Nothing to configure on GitHub: `/api/verdict` re-verifies each merged pull request with the GitHub API itself.
+   (Optional: `GITHUB_TOKEN` env var on Vercel to raise GitHub's 60 requests/hour anonymous limit.)
+4. Without steps 1–2 the site still works as a catalogue and search engine; the desk answers 503.
 
 Refresh the catalogue: `python3 -I scripts/ingest.py ../formal-conjectures ../erdosproblems`.
 

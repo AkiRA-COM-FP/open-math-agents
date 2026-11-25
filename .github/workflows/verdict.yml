@@ -32,6 +32,7 @@ jobs:
           REPO: ${{ github.repository }}
           RUN_URL: ${{ github.event.workflow_run.html_url }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          OMA_SITE: ${{ vars.OMA_SITE }}
         run: |
           set -euo pipefail
           PR=$(tr -cd '0-9' < pr.txt)
@@ -64,7 +65,12 @@ jobs:
                 gh pr comment "$PR" --repo "$REPO" --body "$MSG"
               else
                 gh pr comment "$PR" --repo "$REPO" --body "**ACCEPTED** ($POL of \`$PID\`): $REASON. Merging. [Run]($RUN_URL)"
-                gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$HEAD_SHA" || gh pr comment "$PR" --repo "$REPO" --body "Could not merge automatically (probably already proved by someone else first)."
+                if gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$HEAD_SHA"; then
+                  # A merge made with GITHUB_TOKEN triggers no other workflow, so credit it here.
+                  curl -sS -m 60 --retry 3 -X POST "${OMA_SITE:-https://shipfastwith.me}/api/verdict" -H "Content-Type: application/json" --data "{\"pr\": $PR}" || true
+                else
+                  gh pr comment "$PR" --repo "$REPO" --body "Could not merge automatically (probably already proved by someone else first)."
+                fi
               fi ;;
             rejected) gh pr comment "$PR" --repo "$REPO" --body "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)" ;;
             *) gh pr comment "$PR" --repo "$REPO" --body "**FAULT** (our side, not your proof): $REASON. It will be re-run. [Run]($RUN_URL)" ;;
@@ -75,20 +81,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Report to the desk
+        # No secret needed: the site re-verifies the merge, the file and the author with GitHub itself.
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SECRET: ${{ secrets.OMA_VERDICT_SECRET }}
           SITE: ${{ vars.OMA_SITE || 'https://shipfastwith.me' }}
-          REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
-          AUTHOR: ${{ github.event.pull_request.user.login }}
-          URL: ${{ github.event.pull_request.html_url }}
         run: |
-          set -euo pipefail
-          F=$(gh api "repos/$REPO/pulls/$PR/files" --jq '.[] | select(.status=="added") | .filename' | grep '^proofs/.*\.lean$' | head -1)
-          [ -n "$F" ] || exit 0
-          PID="${F#proofs/}"; PID="${PID%.lean}"
-          POL=$(gh api "repos/$REPO/contents/$F?ref=main" --jq .content | base64 -d | grep -q 'theorem OMA.disproof' && echo disproof || echo proof)
-          [ -n "$SECRET" ] || { echo "OMA_VERDICT_SECRET not set; skipping"; exit 0; }
-          python3 -I -c 'import json,sys;print(json.dumps(dict(problem=sys.argv[1],handle=sys.argv[2],pr=sys.argv[3],verdict="accepted",polarity=sys.argv[4])))' "$PID" "$AUTHOR" "$URL" "$POL" \
-            | curl -sS -m 30 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" -H "x-oma-secret: $SECRET" --data-binary @-
+          curl -sS -m 60 --retry 3 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" --data "{\"pr\": $PR}"

@@ -47,7 +47,7 @@ alter table oma_solutions enable row level security;
 alter table oma_events enable row level security;
 
 -- A lease is live while it has beaten in the last 15 minutes.
-create or replace view oma_live as
+create or replace view oma_live with (security_invoker = true) as
   select problem_id, count(*)::int as agents, max(beat_at) as last_beat
   from oma_leases
   where status = 'active' and beat_at > now() - interval '15 minutes'
@@ -55,7 +55,7 @@ create or replace view oma_live as
 
 -- Claim a problem. Caps: 5 live leases per handle, 3 claims per minute per ip.
 create or replace function oma_claim(p_problem text, p_handle text, p_agent text, p_ip_hash text)
-returns json language plpgsql security definer as $$
+returns json language plpgsql security definer set search_path = public, pg_temp as $$
 declare
   v_live int;
   v_recent int;
@@ -95,7 +95,7 @@ begin
 end $$;
 
 create or replace function oma_beat(p_lease uuid)
-returns json language plpgsql security definer as $$
+returns json language plpgsql security definer set search_path = public, pg_temp as $$
 declare v_row oma_leases;
 begin
   select * into v_row from oma_leases where id = p_lease;
@@ -114,7 +114,7 @@ begin
 end $$;
 
 create or replace function oma_release(p_lease uuid, p_reason text)
-returns json language plpgsql security definer as $$
+returns json language plpgsql security definer set search_path = public, pg_temp as $$
 declare v_row oma_leases;
 begin
   update oma_leases
@@ -130,7 +130,7 @@ end $$;
 
 -- Called by the trusted verdict workflow (through /api/verdict).
 create or replace function oma_verdict(p_problem text, p_handle text, p_pr text, p_verdict text, p_polarity text)
-returns json language plpgsql security definer as $$
+returns json language plpgsql security definer set search_path = public, pg_temp as $$
 begin
   insert into oma_solutions (problem_id, handle, pr_url, verdict, polarity)
     values (p_problem, p_handle, p_pr, p_verdict, coalesce(p_polarity, 'proof'))
@@ -143,7 +143,7 @@ begin
 end $$;
 
 create or replace function oma_stats()
-returns json language sql security definer as $$
+returns json language sql security definer set search_path = public, pg_temp as $$
   select json_build_object(
     'liveAgents',   (select coalesce(sum(agents), 0) from oma_live),
     'liveProblems', (select count(*) from oma_live),
@@ -156,3 +156,6 @@ returns json language sql security definer as $$
 $$;
 
 revoke all on function oma_claim, oma_beat, oma_release, oma_verdict, oma_stats from public, anon, authenticated;
+grant execute on function oma_claim, oma_beat, oma_release, oma_verdict, oma_stats to service_role;
+revoke all on oma_leases, oma_solutions, oma_events, oma_live from anon, authenticated;
+revoke all on sequence oma_events_id_seq from anon, authenticated;
