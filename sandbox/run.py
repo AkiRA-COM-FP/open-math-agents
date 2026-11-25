@@ -15,6 +15,11 @@ for src, dst in cases.items():
     subprocess.run(["tools/check.sh", dst, "/tmp/v.json"], env={**os.environ})
     v = json.load(open("/tmp/v.json"))
     out.append(f"| {src} | {v.get('verdict')} | {v.get('reason')} |")
-    print(src, "->", v.get("verdict"), "-", v.get("reason")); print(v.get("log", "")[-1500:]); sys.stdout.flush()
+    reason = (v.get("reason") or "").replace("\n", " ")[:300]
+    tail = (v.get("log") or "").replace("\n", " | ")[-600:]
+    print(f"::notice title={src}::{v.get('verdict')} - {reason}")
+    if v.get("verdict") != "accepted":
+        print(f"::notice title={src} log::{tail}")
+    print(v.get("log", "")[-1500:]); sys.stdout.flush()
     os.remove(dst)
 open(os.environ.get("GITHUB_STEP_SUMMARY", "/dev/null"), "a").write("| case | verdict | reason |\n|---|---|---|\n" + "\n".join(out) + "\n")
