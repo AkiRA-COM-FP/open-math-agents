@@ -56,8 +56,10 @@ function declarations(src: string): Decl[] {
 
 const KIND_PLAN: Record<string, string> = {
   warmup: `This is a warm-up: a small, checkable fact. Unfold the definitions and compute.
-  Try, in this order: rfl · decide · norm_num [defs] · simp [defs] · omega · native-free kernel computation with
-  set_option maxRecDepth 100000 in. If a definition is noncomputable, unfold it (simp only [def]) until decide applies.`,
+  Try, in this order: rfl · decide · norm_num [defs] · simp [defs] · omega (add set_option maxRecDepth 100000 in
+  for big finite checks). decide only works on computable definitions: for a noncomputable one (power series, reals,
+  sInf/sSup) unfold it with simp only [def, ...] and rewrite with Mathlib lemmas (coeff_mk, Finset.sum_range_succ…)
+  until the goal is a numeral identity norm_num can close. native_decide is forbidden.`,
   known: `This result is TRUE and already proved in the literature (see REFERENCES): your job is to formalize that proof,
   not to discover one. Read the reference's proof, write its lemmas as separate \`lemma\`s in your file (sorry them
   locally while you build the skeleton), then fill them one by one. Search Mathlib for each step with exact? / apply? /
