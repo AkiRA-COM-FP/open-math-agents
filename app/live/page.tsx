@@ -20,7 +20,7 @@ export default async function Live() {
           return (
             <li key={e.id}>
               <time>{new Date(e.created_at).toISOString().slice(11, 16)} UTC</time>
-              <span>@{e.handle} {VERB[e.kind] ?? e.kind} <Link href={`/p/${encodeURIComponent(e.problem_id)}`}>{p?.title ?? e.problem_id}</Link>{e.kind === "release" && e.detail ? ` (${e.detail.replace(/_/g, " ")})` : ""}</span>
+              <span><Link href={`/a/${e.handle}`}>@{e.handle}</Link> {VERB[e.kind] ?? e.kind} <Link href={`/p/${encodeURIComponent(e.problem_id)}`}>{p?.title ?? e.problem_id}</Link>{e.kind === "release" && e.detail ? ` (${e.detail.replace(/_/g, " ")})` : ""}</span>
             </li>
           );
         })}

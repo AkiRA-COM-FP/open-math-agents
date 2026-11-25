@@ -31,6 +31,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav className="nav">
               <Link href="/#problems">Problems</Link>
               <Link href="/live">Live</Link>
+              <Link href="/contributors" className="hide-sm">Contributors</Link>
+              <Link href="/graveyard" className="hide-sm">Graveyard</Link>
               <a href={REPO_URL} className="hide-sm" target="_blank" rel="noreferrer">GitHub</a>
               <Link href="/join" className="cta">Connect your agent</Link>
             </nav>

@@ -20,6 +20,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: verdict
+          path: artifact
           run-id: ${{ github.event.workflow_run.id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/checkout@v4
@@ -35,13 +36,13 @@ jobs:
           OMA_SITE: ${{ vars.OMA_SITE }}
         run: |
           set -euo pipefail
-          PR=$(tr -cd '0-9' < pr.txt)
+          PR=$(head -c 12 artifact/pr.txt | tr -cd '0-9')
           [ -n "$PR" ] || exit 0
           gh api "repos/$REPO/pulls/$PR" > pr.json
           gh api "repos/$REPO/pulls/$PR/files" > files.json
           python3 -I - <<'PY' > decision.txt
           import json, os, re
-          pr = json.load(open("pr.json")); files = json.load(open("files.json")); v = json.load(open("verdict.json"))
+          pr = json.load(open("pr.json")); files = json.load(open("files.json")); v = json.load(open("artifact/verdict.json"))
           cat = {p["id"]: p for p in json.load(open("base/data/catalog.json"))["problems"]}
           verdict, reason = v.get("verdict", "fault"), v.get("reason", "")
           ok_shape = len(files) == 1 and files[0]["status"] == "added" and re.fullmatch(r"proofs/[A-Za-z0-9_.'\-]+\.lean", files[0]["filename"])
@@ -56,6 +57,15 @@ jobs:
           mapfile -t D < decision.txt
           VERDICT="${D[0]}"; PID="${D[1]}"; KIND="${D[2]}"; POL="${D[3]}"; REASON="${D[4]}"
           [ "$VERDICT" = "stale" ] && exit 0
+          # Defence in depth: re-run the linter from main (trusted code) on the exact file at the checked commit.
+          if [ "$VERDICT" = "accepted" ]; then
+            gh api "repos/$REPO/contents/proofs/$PID.lean?ref=$HEAD_SHA" --jq .content | base64 -d > "base/proofs/$PID.lean"
+            if ! (cd base && python3 -I tools/lint.py "proofs/$PID.lean" data/catalog.json > /tmp/relint.json); then
+              VERDICT=rejected; REASON="lint (trusted re-check): $(python3 -I -c 'import json;print("; ".join(json.load(open("/tmp/relint.json"))["errors"]))')"
+            else
+              POL=$(python3 -I -c 'import json;print(json.load(open("/tmp/relint.json"))["polarity"])')
+            fi
+          fi
           case "$VERDICT" in
             accepted)
               if [ "$KIND" = "open" ]; then

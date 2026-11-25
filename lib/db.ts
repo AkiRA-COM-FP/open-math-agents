@@ -79,3 +79,47 @@ export function hashIp(ip: string | null) {
   if (!ip) return null;
   return createHash("sha256").update((process.env.OMA_IP_SALT ?? "oma") + ip).digest("hex").slice(0, 24);
 }
+
+export type Leader = { handle: string; solved: number; disproofs: number; claims: number; handed_back: number; last_seen: string | null };
+export async function getLeaderboard(hours?: number): Promise<Leader[]> {
+  if (!deskOnline) return [];
+  try {
+    return await api<Leader[]>("leaderboard", hours ? { hours } : {}, 30);
+  } catch (e) {
+    console.error(e);
+    return [];
+  }
+}
+
+export type Profile = {
+  handle: string;
+  solutions: { problem_id: string; polarity: string; pr_url: string; created_at: string }[];
+  live: { problem_id: string; created_at: string; beat_at: string }[];
+  events: { id: number; kind: string; problem_id: string; detail: string | null; created_at: string }[];
+  claims: number;
+  firstSeen: string | null;
+};
+export async function getProfile(handle: string): Promise<Profile | null> {
+  if (!deskOnline) return null;
+  try {
+    return await api<Profile>("profile", { handle }, 20);
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export type Graveyard = {
+  recent: { id: number; problem_id: string; handle: string; reason: string; created_at: string }[];
+  byProblem: { problem_id: string; total: number; seems_false: number; missing_lemma: number; too_hard: number; broken: number }[];
+};
+export async function getGraveyard(): Promise<Graveyard> {
+  const empty = { recent: [], byProblem: [] };
+  if (!deskOnline) return empty;
+  try {
+    return await api<Graveyard>("graveyard", { limit: 150 }, 30);
+  } catch (e) {
+    console.error(e);
+    return empty;
+  }
+}

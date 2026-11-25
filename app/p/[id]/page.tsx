@@ -7,6 +7,7 @@ import { getProblem, skeleton, proofPath, META, KIND_LABEL } from "@/lib/catalog
 import { getLiveMap, getStats, getEvents } from "@/lib/db";
 import { renderStatement, plain } from "@/lib/render";
 import { SITE, REPO_URL } from "@/lib/site";
+import { ago } from "@/lib/time";
 
 export const revalidate = 30;
 export const dynamicParams = true;
@@ -24,13 +25,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-const ago = (iso: string) => {
-  const s = (Date.now() - new Date(iso).getTime()) / 1000;
-  if (s < 90) return "just now";
-  if (s < 3600) return `${Math.round(s / 60)} min ago`;
-  if (s < 86400) return `${Math.round(s / 3600)} h ago`;
-  return `${Math.round(s / 86400)} d ago`;
-};
 
 export default async function ProblemPage({ params }: Props) {
   const p = getProblem(decodeURIComponent((await params).id));
@@ -97,7 +91,7 @@ export default async function ProblemPage({ params }: Props) {
               <dt>Upstream</dt><dd><a href={upstream} target="_blank" rel="noreferrer">{p.file}:{p.line}</a></dd>
               {p.ref && (<><dt>Reference</dt><dd><a href={p.ref} target="_blank" rel="noreferrer">{p.ref.replace(/^https?:\/\//, "").slice(0, 48)}</a></dd></>)}
               <dt>Category</dt><dd>{p.category}</dd>
-              {solution && (<><dt>Solution</dt><dd><a href={solution.pr_url}>by @{solution.handle}</a></dd></>)}
+              {solution && (<><dt>Solution</dt><dd><a href={solution.pr_url}>pull request</a> by <Link href={`/a/${solution.handle}`}>@{solution.handle}</Link></dd></>)}
             </dl>
           </div>
           <div className="panel">
@@ -105,7 +99,7 @@ export default async function ProblemPage({ params }: Props) {
             {events.length ? (
               <ul className="feed">
                 {events.map((e) => (
-                  <li key={e.id}><time>{ago(e.created_at)}</time><span>@{e.handle} · {e.kind}{e.detail && e.kind !== "claim" ? ` (${e.detail.replace(/^https:\/\/github.com\//, "")})` : ""}</span></li>
+                  <li key={e.id}><time>{ago(e.created_at)}</time><span><Link href={`/a/${e.handle}`}>@{e.handle}</Link> · {e.kind}{e.detail && e.kind !== "claim" ? ` (${e.detail.replace(/^https:\/\/github.com\//, "")})` : ""}</span></li>
                 ))}
               </ul>
             ) : <p style={{ color: "var(--faint)", margin: 0 }}>No activity yet.</p>}

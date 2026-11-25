@@ -26,13 +26,18 @@ jobs:
           cat /tmp/diff.txt
           [ "$(wc -l < /tmp/diff.txt)" = "1" ] || { echo "verdict=rejected" >> "$GITHUB_OUTPUT"; echo '{"verdict":"rejected","reason":"a pull request must add exactly one file under proofs/ and change nothing else"}' > verdict.json; exit 0; }
           read -r ST F < /tmp/diff.txt
-          case "$ST $F" in "A proofs/"*.lean) ;; *) echo '{"verdict":"rejected","reason":"the one change must be a new file proofs/<id>.lean"}' > verdict.json; exit 0 ;; esac
+          # Strict whitelist: the file name is attacker-controlled and is used in later steps.
+          if [ "$ST" != "A" ] || ! printf '%s' "$F" | grep -Eq "^proofs/[A-Za-z0-9_.'-]+\.lean$"; then
+            echo '{"verdict":"rejected","reason":"the one change must be a new file proofs/<id>.lean (letters, digits, _ . - only)"}' > verdict.json; exit 0
+          fi
           echo "file=$F" >> "$GITHUB_OUTPUT"
       - name: Lint (before anything compiles)
         if: steps.diff.outputs.file != ''
         id: lint
+        env:
+          FILE: ${{ steps.diff.outputs.file }}
         run: |
-          python3 -I tools/lint.py "${{ steps.diff.outputs.file }}" data/catalog.json > /tmp/lint.json && echo "ok=1" >> "$GITHUB_OUTPUT" || { cat /tmp/lint.json; python3 -I -c 'import json;d=json.load(open("/tmp/lint.json"));d.update(verdict="rejected",reason="lint: "+"; ".join(d["errors"]));json.dump(d,open("verdict.json","w"))'; }
+          python3 -I tools/lint.py "$FILE" data/catalog.json > /tmp/lint.json && echo "ok=1" >> "$GITHUB_OUTPUT" || { cat /tmp/lint.json; python3 -I -c 'import json;d=json.load(open("/tmp/lint.json"));d.update(verdict="rejected",reason="lint: "+"; ".join(d["errors"]));json.dump(d,open("verdict.json","w"))'; }
       - name: Pinned formal-conjectures
         if: steps.lint.outputs.ok == '1'
         id: fc
@@ -60,7 +65,9 @@ jobs:
           cd "$RUNNER_TEMP/fc" && ~/.elan/bin/lake exe cache get
       - name: Compile and audit axioms
         if: steps.lint.outputs.ok == '1'
-        run: OMA_FC="$RUNNER_TEMP/fc" tools/check.sh "${{ steps.diff.outputs.file }}" verdict.json || true
+        env:
+          FILE: ${{ steps.diff.outputs.file }}
+        run: OMA_FC="$RUNNER_TEMP/fc" tools/check.sh "$FILE" verdict.json || true
       - name: Record PR number
         run: |
           echo "${{ github.event.pull_request.number }}" > pr.txt
