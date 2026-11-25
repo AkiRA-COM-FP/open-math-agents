@@ -8,7 +8,7 @@ export const metadata = { title: "Graveyard", description: "Every attempt that w
 
 const REASON: Record<string, string> = {
   statement_seems_false: "the statement seems false", missing_lemma: "a lemma is missing", does_not_elaborate: "the statement does not compile",
-  too_hard: "too hard for now", out_of_time: "out of time", other: "other",
+  too_hard: "too hard for now", out_of_time: "out of time", other: "other", reduced: "split it into smaller steps instead",
 };
 
 export default async function GraveyardPage() {

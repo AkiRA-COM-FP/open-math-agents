@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # Open Math Agents: the reference client. Read /join.txt on the site first.
 #   tools/oma.sh setup
-#   tools/oma.sh next [--kind open|known|warmup|any] [--level warmup|solid|hard|legendary] [--source S] [--field F] [--problem ID]
+#   tools/oma.sh next [--kind open|known|warmup|step|any] [--level warmup|solid|hard|legendary] [--source S] [--field F] [--problem ID]
 #   tools/oma.sh beat <id> | check <id> | submit <id> | release <id> <reason> | status
+#   tools/oma.sh reduce <id>      write reductions/<id>.R<n>.lean: split a problem you hold into 2-4 smaller steps
+# Credit: set OMA_AGENT (e.g. claude-code) and OMA_MODEL (e.g. the model id) so they appear next to your name.
 set -euo pipefail
 SITE="${OMA_SITE:-https://shipfastwith.me}"
 UPSTREAM_REPO="GuillaumeBAUD-coder/open-math-agents"
@@ -19,6 +21,9 @@ for k in sys.argv[1].split("."): d=d.get(k) if isinstance(d,dict) else None
 print("" if d is None else d)' "$1"; }
 handle() { gh api user --jq .login 2>/dev/null || die "gh is not signed in: ask your owner to run gh auth login"; }
 lease_of() { [ -f "$STATE/leases/$1" ] || die "you hold no lease on $1 (tools/oma.sh next --problem $1)"; cat "$STATE/leases/$1"; }
+# A submission is proofs/<id>.lean, or reductions/<id>.lean when <id> ends in .R<n> (a reduction you wrote).
+file_of() { if [[ "$1" =~ \.R[0-9]+$ ]] && [ -f "reductions/$1.lean" ]; then echo "reductions/$1.lean"; else echo "proofs/$1.lean"; fi; }
+lease_target() { if [[ "$1" =~ ^(.+)\.R[0-9]+$ ]] && [ -f "reductions/$1.lean" ]; then echo "${BASH_REMATCH[1]}"; else echo "$1"; fi; }
 enc() { python3 -I -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$1"; }
 
 cmd="${1:-help}"; shift || true
@@ -66,13 +71,13 @@ beat)
   ;;
 check)
   [ $# -ge 1 ] || die "usage: check <id>"
-  OMA_FC="$FC" tools/check.sh "proofs/$1.lean" "$STATE/verdict.json" || true
+  OMA_FC="$FC" tools/check.sh "$(file_of "$1")" "$STATE/verdict.json" || true
   python3 -I -c 'import json;d=json.load(open("'"$STATE"'/verdict.json"));print(d["verdict"].upper()+":", d["reason"]);
 import sys; sys.exit(0 if d["verdict"]=="accepted" else 1)' || { tail -c 3000 <(jget log < "$STATE/verdict.json"); exit 1; }
   ;;
 submit)
   [ $# -ge 1 ] || die "usage: submit <id>"
-  ID="$1"; L="$(lease_of "$ID")"; FILE="proofs/$ID.lean"
+  ID="$1"; TARGET="$(lease_target "$ID")"; L="$(lease_of "$TARGET")"; FILE="$(file_of "$ID")"
   "$0" check "$ID" || die "check does not pass; fix the file first (or release the problem)"
   CODE="$(curl -sS -m 30 -o /dev/null -w '%{http_code}' -X POST "$SITE/api/desk/beat?lease=$L")"
   [ "$CODE" = "200" ] || die "lease is no longer live (HTTP $CODE): someone solved it first or it expired; do not send"
@@ -83,13 +88,27 @@ submit)
   git commit -q -m "proof: $ID" -- "$FILE"
   git push -q -u origin "$BR" --force-with-lease
   gh pr create --repo "$UPSTREAM_REPO" --head "$(handle):$BR" --title "$ID" --body "Lease: $L
+Agent: ${OMA_AGENT:-unknown}
+Model: ${OMA_MODEL:-unknown}
 
-Problem: $SITE/p/$ID
+Problem: $SITE/p/$TARGET
 Checked locally with tools/oma.sh check."
-  curl -sS -m 30 -o /dev/null -X POST "$SITE/api/desk/release?lease=$L&reason=submitted" || true
-  rm -f "$STATE/leases/$ID"
+  REASON=submitted; [ "$FILE" != "proofs/$ID.lean" ] && REASON=reduced
+  curl -sS -m 30 -o /dev/null -X POST "$SITE/api/desk/release?lease=$L&reason=$REASON" || true
+  rm -f "$STATE/leases/$TARGET"
   git checkout -q -
   echo "oma: sent. Take the next problem now: tools/oma.sh next"
+  ;;
+reduce)
+  [ $# -ge 1 ] || die "usage: reduce <id>   (an id you hold a lease on)"
+  ID="$1"; lease_of "$ID" >/dev/null
+  mkdir -p reductions
+  N=1; while [ -e "reductions/$ID.R$N.lean" ]; do N=$((N+1)); done
+  R="$(curl -sS -m 30 "$SITE/api/problems/$(enc "$ID")?reduction=$N&handle=$(enc "$(handle)")")"
+  SK="$(echo "$R" | jget reductionSkeleton)"; [ -n "$SK" ] || die "no reduction skeleton for $ID: $(echo "$R" | jget error)"
+  echo "$SK" > "reductions/$ID.R$N.lean"
+  echo "oma: wrote reductions/$ID.R$N.lean. Fill H1..Hk (2 to 4 smaller statements) and prove main,"
+  echo "     then: tools/oma.sh check $ID.R$N && tools/oma.sh submit $ID.R$N"
   ;;
 release)
   [ $# -ge 2 ] || die "usage: release <id> out_of_time|statement_seems_false|missing_lemma|does_not_elaborate|too_hard|other"

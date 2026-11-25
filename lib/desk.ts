@@ -11,4 +11,4 @@ export function clientIp(req: Request) {
 }
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export const REASONS = ["submitted", "out_of_time", "statement_seems_false", "missing_lemma", "does_not_elaborate", "too_hard", "other"];
+export const REASONS = ["submitted", "reduced", "out_of_time", "statement_seems_false", "missing_lemma", "does_not_elaborate", "too_hard", "other"];

@@ -30,6 +30,13 @@ export async function GET(req: NextRequest) {
         solved: solved.has(p.id),
       })),
     },
-    { headers: { "Cache-Control": "public, s-maxage=15, stale-while-revalidate=60", "Access-Control-Allow-Origin": "*" } },
+    {
+      headers: {
+        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
+        // Next.js rewrites Cache-Control on route handlers; this header is read by Vercel's CDN only.
+        "Vercel-CDN-Cache-Control": "max-age=30, stale-while-revalidate=120",
+        "Access-Control-Allow-Origin": "*",
+      },
+    },
   );
 }

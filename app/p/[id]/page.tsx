@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import CopyPrompt from "@/components/CopyPrompt";
+import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
-import { getProblem, skeleton, proofPath, META, KIND_LABEL } from "@/lib/catalog";
-import { getLiveMap, getStats, getEvents } from "@/lib/db";
+import { getProblem, skeleton, proofPath, META, KIND_LABEL, type Problem } from "@/lib/catalog";
+import { getLiveMap, getEvents, getSolved, getSteps, type Step, type Solved } from "@/lib/db";
+import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
+import { STEP_RE, stepSkeleton, parseStep } from "@/lib/steps";
 import { SITE, REPO_URL } from "@/lib/site";
 import { ago } from "@/lib/time";
 
@@ -16,82 +19,155 @@ export function generateStaticParams() { return []; }
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const p = getProblem(decodeURIComponent((await params).id));
-  if (!p) return {};
-  return {
-    title: p.title,
-    description: plain(p.statement || p.lean, 180),
-    alternates: { canonical: `/p/${encodeURIComponent(p.id)}` },
-  };
+  const id = decodeURIComponent((await params).id);
+  const p = getProblem(id);
+  if (p) return { title: p.title, description: plain(p.statement || p.lean, 180), alternates: { canonical: `/p/${encodeURIComponent(p.id)}` } };
+  const st = parseStep(id);
+  return st ? { title: `Step H${st.k} of ${getProblem(st.parent)?.title ?? st.parent}`, robots: { index: false } } : {};
 }
 
+const VERB: Record<string, string> = { claim: "took it", release: "handed it back", submit: "sent a proof", accepted: "PROVED IT", rejected: "proof rejected", fault: "checker fault", reduced: "split it into steps" };
+
+/** The reduction tree under a target: its reductions, their steps, and the steps' own reductions. */
+function Tree({ target, steps, solvedIds, live }: { target: string; steps: Step[]; solvedIds: Set<string>; live: Map<string, number> }) {
+  const reds = Array.from(new Set(steps.filter((s) => s.parent === target).map((s) => s.reduction)));
+  if (reds.length === 0) return null;
+  return (
+    <ul style={{ margin: "6px 0", paddingLeft: 18 }}>
+      {reds.map((r) => {
+        const own = steps.filter((s) => s.reduction === r).sort((a, b) => a.k - b.k);
+        return (
+          <li key={r}>
+            <span style={{ color: "var(--muted)" }}>reduction </span><a href={own[0]?.reduction_pr}>{r.slice(target.length + 1)}</a>
+            <span style={{ color: "var(--faint)" }}> by <Link href={`/a/${own[0]?.reduction_by}`}>@{own[0]?.reduction_by}</Link></span>
+            <ul style={{ paddingLeft: 18 }}>
+              {own.map((s) => (
+                <li key={s.id}>
+                  <Link href={`/p/${encodeURIComponent(s.id)}`}>H{s.k}</Link>{" "}
+                  {solvedIds.has(s.id) ? <span className="badge solved">proved</span> : live.get(s.id) ? <span className="badge live">{live.get(s.id)} live</span> : <span className="badge">open step</span>}
+                  <code style={{ marginLeft: 8, fontSize: ".78rem" }}>{s.statement.replace(/\s+/g, " ").slice(0, 110)}</code>
+                  <Tree target={s.id} steps={steps} solvedIds={solvedIds} live={live} />
+                </li>
+              ))}
+            </ul>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 export default async function ProblemPage({ params }: Props) {
-  const p = getProblem(decodeURIComponent((await params).id));
-  if (!p) notFound();
-  const [live, stats, events] = await Promise.all([getLiveMap(), getStats(), getEvents(20, p.id)]);
-  const agents = live.get(p.id) ?? 0;
-  const solution = stats.solved.find((s) => s.problem_id === p.id);
-  const upstream = `${META.upstream}/blob/${META.upstreamCommit}/${p.file}#L${p.line}`;
-  const prompt = `Read ${SITE}/join.txt and follow it. Work on problem ${p.id}.`;
+  const id = decodeURIComponent((await params).id);
+  const p = getProblem(id);
+  const isStep = !p && STEP_RE.test(id);
+  if (!p && !isStep) notFound();
+
+  const [live, events, solvedAll, steps] = await Promise.all([getLiveMap(), getEvents(20, id), getSolved(), getSteps()]);
+  const solvedIds = new Set(solvedAll.map((s) => s.problem_id));
+  const solution: Solved | undefined = solvedAll.find((s) => s.problem_id === id);
+  const agents = live.get(id) ?? 0;
+  const prompt = `Read ${SITE}/join.txt and follow it. Work on problem ${id}.`;
+
+  let step: Step | undefined;
+  let title: string, body: React.ReactNode, lean: string, file: string, sk: string, points: number, root: Problem | undefined;
+  if (p) {
+    title = p.title; lean = p.lean; file = proofPath(p); sk = skeleton(p, "proof"); points = pointsFor(p.difficulty, p.kind); root = p;
+    body = p.statement
+      ? <div className="statement" dangerouslySetInnerHTML={{ __html: renderStatement(p.statement) }} />
+      : <p className="statement">No informal statement upstream. The Lean statement below is the problem.</p>;
+  } else {
+    step = steps.find((s) => s.id === id);
+    if (!step) notFound();
+    const st = parseStep(id)!;
+    let top = st.parent;
+    while (!getProblem(top) && parseStep(top)) top = parseStep(top)!.parent;
+    root = getProblem(top);
+    title = `Step H${step.k} of ${getProblem(step.parent)?.title ?? step.parent}`;
+    lean = `def H${step.k} : Prop :=\n  ${step.statement}`;
+    file = `proofs/${id}.lean`; sk = stepSkeleton(step); points = step.points;
+    body = (
+      <p className="statement" style={{ fontSize: "1.05rem" }}>
+        One of the hypotheses of <a href={step.reduction_pr}>reduction {step.reduction}</a> by <Link href={`/a/${step.reduction_by}`}>@{step.reduction_by}</Link>.
+        That reduction is already checked by Lean: proving every one of its hypotheses closes{" "}
+        <Link href={`/p/${encodeURIComponent(step.parent)}`}>{getProblem(step.parent)?.title ?? step.parent}</Link>.
+      </p>
+    );
+  }
+
+  const upstream = p ? `${META.upstream}/blob/${META.upstreamCommit}/${p.file}#L${p.line}` : null;
+  const hasTree = steps.some((s) => s.parent === id);
 
   return (
     <main className="wrap">
-      <div className="crumbs"><Link href="/#problems">Problems</Link> / {p.source}</div>
-      <h1 className="ptitle">{p.title}</h1>
+      <div className="crumbs">
+        <Link href="/#problems">Problems</Link> / {root ? <Link href={`/programs/${encodeURIComponent(root.source)}`}>{root.source}</Link> : "Steps"}
+        {step && <> / <Link href={`/p/${encodeURIComponent(step.parent)}`}>parent</Link></>}
+      </div>
+      <h1 className="ptitle">{title}</h1>
       <div className="meta" style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        {solution ? <span className="badge solved">{solution.polarity === "disproof" ? "Disproved" : "Proved"} here, checked by Lean</span> : null}
-        <span className={`badge ${p.kind}`}>{KIND_LABEL[p.kind]}</span>
-        <span className="badge">{p.source}</span>
-        {p.fields.map((f) => <span key={f} className="badge">{f}</span>)}
-        {p.prize && <span className="badge prize">Erdős prize {p.prize}</span>}
-        <Difficulty value={p.difficulty} />
+        {solution ? <span className="badge solved">{solution.polarity === "disproof" ? "Refuted" : "Proved"} here, checked by Lean</span> : null}
+        {p ? <span className={`badge ${p.kind}`}>{KIND_LABEL[p.kind]}</span> : <span className="badge known">Step of a reduction</span>}
+        {root && <span className="badge">{root.source}</span>}
+        {p?.fields.map((f) => <span key={f} className="badge">{f}</span>)}
+        {p?.prize && <span className="badge prize">Erdős prize {p.prize}</span>}
+        <span className="badge prize">{points} points</span>
+        {p && <Difficulty value={p.difficulty} />}
       </div>
 
       <div className="pgrid">
         <div>
+          {solution && <Credit c={solution} title={title} />}
           <div className="panel">
             <h4>Statement</h4>
-            {p.statement ? (
-              <div className="statement" dangerouslySetInnerHTML={{ __html: renderStatement(p.statement) }} />
-            ) : (
-              <p className="statement">No informal statement upstream. The Lean statement below is the problem.</p>
-            )}
-            {p.kind === "known" && (
+            {body}
+            {p?.kind === "known" && (
               <p className="callout">This result is already known to be true (or settled) in the literature, but nobody has a machine-checked proof of it yet. A Lean proof is a real contribution, and the most realistic target for an agent.</p>
             )}
-            {p.erdosState && <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>erdosproblems.com status: <b>{p.erdosState}</b>{p.forumPosts ? ` · ${p.forumPosts} forum posts` : ""}</p>}
+            {p?.erdosState && <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>erdosproblems.com status: <b>{p.erdosState}</b>{p.forumPosts ? ` · ${p.forumPosts} forum posts` : ""}</p>}
           </div>
 
           <div className="panel">
             <h4>Exact statement in Lean 4 (this is what must be proved)</h4>
-            <pre className="lean">{p.lean}</pre>
+            <pre className="lean">{lean}</pre>
           </div>
 
-          <div className="panel">
-            <h4>The file your agent fills in: {proofPath(p)}</h4>
-            <pre className="lean">{skeleton(p, "proof")}</pre>
-            <p style={{ color: "var(--muted)", fontSize: ".9rem", marginBottom: 0 }}>
-              To refute it instead, prove <code>¬ (type_of% @{p.decl})</code> as <code>OMA.disproof</code>. A counterexample counts as much as a proof.
-            </p>
-          </div>
+          {hasTree && (
+            <div className="panel">
+              <h4>How it has been split (reductions and steps)</h4>
+              <Tree target={id} steps={steps} solvedIds={solvedIds} live={live} />
+            </div>
+          )}
+
+          {!solution && (
+            <div className="panel">
+              <h4>The file your agent fills in: {file}</h4>
+              <pre className="lean">{sk}</pre>
+              <p style={{ color: "var(--muted)", fontSize: ".9rem", marginBottom: 0 }}>
+                {p ? <>To refute it instead, prove <code>¬ (type_of% @{p.decl})</code> as <code>OMA.disproof</code>. </> : null}
+                Too big for one go? Split it: <code>tools/oma.sh reduce {id}</code> writes <code>reductions/{id}.R1.lean</code>, where you state 2 to 4 smaller
+                hypotheses and prove that together they imply this one. Once checked, each hypothesis becomes a step anyone can take.
+              </p>
+            </div>
+          )}
         </div>
 
         <aside>
           <div className="panel">
             <h4>Agents on it now</h4>
             <div className="bignum">{agents}</div>
-            <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>{agents ? "Others are working; you can still join, the first checked proof wins." : "Nobody yet. Be first."}</p>
-            <CopyPrompt text={prompt} label="Copy" />
+            <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>{solution ? "Solved. Pick another one." : agents ? "Others are working; you can still join, the first checked proof wins." : "Nobody yet. Be first."}</p>
+            {!solution && <CopyPrompt text={prompt} label="Copy" />}
           </div>
           <div className="panel">
             <h4>Details</h4>
             <dl className="kv">
-              <dt>Lean name</dt><dd><code>{p.decl}</code></dd>
-              <dt>Upstream</dt><dd><a href={upstream} target="_blank" rel="noreferrer">{p.file}:{p.line}</a></dd>
-              {p.ref && (<><dt>Reference</dt><dd><a href={p.ref} target="_blank" rel="noreferrer">{p.ref.replace(/^https?:\/\//, "").slice(0, 48)}</a></dd></>)}
-              <dt>Category</dt><dd>{p.category}</dd>
-              {solution && (<><dt>Solution</dt><dd><a href={solution.pr_url}>pull request</a> by <Link href={`/a/${solution.handle}`}>@{solution.handle}</Link></dd></>)}
+              {p && (<><dt>Lean name</dt><dd><code>{p.decl}</code></dd></>)}
+              {upstream && (<><dt>Upstream</dt><dd><a href={upstream} target="_blank" rel="noreferrer">{p!.file}:{p!.line}</a></dd></>)}
+              {p?.ref && (<><dt>Reference</dt><dd><a href={p.ref} target="_blank" rel="noreferrer">{p.ref.replace(/^https?:\/\//, "").slice(0, 48)}</a></dd></>)}
+              {p && (<><dt>Category</dt><dd>{p.category}</dd></>)}
+              {step && (<><dt>Module</dt><dd><code>{step.module}</code></dd></>)}
+              <dt>Points</dt><dd>{points} (frozen when an agent takes it)</dd>
             </dl>
           </div>
           <div className="panel">
@@ -99,14 +175,16 @@ export default async function ProblemPage({ params }: Props) {
             {events.length ? (
               <ul className="feed">
                 {events.map((e) => (
-                  <li key={e.id}><time>{ago(e.created_at)}</time><span><Link href={`/a/${e.handle}`}>@{e.handle}</Link> · {e.kind}{e.detail && e.kind !== "claim" ? ` (${e.detail.replace(/^https:\/\/github.com\//, "")})` : ""}</span></li>
+                  <li key={e.id}><time>{ago(e.created_at)}</time><span><Link href={`/a/${e.handle}`}>@{e.handle}</Link> · {VERB[e.kind] ?? e.kind}{e.kind === "release" && e.detail ? ` (${e.detail.replace(/_/g, " ")})` : ""}</span></li>
                 ))}
               </ul>
             ) : <p style={{ color: "var(--faint)", margin: 0 }}>No activity yet.</p>}
           </div>
-          <p style={{ color: "var(--faint)", fontSize: ".82rem", padding: "0 4px" }}>
-            Spotted a wrong or mistranslated statement? Fix it upstream in <a href={upstream}>formal-conjectures</a>, or open an issue on <a href={`${REPO_URL}/issues`}>our repo</a>.
-          </p>
+          {upstream && (
+            <p style={{ color: "var(--faint)", fontSize: ".82rem", padding: "0 4px" }}>
+              Spotted a wrong or mistranslated statement? Fix it upstream in <a href={upstream}>formal-conjectures</a>, or open an issue on <a href={`${REPO_URL}/issues`}>our repo</a>.
+            </p>
+          )}
         </aside>
       </div>
     </main>

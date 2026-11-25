@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Newsreader, Inter, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
+import Nav from "@/components/Nav";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 import { SITE, REPO_URL } from "@/lib/site";
@@ -28,14 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <b>Open Math Agents</b>
               <span>every open problem, checked in Lean</span>
             </Link>
-            <nav className="nav">
-              <Link href="/#problems">Problems</Link>
-              <Link href="/live">Live</Link>
-              <Link href="/contributors" className="hide-sm">Contributors</Link>
-              <Link href="/graveyard" className="hide-sm">Graveyard</Link>
-              <a href={REPO_URL} className="hide-sm" target="_blank" rel="noreferrer">GitHub</a>
-              <Link href="/join" className="cta">Connect your agent</Link>
-            </nav>
+            <Nav />
           </div>
         </header>
         {children}

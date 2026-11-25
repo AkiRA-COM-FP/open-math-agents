@@ -10,12 +10,22 @@ LINT="$(python3 -I "$ROOT/tools/lint.py" "$FILE" "$ROOT/data/catalog.json")"; LI
 emit() { python3 -I -c 'import json,sys; d=json.loads(sys.argv[1]); d.update(verdict=sys.argv[2], reason=sys.argv[3], log=sys.argv[4][-6000:]); print(json.dumps(d, ensure_ascii=False))' "$LINT" "$1" "$2" "${3:-}" > "$OUT"; }
 if [ $LINT_OK -ne 0 ]; then emit rejected "lint: $(python3 -I -c 'import json,sys;print("; ".join(json.loads(sys.argv[1])["errors"]))' "$LINT")"; exit 1; fi
 field() { python3 -I -c 'import json,sys;print(json.loads(sys.argv[1])[sys.argv[2]])' "$LINT" "$1"; }
-MODULE="$(field module)"; THM="$(field theorem)"
+MODULE="$(field imports)"; THM="$(field theorem)"
 WANT="$(python3 -I -c 'import json;print(json.load(open("'"$ROOT"'/data/catalog.json"))["meta"]["upstreamCommit"])')"
 HAVE="$(git -C "$FC" rev-parse HEAD 2>/dev/null || echo none)"
 [ "$HAVE" = "$WANT" ] || { emit fault "formal-conjectures checkout is at $HAVE, expected $WANT (run tools/oma.sh setup)"; exit 2; }
 cd "$FC"
-LOG="$(timeout 2400 lake build "$MODULE" 2>&1)" || { emit fault "could not build upstream module $MODULE" "$LOG"; exit 2; }
+# Merged reductions become the Lean library OMAReductions, so steps (and reductions of steps) can import them.
+if [ -d "$ROOT/reductions" ]; then
+  mkdir -p OMAReductions
+  for R in "$ROOT"/reductions/*.lean; do
+    [ -e "$R" ] || continue
+    ID="$(basename "$R" .lean)"
+    cp "$R" "OMAReductions/R_$(printf '%s' "$ID" | sed 's/[^A-Za-z0-9]/_/g').lean"
+  done
+  grep -q 'name = "OMAReductions"' lakefile.toml || printf '\n[[lean_lib]]\nname = "OMAReductions"\nglobs = ["OMAReductions.+"]\n' >> lakefile.toml
+fi
+LOG="$(timeout 2400 lake build "$MODULE" 2>&1)" || { emit fault "could not build imported module $MODULE" "$LOG"; exit 2; }
 SUB="OMASubmission_$$.lean"
 { cat "$ROOT/$FILE" 2>/dev/null || cat "$FILE"; printf '\n#print axioms %s\n' "$THM"; } > "$SUB"
 LOG="$(timeout 1800 lake env lean "$SUB" 2>&1)"; RC=$?

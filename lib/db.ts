@@ -58,10 +58,10 @@ export async function getLiveMap(): Promise<Map<string, number>> {
 
 export type Event = { id: number; kind: string; problem_id: string; handle: string | null; detail: string | null; created_at: string };
 
-export async function getEvents(limit = 60, problem?: string): Promise<Event[]> {
+export async function getEvents(limit = 60, problem?: string, kind?: string, before?: number): Promise<Event[]> {
   if (!deskOnline) return [];
   try {
-    return await api<Event[]>("events", { limit, ...(problem ? { problem } : {}) }, 10);
+    return await api<Event[]>("events", { limit, ...(problem ? { problem } : {}), ...(kind ? { kind } : {}), ...(before ? { before } : {}) }, 10);
   } catch (e) {
     console.error(e);
     return [];
@@ -93,7 +93,9 @@ export async function getLeaderboard(hours?: number): Promise<Leader[]> {
 
 export type Profile = {
   handle: string;
-  solutions: { problem_id: string; polarity: string; pr_url: string; created_at: string }[];
+  solutions: { problem_id: string; polarity: string; pr_url: string; agent: string | null; model: string | null; points: number; created_at: string }[];
+  contributed?: { problem_id: string; lead: string; created_at: string }[];
+  points?: number;
   live: { problem_id: string; created_at: string; beat_at: string }[];
   events: { id: number; kind: string; problem_id: string; detail: string | null; created_at: string }[];
   claims: number;
@@ -123,3 +125,32 @@ export async function getGraveyard(): Promise<Graveyard> {
     return empty;
   }
 }
+
+export const claim2 = (problem: string, handle: string, agent: string, ipHash: string | null, points: number) =>
+  api<{ lease?: string; error?: string }>("claim2", { problem, handle, agent, ip_hash: ipHash, points });
+export const verdict2 = (a: { problem: string; handle: string; pr: string; verdict: string; polarity: string; agent: string | null; model: string | null; points: number }) =>
+  api<{ ok?: boolean }>("verdict2", a);
+export const registerReduction = (a: { id: string; problem: string; handle: string; pr: string; module: string; statements: string[]; points: number }) =>
+  api<{ ok?: boolean; error?: string; steps?: number }>("register_reduction", a);
+
+async function safe<T>(fn: string, args: Record<string, unknown>, fallback: T, revalidate = 20): Promise<T> {
+  if (!deskOnline) return fallback;
+  try {
+    return await api<T>(fn, args, revalidate);
+  } catch (e) {
+    console.error(e);
+    return fallback;
+  }
+}
+
+export type Leader2 = Leader & { points: number; agent: string | null; model: string | null };
+export const getLeaderboard2 = (minutes?: number) => safe<Leader2[]>("leaderboard2", minutes ? { minutes } : {}, [], 30);
+
+export type Solved = { problem_id: string; handle: string; agent: string | null; model: string | null; polarity: string; pr_url: string; points: number; contributors: string[] | null; created_at: string };
+export const getSolved = (limit = 2000) => safe<Solved[]>("solved", { limit }, [], 30);
+
+export type Day = { day: string; claims: number; released: number; submitted: number; solved: number; reduced: number; people: number };
+export const getCalendar = (days = 90) => safe<Day[]>("calendar", { days }, [], 60);
+
+export type Step = { id: string; reduction: string; parent: string; k: number; statement: string; module: string; points: number; created_at: string; solved: boolean; reduction_pr: string; reduction_by: string };
+export const getSteps = (parent?: string) => safe<Step[]>("steps", parent ? { parent } : {}, [], 15);

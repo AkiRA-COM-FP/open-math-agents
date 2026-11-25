@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import ProblemRow, { type RowData } from "./ProblemRow";
 
-type Props = { sources: string[]; fields: string[]; initial: { total: number; items: RowData[] }; counts: Record<string, number> };
+type Props = { sources: string[]; fields: string[]; initial: { total: number; items: RowData[] }; counts: Record<string, number>; initialSource?: string; initialKind?: string };
 
 const KINDS = [
   ["open", "Open problems"],
@@ -11,10 +11,10 @@ const KINDS = [
   ["all", "Everything"],
 ] as const;
 
-export default function Search({ sources, fields, initial, counts }: Props) {
+export default function Search({ sources, fields, initial, counts, initialSource, initialKind }: Props) {
   const [q, setQ] = useState("");
-  const [kind, setKind] = useState("open");
-  const [source, setSource] = useState("all");
+  const [kind, setKind] = useState(initialKind ?? "open");
+  const [source, setSource] = useState(initialSource ?? "all");
   const [field, setField] = useState("all");
   const [sort, setSort] = useState("default");
   const [data, setData] = useState(initial);

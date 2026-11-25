@@ -164,17 +164,42 @@ export function toCard(p: Problem) {
 export type Card = ReturnType<typeof toCard>;
 
 /** The Lean skeleton an agent fills in. `type_of%` pins the exact upstream statement. */
-export function skeleton(p: Problem, polarity: "proof" | "disproof" = "proof") {
+export function skeleton(p: Problem, polarity: "proof" | "disproof" = "proof", handle = "<your GitHub handle>") {
   const target = polarity === "proof" ? `type_of% @${p.decl}` : `¬ (type_of% @${p.decl})`;
   return [
     `import ${p.module}`,
     ``,
     `-- Problem: ${p.title}`,
     `-- Upstream: formal-conjectures ${p.file}:${p.line} (declaration ${p.decl})`,
+    `-- Credit: @${handle} (the owner of the agent is credited as the solver)`,
     `-- Prove EXACTLY this target. No sorry, no axiom, no native_decide.`,
     ``,
     `theorem OMA.${polarity === "proof" ? "solution" : "disproof"} : ${target} := by`,
     `  sorry`,
+    ``,
+  ].join("\n");
+}
+
+/** Skeleton of a reduction: 2 to 4 smaller statements that together imply the target. */
+export function reductionSkeleton(p: Problem, n = 1, handle = "<your GitHub handle>") {
+  const ns = "OMA.R_" + `${p.id}.R${n}`.replace(/[^A-Za-z0-9]/g, "_");
+  return [
+    `import ${p.module}`,
+    ``,
+    `-- Reduction ${p.id}.R${n} of ${p.title}`,
+    `-- Credit: @${handle}`,
+    `-- Each H becomes its own step once this file is accepted. Proving all of them closes the problem.`,
+    ``,
+    `namespace ${ns}`,
+    ``,
+    `def H1 : Prop := sorry -- a smaller statement`,
+    ``,
+    `def H2 : Prop := sorry -- another one`,
+    ``,
+    `theorem main : H1 → H2 → type_of% @${p.decl} := by`,
+    `  sorry`,
+    ``,
+    `end ${ns}`,
     ``,
   ].join("\n");
 }

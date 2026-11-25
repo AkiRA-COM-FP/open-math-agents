@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
-"""Static gate for a submitted proof file, run BEFORE anything compiles (locally and in CI).
+"""Static gate for a submitted file, run BEFORE anything compiles (locally and in CI).
 
-Usage: python3 -I tools/lint.py proofs/<id>.lean data/catalog.json
-Prints JSON {ok, problem, decl, polarity, errors}. Exit code 0 only if ok.
+Usage (from the repository root): python3 -I tools/lint.py <file> data/catalog.json
+Prints JSON {ok, type, problem, ..., errors}. Exit code 0 only if ok.
 
-Why so strict: Lean can run arbitrary code while it compiles (#eval, macros, elab, initialize,
-run_tac ...). A submission must not be able to touch the CI runner or forge its own verdict, so
-everything that could execute code at compile time is refused outright.
+Three kinds of file:
+  proofs/<problem id>.lean      proves (or refutes) a catalogue problem: OMA.solution / OMA.disproof
+  proofs/<X>.R<n>.H<k>.lean     proves step H<k> of the merged reduction reductions/<X>.R<n>.lean
+  reductions/<X>.R<n>.lean      splits X (a problem or a step) into 2 to 4 hypotheses H1..Hk with H1 → … → Hk → X
+
+Why so strict: Lean can run arbitrary code while it compiles (#eval, macros, elab, initialize, run_tac ...).
+A submission must not be able to touch the CI runner or forge its own verdict, so everything that could
+execute code at compile time is refused outright. Keep the naming rules identical to lib/steps.ts.
 """
 import json
 import os
@@ -14,30 +19,29 @@ import re
 import sys
 
 path, catalog_path = sys.argv[1], sys.argv[2]
+rel = os.path.relpath(path).replace(os.sep, "/")
 errors = []
+out = {"file": rel}
 
-if not re.fullmatch(r"proofs/[A-Za-z0-9_.'\-]+\.lean", os.path.relpath(path).replace(os.sep, "/")):
-    errors.append("file must be proofs/<problem id>.lean")
-
-pid = os.path.basename(path)[:-5]
 cat = json.load(open(catalog_path, encoding="utf-8"))
-prob = next((p for p in cat["problems"] if p["id"] == pid), None)
-if prob is None:
-    print(json.dumps({"ok": False, "problem": pid, "errors": [f"unknown problem id {pid}"]}))
-    sys.exit(1)
+PROBLEMS = {p["id"]: p for p in cat["problems"]}
+STEP_RE = re.compile(r"^(.+)\.R(\d{1,2})\.H([1-4])$")
 
-raw = open(path, "rb").read()
-if len(raw) > 512 * 1024:
-    errors.append("file larger than 512 KiB")
-try:
-    src = raw.decode("utf-8")
-except UnicodeDecodeError:
-    src = ""
-    errors.append("file is not UTF-8")
+
+def san(rid):
+    return "R_" + re.sub(r"[^A-Za-z0-9]", "_", rid)
+
+
+def module_of(rid):
+    return "OMAReductions." + san(rid)
+
+
+def ns_of(rid):
+    return "OMA." + san(rid)
 
 
 def strip_comments(s):
-    out, i, n, depth = [], 0, len(s), 0
+    res, i, n, depth = [], 0, len(s), 0
     while i < n:
         if depth == 0 and s.startswith("--", i):
             j = s.find("\n", i)
@@ -52,15 +56,86 @@ def strip_comments(s):
             i += 2
             continue
         if depth == 0:
-            out.append(s[i])
+            res.append(s[i])
         i += 1
     if depth:
         errors.append("unterminated block comment")
-    return "".join(out)
+    return "".join(res)
 
 
+def hypotheses(code):
+    """H1..Hk definitions of a reduction file, in order."""
+    found = {}
+    for m in re.finditer(r"^def\s+H([1-9])\s*:\s*Prop\s*:=\s*(.*?)(?=^\s*(?:def|theorem|lemma|end|namespace|open|section|variable|@\[)\b|\Z)",
+                         code, re.S | re.M):
+        found[int(m.group(1))] = m.group(2).strip()
+    return found
+
+
+def read_code(p):
+    raw = open(p, "rb").read()
+    return strip_comments(raw.decode("utf-8", "replace"))
+
+
+def describe_target(tid):
+    """What a reduction or a step may target: a catalogue problem, or a step of a merged reduction."""
+    if tid in PROBLEMS:
+        p = PROBLEMS[tid]
+        return {"kind": p["kind"], "import": p["module"], "statement": f"type_of% @{p['decl']}", "decl": p["decl"]}
+    m = STEP_RE.match(tid)
+    if m:
+        rid = f"{m.group(1)}.R{m.group(2)}"
+        rfile = f"reductions/{rid}.lean"
+        if not os.path.exists(rfile):
+            return None
+        hs = hypotheses(read_code(rfile))
+        k = int(m.group(3))
+        if k not in hs:
+            return None
+        root = describe_target(m.group(1))
+        return {"kind": root["kind"] if root else "step", "import": module_of(rid), "statement": f"{ns_of(rid)}.H{k}", "decl": None,
+                "reduction": rid}
+    return None
+
+
+# ---- which kind of file ------------------------------------------------------------------------
+mp = re.fullmatch(r"proofs/([A-Za-z0-9_.'\-]+)\.lean", rel)
+mr = re.fullmatch(r"reductions/([A-Za-z0-9_.'\-]+)\.R(\d{1,2})\.lean", rel)
+if mp:
+    pid = mp.group(1)
+    target = describe_target(pid)
+    ftype = "proof" if pid in PROBLEMS else "step"
+    if target is None:
+        errors.append(f"unknown problem or step id {pid} (a step needs its reduction merged first)")
+elif mr:
+    pid = f"{mr.group(1)}.R{mr.group(2)}"
+    ftype = "reduction"
+    target = describe_target(mr.group(1))
+    if not 1 <= int(mr.group(2)) <= 99:
+        errors.append("reduction number must be 1..99")
+    if target is None:
+        errors.append(f"unknown reduction target {mr.group(1)}")
+else:
+    print(json.dumps({"ok": False, "file": rel, "errors": ["file must be proofs/<id>.lean or reductions/<id>.R<n>.lean (letters, digits, _ . ' - only)"]}))
+    sys.exit(1)
+
+out.update(type=ftype, problem=pid)
+if errors:
+    out.update(ok=False, errors=errors)
+    print(json.dumps(out, ensure_ascii=False))
+    sys.exit(1)
+
+raw = open(path, "rb").read()
+if len(raw) > 512 * 1024:
+    errors.append("file larger than 512 KiB")
+try:
+    src = raw.decode("utf-8")
+except UnicodeDecodeError:
+    src = ""
+    errors.append("file is not UTF-8")
 code = strip_comments(src)
 
+# ---- rules shared by every file ----------------------------------------------------------------
 if '"' in code:
     errors.append("no double-quote characters (string literals) allowed")
 if "\u0000" in code:
@@ -90,14 +165,14 @@ for m in re.finditer(r"\bset_option\s+([\w.]+)\s+(\S+)(\s+in\b)?", code):
     if name not in ("maxHeartbeats", "maxRecDepth", "synthInstance.maxHeartbeats", "synthInstance.maxSize") or not val.isdigit() or not has_in:
         errors.append(f"set_option {name} {val} not allowed (only numeric maxHeartbeats/maxRecDepth/synthInstance.* with `in`)")
 
-# imports: first the problem's module, then Mathlib only.
 lines = [l for l in code.splitlines() if l.strip()]
 imports = [l.strip() for l in lines if re.match(r"\s*import\b", l)]
-if not imports or imports[0] != f"import {prob['module']}":
-    errors.append(f"first line must be: import {prob['module']}")
+want_import = f"import {target['import']}"
+if not imports or imports[0] != want_import:
+    errors.append(f"first line must be: {want_import}")
 for l in imports[1:]:
     if not re.fullmatch(r"import Mathlib(\.[A-Za-z0-9_]+)*", l):
-        errors.append(f"only Mathlib imports may follow the problem import: {l!r}")
+        errors.append(f"only Mathlib imports may follow the first import: {l!r}")
 body_started = False
 for l in lines:
     if re.match(r"\s*import\b", l):
@@ -107,21 +182,59 @@ for l in lines:
     else:
         body_started = True
 
-decl = prob["decl"]
-d = re.escape(decl)
-proof = re.findall(r"\btheorem\s+OMA\.solution\s*:\s*type_of%\s*@" + d + r"\s*:=", code)
-disproof = re.findall(r"\btheorem\s+OMA\.disproof\s*:\s*¬\s*\(\s*type_of%\s*@" + d + r"\s*\)\s*:=", code)
-mentions = re.findall(r"\bOMA\.(solution|disproof)\b", code)
-if len(proof) + len(disproof) != 1 or len(mentions) != 1:
-    errors.append(
-        f"must contain exactly one `theorem OMA.solution : type_of% @{decl} := ...` "
-        f"or `theorem OMA.disproof : ¬ (type_of% @{decl}) := ...`, and no other mention of OMA.solution/OMA.disproof"
-    )
-if re.search(r"(?<![\w.])" + d + r"(?![\w.])", re.sub(r"type_of%\s*@" + d, "", code)):
-    errors.append(f"the proof must not use the upstream declaration {decl} itself")
+if target.get("decl"):
+    d = re.escape(target["decl"])
+    if re.search(r"(?<![\w.])" + d + r"(?![\w.])", re.sub(r"type_of%\s*@" + d, "", code)):
+        errors.append(f"the file must not use the upstream declaration {target['decl']} itself")
 
-polarity = "disproof" if disproof else "proof"
+# ---- per kind ----------------------------------------------------------------------------------
+polarity, theorem = "proof", None
+if ftype == "proof":
+    d = re.escape(target["decl"])
+    proof = re.findall(r"\btheorem\s+OMA\.solution\s*:\s*type_of%\s*@" + d + r"\s*:=", code)
+    disproof = re.findall(r"\btheorem\s+OMA\.disproof\s*:\s*¬\s*\(\s*type_of%\s*@" + d + r"\s*\)\s*:=", code)
+    if len(proof) + len(disproof) != 1 or len(re.findall(r"\bOMA\.(solution|disproof)\b", code)) != 1:
+        errors.append(f"must contain exactly one `theorem OMA.solution : type_of% @{target['decl']} := ...` "
+                      f"or `theorem OMA.disproof : ¬ (type_of% @{target['decl']}) := ...`, and no other mention of them")
+    polarity = "disproof" if disproof else "proof"
+    theorem = "OMA." + ("disproof" if disproof else "solution")
+elif ftype == "step":
+    st = re.escape(target["statement"])
+    if len(re.findall(r"\btheorem\s+OMA\.solution\s*:\s*" + st + r"\s*:=", code)) != 1 or len(re.findall(r"\bOMA\.solution\b", code)) != 1:
+        errors.append(f"must contain exactly one `theorem OMA.solution : {target['statement']} := ...`")
+    theorem = "OMA.solution"
+else:  # reduction
+    ns = ns_of(pid)
+    if not re.search(r"^namespace\s+" + re.escape(ns) + r"\s*$", code, re.M) or not re.search(r"^end\s+" + re.escape(ns) + r"\s*$", code, re.M):
+        errors.append(f"the file must open `namespace {ns}` and close it with `end {ns}`")
+    hs = hypotheses(code)
+    k = len(hs)
+    if not 2 <= k <= 4 or sorted(hs) != list(range(1, k + 1)):
+        errors.append("declare 2 to 4 hypotheses `def H1 : Prop := …`, `def H2 : Prop := …` (numbered from 1, no gaps)")
+    for i, txt in hs.items():
+        if re.search(r"type_of%|\bmain\b|\bH[1-9]\b", txt) or (target.get("decl") and target["decl"] in txt) or target["statement"] in txt:
+            errors.append(f"H{i} may not mention the target, another hypothesis or main")
+        if len(txt) > 2000:
+            errors.append(f"H{i} is longer than 2000 characters")
+    if len(set(hs.values())) != len(hs):
+        errors.append("two hypotheses are identical")
+    others = re.findall(r"^\s*(?:noncomputable\s+)?(def|abbrev|structure|inductive|class|instance)\s+(\S+)", code, re.M)
+    extra = [name for kind, name in others if not (kind == "def" and re.fullmatch(r"H[1-9]", name))]
+    if extra:
+        errors.append(f"only the H definitions may be declared (lemmas are fine): {', '.join(extra[:5])}")
+    chain = r"\s*→\s*".join(f"H{i}" for i in range(1, k + 1))
+    tgt = re.escape(target["statement"])
+    if k and len(re.findall(r"\btheorem\s+main\s*:\s*" + chain + r"\s*→\s*" + tgt + r"\s*:=", code)) != 1:
+        errors.append(f"must contain exactly one `theorem main : {' → '.join(f'H{i}' for i in range(1, k + 1))} → {target['statement']} := ...`")
+    theorem = f"{ns}.main"
+    out["hypotheses"] = [hs[i] for i in sorted(hs)]
+    out["module"] = module_of(pid)
+
 ok = not errors
-print(json.dumps({"ok": ok, "problem": pid, "decl": decl, "module": prob["module"], "kind": prob["kind"], "polarity": polarity,
-                  "theorem": "OMA." + ("disproof" if disproof else "solution"), "errors": errors}, ensure_ascii=False))
+out.update(ok=ok, kind=target["kind"], polarity=polarity, theorem=theorem, imports=target["import"], errors=errors)
+if target.get("decl"):
+    out["decl"] = target["decl"]
+if target.get("reduction"):
+    out["needsReduction"] = target["reduction"]
+print(json.dumps(out, ensure_ascii=False))
 sys.exit(0 if ok else 1)
