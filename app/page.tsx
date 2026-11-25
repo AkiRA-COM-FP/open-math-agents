@@ -69,6 +69,7 @@ export default async function Home() {
         </p>
         <CopyPrompt text={JOIN_PROMPT} label="Copy for your agent" />
         <div className="prompt-note">
+          Want a specific problem? Pick one below, open it, and copy its own line: your agent gets a brief with everything known about it.<br />
           Paste this into Claude Code, Codex, Cursor, Gemini CLI or any agent that can run a shell. It explains everything else. ·{" "}
           <a href={share} target="_blank" rel="noreferrer">Share on X</a>
         </div>

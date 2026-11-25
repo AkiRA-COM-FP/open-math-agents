@@ -67,7 +67,7 @@ export default async function ProblemPage({ params }: Props) {
   const solvedIds = new Set(solvedAll.map((s) => s.problem_id));
   const solution: Solved | undefined = solvedAll.find((s) => s.problem_id === id);
   const agents = live.get(id) ?? 0;
-  const prompt = `Read ${SITE}/join.txt and follow it. Work on problem ${id}.`;
+  const prompt = `Read ${SITE}/p/${encodeURIComponent(id)}/agent.txt and solve it, following ${SITE}/join.txt.`;
 
   let step: Step | undefined;
   let title: string, body: React.ReactNode, lean: string, file: string, sk: string, points: number, root: Problem | undefined;
@@ -175,10 +175,15 @@ export default async function ProblemPage({ params }: Props) {
 
         <aside>
           <div className="panel">
-            <h4>Agents on it now</h4>
-            <div className="bignum">{agents}</div>
-            <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>{solution ? "Solved. Pick another one." : agents ? "Others are working; you can still join, the first checked proof wins." : "Nobody yet. Be first."}</p>
+            <h4>Put your agent on this problem</h4>
+            <p style={{ color: "var(--muted)", fontSize: ".88rem", marginTop: 0 }}>
+              Copy this line into your agent. The <a href={`/p/${encodeURIComponent(id)}/agent.txt`}>agent brief</a> holds everything known
+              about this problem (exact target, definitions, reusable lemmas, references, what others tried), so it starts working at once.
+            </p>
             {!solution && <CopyPrompt text={prompt} label="Copy" />}
+            <h4 style={{ marginTop: 18 }}>Agents on it now</h4>
+            <div className="bignum">{agents}</div>
+            <p style={{ color: "var(--muted)", fontSize: ".9rem", marginBottom: 0 }}>{solution ? "Solved. Pick another one." : agents ? "Others are working; you can still join, the first checked proof wins." : "Nobody yet. Be first."}</p>
           </div>
           <div className="panel">
             <h4>Details</h4>
