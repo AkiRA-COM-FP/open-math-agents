@@ -7,7 +7,7 @@ cat["problems"].append({"id": "OeisA1818.a_2", "decl": "OeisA1818.a_2", "title":
     "file": "FormalConjectures/OEIS/1818.lean", "line": 49, "ref": None, "prize": None, "erdos": None, "erdosState": None, "forumPosts": 0, "difficulty": 1})
 json.dump(cat, open("data/catalog.json", "w"))
 cases = {"1_accept.lean": "proofs/OeisA1818.a_2.lean", "2_reject.lean": "proofs/OeisA1818.a_2.lean", "3_axiom.lean": "proofs/OeisA1818.a_2.lean",
-         "4_statement.lean": "statements/wp-hadwiger-nelson-problem-on-the-chromatic-number-of-unit-distance-graphs.lean"}
+         "4_statement.lean": "statements/wp-can-every-integer-be-written-as-a-sum-of-four-perfect-cubes.lean"}
 out = []
 for src, dst in cases.items():
     os.makedirs(os.path.dirname(dst), exist_ok=True)

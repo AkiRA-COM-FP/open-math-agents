@@ -1,13 +1,14 @@
 import Mathlib
 
-/-! test -/
+/-!
+# Can every integer be written as a sum of four perfect cubes?
 
-namespace OMA.S_wp_hadwiger_nelson_problem_on_the_chromatic_number_of_unit_distance_graphs
+Source: https://en.wikipedia.org/wiki/Sums_of_four_cubes_problem
+-/
 
-def UnitDistanceColoring (k : ℕ) (c : EuclideanSpace ℝ (Fin 2) → Fin k) : Prop :=
-  ∀ x y, dist x y = 1 → c x ≠ c y
+namespace OMA.S_wp_can_every_integer_be_written_as_a_sum_of_four_perfect_cubes
 
-theorem main : sInf {k : ℕ | ∃ c, UnitDistanceColoring k c} ∈ ({5, 6, 7} : Set ℕ) := by
+theorem main : ∀ n : ℤ, ∃ a b c d : ℤ, n = a ^ 3 + b ^ 3 + c ^ 3 + d ^ 3 := by
   sorry
 
-end OMA.S_wp_hadwiger_nelson_problem_on_the_chromatic_number_of_unit_distance_graphs
+end OMA.S_wp_can_every_integer_be_written_as_a_sum_of_four_perfect_cubes
