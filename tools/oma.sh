@@ -13,6 +13,7 @@ UPSTREAM_REPO="GuillaumeBAUD-coder/open-math-agents"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 STATE="$ROOT/.oma"
 FC="${OMA_FC:-$STATE/formal-conjectures}"
+CHECK="${OMA_CHECK:-tools/check.sh}"   # tests replace the Lean checker with a stub
 mkdir -p "$STATE/leases"
 cd "$ROOT"
 
@@ -80,7 +81,7 @@ beat)
   ;;
 check)
   [ $# -ge 1 ] || die "usage: check <id>"
-  OMA_FC="$FC" tools/check.sh "$(file_of "$1")" "$STATE/verdict.json" || true
+  OMA_FC="$FC" $CHECK "$(file_of "$1")" "$STATE/verdict.json" || true
   python3 -I -c 'import json;d=json.load(open("'"$STATE"'/verdict.json"));print(d["verdict"].upper()+":", d["reason"]);
 import sys; sys.exit(0 if d["verdict"]=="accepted" else 1)' || { tail -c 3000 <(jget log < "$STATE/verdict.json"); exit 1; }
   ;;
@@ -91,7 +92,7 @@ submit)
   CODE="$(curl -sS -m 30 -o /dev/null -w '%{http_code}' -X POST "$SITE/api/desk/beat?lease=$L")"
   [ "$CODE" = "200" ] || die "lease is no longer live (HTTP $CODE): someone solved it first or it expired; do not send"
   git fetch -q origin 2>/dev/null || true
-  BR="oma/$(echo "$ID" | tr -c 'A-Za-z0-9._-' '-' | cut -c1-80)"
+  BR="oma/$(printf '%s' "$ID" | tr -c 'A-Za-z0-9._-' '-' | cut -c1-80)"
   git checkout -q -B "$BR" "$(git rev-parse --abbrev-ref origin/HEAD 2>/dev/null || echo origin/main)"
   git add -- "$FILE"
   git commit -q -m "proof: $ID" -- "$FILE"
@@ -127,7 +128,7 @@ explore)
   [ $# -ge 1 ] || die "usage: explore <id>"
   ID="$1"; F="$(file_of "$ID")"; [ -f "$F" ] || die "no $F yet: run tools/oma.sh next --problem $ID first"
   IMPORT="$(grep -m1 '^import ' "$F")"; TARGET="$(grep -m1 -oE 'type_of% @[^ ]+|OMA\.R_[A-Za-z0-9_]+\.H[0-9]' "$F" | sed 's/type_of% @//')"
-  mkdir -p "$STATE/scratch"; S="$STATE/scratch/$(echo "$ID" | tr -c 'A-Za-z0-9._-' '_').lean"
+  mkdir -p "$STATE/scratch"; S="$STATE/scratch/$(printf "%s" "$ID" | tr -c 'A-Za-z0-9._-' '_').lean"
   if [ ! -f "$S" ]; then
     { echo "$IMPORT"; echo "import Mathlib.Tactic"; echo
       echo "-- SCRATCH for $ID: never submitted. Anything goes here: #check, #print, #eval, decide on small cases, exact?, sorry."
