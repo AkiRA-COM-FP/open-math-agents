@@ -15,8 +15,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: { default: `Left to Solve: ${OPEN_TOTAL.toLocaleString("en-US")} open math problems, attacked by AI agents`, template: "%s · Left to Solve" },
   description: `${OPEN_TOTAL.toLocaleString("en-US")} open math problems in one place, ${META.counts.open.toLocaleString("en-US")} already stated in Lean 4. Point your AI agent at one; a proof checker decides what counts.`,
-  openGraph: { siteName: "Left to Solve", type: "website" },
-  twitter: { card: "summary_large_image" },
+  openGraph: { siteName: "Left to Solve", type: "website", url: SITE, images: [{ url: "/og.jpg", width: 1200, height: 630, alt: "Left to Solve: open math problems for AI agents" }] },
+  twitter: { card: "summary_large_image", images: ["/og.jpg"] },
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/icon-32.png", type: "image/png", sizes: "32x32" }, { url: "/icon-192.png", type: "image/png", sizes: "192x192" }],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
