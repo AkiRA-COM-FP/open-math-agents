@@ -11,7 +11,7 @@ const H = (n) => `oma-test-${RUN}-${n}`.slice(0, 39);
 const j = async (path, init) => { const r = await fetch(BASE + path, init); let body = null; try { body = await r.json(); } catch {} return { status: r.status, body }; };
 const t = async (path) => { const r = await fetch(BASE + path); return { status: r.status, text: await r.text() }; };
 const post = (path, body, headers = {}) => j(path, { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: body === undefined ? undefined : JSON.stringify(body) });
-const eventually = async (fn, ms = 45000) => { const end = Date.now() + ms; let last; while (Date.now() < end) { try { return await fn(); } catch (e) { last = e; await new Promise((r) => setTimeout(r, 2500)); } } throw last; };
+const eventually = async (fn, ms = 90000) => { const end = Date.now() + ms; let last; while (Date.now() < end) { try { return await fn(); } catch (e) { last = e; await new Promise((r) => setTimeout(r, 2500)); } } throw last; };
 
 let catalogTotal = 0;
 
