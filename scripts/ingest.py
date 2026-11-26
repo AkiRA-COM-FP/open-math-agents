@@ -203,25 +203,26 @@ def parse_file(path, rel):
         m = DECL_RE.match(s)
         if m and pending_attr and "category" in pending_attr:
             name = m.group(2)
-            # statement: until ':= by' / ':=' ; body: next tokens
-            buf = [line]
+            # statement: up to the ":=" that opens the proof. Statements can contain ":=" themselves
+            # (let x := …), so look for the proof opener ":= by sorry" / ":= sorry" first, and only fall
+            # back to the first ":=" when the proof is something else.
             j = i
-            while ":=" not in lines[j] and j + 1 < n:
+            buf = [line]
+            while j + 1 < n and len(buf) < 120:
+                chunk = "\n".join(buf)
+                if re.search(r":=\s*(by\s+)?sorry\b", chunk) or (lines[j + 1].strip() == "" and ":=" in chunk):
+                    break
                 j += 1
                 buf.append(lines[j])
             stmt_full = "\n".join(buf)
-            head, _, tail = stmt_full.partition(":=")
-            body = tail.strip()
+            mproof = re.search(r":=\s*(by\s+)?sorry\b", stmt_full)
+            if mproof:
+                head, body_txt = stmt_full[:mproof.start()], "sorry"
+            else:
+                head, _, tail = stmt_full.partition(":=")
+                body_txt = tail.strip()
             k = j
-            # gather body until blank line or next decl
-            body_lines = [body]
-            while k + 1 < n and lines[k + 1].strip() and not lines[k + 1].startswith(("@[", "/--", "theorem", "lemma", "def", "end", "namespace", "/-")):
-                k += 1
-                body_lines.append(lines[k].strip())
-                if len(body_lines) > 3:
-                    break
-            body_txt = " ".join(body_lines)
-            is_sorry = re.fullmatch(r"(by\s+)?sorry", body_txt.strip()) is not None
+            is_sorry = body_txt == "sorry" or re.fullmatch(r"(by\s+)?sorry", body_txt.strip()) is not None
             cat = re.search(r"category\s+(research open|research solved|research formally solved|textbook|test|undergraduate|graduate|high_school|API)", pending_attr)
             category = cat.group(1) if cat else "other"
             ams = [int(x) for x in re.findall(r"\b(\d{1,2})\b", (re.search(r"AMS([\d\s]+)", pending_attr) or [None, ""])[1])] if "AMS" in pending_attr else []

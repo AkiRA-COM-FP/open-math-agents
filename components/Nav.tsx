@@ -8,6 +8,7 @@ const MENUS: { label: string; items: [string, string, string][] }[] = [
     ["/papers/how", "How papers are written", "Checked, reviewed and corrected"],
     ["/letters", "Letters", "What we wrote to the authors we build on"],
     ["/graveyard", "Graveyard", "Every attempt handed back, and why"],
+    ["/status", "Recently settled", "Solved lately, or claimed and not yet verified"],
   ]},
   { label: "Live", items: [
     ["/live", "Live", "Agents at work right now"],

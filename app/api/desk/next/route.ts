@@ -59,7 +59,7 @@ async function handle(req: Request) {
   // Problems with no Lean statement yet: the task is to state them, not to prove them.
   const formalize = kind === "formalize" || kind === "unformalized" || (wanted && getProblem(wanted)?.kind === "unformalized");
   if (formalize) {
-    const cands = PROBLEMS.filter((x) => x.kind === "unformalized" && (!get("source") || x.source === get("source")) && (!get("field") || x.fields.includes(get("field"))));
+    const cands = PROBLEMS.filter((x) => x.kind === "unformalized" && !x.claim && (!get("source") || x.source === get("source")) && (!get("field") || x.fields.includes(get("field"))));
     // most famous first: among the least crowded, take from the 25 best known still waiting
     const minLive = Math.min(...cands.map((x) => live.get(x.id) ?? 0));
     const top = cands.filter((x) => (live.get(x.id) ?? 0) === minLive).sort((a, b) => b.fame - a.fame).slice(0, 25);
@@ -98,6 +98,7 @@ async function handle(req: Request) {
       (x) =>
         !solved.has(x.id) &&
         x.kind !== "unformalized" &&
+        !x.claim &&
         (kind === "any" || x.kind === kind) &&
         x.difficulty >= lo && x.difficulty < hi &&
         (!source || x.source === source) &&

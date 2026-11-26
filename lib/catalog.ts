@@ -4,6 +4,7 @@ import raw from "@/data/catalog.json";
 import extraRaw from "@/data/extra.json";
 import statementsRaw from "@/data/statements.json";
 import extra2Raw from "@/data/extra2.json";
+import overridesRaw from "@/data/status_overrides.json";
 
 /** open/known/warmup: has a Lean statement, provable now. unformalized: open, but nobody has stated it in Lean yet. */
 export type Kind = "open" | "known" | "warmup" | "unformalized";
@@ -36,7 +37,16 @@ export type Problem = {
   formalizedHere?: boolean;
   /** How well known the problem is, 0-100: the default order, most famous first. */
   fame: number;
+  /** A solution has been announced but is not verified (or is disputed). */
+  claim?: { summary: string; date: string; sources: string[] };
+  /** Editorial note (e.g. why a related result does not settle this one). */
+  note?: { summary: string; sources: string[] };
 };
+
+export type Override = { id: string; status: "solved" | "claimed" | "open"; title?: string; summary: string; date: string; sources: string[] };
+const OVERRIDES = (overridesRaw as unknown as { reviewed: string; entries: Override[] }).entries;
+export const STATUS_REVIEWED = (overridesRaw as unknown as { reviewed: string }).reviewed;
+const OV = new Map(OVERRIDES.map((o) => [o.id, o]));
 
 type Catalog = {
   meta: { upstream: string; upstreamCommit: string; license: string; counts: Record<"open" | "known" | "warmup", number>; total: number };
@@ -85,11 +95,23 @@ const extra2Problems: Problem[] = e2.rows.map(([id, title, si, fields, statement
   return st ? { ...p, kind: "open", category: "research open (formalized here)", decl: st.decl, module: st.module, lean: st.lean, file: st.file, formalizedHere: true } : p;
 });
 
-export const PROBLEMS: Problem[] = [
+const ALL: Problem[] = [
   ...(catalog.problems as Omit<Problem, "fame">[]).map((p) => ({ ...p, fame: fameOf(p) })),
   ...extraProblems,
   ...extra2Problems,
 ];
+
+/** Problems settled recently (verified), removed from the open list and shown on /status. */
+export const SETTLED: (Override & { problem?: Problem })[] = OVERRIDES.filter((o) => o.status === "solved").map((o) => ({ ...o, problem: ALL.find((p) => p.id === o.id) }));
+/** Problems with an announced but unverified solution: kept, flagged, ranked lower. */
+export const CLAIMED: Override[] = OVERRIDES.filter((o) => o.status === "claimed");
+
+export const PROBLEMS: Problem[] = ALL.filter((p) => OV.get(p.id)?.status !== "solved").map((p) => {
+  const o = OV.get(p.id);
+  if (!o) return p;
+  if (o.status === "claimed") return { ...p, fame: Math.max(1, p.fame - 30), claim: { summary: o.summary, date: o.date, sources: o.sources } };
+  return { ...p, title: o.title ?? p.title, note: { summary: o.summary, sources: o.sources } };
+});
 const count = (k: Kind) => PROBLEMS.filter((p) => p.kind === k).length;
 export const META = {
   ...catalog.meta,
@@ -221,6 +243,7 @@ export function texPlain(s: string) {
 /** Compact card shape sent to the browser. */
 export function toCard(p: Problem) {
   return {
+    claimed: Boolean(p.claim),
     id: p.id,
     title: p.title,
     source: p.source,

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export type RowData = {
   id: string; title: string; source: string; kind: "open" | "known" | "warmup" | "unformalized"; fields: string[];
-  difficulty: number; prize: string | null; excerpt: string; liveAgents?: number; solved?: boolean;
+  difficulty: number; prize: string | null; excerpt: string; liveAgents?: number; solved?: boolean; claimed?: boolean;
 };
 
 const KIND = { open: "Open", known: "Needs formal proof", warmup: "Warm-up", unformalized: "Open · not yet in Lean" } as const;
@@ -31,6 +31,7 @@ export default function ProblemRow({ p }: { p: RowData }) {
       </div>
       <div className="side">
         {p.solved ? <span className="badge solved">Solved</span> : null}
+        {p.claimed ? <span className="badge prize" title="A solution has been announced but is not verified">Claimed solved</span> : null}
         {p.liveAgents ? <span className="badge live"><span className="dot" /> {p.liveAgents} live</span> : null}
         <Difficulty value={p.difficulty} />
       </div>

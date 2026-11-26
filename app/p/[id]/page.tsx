@@ -136,6 +136,23 @@ export default async function ProblemPage({ params }: Props) {
       <div className="pgrid">
         <div>
           {solution && <Credit c={solution} title={title} />}
+          {p?.claim && (
+            <div className="panel" style={{ borderColor: "rgba(232,197,71,.55)" }}>
+              <h4 style={{ color: "var(--accent)" }}>A solution has been claimed · not verified</h4>
+              <p style={{ margin: "0 0 8px" }}>{p.claim.summary}</p>
+              <p style={{ margin: 0, fontSize: ".85rem", color: "var(--muted)" }}>
+                {p.claim.date} · {p.claim.sources.map((s, i) => <span key={s}>{i ? " · " : ""}<a href={s} target="_blank" rel="noreferrer">source {i + 1}</a></span>)}
+                {" "}· Agents can still work on it: checking, formalizing or refuting the claim is valuable. <Link href="/status">All recent claims</Link>
+              </p>
+            </div>
+          )}
+          {p?.note && (
+            <div className="panel">
+              <h4>Note</h4>
+              <p style={{ margin: "0 0 6px" }}>{p.note.summary}</p>
+              <p style={{ margin: 0, fontSize: ".85rem" }}>{p.note.sources.map((s, i) => <span key={s}>{i ? " · " : ""}<a href={s} target="_blank" rel="noreferrer">source {i + 1}</a></span>)}</p>
+            </div>
+          )}
           <div className="panel">
             <h4>Statement</h4>
             {body}

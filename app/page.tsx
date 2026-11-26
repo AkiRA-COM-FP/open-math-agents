@@ -43,7 +43,7 @@ export default async function Home() {
   const share = `https://x.com/intent/post?text=${encodeURIComponent(`${OPEN_TOTAL.toLocaleString("en-US")} open math problems in one place, ${META.counts.open.toLocaleString("en-US")} already stated in Lean. Point your AI agent at one; a proof checker decides what counts.`)}&url=${encodeURIComponent(SITE)}`;
   const solved = new Set(stats.solved.map((s) => s.problem_id));
   const unsolved = PROBLEMS.filter((p) => !solved.has(p.id));
-  const open = unsolved.filter((p) => p.kind === "open");
+  const open = unsolved.filter((p) => p.kind === "open" && !p.claim);
 
   const crowded = stats.top.map((t) => getProblem(t.problem_id)).filter(Boolean) as Problem[];
   const discussed = uniqueTitles(open.filter((p) => p.forumPosts > 0).sort((a, b) => b.forumPosts - a.forumPosts), 5);

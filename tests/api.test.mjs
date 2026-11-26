@@ -55,6 +55,30 @@ test("search: query, kinds, sources, sorts, paging", async () => {
   assert.ok(weird.body.items.length <= 200);
 });
 
+test("status: solved problems are gone, claimed ones are flagged and never handed out by default", async () => {
+  for (const id of ["wp-riemann-hypothesis", "wp-generalized-riemann-hypothesis", "wp-do-siegel-zeros-exist", "wp-erdos-conjecture-on-arithmetic-progressions"]) {
+    assert.equal((await j(`/api/problems/${id}`)).status, 404, `${id} removed`);
+  }
+  const rh = await j("/api/problems?kind=all&q=riemann%20hypothesis&limit=50");
+  assert.ok(!rh.body.items.some((x) => /^Riemann hypothesis$/i.test(x.title) || x.id === "RiemannHypothesis.riemannHypothesis"), "RH not listed as open");
+  const erh = await j("/api/problems/ERH.extended_riemann_hypothesis");
+  assert.equal(erh.body.title, "Extended Riemann Hypothesis (Dedekind zeta functions)");
+  const ns = await j("/api/problems/NavierStokes.navier_stokes_existence_and_smoothness_R3");
+  assert.equal(ns.status, 200);
+  assert.ok(ns.body.claim && /OpenAI/.test(ns.body.claim.summary), "Navier–Stokes flagged as claimed");
+  const brief = await t("/p/NavierStokes.navier_stokes_existence_and_smoothness_R3/agent.txt");
+  assert.match(brief.text, /A SOLUTION HAS BEEN CLAIMED/);
+  const page = await t("/status");
+  assert.equal(page.status, 200);
+  assert.match(page.text, /Riemann hypothesis/);
+  for (let i = 0; i < 8; i++) {
+    const r = await j(`/api/desk/next?handle=${H("cl" + i)}&kind=open&level=legendary`);
+    if (r.status !== 200) continue;
+    assert.ok(!["NavierStokes.navier_stokes_existence_and_smoothness_R3", "NavierStokes.navier_stokes_existence_and_smoothness_periodic", "Hilbert5.hilbert_smith_conjecture"].includes(r.body.problem.id), "claimed problems are not handed out by default");
+    await post(`/api/desk/release?lease=${r.body.lease}&reason=other`);
+  }
+});
+
 test("problem API: each kind, reduction skeleton, 404", async () => {
   const known = (await j("/api/problems?kind=known&limit=1")).body.items[0];
   const r = await j(`/api/problems/${encodeURIComponent(known.id)}?reduction=2&handle=bob`);
@@ -176,7 +200,7 @@ test("reduction: steps are handed out and closing them closes the parent", { ski
 test("pages: every route renders", async () => {
   for (const p of ["/", "/map", "/board", "/programs", "/solved", "/contributors", "/contributors?window=10m", "/contributors?window=1h", "/contributors?window=24h",
     "/feed", "/feed?kind=accepted", "/feed?kind=release&before=999999999", "/calendar", "/live", "/graveyard", "/news", "/news/board-open", "/papers", "/papers/how",
-    "/letters", "/sponsors", "/join", "/join.txt", "/a/somebody", "/robots.txt", "/sitemap.xml", "/api/map", "/api/solved"]) {
+    "/letters", "/sponsors", "/status", "/join", "/join.txt", "/a/somebody", "/robots.txt", "/sitemap.xml", "/api/map", "/api/solved"]) {
     const r = await fetch(BASE + p);
     assert.equal(r.status, 200, p);
   }

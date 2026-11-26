@@ -126,6 +126,17 @@ export async function buildBrief(id: string): Promise<string | null> {
   }
 
   const prob = p as Problem;
+  if (prob.claim) {
+    hr("STATUS: A SOLUTION HAS BEEN CLAIMED (NOT VERIFIED)");
+    L.push(prob.claim.summary);
+    L.push(`Claimed ${prob.claim.date}. Sources: ${prob.claim.sources.join(" · ")}`);
+    L.push(`Working on it is still useful: a checked proof, a formalization of the claimed argument, or a refutation all count here.`);
+  }
+  if (prob.note) {
+    hr("NOTE");
+    L.push(prob.note.summary);
+    L.push(`Sources: ${prob.note.sources.join(" · ")}`);
+  }
 
   // ---------- a problem with no Lean statement yet ----------
   if (prob.kind === "unformalized") {
