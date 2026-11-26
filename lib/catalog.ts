@@ -1,7 +1,7 @@
 import "server-only";
 import cardsRaw from "@/data/gen/cards.json";
 import overridesRaw from "@/data/status_overrides.json";
-import { catalogSearch, problemDetail } from "@/lib/d1";
+import { catalogSearch, problemDetail, problemDetails } from "@/lib/d1";
 
 /** open/known/warmup: has a Lean statement, provable now. unformalized: open, but nobody has stated it in Lean yet. */
 export type Kind = "open" | "known" | "warmup" | "unformalized";
@@ -112,6 +112,16 @@ export async function getFull(id: string): Promise<FullProblem | undefined> {
     statement: "", lean: "", module: "", file: "", line: 0, category: p.kind === "unformalized" ? "unformalized" : "", ref: null, erdosState: null,
     ...(d as Partial<FullProblem>), ...p,
   };
+}
+
+/** Full data for several problems at once (one or two D1 queries instead of one per problem). */
+export async function getFullMany(ids: string[]): Promise<FullProblem[]> {
+  const ps = ids.map((id) => BY_ID.get(id)).filter((p): p is Problem => Boolean(p));
+  const d = await problemDetails(ps.map((p) => p.id));
+  return ps.map((p) => ({
+    statement: "", lean: "", module: "", file: "", line: 0, category: p.kind === "unformalized" ? "unformalized" : "", ref: null, erdosState: null,
+    ...(d.get(p.id) as Partial<FullProblem>), ...p,
+  }));
 }
 
 export const SOURCES = Array.from(new Set(PROBLEMS.map((p) => p.source))).sort();

@@ -1,5 +1,5 @@
 import "server-only";
-import { PROBLEMS, META, getProblem, getFull, skeleton, statementSkeleton, proofPath, KIND_LABEL, type FullProblem, type Problem } from "@/lib/catalog";
+import { PROBLEMS, META, getProblem, getFull, getFullMany, skeleton, statementSkeleton, proofPath, KIND_LABEL, type FullProblem, type Problem } from "@/lib/catalog";
 import { upstreamFileFromDb } from "@/lib/d1";
 import { getEvents, getLiveMap, getSolved, getSteps, type Step } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
@@ -154,7 +154,7 @@ export async function buildBrief(id: string): Promise<string | null> {
     const byTitle = PROBLEMS.filter((x) => x.kind !== "unformalized")
       .map((x) => [x, score(x)] as const).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([x]) => x);
     const pool = byTitle.length ? byTitle : PROBLEMS.filter((x) => x.kind === "open" && x.fields.some((f) => prob.fields.includes(f))).slice(0, 10);
-    const examples = (await Promise.all(pool.map((x) => getFull(x.id)))).filter((x): x is FullProblem => Boolean(x && x.lean && x.lean.length < 700)).slice(0, 3);
+    const examples = (await getFullMany(pool.map((x) => x.id))).filter((x) => x.lean && x.lean.length < 700).slice(0, 3);
     hr("STYLE EXAMPLES: SIMILAR PROBLEMS ALREADY STATED IN LEAN");
     for (const x of examples) L.push(`-- ${x.title}  (${x.file})\n${x.lean}\n`);
     return L.join("\n");

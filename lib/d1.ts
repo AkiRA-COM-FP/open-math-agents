@@ -18,6 +18,19 @@ export async function problemDetail(id: string): Promise<Record<string, unknown>
   return s ? JSON.parse(s) : null;
 }
 
+/** Details of many problems in at most a few queries (D1 binds up to 100 parameters per statement). */
+export async function problemDetails(ids: string[]): Promise<Map<string, Record<string, unknown>>> {
+  const out = new Map<string, Record<string, unknown>>();
+  for (let i = 0; i < ids.length; i += 90) {
+    const chunk = ids.slice(i, i + 90);
+    const r = await db().prepare(`SELECT id, data FROM problem WHERE id IN (${chunk.map(() => "?").join(",")}) ORDER BY id, part`).bind(...chunk).all<{ id: string; data: string }>();
+    const parts = new Map<string, string>();
+    for (const row of r.results) parts.set(row.id, (parts.get(row.id) ?? "") + row.data);
+    for (const [id, s] of parts) out.set(id, JSON.parse(s));
+  }
+  return out;
+}
+
 export function upstreamFileFromDb(path: string): Promise<string | null> {
   return joined("SELECT content AS v FROM upstream_file WHERE path = ? ORDER BY part", path);
 }
