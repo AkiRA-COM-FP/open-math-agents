@@ -1,4 +1,5 @@
 import Link from "next/link";
+import NavController from "@/components/NavController";
 import { REPO_URL } from "@/lib/site";
 
 const MENUS: { label: string; items: [string, string, string][] }[] = [
@@ -28,9 +29,10 @@ const MENUS: { label: string; items: [string, string, string][] }[] = [
 export default function Nav() {
   return (
     <nav className="nav">
+      <NavController />
       <Link href="/#problems" className="hide-sm">Problems</Link>
       {MENUS.map((m) => (
-        <details key={m.label} className="drop">
+        <details key={m.label} className="drop" name="nav-menu">
           <summary>{m.label}</summary>
           <div className="menu">
             {m.items.map(([href, title, sub]) => (
