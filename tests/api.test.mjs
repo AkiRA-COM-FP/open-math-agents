@@ -206,19 +206,29 @@ test("money: sponsors page, home slot, and no promise of payment", async () => {
   assert.match(home.text, /Backed by/);
   assert.match(home.text, /Your logo/);
   const join = await t("/join.txt");
-  assert.match(join.text, /MONEY: NONE IS PAID HERE/);
-  const prized = (await j("/api/problems?kind=open&sort=prize&limit=1")).body.items[0];
-  assert.ok(prized.prize, "a problem with an Erdős prize exists");
-  const page = await t(`/p/${encodeURIComponent(prized.id)}`);
-  assert.match(page.text, /not paid by Open Math Agents/);
-  const brief = await t(`/p/${encodeURIComponent(prized.id)}/agent.txt`);
-  assert.match(brief.text, /this site pays no money/);
+  assert.match(join.text, /MONEY: PRIZES ARE CLAIMED FROM THOSE WHO OFFER THEM/);
+  assert.match(join.text, /pays nothing itself and takes no cut/);
+  const prizes = await t("/prizes");
+  assert.equal(prizes.status, 200);
+  assert.match(prizes.text, /never by this site/);
+  for (const sort of ["prize"]) {
+    const top = (await j(`/api/problems?kind=open&sort=${sort}&limit=1`)).body.items[0];
+    assert.ok(/P_ne_NP|navier_stokes|BSD/.test(top.id), "a $1,000,000 Clay problem comes first: " + top.id);
+  }
+  const erdos = (await j("/api/problems?q=erdos&kind=open&sort=prize&limit=40")).body.items.find((x) => x.prize);
+  assert.ok(erdos, "a problem with an Erdős prize exists");
+  for (const id of ["ComplexityTheory.P_ne_NP", erdos.id]) {
+    const page = await t(`/p/${encodeURIComponent(id)}`);
+    assert.match(page.text, /not by this site/);
+    const brief = await t(`/p/${encodeURIComponent(id)}/agent.txt`);
+    assert.match(brief.text, /this site pays nothing itself/);
+  }
 });
 
 test("pages: every route renders", async () => {
   for (const p of ["/", "/map", "/board", "/programs", "/solved", "/contributors", "/contributors?window=10m", "/contributors?window=1h", "/contributors?window=24h",
     "/feed", "/feed?kind=accepted", "/feed?kind=release&before=999999999", "/calendar", "/live", "/graveyard", "/news", "/news/board-open", "/papers", "/papers/how",
-    "/letters", "/sponsors", "/status", "/join", "/join.txt", "/a/somebody", "/robots.txt", "/sitemap.xml", "/api/map", "/api/solved"]) {
+    "/letters", "/sponsors", "/prizes", "/status", "/join", "/join.txt", "/a/somebody", "/robots.txt", "/sitemap.xml", "/api/map", "/api/solved"]) {
     const r = await fetch(BASE + p);
     assert.equal(r.status, 200, p);
   }

@@ -150,10 +150,37 @@ export type Query = {
   hideSolved?: boolean;
 };
 
-export function prizeValue(p: Problem) {
-  if (!p.prize) return 0;
+/** Clay Millennium Prize problems in the catalogue: $1,000,000 each from the Clay Mathematics Institute, under its rules. */
+export const CLAY: Record<string, string> = {
+  "ComplexityTheory.P_ne_NP": "P vs NP",
+  "NavierStokes.navier_stokes_existence_and_smoothness_R3": "Navier–Stokes existence and smoothness",
+  "NavierStokes.navier_stokes_existence_and_smoothness_periodic": "Navier–Stokes existence and smoothness",
+  "WeierstrassCurve.Affine.Rat.weakBSD": "Birch and Swinnerton-Dyer conjecture",
+  "WeierstrassCurve.Affine.Rat.strongBSD": "Birch and Swinnerton-Dyer conjecture",
+  "wp-birch-and-swinnerton-dyer-conjecture": "Birch and Swinnerton-Dyer conjecture",
+  "wp-hodge-conjecture": "Hodge conjecture",
+};
+export const CLAY_RULES = "https://www.claymath.org/millennium-problems/rules/";
+
+export type Prize = { usd: number; label: string; by: string; claim: string; url: string };
+/** Cash prize attached to a problem by a third party (never paid by this site). */
+export function prizeOf(p: Problem): Prize | null {
+  if (CLAY[p.id]) return { usd: 1_000_000, label: "$1,000,000", by: "the Clay Mathematics Institute (Millennium Prize)", claim: "Clay awards it under its rules: a solution published in a refereed venue and accepted by the community two years later", url: CLAY_RULES };
+  if (!p.prize) return null;
   const m = p.prize.replace(/,/g, "").match(/[$£](\d+)/);
-  return m ? Number(m[1]) : 0;
+  const usd = m ? Number(m[1]) : 0;
+  return { usd, label: p.prize, by: "Paul Erdős (Erdős prize)", claim: "erdosproblems.com records each prize and who honours it today", url: p.erdos ? `https://www.erdosproblems.com/${p.erdos}` : "https://www.erdosproblems.com/prizes" };
+}
+export function prizeValue(p: Problem) {
+  return prizeOf(p)?.usd ?? 0;
+}
+/** Open problems with a cash prize, biggest first (variants of one Erdős problem counted once in the totals). */
+export function prizeBoard() {
+  const list = PROBLEMS.filter((p) => (p.kind === "open" || p.kind === "unformalized") && prizeOf(p)).sort((a, b) => prizeValue(b) - prizeValue(a) || b.fame - a.fame);
+  const clay = new Set(list.filter((p) => CLAY[p.id]).map((p) => CLAY[p.id]));
+  const erdos = new Map<number, number>();
+  for (const p of list) if (p.erdos && !CLAY[p.id]) erdos.set(p.erdos, Math.max(erdos.get(p.erdos) ?? 0, prizeValue(p)));
+  return { list, clayCount: clay.size, erdosCount: erdos.size, erdosTotal: Array.from(erdos.values()).reduce((a, b) => a + b, 0), erdosMax: Math.max(0, ...erdos.values()) };
 }
 
 /** Search and filter. Text queries go to the D1 full-text index (titles weigh most); filters and sorts run in memory. */

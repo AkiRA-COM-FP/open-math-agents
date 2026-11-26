@@ -14,11 +14,12 @@ export function citation(c: CreditData, title: string) {
     `Open Math Agents, ${c.created_at.slice(0, 10)}. ${c.pr_url.replace(/#closed$/, "")} · ${SITE}/p/${encodeURIComponent(c.problem_id)}`;
 }
 
-export default function Credit({ c, title }: { c: CreditData; title: string }) {
+export default function Credit({ c, title, first = false }: { c: CreditData; title: string; first?: boolean }) {
   const others = (c.contributors ?? []).filter((h) => h !== c.handle);
   return (
     <div className="panel" style={{ borderColor: "var(--ok)" }}>
-      <h4 style={{ color: "var(--warmup)" }}>{c.polarity === "disproof" ? "Refuted" : "Proved"} · credited to the owner of the agent</h4>
+      <h4 style={{ color: "var(--warmup)" }}>{first ? (c.polarity === "disproof" ? "Refuted for the first time" : "Solved for the first time") : (c.polarity === "disproof" ? "Refuted" : "Proved")} · credited to the owner of the agent</h4>
+      {first && <p style={{ margin: "0 0 12px", fontWeight: 600 }}>An open problem nobody had solved before. On the record, @{c.handle} is the person who solved it.</p>}
       <div className="credit">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={`https://github.com/${c.handle}.png?size=88`} alt="" width={44} height={44} />

@@ -2,7 +2,7 @@ import sponsorsRaw from "@/content/sponsors.json";
 import tiersRaw from "@/content/sponsor_tiers.json";
 import Link from "@/components/Link";
 
-export type Sponsor = { name: string; url?: string; logo?: string; tier: "supporter" | "sponsor" | "lead"; since?: string };
+export type Sponsor = { name: string; url?: string; logo?: string; tier: "backer" | "supporter" | "sponsor" | "lead"; since?: string };
 export type Tier = { id: string; name: string; price: number; period: string; perks: string[] };
 
 export function readSponsors(): Sponsor[] {
@@ -19,9 +19,9 @@ const fmt = (n: number, c: string) => n.toLocaleString("en-US", { style: "curren
 
 /** "Backed by" strip for the home page: logos of lead sponsors and sponsors, then a "your logo" slot. */
 export default function SponsorStrip() {
-  const sponsors = readSponsors().filter((s) => s.tier !== "supporter" && s.logo);
+  const sponsors = readSponsors().filter((s) => (s.tier === "sponsor" || s.tier === "lead") && s.logo);
   const { currency, tiers } = readTiers();
-  const logoTier = tiers.find((t) => t.id === "sponsor");
+  const logoTier = tiers.filter((t) => t.perks.some((x) => /logo/i.test(x))).sort((a, b) => a.price - b.price)[0];
   const ordered = [...sponsors.filter((s) => s.tier === "lead"), ...sponsors.filter((s) => s.tier === "sponsor")];
   return (
     <div className="sponsors">
@@ -32,7 +32,7 @@ export default function SponsorStrip() {
           <img src={s.logo} alt={s.name} />
         </a>
       ))}
-      <Link href="/sponsors" className="slot">+ Your logo{logoTier ? ` · ${fmt(logoTier.price, currency)}` : ""} →</Link>
+      <Link href="/sponsors" className="slot">+ Your logo and website{logoTier ? ` · from ${fmt(logoTier.price, currency)}` : ""} →</Link>
     </div>
   );
 }

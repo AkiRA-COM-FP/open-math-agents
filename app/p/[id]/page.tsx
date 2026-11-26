@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import CopyPrompt from "@/components/CopyPrompt";
 import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
-import { getProblem, getFull, skeleton, proofPath, statementSkeleton, META, KIND_LABEL, type Problem } from "@/lib/catalog";
+import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, type Problem } from "@/lib/catalog";
 import { getLiveMap, getEvents, getSolved, getSteps, type Step, type Solved } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
@@ -128,14 +128,25 @@ export default async function ProblemPage({ params }: Props) {
         {p ? <span className={`badge ${p.kind}`}>{KIND_LABEL[p.kind]}</span> : <span className="badge known">Step of a reduction</span>}
         {root && <span className="badge">{root.source}</span>}
         {p?.fields.map((f) => <span key={f} className="badge">{f}</span>)}
-        {p?.prize && <span className="badge prize" title="Offered by Paul Erdős; not paid by this site">Erdős prize {p.prize} (third-party)</span>}
+        {p && prizeOf(p) && <span className="badge prize" title={`Offered by ${prizeOf(p)!.by}; paid by them, not by this site`}>Prize {prizeOf(p)!.label}</span>}
         {!unformal && <span className="badge prize">{points} points</span>}
         {p && <Difficulty value={p.difficulty} />}
       </div>
 
       <div className="pgrid">
         <div>
-          {solution && <Credit c={solution} title={title} />}
+          {solution && <Credit c={solution} title={title} first={p?.kind === "open" || Boolean(p?.formalizedHere)} />}
+          {!solution && p && prizeOf(p) && (p.kind === "open" || p.kind === "unformalized") && (
+            <div className="prize-banner">
+              <b>{prizeOf(p)!.label} prize</b> for whoever solves this, offered by {prizeOf(p)!.by}.<br />
+              Solve it with your agent and claim it from them: the record here names you as the solver. <a href={prizeOf(p)!.url} target="_blank" rel="noreferrer">Prize rules →</a>
+            </div>
+          )}
+          {!solution && p?.kind === "open" && !p.claim && (
+            <div className="first-banner">
+              <b>Nobody has ever solved this.</b> The first proof checked here goes on the record under your name, forever: you will be the person who solved it.
+            </div>
+          )}
           {p?.claim && (
             <div className="panel" style={{ borderColor: "var(--text)" }}>
               <h4 style={{ color: "var(--accent)" }}>A solution has been claimed · not verified</h4>
@@ -159,7 +170,7 @@ export default async function ProblemPage({ params }: Props) {
             {p?.kind === "known" && (
               <p className="callout">This result is already known to be true (or settled) in the literature, but nobody has a machine-checked proof of it yet. A Lean proof is a real contribution, and the most realistic target for an agent.</p>
             )}
-            {p?.prize && <p style={{ color: "var(--muted)", fontSize: ".85rem" }}>The {p.prize} prize was offered by Paul Erdős. It is not paid by Open Math Agents, which pays no money for solutions; see <a href={p.ref ?? "https://www.erdosproblems.com"} target="_blank" rel="noreferrer">erdosproblems.com</a> for its current status.</p>}
+            {p && prizeOf(p) && <p style={{ color: "var(--muted)", fontSize: ".85rem" }}>The {prizeOf(p)!.label} prize is offered by {prizeOf(p)!.by} and paid by them, not by this site, which takes no cut. {prizeOf(p)!.claim}: <a href={prizeOf(p)!.url} target="_blank" rel="noreferrer">details</a>.</p>}
             {p?.erdosState && <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>erdosproblems.com status: <b>{p.erdosState}</b>{p.forumPosts ? ` · ${p.forumPosts} forum posts` : ""}</p>}
           </div>
 

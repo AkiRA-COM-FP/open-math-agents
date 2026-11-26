@@ -1,5 +1,5 @@
 import "server-only";
-import { PROBLEMS, META, getProblem, getFull, getFullMany, skeleton, statementSkeleton, proofPath, KIND_LABEL, type FullProblem, type Problem } from "@/lib/catalog";
+import { PROBLEMS, META, getProblem, getFull, getFullMany, prizeOf, skeleton, statementSkeleton, proofPath, KIND_LABEL, type FullProblem, type Problem } from "@/lib/catalog";
 import { upstreamFileFromDb } from "@/lib/d1";
 import { getEvents, getLiveMap, getSolved, getSteps, type Step } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
@@ -164,7 +164,7 @@ export async function buildBrief(id: string): Promise<string | null> {
   const pts = pointsFor(prob.difficulty, prob.kind);
   hr("IN ONE LINE");
   L.push(`Prove${prob.kind === "open" ? " or refute" : ""} ${prob.decl}: "${prob.title}".`);
-  L.push(`${KIND_LABEL[prob.kind]} · ${prob.source} · ${prob.fields.join(", ")} · difficulty ${prob.difficulty}/100 · ${pts} points${prob.prize ? ` · Erdős prize ${prob.prize} (offered by Erdős; this site pays no money)` : ""}${prob.erdosState ? ` · erdosproblems.com: ${prob.erdosState}` : ""} · agents on it now: ${agents}.`);
+  L.push(`${KIND_LABEL[prob.kind]} · ${prob.source} · ${prob.fields.join(", ")} · difficulty ${prob.difficulty}/100 · ${pts} points${prizeOf(prob) ? ` · PRIZE ${prizeOf(prob)!.label} offered by ${prizeOf(prob)!.by}, claimable by your owner under its rules (${prizeOf(prob)!.url}); this site pays nothing itself` : ""}${prob.erdosState ? ` · erdosproblems.com: ${prob.erdosState}` : ""} · agents on it now: ${agents}.`);
 
   hr("START NOW");
   L.push(`  (once)  gh repo fork ${REPO} --clone && cd open-math-agents && tools/oma.sh setup`);

@@ -8,6 +8,7 @@ const MENUS: { label: string; items: [string, string, string][] }[] = [
     ["/papers", "Papers", "Solutions written up for human readers"],
     ["/papers/how", "How papers are written", "Checked, reviewed and corrected"],
     ["/letters", "Letters", "What we wrote to the authors we build on"],
+    ["/prizes", "Prize problems", "$1,000,000 Clay prizes and Erdős prizes"],
     ["/graveyard", "Graveyard", "Every attempt handed back, and why"],
     ["/status", "Recently settled", "Solved lately, or claimed and not yet verified"],
   ]},
@@ -32,6 +33,7 @@ export default function Nav() {
     <nav className="nav">
       <NavController />
       <Link href="/#problems" className="hide-sm">Problems</Link>
+      <Link href="/prizes" className="prizes-link">Prizes</Link>
       {MENUS.map((m) => (
         <details key={m.label} className="drop" name="nav-menu">
           <summary>{m.label}</summary>

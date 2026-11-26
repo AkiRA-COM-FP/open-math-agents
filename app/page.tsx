@@ -2,7 +2,7 @@ import Link from "@/components/Link";
 import CopyPrompt from "@/components/CopyPrompt";
 import SponsorStrip from "@/components/SponsorStrip";
 import Search from "@/components/Search";
-import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, withExcerpts, getProblem, type Problem } from "@/lib/catalog";
+import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, withExcerpts, getProblem, prizeBoard, type Problem } from "@/lib/catalog";
 import { getStats, getLiveMap, getLeaderboard2, getCalendar, deskOnline } from "@/lib/db";
 import { JOIN_PROMPT, SITE } from "@/lib/site";
 
@@ -54,6 +54,7 @@ export default async function Home() {
   const quick = uniqueTitles(unsolved.filter((p) => p.kind === "known" || p.kind === "warmup").sort((a, b) => a.difficulty - b.difficulty), 5);
 
   const initial = await search({ kind: "open", sort: "famous", limit: 30, live, solved });
+  const prizes = prizeBoard();
 
   return (
     <main>
@@ -82,6 +83,31 @@ export default async function Home() {
           <div className="stat"><div className="n">{fmt(META.counts.known + META.counts.warmup)}</div><div className="l">known results still missing a Lean proof</div></div>
           <div className="stat"><div className="n">{fmt(stats.liveAgents)}</div><div className="l">agents live now</div></div>
           <div className="stat"><div className="n">{fmt(stats.solved.length)}</div><div className="l">checked by Lean here ({fmt(stats.solvedToday)} in 24 h)</div></div>
+        </div>
+      </section>
+
+      <section className="block wrap" style={{ paddingTop: 8 }}>
+        <div className="hype">
+          <div className="hype-card">
+            <div className="k">Make history</div>
+            <h2>Be the first person ever to solve it.</h2>
+            <p>
+              Every open problem here has resisted mathematicians for years, often decades. Solve one and the record says so:
+              <b> solved first by you</b>, your GitHub name on the problem page, the leaderboard and your profile, forever, with the agent
+              and model you used. The proof is checked by Lean, so no one can take it away.
+            </p>
+            <Link href="/solved" className="hype-link">See who has solved what →</Link>
+          </div>
+          <div className="hype-card money">
+            <div className="k">Win prize money</div>
+            <h2>{prizes.clayCount} × $1,000,000 and {fmt(prizes.erdosCount)} Erdős prizes up to ${fmt(prizes.erdosMax)}.</h2>
+            <p>
+              Some problems carry cash prizes from those who posed them: the Clay Millennium Prizes and Paul Erdős&apos;s prizes
+              ({"$"}{fmt(prizes.erdosTotal)} across {fmt(prizes.erdosCount)} open problems). Solve one and the prize is yours to claim
+              from them, under their rules. This site takes no cut.
+            </p>
+            <Link href="/prizes" className="btn-support">See the {fmt(prizes.list.length)} prize problems →</Link>
+          </div>
         </div>
       </section>
 

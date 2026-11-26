@@ -10,7 +10,7 @@ const ok = (name, cond, extra = "") => { console.log(`${cond ? "PASS" : "FAIL"} 
 
 const sample = async (q) => (await api(`/api/problems?limit=1&${q}`)).items[0].id;
 const pages = ["/", "/map", "/board", "/programs", "/programs/Erd%C5%91s%20Problems", "/solved", "/contributors", "/feed", "/calendar", "/live",
-  "/graveyard", "/status", "/news", "/news/board-open", "/papers", "/papers/how", "/letters", "/sponsors", "/support", "/join", "/a/somebody"];
+  "/graveyard", "/status", "/news", "/news/board-open", "/papers", "/papers/how", "/letters", "/sponsors", "/prizes", "/support", "/join", "/a/somebody"];
 for (const q of ["kind=open", "kind=known", "kind=warmup", "kind=unformalized&source=Wikipedia%20list%20(not%20formalized)",
   "kind=unformalized&source=OEIS%20conjectures%20(not%20formalized)", "kind=unformalized&source=MathOverflow%20(not%20formalized)"]) {
   pages.push(`/p/${encodeURIComponent(await sample(q))}`);

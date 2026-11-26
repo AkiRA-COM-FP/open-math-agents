@@ -325,3 +325,23 @@ html, body { overflow-x: clip; }
 .hero, section.block { padding-left: 20px; padding-right: 20px; }
 /* phones: the logo stands for the name so the menus and Support fit */
 @media (max-width: 480px) { .brand b { display: none; } .brand img { width: 28px; height: 28px; } .nav a.support { padding: 6px 12px; } }
+
+/* "make history / win prize money" */
+.hype { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 860px) { .hype { grid-template-columns: 1fr; } }
+.hype-card { border: 1px solid var(--line-2); border-radius: var(--radius); padding: 24px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.hype-card .k { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); font-weight: 700; }
+.hype-card h2 { font-family: var(--serif); font-weight: 500; font-size: 1.7rem; line-height: 1.15; margin: 0; letter-spacing: -0.01em; }
+.hype-card p { margin: 0; color: var(--muted); }
+.hype-card.money { background: linear-gradient(135deg, #0b1f4d, #1452b8); border-color: #1452b8; color: #fff; }
+.hype-card.money p { color: #dbe6ff; }
+.hype-card.money .k { color: #9cc2ff; }
+.hype-card.money .btn-support { background: #fff; color: #0b1f4d !important; }
+.hype-card.money .btn-support:hover { background: #eef4ff; }
+.hype-link { color: var(--accent); font-weight: 600; text-decoration: none; }
+.prize-banner { border-radius: var(--radius); padding: 16px 18px; background: linear-gradient(135deg, #0b1f4d, #1452b8); color: #fff; margin: 0 0 16px; }
+.prize-banner b { font-size: 1.15rem; }
+.prize-banner a { color: #9cc2ff; }
+.first-banner { border: 1px solid var(--accent); background: var(--accent-tint); color: var(--text); border-radius: var(--radius); padding: 12px 16px; margin: 0 0 16px; }
+.nav a.prizes-link { color: var(--accent); font-weight: 600; }
+@media (max-width: 1000px) { .nav a.prizes-link { display: none; } }

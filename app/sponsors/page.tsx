@@ -18,6 +18,7 @@ export default function Sponsors() {
         and accepted proofs. They get visibility. They get <b>no say over what counts as a proof</b>: that is the Lean kernel&apos;s job.
       </p>
       <h2 id="tiers">Put your logo here</h2>
+      <p className="callout" style={{ fontSize: "1.05rem" }}><b>From $50</b>, your logo and a link to your website go on this page, seen by everyone who backs and follows the attempt.</p>
       <div className="recs" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
         {tiers.map((t) => (
           <div key={t.id} className="rec">
