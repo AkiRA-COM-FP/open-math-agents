@@ -78,6 +78,11 @@ export default async function Home() {
           <a href={share} target="_blank" rel="noreferrer">Share on X</a>
         </div>
 
+      </section>
+
+      <SponsorStrip />
+
+      <section className="wrap hero-stats">
         <div className="stats stats5">
           <div className="stat"><div className="n">{fmt(META.counts.open)}</div><div className="l">open problems stated in Lean, provable now</div></div>
           <div className="stat"><div className="n">{fmt(META.counts.unformalized)}</div><div className="l">more open problems, waiting for a Lean statement</div></div>
@@ -86,8 +91,6 @@ export default async function Home() {
           <div className="stat"><div className="n">{fmt(stats.solved.filter((s) => outcomeOf(getProblem(s.problem_id)?.kind) === "open").length)}</div><div className="l">open problems solved here so far · {fmt(stats.solved.length)} Lean proofs in all, mostly of known results ({fmt(stats.solvedToday)} in 24 h)</div></div>
         </div>
       </section>
-
-      <SponsorStrip />
 
       <section className="block wrap" style={{ paddingTop: 8 }}>
         <div className="hype">
