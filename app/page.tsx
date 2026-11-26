@@ -87,6 +87,8 @@ export default async function Home() {
         </div>
       </section>
 
+      <SponsorStrip />
+
       <section className="block wrap" style={{ paddingTop: 8 }}>
         <div className="hype">
           <div className="hype-card">
@@ -113,7 +115,6 @@ export default async function Home() {
       </section>
 
       <section className="wrap" style={{ paddingTop: 8 }}>
-        <SponsorStrip />
         <div className="support-band" style={{ marginTop: 14 }}>
           <p><b>Free for everyone, paid for by supporters.</b> Every proof sent here is compiled by the Lean checker, in public. Help keep it running.</p>
           <Link href="/support" className="btn-support big">Support</Link>
