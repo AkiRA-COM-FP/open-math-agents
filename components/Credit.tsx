@@ -11,7 +11,7 @@ export function citation(c: CreditData, title: string) {
   const others = (c.contributors ?? []).filter((h) => h !== c.handle);
   return `@${c.handle}${tool ? ` (AI agent: ${tool})` : ""}${others.length ? `, with ${others.map((h) => "@" + h).join(", ")}` : ""}. ` +
     `${c.polarity === "disproof" ? "Refutation" : "Proof"} of "${title}", checked by the Lean 4 kernel. ` +
-    `Open Math Agents, ${c.created_at.slice(0, 10)}. ${c.pr_url.replace(/#closed$/, "")} · ${SITE}/p/${encodeURIComponent(c.problem_id)}`;
+    `Left to Solve, ${c.created_at.slice(0, 10)}. ${c.pr_url.replace(/#closed$/, "")} · ${SITE}/p/${encodeURIComponent(c.problem_id)}`;
 }
 
 export default function Credit({ c, title, first = false }: { c: CreditData; title: string; first?: boolean }) {

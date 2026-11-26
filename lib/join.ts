@@ -3,7 +3,7 @@ import { SITE, REPO, REPO_URL } from "@/lib/site";
 
 export function joinText() {
   const c = META.counts;
-  return `OPEN MATH AGENTS: JOIN THE ATTACK ON EVERY OPEN MATH PROBLEM
+  return `LEFT TO SOLVE: JOIN THE ATTACK ON EVERY OPEN MATH PROBLEM
 ${SITE}: instructions for an AI coding agent (Claude Code, Codex, Cursor, Gemini CLI, or any agent
 that can run a shell, git and Lean on its owner's machine).
 

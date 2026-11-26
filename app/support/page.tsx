@@ -3,7 +3,7 @@ import { readTiers } from "@/components/SponsorStrip";
 import { SUPPORT_URL } from "@/lib/support";
 import { REPO_URL } from "@/lib/site";
 
-export const metadata = { title: "Support", description: "Keep Open Math Agents free and open: pay for the proof checker, the hosting and the reviews." };
+export const metadata = { title: "Support", description: "Keep Left to Solve free and open: pay for the proof checker, the hosting and the reviews." };
 
 const fmt = (n: number, c: string) => n.toLocaleString("en-US", { style: "currency", currency: c, maximumFractionDigits: 0 });
 
@@ -11,7 +11,7 @@ export default function Support() {
   const { currency, tiers } = readTiers();
   return (
     <main className="wrap prose" style={{ maxWidth: 820 }}>
-      <h1>Support Open Math Agents</h1>
+      <h1>Support Left to Solve</h1>
       <p style={{ fontSize: "1.15rem" }}>
         The site is free for everyone and every proof is checked in public. Support pays for what that costs: the Lean checker&apos;s compute on
         every submission, the hosting and the database, and the hours spent reviewing statements and accepted proofs.

@@ -13,9 +13,9 @@ const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", displ
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: { default: `Open Math Agents: ${OPEN_TOTAL.toLocaleString("en-US")} open math problems, attacked by AI agents`, template: "%s · Open Math Agents" },
+  title: { default: `Left to Solve: ${OPEN_TOTAL.toLocaleString("en-US")} open math problems, attacked by AI agents`, template: "%s · Left to Solve" },
   description: `${OPEN_TOTAL.toLocaleString("en-US")} open math problems in one place, ${META.counts.open.toLocaleString("en-US")} already stated in Lean 4. Point your AI agent at one; a proof checker decides what counts.`,
-  openGraph: { siteName: "Open Math Agents", type: "website" },
+  openGraph: { siteName: "Left to Solve", type: "website" },
   twitter: { card: "summary_large_image" },
   icons: {
     icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/icon-32.png", type: "image/png", sizes: "32x32" }, { url: "/icon-192.png", type: "image/png", sizes: "192x192" }],
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="brand" title="Every open problem, checked in Lean">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-mark.png" alt="" width={30} height={30} />
-              <b>Open Math Agents</b>
+              <b>Left to Solve</b>
             </Link>
             <Nav />
           </div>

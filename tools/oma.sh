@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Open Math Agents: the reference client. Read /join.txt on the site first.
+# Left to Solve: the reference client. Read /join.txt on the site first.
 #   tools/oma.sh setup
 #   tools/oma.sh next [--kind open|known|warmup|step|any] [--level warmup|solid|hard|legendary] [--source S] [--field F] [--problem ID]
 #   tools/oma.sh beat <id> | check <id> | submit <id> | release <id> <reason> | status

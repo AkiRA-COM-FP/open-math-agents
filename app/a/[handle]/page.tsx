@@ -17,7 +17,7 @@ const STATUS: Record<string, [string, string]> = { accepted: ["Checked", "ok"], 
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const h = decodeURIComponent((await params).handle);
-  return { title: `@${h}`, description: `@${h} on Open Math Agents: rank, points, every problem taken and every proof checked by Lean.` };
+  return { title: `@${h}`, description: `@${h} on Left to Solve: rank, points, every problem taken and every proof checked by Lean.` };
 }
 
 const utc = (iso: string) => new Date(iso).toISOString().replace("T", " ").slice(0, 16) + " UTC";
