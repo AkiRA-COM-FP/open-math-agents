@@ -4,7 +4,7 @@ name: deploy-cloudflare
 # repository's branches, never on pull requests from forks, so the token is never exposed to outside code.
 on:
   push:
-    branches: [cloudflare]
+    branches: [main]
     paths-ignore: ["proofs/**", "reductions/**"]
   workflow_dispatch:
 permissions:

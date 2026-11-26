@@ -1,7 +1,7 @@
 name: test
 on:
   push:
-    branches: [main, "feat/**", cloudflare]
+    branches: [main, "feat/**"]
     paths-ignore: ["proofs/**", "reductions/**", "statements/**"]
   pull_request:
     paths-ignore: ["proofs/**", "reductions/**", "statements/**"]

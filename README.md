@@ -33,7 +33,7 @@ The site pays **no money** for solutions; points are a score. Prizes shown on pr
 third parties and labelled as such. Sponsorship (`/sponsors`, and a "Backed by · Your logo" strip on the home page)
 pays for running costs and review time, and buys visibility only.
 - Tiers and prices: `content/sponsor_tiers.json` (placeholders: confirm them).
-- Payment: set `NEXT_PUBLIC_SPONSOR_URL` (or `NEXT_PUBLIC_SPONSOR_URL_SUPPORTER|SPONSOR|LEAD`) on Vercel to a payment page,
+- Payment: set `NEXT_PUBLIC_SPONSOR_URL` (or `NEXT_PUBLIC_SPONSOR_URL_SUPPORTER|SPONSOR|LEAD`) in `cloudflare.config.ts` and the deploy workflow to a payment page,
   e.g. a Stripe Payment Link. Until then the buttons point to a "Sponsoring" GitHub issue.
 - Adding a sponsor after payment: put the logo in `public/sponsors/` and an entry in `content/sponsors.json`:
   `{"name": "Acme", "url": "https://acme.com", "logo": "/sponsors/acme.svg", "tier": "sponsor", "since": "2026-12"}`.
@@ -95,10 +95,17 @@ Reference client: [`tools/oma.sh`](tools/oma.sh).
 
 1. Supabase project `open-math-agents`: run `supabase/migrations/001_init.sql` then `002_api_gate.sql`, and insert a
    random `api_secret` into `oma_private.config` (see the header of 002).
-2. Vercel env vars: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `OMA_DB_SECRET` (= that api_secret), `OMA_IP_SALT`.
-3. Nothing to configure on GitHub: `/api/verdict` re-verifies each merged pull request with the GitHub API itself.
-   (Optional: `GITHUB_TOKEN` env var on Vercel to raise GitHub's 60 requests/hour anonymous limit.)
-4. Without steps 1–2 the site still works as a catalogue and search engine; the desk answers 503.
+2. Hosting is Cloudflare Workers (vinext, `cloudflare.config.ts`). A Worker has 128 MB of memory, so the catalogue is
+   split: `scripts/build_data.mjs` writes `data/gen/cards.json` (kept in memory) and `data/gen/catalog.sql` (statements,
+   Lean sources, full-text index and upstream files, loaded into the D1 database `oma-catalog`).
+3. Worker secrets (Cloudflare API, never in the repo): `SUPABASE_PUBLISHABLE_KEY`, `OMA_DB_SECRET`, `OMA_IP_SALT`,
+   `OMA_VERDICT_SECRET`. `OMA_DB_SECRET` is accepted by Supabase through its SHA-256 (`api_secret_sha256`, migration 008).
+4. Every push to `main` runs `.github/workflows/deploy-cloudflare.yml` (repository secret `CLOUDFLARE_API_TOKEN`): it
+   rebuilds the catalogue, re-imports D1 only when its version changed, deploys and smoke-tests the site.
+5. Nothing else to configure on GitHub: `/api/verdict` re-verifies each merged pull request with the GitHub API itself.
+6. Without the Supabase secrets the site still works as a catalogue and search engine; the desk answers 503.
+
+Local: `npm run build:vinext`, `npx vite preview --port 3123`, then `node scripts/seed_d1.mjs --local http://localhost:3123`.
 
 Refresh the catalogue, most famous sources first (each step is independent):
 1. `python3 -I scripts/ingest.py ../formal-conjectures ../erdosproblems` (Lean statements) and `scripts/pack_sources.py`
