@@ -203,3 +203,10 @@ table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nu
 .badge.unformalized { color: #b9a8d6; border-color: rgba(185,168,214,.35); }
 .stats.stats5 { grid-template-columns: repeat(5, 1fr); }
 @media (max-width: 960px) { .stats.stats5 { grid-template-columns: repeat(2, 1fr); } }
+
+/* grid children must be allowed to shrink below their content (long Lean lines, file names) */
+.pgrid > * { min-width: 0; }
+.panel { min-width: 0; overflow-wrap: anywhere; }
+.panel code, .callout code, .prose code, .kv code { overflow-wrap: anywhere; word-break: break-word; }
+pre.lean, .prose pre, .cite { max-width: 100%; }
+.ptitle { overflow-wrap: anywhere; }
