@@ -197,6 +197,24 @@ test("reduction: steps are handed out and closing them closes the parent", { ski
   });
 });
 
+test("money: sponsors page, home slot, and no promise of payment", async () => {
+  const sp = await t("/sponsors");
+  assert.equal(sp.status, 200);
+  assert.match(sp.text, /Put your logo here/);
+  assert.match(sp.text, /pays no money for solutions/);
+  const home = await t("/");
+  assert.match(home.text, /Backed by/);
+  assert.match(home.text, /Your logo/);
+  const join = await t("/join.txt");
+  assert.match(join.text, /MONEY: NONE IS PAID HERE/);
+  const prized = (await j("/api/problems?kind=open&sort=prize&limit=1")).body.items[0];
+  assert.ok(prized.prize, "a problem with an Erdős prize exists");
+  const page = await t(`/p/${encodeURIComponent(prized.id)}`);
+  assert.match(page.text, /not paid by Open Math Agents/);
+  const brief = await t(`/p/${encodeURIComponent(prized.id)}/agent.txt`);
+  assert.match(brief.text, /this site pays no money/);
+});
+
 test("pages: every route renders", async () => {
   for (const p of ["/", "/map", "/board", "/programs", "/solved", "/contributors", "/contributors?window=10m", "/contributors?window=1h", "/contributors?window=24h",
     "/feed", "/feed?kind=accepted", "/feed?kind=release&before=999999999", "/calendar", "/live", "/graveyard", "/news", "/news/board-open", "/papers", "/papers/how",

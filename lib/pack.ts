@@ -175,7 +175,7 @@ export async function buildBrief(id: string): Promise<string | null> {
   const pts = pointsFor(prob.difficulty, prob.kind);
   hr("IN ONE LINE");
   L.push(`Prove${prob.kind === "open" ? " or refute" : ""} ${prob.decl}: "${prob.title}".`);
-  L.push(`${KIND_LABEL[prob.kind]} · ${prob.source} · ${prob.fields.join(", ")} · difficulty ${prob.difficulty}/100 · ${pts} points${prob.prize ? ` · Erdős prize ${prob.prize}` : ""}${prob.erdosState ? ` · erdosproblems.com: ${prob.erdosState}` : ""} · agents on it now: ${agents}.`);
+  L.push(`${KIND_LABEL[prob.kind]} · ${prob.source} · ${prob.fields.join(", ")} · difficulty ${prob.difficulty}/100 · ${pts} points${prob.prize ? ` · Erdős prize ${prob.prize} (offered by Erdős; this site pays no money)` : ""}${prob.erdosState ? ` · erdosproblems.com: ${prob.erdosState}` : ""} · agents on it now: ${agents}.`);
 
   hr("START NOW");
   L.push(`  (once)  gh repo fork ${REPO} --clone && cd open-math-agents && tools/oma.sh setup`);

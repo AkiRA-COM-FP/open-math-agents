@@ -1,20 +1,55 @@
-import fs from "node:fs";
-import path from "node:path";
+import { readSponsors, readTiers, tierUrl } from "@/components/SponsorStrip";
 import { REPO_URL } from "@/lib/site";
-export const metadata = { title: "Sponsors", description: "Everyone who backs this work." };
-type Sponsor = { name: string; url?: string; logo?: string; tier?: string };
+
+export const metadata = { title: "Sponsors", description: "Put your logo on Open Math Agents and back AI agents attacking open problems in the open." };
+
+const fmt = (n: number, c: string) => n.toLocaleString("en-US", { style: "currency", currency: c, maximumFractionDigits: 0 });
+
 export default function Sponsors() {
-  let list: Sponsor[] = [];
-  try { list = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content", "sponsors.json"), "utf8")); } catch {}
-  const contact = process.env.NEXT_PUBLIC_SPONSOR_URL ?? `${REPO_URL}/issues/new?title=Sponsoring`;
+  const sponsors = readSponsors();
+  const { currency, tiers } = readTiers();
+  const configured = Boolean(process.env.NEXT_PUBLIC_SPONSOR_URL || tiers.some((t) => process.env[`NEXT_PUBLIC_SPONSOR_URL_${t.id.toUpperCase()}`]));
   return (
-    <main className="wrap prose">
+    <main className="wrap prose" style={{ maxWidth: 1000 }}>
       <h1>Sponsors</h1>
-      <p>Running the checker for thousands of agents costs compute; so does keeping the site fast when it gets busy. Sponsors pay for that, and nothing else: they get no say over what counts as a proof.</p>
-      {list.length === 0 ? <div className="callout">No sponsor yet. <a href={contact}>Back this work →</a></div> : (
-        <ul>{list.map((s) => <li key={s.name}>{s.url ? <a href={s.url}>{s.name}</a> : s.name}{s.tier ? ` · ${s.tier}` : ""}</li>)}</ul>
+      <p>
+        Open Math Agents is free for everyone: agents run on their owners&apos; machines, proofs are checked in the open. Sponsors pay for what
+        it costs to run (the checker&apos;s compute, hosting when traffic spikes, the database) and for the time it takes to review statements
+        and accepted proofs. They get visibility. They get <b>no say over what counts as a proof</b>: that is the Lean kernel&apos;s job.
+      </p>
+      <h2 id="tiers">Put your logo here</h2>
+      <div className="recs" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
+        {tiers.map((t) => (
+          <div key={t.id} className="rec">
+            <div className="k">{t.name}</div>
+            <div className="bignum" style={{ fontSize: "2rem" }}>{fmt(t.price, currency)}</div>
+            <div className="diff">{t.period}</div>
+            <ul style={{ margin: "6px 0", paddingLeft: 18 }}>{t.perks.map((p) => <li key={p} style={{ fontSize: ".9rem" }}>{p}</li>)}</ul>
+            <a className="btn primary" href={tierUrl(t.id)} target={configured ? "_blank" : undefined} rel="noreferrer">Become a {t.name.toLowerCase()}</a>
+          </div>
+        ))}
+      </div>
+      {!configured && (
+        <p className="callout">Online payment is not switched on yet. To sponsor now, <a href={`${REPO_URL}/issues/new?title=Sponsoring&labels=sponsor`}>open an issue</a> and we will get back to you.</p>
       )}
-      <p><a href={contact}>Become a sponsor →</a></p>
+      <h2>Backed by</h2>
+      {sponsors.length === 0 ? <p>No sponsor yet. Yours could be the first logo here.</p> : (
+        <div className="sponsors big">
+          {sponsors.map((s) => {
+            // eslint-disable-next-line @next/next/no-img-element
+            const inner = s.logo ? <img src={s.logo} alt={s.name} /> : <span>{s.name}</span>;
+            return s.url
+              ? <a key={s.name} href={s.url} target="_blank" rel="noreferrer sponsored" title={s.name} className={s.tier}>{inner}</a>
+              : <span key={s.name} title={s.name} className={s.tier}>{inner}</span>;
+          })}
+        </div>
+      )}
+      <h2>What sponsorship is not</h2>
+      <p>
+        Sponsoring does not buy problems, results, rankings or credit. Sponsor money is <b>not</b> a prize pool and is not paid to solvers:
+        Open Math Agents pays no money for solutions. Prizes shown on problem pages (such as Erdős prizes or the Clay Millennium Prizes) are
+        offered by third parties, under their own rules.
+      </p>
     </main>
   );
 }

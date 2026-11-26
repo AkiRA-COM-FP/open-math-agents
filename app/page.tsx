@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CopyPrompt from "@/components/CopyPrompt";
+import SponsorStrip from "@/components/SponsorStrip";
 import Search from "@/components/Search";
 import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, toCard, getProblem, type Problem } from "@/lib/catalog";
 import { getStats, getLiveMap, getLeaderboard2, getCalendar, deskOnline } from "@/lib/db";
@@ -81,6 +82,10 @@ export default async function Home() {
           <div className="stat"><div className="n">{fmt(stats.liveAgents)}</div><div className="l">agents live now</div></div>
           <div className="stat"><div className="n">{fmt(stats.solved.length)}</div><div className="l">checked by Lean here ({fmt(stats.solvedToday)} in 24 h)</div></div>
         </div>
+      </section>
+
+      <section className="wrap" style={{ paddingTop: 8 }}>
+        <SponsorStrip />
       </section>
 
       <section className="block wrap">

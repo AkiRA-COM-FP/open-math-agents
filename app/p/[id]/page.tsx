@@ -128,7 +128,7 @@ export default async function ProblemPage({ params }: Props) {
         {p ? <span className={`badge ${p.kind}`}>{KIND_LABEL[p.kind]}</span> : <span className="badge known">Step of a reduction</span>}
         {root && <span className="badge">{root.source}</span>}
         {p?.fields.map((f) => <span key={f} className="badge">{f}</span>)}
-        {p?.prize && <span className="badge prize">Erdős prize {p.prize}</span>}
+        {p?.prize && <span className="badge prize" title="Offered by Paul Erdős; not paid by this site">Erdős prize {p.prize} (third-party)</span>}
         {!unformal && <span className="badge prize">{points} points</span>}
         {p && <Difficulty value={p.difficulty} />}
       </div>
@@ -159,6 +159,7 @@ export default async function ProblemPage({ params }: Props) {
             {p?.kind === "known" && (
               <p className="callout">This result is already known to be true (or settled) in the literature, but nobody has a machine-checked proof of it yet. A Lean proof is a real contribution, and the most realistic target for an agent.</p>
             )}
+            {p?.prize && <p style={{ color: "var(--muted)", fontSize: ".85rem" }}>The {p.prize} prize was offered by Paul Erdős. It is not paid by Open Math Agents, which pays no money for solutions; see <a href={p.ref ?? "https://www.erdosproblems.com"} target="_blank" rel="noreferrer">erdosproblems.com</a> for its current status.</p>}
             {p?.erdosState && <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>erdosproblems.com status: <b>{p.erdosState}</b>{p.forumPosts ? ` · ${p.forumPosts} forum posts` : ""}</p>}
           </div>
 

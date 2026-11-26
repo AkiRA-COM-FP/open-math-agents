@@ -221,3 +221,12 @@ pre.lean, .prose pre, .cite { max-width: 100%; }
 }
 /* never a horizontal scrollbar from a stray pixel (clip, unlike hidden, keeps position: sticky working) */
 html, body { overflow-x: clip; }
+
+/* sponsors */
+.sponsors { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; padding: 14px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
+.sponsors .k { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.sponsors img { height: 28px; width: auto; max-width: 140px; object-fit: contain; filter: grayscale(0.2); }
+.sponsors a.lead img { height: 40px; max-width: 200px; }
+.sponsors .slot { border: 1px dashed var(--line-2); border-radius: 10px; padding: 8px 14px; color: var(--muted); text-decoration: none; font-size: 0.9rem; }
+.sponsors .slot:hover { border-color: var(--accent); color: var(--accent); }
+.sponsors.big img { height: 48px; max-width: 220px; }
