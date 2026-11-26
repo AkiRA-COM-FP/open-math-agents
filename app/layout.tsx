@@ -29,11 +29,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header className="top">
           <div className="wrap">
-            <Link href="/" className="brand" title="Every open problem, checked in Lean">
+            {/* A plain link, not the client router: always a full return to the top of the home page. */}
+            <a href="/" className="brand" title="Left to Solve: back to the home page" aria-label="Left to Solve, home page">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-mark.png" alt="" width={30} height={30} />
               <b>Left to Solve</b>
-            </Link>
+            </a>
             <Nav />
           </div>
         </header>
