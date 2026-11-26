@@ -11,6 +11,8 @@ export default defineConfig({
     compatibilityDate: "2026-11-10",
     // Custom domains (zone shipfastwith.me on this account). Kept here so a forced deploy never drops them.
     domains: ["shipfastwith.me", "www.shipfastwith.me"],
+    // Keep open-math-agents.openmathagents.workers.dev too (turned off by default once domains are set).
+    workersDev: true,
     assets: {
       htmlHandling: "none",
       notFoundHandling: "none",
