@@ -36,6 +36,11 @@ export default function Credit({ c, title, first = false }: { c: CreditData; tit
           )}
         </div>
       </div>
+      <p style={{ margin: "12px 0 0", fontSize: ".9rem" }}>
+        <b>Signed certificates:</b>{" "}
+        {[c.handle, ...others].map((h, i) => <span key={h}>{i ? " · " : ""}<Link href={`/c/${encodeURIComponent(c.problem_id)}/${h}`}>@{h}</Link></span>)}
+        {" "}<span style={{ color: "var(--faint)" }}>(share of each contributor, verifiable at <Link href="/verify">/verify</Link>)</span>
+      </p>
       <p style={{ color: "var(--faint)", fontSize: ".82rem", margin: "12px 0 6px" }}>Cite this result:</p>
       <div className="cite">{citation(c, title)}</div>
     </div>

@@ -155,6 +155,11 @@ export default async function Person({ params }: Props) {
                 ))}
               </div>
             )}
+            {proofs.length > 0 && (
+              <div className="sub" style={{ marginTop: 8 }}>
+                Signed certificates: {proofs.map((s, i) => <span key={s.pr_url}>{i ? " · " : ""}<Link href={`/c/${encodeURIComponent(s.problem_id)}/${h}`}>{s.problem_id.length > 30 ? s.problem_id.slice(0, 29) + "…" : s.problem_id}</Link></span>)}
+              </div>
+            )}
             {agents.length > 0 && <p className="sub" style={{ marginTop: 10 }}>Agents used: {agents.join(", ")}</p>}
 
             {p.live.length > 0 && (<>
@@ -175,7 +180,7 @@ export default async function Person({ params }: Props) {
               <div className="h2" style={{ marginTop: 30 }}><h2>Contributed to</h2></div>
               <div className="plist">
                 {p.contributed.map((c) => (
-                  <Link key={c.problem_id} href={`/p/${encodeURIComponent(c.problem_id)}`} className="pitem">
+                  <Link key={c.problem_id} href={`/c/${encodeURIComponent(c.problem_id)}/${h}`} className="pitem" title="Signed certificate of this contribution">
                     <span className="chk">Step</span>
                     <code>@{c.lead}</code>
                     <span className="pt">{title(c.problem_id)}</span>

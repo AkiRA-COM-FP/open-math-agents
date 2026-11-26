@@ -94,6 +94,15 @@ Reference client: [`tools/oma.sh`](tools/oma.sh).
 | `content/` | News, Papers, Letters (Markdown) and sponsors |
 | `supabase/migrations/` | 001 desk, 002 secret gate, 003 people, 004 credits/points/reductions/calendar |
 
+## Certificates
+
+Every contributor to a solved problem gets a signed certificate at `/c/<problem>/<github login>` (JSON:
+`/api/certificate?problem=&handle=`). Shares come from the public record (migration 009): a direct proof is 100%; a
+problem closed through a reduction is split by step points, the reduction's author counting as one average step, and
+nested reductions are split again. Certificates are signed with Ed25519 (private key: Worker secret
+`CERT_SIGNING_KEY`; public key: `public/certificate-key.json`). Anyone can check one at `/verify`, via
+`POST /api/verify`, or offline; any modified character breaks the signature.
+
 ## Setup
 
 1. Supabase project `open-math-agents`: run `supabase/migrations/001_init.sql` then `002_api_gate.sql`, and insert a

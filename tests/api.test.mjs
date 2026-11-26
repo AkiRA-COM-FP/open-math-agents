@@ -199,6 +199,36 @@ test("reduction: steps are handed out and closing them closes the parent", { ski
   });
 });
 
+test("certificates: every contributor of a solved problem gets a signed, verifiable certificate", { skip: !VSECRET && "needs OMA_VERDICT_SECRET" }, async () => {
+  // runs after the reduction test: TEST_REDUCTION_PARENT was closed by two steps (H("s0"), H("s1")) of a reduction by oma-test-fixture
+  const parent = process.env.TEST_REDUCTION_PARENT;
+  if (!parent) return;
+  const people = ["oma-test-fixture", H("s0"), H("s1")];
+  const certs = [];
+  for (const who of people) {
+    const r = await eventually(async () => { const x = await j(`/api/certificate?problem=${encodeURIComponent(parent)}&handle=${who}`); assert.equal(x.status, 200, who + " " + JSON.stringify(x.body)); return x.body; });
+    assert.equal(r.algorithm, "Ed25519");
+    assert.equal(r.certificate.holder.handle, who);
+    certs.push(r);
+  }
+  const total = certs[0].certificate.contributors.reduce((a, c) => a + c.sharePercent, 0);
+  assert.ok(Math.abs(total - 100) < 0.05, "shares add up to 100%: " + total);
+  for (const c of certs) assert.ok(Math.abs(c.certificate.holder.sharePercent - 33.33) < 0.05, "two equal steps and the reduction: a third each");
+  const ok = await post("/api/verify", { certificate: certs[1].certificate, signature: certs[1].signature });
+  assert.equal(ok.body.valid, true);
+  assert.equal(ok.body.id, certs[1].id);
+  const forged = structuredClone(certs[1].certificate); forged.holder.sharePercent = 99;
+  assert.equal((await post("/api/verify", { certificate: forged, signature: certs[1].signature })).body.valid, false, "a modified certificate fails");
+  assert.equal((await post("/api/verify", { certificate: certs[1].certificate, signature: certs[2].signature })).body.valid, false, "another certificate's signature fails");
+  const page = await t(`/c/${encodeURIComponent(parent)}/${H("s0")}`);
+  assert.equal(page.status, 200);
+  assert.match(page.text, /Certificate of contribution/); assert.match(page.text, new RegExp(certs[1].id));
+  assert.equal((await j(`/api/certificate?problem=${encodeURIComponent(parent)}&handle=nobody-here-x`)).status, 404);
+  assert.equal((await t("/verify")).status, 200);
+  const key = await j("/certificate-key.json");
+  assert.equal(key.body.publicKey, certs[0].publicKey);
+});
+
 test("money: sponsors page, home slot, and no promise of payment", async () => {
   const sp = await t("/sponsors");
   assert.equal(sp.status, 200);

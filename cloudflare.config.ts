@@ -18,7 +18,7 @@ export default defineConfig({
       htmlHandling: "none",
       notFoundHandling: "none",
       // Static files skip the Worker (free, unlimited): build assets and the map layout.
-      runWorkerFirst: ["/*", "!/_next/static/*", "!/*/_next/static/*", "!/map-data.json", "!/favicon.ico", "!/icon-*", "!/apple-touch-icon.png", "!/logo-mark.png", "!/og.jpg"],
+      runWorkerFirst: ["/*", "!/_next/static/*", "!/*/_next/static/*", "!/map-data.json", "!/favicon.ico", "!/icon-*", "!/apple-touch-icon.png", "!/logo-mark.png", "!/og.jpg", "!/certificate-key.json"],
     },
     env: {
       ...cache.env,
@@ -33,6 +33,8 @@ export default defineConfig({
       OMA_DB_SECRET: bindings.secret(),
       OMA_IP_SALT: bindings.secret(),
       OMA_VERDICT_SECRET: bindings.secret(),
+      // Ed25519 private key (PKCS#8, base64) that signs contribution certificates; public key: public/certificate-key.json
+      CERT_SIGNING_KEY: bindings.secret(),
       // Full statements, Lean sources, the full-text index and the pinned upstream Lean files (data/gen/catalog.sql).
       CATALOG: bindings.d1({ id: "740a3c15-d8dd-460c-bcdd-938e38df77b7", name: "oma-catalog" }),
     },

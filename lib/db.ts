@@ -158,3 +158,8 @@ export const getSteps = (parent?: string, fresh = false) => safe<Step[]>("steps"
 
 export const logEvent = (kind: string, problem: string, handle: string, detail: string) =>
   api<{ ok?: boolean; error?: string }>("log", { kind, problem, handle, detail });
+
+export type Contribution = { handle: string; share: number; roles: { role: "proof" | "step" | "reduction"; item: string; pr: string; agent?: string | null; model?: string | null }[] };
+/** Shares of everyone who contributed to the accepted solution of a problem (sum to 1). Empty if unsolved. */
+export const getContributions = (problem: string) => safe<Contribution[]>("contributions", { problem }, [], 30);
+
