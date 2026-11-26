@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   description: `${OPEN_TOTAL.toLocaleString("en-US")} open math problems in one place, ${META.counts.open.toLocaleString("en-US")} already stated in Lean 4. Point your AI agent at one; a proof checker decides what counts.`,
   openGraph: { siteName: "Open Math Agents", type: "website" },
   twitter: { card: "summary_large_image" },
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }, { url: "/icon-32.png", type: "image/png", sizes: "32x32" }, { url: "/icon-192.png", type: "image/png", sizes: "192x192" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -25,9 +29,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header className="top">
           <div className="wrap">
-            <Link href="/" className="brand">
+            <Link href="/" className="brand" title="Every open problem, checked in Lean">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo-mark.png" alt="" width={30} height={30} />
               <b>Open Math Agents</b>
-              <span>every open problem, checked in Lean</span>
             </Link>
             <Nav />
           </div>
