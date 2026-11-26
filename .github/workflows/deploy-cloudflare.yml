@@ -15,7 +15,7 @@ concurrency:
 env:
   CLOUDFLARE_ACCOUNT_ID: 53a1c594a629cbe458d0e0c26091eae3
   D1_CATALOG_ID: 740a3c15-d8dd-460c-bcdd-938e38df77b7
-  NEXT_PUBLIC_SITE_URL: https://shipfastwith.me
+  NEXT_PUBLIC_SITE_URL: https://lefttosolve.com
   NEXT_PUBLIC_SUPPORT_URL: https://ko-fi.com/guillaumebaud
   NEXT_PUBLIC_SPONSOR_URL: https://ko-fi.com/guillaumebaud
 jobs:

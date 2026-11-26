@@ -9,8 +9,9 @@ export default defineConfig({
     name: "open-math-agents",
     entrypoint: "vinext/server/fetch-handler",
     compatibilityDate: "2026-11-10",
-    // Custom domains (zone shipfastwith.me on this account). Kept here so a forced deploy never drops them.
-    domains: ["shipfastwith.me", "www.shipfastwith.me"],
+    // Custom domains (zones on this account). Kept here so a forced deploy never drops them. shipfastwith.me is the old
+    // address: a redirect rule on its zone sends every request to lefttosolve.com before it reaches the Worker.
+    domains: ["lefttosolve.com", "www.lefttosolve.com", "shipfastwith.me", "www.shipfastwith.me"],
     // Keep open-math-agents.openmathagents.workers.dev too (turned off by default once domains are set).
     workersDev: true,
     assets: {
@@ -23,7 +24,7 @@ export default defineConfig({
       ...cache.env,
       ASSETS: bindings.assets(),
       // Public settings (also read at build time: NEXT_PUBLIC_* are inlined into the pages).
-      NEXT_PUBLIC_SITE_URL: bindings.text("https://shipfastwith.me"),
+      NEXT_PUBLIC_SITE_URL: bindings.text("https://lefttosolve.com"),
       NEXT_PUBLIC_SUPPORT_URL: bindings.text("https://ko-fi.com/guillaumebaud"),
       NEXT_PUBLIC_SPONSOR_URL: bindings.text("https://ko-fi.com/guillaumebaud"),
       SUPABASE_URL: bindings.text("https://fcuptmutkcstnaxmqsmg.supabase.co"),

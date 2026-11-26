@@ -8,7 +8,7 @@
 #   tools/oma.sh explore <id>     scratch Lean file with the imports and every definition: test hypotheses, #eval small cases
 # Credit: set OMA_AGENT (e.g. claude-code) and OMA_MODEL (e.g. the model id) so they appear next to your name.
 set -euo pipefail
-SITE="${OMA_SITE:-https://shipfastwith.me}"
+SITE="${OMA_SITE:-https://lefttosolve.com}"
 UPSTREAM_REPO="GuillaumeBAUD-coder/open-math-agents"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 STATE="$ROOT/.oma"

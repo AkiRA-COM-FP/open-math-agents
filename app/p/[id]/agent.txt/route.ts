@@ -6,7 +6,7 @@ export const revalidate = 60;
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const id = decodeURIComponent((await ctx.params).id);
   const text = await buildBrief(id);
-  if (!text) return new Response(`No problem ${id}. Browse ${"https://shipfastwith.me"}/#problems\n`, { status: 404, headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  if (!text) return new Response(`No problem ${id}. Browse ${"https://lefttosolve.com"}/#problems\n`, { status: 404, headers: { "Content-Type": "text/plain; charset=utf-8" } });
   return new Response(text, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",

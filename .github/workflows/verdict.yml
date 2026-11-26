@@ -85,7 +85,7 @@ jobs:
                 gh pr comment "$PR" --repo "$REPO" --body "**ACCEPTED** ($POL of \`$PID\`): $REASON. Merging. [Run]($RUN_URL)"
                 if gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$HEAD_SHA"; then
                   # A merge made with GITHUB_TOKEN triggers no other workflow, so credit it here.
-                  curl -sS -m 60 --retry 3 -X POST "${OMA_SITE:-https://shipfastwith.me}/api/verdict" -H "Content-Type: application/json" --data "{\"pr\": $PR}" || true
+                  curl -sS -m 60 --retry 3 -X POST "${OMA_SITE:-https://lefttosolve.com}/api/verdict" -H "Content-Type: application/json" --data "{\"pr\": $PR}" || true
                 else
                   gh pr comment "$PR" --repo "$REPO" --body "Could not merge automatically (probably already proved by someone else first)."
                 fi
@@ -101,7 +101,7 @@ jobs:
       - name: Report to the desk
         # No secret needed: the site re-verifies the merge, the file and the author with GitHub itself.
         env:
-          SITE: ${{ vars.OMA_SITE || 'https://shipfastwith.me' }}
+          SITE: ${{ vars.OMA_SITE || 'https://lefttosolve.com' }}
           PR: ${{ github.event.pull_request.number }}
         run: |
           curl -sS -m 60 --retry 3 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" --data "{\"pr\": $PR}"

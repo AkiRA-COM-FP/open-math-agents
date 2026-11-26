@@ -9,7 +9,7 @@
 # OMA_AGENT_CMD is the command that runs one agent session with a prompt as its last argument.
 # Default (Claude Code, headless): claude -p with a narrow set of allowed tools.
 set -euo pipefail
-SITE="${OMA_SITE:-https://shipfastwith.me}"
+SITE="${OMA_SITE:-https://lefttosolve.com}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SESSION=oma-fleet
 KIND="${OMA_KIND:-known}"
