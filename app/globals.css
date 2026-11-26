@@ -210,3 +210,14 @@ table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nu
 .panel code, .callout code, .prose code, .kv code { overflow-wrap: anywhere; word-break: break-word; }
 pre.lean, .prose pre, .cite { max-width: 100%; }
 .ptitle { overflow-wrap: anywhere; }
+
+/* phones: the header must fit whatever fallback font the device uses */
+@media (max-width: 440px) {
+  .top .wrap { gap: 2px; padding: 0 10px; }
+  .brand b { font-size: 0.95rem; }
+  .drop summary { font-size: 0.84rem; padding: 6px 4px; }
+  .drop summary::after { margin-left: 2px; }
+  .nav a.cta { padding: 6px 8px; font-size: 0.85rem; }
+}
+/* never a horizontal scrollbar from a stray pixel (clip, unlike hidden, keeps position: sticky working) */
+html, body { overflow-x: clip; }
