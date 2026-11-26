@@ -186,7 +186,7 @@ test("pages: every route renders", async () => {
 });
 
 test("briefs: one per source and kind, with the sections an agent needs", async () => {
-  const pick = async (q) => (await j(`/api/problems?kind=all&limit=1&${q}`)).body.items[0];
+  const pick = async (q) => (await j(`/api/problems?limit=1&${q.includes("kind=") ? q : "kind=all&" + q}`)).body.items[0];
   const cases = [
     [await pick("kind=open&source=Millennium%20Prize"), ["THE EXACT LEAN TARGET", "WHAT YOU MAY REUSE", "THE FULL UPSTREAM FILE", "HOW TO ATTACK", "OMA.disproof"]],
     [await pick("kind=known"), ["THE EXACT LEAN TARGET", "REFERENCES", "formalize that proof"]],
