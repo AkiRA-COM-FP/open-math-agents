@@ -2,8 +2,11 @@
 // Load data/gen/catalog.sql into the catalogue D1 database, in batches (D1 caps one statement at 100 KB and one
 // request at a few MB).
 //   local (vite dev / preview running): node scripts/seed_d1.mjs --local http://localhost:3124
-//   remote (Cloudflare API, token injected by the environment): node scripts/seed_d1.mjs --remote <account_id> <database_id>
+//   remote (Cloudflare D1 import API; CLOUDFLARE_API_TOKEN, or a token injected by the network proxy):
+//     node scripts/seed_d1.mjs --remote <account_id> <database_id> [--if-changed]
+//   --if-changed skips the import when the remote meta.version already equals data/gen/version.txt.
 import fs from "node:fs";
+import crypto from "node:crypto";
 
 const [mode, a, b] = process.argv.slice(2);
 const sql = fs.readFileSync(new URL("../data/gen/catalog.sql", import.meta.url), "utf8");
@@ -17,6 +20,36 @@ for (let i = 0; i < sql.length; i++) {
   else if (c === ";" && !inq) { const s = sql.slice(start, i + 1).trim(); if (s) stmts.push(s); start = i + 1; }
 }
 
+const token = process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_API_TOKEN !== "proxy-injected" ? process.env.CLOUDFLARE_API_TOKEN : "proxy-injected";
+
+if (mode === "--remote") {
+  const api = `https://api.cloudflare.com/client/v4/accounts/${a}/d1/database/${b}`;
+  const call = async (path, body) => {
+    const r = await fetch(api + path, { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.success === false) throw new Error(`${path} HTTP ${r.status} ${JSON.stringify(j.errors ?? j).slice(0, 300)}`);
+    return j.result;
+  };
+  const version = fs.readFileSync(new URL("../data/gen/version.txt", import.meta.url), "utf8").trim();
+  if (process.argv.includes("--if-changed")) {
+    const cur = await call("/query", { sql: "SELECT v FROM meta WHERE k = 'version'" }).then((r) => r[0].results[0]?.v).catch(() => null);
+    if (cur === version) { console.log(`remote D1 already at ${version}: nothing to import`); process.exit(0); }
+    console.log(`remote D1 at ${cur ?? "(empty)"}, importing ${version}`);
+  }
+  const etag = crypto.createHash("md5").update(sql).digest("hex");
+  const init = await call("/import", { action: "init", etag });
+  const up = await fetch(init.upload_url, { method: "PUT", body: sql });
+  if (!up.ok) throw new Error(`upload HTTP ${up.status}`);
+  let st = await call("/import", { action: "ingest", etag, filename: init.filename });
+  for (let i = 0; st.status !== "complete" && st.status !== "error" && i < 200; i++) {
+    await new Promise((res) => setTimeout(res, 3000));
+    st = await call("/import", { action: "poll", current_bookmark: st.at_bookmark });
+  }
+  if (st.status !== "complete") throw new Error(`import ${st.status}: ${st.error ?? JSON.stringify(st.messages)}`);
+  console.log(`imported ${st.result?.num_queries ?? "?"} statements into remote D1 (${version})`);
+  process.exit(0);
+}
+
 let url, headers = { "Content-Type": "application/json" };
 if (mode === "--local") {
   const base = (a ?? "http://localhost:3124").replace(/\/$/, "") + "/cdn-cgi/local/explorer/api";
@@ -25,14 +58,10 @@ if (mode === "--local") {
   const db = list.find((d) => /catalog/i.test(d.name ?? d.binding ?? "")) ?? list[0];
   if (!db) throw new Error("no local D1 database: start vite dev or preview first");
   url = `${base}/d1/database/${db.uuid ?? db.id ?? db.database_id}/raw`;
-} else if (mode === "--remote") {
-  url = `https://api.cloudflare.com/client/v4/accounts/${a}/d1/database/${b}/raw`;
-  headers.Authorization = "Bearer proxy-injected"; // replaced by the environment's network proxy
 } else {
-  console.error("usage: seed_d1.mjs --local [base] | --remote <account_id> <database_id>");
+  console.error("usage: seed_d1.mjs --local [base] | --remote <account_id> <database_id> [--if-changed]");
   process.exit(2);
 }
-
 const MAX = 90_000; // bytes of SQL per request: the whole batch counts against the 100 KB limit
 let batch = [], size = 0, done = 0;
 async function flush() {
@@ -52,4 +81,4 @@ for (const s of stmts) {
   batch.push(s); size += n + 1;
 }
 await flush();
-console.log(`\nloaded ${stmts.length} statements into ${mode === "--local" ? "local" : "remote"} D1`);
+console.log(`loaded ${stmts.length} statements into local D1`);

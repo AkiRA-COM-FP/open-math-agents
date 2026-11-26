@@ -1,7 +1,7 @@
 name: test
 on:
   push:
-    branches: [main, "feat/**"]
+    branches: [main, "feat/**", cloudflare]
     paths-ignore: ["proofs/**", "reductions/**", "statements/**"]
   pull_request:
     paths-ignore: ["proofs/**", "reductions/**", "statements/**"]
@@ -24,11 +24,14 @@ jobs:
       - name: Agent client (oma.sh) against a mock desk
         id: client
         run: bash tests/test_oma.sh
-      - name: Type check and build
+      - name: Type check and build (Cloudflare Workers, vinext)
         id: build
-        run: npx tsc --noEmit && npm run build
-      - name: Start the site (desk offline in CI)
-        run: (npx next start -p 3123 &) && for i in $(seq 1 40); do curl -s -o /dev/null localhost:3123 && break; sleep 1; done
+        run: npx tsc --noEmit && npm run build:vinext
+      - name: Start the Worker locally and load the catalogue into its D1 (desk offline in CI)
+        run: |
+          (npx vite preview --port 3123 > preview.log 2>&1 &)
+          for i in $(seq 1 60); do curl -s -o /dev/null localhost:3123/cdn-cgi/local/explorer/api/d1/database && break; sleep 1; done
+          node scripts/seed_d1.mjs --local http://localhost:3123
       - name: Browser tests
         id: browser
         run: |
