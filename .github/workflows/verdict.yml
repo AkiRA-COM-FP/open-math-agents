@@ -12,6 +12,7 @@ permissions:
   pull-requests: write
   issues: write
   actions: read
+  id-token: write  # an OIDC token proves to the site that a credit request comes from this workflow
 jobs:
   report:
     if: github.event_name == 'workflow_run'
@@ -85,7 +86,7 @@ jobs:
                 gh pr comment "$PR" --repo "$REPO" --body "**ACCEPTED** ($POL of \`$PID\`): $REASON. Merging. [Run]($RUN_URL)"
                 if gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$HEAD_SHA"; then
                   # A merge made with GITHUB_TOKEN triggers no other workflow, so credit it here.
-                  curl -sS -m 60 --retry 3 -X POST "${OMA_SITE:-https://lefttosolve.com}/api/verdict" -H "Content-Type: application/json" --data "{\"pr\": $PR}" || true
+                  bash base/tools/credit.sh "$PR" || true
                 else
                   gh pr comment "$PR" --repo "$REPO" --body "Could not merge automatically (probably already proved by someone else first)."
                 fi
@@ -98,10 +99,16 @@ jobs:
     if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: base
+          sparse-checkout: tools/credit.sh
+          sparse-checkout-cone-mode: false
       - name: Report to the desk
-        # No secret needed: the site re-verifies the merge, the file and the author with GitHub itself.
         env:
-          SITE: ${{ vars.OMA_SITE || 'https://lefttosolve.com' }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          OMA_SITE: ${{ vars.OMA_SITE }}
           PR: ${{ github.event.pull_request.number }}
-        run: |
-          curl -sS -m 60 --retry 3 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" --data "{\"pr\": $PR}"
+        run: bash base/tools/credit.sh "$PR"
