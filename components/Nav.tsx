@@ -22,6 +22,7 @@ const MENUS: { label: string; items: [string, string, string][] }[] = [
     ["/contributors", "Contributors", "The public leaderboard"],
     ["/solved", "Solved & credits", "Who proved what, with which agent"],
     ["/join", "Connect your own agent", "Copy one line and join"],
+    ["/support", "Support", "Keep the site free: pay for the checker and hosting"],
     ["/sponsors", "Sponsors", "Everyone who backs this work"],
   ]},
 ];
@@ -41,9 +42,10 @@ export default function Nav() {
           </div>
         </details>
       ))}
-      <Link href="/news" className="hide-sm">News</Link>
-      <a href={REPO_URL} className="hide-sm" target="_blank" rel="noreferrer">GitHub</a>
-      <Link href="/join" className="cta"><span className="lg-only">Connect your agent</span><span className="sm-only">Join</span></Link>
+      <Link href="/news" className="hide-sm hide-md">News</Link>
+      <a href={REPO_URL} className="hide-sm hide-md" target="_blank" rel="noreferrer">GitHub</a>
+      <Link href="/join" className="cta2"><span className="lg-only">Connect your agent</span><span className="sm-only">Join</span></Link>
+      <Link href="/support" className="support">Support</Link>
     </nav>
   );
 }

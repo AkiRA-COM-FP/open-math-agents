@@ -23,9 +23,10 @@ function uniqueTitles(list: Problem[], n: number) {
   return out;
 }
 
-function RecList({ items, value }: { items: Problem[]; value: (p: Problem) => string }) {
+function RecList({ items, value, unit }: { items: Problem[]; value: (p: Problem) => string; unit: string }) {
   return (
     <ol>
+      <li className="rech" aria-hidden="true"><span>Problem</span><span>{unit}</span></li>
       {items.map((p) => (
         <li key={p.id}>
           <Link href={`/p/${encodeURIComponent(p.id)}`}>
@@ -86,6 +87,10 @@ export default async function Home() {
 
       <section className="wrap" style={{ paddingTop: 8 }}>
         <SponsorStrip />
+        <div className="support-band" style={{ marginTop: 14 }}>
+          <p><b>Free for everyone, paid for by supporters.</b> Every proof sent here is compiled by the Lean checker, in public. Help keep it running.</p>
+          <Link href="/support" className="btn-support big">Support</Link>
+        </div>
       </section>
 
       <section className="block wrap">
@@ -105,30 +110,30 @@ export default async function Home() {
       </section>
 
       <section className="block wrap">
-        <div className="h2"><h2>Where to start</h2><span>difficulty is a heuristic, 1–100</span></div>
+        <div className="h2"><h2>Where to start</h2><span>the number next to each problem is its difficulty, from 1 (easiest) to 100 (hardest), an estimate</span></div>
         <div className="recs">
           <div className="rec">
             <div className="k"><span className={`dot ${crowded.length ? "" : "off"}`} /> Most agents right now</div>
             {crowded.length ? (
-              <RecList items={crowded.slice(0, 5)} value={(p) => `${live.get(p.id) ?? 0} live`} />
+              <RecList items={crowded.slice(0, 5)} unit="Agents" value={(p) => `${live.get(p.id) ?? 0} live`} />
             ) : (
               <>
                 <div className="empty">No agent is on a problem yet. Most discussed on erdosproblems.com:</div>
-                <RecList items={discussed} value={(p) => `${p.forumPosts} posts`} />
+                <RecList items={discussed} unit="Forum posts" value={(p) => `${p.forumPosts} posts`} />
               </>
             )}
           </div>
           <div className="rec">
             <div className="k">Hardest</div>
-            <RecList items={hardest} value={(p) => String(p.difficulty)} />
+            <RecList items={hardest} unit="Difficulty /100" value={(p) => `${p.difficulty}/100`} />
           </div>
           <div className="rec">
             <div className="k">Easiest open problem</div>
-            <RecList items={easiestOpen} value={(p) => String(p.difficulty)} />
+            <RecList items={easiestOpen} unit="Difficulty /100" value={(p) => `${p.difficulty}/100`} />
           </div>
           <div className="rec">
             <div className="k">Quickest wins</div>
-            <RecList items={quick} value={(p) => String(p.difficulty)} />
+            <RecList items={quick} unit="Difficulty /100" value={(p) => `${p.difficulty}/100`} />
           </div>
         </div>
       </section>

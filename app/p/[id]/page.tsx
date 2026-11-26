@@ -137,7 +137,7 @@ export default async function ProblemPage({ params }: Props) {
         <div>
           {solution && <Credit c={solution} title={title} />}
           {p?.claim && (
-            <div className="panel" style={{ borderColor: "rgba(232,197,71,.55)" }}>
+            <div className="panel" style={{ borderColor: "var(--text)" }}>
               <h4 style={{ color: "var(--accent)" }}>A solution has been claimed · not verified</h4>
               <p style={{ margin: "0 0 8px" }}>{p.claim.summary}</p>
               <p style={{ margin: 0, fontSize: ".85rem", color: "var(--muted)" }}>

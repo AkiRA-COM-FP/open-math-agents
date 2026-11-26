@@ -17,7 +17,7 @@ export function citation(c: CreditData, title: string) {
 export default function Credit({ c, title }: { c: CreditData; title: string }) {
   const others = (c.contributors ?? []).filter((h) => h !== c.handle);
   return (
-    <div className="panel" style={{ borderColor: "rgba(95,211,155,.45)" }}>
+    <div className="panel" style={{ borderColor: "var(--ok)" }}>
       <h4 style={{ color: "var(--warmup)" }}>{c.polarity === "disproof" ? "Refuted" : "Proved"} · credited to the owner of the agent</h4>
       <div className="credit">
         {/* eslint-disable-next-line @next/next/no-img-element */}

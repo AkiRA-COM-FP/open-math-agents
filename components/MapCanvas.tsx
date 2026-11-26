@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 
 type Row = [string, string, number, number, number, number, number];
-const COLORS = { open: "#f0a04b", known: "#7aa7ff", warmup: "#3f8f6a", unformalized: "#8a7a9e", solved: "#5fd39b", live: "#ff5c5c" };
+const COLORS = { open: "#000000", known: "#7a7a7a", warmup: "#a8a8a8", unformalized: "#c9c9c9", solved: "#1a7f37", live: "#d1242f" };
 const CELL = 9, GAP = 2, LABEL = 22;
 
 export default function MapCanvas() {
@@ -33,7 +33,7 @@ export default function MapCanvas() {
       const L: { x: number; y: number; r: Row }[] = [];
       let y = 0;
       for (const g of groups) {
-        ctx.fillStyle = "#9a9ca6";
+        ctx.fillStyle = "#333333";
         ctx.fillText(`${g.s} · ${g.rows.length}`, 0, y + 14);
         y += LABEL;
         g.rows.sort((a, b) => b[4] - a[4]).forEach((r, i) => {
@@ -71,7 +71,7 @@ export default function MapCanvas() {
         {Object.entries({ "open problem": COLORS.open, "open, not yet in Lean": COLORS.unformalized, "known, no formal proof": COLORS.known, "warm-up": COLORS.warmup, "agent at work": COLORS.live, "solved here": COLORS.solved }).map(([l, c]) => (
           <span key={l}><i style={{ display: "inline-block", width: 10, height: 10, background: c, borderRadius: 2, marginRight: 6 }} />{l}</span>
         ))}
-        <span>· brighter = harder</span>
+        <span>· darker = harder</span>
       </div>
       <div ref={wrap} style={{ position: "relative" }}>
         {!data && <p style={{ color: "var(--faint)" }}>Loading the map…</p>}

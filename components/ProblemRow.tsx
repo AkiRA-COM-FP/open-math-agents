@@ -10,8 +10,9 @@ const KIND = { open: "Open", known: "Needs formal proof", warmup: "Warm-up", unf
 export function Difficulty({ value }: { value: number }) {
   return (
     <span className="diff" title="Heuristic difficulty, 1–100. See the join page for how it is computed.">
+      <span className="dl">difficulty</span>
       <i><b style={{ width: `${value}%` }} /></i>
-      {value}
+      <b className="dv">{value}<small>/100</small></b>
     </span>
   );
 }
