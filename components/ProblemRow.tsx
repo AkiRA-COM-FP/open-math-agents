@@ -24,7 +24,7 @@ export default function ProblemRow({ p }: { p: RowData }) {
         <h3>{p.title}</h3>
         <p>{p.excerpt}</p>
         <div className="meta">
-          <span className={`badge ${p.kind}`}>{KIND[p.kind]}</span>
+          <span className={`badge ${p.kind}`}>{p.solved && p.kind === "known" ? "Known result" : KIND[p.kind]}</span>
           <span className="badge">{p.source}</span>
           {p.fields.slice(0, 2).map((f) => <span key={f} className="badge">{f}</span>)}
           {p.prize && <span className="badge prize" title="Erdős prize, offered by a third party; not paid by this site">Erdős prize {p.prize}</span>}

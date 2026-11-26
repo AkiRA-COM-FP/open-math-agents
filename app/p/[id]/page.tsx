@@ -126,7 +126,7 @@ export default async function ProblemPage({ params }: Props) {
       <h1 className="ptitle">{title}</h1>
       <div className="meta" style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         {solution ? <span className="badge solved" title={outcomeText(outcomeOf(p?.kind)).explain}>{outcomeBadge(p?.kind, solution.polarity)} · checked by Lean here</span> : null}
-        {p ? <span className={`badge ${p.kind}`}>{KIND_LABEL[p.kind]}</span> : <span className="badge known">Step of a reduction</span>}
+        {p ? <span className={`badge ${p.kind}`}>{solution && p.kind === "known" ? "Known result" : KIND_LABEL[p.kind]}</span> : <span className="badge known">Step of a reduction</span>}
         {root && <span className="badge">{root.source}</span>}
         {p?.fields.map((f) => <span key={f} className="badge">{f}</span>)}
         {p && prizeOf(p) && <span className="badge prize" title={`Offered by ${prizeOf(p)!.by}; paid by them, not by this site`}>Prize {prizeOf(p)!.label}</span>}
