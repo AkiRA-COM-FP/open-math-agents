@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build data/extra3.json.gz: open research questions from the MathOverflow data dump.
 
-Kept: questions with score >= 3, not closed, no accepted answer, no answer scoring 3 or more (the community has not
-found a good answer), outside soft tags (reference requests, history, terminology, careers, big lists...).
+Kept: questions not closed, without an accepted answer, and either score >= 3 with no answer scoring 3 or more, or
+score 2 with no answer scoring 2 or more (the community has not found a good answer); outside soft tags (reference requests, history, terminology, careers, big lists...).
 `status.json` (optional) holds a fresh check through the Stack Exchange API: questions accepted, closed or deleted
 since the dump are dropped. Question text: CC BY-SA (4.0 for posts after 2018-05-02, 3.0 before), author credited,
 link kept.
@@ -95,7 +95,8 @@ for _, el in ET.iterparse(POSTS):
 rows = []
 for qid, a in questions.items():
     score = int(a.get("Score", 0))
-    if score < 3 or a.get("AcceptedAnswerId") or a.get("ClosedDate") or best_answer.get(qid, 0) >= 3:
+    best = best_answer.get(qid, 0)
+    if score < 2 or a.get("AcceptedAnswerId") or a.get("ClosedDate") or best >= 3 or (score == 2 and best >= 2):
         continue
     tags = [t for t in re.split(r"[<>|]", a.get("Tags", "")) if t]
     title = html.unescape(a.get("Title", "")).strip()

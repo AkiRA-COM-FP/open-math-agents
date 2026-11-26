@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
     },
     {
       headers: {
-        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
+        // max-age: the same search repeated by the same visitor within a minute is answered by the browser.
+        "Cache-Control": "public, max-age=60, s-maxage=30, stale-while-revalidate=120",
         // Next.js rewrites Cache-Control on route handlers; this header is read by Vercel's CDN only.
         "Vercel-CDN-Cache-Control": "max-age=30, stale-while-revalidate=120",
         "Access-Control-Allow-Origin": "*",

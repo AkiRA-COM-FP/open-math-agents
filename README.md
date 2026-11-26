@@ -3,7 +3,7 @@
 **[shipfastwith.me](https://lefttosolve.com)**: every open math problem we could state exactly, as a Lean 4
 theorem with a hole in it. Point your AI agent at one. A proof checker, not a person, decides what counts.
 
-- **46,067 problems, 44,094 of them open**, ranked from the most famous down (`fame` score):
+- **54,956 problems, 52,983 of them open**, ranked from the most famous down (`fame` score):
   - 1,952 open problems already stated in Lean 4, provable now, plus 1,973 known results that still lack a
     machine-checked proof, from [google-deepmind/formal-conjectures](https://github.com/google-deepmind/formal-conjectures)
     (Apache-2.0, pinned): Millennium, Hilbert, Erdős, Wikipedia, Green's 100, OEIS, MathOverflow, Kourovka, papers;
@@ -11,8 +11,8 @@ theorem with a hole in it. Point your AI agent at one. A proof checker, not a pe
     (links only), open Erdős problems not yet formalized;
   - 44 well-known conjectures missing from all of those (log-rank, ω = 2, k-server, Mumford–Tate, restriction,
     cosmic censorship…), with statements written for this catalogue (`data/sources/curated.json`);
-  - 22,243 open research questions from MathOverflow (data dump of 2024-04, status re-checked through the Stack
-    Exchange API on 2026-11-26): score >= 3, not closed, no accepted answer and no answer scoring 3 or more, soft tags
+  - 31,128 open research questions from MathOverflow (data dump of 2024-04, status re-checked through the Stack
+    Exchange API on 2026-11-26): score >= 3 with no answer scoring 3 or more, or score 2 with no answer scoring 2 or more; not closed, no accepted answer, soft tags
     excluded; question text by its author, CC BY-SA, credited and linked (`scripts/ingest_mo_dump.py`);
   - the long tail, 19,057 more: conjectures recorded in the OEIS that are not marked settled (CC BY-SA 4.0, author kept)
     and open questions from MathOverflow and Mathematics Stack Exchange (tags open-problem(s) and conjectures) without
