@@ -3,8 +3,12 @@
 
   - OEIS: every sequence whose comments or formulas state a conjecture that is not marked proved, disproved or
     refuted (text CC BY-SA 4.0, OEIS Foundation; the conjecture's author is kept). One entry per sequence.
-  - MathOverflow (tag open-problems) and Mathematics Stack Exchange (tag open-problem): questions without an
-    accepted answer (titles and links only; content CC BY-SA, on the linked page).
+  - MathOverflow (tags open-problems, conjectures) and Mathematics Stack Exchange (tags open-problem, conjectures):
+    questions without an accepted answer (titles and links only; content CC BY-SA, on the linked page). Questions
+    tagged only "conjectures" must have a positive score (MO >= 2, Math.SE >= 4, at most one answer) to keep out
+    personal guesses and questions already answered by a counterexample.
+  - data/sources/curated.json: well-known open conjectures missing from every list above, with statements written
+    for this catalogue (reference: the linked Wikipedia article).
 Everything already in data/catalog.json or data/extra.json is skipped.
 
 Usage: python3 -I scripts/ingest_more.py <oeisdata checkout> <stackexchange.json> [out]
@@ -65,6 +69,15 @@ def fields_for(text):
 
 entries = []
 seen_norm = set()
+
+# ---- Curated ---------------------------------------------------------------------------------------
+for c in json.load(open(os.path.join(HERE, "..", "data", "sources", "curated.json"), encoding="utf-8")):
+    if norm(c["title"]) in known_titles:
+        continue
+    entries.append({**c, "source": "Wikipedia (not formalized)", "kind": "unformalized", "tags": [], "forumPosts": 0, "fame": 78,
+                    "license": "Statement written for this catalogue; background in the linked Wikipedia article (CC BY-SA 4.0)"})
+    seen_norm.add(norm(c["title"]))
+print(f"Curated: kept {sum(1 for e in entries if e['source'].startswith('Wikipedia'))}", file=sys.stderr)
 
 # ---- OEIS ----------------------------------------------------------------------------------------
 scanned = kept = 0
@@ -146,9 +159,14 @@ for q in se:
         continue
     if norm(title) in known_titles or norm(title) in seen_norm:
         continue
+    if not ({"open-problems", "open-problem"} & set(q["tags"])):  # tagged "conjectures" only
+        if q["score"] < (2 if q["site"] == "mathoverflow" else 4) or (q["site"] != "mathoverflow" and q.get("answers", 0) > 1):
+            continue
+        if re.search(r"(?i)\b(my conjecture|i conjecture|new conjecture|is this (conjecture )?(true|known|new)|prove or disprove|help|homework|was there|evidence|in all its variants|what is known|previously asked|i have a|show|proving|reference)\b", title):
+            continue
     site = "MathOverflow" if q["site"] == "mathoverflow" else "Mathematics Stack Exchange"
     fame = 25 + min(35, q["score"] // 4) + (8 if site == "MathOverflow" else 0)
-    tags = [t for t in q["tags"] if t not in ("open-problems", "open-problem")]
+    tags = [t for t in q["tags"] if t not in ("open-problems", "open-problem", "conjectures")]
     e = {
         "id": f"{'mo' if site == 'MathOverflow' else 'mse'}-{q['id']}", "decl": "", "title": title[:160], "source": f"{site} (not formalized)",
         "kind": "unformalized", "category": "unformalized", "fields": fields_for(" ".join(tags) + " " + title), "tags": tags[:6],
@@ -158,6 +176,7 @@ for q in se:
     }
     entries.append(e)
     se_kept += 1
+    seen_norm.add(norm(title))
 print(f"Stack Exchange: kept {se_kept} of {len(se)}", file=sys.stderr)
 
 entries.sort(key=lambda e: (-e["fame"], e["id"]))
