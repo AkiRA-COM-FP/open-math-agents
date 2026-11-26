@@ -1,8 +1,6 @@
 import "server-only";
-import fs from "node:fs";
-import path from "node:path";
-import zlib from "node:zlib";
-import { PROBLEMS, META, getProblem, skeleton, statementSkeleton, proofPath, KIND_LABEL, type Problem } from "@/lib/catalog";
+import { PROBLEMS, META, getProblem, getFull, skeleton, statementSkeleton, proofPath, KIND_LABEL, type FullProblem, type Problem } from "@/lib/catalog";
+import { upstreamFileFromDb } from "@/lib/d1";
 import { getEvents, getLiveMap, getSolved, getSteps, type Step } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { SITE, REPO } from "@/lib/site";
@@ -13,18 +11,8 @@ import { SITE, REPO } from "@/lib/site";
  * pinned upstream Lean file; live parts (who is on it, what failed, open steps) come from the desk.
  */
 
-let files: Record<string, string> | null = null;
-function upstreamFile(rel: string): string | null {
-  if (!files) {
-    try {
-      const gz = fs.readFileSync(path.join(process.cwd(), "data", "fc_files.json.gz"));
-      files = JSON.parse(zlib.gunzipSync(gz).toString("utf8"));
-    } catch {
-      files = {};
-    }
-  }
-  return files![rel] ?? null;
-}
+/** The pinned upstream Lean file (formal-conjectures), from D1. */
+const upstreamFile = (rel: string) => (rel ? upstreamFileFromDb(rel) : Promise.resolve(null));
 
 type Decl = { name: string; full: string; sorry: boolean; category: string | null };
 
@@ -82,7 +70,7 @@ const TOOLBOX = `LEAN TOOLBOX (in the scratch file only; none of the #-commands 
   Keep each lemma small; re-run tools/oma.sh check after every change: it is exactly what CI runs.`;
 
 export async function buildBrief(id: string): Promise<string | null> {
-  const p = getProblem(id);
+  const p = await getFull(id);
   const [live, events, solved, steps] = await Promise.all([getLiveMap(), getEvents(60, id), getSolved(), getSteps()]);
   const step: Step | undefined = p ? undefined : steps.find((s) => s.id === id);
   if (!p && !step) return null;
@@ -104,7 +92,7 @@ export async function buildBrief(id: string): Promise<string | null> {
 
   // ---------- a step of a reduction ----------
   if (step) {
-    const parent = getProblem(step.parent);
+    const parent = await getFull(step.parent);
     hr("IN ONE LINE");
     L.push(`Prove hypothesis H${step.k} of reduction ${step.reduction} (by @${step.reduction_by}). Proving every hypothesis of`);
     L.push(`that reduction closes ${step.parent}${parent ? ` (${parent.title})` : ""}. Worth ${step.points} points. Agents on it now: ${agents}.`);
@@ -125,7 +113,7 @@ export async function buildBrief(id: string): Promise<string | null> {
     return L.join("\n");
   }
 
-  const prob = p as Problem;
+  const prob = p as FullProblem;
   if (prob.claim) {
     hr("STATUS: A SOLUTION HAS BEEN CLAIMED (NOT VERIFIED)");
     L.push(prob.claim.summary);
@@ -162,10 +150,11 @@ export async function buildBrief(id: string): Promise<string | null> {
     L.push(`- If the problem asks "how big/what is X", state the conjectured answer when the source gives one, else state existence/bounds as asked.`);
     const STOPW = new Set(["conjecture", "problem", "problems", "theorem", "every", "there", "which", "number", "numbers", "about", "their"]);
     const words = Array.from(new Set(`${prob.title} ${prob.area ?? ""}`.toLowerCase().match(/[a-z]{4,}/g) ?? [])).filter((w) => !STOPW.has(w));
-    const score = (x: Problem) => words.filter((w) => `${x.title} ${x.lean}`.toLowerCase().includes(w)).length;
-    const similar = PROBLEMS.filter((x) => x.kind !== "unformalized" && x.lean.length < 700)
-      .map((x) => [x, score(x)] as const).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([x]) => x);
-    const examples = (similar.length ? similar : PROBLEMS.filter((x) => x.kind === "open" && x.fields.some((f) => prob.fields.includes(f)) && x.lean.length < 400)).slice(0, 3);
+    const score = (x: Problem) => words.filter((w) => `${x.title} ${x.decl}`.toLowerCase().includes(w)).length;
+    const byTitle = PROBLEMS.filter((x) => x.kind !== "unformalized")
+      .map((x) => [x, score(x)] as const).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([x]) => x);
+    const pool = byTitle.length ? byTitle : PROBLEMS.filter((x) => x.kind === "open" && x.fields.some((f) => prob.fields.includes(f))).slice(0, 10);
+    const examples = (await Promise.all(pool.map((x) => getFull(x.id)))).filter((x): x is FullProblem => Boolean(x && x.lean && x.lean.length < 700)).slice(0, 3);
     hr("STYLE EXAMPLES: SIMILAR PROBLEMS ALREADY STATED IN LEAN");
     for (const x of examples) L.push(`-- ${x.title}  (${x.file})\n${x.lean}\n`);
     return L.join("\n");
@@ -195,7 +184,7 @@ export async function buildBrief(id: string): Promise<string | null> {
   L.push(skeleton(prob, "proof"));
   if (prob.kind === "open") L.push(`To refute instead: theorem OMA.disproof : ¬ (type_of% @${prob.decl}) := by ...`);
 
-  const src = prob.formalizedHere ? null : upstreamFile(prob.file);
+  const src = prob.formalizedHere ? null : await upstreamFile(prob.file);
   if (src) {
     const decls = declarations(src);
     const usable = decls.filter((d) => !d.sorry && d.full !== prob.decl);
@@ -203,7 +192,8 @@ export async function buildBrief(id: string): Promise<string | null> {
     hr("WHAT YOU MAY REUSE FROM THE MODULE");
     L.push(usable.length ? `Proved upstream (usable by name in your proof):\n${usable.map((d) => `  ${d.full}${d.category ? `  [${d.category}]` : ""}`).join("\n")}` : "No proved lemma in this file.");
     if (banned.length) L.push(`\nStill sorry upstream (NEVER use these; the axiom check rejects any proof that depends on them):\n${banned.map((d) => `  ${d.full}`).join("\n")}`);
-    const siblings = PROBLEMS.filter((x) => x.file === prob.file && x.id !== prob.id);
+    const ns = prob.id.split(".")[0];
+    const siblings = PROBLEMS.filter((x) => x.id.split(".")[0] === ns && x.kind !== "unformalized" && x.id !== prob.id);
     if (siblings.length) {
       hr("RELATED TARGETS IN THE SAME FILE (each is its own problem; easier variants earn points too)");
       for (const x of siblings.slice(0, 40)) L.push(`  ${x.id}  · ${KIND_LABEL[x.kind]} · difficulty ${x.difficulty}${solved.some((s) => s.problem_id === x.id) ? " · SOLVED HERE" : ""}`);

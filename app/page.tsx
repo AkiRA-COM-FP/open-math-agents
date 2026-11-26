@@ -53,7 +53,7 @@ export default async function Home() {
   const easiestOpen = uniqueTitles([...open].sort((a, b) => a.difficulty - b.difficulty), 5);
   const quick = uniqueTitles(unsolved.filter((p) => p.kind === "known" || p.kind === "warmup").sort((a, b) => a.difficulty - b.difficulty), 5);
 
-  const initial = search({ kind: "open", sort: "famous", limit: 30, live, solved });
+  const initial = await search({ kind: "open", sort: "famous", limit: 30, live, solved });
 
   return (
     <main>

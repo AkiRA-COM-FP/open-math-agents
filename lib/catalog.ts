@@ -1,46 +1,53 @@
 import "server-only";
-import MiniSearch from "minisearch";
-import raw from "@/data/catalog.json";
-import extraRaw from "@/data/extra.json";
-import statementsRaw from "@/data/statements.json";
-import extra2Raw from "@/data/extra2.json";
+import cardsRaw from "@/data/gen/cards.json";
 import overridesRaw from "@/data/status_overrides.json";
+import { catalogSearch, problemDetail } from "@/lib/d1";
 
 /** open/known/warmup: has a Lean statement, provable now. unformalized: open, but nobody has stated it in Lean yet. */
 export type Kind = "open" | "known" | "warmup" | "unformalized";
 
+/**
+ * What every list, filter and sort needs: kept in memory for all ~24k problems (about 10 MB of heap).
+ * Full statements, Lean sources and references live in D1 (see FullProblem / getFull), because a Cloudflare Worker
+ * has 128 MB of memory and the whole catalogue plus a search index did not fit.
+ */
 export type Problem = {
   id: string;
-  decl: string;
   title: string;
   source: string;
   kind: Kind;
-  category: string;
   fields: string[];
   tags: string[];
+  difficulty: number;
+  /** How well known the problem is, 0-100: the default order, most famous first. */
+  fame: number;
+  prize: string | null;
+  forumPosts: number;
+  erdos: number | null;
+  /** First 200 characters of the statement, TeX flattened to Unicode. */
+  excerpt: string;
+  decl: string;
+  /** A solution has been announced but is not verified (or is disputed). */
+  claim?: { summary: string; date: string; sources: string[] };
+  /** Editorial note (e.g. why a related result does not settle this one). */
+  note?: { summary: string; sources: string[] };
+};
+
+/** A problem with everything the catalogue knows about it, read from D1. */
+export type FullProblem = Problem & {
   statement: string;
   lean: string;
   module: string;
   file: string;
   line: number;
+  category: string;
   ref: string | null;
-  prize: string | null;
-  erdos: number | null;
   erdosState: string | null;
-  forumPosts: number;
-  difficulty: number;
-  // extra sources only
   license?: string;
   authors?: string[];
   area?: string;
   alsoIn?: string[];
   formalizedHere?: boolean;
-  /** How well known the problem is, 0-100: the default order, most famous first. */
-  fame: number;
-  /** A solution has been announced but is not verified (or is disputed). */
-  claim?: { summary: string; date: string; sources: string[] };
-  /** Editorial note (e.g. why a related result does not settle this one). */
-  note?: { summary: string; sources: string[] };
 };
 
 export type Override = { id: string; status: "solved" | "claimed" | "open"; title?: string; summary: string; date: string; sources: string[] };
@@ -48,58 +55,15 @@ const OVERRIDES = (overridesRaw as unknown as { reviewed: string; entries: Overr
 export const STATUS_REVIEWED = (overridesRaw as unknown as { reviewed: string }).reviewed;
 const OV = new Map(OVERRIDES.map((o) => [o.id, o]));
 
-type Catalog = {
-  meta: { upstream: string; upstreamCommit: string; license: string; counts: Record<"open" | "known" | "warmup", number>; total: number };
-  problems: Problem[];
+type CardRow = [string, string, number, number, string[], string[], number, number, string | null, number, number | null, string, string];
+const cards = cardsRaw as unknown as {
+  meta: { upstream: string; upstreamCommit: string; license: string; counts: Record<"open" | "known" | "warmup", number>; total: number; extra: unknown; extra2: unknown };
+  sources: string[]; kinds: Kind[]; rows: CardRow[];
 };
 
-const catalog = raw as unknown as Catalog;
-const extra = extraRaw as unknown as { meta: { counts: Record<string, number>; total: number; note: string }; problems: Problem[] };
-const statements = statementsRaw as unknown as Record<string, { decl: string; module: string; lean: string; file: string }>;
-
-const lg = (x: number) => Math.log10(1 + x);
-const prizeUsd = (p: string | null) => { const m = (p ?? "").replace(/,/g, "").match(/[$£](\d+)/); return m ? Number(m[1]) : 0; };
-/** Fame of the Lean catalogue and of the first extra batch (the long tail carries its own). */
-function fameOf(p: Omit<Problem, "fame"> & { stars?: number; cites?: number }): number {
-  const base: Record<string, number> = {
-    "Millennium Prize": 100, "Hilbert's Problems": 95, "Wikipedia": 85, "Green's 100 Open Problems": 78, "Kourovka Notebook": 60,
-    "MathOverflow": 58, "Erdős Problems": 62, "OEIS": 42, "Wikipedia list (not formalized)": 80, "Open Problem Garden": 45,
-    "Erdős Problems (not formalized)": 58,
-  };
-  let f = base[p.source] ?? 50;
-  if (p.prize) f += Math.min(18, 4 * lg(prizeUsd(p.prize)));
-  if (p.stars) f += 8 * p.stars;
-  if (p.cites) f += Math.min(10, 3 * lg(p.cites));
-  if (p.forumPosts) f += Math.min(6, p.forumPosts / 5);
-  if (/\.variants?\.|\.parts?\./.test(p.decl)) f -= 8;
-  if (p.kind === "warmup") f -= 20;
-  return Math.max(1, Math.min(100, Math.round(f)));
-}
-
-// A merged statements/<id>.lean turns an unformalized problem into a provable open problem.
-const extraProblems: Problem[] = (extra.problems as (Problem & { stars?: number; cites?: number })[]).map((p) => {
-  const st = statements[p.id];
-  const q = { ...p, fame: fameOf(p) };
-  return st ? { ...q, kind: "open", category: "research open (formalized here)", decl: st.decl, module: st.module, lean: st.lean, file: st.file, formalizedHere: true } : q;
-});
-
-// The long tail (OEIS conjectures, MathOverflow / Math.SE questions), stored as compact rows.
-type Row = [string, string, number, string[], string, string, string[], number, number, string[], string, number];
-const e2 = extra2Raw as unknown as { meta: { counts: Record<string, number>; total: number }; sources: string[]; licenses: Record<string, string>; rows: Row[] };
-const extra2Problems: Problem[] = e2.rows.map(([id, title, si, fields, statement, ref, authors, fame, difficulty, tags, area, posts]) => {
-  const st = statements[id];
-  const p: Problem = {
-    id, title, source: e2.sources[si], kind: "unformalized", category: "unformalized", fields, tags, statement, ref, authors, fame, difficulty,
-    area, decl: "", lean: "", module: "", file: "", line: 0, prize: null, erdos: null, erdosState: null, forumPosts: posts, license: e2.licenses[e2.sources[si]],
-  };
-  return st ? { ...p, kind: "open", category: "research open (formalized here)", decl: st.decl, module: st.module, lean: st.lean, file: st.file, formalizedHere: true } : p;
-});
-
-const ALL: Problem[] = [
-  ...(catalog.problems as Omit<Problem, "fame">[]).map((p) => ({ ...p, fame: fameOf(p) })),
-  ...extraProblems,
-  ...extra2Problems,
-];
+const ALL: Problem[] = cards.rows.map(([id, title, si, ki, fields, tags, difficulty, fame, prize, forumPosts, erdos, excerpt, decl]) => ({
+  id, title, source: cards.sources[si], kind: cards.kinds[ki], fields, tags, difficulty, fame, prize, forumPosts, erdos, excerpt, decl,
+}));
 
 /** Problems settled recently (verified), removed from the open list and shown on /status. */
 export const SETTLED: (Override & { problem?: Problem })[] = OVERRIDES.filter((o) => o.status === "solved").map((o) => ({ ...o, problem: ALL.find((p) => p.id === o.id) }));
@@ -114,11 +78,13 @@ export const PROBLEMS: Problem[] = ALL.filter((p) => OV.get(p.id)?.status !== "s
 });
 const count = (k: Kind) => PROBLEMS.filter((p) => p.kind === k).length;
 export const META = {
-  ...catalog.meta,
+  upstream: cards.meta.upstream,
+  upstreamCommit: cards.meta.upstreamCommit,
+  license: cards.meta.license,
   counts: { open: count("open"), known: count("known"), warmup: count("warmup"), unformalized: count("unformalized") } as Record<Kind, number>,
   total: PROBLEMS.length,
-  extra: extra.meta,
-  extra2: e2.meta,
+  extra: cards.meta.extra,
+  extra2: cards.meta.extra2,
 };
 /** Every open problem, stated in Lean or not. */
 export const OPEN_TOTAL = META.counts.open + META.counts.unformalized;
@@ -137,32 +103,19 @@ export function getProblem(id: string) {
   return BY_ID.get(id);
 }
 
+/** The problem with its statement, Lean source and references (one D1 read). */
+export async function getFull(id: string): Promise<FullProblem | undefined> {
+  const p = BY_ID.get(id);
+  if (!p) return undefined;
+  const d = await problemDetail(id);
+  return {
+    statement: "", lean: "", module: "", file: "", line: 0, category: p.kind === "unformalized" ? "unformalized" : "", ref: null, erdosState: null,
+    ...(d as Partial<FullProblem>), ...p,
+  };
+}
+
 export const SOURCES = Array.from(new Set(PROBLEMS.map((p) => p.source))).sort();
 export const FIELDS = Array.from(new Set(PROBLEMS.flatMap((p) => p.fields))).sort();
-
-let index: MiniSearch<Problem> | null = null;
-function getIndex() {
-  if (index) return index;
-  index = new MiniSearch<Problem>({
-    fields: ["title", "statement", "decl", "source", "fieldsText", "tagsText", "erdosText"],
-    storeFields: [],
-    extractField: (doc, field) => {
-      if (field === "fieldsText") return doc.fields.join(" ");
-      if (field === "tagsText") return doc.tags.join(" ");
-      if (field === "erdosText") return doc.erdos ? `erdos ${doc.erdos} erdős ${doc.erdos}` : "";
-      if (field === "statement") return doc.statement.replace(/[\\${}_^]/g, " ");
-      return (doc as unknown as Record<string, string>)[field];
-    },
-    searchOptions: {
-      boost: { title: 4, decl: 2, tagsText: 2, fieldsText: 1.5, erdosText: 3 },
-      prefix: true,
-      fuzzy: 0.15,
-      combineWith: "AND",
-    },
-  });
-  index.addAll(PROBLEMS);
-  return index;
-}
 
 export type Query = {
   q?: string;
@@ -183,16 +136,26 @@ export function prizeValue(p: Problem) {
   return m ? Number(m[1]) : 0;
 }
 
-export function search(query: Query) {
+/** Search and filter. Text queries go to the D1 full-text index (titles weigh most); filters and sorts run in memory. */
+export async function search(query: Query) {
   let list: Problem[];
   const q = query.q?.trim();
   const erdos = q?.match(/^erd(?:o|ő|oe)s\s*#?\s*(\d+)$/i);
   if (erdos) {
     list = PROBLEMS.filter((p) => p.erdos === Number(erdos[1]));
   } else if (q) {
-    let hits = getIndex().search(q);
-    if (hits.length === 0) hits = getIndex().search(q, { combineWith: "OR" });
-    list = hits.map((h) => BY_ID.get(h.id as string)!).filter(Boolean);
+    // BM25 order from D1, then lifted by fame and by an exact title match, so "collatz" puts the Collatz
+    // conjecture above forum questions that mention it ten times.
+    const hits = (await catalogSearch(q)).map((id) => BY_ID.get(id)!).filter(Boolean);
+    const words = q.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").match(/[\p{L}\p{N}]+/gu) ?? [];
+    const plainTitle = (t: string) => t.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+    const score = new Map(hits.map((p, i) => {
+      const t = plainTitle(p.title);
+      const inTitle = words.length > 0 && words.every((w) => t.includes(w));
+      return [p.id, 0.5 * (1 - i / hits.length) + 0.35 * (p.fame / 100) + (inTitle ? 0.4 : 0)];
+    }));
+    list = hits;
+    if ((query.sort ?? "relevance") === "relevance") list = [...hits].sort((a, b) => score.get(b.id)! - score.get(a.id)!);
   } else {
     list = PROBLEMS.slice();
   }
@@ -251,13 +214,13 @@ export function toCard(p: Problem) {
     fields: p.fields,
     difficulty: p.difficulty,
     prize: p.prize,
-    excerpt: texPlain(p.statement).slice(0, 260),
+    excerpt: p.excerpt,
   };
 }
 export type Card = ReturnType<typeof toCard>;
 
 /** The Lean skeleton an agent fills in. `type_of%` pins the exact upstream statement. */
-export function skeleton(p: Problem, polarity: "proof" | "disproof" = "proof", handle = "<your GitHub handle>") {
+export function skeleton(p: FullProblem, polarity: "proof" | "disproof" = "proof", handle = "<your GitHub handle>") {
   const target = polarity === "proof" ? `type_of% @${p.decl}` : `¬ (type_of% @${p.decl})`;
   return [
     `import ${p.module}`,
@@ -274,7 +237,7 @@ export function skeleton(p: Problem, polarity: "proof" | "disproof" = "proof", h
 }
 
 /** Skeleton of a reduction: 2 to 4 smaller statements that together imply the target. */
-export function reductionSkeleton(p: Problem, n = 1, handle = "<your GitHub handle>") {
+export function reductionSkeleton(p: FullProblem, n = 1, handle = "<your GitHub handle>") {
   const ns = "OMA.R_" + `${p.id}.R${n}`.replace(/[^A-Za-z0-9]/g, "_");
   return [
     `import ${p.module}`,
@@ -298,7 +261,7 @@ export function reductionSkeleton(p: Problem, n = 1, handle = "<your GitHub hand
 }
 
 /** Skeleton of a Lean statement for a problem that has none. Reviewed by a person before it is merged. */
-export function statementSkeleton(p: Problem, handle = "<your GitHub handle>") {
+export function statementSkeleton(p: FullProblem, handle = "<your GitHub handle>") {
   const ns = "OMA.S_" + p.id.replace(/[^A-Za-z0-9]/g, "_");
   return [
     `import Mathlib`,

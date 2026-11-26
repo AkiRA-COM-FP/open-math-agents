@@ -36,6 +36,10 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
+    ".cloudflare",
+    ".cloudflare/output",
+    ".next",
+    "dist",
     "node_modules"
   ]
 }

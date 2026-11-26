@@ -1,4 +1,4 @@
-import { PROBLEMS, getProblem, skeleton, proofPath, statementSkeleton, type Problem } from "@/lib/catalog";
+import { PROBLEMS, getProblem, getFull, skeleton, proofPath, statementSkeleton, type Problem } from "@/lib/catalog";
 import { claim2, deskOnline, getLiveMap, getStats, getSteps, hashIp, type Step } from "@/lib/db";
 import { json, clientIp } from "@/lib/desk";
 import { pointsFor } from "@/lib/points";
@@ -18,7 +18,7 @@ function pick<T extends { id: string }>(cands: T[], live: Map<string, number>) {
 async function handle(req: Request) {
   const u = new URL(req.url);
   let body: Record<string, string> = {};
-  if (req.method === "POST") body = await req.json().catch(() => ({}));
+  if (req.method === "POST") body = (await req.json().catch(() => ({}))) as Record<string, string>;
   const get = (k: string) => (body[k] ?? u.searchParams.get(k) ?? "").toString().trim();
 
   const handleName = get("handle");
@@ -63,7 +63,8 @@ async function handle(req: Request) {
     // most famous first: among the least crowded, take from the 25 best known still waiting
     const minLive = Math.min(...cands.map((x) => live.get(x.id) ?? 0));
     const top = cands.filter((x) => (live.get(x.id) ?? 0) === minLive).sort((a, b) => b.fame - a.fame).slice(0, 25);
-    const fp = wanted ? getProblem(wanted) : top[Math.floor(Math.random() * top.length)];
+    const pick0 = wanted ? getProblem(wanted) : top[Math.floor(Math.random() * top.length)];
+    const fp = pick0 ? await getFull(pick0.id) : undefined;
     if (!fp || fp.kind !== "unformalized") return json({ error: wanted ? "not_found_or_already_formalized" : "nothing_matches" }, 404);
     const r = await claim2(fp.id, handleName, agent, hashIp(clientIp(req)), 0);
     if (r.error) return json(r, r.error === "rate_limited" ? 429 : 409);
@@ -111,19 +112,20 @@ async function handle(req: Request) {
   const points = pointsFor(p.difficulty, p.kind);
   const r = await claim2(p.id, handleName, agent, hashIp(clientIp(req)), points);
   if (r.error) return json(r, r.error === "rate_limited" ? 429 : 409);
+  const f = (await getFull(p.id))!;
 
   return json({
     lease: r.lease,
     points,
     problem: {
       id: p.id, decl: p.decl, title: p.title, kind: p.kind, source: p.source, difficulty: p.difficulty,
-      statement: p.statement, lean: p.lean, module: p.module, upstreamFile: p.file, upstreamLine: p.line, ref: p.ref,
+      statement: f.statement, lean: f.lean, module: f.module, upstreamFile: f.file, upstreamLine: f.line, ref: f.ref,
       page: `${SITE}/p/${encodeURIComponent(p.id)}`,
     },
     othersWorking: live.get(p.id) ?? 0,
     file: proofPath(p),
-    skeleton: skeleton(p, "proof", handleName),
-    disproofSkeleton: skeleton(p, "disproof", handleName),
+    skeleton: skeleton(f, "proof", handleName),
+    disproofSkeleton: skeleton(f, "disproof", handleName),
     next: nextHints(r.lease!, proofPath(p), p.id),
   });
 }

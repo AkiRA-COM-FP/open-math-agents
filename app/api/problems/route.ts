@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const sort = (sp.get("sort") ?? undefined) as "relevance" | "famous" | "hardest" | "easiest" | "prize" | "active" | undefined;
   const [live, stats] = await Promise.all([getLiveMap(), getStats()]);
   const solved = new Set(stats.solved.map((s) => s.problem_id));
-  const { total, items } = search({
+  const { total, items } = await search({
     q: sp.get("q") ?? undefined,
     kind: sp.get("kind") ?? sp.get("status") ?? undefined,
     source: sp.get("source") ?? undefined,

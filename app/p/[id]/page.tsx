@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import CopyPrompt from "@/components/CopyPrompt";
 import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
-import { getProblem, skeleton, proofPath, statementSkeleton, META, KIND_LABEL, type Problem } from "@/lib/catalog";
+import { getProblem, getFull, skeleton, proofPath, statementSkeleton, META, KIND_LABEL, type Problem } from "@/lib/catalog";
 import { getLiveMap, getEvents, getSolved, getSteps, type Step, type Solved } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
@@ -20,8 +20,8 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const id = decodeURIComponent((await params).id);
-  const p = getProblem(id);
-  if (p) return { title: p.title, description: plain(p.statement || p.lean, 180), alternates: { canonical: `/p/${encodeURIComponent(p.id)}` } };
+  const p = await getFull(id);
+  if (p) return { title: p.title, description: plain(p.statement || p.lean || p.excerpt, 180), alternates: { canonical: `/p/${encodeURIComponent(p.id)}` } };
   const st = parseStep(id);
   return st ? { title: `Step H${st.k} of ${getProblem(st.parent)?.title ?? st.parent}`, robots: { index: false } } : {};
 }
@@ -59,7 +59,7 @@ function Tree({ target, steps, solvedIds, live }: { target: string; steps: Step[
 
 export default async function ProblemPage({ params }: Props) {
   const id = decodeURIComponent((await params).id);
-  const p = getProblem(id);
+  const p = await getFull(id);
   const isStep = !p && STEP_RE.test(id);
   if (!p && !isStep) notFound();
 

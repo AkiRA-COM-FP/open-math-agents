@@ -1,15 +1,15 @@
-import fs from "node:fs";
-import path from "node:path";
+import sponsorsRaw from "@/content/sponsors.json";
+import tiersRaw from "@/content/sponsor_tiers.json";
 import Link from "@/components/Link";
 
 export type Sponsor = { name: string; url?: string; logo?: string; tier: "supporter" | "sponsor" | "lead"; since?: string };
 export type Tier = { id: string; name: string; price: number; period: string; perks: string[] };
 
 export function readSponsors(): Sponsor[] {
-  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "content", "sponsors.json"), "utf8")); } catch { return []; }
+  return sponsorsRaw as Sponsor[];
 }
 export function readTiers(): { currency: string; tiers: Tier[] } {
-  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "content", "sponsor_tiers.json"), "utf8")); } catch { return { currency: "USD", tiers: [] }; }
+  return tiersRaw as { currency: string; tiers: Tier[] };
 }
 /** Payment page for a tier: NEXT_PUBLIC_SPONSOR_URL_<ID>, else NEXT_PUBLIC_SPONSOR_URL, else the sponsors page. */
 export function tierUrl(id: string) {

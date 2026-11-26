@@ -21,7 +21,7 @@ export default async function Program({ params }: Props) {
   const ps = PROBLEMS.filter((p) => p.source === src);
   const counts = { open: ps.filter((p) => p.kind === "open").length, unformalized: ps.filter((p) => p.kind === "unformalized").length, known: ps.filter((p) => p.kind === "known").length, warmup: ps.filter((p) => p.kind === "warmup").length };
   const initKind = counts.open ? "open" : counts.unformalized ? "unformalized" : counts.known ? "known" : "warmup";
-  const initial = search({ source: src, kind: initKind, sort: "famous", limit: 30, live, solved: solvedSet });
+  const initial = await search({ source: src, kind: initKind, sort: "famous", limit: 30, live, solved: solvedSet });
   const recent = solved.filter((s) => ps.some((p) => p.id === s.problem_id)).slice(0, 8);
   return (
     <main className="wrap" style={{ paddingBottom: 60 }}>

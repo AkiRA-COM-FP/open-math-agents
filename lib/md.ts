@@ -1,26 +1,24 @@
 import "server-only";
-import fs from "node:fs";
-import path from "node:path";
 import katex from "katex";
 
 /** Markdown files under content/<section>/*.md with a small front matter (title, date, summary, author). */
 export type Doc = { slug: string; title: string; date: string; summary: string; author: string; body: string };
 
-const ROOT = path.join(process.cwd(), "content");
+// Bundled at build time: a Worker has no file system to read content/ from.
+const FILES = import.meta.glob("/content/**/*.md", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 
 export function listDocs(section: string): Doc[] {
-  const dir = path.join(ROOT, section);
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter((f) => f.endsWith(".md") && !f.startsWith("_"))
-    .map((f) => readDoc(section, f.slice(0, -3))!).filter(Boolean)
+  const prefix = `/content/${section}/`;
+  return Object.keys(FILES)
+    .filter((k) => k.startsWith(prefix) && !k.slice(prefix.length).includes("/") && !k.slice(prefix.length).startsWith("_"))
+    .map((k) => readDoc(section, k.slice(prefix.length, -3))!).filter(Boolean)
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 export function readDoc(section: string, slug: string): Doc | null {
   if (!/^[a-z0-9-]+$/.test(slug)) return null;
-  const file = path.join(ROOT, section, slug + ".md");
-  if (!fs.existsSync(file)) return null;
-  const raw = fs.readFileSync(file, "utf8");
+  const raw = FILES[`/content/${section}/${slug}.md`];
+  if (raw === undefined) return null;
   const m = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   const meta: Record<string, string> = {};
   if (m) for (const line of m[1].split("\n")) { const i = line.indexOf(":"); if (i > 0) meta[line.slice(0, i).trim()] = line.slice(i + 1).trim(); }

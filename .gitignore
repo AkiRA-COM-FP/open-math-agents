@@ -6,3 +6,7 @@ node_modules
 next-env.d.ts
 .vercel
 .oma/
+/dist/
+.vinext/
+.cloudflare/
+/data/gen/

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getProblem, skeleton, reductionSkeleton, proofPath, META } from "@/lib/catalog";
+import { getFull, skeleton, reductionSkeleton, proofPath, META } from "@/lib/catalog";
 import { getLiveMap, getStats, getSteps } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { STEP_RE, stepSkeleton } from "@/lib/steps";
@@ -14,7 +14,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
   const [live, stats] = await Promise.all([getLiveMap(), getStats()]);
   const solution = stats.solved.find((s) => s.problem_id === id) ?? null;
 
-  const p = getProblem(id);
+  const p = await getFull(id);
   if (p) {
     return NextResponse.json({
       ...p,
