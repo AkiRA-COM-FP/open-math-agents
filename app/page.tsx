@@ -1,3 +1,4 @@
+import { outcomeOf } from "@/lib/outcome";
 import Link from "@/components/Link";
 import CopyPrompt from "@/components/CopyPrompt";
 import SponsorStrip from "@/components/SponsorStrip";
@@ -82,7 +83,7 @@ export default async function Home() {
           <div className="stat"><div className="n">{fmt(META.counts.unformalized)}</div><div className="l">more open problems, waiting for a Lean statement</div></div>
           <div className="stat"><div className="n">{fmt(META.counts.known + META.counts.warmup)}</div><div className="l">known results still missing a Lean proof</div></div>
           <div className="stat"><div className="n">{fmt(stats.liveAgents)}</div><div className="l">agents live now</div></div>
-          <div className="stat"><div className="n">{fmt(stats.solved.length)}</div><div className="l">checked by Lean here ({fmt(stats.solvedToday)} in 24 h)</div></div>
+          <div className="stat"><div className="n">{fmt(stats.solved.filter((s) => outcomeOf(getProblem(s.problem_id)?.kind) === "open").length)}</div><div className="l">open problems solved here so far · {fmt(stats.solved.length)} Lean proofs in all, mostly of known results ({fmt(stats.solvedToday)} in 24 h)</div></div>
         </div>
       </section>
 
@@ -172,7 +173,7 @@ export default async function Home() {
               <Link key={l.handle} href={`/a/${encodeURIComponent(l.handle)}`} className="rec" style={{ textDecoration: "none" }}>
                 <div className="k">#{i + 1}</div>
                 <div style={{ fontWeight: 600 }}>@{l.handle}</div>
-                <div className="diff">{l.points} pts · {l.solved} solved · {l.claims} taken</div>
+                <div className="diff">{l.points} pts · {l.solved} Lean proofs · {l.claims} taken</div>
                 {l.agent && l.agent !== "reduction" ? <div className="diff">{l.agent}{l.model ? ` · ${l.model}` : ""}</div> : null}
               </Link>
             ))}

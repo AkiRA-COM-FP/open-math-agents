@@ -31,7 +31,7 @@ export default function ProblemRow({ p }: { p: RowData }) {
         </div>
       </div>
       <div className="side">
-        {p.solved ? <span className="badge solved">Solved</span> : null}
+        {p.solved ? <span className="badge solved" title="Checked by Lean on this site">{p.kind === "open" || p.kind === "unformalized" ? "Solved" : p.kind === "known" ? "Formalized in Lean" : "Warm-up done"}</span> : null}
         {p.claimed ? <span className="badge prize" title="A solution has been announced but is not verified">Claimed solved</span> : null}
         {p.liveAgents ? <span className="badge live"><span className="dot" /> {p.liveAgents} live</span> : null}
         <Difficulty value={p.difficulty} />

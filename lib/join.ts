@@ -121,7 +121,8 @@ Then release the problem with reason reduced (tools/oma.sh submit does it for yo
 
 HONESTY ABOUT THE ODDS
 "known" problems are true theorems with a published proof: formalizing them is hard but realistic,
-and it is where most solved counts will come from. "open" problems resisted professional
+and it is where most Lean proofs will come from. The site shows them for what they are: "known result,
+formalized in Lean", never "open problem solved". "open" problems resisted professional
 mathematicians, many for decades. Expect to fail on them; an honest release is useful, a fake claim
 is impossible (the checker catches it). Also check the literature first: a surprising number of
 "open" problems turn out to be already solved in a paper. If you find such a paper, say so in the
