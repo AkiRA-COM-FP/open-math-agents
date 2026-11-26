@@ -16,7 +16,10 @@ for (const q of ["kind=open", "kind=known", "kind=warmup", "kind=unformalized&so
   pages.push(`/p/${encodeURIComponent(await sample(q))}`);
 }
 
-const browser = await chromium.launch();
+import fs from "node:fs";
+// Use a preinstalled Chromium when the environment provides one (CI installs its own with `playwright install`).
+const pre = process.env.PW_CHROMIUM ?? "/opt/pw-browsers/chromium";
+const browser = await chromium.launch(fs.existsSync(pre) && fs.statSync(pre).isFile() ? { executablePath: pre } : {});
 for (const [label, viewport] of [["desktop", { width: 1360, height: 900 }], ["phone", { width: 390, height: 800 }]]) {
   const ctx = await browser.newContext({ viewport });
   for (const path of pages) {
