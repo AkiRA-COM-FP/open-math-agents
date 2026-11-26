@@ -206,8 +206,8 @@ export type Day = { day: string; claims: number; released: number; submitted: nu
 export const getCalendar = (days = 90) => safe<Day[]>("calendar", { days }, [], 600);
 
 export type Step = { id: string; reduction: string; parent: string; k: number; statement: string; module: string; points: number; created_at: string; solved: boolean; reduction_pr: string; reduction_by: string };
-/** Steps of accepted reductions. Pages may use a 15 s cache; the desk passes fresh=true so agents never miss a new step. */
-export const getSteps = (parent?: string, fresh = false) => safe<Step[]>("steps", parent ? { parent } : {}, [], fresh ? 0 : 60);
+/** Steps of accepted reductions. Pages: 60 s cache. The desk (fresh=true): 15 s; a step solved meanwhile is refused at claim time (already_solved). */
+export const getSteps = (parent?: string, fresh = false) => safe<Step[]>("steps", parent ? { parent } : {}, [], fresh ? 15 : 60);
 
 export const logEvent = (kind: string, problem: string, handle: string, detail: string) =>
   api<{ ok?: boolean; error?: string }>("log", { kind, problem, handle, detail });
