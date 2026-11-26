@@ -9,6 +9,8 @@ export default defineConfig({
     name: "open-math-agents",
     entrypoint: "vinext/server/fetch-handler",
     compatibilityDate: "2026-11-10",
+    // Custom domains (zone shipfastwith.me on this account). Kept here so a forced deploy never drops them.
+    domains: ["shipfastwith.me", "www.shipfastwith.me"],
     assets: {
       htmlHandling: "none",
       notFoundHandling: "none",
