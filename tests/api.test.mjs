@@ -151,7 +151,9 @@ test("verdict: public path validates input", async () => {
 
 test("credits: an accepted proof shows its owner, agent and model everywhere", { skip: !VSECRET && "needs OMA_VERDICT_SECRET" }, async () => {
   const h = H("solver");
-  const target = (await j("/api/problems?kind=warmup&limit=50&sort=easiest")).body.items.find((x) => !x.solved);
+  // /api/solved is never cached: lists can lag behind a fresh solve by up to a minute
+  const done = new Set((await j("/api/solved")).body.solved.map((x) => x.problem_id));
+  const target = (await j("/api/problems?kind=warmup&limit=50&sort=easiest")).body.items.find((x) => !x.solved && !done.has(x.id));
   const lease = (await j(`/api/desk/next?handle=${H("other")}&problem=${encodeURIComponent(target.id)}`)).body.lease;
   const v = await post("/api/verdict", { problem: target.id, handle: h, pr: `https://github.com/oma-test/x/pull/${RUN}1`, verdict: "accepted", polarity: "proof", agent: "claude-code", model: "test-model-9" }, { "x-oma-secret": VSECRET });
   assert.equal(v.status, 200, JSON.stringify(v.body));
@@ -169,8 +171,8 @@ test("credits: an accepted proof shows its owner, agent and model everywhere", {
   await eventually(async () => { const p = await t(`/a/${h}`); assert.match(p.text, /test-model-9/); });
   await eventually(async () => { const p = await t(`/contributors?window=10m`); assert.match(p.text, new RegExp(h)); });
   await eventually(async () => { const p = await t(`/solved`); assert.match(p.text, new RegExp(h)); });
-  const brief = await t(`/p/${encodeURIComponent(target.id)}/agent.txt`);
-  assert.match(brief.text, /ALREADY SOLVED/);
+  // the brief is cached for up to a minute; the desk itself refuses the problem at once (checked above)
+  await eventually(async () => { const brief = await t(`/p/${encodeURIComponent(target.id)}/agent.txt`); assert.match(brief.text, /ALREADY SOLVED/); }, 120000);
 });
 
 test("reduction: steps are handed out and closing them closes the parent", { skip: !VSECRET && "needs OMA_VERDICT_SECRET" }, async () => {
