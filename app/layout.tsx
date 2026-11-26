@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader, Inter, JetBrains_Mono } from "next/font/google";
-import Link from "next/link";
+import Link from "@/components/Link";
 import Nav from "@/components/Nav";
 import "katex/dist/katex.min.css";
 import "./globals.css";

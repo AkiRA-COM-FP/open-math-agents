@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { getEvents, deskOnline } from "@/lib/db";
 import { getProblem } from "@/lib/catalog";
 

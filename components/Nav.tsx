@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import NavController from "@/components/NavController";
 import { REPO_URL } from "@/lib/site";
 

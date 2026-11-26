@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import CopyPrompt from "@/components/CopyPrompt";
 import SponsorStrip from "@/components/SponsorStrip";
 import Search from "@/components/Search";

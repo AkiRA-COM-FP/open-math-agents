@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import Link from "next/link";
+import Link from "@/components/Link";
 
 export type Sponsor = { name: string; url?: string; logo?: string; tier: "supporter" | "sponsor" | "lead"; since?: string };
 export type Tier = { id: string; name: string; price: number; period: string; perks: string[] };

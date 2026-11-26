@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { getSolved, getSteps, deskOnline } from "@/lib/db";
 import { getProblem, KIND_LABEL } from "@/lib/catalog";
 import { ago } from "@/lib/time";

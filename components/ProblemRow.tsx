@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 
 export type RowData = {
   id: string; title: string; source: string; kind: "open" | "known" | "warmup" | "unformalized"; fields: string[];

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { SETTLED, CLAIMED, STATUS_REVIEWED, getProblem } from "@/lib/catalog";
 
 export const metadata = { title: "Recently settled", description: "Problems solved lately, removed from the open list, and problems whose announced solution is not verified yet." };

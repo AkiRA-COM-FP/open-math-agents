@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { getLeaderboard2, deskOnline } from "@/lib/db";
 import { ago } from "@/lib/time";
 

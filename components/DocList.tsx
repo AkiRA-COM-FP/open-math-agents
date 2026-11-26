@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import type { Doc } from "@/lib/md";
 
 export default function DocList({ docs, base, empty }: { docs: Doc[]; base: string; empty: React.ReactNode }) {

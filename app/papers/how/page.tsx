@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { REPO_URL } from "@/lib/site";
 export const metadata = { title: "How papers are written", description: "Checked, reviewed and corrected." };
 export default function How() {

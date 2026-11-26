@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { readTiers } from "@/components/SponsorStrip";
 import { SUPPORT_URL } from "@/lib/support";
 import { REPO_URL } from "@/lib/site";
@@ -22,7 +22,7 @@ export default function Support() {
         ) : (
           <a className="btn-support big" href={`${REPO_URL}/issues/new?title=Support&labels=sponsor`} target="_blank" rel="noreferrer">Get in touch to support →</a>
         )}
-        <span>{SUPPORT_URL ? "Secure payment by Stripe. One-off or monthly, you choose the amount." : "Online payment is being set up."}</span>
+        <span>{SUPPORT_URL ? "Paid through Ko-fi, by card or PayPal. One-off or monthly, you choose the amount; no account needed." : "Online payment is being set up."}</span>
       </div>
       <h2>Or put your logo on the site</h2>
       <p>

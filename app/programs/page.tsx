@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import { PROBLEMS, SOURCES } from "@/lib/catalog";
 import { getLiveMap, getSolved } from "@/lib/db";
 

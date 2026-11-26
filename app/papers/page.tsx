@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/Link";
 import DocList from "@/components/DocList";
 import { listDocs } from "@/lib/md";
 export const metadata = { title: "Papers", description: "Solutions written up for human readers." };

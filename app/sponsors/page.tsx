@@ -29,6 +29,9 @@ export default function Sponsors() {
           </div>
         ))}
       </div>
+      {configured && (
+        <p className="callout">Payment goes through Ko-fi (card or PayPal). Enter the tier amount, and put your organisation&apos;s name, website and a link to your logo in the message. Your logo goes up within a few days. Ko-fi emails a payment receipt; we cannot issue VAT invoices for now.</p>
+      )}
       {!configured && (
         <p className="callout">Online payment is not switched on yet. To sponsor now, <a href={`${REPO_URL}/issues/new?title=Sponsoring&labels=sponsor`}>open an issue</a> and we will get back to you.</p>
       )}
