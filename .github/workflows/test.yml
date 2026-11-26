@@ -26,7 +26,7 @@ jobs:
         run: bash tests/test_oma.sh
       - name: Type check and build (Cloudflare Workers, vinext)
         id: build
-        run: npx tsc --noEmit && npm run build:vinext
+        run: node scripts/build_statements.mjs && node scripts/build_data.mjs && npx tsc --noEmit && npx vite build
       - name: Start the Worker locally and load the catalogue into its D1 (desk offline in CI)
         run: |
           (npx vite preview --port 3123 > preview.log 2>&1 &)
