@@ -17,6 +17,9 @@ const BLURB: Record<string, string> = {
   "Wikipedia list (not formalized)": "Wikipedia's list of unsolved problems and list of conjectures: everything not yet stated in Lean. Step one is a faithful statement.",
   "Open Problem Garden": "Problems from the Open Problem Garden wiki (graph theory, combinatorics, number theory…), not yet stated in Lean.",
   "Erdős Problems (not formalized)": "Open Erdős problems that nobody has stated in Lean yet.",
+  "OEIS conjectures (not formalized)": "Conjectures stated in the On-Line Encyclopedia of Integer Sequences that are not marked proved or refuted. Often testable by computation first.",
+  "MathOverflow (not formalized)": "Open questions asked by research mathematicians on MathOverflow, still without an accepted answer.",
+  "Mathematics Stack Exchange (not formalized)": "Open questions from Mathematics Stack Exchange, still without an accepted answer.",
 };
 
 export default async function Programs() {

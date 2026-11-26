@@ -1,0 +1,204 @@
+// Integration tests against a running site (default http://localhost:3123) wired to a real desk.
+// Run: BASE=http://localhost:3123 OMA_VERDICT_SECRET=<the server's> node --test tests/api.test.mjs
+// Creates data under handles "oma-test-*" and reductions "OMATEST*"; delete them afterwards (tests/cleanup.sql).
+import { test } from "node:test";
+import assert from "node:assert/strict";
+
+const BASE = process.env.BASE ?? "http://localhost:3123";
+const VSECRET = process.env.OMA_VERDICT_SECRET;
+const RUN = Date.now().toString(36);
+const H = (n) => `oma-test-${RUN}-${n}`.slice(0, 39);
+const j = async (path, init) => { const r = await fetch(BASE + path, init); let body = null; try { body = await r.json(); } catch {} return { status: r.status, body }; };
+const t = async (path) => { const r = await fetch(BASE + path); return { status: r.status, text: await r.text() }; };
+const post = (path, body, headers = {}) => j(path, { method: "POST", headers: { "Content-Type": "application/json", ...headers }, body: body === undefined ? undefined : JSON.stringify(body) });
+const eventually = async (fn, ms = 45000) => { const end = Date.now() + ms; let last; while (Date.now() < end) { try { return await fn(); } catch (e) { last = e; await new Promise((r) => setTimeout(r, 2500)); } } throw last; };
+
+let catalogTotal = 0;
+
+test("stats: desk online and catalogue counts add up", async () => {
+  const { status, body } = await j("/api/stats");
+  assert.equal(status, 200);
+  assert.equal(body.deskOnline, true);
+  const c = body.catalog;
+  catalogTotal = body.total;
+  assert.equal(c.open + c.known + c.warmup + c.unformalized, body.total);
+  assert.ok(body.total >= 10000, `at least 10,000 problems, got ${body.total}`);
+});
+
+test("search: query, kinds, sources, sorts, paging", async () => {
+  const q = await j("/api/problems?q=collatz&kind=all&limit=50");
+  assert.equal(q.status, 200);
+  assert.ok(q.body.items.some((x) => /collatz/i.test(x.title)));
+  for (const kind of ["open", "known", "warmup", "unformalized"]) {
+    const r = await j(`/api/problems?kind=${kind}&limit=40`);
+    assert.ok(r.body.total > 0, kind);
+    assert.ok(r.body.items.every((x) => x.kind === kind), `only ${kind}`);
+  }
+  const all = await j("/api/problems?kind=all&limit=1");
+  assert.equal(all.body.total, catalogTotal);
+  const src = await j("/api/problems?kind=all&source=" + encodeURIComponent("OEIS conjectures (not formalized)") + "&limit=20");
+  assert.ok(src.body.total >= 10000);
+  assert.ok(src.body.items.every((x) => x.source === "OEIS conjectures (not formalized)"));
+  const hard = (await j("/api/problems?kind=open&sort=hardest&limit=30")).body.items.map((x) => x.difficulty);
+  assert.deepEqual(hard, [...hard].sort((a, b) => b - a));
+  const easy = (await j("/api/problems?kind=open&sort=easiest&limit=30")).body.items.map((x) => x.difficulty);
+  assert.deepEqual(easy, [...easy].sort((a, b) => a - b));
+  const p1 = (await j("/api/problems?kind=all&limit=10&offset=0")).body.items.map((x) => x.id);
+  const p2 = (await j("/api/problems?kind=all&limit=10&offset=10")).body.items.map((x) => x.id);
+  assert.equal(new Set([...p1, ...p2]).size, 20, "pages do not overlap");
+  const famous = (await j("/api/problems?kind=all&limit=5")).body.items;
+  assert.ok(famous.some((x) => /NP|Riemann|Birch|Hodge|Navier|Poincar|Yang/i.test(x.title)), "most famous first by default: " + famous.map((x) => x.title));
+  const full = await j("/api/problems?kind=open&limit=1&full=1");
+  assert.ok(full.body.items[0].lean.length > 0);
+  const weird = await j("/api/problems?q=%22%3Cscript%3E&limit=999&offset=-5&sort=nonsense");
+  assert.equal(weird.status, 200);
+  assert.ok(weird.body.items.length <= 200);
+});
+
+test("problem API: each kind, reduction skeleton, 404", async () => {
+  const known = (await j("/api/problems?kind=known&limit=1")).body.items[0];
+  const r = await j(`/api/problems/${encodeURIComponent(known.id)}?reduction=2&handle=bob`);
+  assert.equal(r.status, 200);
+  assert.match(r.body.skeleton, /theorem OMA\.solution : type_of% @/);
+  assert.match(r.body.reductionSkeleton, /namespace OMA\.R_.*_R2/);
+  assert.match(r.body.reductionSkeleton, /Credit: @bob/);
+  const unf = (await j("/api/problems?kind=unformalized&limit=1")).body.items[0];
+  const u = await j(`/api/problems/${encodeURIComponent(unf.id)}`);
+  assert.equal(u.status, 200);
+  assert.equal(u.body.kind, "unformalized");
+  assert.equal((await j("/api/problems/definitely-not-a-problem")).status, 404);
+});
+
+test("desk: validation errors", async () => {
+  assert.equal((await j("/api/desk/next?handle=bad%20handle")).status, 400);
+  assert.equal((await j("/api/desk/next")).status, 400);
+  assert.equal((await j(`/api/desk/next?handle=${H("x")}&problem=nope-nope`)).status, 404);
+  assert.equal((await post("/api/desk/beat?lease=not-a-uuid")).status, 400);
+  assert.equal((await post("/api/desk/release?lease=00000000-0000-0000-0000-000000000000&reason=because")).status, 400);
+  assert.equal((await post("/api/desk/beat?lease=00000000-0000-0000-0000-000000000000")).status, 404);
+});
+
+test("desk: lease life cycle, kinds and the 5-lease cap", async () => {
+  const h = H("life");
+  const a = await j(`/api/desk/next?handle=${h}&agent=test&kind=warmup`);
+  assert.equal(a.status, 200);
+  assert.equal(a.body.problem.kind, "warmup");
+  assert.match(a.body.skeleton, new RegExp(`Credit: @${h}`));
+  assert.ok(a.body.points >= 1);
+  assert.equal((await post(`/api/desk/beat?lease=${a.body.lease}`)).status, 200);
+  assert.equal((await post(`/api/desk/release?lease=${a.body.lease}&reason=too_hard`)).status, 200);
+  const after = await post(`/api/desk/beat?lease=${a.body.lease}`);
+  assert.equal(after.status, 410);
+  assert.equal(after.body.status, "released");
+  assert.equal((await post(`/api/desk/release?lease=${a.body.lease}&reason=other`)).status, 409, "cannot release twice");
+
+  const h2 = H("cap");
+  const leases = [];
+  for (const kind of ["known", "open", "warmup", "known", "open"]) {
+    const r = await j(`/api/desk/next?handle=${h2}&agent=test&kind=${kind}`);
+    assert.equal(r.status, 200, `${kind}: ${JSON.stringify(r.body)}`);
+    assert.equal(r.body.problem.kind, kind);
+    leases.push(r.body.lease);
+  }
+  const sixth = await j(`/api/desk/next?handle=${h2}&agent=test`);
+  assert.equal(sixth.status, 409);
+  assert.equal(sixth.body.error, "too_many_leases");
+  for (const l of leases) await post(`/api/desk/release?lease=${l}&reason=other`);
+
+  for (let i = 0; i < 6; i++) {
+    const r = await j(`/api/desk/next?handle=${H("any" + i)}&kind=any`);
+    assert.notEqual(r.body.problem?.kind, "unformalized", "kind=any never hands out a problem without a statement");
+    await post(`/api/desk/release?lease=${r.body.lease}&reason=other`);
+  }
+  const f = await j(`/api/desk/next?handle=${H("form")}&kind=formalize`);
+  assert.equal(f.status, 200);
+  assert.equal(f.body.task, "formalize");
+  assert.match(f.body.file, /^statements\/.+\.lean$/);
+  assert.match(f.body.skeleton, /theorem main : sorry := by/);
+  await post(`/api/desk/release?lease=${f.body.lease}&reason=other`);
+});
+
+test("verdict: public path validates input", async () => {
+  assert.equal((await post("/api/verdict", {})).status, 400);
+  assert.equal((await post("/api/verdict", { pr: "12; drop table" })).status, 400);
+  assert.equal((await post("/api/verdict", { pr: -1 })).status, 400);
+  assert.equal((await post("/api/verdict", { problem: "x", verdict: "accepted" }, { "x-oma-secret": "wrong" })).status, 400);
+});
+
+test("credits: an accepted proof shows its owner, agent and model everywhere", { skip: !VSECRET && "needs OMA_VERDICT_SECRET" }, async () => {
+  const h = H("solver");
+  const target = (await j("/api/problems?kind=warmup&limit=50&sort=easiest")).body.items.find((x) => !x.solved);
+  const lease = (await j(`/api/desk/next?handle=${H("other")}&problem=${encodeURIComponent(target.id)}`)).body.lease;
+  const v = await post("/api/verdict", { problem: target.id, handle: h, pr: `https://github.com/oma-test/x/pull/${RUN}1`, verdict: "accepted", polarity: "proof", agent: "claude-code", model: "test-model-9" }, { "x-oma-secret": VSECRET });
+  assert.equal(v.status, 200, JSON.stringify(v.body));
+  assert.equal((await post(`/api/desk/beat?lease=${lease}`)).status, 410, "the other agent is told to stop");
+  assert.equal((await j(`/api/desk/next?handle=${H("late")}&problem=${encodeURIComponent(target.id)}`)).body.error, "already_solved");
+  await eventually(async () => {
+    const s = (await j("/api/solved")).body.solved.find((x) => x.problem_id === target.id);
+    assert.ok(s, "listed in /api/solved");
+    assert.equal(s.handle, h); assert.equal(s.agent, "claude-code"); assert.equal(s.model, "test-model-9");
+  });
+  await eventually(async () => {
+    const page = await t(`/p/${encodeURIComponent(target.id)}`);
+    assert.match(page.text, new RegExp(h)); assert.match(page.text, /test-model-9/); assert.match(page.text, /Cite this result/);
+  });
+  await eventually(async () => { const p = await t(`/a/${h}`); assert.match(p.text, /test-model-9/); });
+  await eventually(async () => { const p = await t(`/contributors?window=10m`); assert.match(p.text, new RegExp(h)); });
+  await eventually(async () => { const p = await t(`/solved`); assert.match(p.text, new RegExp(h)); });
+  const brief = await t(`/p/${encodeURIComponent(target.id)}/agent.txt`);
+  assert.match(brief.text, /ALREADY SOLVED/);
+});
+
+test("reduction: steps are handed out and closing them closes the parent", { skip: !VSECRET && "needs OMA_VERDICT_SECRET" }, async () => {
+  // the reduction itself is registered by tests/fixtures (SQL) under id OMATEST.<run>.R1 targeting a real problem
+  const parent = process.env.TEST_REDUCTION_PARENT;
+  if (!parent) return;
+  const steps = (await eventually(async () => { const r = await j(`/api/problems/${encodeURIComponent(parent)}`); assert.ok(r.body.steps.length >= 2); return r.body.steps; }));
+  const ids = steps.filter((s) => s.reduction.startsWith(parent)).map((s) => s.id);
+  const one = await j(`/api/desk/next?handle=${H("step")}&kind=step`);
+  assert.equal(one.status, 200, JSON.stringify(one.body));
+  assert.equal(one.body.problem.kind, "step");
+  assert.match(one.body.skeleton, /theorem OMA\.solution : OMA\.R_.*\.H\d := by/);
+  await post(`/api/desk/release?lease=${one.body.lease}&reason=other`);
+  const stepBrief = await t(`/p/${encodeURIComponent(ids[0])}/agent.txt`);
+  assert.match(stepBrief.text, /Prove hypothesis H\d of reduction/);
+  for (const [i, id] of ids.entries()) {
+    const v = await post("/api/verdict", { problem: id, handle: H("s" + i), pr: `https://github.com/oma-test/x/pull/${RUN}9${i}`, verdict: "accepted", agent: "codex", model: "m" }, { "x-oma-secret": VSECRET });
+    assert.equal(v.status, 200);
+  }
+  await eventually(async () => {
+    const s = (await j("/api/solved")).body.solved.find((x) => x.problem_id === parent);
+    assert.ok(s, "parent closed by its steps");
+    assert.ok(s.contributors.length >= 2);
+  });
+});
+
+test("pages: every route renders", async () => {
+  for (const p of ["/", "/map", "/board", "/programs", "/solved", "/contributors", "/contributors?window=10m", "/contributors?window=1h", "/contributors?window=24h",
+    "/feed", "/feed?kind=accepted", "/feed?kind=release&before=999999999", "/calendar", "/live", "/graveyard", "/news", "/news/board-open", "/papers", "/papers/how",
+    "/letters", "/sponsors", "/join", "/join.txt", "/a/somebody", "/robots.txt", "/sitemap.xml", "/api/map", "/api/solved"]) {
+    const r = await fetch(BASE + p);
+    assert.equal(r.status, 200, p);
+  }
+  for (const p of ["/news/nope", "/papers/nope", "/letters/nope", "/p/nope", "/p/nope/agent.txt", "/programs/Nope", "/a/bad%20handle"]) {
+    assert.equal((await fetch(BASE + p)).status, 404, p);
+  }
+});
+
+test("briefs: one per source and kind, with the sections an agent needs", async () => {
+  const pick = async (q) => (await j(`/api/problems?kind=all&limit=1&${q}`)).body.items[0];
+  const cases = [
+    [await pick("kind=open&source=Millennium%20Prize"), ["THE EXACT LEAN TARGET", "WHAT YOU MAY REUSE", "THE FULL UPSTREAM FILE", "HOW TO ATTACK", "OMA.disproof"]],
+    [await pick("kind=known"), ["THE EXACT LEAN TARGET", "REFERENCES", "formalize that proof"]],
+    [await pick("kind=warmup"), ["warm-up"]],
+  ];
+  for (const s of ["Wikipedia list (not formalized)", "Open Problem Garden", "Erdős Problems (not formalized)", "OEIS conjectures (not formalized)", "MathOverflow (not formalized)", "Mathematics Stack Exchange (not formalized)"]) {
+    cases.push([await pick("source=" + encodeURIComponent(s)), ["FORMALIZE", "statements/", "STYLE EXAMPLES"]]);
+  }
+  for (const [p, needles] of cases) {
+    assert.ok(p, "a problem exists for each case");
+    const b = await t(`/p/${encodeURIComponent(p.id)}/agent.txt`);
+    assert.equal(b.status, 200, p.id);
+    for (const n of needles) assert.ok(b.text.includes(n), `${p.id} brief contains ${n}`);
+  }
+});

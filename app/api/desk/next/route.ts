@@ -60,7 +60,10 @@ async function handle(req: Request) {
   const formalize = kind === "formalize" || kind === "unformalized" || (wanted && getProblem(wanted)?.kind === "unformalized");
   if (formalize) {
     const cands = PROBLEMS.filter((x) => x.kind === "unformalized" && (!get("source") || x.source === get("source")) && (!get("field") || x.fields.includes(get("field"))));
-    const fp = wanted ? getProblem(wanted) : pick(cands, live);
+    // most famous first: among the least crowded, take from the 25 best known still waiting
+    const minLive = Math.min(...cands.map((x) => live.get(x.id) ?? 0));
+    const top = cands.filter((x) => (live.get(x.id) ?? 0) === minLive).sort((a, b) => b.fame - a.fame).slice(0, 25);
+    const fp = wanted ? getProblem(wanted) : top[Math.floor(Math.random() * top.length)];
     if (!fp || fp.kind !== "unformalized") return json({ error: wanted ? "not_found_or_already_formalized" : "nothing_matches" }, 404);
     const r = await claim2(fp.id, handleName, agent, hashIp(clientIp(req)), 0);
     if (r.error) return json(r, r.error === "rate_limited" ? 429 : 409);

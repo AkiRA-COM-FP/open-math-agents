@@ -67,7 +67,8 @@ export default function Search({ sources, fields, initial, counts, initialSource
           {fields.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
         <select className="select" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort">
-          <option value="default">{q ? "Most relevant" : "Hardest first"}</option>
+          <option value="default">{q ? "Most relevant" : "Most famous first"}</option>
+          <option value="famous">Most famous first</option>
           <option value="active">Most agents now</option>
           <option value="easiest">Easiest first</option>
           <option value="hardest">Hardest first</option>

@@ -3,6 +3,7 @@ import MiniSearch from "minisearch";
 import raw from "@/data/catalog.json";
 import extraRaw from "@/data/extra.json";
 import statementsRaw from "@/data/statements.json";
+import extra2Raw from "@/data/extra2.json";
 
 /** open/known/warmup: has a Lean statement, provable now. unformalized: open, but nobody has stated it in Lean yet. */
 export type Kind = "open" | "known" | "warmup" | "unformalized";
@@ -33,6 +34,8 @@ export type Problem = {
   area?: string;
   alsoIn?: string[];
   formalizedHere?: boolean;
+  /** How well known the problem is, 0-100: the default order, most famous first. */
+  fame: number;
 };
 
 type Catalog = {
@@ -44,19 +47,56 @@ const catalog = raw as unknown as Catalog;
 const extra = extraRaw as unknown as { meta: { counts: Record<string, number>; total: number; note: string }; problems: Problem[] };
 const statements = statementsRaw as unknown as Record<string, { decl: string; module: string; lean: string; file: string }>;
 
+const lg = (x: number) => Math.log10(1 + x);
+const prizeUsd = (p: string | null) => { const m = (p ?? "").replace(/,/g, "").match(/[$£](\d+)/); return m ? Number(m[1]) : 0; };
+/** Fame of the Lean catalogue and of the first extra batch (the long tail carries its own). */
+function fameOf(p: Omit<Problem, "fame"> & { stars?: number; cites?: number }): number {
+  const base: Record<string, number> = {
+    "Millennium Prize": 100, "Hilbert's Problems": 95, "Wikipedia": 85, "Green's 100 Open Problems": 78, "Kourovka Notebook": 60,
+    "MathOverflow": 58, "Erdős Problems": 62, "OEIS": 42, "Wikipedia list (not formalized)": 80, "Open Problem Garden": 45,
+    "Erdős Problems (not formalized)": 58,
+  };
+  let f = base[p.source] ?? 50;
+  if (p.prize) f += Math.min(18, 4 * lg(prizeUsd(p.prize)));
+  if (p.stars) f += 8 * p.stars;
+  if (p.cites) f += Math.min(10, 3 * lg(p.cites));
+  if (p.forumPosts) f += Math.min(6, p.forumPosts / 5);
+  if (/\.variants?\.|\.parts?\./.test(p.decl)) f -= 8;
+  if (p.kind === "warmup") f -= 20;
+  return Math.max(1, Math.min(100, Math.round(f)));
+}
+
 // A merged statements/<id>.lean turns an unformalized problem into a provable open problem.
-const extraProblems: Problem[] = extra.problems.map((p) => {
+const extraProblems: Problem[] = (extra.problems as (Problem & { stars?: number; cites?: number })[]).map((p) => {
   const st = statements[p.id];
+  const q = { ...p, fame: fameOf(p) };
+  return st ? { ...q, kind: "open", category: "research open (formalized here)", decl: st.decl, module: st.module, lean: st.lean, file: st.file, formalizedHere: true } : q;
+});
+
+// The long tail (OEIS conjectures, MathOverflow / Math.SE questions), stored as compact rows.
+type Row = [string, string, number, string[], string, string, string[], number, number, string[], string, number];
+const e2 = extra2Raw as unknown as { meta: { counts: Record<string, number>; total: number }; sources: string[]; licenses: Record<string, string>; rows: Row[] };
+const extra2Problems: Problem[] = e2.rows.map(([id, title, si, fields, statement, ref, authors, fame, difficulty, tags, area, posts]) => {
+  const st = statements[id];
+  const p: Problem = {
+    id, title, source: e2.sources[si], kind: "unformalized", category: "unformalized", fields, tags, statement, ref, authors, fame, difficulty,
+    area, decl: "", lean: "", module: "", file: "", line: 0, prize: null, erdos: null, erdosState: null, forumPosts: posts, license: e2.licenses[e2.sources[si]],
+  };
   return st ? { ...p, kind: "open", category: "research open (formalized here)", decl: st.decl, module: st.module, lean: st.lean, file: st.file, formalizedHere: true } : p;
 });
 
-export const PROBLEMS: Problem[] = [...catalog.problems, ...extraProblems];
+export const PROBLEMS: Problem[] = [
+  ...(catalog.problems as Omit<Problem, "fame">[]).map((p) => ({ ...p, fame: fameOf(p) })),
+  ...extraProblems,
+  ...extra2Problems,
+];
 const count = (k: Kind) => PROBLEMS.filter((p) => p.kind === k).length;
 export const META = {
   ...catalog.meta,
   counts: { open: count("open"), known: count("known"), warmup: count("warmup"), unformalized: count("unformalized") } as Record<Kind, number>,
   total: PROBLEMS.length,
   extra: extra.meta,
+  extra2: e2.meta,
 };
 /** Every open problem, stated in Lean or not. */
 export const OPEN_TOTAL = META.counts.open + META.counts.unformalized;
@@ -107,7 +147,7 @@ export type Query = {
   kind?: string;
   source?: string;
   field?: string;
-  sort?: "relevance" | "hardest" | "easiest" | "prize" | "active";
+  sort?: "relevance" | "famous" | "hardest" | "easiest" | "prize" | "active";
   limit?: number;
   offset?: number;
   live?: Map<string, number>;
@@ -138,7 +178,8 @@ export function search(query: Query) {
   if (query.source && query.source !== "all") list = list.filter((p) => p.source === query.source);
   if (query.field && query.field !== "all") list = list.filter((p) => p.fields.includes(query.field!));
   if (query.hideSolved && query.solved) list = list.filter((p) => !query.solved!.has(p.id));
-  const sort = query.sort ?? (q ? "relevance" : "hardest");
+  const sort = query.sort ?? (q ? "relevance" : "famous");
+  if (sort === "famous") list.sort((a, b) => b.fame - a.fame || b.difficulty - a.difficulty || a.id.localeCompare(b.id));
   if (sort === "hardest") list.sort((a, b) => b.difficulty - a.difficulty || a.id.localeCompare(b.id));
   if (sort === "easiest") list.sort((a, b) => a.difficulty - b.difficulty || a.id.localeCompare(b.id));
   if (sort === "prize") list.sort((a, b) => prizeValue(b) - prizeValue(a) || b.difficulty - a.difficulty);

@@ -4,7 +4,7 @@ import { getLiveMap, getStats } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
-  const sort = (sp.get("sort") ?? undefined) as "relevance" | "hardest" | "easiest" | "prize" | "active" | undefined;
+  const sort = (sp.get("sort") ?? undefined) as "relevance" | "famous" | "hardest" | "easiest" | "prize" | "active" | undefined;
   const [live, stats] = await Promise.all([getLiveMap(), getStats()]);
   const solved = new Set(stats.solved.map((s) => s.problem_id));
   const { total, items } = search({

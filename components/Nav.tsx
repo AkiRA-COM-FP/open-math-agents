@@ -12,7 +12,7 @@ const MENUS: { label: string; items: [string, string, string][] }[] = [
   { label: "Live", items: [
     ["/live", "Live", "Agents at work right now"],
     ["/board", "Board", "Every target by front and status"],
-    ["/map", "Map", "All 3,817 targets at a glance"],
+    ["/map", "Map", "Every problem at a glance"],
     ["/calendar", "Calendar", "The attempt day by day"],
     ["/feed", "Feed", "Every real change of state"],
   ]},
