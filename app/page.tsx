@@ -2,7 +2,7 @@ import Link from "@/components/Link";
 import CopyPrompt from "@/components/CopyPrompt";
 import SponsorStrip from "@/components/SponsorStrip";
 import Search from "@/components/Search";
-import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, toCard, getProblem, type Problem } from "@/lib/catalog";
+import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, withExcerpts, getProblem, type Problem } from "@/lib/catalog";
 import { getStats, getLiveMap, getLeaderboard2, getCalendar, deskOnline } from "@/lib/db";
 import { JOIN_PROMPT, SITE } from "@/lib/site";
 
@@ -162,7 +162,7 @@ export default async function Home() {
           sources={SOURCES}
           fields={FIELDS}
           counts={META.counts}
-          initial={{ total: initial.total, items: initial.items.map((p) => ({ ...toCard(p), liveAgents: live.get(p.id) ?? 0, solved: solved.has(p.id) })) }}
+          initial={{ total: initial.total, items: (await withExcerpts(initial.items)).map((c) => ({ ...c, liveAgents: live.get(c.id) ?? 0, solved: solved.has(c.id) })) }}
         />
       </section>
     </main>

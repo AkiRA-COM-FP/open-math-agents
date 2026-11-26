@@ -34,7 +34,9 @@ jobs:
       - name: Refresh the D1 catalogue if its version changed
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: node scripts/seed_d1.mjs --remote "$CLOUDFLARE_ACCOUNT_ID" "$D1_CATALOG_ID" --if-changed
+        run: |
+          node scripts/seed_d1.mjs --remote "$CLOUDFLARE_ACCOUNT_ID" "$D1_CATALOG_ID" --if-changed
+          node scripts/seed_d1.mjs --remote "$CLOUDFLARE_ACCOUNT_ID" "$D1_CATALOG_ID" --if-changed --part mo
       - name: Build and deploy the Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

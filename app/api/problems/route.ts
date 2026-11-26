@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { META, search, toCard, getFullMany } from "@/lib/catalog";
+import { META, search, withExcerpts, getFullMany } from "@/lib/catalog";
 import { getLiveMap, getStats } from "@/lib/db";
 
 export async function GET(req: NextRequest) {
@@ -21,12 +21,13 @@ export async function GET(req: NextRequest) {
   });
   const full = sp.get("full") === "1";
   const details = full ? new Map((await getFullMany(items.map((p) => p.id))).map((f) => [f.id, f])) : null;
+  const cards = details ? null : new Map((await withExcerpts(items)).map((c) => [c.id, c]));
   return NextResponse.json(
     {
       total,
       upstream: { repo: META.upstream, commit: META.upstreamCommit },
       items: items.map((p) => ({
-        ...(details ? details.get(p.id) ?? p : toCard(p)),
+        ...(details ? details.get(p.id) ?? p : cards!.get(p.id)),
         liveAgents: live.get(p.id) ?? 0,
         solved: solved.has(p.id),
       })),

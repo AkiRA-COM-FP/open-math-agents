@@ -1,7 +1,7 @@
 import "server-only";
 import cardsRaw from "@/data/gen/cards.json";
 import overridesRaw from "@/data/status_overrides.json";
-import { catalogSearch, problemDetail, problemDetails } from "@/lib/d1";
+import { catalogSearch, problemDetail, problemDetails, excerpts } from "@/lib/d1";
 
 /** open/known/warmup: has a Lean statement, provable now. unformalized: open, but nobody has stated it in Lean yet. */
 export type Kind = "open" | "known" | "warmup" | "unformalized";
@@ -24,9 +24,9 @@ export type Problem = {
   prize: string | null;
   forumPosts: number;
   erdos: number | null;
-  /** First 200 characters of the statement, TeX flattened to Unicode. */
-  excerpt: string;
   decl: string;
+  /** Where the details live in D1: 0 the core tables, 1 the packed MathOverflow tables. */
+  shard: number;
   /** A solution has been announced but is not verified (or is disputed). */
   claim?: { summary: string; date: string; sources: string[] };
   /** Editorial note (e.g. why a related result does not settle this one). */
@@ -55,15 +55,24 @@ const OVERRIDES = (overridesRaw as unknown as { reviewed: string; entries: Overr
 export const STATUS_REVIEWED = (overridesRaw as unknown as { reviewed: string }).reviewed;
 const OV = new Map(OVERRIDES.map((o) => [o.id, o]));
 
-type CardRow = [string, string, number, number, string[], string[], number, number, string | null, number, number | null, string, string];
+type CardRow = [string, string, number, number, string[], string[], number, number, string | null, number, number | null, string, number];
 const cards = cardsRaw as unknown as {
-  meta: { upstream: string; upstreamCommit: string; license: string; counts: Record<"open" | "known" | "warmup", number>; total: number; extra: unknown; extra2: unknown };
+  meta: { upstream: string; upstreamCommit: string; license: string; counts: Record<"open" | "known" | "warmup", number>; total: number; extra: unknown; extra2: unknown; extra3: unknown; moBuckets: number };
   sources: string[]; kinds: Kind[]; rows: CardRow[];
 };
 
-const ALL: Problem[] = cards.rows.map(([id, title, si, ki, fields, tags, difficulty, fame, prize, forumPosts, erdos, excerpt, decl]) => ({
-  id, title, source: cards.sources[si], kind: cards.kinds[ki], fields, tags, difficulty, fame, prize, forumPosts, erdos, excerpt, decl,
-}));
+// Identical field lists share one array (46k problems, a few hundred distinct lists): saves several MB of heap.
+const FIELD_LISTS = new Map<string, string[]>();
+const NO_TAGS: string[] = [];
+const ALL: Problem[] = cards.rows.map(([id, title, si, ki, fields, , difficulty, fame, prize, forumPosts, erdos, decl, shard]) => {
+  const key = fields.join("|");
+  let f = FIELD_LISTS.get(key);
+  if (!f) { f = fields; FIELD_LISTS.set(key, f); }
+  return { id, title, source: cards.sources[si], kind: cards.kinds[ki], fields: f, tags: NO_TAGS, difficulty, fame, prize, forumPosts, erdos, decl, shard };
+});
+export const MO_BUCKETS = cards.meta.moBuckets;
+// The parsed rows are not needed any more: let them be garbage-collected (only ALL is used from here on).
+(cards as { rows: CardRow[] | null }).rows = null;
 
 /** Problems settled recently (verified), removed from the open list and shown on /status. */
 export const SETTLED: (Override & { problem?: Problem })[] = OVERRIDES.filter((o) => o.status === "solved").map((o) => ({ ...o, problem: ALL.find((p) => p.id === o.id) }));
@@ -85,6 +94,7 @@ export const META = {
   total: PROBLEMS.length,
   extra: cards.meta.extra,
   extra2: cards.meta.extra2,
+  extra3: cards.meta.extra3,
 };
 /** Every open problem, stated in Lean or not. */
 export const OPEN_TOTAL = META.counts.open + META.counts.unformalized;
@@ -107,7 +117,7 @@ export function getProblem(id: string) {
 export async function getFull(id: string): Promise<FullProblem | undefined> {
   const p = BY_ID.get(id);
   if (!p) return undefined;
-  const d = await problemDetail(id);
+  const d = await problemDetail(p, MO_BUCKETS);
   return {
     statement: "", lean: "", module: "", file: "", line: 0, category: p.kind === "unformalized" ? "unformalized" : "", ref: null, erdosState: null,
     ...(d as Partial<FullProblem>), ...p,
@@ -117,7 +127,7 @@ export async function getFull(id: string): Promise<FullProblem | undefined> {
 /** Full data for several problems at once (one or two D1 queries instead of one per problem). */
 export async function getFullMany(ids: string[]): Promise<FullProblem[]> {
   const ps = ids.map((id) => BY_ID.get(id)).filter((p): p is Problem => Boolean(p));
-  const d = await problemDetails(ps.map((p) => p.id));
+  const d = await problemDetails(ps, MO_BUCKETS);
   return ps.map((p) => ({
     statement: "", lean: "", module: "", file: "", line: 0, category: p.kind === "unformalized" ? "unformalized" : "", ref: null, erdosState: null,
     ...(d.get(p.id) as Partial<FullProblem>), ...p,
@@ -213,8 +223,8 @@ export function texPlain(s: string) {
     .trim();
 }
 
-/** Compact card shape sent to the browser. */
-export function toCard(p: Problem) {
+/** Compact card shape sent to the browser. The excerpt comes from D1 (see withExcerpts). */
+export function toCard(p: Problem, excerpt = "") {
   return {
     claimed: Boolean(p.claim),
     id: p.id,
@@ -224,10 +234,16 @@ export function toCard(p: Problem) {
     fields: p.fields,
     difficulty: p.difficulty,
     prize: p.prize,
-    excerpt: p.excerpt,
+    excerpt,
   };
 }
 export type Card = ReturnType<typeof toCard>;
+
+/** Cards for the rows a page shows, with their excerpt (one or two D1 queries for the whole page). */
+export async function withExcerpts(ps: Problem[]): Promise<Card[]> {
+  const ex = await excerpts(ps, MO_BUCKETS);
+  return ps.map((p) => toCard(p, texPlain(ex.get(p.id) ?? "").slice(0, 200)));
+}
 
 /** The Lean skeleton an agent fills in. `type_of%` pins the exact upstream statement. */
 export function skeleton(p: FullProblem, polarity: "proof" | "disproof" = "proof", handle = "<your GitHub handle>") {

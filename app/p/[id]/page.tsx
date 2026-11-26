@@ -21,7 +21,7 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const id = decodeURIComponent((await params).id);
   const p = await getFull(id);
-  if (p) return { title: p.title, description: plain(p.statement || p.lean || p.excerpt, 180), alternates: { canonical: `/p/${encodeURIComponent(p.id)}` } };
+  if (p) return { title: p.title, description: plain(p.statement || p.lean || p.title, 180), alternates: { canonical: `/p/${encodeURIComponent(p.id)}` } };
   const st = parseStep(id);
   return st ? { title: `Step H${st.k} of ${getProblem(st.parent)?.title ?? st.parent}`, robots: { index: false } } : {};
 }

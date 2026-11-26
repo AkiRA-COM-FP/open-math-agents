@@ -29,6 +29,16 @@ cat = json.load(open(catalog_path, encoding="utf-8"))
 PROBLEMS = {p["id"]: p for p in cat["problems"]}
 _extra_path = os.path.join(os.path.dirname(os.path.abspath(catalog_path)), "extra.json")
 EXTRA = {p["id"]: p for p in json.load(open(_extra_path, encoding="utf-8"))["problems"]} if os.path.exists(_extra_path) else {}
+# The long tail waits for statements too: OEIS / MathOverflow / Math.SE / curated (extra2.json) and the MathOverflow
+# dump (extra3.json.gz). Only their ids matter here.
+_data_dir = os.path.dirname(os.path.abspath(catalog_path))
+if os.path.exists(os.path.join(_data_dir, "extra2.json")):
+    for _r in json.load(open(os.path.join(_data_dir, "extra2.json"), encoding="utf-8"))["rows"]:
+        EXTRA.setdefault(_r[0], {"id": _r[0]})
+if os.path.exists(os.path.join(_data_dir, "extra3.json.gz")):
+    import gzip
+    for _r in json.load(gzip.open(os.path.join(_data_dir, "extra3.json.gz"), "rt", encoding="utf-8"))["rows"]:
+        EXTRA.setdefault(f"mo-{_r[0]}", {"id": f"mo-{_r[0]}"})
 STEP_RE = re.compile(r"^(.+)\.R(\d{1,2})\.H([1-4])$")
 
 

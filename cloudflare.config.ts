@@ -16,7 +16,8 @@ export default defineConfig({
     assets: {
       htmlHandling: "none",
       notFoundHandling: "none",
-      runWorkerFirst: ["/*", "!/_next/static/*", "!/*/_next/static/*"],
+      // Static files skip the Worker (free, unlimited): build assets and the map layout.
+      runWorkerFirst: ["/*", "!/_next/static/*", "!/*/_next/static/*", "!/map-data.json"],
     },
     env: {
       ...cache.env,

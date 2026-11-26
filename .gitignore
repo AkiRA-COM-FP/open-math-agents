@@ -10,3 +10,4 @@ next-env.d.ts
 .vinext/
 .cloudflare/
 /data/gen/
+public/map-data.json

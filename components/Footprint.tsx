@@ -1,14 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-type Row = [string, string, number, number, number, number, number];
+type Row = [string, string, number, number, number];
 
 /** Every problem as a tiny grey square; the ones this person touched in black, the ones they solved in green. */
 export default function Footprint({ touched, solved }: { touched: string[]; solved: string[] }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState<Row[] | null>(null);
-  useEffect(() => { fetch("/api/map").then((r) => r.json()).then((d) => setRows(d.rows)).catch(() => setRows([])); }, []);
+  useEffect(() => { fetch("/map-data.json").then((r) => r.json()).then((d) => setRows(d.rows)).catch(() => setRows([])); }, []);
   useEffect(() => {
     const c = ref.current, w = wrap.current;
     if (!c || !w || !rows) return;

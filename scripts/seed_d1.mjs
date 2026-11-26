@@ -9,7 +9,12 @@ import fs from "node:fs";
 import crypto from "node:crypto";
 
 const [mode, a, b] = process.argv.slice(2);
-const sql = fs.readFileSync(new URL("../data/gen/catalog.sql", import.meta.url), "utf8");
+// --part mo loads data/gen/catalog-mo.sql (MathOverflow tables, version key version_mo); default: data/gen/catalog.sql.
+const part = process.argv.includes("--part") ? process.argv[process.argv.indexOf("--part") + 1] : "core";
+const sqlFile = part === "mo" ? "catalog-mo.sql" : "catalog.sql";
+const versionFile = part === "mo" ? "version-mo.txt" : "version.txt";
+const versionKey = part === "mo" ? "version_mo" : "version";
+const sql = fs.readFileSync(new URL(`../data/gen/${sqlFile}`, import.meta.url), "utf8");
 
 // Split on ";" outside single-quoted strings ('' is an escaped quote and toggles twice).
 const stmts = [];
@@ -30,9 +35,9 @@ if (mode === "--remote") {
     if (!r.ok || j.success === false) throw new Error(`${path} HTTP ${r.status} ${JSON.stringify(j.errors ?? j).slice(0, 300)}`);
     return j.result;
   };
-  const version = fs.readFileSync(new URL("../data/gen/version.txt", import.meta.url), "utf8").trim();
+  const version = fs.readFileSync(new URL(`../data/gen/${versionFile}`, import.meta.url), "utf8").trim();
   if (process.argv.includes("--if-changed")) {
-    const cur = await call("/query", { sql: "SELECT v FROM meta WHERE k = 'version'" }).then((r) => r[0].results[0]?.v).catch(() => null);
+    const cur = await call("/query", { sql: `SELECT v FROM meta WHERE k = '${versionKey}'` }).then((r) => r[0].results[0]?.v).catch(() => null);
     if (cur === version) { console.log(`remote D1 already at ${version}: nothing to import`); process.exit(0); }
     console.log(`remote D1 at ${cur ?? "(empty)"}, importing ${version}`);
   }
@@ -46,7 +51,7 @@ if (mode === "--remote") {
     st = await call("/import", { action: "poll", current_bookmark: st.at_bookmark });
   }
   if (st.status !== "complete") throw new Error(`import ${st.status}: ${st.error ?? JSON.stringify(st.messages)}`);
-  console.log(`imported ${st.result?.num_queries ?? "?"} statements into remote D1 (${version})`);
+  console.log(`imported ${st.result?.num_queries ?? "?"} statements into remote D1 (${version}); rows written: ${st.result?.meta?.rows_written ?? "?"}`);
   process.exit(0);
 }
 
@@ -81,4 +86,4 @@ for (const s of stmts) {
   batch.push(s); size += n + 1;
 }
 await flush();
-console.log(`loaded ${stmts.length} statements into local D1`);
+console.log(`loaded ${stmts.length} statements (${sqlFile}) into local D1`);

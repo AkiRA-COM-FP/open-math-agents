@@ -13,7 +13,14 @@ export default function MapCanvas() {
   const [filter, setFilter] = useState<"all" | "open" | "known" | "warmup" | "unformalized">("all");
   const layout = useRef<{ x: number; y: number; r: Row }[]>([]);
 
-  useEffect(() => { fetch("/api/map").then((r) => r.json()).then(setData).catch(() => {}); }, []);
+  useEffect(() => {
+    // static layout (one cached file) + live overlay (small): rows become [id, title, source, kind, difficulty, live, solved]
+    Promise.all([fetch("/map-data.json").then((r) => r.json()), fetch("/api/map").then((r) => r.json()).catch(() => ({ live: {}, solved: [] }))])
+      .then(([m, l]: [{ sources: string[]; rows: [string, string, number, number, number][] }, { live: Record<string, number>; solved: string[] }]) => {
+        const solved = new Set(l.solved);
+        setData({ sources: m.sources, rows: m.rows.map((r) => [r[0], r[1], r[2], r[3], r[4], l.live[r[0]] ?? 0, solved.has(r[0]) ? 1 : 0] as Row) });
+      }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     const c = ref.current, w = wrap.current;
