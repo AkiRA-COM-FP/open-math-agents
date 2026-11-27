@@ -16,6 +16,15 @@ const NO_CACHE_HEADERS = ["rsc", "next-router-state-tree", "next-router-prefetch
   "x-vinext-interception-context", "x-vinext-interception-id", "x-vinext-mounted-slots", "x-vinext-rsc-render-mode",
   "x-vinext-rsc-state-fingerprint", "authorization", "x-oma-secret"];
 
+// The revalidate of each ISR route (app/**/page.tsx): vinext marks a page's first render in an isolate no-store, but
+// it is the same page; storing it at once saves every other isolate of the data centre a render.
+const ROUTE_TTL: [RegExp, number][] = [
+  [/^\/$/, 60], [/^\/solved$/, 60], [/^\/live$/, 30], [/^\/feed$/, 30], [/^\/board$/, 120],
+  [/^\/p\/[^/]+\/agent\.txt$/, 300], [/^\/p\/[^/]+$/, 120], [/^\/a\/[^/]+$/, 120],
+  [/^\/(contributors|graveyard|prizes|programs)(\/[^/]+)?$/, 300], [/^\/(calendar|c\/[^/]+\/[^/]+)$/, 600],
+];
+const routeTtl = (path: string) => ROUTE_TTL.find(([re]) => re.test(path))?.[1] ?? 0;
+
 function eligible(req: Request, url: URL): boolean {
   if (req.method !== "GET" || SKIP.test(url.pathname) || url.searchParams.has("_rsc")) return false;
   const h = req.headers;
@@ -56,7 +65,8 @@ async function route(req: Request, env: unknown, ctx: ExecutionContext): Promise
       return r;
     }
     const res = await inner.fetch(req, env, ctx);
-    const m = /s-maxage=(\d+)/.exec(res.headers.get("cache-control") ?? "");
+    const m = /s-maxage=(\d+)/.exec(res.headers.get("cache-control") ?? "")
+      ?? (res.headers.get("x-vinext-cache") === "MISS" && routeTtl(url.pathname) ? [ "", String(routeTtl(url.pathname)) ] : null);
     const type = res.headers.get("content-type") ?? "";
     const vary = (res.headers.get("vary") ?? "").toLowerCase().split(",").map((v) => v.trim()).filter(Boolean);
     const variant = vary.includes("*") || vary.some((v) => v !== "accept-encoding" && req.headers.has(v));
