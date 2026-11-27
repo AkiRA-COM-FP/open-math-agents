@@ -1,115 +1,55 @@
 import FormalConjectures.Wikipedia.BusyBeaver
 
--- Problem: Busy Beaver — BB 1
--- Upstream: formal-conjectures FormalConjectures/Wikipedia/BusyBeaver.lean:74 (declaration BusyBeaver.BB_1)
--- Credit: @eitanteperman (the owner of the agent is credited as the solver)
--- Prove EXACTLY this target. No sorry, no axiom, no native_decide.
-
-open Turing BusyBeaver
+open Turing BusyBeaver Machine
 
 namespace OMA
 
 variable {Γ Λ : Type} [Inhabited Γ] [Inhabited Λ]
 
-lemma init_eq : (Machine.init [] : Cfg Γ Λ) =
-    ⟨some default, ⟨default, ListBlank.mk [], ListBlank.mk []⟩⟩ := rfl
+lemma I : (init [] : Cfg Γ Λ) = ⟨some default, ⟨default, ListBlank.mk [], ListBlank.mk []⟩⟩ := rfl
 
-/-- A one-state machine that keeps moving right never leaves the blank part of the tape. -/
-lemma loop_right (M : Machine Γ Λ) [Subsingleton Λ] (q' : Λ) (a : Γ)
-    (h : M default default = some (some q', Stmt.write a Dir.right)) (k : ℕ) :
-    ∃ L, M.multiStep (Machine.init []) k =
-      some ⟨some default, ⟨default, L, ListBlank.mk []⟩⟩ := by
+lemma R (M : Machine Γ Λ) [Subsingleton Λ] (q : Λ) (a : Γ)
+    (h : M default default = some (some q, Stmt.write a Dir.right)) (k : ℕ) :
+    ∃ L, M.multiStep (init []) k = some ⟨some default, ⟨default, L, ListBlank.mk []⟩⟩ := by
   induction k with
-  | zero => exact ⟨ListBlank.mk [], rfl⟩
+  | zero => exact ⟨_, rfl⟩
   | succ k ih =>
     obtain ⟨L, hL⟩ := ih
-    refine ⟨ListBlank.cons a L, ?_⟩
-    rw [Machine.multiStep_succ, hL, Option.bind_some]
-    simp only [Machine.step, h, Option.map_some, Subsingleton.elim q' default, Tape.write,
-      Tape.move, ListBlank.head_mk, ListBlank.tail_mk, List.headI_nil, List.tail_nil]
+    exact ⟨ListBlank.cons a L, by simp [hL, step, h, Subsingleton.elim q default, Tape.write, Tape.move]⟩
 
-/-- A one-state machine that keeps moving left never leaves the blank part of the tape. -/
-lemma loop_left (M : Machine Γ Λ) [Subsingleton Λ] (q' : Λ) (a : Γ)
-    (h : M default default = some (some q', Stmt.write a Dir.left)) (k : ℕ) :
-    ∃ R, M.multiStep (Machine.init []) k =
-      some ⟨some default, ⟨default, ListBlank.mk [], R⟩⟩ := by
+lemma L (M : Machine Γ Λ) [Subsingleton Λ] (q : Λ) (a : Γ)
+    (h : M default default = some (some q, Stmt.write a Dir.left)) (k : ℕ) :
+    ∃ R, M.multiStep (init []) k = some ⟨some default, ⟨default, ListBlank.mk [], R⟩⟩ := by
   induction k with
-  | zero => exact ⟨ListBlank.mk [], rfl⟩
+  | zero => exact ⟨_, rfl⟩
   | succ k ih =>
     obtain ⟨R, hR⟩ := ih
-    refine ⟨ListBlank.cons a R, ?_⟩
-    rw [Machine.multiStep_succ, hR, Option.bind_some]
-    simp only [Machine.step, h, Option.map_some, Subsingleton.elim q' default, Tape.write,
-      Tape.move, ListBlank.head_mk, ListBlank.tail_mk, List.headI_nil, List.tail_nil]
+    exact ⟨ListBlank.cons a R, by simp [hR, step, h, Subsingleton.elim q default, Tape.write, Tape.move]⟩
 
-lemma haltingNumber_top (M : Machine Γ Λ)
-    (h : ∀ k, M.multiStep (Machine.init []) k ≠ none) : M.haltingNumber = ⊤ := by
-  unfold Machine.haltingNumber
-  rw [sInf_eq_top]
-  rintro _ ⟨n, hn, rfl⟩
-  exact absurd hn (h (n + 1))
-
-/-- Every one-state machine halts after 0 or 1 steps, or never. -/
-lemma haltingNumber_le_one (M : Machine Γ Λ) [Subsingleton Λ] (N : ℕ)
-    (hN : M.haltingNumber = N) : N ≤ 1 := by
-  rcases hM : M default default with _ | ⟨_ | q', ⟨a, d⟩⟩
-  · have : M.haltingNumber = (0 : ℕ) := by
-      apply Machine.haltingNumber_def
-      · exact ⟨_, rfl⟩
-      · simp [Machine.multiStep_succ, init_eq, Machine.step, hM]
-    rw [this] at hN
-    have := (Nat.cast_inj (R := ℕ∞)).1 hN
-    omega
-  · have : M.haltingNumber = (1 : ℕ) := by
-      apply Machine.haltingNumber_def
-      · simp [Machine.multiStep_succ, init_eq, Machine.step, hM]
-      · simp [Machine.multiStep_succ, init_eq, Machine.step, hM]
-    rw [this] at hN
-    have := (Nat.cast_inj (R := ℕ∞)).1 hN
-    omega
+lemma B (M : Machine Γ Λ) [Subsingleton Λ] (N : ℕ) (hN : M.haltingNumber = N) : N ≤ 1 := by
+  rcases hM : M default default with _ | ⟨_ | q, a, d⟩
+  · rw [haltingNumber_def M 0 ⟨_, rfl⟩ (by simp [I, step, hM])] at hN; norm_cast at hN; omega
+  · rw [haltingNumber_def M 1 (by simp [I, step, hM]) (by simp [I, step, hM])] at hN
+    norm_cast at hN; omega
   · have : M.haltingNumber = ⊤ := by
-      apply haltingNumber_top
-      intro k
-      cases d with
-      | left => obtain ⟨R, hR⟩ := loop_left M q' a hM k; simp [hR]
-      | right => obtain ⟨L, hL⟩ := loop_right M q' a hM k; simp [hL]
-    rw [this] at hN; exact absurd hN.symm (ENat.natCast_ne_top N)
+      refine sInf_eq_top.2 ?_
+      rintro _ ⟨n, hn, rfl⟩
+      cases d
+      · obtain ⟨_, h⟩ := L M q a hM (n + 1); rw [HaltsAfter, h] at hn; cases hn
+      · obtain ⟨_, h⟩ := R M q a hM (n + 1); rw [HaltsAfter, h] at hn; cases hn
+    simp [this] at hN
 
-/-- The machine that halts after one step. -/
-def oneStep : Machine Bool Unit := fun _ _ => some (none, Stmt.write default Dir.right)
-
-instance oneStep_isHalting : oneStep.IsHalting := by
-  constructor
-  unfold Machine.IsHaltingInput Machine.eval
-  rw [Part.map_Dom, Part.dom_iff_mem]
-  refine ⟨⟨none, (Tape.mk₁ []).move Dir.right⟩, StateTransition.mem_eval.2 ⟨?_, rfl⟩⟩
-  exact Relation.ReflTransGen.single rfl
-
-lemma oneStep_haltingNumber : oneStep.haltingNumber = (1 : ℕ) := by
-  apply Machine.haltingNumber_def
-  · simp [Machine.multiStep_succ, init_eq, Machine.step, oneStep]
-  · simp [Machine.multiStep_succ, init_eq, Machine.step, oneStep]
-
-def oneStepCandidate : Candidate 1 where
-  Γ := Bool
-  Λ := Unit
-  Γ_fintype := inferInstance
-  Γ_card := rfl
-  Γ_inhabited := inferInstance
-  Λ_fintype := inferInstance
-  Λ_card := rfl
-  Λ_inhabited := inferInstance
-  M := oneStep
-  M_isHalting := oneStep_isHalting
+def C : Candidate 1 := ⟨Bool, Unit, inferInstance, rfl, inferInstance, inferInstance, rfl,
+  inferInstance, fun _ _ => some (none, Stmt.write default Dir.right),
+  (isHalting_iff_exists_haltsAt _).2 ⟨1, rfl⟩⟩
 
 end OMA
 
 theorem OMA.solution : type_of% @BusyBeaver.BB_1 := by
-  unfold BusyBeaver.BB
-  have bound : ∀ N ∈ {N : ℕ | ∃ C : Candidate 1, C.M.haltingNumber = N}, N ≤ 1 := by
+  have b : ∀ N ∈ {N : ℕ | ∃ C : Candidate 1, C.M.haltingNumber = N}, N ≤ 1 := by
     rintro N ⟨C, hC⟩
-    have : Subsingleton C.Λ := Fintype.card_le_one_iff_subsingleton.1 C.Λ_card.le
-    exact OMA.haltingNumber_le_one C.M N hC
-  have mem : 1 ∈ {N : ℕ | ∃ C : Candidate 1, C.M.haltingNumber = N} :=
-    ⟨OMA.oneStepCandidate, OMA.oneStep_haltingNumber⟩
-  exact le_antisymm (csSup_le ⟨1, mem⟩ bound) (le_csSup ⟨1, bound⟩ mem)
+    have := Fintype.card_le_one_iff_subsingleton.1 C.Λ_card.le
+    exact OMA.B C.M N hC
+  have m : 1 ∈ {N : ℕ | ∃ C : Candidate 1, C.M.haltingNumber = N} :=
+    ⟨OMA.C, haltingNumber_def _ 1 ⟨_, rfl⟩ rfl⟩
+  exact le_antisymm (csSup_le ⟨1, m⟩ b) (le_csSup ⟨1, b⟩ m)
