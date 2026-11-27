@@ -18,6 +18,7 @@ theorem OMA.disproof : ¬ (type_of% @OMA.S_mo_217656.main) := by
   have fix1 : maps C A c1 = a1 := fixes C A 1 c1.property a1.property
   have fix2 : maps C B c2 = b2 := fixes C B 2 c2.property b2.property
   -- Sending 2 to A must give the same answer when starting from B or C.
+  -- The first map is forced to avoid 0, and the second is forced to avoid 1.
   have same := comp B A C c2
   rw [fix2] at same
   have mem := (maps B A b2).property
