@@ -10,8 +10,8 @@ Conjecture (stated on the OEIS page): except 2281, `2^a(n) - 1` is not prime; in
 these primes are included in A054723.
 
 Conventions:
-- The terms `a(n)` are the primes `p = 2*n^2 + 30*n + 13` with `n ≥ 1`, as in the OEIS programs
-  (`Table[..., {n, 800}]` and Magma `n in [1..]`). The value at `n = 0` is `13`, which is prime
+- The terms `a(n)` are the primes `p = 2*n^2 + 30*n + 13` with `n ≥ 1`, as in the OEIS Mathematica
+  and Magma programs, which both let `n` run from 1. The value at `n = 0` is `13`, which is prime
   but is not a term: the data begins at the value for a positive `n`.
 - The exception `2281` is kept as a hypothesis `f n ≠ 2281`, so the conjecture says nothing about it (`2^2281 - 1` is a Mersenne prime).
 -/
