@@ -2,6 +2,7 @@ import OMAStatements.S_mo_473367
 
 open Finset Matrix OMA.S_mo_473367
 
+-- David Roberson gave this signed triangle in MathOverflow 473367.
 -- A triangle with one negative edge has nonnegative cuts, but its
 -- Laplacian is negative in the direction separating the endpoints of that edge.
 private def weights : Matrix (Fin 3) (Fin 3) ℤ := !![0, -1, 1; -1, 0, 1; 1, 1, 0]
