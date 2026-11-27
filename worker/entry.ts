@@ -1,7 +1,8 @@
 /**
  * Worker entry: vinext's handler, plus a page cache in the Cache API of each data centre (free, not billed; unlike
  * Workers Cache, which bills every request). Only plain GET page requests are cached (no API, no RSC navigation
- * request, no authorization), only when vinext marks the page cacheable (s-maxage), for at most that long.
+ * request, no authorization), only when vinext marks the page cacheable (s-maxage), fresh for at most that long and
+ * then served stale while it is re-rendered in the background (see staleFor).
  * A cached page costs about a millisecond of CPU instead of a full render.
  */
 import handler from "vinext/server/fetch-handler";
@@ -57,6 +58,37 @@ export default {
   },
 };
 
+// Pages that read nothing but their query string (no cookies, no headers): vinext renders them as dynamic (private,
+// no-store), yet one URL is one page for everybody, so they are stored like the others under their route's TTL (the
+// key includes the query). A page added here must never read cookies() or headers().
+const SEARCH_ONLY = /^\/(contributors|feed)$/;
+
+// Stale-while-revalidate, as Next's ISR does: a stored page is fresh for its TTL; after that, for a while longer, it
+// is still served at once (x-page-cache: STALE) while one background render per isolate replaces it. The next visitor
+// gets the new copy; nobody waits for a full render because the copy just expired. Past the stale window the entry is
+// gone and the page is rendered while the visitor waits, as before.
+const FRESH_UNTIL = "x-page-cache-fresh-until";
+const staleFor = (ttl: number) => Math.min(3600, Math.max(300, ttl * 10));
+const refreshing = new Set<string>();
+
+function store(req: Request, url: URL, res: Response, bot: boolean, key: Request, cache: Cache, ctx: ExecutionContext): boolean {
+  const m = /s-maxage=(\d+)/.exec(res.headers.get("cache-control") ?? "")
+    ?? ((res.headers.get("x-vinext-cache") === "MISS" || SEARCH_ONLY.test(url.pathname)) && routeTtl(url.pathname) ? ["", String(routeTtl(url.pathname))] : null);
+  const type = res.headers.get("content-type") ?? "";
+  const vary = (res.headers.get("vary") ?? "").toLowerCase().split(",").map((v) => v.trim()).filter(Boolean);
+  const variant = vary.includes("*") || vary.some((v) => v !== "accept-encoding" && req.headers.has(v));
+  if (res.status !== 200 || !m || variant || res.headers.has("set-cookie") || !/^text\/(html|plain)/.test(type)) return false;
+  const ttl = bot ? CRAWLER_TTL : Math.min(Number(m[1]), 600);
+  if (!(ttl > 0)) return false;
+  const copy = new Response(res.clone().body, res);
+  copy.headers.set("cache-control", `public, max-age=${ttl + staleFor(ttl)}`);
+  copy.headers.set(FRESH_UNTIL, String(Date.now() + ttl * 1000));
+  copy.headers.delete("vary");
+  copy.headers.delete("x-page-cache");
+  ctx.waitUntil(cache.put(key, copy).catch(() => undefined));
+  return true;
+}
+
 async function route(req: Request, env: unknown, ctx: ExecutionContext): Promise<Response> {
   {
     const url = new URL(req.url);
@@ -66,27 +98,24 @@ async function route(req: Request, env: unknown, ctx: ExecutionContext): Promise
     const key = new Request(`${ORIGIN}/${bot ? "__html_bot" : "__html"}${url.pathname}${url.search}`);
     const hit = await cache.match(key).catch(() => undefined);
     if (hit) {
+      const until = Number(hit.headers.get(FRESH_UNTIL) ?? 0);
+      const stale = until > 0 && Date.now() > until;
+      if (stale && !refreshing.has(key.url)) {
+        refreshing.add(key.url);
+        const again = new Request(req.url, { method: "GET", headers: req.headers });
+        ctx.waitUntil(inner.fetch(again, env, ctx)
+          .then((res) => { store(again, url, res, bot, key, cache, ctx); return res.body?.cancel(); })
+          .catch(() => undefined)
+          .finally(() => refreshing.delete(key.url)));
+      }
       const r = new Response(hit.body, hit);
       r.headers.set("cache-control", "public, max-age=0, must-revalidate");
-      r.headers.set("x-page-cache", "HIT");
+      r.headers.set("x-page-cache", stale ? "STALE" : "HIT");
+      r.headers.delete(FRESH_UNTIL);
       return r;
     }
     const res = await inner.fetch(req, env, ctx);
-    const m = /s-maxage=(\d+)/.exec(res.headers.get("cache-control") ?? "")
-      ?? (res.headers.get("x-vinext-cache") === "MISS" && routeTtl(url.pathname) ? [ "", String(routeTtl(url.pathname)) ] : null);
-    const type = res.headers.get("content-type") ?? "";
-    const vary = (res.headers.get("vary") ?? "").toLowerCase().split(",").map((v) => v.trim()).filter(Boolean);
-    const variant = vary.includes("*") || vary.some((v) => v !== "accept-encoding" && req.headers.has(v));
-    if (res.status === 200 && m && !variant && !res.headers.has("set-cookie") && /^text\/(html|plain)/.test(type)) {
-      const ttl = bot ? CRAWLER_TTL : Math.min(Number(m[1]), 600);
-      if (ttl > 0) {
-        const copy = new Response(res.clone().body, res);
-        copy.headers.set("cache-control", `public, max-age=${ttl}`);
-        copy.headers.delete("vary");
-        copy.headers.delete("x-page-cache");
-        ctx.waitUntil(cache.put(key, copy).catch(() => undefined));
-      }
-    }
+    store(req, url, res, bot, key, cache, ctx);
     return res;
   }
 }
