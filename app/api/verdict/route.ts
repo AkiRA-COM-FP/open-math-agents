@@ -35,7 +35,10 @@ export async function POST(req: Request) {
   // Optional trusted path for maintainers (manual corrections).
   const secret = process.env.OMA_VERDICT_SECRET ?? "";
   const got = req.headers.get("x-oma-secret") ?? "";
-  if (secret && got && got.length === secret.length && timingSafeEqual(Buffer.from(got), Buffer.from(secret))) {
+  const maintainer = Boolean(secret && got && got.length === secret.length && timingSafeEqual(Buffer.from(got), Buffer.from(secret)));
+  // A maintainer replaying a merged pull request (after an outage) sends the same payload as the verdict workflow and
+  // goes through the same checks below, reductions and statements included.
+  if (maintainer && !Array.isArray(b.files)) {
     if (typeof b.problem !== "string" || !/^https:\/\/github\.com\//.test(b.pr ?? "") || !["accepted", "rejected", "fault"].includes(b.verdict)) {
       return json({ error: "bad_request" }, 400);
     }
@@ -54,7 +57,7 @@ export async function POST(req: Request) {
   // from (the workflow read it with its own token), or else asked from the GitHub API here.
   type PR = { merged: boolean; base: string; handle: string; body: string; mergeSha: string; url: string; files: { filename: string; status: string }[] };
   let pr: PR;
-  if (b.oidc && (await verifyWorkflowToken(b.oidc)) && Array.isArray(b.files) && b.pr === n) {
+  if (((maintainer && Array.isArray(b.files)) || (b.oidc && (await verifyWorkflowToken(b.oidc)))) && Array.isArray(b.files) && b.pr === n) {
     pr = {
       merged: b.merged === true, base: String(b.base), handle: String(b.handle ?? "unknown"), body: String(b.body ?? ""),
       mergeSha: String(b.mergeSha ?? ""), url: String(b.url ?? ""),
