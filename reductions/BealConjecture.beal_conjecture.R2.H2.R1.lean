@@ -117,6 +117,8 @@ private theorem square_gap {b c p r k : ℕ} (hb : b%2=1) (hc : c%2=1)
   apply BealPartial.odd_power_difference htp hsp hst (by omega) hodd (k/2+1)
   rw [←hs,←ht,hde,Nat.add_sub_cancel_left]
 
+/-- At k = 69t + 1, writing the right side as twice the 23rd power of 2^(3t)
+gives the coefficient-two equation. The two divisibility cases give equal exponents. -/
 private theorem mixed (repeated : H2) (weighted : H3) (sieve : H4) {a b : ℤ} {k : ℕ}
     (ha : Odd a) (hb : Odd b) (hc : IsCoprime a b) (hk : 2<k) :
     a^3+b^23 ≠ (2:ℤ)^k := by
