@@ -13,7 +13,7 @@ Do not prove it here: the theorem body stays `sorry`. A person reviews the trans
 namespace OMA.S_oeis_a245569
 
 def IsTerm (n : ℕ) : Prop :=
-  0 < n ∧ Squarefree (Nat.choose (2 ^ n - 1) n)
+  Squarefree (Nat.choose (2 ^ n - 1) n)
 
 theorem main : Set.Finite {n : ℕ | IsTerm n} := by
   sorry
