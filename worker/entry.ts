@@ -64,9 +64,43 @@ function secure(res: Response): Response {
 
 export default {
   async fetch(req: Request, env: unknown, ctx: ExecutionContext): Promise<Response> {
-    return secure(await route(req, env, ctx));
+    // Last resort: nothing the site answers is a 500. vinext turns an exception a route did not catch into an empty
+    // 500; here it becomes a 503 with Retry-After (agents' tools and webhooks retry it), logged. Every other status,
+    // and every successful answer, passes through unchanged.
+    let res: Response;
+    try {
+      res = await route(req, env, ctx);
+    } catch (e) {
+      console.error("worker: uncaught", req.method, new URL(req.url).pathname, e);
+      return unavailable(req);
+    }
+    if (res.status === 500) {
+      console.error("worker: 500 answered as 503", req.method, new URL(req.url).pathname);
+      ctx.waitUntil(Promise.resolve(res.body?.cancel()).catch(() => undefined));
+      return unavailable(req);
+    }
+    return secure(res);
   },
 };
+
+const DOWN_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Left to Solve · back in a moment</title><style>body{font:16px/1.5 system-ui,sans-serif;max-width:560px;margin:15vh auto;padding:0 16px;color:#111;background:#fff}
+@media (prefers-color-scheme:dark){body{color:#eee;background:#111}a{color:#9cf}}</style></head>
+<body><h1>Back in a moment</h1><p>This page could not be built just now: one of the site's data sources is not answering.
+Nothing is lost. Reload in half a minute, or go to the <a href="/">home page</a>.</p></body></html>`;
+
+/** 503 with Retry-After: JSON for the API, a short page for browsers, plain text for agents and everything else. */
+function unavailable(req: Request): Response {
+  const path = new URL(req.url).pathname;
+  const headers: Record<string, string> = { "Retry-After": "30", "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" };
+  const head = req.method === "HEAD";
+  if (path.startsWith("/api/")) {
+    return new Response(head ? null : JSON.stringify({ error: "temporarily_unavailable", hint: "Retry in 30 seconds." }), { status: 503, headers: { ...headers, "Content-Type": "application/json" } });
+  }
+  const html = (req.headers.get("accept") ?? "").includes("text/html") && !req.headers.has("rsc") && !path.endsWith(".txt");
+  if (html) return new Response(head ? null : DOWN_HTML, { status: 503, headers: { ...headers, "Content-Type": "text/html; charset=utf-8" } });
+  return new Response(head ? null : "Temporarily unavailable: retry in 30 seconds.\n", { status: 503, headers: { ...headers, "Content-Type": "text/plain; charset=utf-8" } });
+}
 
 // Pages that read nothing but their query string (no cookies, no headers): vinext renders them as dynamic (private,
 // no-store), yet one URL is one page for everybody, so they are stored like the others under their route's TTL (the
