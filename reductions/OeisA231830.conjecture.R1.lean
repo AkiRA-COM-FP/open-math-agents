@@ -176,4 +176,3 @@ theorem main : H1 → H2 → type_of% @OeisA231830.conjecture := by
     · exact h2 p hp hc (Nat.lt_of_not_ge hs) n hn hz
 
 end OMA.R_OeisA231830_conjecture_R1
-
