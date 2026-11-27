@@ -38,8 +38,19 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 completed before t
   [ "$(gh api "repos/$REPO/actions/runs/$ID" --jq .status 2>/dev/null)" = completed ] || echo "$ID" >> "$ROOT/watch.txt"
 }
 refresh
+OLDJOBS=1
 while [ "$(date -u +%s)" -lt "$END" ]; do
   NOW=$(date -u +%s)
+  # Verdict jobs queued by the old per-proof trigger of verdict.yml still run: leave their checks to them (same head
+  # commit), or the author would get two reports. Once none is left, stop looking.
+  : > pending.txt
+  if [ "$OLDJOBS" = 1 ]; then
+    for st in queued in_progress waiting; do
+      gh api --paginate "repos/$REPO/actions/workflows/verdict.yml/runs?status=$st&per_page=100" \
+        --jq '.workflow_runs[] | select(.event == "workflow_run") | .head_sha' >> pending.txt 2>/dev/null || echo x >> pending.txt
+    done
+    [ -s pending.txt ] || OLDJOBS=0
+  fi
   gh api --paginate "repos/$REPO/actions/workflows/check-proof.yml/runs?status=completed&per_page=100&created=>$SINCE" \
     --jq '.workflow_runs[] | select(.conclusion != "cancelled") | [.id, .head_sha, .run_attempt, .html_url, .updated_at] | @tsv' > runs.tsv 2>/dev/null || : > runs.tsv
   for WID in $(sort -u "$ROOT/watch.txt"); do         # re-run checks created earlier than the window
@@ -49,6 +60,7 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
     [ -n "$ID" ] || continue
     [ -e "$ROOT/done/$ID.$ATT" ] && continue
     touch "$ROOT/done/$ID.$ATT"; sed -i "/^$ID\$/d" "$ROOT/watch.txt"
+    grep -qx "$SHA" pending.txt && continue   # an old verdict job reports this one
     OLD=0; [ "$(date -u -d "$UPD" +%s 2>/dev/null || echo 0)" -lt "$START" ] && OLD=1
     while :; do                                         # first free slot
       FREE=""; for i in $(seq 1 "$SLOTS"); do { [ -z "${SPID[$i]:-}" ] || ! kill -0 "${SPID[$i]}" 2>/dev/null; } && { FREE=$i; break; }; done
