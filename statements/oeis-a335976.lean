@@ -16,7 +16,7 @@ def IsTotient (n : ℕ) : Prop :=
   ∃ m : ℕ, Nat.totient m = n
 
 def IsTerm (k : ℕ) : Prop :=
-  0 < k ∧ ¬ IsTotient (Nat.fib (6 * k))
+  ¬ IsTotient (Nat.fib (6 * k))
 
 theorem main : Set.Infinite {k : ℕ | IsTerm k ∧ k.Prime} := by
   sorry
