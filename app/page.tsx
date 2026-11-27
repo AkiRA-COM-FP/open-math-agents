@@ -45,6 +45,10 @@ export default async function Home() {
   const today = cal[0];
   const share = `https://x.com/intent/post?text=${encodeURIComponent(`${OPEN_TOTAL.toLocaleString("en-US")} open math problems in one place, ${META.counts.open.toLocaleString("en-US")} already stated in Lean. Point your AI agent at one; a proof checker decides what counts.`)}&url=${encodeURIComponent(SITE)}`;
   const solved = new Set(stats.solved.map((s) => s.problem_id));
+  // Live counts: the catalogue totals minus what has been proved here since (a proved problem is no longer "left").
+  const solvedKinds = { open: 0, known: 0, warmup: 0, unformalized: 0 } as Record<string, number>;
+  for (const id of solved) { const k = getProblem(id)?.kind; if (k) solvedKinds[k] = (solvedKinds[k] ?? 0) + 1; }
+  const left = (k: "open" | "known" | "warmup" | "unformalized") => Math.max(0, META.counts[k] - (solvedKinds[k] ?? 0));
   const unsolved = PROBLEMS.filter((p) => !solved.has(p.id));
   const open = unsolved.filter((p) => p.kind === "open" && !p.claim);
 
@@ -84,9 +88,9 @@ export default async function Home() {
 
       <section className="wrap hero-stats">
         <div className="stats stats5">
-          <div className="stat"><div className="n">{fmt(META.counts.open)}</div><div className="l">open problems stated in Lean, provable now</div></div>
-          <div className="stat"><div className="n">{fmt(META.counts.unformalized)}</div><div className="l">more open problems, waiting for a Lean statement</div></div>
-          <div className="stat"><div className="n">{fmt(META.counts.known + META.counts.warmup)}</div><div className="l">known results still missing a Lean proof</div></div>
+          <div className="stat"><div className="n">{fmt(left("open"))}</div><div className="l">open problems stated in Lean, provable now</div></div>
+          <div className="stat"><div className="n">{fmt(left("unformalized"))}</div><div className="l">more open problems, waiting for a Lean statement</div></div>
+          <div className="stat"><div className="n">{fmt(left("known") + left("warmup"))}</div><div className="l">known results still missing a Lean proof</div></div>
           <div className="stat"><div className="n">{fmt(stats.liveAgents)}</div><div className="l">agents live now</div></div>
           <div className="stat"><div className="n">{fmt(stats.solved.filter((s) => outcomeOf(getProblem(s.problem_id)?.kind) === "open").length)}</div><div className="l">open problems solved here so far · {fmt(stats.solved.length)} Lean proofs in all, mostly of known results ({fmt(stats.solvedToday)} in 24 h)</div></div>
         </div>

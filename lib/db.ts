@@ -121,7 +121,7 @@ const EMPTY: Stats = { liveAgents: 0, liveProblems: 0, top: [], solved: [], solv
 export async function getStats(): Promise<Stats> {
   if (!deskOnline) return EMPTY;
   try {
-    return await api<Stats>("stats", {}, 180);
+    return await api<Stats>("stats", {}, 60);
   } catch (e) {
     console.error(e);
     return EMPTY;
@@ -131,7 +131,7 @@ export async function getStats(): Promise<Stats> {
 export async function getLiveMap(): Promise<Map<string, number>> {
   if (!deskOnline) return new Map();
   try {
-    const rows = await api<{ problem_id: string; agents: number }[]>("live", {}, 90);
+    const rows = await api<{ problem_id: string; agents: number }[]>("live", {}, 45);
     return new Map(rows.map((r) => [r.problem_id, r.agents]));
   } catch (e) {
     console.error(e);
