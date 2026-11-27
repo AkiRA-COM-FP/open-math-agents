@@ -640,7 +640,7 @@ theorem isolate_count (hm : 0 < m) (bad : ¬ Solved p) : 3 ≤ (((active p)ᶜ))
   simpa [Finset.card_insert_of_notMem,Ne.symm h₄,Ne.symm h₃,h₅] using card_le_card hsub
 
 theorem active_nonempty (hm : 3 ≤ m) (bad : ¬Solved p) : ((active p)).Nonempty := by
-  have hcm := residual_packed (by omega : 0<m) bad
+  have hcm := residual_packed (by omega : 0 < m) bad
   have cy := hcm.cycles (by omega) bad
   by_contra hn
   have hem := not_nonempty_iff_eq_empty.mp hn
@@ -843,7 +843,7 @@ theorem repair_two (F : Frame p) (hm : 0 < m) (bad : ¬Solved p)
     ((mid p) s = q ∧ p.partnerRank q s + m ≤ p.partnerRank q e) ∨ ((mid p) s = t ∧ p.partnerRank t s + m ≤ p.partnerRank t w) :=
   repair_two_either F hm bad he hq hw far hc₁ (Or.inl hc₂) hwx
 
-theorem other_isolate (hm : 0<m) (bad : ¬Solved p) (z : (Agent m)) : ∃ w ∈ ((active p)ᶜ), w ≠ z := by
+theorem other_isolate (hm : 0 < m) (bad : ¬Solved p) (z : (Agent m)) : ∃ w ∈ ((active p)ᶜ), w ≠ z := by
   by_contra! hn
   have hsub : ((active p)ᶜ) ⊆ {z} := by simpa only [Finset.subset_iff,mem_singleton] using hn
   have hcard := card_le_card hsub
@@ -915,7 +915,7 @@ theorem rank_two {i : (Agent m)} (hi : ¬F.Small i) : 2 ≤ d p i := by
 
 /-- Any acceptable isolated vertex identifies the unique neighbor of the source
 and forces that neighbor's middle choice. -/
-theorem isolate_rule (hm : 0<m) (bad : ¬Solved p) {y w : (Agent m)} (hy : y ∈ (active p))
+theorem isolate_rule (hm : 0 < m) (bad : ¬Solved p) {y w : (Agent m)} (hy : y ∈ (active p))
     (hw : w ∈ ((active p)ᶜ)) (ha : Accept p y w) :
     F.Small y ∧ (mid p) (F.g y) = w ∧ p.partnerRank w (F.g y) ≤ m ∧ m < p.partnerRank w y := by
   let u := worst p y
@@ -1064,7 +1064,7 @@ private theorem both_rule (hm : 0 < m) (bad : ¬Solved p) {i j : (Agent m)} (hi 
 
 /-- An acceptable isolate consumes both units of the row's allowance for
 mutual pairs. Vertices in larger components have neither kind of partner. -/
-private theorem row_caps (hm : 0<m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ (active p)) :
+private theorem row_caps (hm : 0 < m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ (active p)) :
     2*(exc p i).card + (F.both i).card ≤ 2 ∧
     (¬F.Small i → (exc p i).card = 0 ∧ (F.both i).card = 0) := by
   have hr := fun (j : (Agent m)) (hj : j ∈ F.both i) ↦ F.both_rule hm bad hi hj
@@ -1160,7 +1160,7 @@ private theorem arc_balance : ∑ i ∈ (active p), (F.out i).card = ∑ j ∈ (
 
 /-- Every row has outdegree at least its indegree. Summing over all rows
 forces equality at each vertex and exhausts all cross-component pairs. -/
-private theorem row_eq (hm : 0<m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ (active p)) :
+private theorem row_eq (hm : 0 < m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ (active p)) :
     (F.outside i).card + (F.both i).card = 2*(F.out i).card ∧
     F.outside i ⊆ F.out i ∪ F.incoming i := by
   have localCount (j : (Agent m)) : (F.out j ∪ F.incoming j).card + (F.both j).card =
@@ -1256,7 +1256,7 @@ open Roommates Finset
 namespace Market.Frame
 variable {m : ℕ} {p : Market m} (F : Frame p)
 
-private theorem color (hm : 0<m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ (active p)) :
+private theorem color (hm : 0 < m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ (active p)) :
     (mid p) i ∈ ((active p)ᶜ) ∧ p.partnerRank ((mid p) i) i ≤ m ∧ m < p.partnerRank ((mid p) i) (F.g i) ∧ p.partnerRank (F.g i) ((mid p) i) ≤ m := by
   have hg := F.g_mem hi
   obtain ⟨w,hw,ha⟩ := F.has_exception hm bad hg
@@ -1265,7 +1265,7 @@ private theorem color (hm : 0<m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ 
   rw [he]
   exact ⟨hw,h₁,h₂,(F.accept_iff_top hm bad hg _).mp ha⟩
 
-private theorem partner_colors (hm : 0<m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ (active p)) :
+private theorem partner_colors (hm : 0 < m) (bad : ¬Solved p) {i : (Agent m)} (hi : i ∈ (active p)) :
     (mid p) i ≠ (mid p) (F.g i) := by
   intro eq
   have h₁ := (F.color hm bad hi).2.2.1
@@ -1275,7 +1275,7 @@ private theorem partner_colors (hm : 0<m) (bad : ¬Solved p) {i : (Agent m)} (hi
 
 /-- A top choice in a different component must have the color of the
 source's partner, since otherwise the two-edge repair is stable. -/
-private theorem arc_color (hm : 0<m) (bad : ¬Solved p) {i a : (Agent m)} (hi : i ∈ (active p))
+private theorem arc_color (hm : 0 < m) (bad : ¬Solved p) {i a : (Agent m)} (hi : i ∈ (active p))
     (ha : a ∈ (active p)) (far : ¬F.Related i a) (htop : p.partnerRank i a ≤ m) : (mid p) a = (mid p) (F.g i) := by
   by_contra hne
   have hca := F.color hm bad ha
