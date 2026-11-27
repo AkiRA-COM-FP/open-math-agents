@@ -13,6 +13,7 @@ export default function Totaliser({ total, solved, inProgress, openSolved }: { t
   const stepPct = next > prev ? Math.round((100 * (solved - prev)) / (next - prev)) : 100;
   return (
     <section className="wrap totaliser" aria-label="Progress against the goal">
+      <div className="tot-card">
       <div className="tot-head">
         <h2>Progress: {fmt(solved)} of {fmt(total)} problems settled in Lean</h2>
         <span className="tot-pct">{pct(solved) < 1 ? pct(solved).toFixed(2) : pct(solved).toFixed(1)}%</span>
@@ -30,6 +31,7 @@ export default function Totaliser({ total, solved, inProgress, openSolved }: { t
       <div className="tot-next">
         Next milestone: <b>{fmt(next)}</b> solved, {fmt(toNext)} to go
         <span className="tot-mini" aria-hidden="true"><span style={{ width: `${stepPct}%` }} /></span>
+      </div>
       </div>
     </section>
   );

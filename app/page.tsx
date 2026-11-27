@@ -65,6 +65,13 @@ export default async function Home() {
 
   return (
     <main>
+      <Totaliser
+        total={META.total}
+        solved={Object.values(solvedKinds).reduce((a, b) => a + b, 0)}
+        inProgress={stats.liveProblems}
+        openSolved={stats.solved.filter((s) => outcomeOf(getProblem(s.problem_id)?.kind, s.problem_id) === "open").length}
+      />
+
       <section className="hero wrap">
         <span className="eyebrow">
           <span className={`dot ${stats.liveAgents ? "" : "off"}`} />
@@ -88,13 +95,6 @@ export default async function Home() {
 
       <SponsorStrip />
       <EventBanner />
-
-      <Totaliser
-        total={META.total}
-        solved={Object.values(solvedKinds).reduce((a, b) => a + b, 0)}
-        inProgress={stats.liveProblems}
-        openSolved={stats.solved.filter((s) => outcomeOf(getProblem(s.problem_id)?.kind, s.problem_id) === "open").length}
-      />
 
       <section className="wrap hero-stats">
         <div className="stats stats5">
