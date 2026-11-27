@@ -169,6 +169,15 @@ function waitUntilFn(): ((p: Promise<unknown>) => void) | null {
 type Entry<T> = { at: number; value: T };
 /** Keys this instance is refreshing in the background (the others keep serving the last value meanwhile). */
 const REFRESHING = new Set<string>();
+/** When the database computed the value a cached read returned last (ms): the ledger merge (lib/ledgercore.ts
+ * mergeBoard) compares the leaderboard's age with the solved list's. */
+const READ_AT = new Map<string, number>();
+function seen<T>(key: string, e: Entry<T>): T {
+  if (READ_AT.size > 2000) READ_AT.clear();
+  READ_AT.set(key, e.at);
+  return e.value;
+}
+const readAt = (fn: string, args: Record<string, unknown>) => READ_AT.get(`${fn}?${JSON.stringify(args)}`);
 
 /** One read from the database, stored everywhere the next readers look: this instance, the data centre, KV. */
 async function refresh<T>(fn: string, args: Record<string, unknown>, key: string, revalidate: number, timeoutMs: number, store: KV | null): Promise<T> {
@@ -176,6 +185,7 @@ async function refresh<T>(fn: string, args: Record<string, unknown>, key: string
   const at = Date.now();
   if (MEM.size > 2000) MEM.clear();
   MEM.set(key, { at, value });
+  READ_AT.set(key, at);
   const body = JSON.stringify({ at, value });
   // One write per key per refresh; kept a day so it also serves as the last good value when the database fails.
   if (store) await store.put(`v1:${key}`, body, { expirationTtl: 86400 }).catch(() => undefined);
@@ -198,7 +208,7 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
   const key = `${fn}?${JSON.stringify(args)}`;
   const ttl = revalidate * 1000;
   const m = MEM.get(key);
-  if (m && Date.now() - m.at < ttl) return m.value as T;
+  if (m && Date.now() - m.at < ttl) return seen(key, m as Entry<T>);
   // A failed refresh serves the last good value instead of an empty page.
   // A read shared with a request that has since ended cannot settle here: run it again (lib/edgecache.ts, joinFlight).
   const running = joinFlight(INFLIGHT, key, () => api<T>(fn, args, revalidate));
@@ -212,7 +222,7 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
         const got = (await hit.json().catch(() => null)) as Entry<T> | null;
         if (got && Date.now() - got.at < ttl) {
           MEM.set(key, got);
-          return got.value;
+          return seen(key, got);
         }
       }
     }
@@ -231,7 +241,7 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
               .put(req, new Response(JSON.stringify(got), { headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${Math.max(10, Math.round((ttl - Math.min(age, ttl)) / 1000) || 10)}` } }))
               .catch(() => undefined);
           }
-          return got.value;
+          return seen(key, got);
         }
         kvStale = got;
       }
@@ -256,14 +266,14 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
           REFRESHING.add(key);
           later(refresh<T>(fn, args, key, revalidate, 3000, store).catch((e) => console.error(e)).finally(() => REFRESHING.delete(key)));
         }
-        return last.value;
+        return seen(key, last);
       }
     }
     try {
       return await refresh<T>(fn, args, key, revalidate, 1000, store);
     } catch (e) {
       const last = await lastValue();
-      if (last) return last.value;
+      if (last) return seen(key, last);
       throw e;
     }
   })().finally(() => { if (INFLIGHT.get(key)?.p === p) INFLIGHT.delete(key); });
@@ -284,7 +294,7 @@ export type Stats = {
 
 const EMPTY: Stats = { liveAgents: 0, liveProblems: 0, top: [], solved: [], solvedToday: 0, claimsToday: 0, contributors: 0 };
 
-export async function getStats(): Promise<Stats> {
+async function statsDb(): Promise<Stats> {
   if (!deskOnline) return EMPTY;
   try {
     return await api<Stats>("stats", {}, 120);
@@ -360,7 +370,7 @@ export type Profile = {
   claims: number;
   firstSeen: string | null;
 };
-export async function getProfile(handle: string): Promise<Profile | null> {
+async function profileDb(handle: string): Promise<Profile | null> {
   if (!deskOnline) return null;
   try {
     return await api<Profile>("profile", { handle }, 300);
@@ -403,10 +413,11 @@ async function safe<T>(fn: string, args: Record<string, unknown>, fallback: T, r
 }
 
 export type Leader2 = Leader & { points: number; agent: string | null; model: string | null };
-export const getLeaderboard2 = (minutes?: number) => safe<Leader2[]>("leaderboard2", minutes ? { minutes } : {}, [], 600);
+const leaderboard2Db = (minutes?: number) => safe<Leader2[]>("leaderboard2", minutes ? { minutes } : {}, [], 600);
 
 export type Solved = { problem_id: string; handle: string; agent: string | null; model: string | null; polarity: string; pr_url: string; points: number; contributors: string[] | null; created_at: string };
-export const getSolved = (limit = 2000) => safe<Solved[]>("solved", { limit }, [], 600);
+const SOLVED_ARGS = { limit: 2000 };
+const solvedDb = () => safe<Solved[]>("solved", SOLVED_ARGS, [], 600);
 
 export type Day = { day: string; claims: number; released: number; submitted: number; solved: number; reduced: number; people: number };
 export const getCalendar = (days = 90) => safe<Day[]>("calendar", { days }, [], 600);
@@ -451,7 +462,7 @@ export async function getContributionsOrNull(problem: string): Promise<Contribut
 
 /** Ids of every problem or step that has any history (taken, sent, proved...): a small list, refreshed once a minute.
  * Pages of problems not in it skip the per-problem history query entirely. */
-export async function getActiveIds(): Promise<Set<string>> {
+async function activeIdsDb(): Promise<Set<string>> {
   if (!deskOnline) return new Set();
   try {
     return new Set(await api<string[]>("active_ids", {}, 600));
@@ -465,4 +476,71 @@ export async function getActiveIds(): Promise<Set<string>> {
 export async function getProblemEvents(limit: number, problem: string): Promise<Event[]> {
   const active = await getActiveIds();
   return active.has(problem) ? getEvents(limit, problem) : [];
+}
+
+// Credits: what the database recorded, completed with the credit ledger (lib/ledger.ts), the record of every pull
+// request merged on GitHub. A lost credit call or a database outage no longer drops anyone's points: the leaderboard,
+// the solved list, profiles and the stats answer from the ledger where the database has nothing. The database's row
+// wins wherever it has the pull request. The ledger module (and the catalogue it needs) is loaded on first use only, so
+// the desk's hot routes that never show credits (heartbeats) do not load it.
+type LedgerMod = typeof import("@/lib/ledger");
+type LedgerBase = { L: LedgerMod; world: import("@/lib/ledgercore").World; solved: Solved[]; solvedAt: number | undefined; extra: import("@/lib/ledgercore").Credit[] };
+let BASE: { at: number; value: LedgerBase } | null = null;
+let BASE_RUN: Promise<LedgerBase | null> | null = null;
+const MERGE_TTL = 30_000;
+
+async function ledgerBase(): Promise<LedgerBase | null> {
+  if (BASE && Date.now() - BASE.at < MERGE_TTL) return BASE.value;
+  if (BASE_RUN) return BASE_RUN;
+  BASE_RUN = (async () => {
+    try {
+      const L = await import("@/lib/ledger");
+      const [world, solved] = await Promise.all([L.getWorld(() => getSteps()), solvedDb()]);
+      const value: LedgerBase = { L, world, solved, solvedAt: readAt("solved", SOLVED_ARGS), extra: L.extraCredits(world, solved) };
+      BASE = { at: Date.now(), value };
+      return value;
+    } catch (e) {
+      console.error("ledger", e);
+      return BASE?.value ?? null;
+    }
+  })().finally(() => (BASE_RUN = null));
+  return BASE_RUN;
+}
+
+const MERGED = new Map<string, { at: number; value: unknown }>();
+/** A database read merged with the ledger, computed at most every 30 s per isolate; the database's answer as it is
+ * when the ledger cannot be read. */
+async function withLedger<T>(key: string, raw: () => Promise<T>, merge: (v: T, b: LedgerBase) => T): Promise<T> {
+  const m = MERGED.get(key);
+  if (m && Date.now() - m.at < MERGE_TTL) return m.value as T;
+  const [v, b] = await Promise.all([raw(), ledgerBase()]);
+  if (!b) return v;
+  try {
+    const value = merge(v, b);
+    if (MERGED.size > 1000) MERGED.clear();
+    MERGED.set(key, { at: Date.now(), value });
+    return value;
+  } catch (e) {
+    console.error("ledger merge", key, e);
+    return v;
+  }
+}
+
+export const getStats = () => withLedger("stats", statsDb, (s, b) => b.L.mergeStats(s, b.extra, b.world));
+/** Every solved problem and step with its solver of record (oma_solved_list), and the ledger's the database lacks. */
+export const getSolved = () => withLedger("solved", solvedDb, (_v, b) => b.L.mergeSolved(b.solved, b.extra));
+export const getLeaderboard2 = (minutes?: number) =>
+  withLedger(`lb2:${minutes ?? ""}`, () => leaderboard2Db(minutes), (v, b) =>
+    b.L.mergeBoard(v, readAt("leaderboard2", minutes ? { minutes } : {}), b.solved, b.solvedAt, b.extra, b.world, minutes));
+export const getProfile = (handle: string) =>
+  withLedger(`profile:${handle}`, () => profileDb(handle), (p, b) => b.L.mergeProfile(p, handle, b.world, b.solved, b.extra));
+export const getActiveIds = () =>
+  withLedger("active_ids", activeIdsDb, (s, b) => {
+    const out = new Set(s);
+    for (const id of b.world.ids) out.add(id);
+    return out;
+  });
+/** The solution of record of one problem or step (database or ledger), or null. */
+export async function getSolution(id: string): Promise<Solved | null> {
+  return (await getSolved()).find((s) => s.problem_id === id) ?? null;
 }

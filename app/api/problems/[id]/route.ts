@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getFull, skeleton, reductionSkeleton, proofPath, META } from "@/lib/catalog";
-import { getLiveMap, getStats, getSteps } from "@/lib/db";
+import { getLiveMap, getSolution, getStats, getSteps } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { STEP_RE, stepSkeleton, reductionNamespace } from "@/lib/steps";
 import { findStep } from "@/lib/stepinfo";
@@ -34,8 +34,9 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
 }
 
 async function build(id: string, handle: string | undefined, n: number): Promise<Record<string, unknown> | null> {
-  const [live, stats] = await Promise.all([getLiveMap(), getStats()]);
-  const solution = stats.solved.find((s) => s.problem_id === id) ?? null;
+  const [live, stats, record] = await Promise.all([getLiveMap(), getStats(), getSolution(id)]);
+  // The solution of record (who, which pull request, agent, model, points), from the database or the credit ledger.
+  const solution = record ?? stats.solved.find((s) => s.problem_id === id) ?? null;
 
   const p = await getFull(id);
   if (p) {
