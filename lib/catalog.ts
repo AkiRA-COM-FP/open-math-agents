@@ -1,5 +1,6 @@
 import "server-only";
 import PLACEHOLDERS from "@/data/placeholders.json";
+import THIRD_PARTY from "@/content/prizes.json";
 import cardsRaw from "@/data/gen/cards.json";
 import overridesRaw from "@/data/status_overrides.json";
 import { catalogSearch, problemDetail, problemDetails, excerpts } from "@/lib/d1";
@@ -160,24 +161,35 @@ export const CLAY: Record<string, string> = {
   "WeierstrassCurve.Affine.Rat.strongBSD": "Birch and Swinnerton-Dyer conjecture",
   "wp-birch-and-swinnerton-dyer-conjecture": "Birch and Swinnerton-Dyer conjecture",
   "wp-hodge-conjecture": "Hodge conjecture",
+  "wpc-yang-mills-existence-and-mass-gap": "Yang–Mills existence and mass gap",
 };
 export const CLAY_RULES = "https://www.claymath.org/millennium-problems/rules/";
 
 export type Prize = { usd: number; label: string; by: string; claim: string; url: string };
 /** Cash prize attached to a problem by a third party (never paid by this site). */
 export function prizeOf(p: Problem): Prize | null {
+  // A prize is a target only while the problem is open.
+  if (!(p.kind === "open" || p.kind === "unformalized")) return null;
   if (CLAY[p.id]) return { usd: 1_000_000, label: "$1,000,000", by: "the Clay Mathematics Institute (Millennium Prize)", claim: "Clay awards it under its rules: a solution published in a refereed venue and accepted by the community two years later", url: CLAY_RULES };
+  const tp = (THIRD_PARTY.prizes as Record<string, Prize>)[p.id];
+  if (tp) return tp;
   if (!p.prize) return null;
   const m = p.prize.replace(/,/g, "").match(/[$£](\d+)/);
   const usd = m ? Number(m[1]) : 0;
-  return { usd, label: p.prize, by: "Paul Erdős (Erdős prize)", claim: "erdosproblems.com records each prize and who honours it today", url: p.erdos ? `https://www.erdosproblems.com/${p.erdos}` : "https://www.erdosproblems.com/prizes" };
+  const url = p.erdos ? `https://www.erdosproblems.com/${p.erdos}` : "https://www.erdosproblems.com/prizes";
+  // Upstream, every variant of an Erdős problem carries the problem's prize. The prize is for the main problem: a
+  // variant (special case) does not win it by itself, so it is shown as such and not counted in totals.
+  if (/\.variants?\./.test(p.id)) {
+    return { usd: 0, label: `${p.prize} (main problem)`, by: `Paul Erdős (Erdős prize for Erdős Problem #${p.erdos ?? "?"} as a whole)`, claim: "This variant is a special case: solving it does not by itself win the prize, which is attached to the main problem", url };
+  }
+  return { usd, label: p.prize, by: "Paul Erdős (Erdős prize)", claim: "erdosproblems.com records each prize and who honours it today", url };
 }
 export function prizeValue(p: Problem) {
   return prizeOf(p)?.usd ?? 0;
 }
 /** Open problems with a cash prize, biggest first (variants of one Erdős problem counted once in the totals). */
 export function prizeBoard() {
-  const list = PROBLEMS.filter((p) => (p.kind === "open" || p.kind === "unformalized") && prizeOf(p)).sort((a, b) => prizeValue(b) - prizeValue(a) || b.fame - a.fame);
+  const list = PROBLEMS.filter((p) => (p.kind === "open" || p.kind === "unformalized") && prizeValue(p) > 0).sort((a, b) => prizeValue(b) - prizeValue(a) || b.fame - a.fame);
   const clay = new Set(list.filter((p) => CLAY[p.id]).map((p) => CLAY[p.id]));
   const erdos = new Map<number, number>();
   for (const p of list) if (p.erdos && !CLAY[p.id]) erdos.set(p.erdos, Math.max(erdos.get(p.erdos) ?? 0, prizeValue(p)));
