@@ -19,6 +19,7 @@
     "url": "https://athenacalc.com",
     "logo": "/sponsor-logos/athenacalc.png",
     "tier": "backer",
-    "since": "2026-11-27"
+    "since": "2026-11-27",
+    "showName": true
   }
 ]
