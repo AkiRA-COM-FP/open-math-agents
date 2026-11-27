@@ -6,6 +6,7 @@
  * A cached page costs about a millisecond of CPU instead of a full render.
  */
 import handler from "vinext/server/fetch-handler";
+import clientAssets from "virtual:vite-rsc/assets-manifest";
 export * from "vinext/server/fetch-handler";
 
 type ExecutionContext = { waitUntil(p: Promise<unknown>): void; passThroughOnException?(): void };
@@ -13,6 +14,15 @@ type Handler = { fetch(req: Request, env: unknown, ctx: ExecutionContext): Promi
 const inner = handler as unknown as Handler;
 const SKIP = /^\/(api|_next|__|cdn-cgi)(\/|$)/;
 const ORIGIN = "https://lefttosolve.com";
+// Fingerprint of the client build: every script and stylesheet a page links to (hashed file names). It is part of the
+// cache key, because a deploy that changes those files removes the old ones (404): a page stored before it would load
+// no script and possibly no styles. A deploy that leaves them as they were (catalogue, proofs) keeps the stored pages.
+const BUILD = (() => {
+  const s = JSON.stringify(clientAssets);
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619) >>> 0;
+  return h.toString(36);
+})();
 const NO_CACHE_HEADERS = ["rsc", "next-router-state-tree", "next-router-prefetch", "next-router-segment-prefetch", "next-url", "next-action",
   "x-vinext-interception-context", "x-vinext-interception-id", "x-vinext-mounted-slots", "x-vinext-rsc-render-mode",
   "x-vinext-rsc-state-fingerprint", "authorization", "x-oma-secret"];
@@ -95,7 +105,7 @@ async function route(req: Request, env: unknown, ctx: ExecutionContext): Promise
     const cache = (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default;
     if (!cache || !eligible(req, url)) return inner.fetch(req, env, ctx);
     const bot = CRAWLER.test(req.headers.get("user-agent") ?? "");
-    const key = new Request(`${ORIGIN}/${bot ? "__html_bot" : "__html"}${url.pathname}${url.search}`);
+    const key = new Request(`${ORIGIN}/${bot ? "__html_bot" : "__html"}/${BUILD}${url.pathname}${url.search}`);
     const hit = await cache.match(key).catch(() => undefined);
     if (hit) {
       const until = Number(hit.headers.get(FRESH_UNTIL) ?? 0);
