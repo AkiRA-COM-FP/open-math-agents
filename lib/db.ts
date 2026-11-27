@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { env as cfEnv } from "cloudflare:workers";
 import * as cfWorkers from "cloudflare:workers";
 import type { Mate, TeamNote } from "@/lib/collab";
+import { joinFlight, type Flight } from "@/lib/edgecache";
 
 /** Coordination desk client. Every call goes through one Postgres function, oma_api, which checks
  * OMA_DB_SECRET server-side (see supabase/migrations/002_api_gate.sql). The Supabase key only
@@ -127,7 +128,7 @@ async function rpcOnce<T>(fn: string, args: Record<string, unknown>, timeoutMs: 
  * Supabase. Concurrent identical reads wait for one call. Writes (claims, beats, verdicts) are never cached.
  */
 const MEM = new Map<string, { at: number; value: unknown }>();
-const INFLIGHT = new Map<string, Promise<unknown>>();
+const INFLIGHT = new Map<string, Flight>();
 const CACHE_ORIGIN = (process.env.SITE_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "https://lefttosolve.com").replace(/\/$/, "");
 function edgeCache(): Cache | null {
   try {
@@ -199,8 +200,9 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
   const m = MEM.get(key);
   if (m && Date.now() - m.at < ttl) return m.value as T;
   // A failed refresh serves the last good value instead of an empty page.
-  const running = INFLIGHT.get(key);
-  if (running) return running as Promise<T>;
+  // A read shared with a request that has since ended cannot settle here: run it again (lib/edgecache.ts, joinFlight).
+  const running = joinFlight(INFLIGHT, key, () => api<T>(fn, args, revalidate));
+  if (running) return running;
   const p = (async () => {
     const cache = edgeCache();
     const req = new Request(`${CACHE_ORIGIN}/__desk_cache/${encodeURIComponent(key)}`);
@@ -264,8 +266,8 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
       if (last) return last.value;
       throw e;
     }
-  })().finally(() => INFLIGHT.delete(key));
-  INFLIGHT.set(key, p);
+  })().finally(() => { if (INFLIGHT.get(key)?.p === p) INFLIGHT.delete(key); });
+  INFLIGHT.set(key, { p, at: Date.now() });
   return p as Promise<T>;
 }
 
