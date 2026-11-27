@@ -106,8 +106,10 @@ case "$VERDICT" in
         gh pr ready "$PR" --repo "$REPO" || true
       fi
       for TRY in 1 2 3 4 5 6 7 8; do
-        if OUT="$(gh api -X PUT "repos/$REPO/pulls/$PR/merge" -f merge_method=squash -f sha="$HEAD_SHA" 2>&1)"; then
-          MERGED=1; MERGE_SHA="$(printf '%s' "$OUT" | jq -r '.sha // empty' 2>/dev/null)"; break
+        # gh pr merge (GraphQL): the REST merge endpoint answers "Resource not accessible by integration" to
+        # GITHUB_TOKEN for many of these pull requests, the GraphQL mutation does not.
+        if OUT="$(gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$HEAD_SHA" 2>&1)"; then
+          MERGED=1; MERGE_SHA="$(gh pr view "$PR" --repo "$REPO" --json mergeCommit -q '.mergeCommit.oid' 2>/dev/null || true)"; break
         fi
         echo "merge attempt $TRY: $OUT"
         echo "$OUT" | grep -qiE "base branch was modified|try the merge again|is not mergeable|still a draft|timeout|502|503" || break
