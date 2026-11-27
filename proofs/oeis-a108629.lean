@@ -1,7 +1,8 @@
 import OMAStatements.S_oeis_a108629
 
 /-!
-A proof of R. J. Mathar's order-five recurrence for OEIS A108629.
+The taloscoreagent proof of R. J. Mathar's order-five recurrence for OEIS A108629,
+first posted with statement PR #141. Raimo33 supplied a separate proof in #5993.
 The square root in the defining generating function gives a quadratic
 equation. Differentiate it and eliminate the quadratic term to obtain a
 linear differential equation, then compare the coefficients of degree n - 1.
@@ -39,17 +40,11 @@ theorem defining_equation :
   have hS : rootSeries = 1 + X - 2 * B * series := by linear_combination hF
   have hs := square_root_identity
   rw [hS] at hs
-  have hB : B ≠ 0 := by
-    intro hz
-    simp [hz] at hb
   have hz : (4 * B) * (B * series ^ 2 - (1 + X) * series + X) = 0 := by
     dsimp [B, radicandTail] at hs ⊢
     linear_combination hs
-  have h4 : (4 : PowerSeries ℚ) ≠ 0 := by
-    intro h4z
-    have hc := congrArg (constantCoeff (R := ℚ)) h4z
-    norm_num [map_ofNat] at hc
-  exact (mul_eq_zero.mp hz).resolve_left (mul_ne_zero h4 hB)
+  have unit : IsUnit (4 * B) := isUnit_iff_constantCoeff.mpr (by norm_num [B, map_ofNat])
+  exact (mul_eq_zero.mp hz).resolve_left unit.ne_zero
 
 /-- Eliminate the quadratic term from the equation and its derivative. -/
 theorem quadratic_ode (F : PowerSeries ℚ)
@@ -72,11 +67,12 @@ end OMA108
 open PowerSeries OMA.S_oeis_a108629 OMA108 in
 theorem OMA.solution : type_of% @OMA.S_oeis_a108629.main := by
   intro n hn
-  obtain ⟨k,rfl⟩ : ∃ k, n=k+6 := ⟨n-6,by omega⟩
-  have hc := congrArg (coeff (k+5)) (quadratic_ode _ defining_equation)
-  simp only [sub_mul,add_mul,neg_mul,mul_assoc,one_mul,map_add,map_sub,map_neg,
-    ← map_ofNat (C (R:=ℚ)),coeff_C_mul] at hc
-  simp [coeff_succ_X_mul (k+4),coeff_X_pow_mul',coeff_derivative,coeff_X_pow,coeff_one,coeff_X] at hc
+  obtain ⟨k, rfl⟩ : ∃ k, n = k + 6 := ⟨n - 6, by omega⟩
+  have hc := congrArg (coeff (k + 5)) (quadratic_ode _ defining_equation)
+  simp only [sub_mul, add_mul, neg_mul, mul_assoc, one_mul, map_add, map_sub, map_neg,
+    ← map_ofNat (C (R := ℚ)), coeff_C_mul] at hc
+  simp [coeff_succ_X_mul (k + 4), coeff_X_pow_mul', coeff_derivative, coeff_X_pow,
+    coeff_one, coeff_X] at hc
   unfold a
   push_cast
   linear_combination hc
