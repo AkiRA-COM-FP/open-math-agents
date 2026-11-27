@@ -7,6 +7,7 @@ set -euo pipefail
 # The merger (backlog.yml, tools/merger_loop.sh v2) is the only caller now; an older merger still running from before
 # tools/merger.v2 existed must not report twice, so it does nothing here.
 if [ -e base/tools/merger.v2 ] && [ -z "${MERGER_V2:-}" ]; then exit 0; fi
+if [ -e base/tools/merger.v3 ] && [ -z "${MERGER_V3:-}" ]; then exit 0; fi   # the v3 merger has taken over
 PR=$(head -c 12 artifact/pr.txt | tr -cd '0-9')
 [ -n "$PR" ] || exit 0
 gh api "repos/$REPO/pulls/$PR" > pr.json

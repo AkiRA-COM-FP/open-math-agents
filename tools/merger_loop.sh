@@ -9,7 +9,11 @@
 # download; the loop also restarts itself on a new version of this script pushed to main (state kept in done/).
 # Needs: GH_TOKEN REPO [OMA_SITE]; base/ (a checkout of main) in the current directory.
 set -uo pipefail
-export MERGER_V2=1
+export MERGER_V2=1 MERGER_V3=1
+# Every GitHub call has a time limit: one call that never answers must not stall all verdicts.
+GH_BIN="$(type -P gh)"; export GH_BIN
+gh() { timeout 90 "$GH_BIN" "$@"; }
+export -f gh
 ROOT="$PWD"; mkdir -p "$ROOT/done"
 SELF="$ROOT/base/tools/merger_loop.sh"; SELF_SHA=$(sha1sum "$SELF" | cut -d' ' -f1)
 if [ -n "${MERGER_RESUME:-}" ]; then
@@ -51,7 +55,7 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 completed before t
     return 0                                            # already reported (by verdict.yml or an earlier merger)
   fi
   ( cd "$W" && RELINT="$W/relint.json" RUN_ID="$ID" RUN_ATTEMPT="$ATT" HEAD_SHA="$SHA" RUN_URL="$URL" \
-      bash "$B/tools/verdict_one.sh" ) > "$W/log.txt" 2>&1
+      timeout 900 bash "$B/tools/verdict_one.sh" ) > "$W/log.txt" 2>&1
   echo "#$PR run $ID.$ATT: exit $? $(grep -m1 -oiE 'rate limit|ACCEPTED|REJECTED|FAULT|already on main' "$W/log.txt" || true)"
   [ -e "$W/rerun.flag" ] && echo "$ID" >> "$ROOT/watch.txt"   # a fault re-runs the check: same run id, next attempt
   git -C "$B" clean -fdq -- proofs reductions statements 2>/dev/null || true
