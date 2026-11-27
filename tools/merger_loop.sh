@@ -33,7 +33,7 @@ else
   BPID=""; LAST_BACKLOG=0; LAST_SCAN=0
 fi
 touch "$ROOT/queue.tsv"
-SLOTS=${SLOTS:-4}; BATCH=${BATCH:-40}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""
+SLOTS=${SLOTS:-4}; BATCH=${BATCH:-40}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0
 iso() { date -u -d "@$1" +%Y-%m-%dT%H:%M:%SZ; }
 JQ_RUN='[.id, .head_sha, .run_attempt, .html_url, .updated_at, (.conclusion // ""), (.display_title // "")] | @tsv'
 remaining() { gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset)"' 2>/dev/null || echo "999 0"; }
@@ -57,6 +57,22 @@ scan() {  # completed runs created in the last $1 seconds, in 30-minute slices (
       --jq ".workflow_runs[] | select(.conclusion != \"cancelled\") | $JQ_RUN" 2>/dev/null || true
   done
 }
+publish_pending() {  # the open pull requests, by problem id (their title), to the site: the desk stops handing them out
+  # only those opened in the last 12 hours and not rejected by this merger: an abandoned or rejected pull request must
+  # not keep a problem away from everyone
+  local CUT; CUT=$(iso $(( $(date -u +%s) - 43200 )))
+  gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" \
+    --jq ".[] | select(.created_at > \"$CUT\")" 2>/dev/null | jq -c --slurpfile rej <(sort -un "$ROOT/rejected.txt" 2>/dev/null | jq -s '.') \
+    'select((.number as $n | $rej[0] | index($n)) | not) | {id: (.title | sub("^(proof|disproof|statement|reduction|reduce|step|formalize|Proof)\\s*:\\s*"; "") | gsub("^\\s+|\\s+$"; "")), pr: .number, since: .created_at}' \
+    2>/dev/null | jq -s '.' > open_prs.json || return 0
+  [ -s open_prs.json ] || return 0
+  local OIDC=""
+  if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
+    OIDC=$(curl -sS -m 30 -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=lefttosolve.com" | jq -r '.value // ""')
+  fi
+  jq -n --slurpfile items open_prs.json --arg oidc "$OIDC" '{oidc: $oidc, items: $items[0]}' > pending_post.json
+  echo "merger: pending list $(jq length open_prs.json) open pull requests: $(curl -sS -m 60 -X POST "${OMA_SITE:-https://lefttosolve.com}/api/pending" -H 'Content-Type: application/json' --data @pending_post.json 2>&1 | head -c 120)"
+}
 verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot, $7 conclusion, $8 title, $9 mode
   local ID="$1" SHA="$2" ATT="$3" URL="$4" OLD="$5" B="$ROOT/base_$6" W="$ROOT/work_$6" CONC="$7" TITLE="$8" MODE="${9:-}" PR
   rm -rf "$W"; mkdir -p "$W"; ln -s "$B" "$W/base"
@@ -79,6 +95,7 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   ( cd "$W" && RELINT="$W/relint.json" RUN_ID="$ID" RUN_ATTEMPT="$ATT" HEAD_SHA="$SHA" RUN_URL="$URL" REMERGE="$RM" \
       timeout 900 bash "$B/tools/verdict_one.sh" ) > "$W/log.txt" 2>&1
   echo "#$PR run $ID.$ATT: exit $? $(grep -m1 -oiE 'rate limit|ACCEPTED|REJECTED|FAULT|already on main' "$W/log.txt" || true)"
+  grep -qE 'REJECTED|already on main' "$W/log.txt" && echo "$PR" >> "$ROOT/rejected.txt"
   [ -e "$W/rerun.flag" ] && echo "$ID" >> "$ROOT/watch.txt"   # a fault re-runs the check: same run id, next attempt
   if [ -e "$W/remerge.flag" ]; then                               # merge refused: try the same verdict again later
     echo $((RM + 1)) > "$ROOT/remerge/$PR"; rm -f "$ROOT/done/$ID.$ATT"; echo "$ID" >> "$ROOT/watch.txt"
@@ -155,6 +172,8 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
     for P in $(cat credit_todo.txt); do ( cd "$ROOT/base_1" && bash tools/credit.sh "$P" >/dev/null 2>&1 ) || true; done
     echo "merger: retried $(wc -l < credit_todo.txt) credits, $(sort -u "$CREDIT_RETRY_FILE" | wc -l) still failing"
   fi
+  # 7. every 15 minutes: the open pull requests to the site, so no agent is sent to a problem with a proof waiting
+  if [ $(( NOW - LAST_PENDING )) -ge 900 ]; then LAST_PENDING=$NOW; publish_pending; fi
   # backlog: only when no pass is running, at most every 15 minutes, and with budget to spare for the verdicts
   read -r REM _ < <(remaining)
   if { [ -z "$BPID" ] || ! kill -0 "$BPID" 2>/dev/null; } && [ $(( NOW - LAST_BACKLOG )) -ge 900 ] && [ "${REM:-0}" -gt 1500 ] && [ ! -s queue.tsv ]; then
