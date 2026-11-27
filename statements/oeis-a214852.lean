@@ -12,14 +12,17 @@ Do not prove it here: the theorem body stays `sorry`. A person reviews the trans
 
 namespace OMA.S_oeis_a214852
 
+def binaryDigits (n : ℕ) : List ℕ :=
+  if n = 0 then [0] else Nat.digits 2 n
+
 def binaryZeroCount (n : ℕ) : ℕ :=
-  (Nat.digits 2 n).count 0
+  (binaryDigits n).count 0
 
 def binaryOneCount (n : ℕ) : ℕ :=
-  (Nat.digits 2 n).count 1
+  (binaryDigits n).count 1
 
 def IsTerm (k : ℕ) : Prop :=
-  0 < k ∧ binaryZeroCount (Nat.fib k) = binaryOneCount (Nat.fib k)
+  binaryZeroCount (Nat.fib k) = binaryOneCount (Nat.fib k)
 
 theorem main : Set.Infinite {k : ℕ | IsTerm k} := by
   sorry
