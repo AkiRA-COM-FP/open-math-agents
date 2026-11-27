@@ -13,6 +13,8 @@ For a square odd summand, factorization in ℤ[√−2] and the Gaussian integer
 forces 6 ∣ k, 3 ∣ b and a prime output exponent congruent to 7 modulo 8.
 Pell equations at indices 7 and 23 force this prime above 30. The remaining
 case produces a nondegenerate Lucas pair with the prime-index term −1.
+The signed cubic descent also rules out a cube and a square in either order
+among the two odd terms, including powers present in the bases themselves.
 The large-index theorem of Bilu, Hanrot and Voutier (2001, Theorem 1.4)
 would exclude this case, as in Arif and Abu Muriefah (2001).
 The odd-k square classification is due to J. H. E. Cohn (1992). Maohua Le
@@ -32,6 +34,7 @@ def H1 : Prop :=
       ∃ P : ℤ, ∃ U : ℕ → ℤ, 1<(c:ℤ) ∧ IsCoprime P (c:ℤ) ∧
         (¬(c:ℤ)∣P^2) ∧ P^2<4*(c:ℤ) ∧ U 0=0 ∧ U 1=1 ∧
         (∀ j, U (j+2)=P*U (j+1)-(c:ℤ)*U j) ∧ U r= -1)) →
+    (∀ d u : ℕ, b^p=d^3 → c^r≠u^2) → (∀ u d : ℕ, b^p=u^2 → c^r≠d^3) →
     (p≠3 ∨ r≠23) → (p≠23 ∨ r≠3) → 2^k+b^p ≠ c^r
 
 /-- The two generalized Fermat equations with a repeated exponent. -/
@@ -43,10 +46,13 @@ def H2 : Prop :=
 def H3 : Prop :=
   ∀ {Y Z : ℤ} {t : ℕ}, 0<t → Odd Y → Odd Z → 2*((2:ℤ)^(3*t))^23 + Y^23 ≠ Z^3
 
-/-- The common unit exponent in the cubic descent restricts the exponent of two. -/
+/-- Signed cubic descent at a 23rd power and at a square. The latter gives
+all odd representations by a signed cube and a square above exponent two. -/
 def H4 : Prop :=
-  ∀ {a b : ℤ} {k : ℕ}, IsCoprime a b → a^3+b^23=(2:ℤ)^k →
-    3 ∣ k ∨ 23 ∣ k ∨ k%69=1
+  ∀ {a b : ℤ} {k : ℕ},
+    (IsCoprime a b → a^3+b^23=(2:ℤ)^k → 3 ∣ k ∨ 23 ∣ k ∨ k%69=1) ∧
+    (Odd a → Odd b → 2<k → a^3+b^2=(2:ℤ)^k →
+      (a=7 ∧ b.natAbs=13 ∧ k=9) ∨ (a= -1 ∧ b.natAbs=3 ∧ k=3) ∨ (a= -17 ∧ b.natAbs=71 ∧ k=7))
 
 namespace BealQuadratic
 
@@ -1239,7 +1245,7 @@ private theorem mixed (repeated : H2) (weighted : H3) (sieve : H4) {a b : ℤ} {
     exact fun h => (Int.not_even_iff_odd.mpr hx.neg) (even_iff_two_dvd.mpr h)
   have han : a≠0 := by rintro rfl; simp at ha
   have hbn : b≠0 := by rintro rfl; simp at hb
-  rcases sieve hc he with h | h | h
+  rcases (sieve (a:=a) (b:=b) (k:=k)).1 hc he with h | h | h
   · obtain ⟨m,rfl⟩ := h
     have hh := (repeated (X:=2^m) (Y:=-a) (Z:=b) (by positivity) (neg_ne_zero.mpr han) hbn (cop₂ a ha m)).1
     apply hh
@@ -1259,6 +1265,53 @@ private theorem mixed (repeated : H2) (weighted : H3) (sieve : H4) {a b : ℤ} {
     linear_combination -he
 
 end
+
+private theorem prime_square_not_high_power {v c r : ℕ} (hv : v.Prime) (hr : 2<r) : c^r≠v^2 := by
+  intro h
+  have dv : c∣v^2 := h ▸ dvd_pow_self _ (by omega)
+  obtain ⟨j,_,cj⟩ := (Nat.dvd_prime_pow hv).mp dv
+  rw [cj,←pow_mul] at h
+  have jr := (Nat.pow_right_inj hv.one_lt).mp h
+  by_cases zero : j=0
+  · rw [zero] at jr; omega
+  have bound := Nat.mul_le_mul_right r (show 1≤j by omega)
+  omega
+
+private theorem pow_parity {b n : ℕ} (hn : 0<n) : b^n%2=b%2 := by
+  rw [Nat.pow_mod]
+  rcases Nat.mod_two_eq_zero_or_one b with e|e <;> rw [e] <;> simp [hn.ne']
+
+/-- For a dyadic summand, the other two terms cannot be respectively
+a cube and a square in either order, even if their displayed exponents
+are odd primes and the powers occur in the bases. -/
+private theorem mixed_power_restrictions (sieve : H4) {b c p r k : ℕ} (hb : b%2=1) (hc : c%2=1)
+    (hr : 2<r) (hk : 2<k) (eqn : 2^k+b^p=c^r) :
+    (∀ d u : ℕ, b^p=d^3 → c^r≠u^2) ∧ (∀ u d : ℕ, b^p=u^2 → c^r≠d^3) := by
+  have bp : b^p%2=1 := by rw [Nat.pow_mod,hb]; simp
+  have cr : c^r%2=1 := by rw [Nat.pow_mod,hc]; simp
+  constructor
+  · intro d u cube square
+    rw [cube,pow_parity (by decide : 0<3)] at bp
+    rw [square,pow_parity (by decide : 0<2)] at cr
+    rw [cube,square,Nat.add_comm] at eqn
+    have zo : Odd (-(d:ℤ)) := (show Odd (d:ℤ) by exact_mod_cast (Nat.odd_iff.mpr bp)).neg
+    have uo : Odd (u:ℤ) := by exact_mod_cast (Nat.odd_iff.mpr cr)
+    have base : (d:ℤ)^3+(2:ℤ)^k=(u:ℤ)^2 := by exact_mod_cast eqn
+    have signed : (-(d:ℤ))^3+(u:ℤ)^2=(2:ℤ)^k := by linarith
+    rcases (sieve (a:= -(d:ℤ)) (b:=(u:ℤ)) (k:=k)).2 zo uo hk signed with ⟨bad,_,_⟩|⟨_,eu,_⟩|⟨_,eu,_⟩
+    · omega
+    · have ue : u=3 := by simpa using eu
+      rw [ue] at square
+      exact prime_square_not_high_power (by decide : Nat.Prime 3) hr square
+    · have ue : u=71 := by simpa using eu
+      rw [ue] at square
+      exact prime_square_not_high_power (by decide : Nat.Prime 71) hr square
+  · intro u d square cube
+    rw [square,pow_parity (by decide : 0<2)] at bp
+    rw [cube,pow_parity (by decide : 0<3)] at cr
+    rw [square,cube,Nat.add_comm] at eqn
+    have := BealQuadratic.classify_square_through_thirty bp cr hk (by decide : 2<3) (by decide) eqn
+    omega
 
 theorem main : H1 → H2 → H3 → H4 → OMA.R_BealConjecture_beal_conjecture_R2.H2 := by
   intro rest repeated weighted sieve b c y z k hb hc hy hz hk cop h
@@ -1289,8 +1342,10 @@ theorem main : H1 → H2 → H3 → H4 → OMA.R_BealConjecture_beal_conjecture_
   · obtain ⟨rfl,rfl⟩ := h₂
     apply mixed repeated weighted sieve hcz hbz.neg hBC.symm.neg_right hk (a := C) (b := -B)
     linear_combination -he
+  have restrictions := mixed_power_restrictions sieve hbo hco hr' hk h
   exact rest hbo hco hbase hpr hp hr hk hor
-    (BealQuadratic.square_summand_lucas_restriction hbo hco hp' hr' hk h) (by omega) (by omega) h
+    (BealQuadratic.square_summand_lucas_restriction hbo hco hp' hr' hk h)
+    restrictions.1 restrictions.2 (by omega) (by omega) h
 
 end OMA.R_BealConjecture_beal_conjecture_R2_H2_R1
 
