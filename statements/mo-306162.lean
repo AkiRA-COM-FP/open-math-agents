@@ -16,11 +16,14 @@ Bernoulli measure, expressed by its finite-coordinate cylinder probabilities.
 
 namespace OMA.S_mo_306162
 
+open MeasureTheory
+open scoped ENNReal
+
 abbrev Ω := ℕ → Bool
 abbrev Word (k : ℕ) := Fin k → Bool
 
 def occurs {k : ℕ} (w : Word k) (ω : Ω) (start : ℕ) : Prop :=
-  ∀ i : Fin k, ω (start + i) = w i
+  ∀ i : Fin k, ω (start + (i : ℕ)) = w i
 
 def occurredBy {k : ℕ} (w : Word k) (ω : Ω) (time : ℕ) : Prop :=
   ∃ start ≤ time, occurs w ω start
@@ -42,7 +45,7 @@ def BWins {k : ℕ} (A B : Choice k) (ω : Ω) : Prop :=
 
 def cylinderCondition (μ : Measure Ω) : Prop :=
   ∀ (s : Finset ℕ) (x : ℕ → Bool),
-    μ {ω : Ω | ∀ i ∈ s, ω i = x i} = ((2 : ℝ≥0∞)⁻¹) ^ s.card
+    μ {ω : Ω | ∀ i ∈ s, ω i = x i} = (2 : ℝ≥0∞)⁻¹ ^ s.card
 
 def fairCoin (μ : Measure Ω) : Prop := cylinderCondition μ
 
