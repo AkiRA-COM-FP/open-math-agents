@@ -1028,7 +1028,7 @@ theorem primeRoots_card {n p : ℕ} (hp : p.Prime) (hp2 : 2<p) (hn : ¬p^2 ∣ n
       · rcases half h hsq hzq zlt (by omega) with he | he <;> omega
     calc
       _ ≤ ({s,p^2-s} : Finset ℕ).card := Finset.card_le_card sub
-      _ ≤ 2 := by by_cases he : s=p^2-s <;> simp [he]
+      _ ≤ 2 := Finset.card_le_two
   · simp [Finset.not_nonempty_iff_eq_empty.mp hs]
 
 /-- Candidates have the form 2x+b, where x starts at zero and b=1 or 2.
@@ -1789,7 +1789,7 @@ private theorem large_hit_total {n J b T : ℕ} {S : Finset ℕ} (D : PrimeEnume
       linarith
   have hsumLo : (∑ p ∈ P, if p≤T then 2*E else 0) = (lo.card:ℚ)*(2*E) := by
     rw [← Finset.sum_filter]
-    simp [lo]
+    simp [lo, nsmul_eq_mul]
   have hsumHi : (∑ p ∈ P, if T<p then 2*(J:ℚ)*w p else 0)
       = 2*(J:ℚ)* ∑ p ∈ hi, w p := by rw [← Finset.sum_filter,Finset.mul_sum]
   have sumAll : (∑ p ∈ P, ((hitSet n p D.ps J b).card:ℚ)) ≤
