@@ -1,15 +1,14 @@
 import FormalConjectures.ErdosProblems.«406»
 import Mathlib
 
-/- Split by the number of nonzero ternary digits of m in 4^m. The first
-step has a digit certificate valid at unbounded positions. The second
-contains every possible additional counterexample with a denser exponent. -/
+/- Two classes of exponents can be classified completely: sparse ternary
+exponents m, and repunits with 2*m+1 a power of three. -/
 namespace OMA.R_Erdos406_erdos_406_R1
 
-def H1 : Prop := ∀ m : ℕ, ((Nat.digits 3 m).filter (fun d => d != 0)).length ≤ 6 →
+def H1 : Prop := ∀ m : ℕ, (((Nat.digits 3 m).filter (fun d => d != 0)).length ≤ 6 ∨ ∃ j : ℕ, 2*m+1 = 3^j) →
   Nat.digits 3 (4^m) ⊆ [0,1] → m=0 ∨ m=1 ∨ m=4
 
-def H2 : Prop := {m : ℕ | 6 < ((Nat.digits 3 m).filter (fun d => d != 0)).length ∧
+def H2 : Prop := {m : ℕ | (6 < ((Nat.digits 3 m).filter (fun d => d != 0)).length ∧ ∀ j : ℕ, 2*m+1 ≠ 3^j) ∧
   Nat.digits 3 (4^m) ⊆ [0,1]}.Finite
 
 lemma fourth_power_of_digits (k : ℕ) (hg : Nat.digits 3 (2^k) ⊆ [0,1]) :
@@ -40,7 +39,7 @@ lemma fourth_power_of_digits (k : ℕ) (hg : Nat.digits 3 (2^k) ⊆ [0,1]) :
 
 theorem main : H1 → H2 → type_of% @Erdos406.erdos_406 := by
   intro sparse dense
-  let D := {m : ℕ | 6 < ((Nat.digits 3 m).filter (fun d => d != 0)).length ∧
+  let D := {m : ℕ | (6 < ((Nat.digits 3 m).filter (fun d => d != 0)).length ∧ ∀ j : ℕ, 2*m+1 ≠ 3^j) ∧
     Nat.digits 3 (4^m) ⊆ [0,1]}
   have fd : D.Finite := dense
   have img := fd.image (fun m : ℕ => 4^m)
@@ -49,11 +48,12 @@ theorem main : H1 → H2 → type_of% @Erdos406.erdos_406 := by
   obtain ⟨m, hpow⟩ := fourth_power_of_digits k (hk ▸ hg)
   have hy : y = 4^m := hk.trans hpow
   rw [hy] at hg ⊢
-  by_cases h : ((Nat.digits 3 m).filter (fun d => d != 0)).length ≤ 6
+  by_cases h : ((Nat.digits 3 m).filter (fun d => d != 0)).length ≤ 6 ∨ ∃ j : ℕ, 2*m+1 = 3^j
   · rcases sparse m h hg with rfl | rfl | rfl <;> norm_num
   · apply Set.mem_insert_of_mem
     apply Set.mem_insert_of_mem
     apply Set.mem_insert_of_mem
-    exact ⟨m, ⟨by omega, hg⟩, rfl⟩
+    simp only [not_or, not_le, not_exists] at h
+    exact ⟨m, ⟨h, hg⟩, rfl⟩
 
 end OMA.R_Erdos406_erdos_406_R1
