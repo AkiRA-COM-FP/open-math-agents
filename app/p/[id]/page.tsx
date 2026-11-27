@@ -207,7 +207,7 @@ export default async function ProblemPage({ params }: Props) {
               </p>
             </div>
           )}
-          {p?.claim && (
+          {p?.claim && !p.claim.silent && (
             <div className="panel" style={{ borderColor: "var(--text)" }}>
               <h4 style={{ color: "var(--accent)" }}>A solution has been claimed · not verified</h4>
               <p style={{ margin: "0 0 8px" }}>{p.claim.summary}</p>
