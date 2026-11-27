@@ -22,9 +22,35 @@ export -f gh
 ROOT="$PWD"; mkdir -p "$ROOT/done" "$ROOT/remerge"
 export CREDIT_RETRY_FILE="$ROOT/credit_retry.txt"; touch "$CREDIT_RETRY_FILE"
 SELF="$ROOT/base/tools/merger_loop.sh"; SELF_SHA=$(sha1sum "$SELF" | cut -d' ' -f1)
+# Hand-over without a gap: a job lasts at most 6 hours and a new one waits in GitHub's runner queue (behind hundreds of
+# proof checks) before it starts, so the next merger is started early (every 20 minutes, no concurrency group) and
+# waits on standby until the running merger ends. A job that finds a merger with more than 75 minutes left, or another
+# standby, stops at once (a few seconds of a runner).
+INITIAL_BACK=10800
+if [ -z "${MERGER_RESUME:-}" ] && [ -n "${GITHUB_RUN_ID:-}" ]; then
+  TOOK_OVER=0
+  while :; do
+    gh api "repos/$REPO/actions/workflows/backlog.yml/runs?status=in_progress&per_page=30" \
+      --jq '.workflow_runs[] | [.id, (.run_started_at // .created_at)] | @tsv' > mergers.tsv 2>/dev/null || { sleep 30; continue; }
+    MINE=$(awk -F'\t' -v me="$GITHUB_RUN_ID" '$1 == me {print $2}' mergers.tsv); MINE=${MINE:-$(date -u +%FT%TZ)}
+    OLDEST=$(awk -F'\t' -v me="$GITHUB_RUN_ID" '$1 != me' mergers.tsv | sort -t$'\t' -k2 | head -n 1)
+    [ -n "$OLDEST" ] || break                                   # no other merger: this one works
+    OSTART=$(printf '%s' "$OLDEST" | cut -f2)
+    [[ "$OSTART" > "$MINE" ]] && break                          # the others started after this one: this one works
+    LEFT=$(( $(date -u -d "$OSTART" +%s) + ${MERGER_SECONDS:-20400} + 300 - $(date -u +%s) ))
+    OTHERS=$(awk -F'\t' -v me="$GITHUB_RUN_ID" -v o="$OSTART" -v m="$MINE" '$1 != me && $2 > o && $2 < m' mergers.tsv | wc -l)
+    if [ "$OTHERS" -gt 0 ] || [ "$LEFT" -gt 4500 ]; then
+      echo "merger: another merger is running (${LEFT}s left, $OTHERS on standby): nothing to do"; exit 0
+    fi
+    echo "merger: standby, the running merger ends in about ${LEFT}s"; TOOK_OVER=1; sleep 60
+  done
+  # taking over from a merger that just ended: it handled everything but the last minutes
+  [ "$TOOK_OVER" = 1 ] && INITIAL_BACK=2400
+fi
 if [ -n "${MERGER_RESUME:-}" ]; then
   # restarted by an older version of this loop after an update: same job, same deadline, same state
   START=$MERGER_START; END=$MERGER_END; BPID=${MERGER_BPID:-}; LAST_BACKLOG=${MERGER_LAST_BACKLOG:-0}; LAST_SCAN=0
+  INITIAL_BACK=${MERGER_INITIAL_BACK:-10800}
   touch "$ROOT/watch.txt" "$ROOT/prev_inprog.tsv"
   echo "merger: resumed on version $SELF_SHA"
 else
@@ -50,8 +76,9 @@ refresh() {  # main moved on (merges): pull it and sync each verdict slot's copy
   done
 }
 scan() {  # completed runs created in the last $1 seconds, in 30-minute slices (at most 1,000 runs per query)
-  local NOW A B; NOW=$(date -u +%s)
-  for (( A = NOW - $1; A < NOW; A += 1800 )); do
+  local NOW A B FLOOR; NOW=$(date -u +%s); FLOOR=$(( START - INITIAL_BACK ))
+  A=$(( NOW - $1 )); [ "$A" -lt "$FLOOR" ] && A=$FLOOR      # never before what this merger is responsible for
+  for (( ; A < NOW; A += 1800 )); do
     B=$(( A + 1800 ))
     gh api --paginate "repos/$REPO/actions/workflows/check-proof.yml/runs?status=completed&per_page=100&created=$(iso $A)..$(iso $B)" \
       --jq ".workflow_runs[] | select(.conclusion != \"cancelled\") | $JQ_RUN" 2>/dev/null || true
@@ -133,7 +160,7 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
     LAST_REFRESH=$NOW; refresh
     if [ "$(sha1sum "$SELF" | cut -d' ' -f1)" != "$SELF_SHA" ]; then
       echo "merger: new version on main, restarting in place"
-      export MERGER_RESUME=1 MERGER_START=$START MERGER_END=$END MERGER_BPID=$BPID MERGER_LAST_BACKLOG=$LAST_BACKLOG
+      export MERGER_RESUME=1 MERGER_START=$START MERGER_END=$END MERGER_BPID=$BPID MERGER_LAST_BACKLOG=$LAST_BACKLOG MERGER_INITIAL_BACK=$INITIAL_BACK
       exec bash "$SELF"
     fi
   fi
