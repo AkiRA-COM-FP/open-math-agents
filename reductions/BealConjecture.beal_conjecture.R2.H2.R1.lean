@@ -11,6 +11,10 @@ orientations with exponents three and twenty-three, change signs to put
 the power of two on the right. The cubic descent bounds its exponent.
 For a square odd summand, factorization in ℤ[√−2] and the Gaussian integers
 forces 6 ∣ k, 3 ∣ b and a prime output exponent congruent to 7 modulo 8.
+Pell equations at indices 7 and 23 force this prime above 30. The remaining
+case produces a nondegenerate Lucas pair with the prime-index term −1.
+The large-index theorem of Bilu, Hanrot and Voutier (2001, Theorem 1.4)
+would exclude this case, as in Arif and Abu Muriefah (2001).
 The odd-k square classification is due to J. H. E. Cohn (1992). Maohua Le
 (Chinese Science Bulletin 42 (1997), 1515–1517) excluded the residual
 even-k square case. The restrictions used here are proved below.
@@ -24,7 +28,10 @@ open OMA.R_BealConjecture_beal_conjecture_R2
 def H1 : Prop :=
   ∀ {b c p r k : ℕ}, b%2=1 → c%2=1 → b.Coprime c → p.Coprime r →
     (p=4 ∨ (p.Prime ∧ 2<p)) → (r=4 ∨ (r.Prime ∧ 2<r)) → 2<k →
-    (k%2=1 ∨ r%2=1) → ((Odd p ∧ ¬IsSquare b) ∨ (6 ∣ k ∧ r.Prime ∧ r%8=7 ∧ 3 ∣ b)) →
+    (k%2=1 ∨ r%2=1) → ((Odd p ∧ ¬IsSquare b) ∨ (6 ∣ k ∧ r.Prime ∧ 30 < r ∧ r%8=7 ∧ 3 ∣ b ∧
+      ∃ P : ℤ, ∃ U : ℕ → ℤ, 1<(c:ℤ) ∧ IsCoprime P (c:ℤ) ∧
+        (¬(c:ℤ)∣P^2) ∧ P^2<4*(c:ℤ) ∧ U 0=0 ∧ U 1=1 ∧
+        (∀ j, U (j+2)=P*U (j+1)-(c:ℤ)*U j) ∧ U r= -1)) →
     (p≠3 ∨ r≠23) → (p≠23 ∨ r≠3) → 2^k+b^p ≠ c^r
 
 /-- The two generalized Fermat equations with a repeated exponent. -/
@@ -582,8 +589,10 @@ private theorem coefficient_mod_eight {d u : ℤ} (hd : 8 ∣ d) (hu : Odd u) {n
 
 /-- For an even shift exponent at least four, an odd exponent above one is seven
 modulo eight. Three divides both the base of the square and the half-exponent. -/
-theorem gaussian_exponent {x y : ℤ} {t n : ℕ} (hx : Odd x) (hy : Odd y) (ht : 2≤t)
-    (hn : Odd n) (hn' : 1<n) (h : x^2+(2:ℤ)^(2*t)=y^n) : n%8=7 ∧ 3 ∣ x ∧ 3 ∣ t := by
+theorem gaussian_witness {x y : ℤ} {t n : ℕ} (hx : Odd x) (hy : Odd y) (ht : 2≤t)
+    (hn : Odd n) (hn' : 1<n) (h : x^2+(2:ℤ)^(2*t)=y^n) : n%8=7 ∧ 3∣x ∧ 3∣t ∧
+      ∃ u : ℤ, Odd u ∧ 3∣u ∧ y=u^2+(2^t)^2 ∧
+        ((⟨u,1⟩ : Zsqrtd (-((2:ℤ)^t)^2))^n).im= -1 := by
   obtain ⟨w,hw⟩ := gaussian_factor hy hn h
   have hr := congrArg Zsqrtd.re hw
   have hi := congrArg Zsqrtd.im hw
@@ -629,7 +638,23 @@ theorem gaussian_exponent {x y : ℤ} {t n : ℕ} (hx : Odd x) (hy : Odd y) (ht 
   have dd' : d= -(4:ℤ)^t := by dsimp [d]; rw [vi,step]; ring
   change ((⟨w.re,1⟩ : Zsqrtd d)^n).im= -1 at neg
   rw [dd'] at neg
-  exact ⟨rem,xu,three_dvd_half_shift ((ZMod.intCast_zmod_eq_zero_iff_dvd ..).mp conj.1) rem neg⟩
+  have du := (ZMod.intCast_zmod_eq_zero_iff_dvd ..).mp conj.1
+  have hnrm : (w.norm)^n=y^n := by
+    have eq := congrArg Zsqrtd.norm hw
+    change Zsqrtd.normMonoidHom (w^n)=_ at eq
+    rw [map_pow] at eq
+    change w.norm^n=x*x-(-1)*((2:ℤ)^t)*((2:ℤ)^t) at eq
+    rw [Nat.mul_comm 2 t,pow_mul] at h
+    linear_combination eq + h
+  have nr : w.norm=y := (hn.strictMono_pow.injective hnrm)
+  refine ⟨rem,xu,three_dvd_half_shift du rem neg,w.re,hou,du,?_,by rwa [←step]⟩
+  rw [←nr,Zsqrtd.norm_def,vi]; ring
+
+/-- The exponent and the power of two are restricted by the Gaussian coefficient. -/
+theorem gaussian_exponent {x y : ℤ} {t n : ℕ} (hx : Odd x) (hy : Odd y) (ht : 2≤t)
+    (hn : Odd n) (hn' : 1<n) (h : x^2+(2:ℤ)^(2*t)=y^n) : n%8=7 ∧ 3∣x ∧ 3∣t := by
+  obtain ⟨rem,xu,dt,_⟩ := gaussian_witness hx hy ht hn hn' h
+  exact ⟨rem,xu,dt⟩
 
 /-- For odd y, the odd part of y^j - 1 contains the geometric quotient
 when j is odd. The quotient exceeds one once j exceeds one. -/
@@ -723,20 +748,378 @@ theorem classify_square_shift {x y k n : ℕ} (hx : x%2=1) (hy : y%2=1)
   · exact False.elim (odd_exponents (x:=(x:ℤ)) (y:=(y:ℤ)) (by exact_mod_cast Nat.odd_iff.mpr hx)
       (by exact_mod_cast Nat.odd_iff.mpr hy) ko hk no (by omega) (by exact_mod_cast h))
 
-/-- A square in the odd summand forces a multiple of six on two, a prime
-congruent to seven modulo eight on the output, and a base divisible by three. -/
-theorem square_summand_restriction {b c p r k : ℕ} (hb : b%2=1) (hc : c%2=1)
+section
+
+open Pell Pell.Solution₁
+
+private theorem pell_real_recurrence {d : ℤ} (g : Pell.Solution₁ d) (n : ℕ) :
+    (g^(n+2)).x = 2*g.x*(g^(n+1)).x-(g^n).x := by
+  rw [pow_succ g (n+1),pow_succ g n]
+  simp only [x_mul,y_mul]
+  linear_combination -(g^n).x*g.prop
+
+/-- The first coordinate of every even power is odd. At every odd power
+it is the first coordinate of the generator times an odd integer. -/
+private theorem pell_real_parity {d : ℤ} (g : Pell.Solution₁ d) (k : ℕ) :
+    Odd (g^(2*k)).x ∧ ∃ j : ℤ, Odd j ∧ (g^(2*k+1)).x=g.x*j := by
+  induction k with
+  | zero => exact ⟨by simp,1,by decide,by simp⟩
+  | succ k ih =>
+    obtain ⟨⟨v,hv⟩,j,⟨s,hs⟩,hj⟩ := ih
+    rw [show 2*(k+1)=2*k+2 by omega]
+    constructor
+    · refine ⟨g.x*(g^(2*k+1)).x-v-1,?_⟩
+      rw [pell_real_recurrence,hv]; ring
+    · refine ⟨2*(g^(2*k+2)).x-j,⟨(g^(2*k+2)).x-s-1,by rw [hs]; ring⟩,?_⟩
+      rw [show 2*k+2+1=2*k+1+2 by omega,pell_real_recurrence,hj]
+      ring
+
+/-- A power of two dividing the first coordinate of a Pell solution divides
+the first coordinate of the fundamental solution (Le, Lemma 3). -/
+theorem pell_two_dvd_fundamental {d X Y : ℤ} {g : Pell.Solution₁ d} (fund : Pell.IsFundamental g)
+    {t : ℕ} (eqn : X^2-d*Y^2=1) (divides : (2:ℤ)^t∣X) : (2:ℤ)^t∣g.x := by
+  rcases t with _|t
+  · simp
+  let a : Pell.Solution₁ d := Pell.Solution₁.mk |X| |Y| (by simpa only [sq_abs] using eqn)
+  have apos : 0<a.x := by
+    change 0 < |X|
+    apply abs_pos.mpr
+    rintro rfl
+    have := mul_nonneg fund.d_pos.le (sq_nonneg Y)
+    norm_num at eqn
+    omega
+  obtain ⟨n,en⟩ := fund.eq_pow_of_nonneg apos (show 0≤a.y from abs_nonneg _)
+  have dvd : (2:ℤ)^(t+1)∣(g^n).x := by
+    rw [←en]
+    exact (dvd_abs _ _).mpr divides
+  have parity := pell_real_parity g (n/2)
+  by_cases even : n%2=0
+  · have e : 2*(n/2)=n := by omega
+    rw [e] at parity
+    exact ((Int.not_even_iff_odd.mpr parity.1)
+      (even_iff_two_dvd.mpr ((dvd_pow_self (2:ℤ) (by omega : t+1≠0)).trans dvd))).elim
+  · obtain ⟨j,jo,eq⟩ := parity.2
+    rw [show 2*(n/2)+1=n by omega] at eq
+    rw [eq] at dvd
+    have cp : IsCoprime (2:ℤ) j := Int.prime_two.irreducible.coprime_iff_not_dvd.mpr
+      (fun h => (Int.not_even_iff_odd.mpr jo) (even_iff_two_dvd.mpr h))
+    exact (cp.pow_left (m:=t+1)).dvd_of_dvd_mul_right dvd
+
+private theorem fundamental_from_residues {d : ℤ} {X Y m : ℕ} [NeZero m]
+    (eqn : (X:ℤ)^2-d*(Y:ℤ)^2=1) (hx : 1<X) (hy : 0<Y)
+    (test : ∀ i : Fin X, ∀ y : ZMod m, 1 < i.val →
+      (i.val:ZMod m)^2-(d:ZMod m)*y^2≠1) :
+    Pell.IsFundamental (Pell.Solution₁.mk X Y eqn) := by
+  refine ⟨by change (1:ℤ)<(X:ℤ); exact_mod_cast hx,by change (0:ℤ)<(Y:ℤ); exact_mod_cast hy,?_⟩
+  intro b hb
+  change (X:ℤ)≤b.x
+  by_contra! small
+  let i : Fin X := ⟨b.x.toNat,by omega⟩
+  have hi : 1 < i.val := by change 1 < b.x.toNat; omega
+  have ei : (i.val:ℤ)=b.x := Int.toNat_of_nonneg (by omega)
+  have em := congrArg (fun z : ℤ => (z:ZMod m)) b.prop
+  push_cast at em
+  have eic := congrArg (fun z : ℤ => (z:ZMod m)) ei
+  push_cast at eic
+  exact test i _ hi (eic ▸ em)
+
+theorem pell_seven_no_sixteen {X Y : ℤ} (e : X^2-7*Y^2=1) : ¬(16:ℤ)∣X := by
+  let g : Pell.Solution₁ 7 := Pell.Solution₁.mk 8 3 (by decide)
+  have fund : Pell.IsFundamental g := fundamental_from_residues (X:=8) (Y:=3) (m:=21)
+    (by decide) (by decide) (by decide) (by decide +kernel)
+  intro h
+  have bad := pell_two_dvd_fundamental (g:=g) fund (t:=4) e h
+  exact (by decide : ¬(2:ℤ)^4∣8) bad
+
+theorem pell_twenty_three_no_sixteen {X Y : ℤ} (e : X^2-23*Y^2=1) : ¬(16:ℤ)∣X := by
+  let g : Pell.Solution₁ 23 := Pell.Solution₁.mk 24 5 (by decide)
+  have fund : Pell.IsFundamental g := fundamental_from_residues (X:=24) (Y:=5) (m:=184)
+    (by decide) (by decide) (by decide) (by decide +kernel)
+  intro h
+  have bad := pell_two_dvd_fundamental (g:=g) fund (t:=4) e h
+  exact (by decide : ¬(2:ℤ)^4∣24) bad
+
+end
+
+/-- The two explicit Gauss factorizations for the small prime exponents
+congruent to seven modulo eight. -/
+private theorem small_gauss_forms (u v : ℤ) :
+    ((⟨u,1⟩ : Zsqrtd (-(v^2)))^7).im =
+      7*(-u^3 - u*v^2)^2-(v*(7*u^2 - v^2))^2 ∧
+    ((⟨u,1⟩ : Zsqrtd (-(v^2)))^23).im =
+      23*(u^11 + 65*u^9*v^2 - 70*u^7*v^4 - 78*u^5*v^6 + 53*u^3*v^8 - 3*u*v^10)^2-(v*(-69*u^10 - 437*u^8*v^2 + 1150*u^6*v^4 - 506*u^4*v^6 + 23*u^2*v^8 - v^10))^2 := by
+  let z : Zsqrtd (-(v^2)) := ⟨u,1⟩
+  have h2 : z^2 = ⟨u^2 - v^2, 2*u⟩ := by
+    calc
+      z^2=z^1*z^1 := pow_add z 1 1
+      _=_ := by
+        rw [pow_one]
+        apply Zsqrtd.ext <;> simp only [z,re_mul,im_mul] <;> ring
+  have h3 : z^3 = ⟨u^3 - 3*u*v^2, 3*u^2 - v^2⟩ := by
+    calc
+      z^3=z^2*z^1 := pow_add z 2 1
+      _=_ := by
+        rw [h2,pow_one]
+        apply Zsqrtd.ext <;> simp only [z,re_mul,im_mul] <;> ring
+  have h4 : z^4 = ⟨u^4 - 6*u^2*v^2 + v^4, 4*u^3 - 4*u*v^2⟩ := by
+    calc
+      z^4=z^2*z^2 := pow_add z 2 2
+      _=_ := by
+        rw [h2]
+        apply Zsqrtd.ext <;> simp only [re_mul,im_mul] <;> ring
+  have h7 : z^7 = ⟨u^7 - 21*u^5*v^2 + 35*u^3*v^4 - 7*u*v^6, 7*u^6 - 35*u^4*v^2 + 21*u^2*v^4 - v^6⟩ := by
+    calc
+      z^7=z^4*z^3 := pow_add z 4 3
+      _=_ := by
+        rw [h4,h3]
+        apply Zsqrtd.ext <;> simp only [re_mul,im_mul] <;> ring
+  have h8 : z^8 = ⟨u^8 - 28*u^6*v^2 + 70*u^4*v^4 - 28*u^2*v^6 + v^8, 8*u^7 - 56*u^5*v^2 + 56*u^3*v^4 - 8*u*v^6⟩ := by
+    calc
+      z^8=z^4*z^4 := pow_add z 4 4
+      _=_ := by
+        rw [h4]
+        apply Zsqrtd.ext <;> simp only [re_mul,im_mul] <;> ring
+  have h16 : z^16 = ⟨u^16 - 120*u^14*v^2 + 1820*u^12*v^4 - 8008*u^10*v^6 + 12870*u^8*v^8 - 8008*u^6*v^10 + 1820*u^4*v^12 - 120*u^2*v^14 + v^16, 16*u^15 - 560*u^13*v^2 + 4368*u^11*v^4 - 11440*u^9*v^6 + 11440*u^7*v^8 - 4368*u^5*v^10 + 560*u^3*v^12 - 16*u*v^14⟩ := by
+    calc
+      z^16=z^8*z^8 := pow_add z 8 8
+      _=_ := by
+        rw [h8]
+        apply Zsqrtd.ext <;> simp only [re_mul,im_mul] <;> ring
+  constructor
+  · change (z^7).im=_
+    rw [h7]
+    change 7*u^6 - 35*u^4*v^2 + 21*u^2*v^4 - v^6=_
+    ring
+  · change (z^23).im=_
+    rw [show z^23=z^16*z^7 from pow_add z 16 7,h16,h7,im_mul]
+    ring
+
+/-- The Lucas coefficient cannot equal minus one at indices seven or
+twenty-three for a shift 2^t with positive t divisible by three. -/
+theorem exclude_small_lucas {u : ℤ} {n t : ℕ} (ht : 2≤t) (dt : 3∣t)
+    (cases : n=7 ∨ n=23) (h : ((⟨u,1⟩ : Zsqrtd (-((2:ℤ)^t)^2))^n).im= -1) : False := by
+  let v : ℤ := 2^t
+  obtain ⟨seven,twentyThree⟩ := small_gauss_forms u v
+  rcases cases with rfl|rfl
+  · have eqn : 7*(-u^3 - u*v^2)^2-(v*(7*u^2 - v^2))^2 = -1 := seven.symm.trans h
+    have pell : (v*(7*u^2 - v^2))^2-7*(-u^3 - u*v^2)^2=1 := by linarith only [eqn]
+    have three : t=3 := by
+      by_contra other
+      have even : (16:ℤ)∣v := pow_dvd_pow (2:ℤ) (by omega : 4≤t)
+      exact pell_seven_no_sixteen pell (even.trans (dvd_mul_right _ _))
+    have shift : v=8 := by dsimp [v]; rw [three]; norm_num
+    rw [shift] at eqn
+    have modEq := congrArg (fun z : ℤ => (z:ZMod 11)) eqn
+    push_cast at modEq
+    have table : ∀ u : ZMod 11, 7*(-u^3 - u*8^2)^2-(8*(7*u^2 - 8^2))^2 ≠ -1 := by decide +kernel
+    exact table _ modEq
+  · have eqn : 23*(u^11 + 65*u^9*v^2 - 70*u^7*v^4 - 78*u^5*v^6 + 53*u^3*v^8 - 3*u*v^10)^2-(v*(-69*u^10 - 437*u^8*v^2 + 1150*u^6*v^4 - 506*u^4*v^6 + 23*u^2*v^8 - v^10))^2 = -1 := twentyThree.symm.trans h
+    have pell : (v*(-69*u^10 - 437*u^8*v^2 + 1150*u^6*v^4 - 506*u^4*v^6 + 23*u^2*v^8 - v^10))^2-23*(u^11 + 65*u^9*v^2 - 70*u^7*v^4 - 78*u^5*v^6 + 53*u^3*v^8 - 3*u*v^10)^2=1 := by linarith only [eqn]
+    have three : t=3 := by
+      by_contra other
+      have even : (16:ℤ)∣v := pow_dvd_pow (2:ℤ) (by omega : 4≤t)
+      exact pell_twenty_three_no_sixteen pell (even.trans (dvd_mul_right _ _))
+    have shift : v=8 := by dsimp [v]; rw [three]; norm_num
+    rw [shift] at eqn
+    have modEq := congrArg (fun z : ℤ => (z:ZMod 13)) eqn
+    push_cast at modEq
+    have table : ∀ u : ZMod 13, 23*(u^11 + 65*u^9*8^2 - 70*u^7*8^4 - 78*u^5*8^6 + 53*u^3*8^8 - 3*u*8^10)^2-(8*(-69*u^10 - 437*u^8*8^2 + 1150*u^6*8^4 - 506*u^4*8^6 + 23*u^2*8^8 - 8^10))^2 ≠ -1 := by decide +kernel
+    exact table _ modEq
+
+/-- The imaginary coordinate, after division by the original imaginary
+coordinate, is the Lucas sequence with parameters 2u and u²+v². -/
+theorem gaussian_lucas_recurrence (u v : ℤ) (j : ℕ) :
+    let z : Zsqrtd (-(v^2)) := ⟨u,1⟩
+    (z^(j+2)).im=2*u*(z^(j+1)).im-(u^2+v^2)*(z^j).im := by
+  intro z
+  rw [pow_succ z (j+1),pow_succ z j]
+  simp only [im_mul,re_mul,z]
+  ring
+
+/-- An even-shift solution outside the known quartic would give a
+nondegenerate integral Lucas sequence whose prime-index term is minus one
+at an index above the Bilu–Hanrot–Voutier threshold. -/
+theorem square_lucas_obstruction {x y k n : ℕ} (hx : x%2=1) (hy : y%2=1)
+    (hk : 2<k) (hn : 2<n) (h : x^2+2^k=y^n) :
+    (x=7 ∧ y=3 ∧ k=5 ∧ n=4) ∨
+    (6∣k ∧ n.Prime ∧ 30<n ∧ n%8=7 ∧ 3∣x ∧
+      ∃ P : ℤ, ∃ U : ℕ → ℤ, 1<(y:ℤ) ∧ IsCoprime P (y:ℤ) ∧
+        (¬(y:ℤ)∣P^2) ∧ P^2<4*(y:ℤ) ∧ U 0=0 ∧ U 1=1 ∧
+        (∀ j, U (j+2)=P*U (j+1)-(y:ℤ)*U j) ∧ U n= -1) := by
+  rcases classify_square_shift hx hy hk hn h with ex|⟨d6,prime,rem,dx⟩
+  · exact Or.inl ex
+  right
+  obtain ⟨l,hl⟩ := d6
+  let t := 3*l
+  have shift : k=2*t := by dsimp [t]; omega
+  have ht : 2≤t := by omega
+  have on : Odd n := Nat.odd_iff.mpr (by omega)
+  have eqn : (x:ℤ)^2+(2:ℤ)^(2*t)=(y:ℤ)^n := by
+    rw [←shift]
+    exact_mod_cast h
+  obtain ⟨_,_,dt,u,uo,_,ey,co⟩ := gaussian_witness (by exact_mod_cast Nat.odd_iff.mpr hx)
+    (by exact_mod_cast Nat.odd_iff.mpr hy) ht on (by omega) eqn
+  have large : 30<n := by
+    by_contra! bound
+    have n15 : n≠15 := by rintro rfl; norm_num at prime
+    exact exclude_small_lucas ht dt (by omega) co
+  let v : ℤ := 2^t
+  let z : Zsqrtd (-(v^2)) := ⟨u,1⟩
+  let U (j : ℕ) := (z^j).im
+  have cop_two : IsCoprime u (2:ℤ) := by
+    obtain ⟨a,e⟩ := uo
+    exact ⟨1,-a,by rw [e]; ring⟩
+  obtain ⟨a,b,comb⟩ := (cop_two.pow_right (n:=t)).pow_right (n:=2)
+  have uc : IsCoprime u (y:ℤ) := ⟨a-b*u,b,by rw [ey]; linear_combination comb⟩
+  have oy : Odd (y:ℤ) := by exact_mod_cast Nat.odd_iff.mpr hy
+  have cp₂ : IsCoprime (2:ℤ) (y:ℤ) := Int.prime_two.irreducible.coprime_iff_not_dvd.mpr
+    (fun q => (Int.not_even_iff_odd.mpr oy) (even_iff_two_dvd.mpr q))
+  have cp := cp₂.mul_left uc
+  have big : 4≤v := by
+    change (2:ℤ)^2≤(2:ℤ)^t
+    exact pow_le_pow_right₀ (by decide) ht
+  change (y:ℤ)=u^2+v^2 at ey
+  have ygt : 1<(y:ℤ) := by nlinarith [sq_nonneg u,sq_nonneg (v-2)]
+  have no : ¬(y:ℤ)∣(2*u)^2 := by
+    intro dvd
+    have un := (cp.pow_left (m:=2)).symm.isUnit_of_dvd dvd
+    rcases Int.isUnit_iff.mp un with e|e <;> omega
+  refine ⟨⟨l,hl⟩,prime,large,rem,dx,2*u,U,ygt,cp,no,?_,rfl,by simp [U,z],?_,co⟩
+  · nlinarith [sq_nonneg (v-2)]
+  · intro j
+    rw [ey]
+    exact gaussian_lucas_recurrence u v j
+
+/-- Classification for every odd-base equation with k,n>2 and n≤30. -/
+theorem classify_square_through_thirty {x y k n : ℕ} (hx : x%2=1) (hy : y%2=1)
+    (hk : 2<k) (hn : 2<n) (bound : n≤30) (h : x^2+2^k=y^n) :
+    x=7 ∧ y=3 ∧ k=5 ∧ n=4 := by
+  rcases square_lucas_obstruction hx hy hk hn h with ex|⟨_,_,large,_⟩
+  · exact ex
+  · omega
+
+/-- The large-index prime-divisor conclusion of Bilu–Hanrot–Voutier in its
+integer-recurrence formulation suffices for the remaining square case. -/
+theorem classify_square_from_lucas_divisors
+    (divisor : ∀ {P Q : ℤ} {U : ℕ → ℤ} {p : ℕ}, 1<Q → IsCoprime P Q →
+      (¬Q∣P^2) → P^2<4*Q → p.Prime → 30<p → U 0=0 → U 1=1 →
+      (∀ j, U (j+2)=P*U (j+1)-Q*U j) → ∃ l : ℕ, l.Prime ∧ (l:ℤ)∣U p)
+    {x y k n : ℕ} (hx : x%2=1) (hy : y%2=1)
+    (hk : 2<k) (hn : 2<n) (h : x^2+2^k=y^n) : x=7 ∧ y=3 ∧ k=5 ∧ n=4 := by
+  rcases square_lucas_obstruction hx hy hk hn h with ex|⟨_,prime,large,_,_,P,U,big,cop,no,disc,h₀,h₁,rec,unit⟩
+  · exact ex
+  · obtain ⟨l,lp,ld⟩ := divisor big cop no disc prime large h₀ h₁ rec
+    rw [unit,dvd_neg] at ld
+    exact ((Nat.prime_iff_prime_int.mp lp).not_dvd_one ld).elim
+
+section
+
+open Polynomial
+
+/-- A root-of-unity quotient would make P²/Q a rational algebraic integer,
+forcing Q to divide P². -/
+private theorem lucas_quotient_nonperiodic {P Q : ℤ} {a b : ℂ}
+    (big : 1<Q) (nd : ¬Q∣P^2) (hs : a+b=(P:ℂ)) (hp : a*b=(Q:ℂ))
+    {m : ℕ} (hm : 0 < m) : (a/b)^m≠1 := by
+  intro root
+  have q0 : (Q:ℂ)≠0 := by exact_mod_cast (by omega : Q≠0)
+  have prod0 : a*b≠0 := hp ▸ q0
+  obtain ⟨a0,b0⟩ := mul_ne_zero_iff.mp prod0
+  have ir : IsIntegral ℤ (a/b) := .of_pow hm (root ▸ isIntegral_one)
+  have back : (b/a)^m=1 := by rw [←inv_div,inv_pow,root,inv_one]
+  have ib : IsIntegral ℤ (b/a) := .of_pow hm (back ▸ isIntegral_one)
+  have two : IsIntegral ℤ (2:ℂ) := isIntegral_algebraMap (R:=ℤ) (x:=2)
+  have eqn : a/b+b/a+2=(P:ℂ)^2/(Q:ℂ) := by
+    rw [←hs,←hp]
+    field_simp
+    ring
+  have ip : IsIntegral ℤ ((P:ℂ)^2/(Q:ℂ)) := eqn ▸ (ir.add ib).add two
+  have rat : (∃ q : ℚ, (P:ℂ)^2/(Q:ℂ)=(q:ℂ)) :=
+    ⟨(P:ℚ)^2/(Q:ℚ),by push_cast; rfl⟩
+  obtain ⟨k,he⟩ := ip.exists_int_iff_exists_rat.mp rat
+  have prod := (div_eq_iff q0).mp he
+  exact nd ⟨k,by exact_mod_cast (prod.trans (mul_comm _ _))⟩
+
+private theorem lucas_complex_terms {P Q : ℤ} {a b : ℂ} {U : ℕ → ℤ}
+    (hs : a+b=(P:ℂ)) (hp : a*b=(Q:ℂ)) (h₀ : U 0=0) (h₁ : U 1=1)
+    (rec : ∀ j, U (j+2)=P*U (j+1)-Q*U j) (j : ℕ) :
+    a^j-b^j=(a-b)*(U j:ℂ) := by
+  induction j using Nat.twoStepInduction with
+  | zero => simp [h₀]
+  | one => simp [h₁]
+  | more j ih ih' =>
+    rw [rec]
+    push_cast
+    calc
+      _ = (a+b)*(a^(j+1)-b^(j+1))-(a*b)*(a^j-b^j) := by
+        rw [pow_succ a (j+1),pow_succ b (j+1),pow_succ a j,pow_succ b j]
+        ring
+      _ = _ := by rw [ih',ih,hs,hp]; ring
+
+/-- A complex Lucas pair with the integer recurrence parameters. -/
+private theorem complex_lucas_pair {P Q : ℤ} (big : 1<Q) (nd : ¬Q∣P^2) :
+    ∃ a b : ℂ, IsIntegral ℤ a ∧ IsIntegral ℤ b ∧ a+b=(P:ℂ) ∧ a*b=(Q:ℂ) ∧
+      (∀ m : ℕ, 0 < m → (a/b)^m≠1) ∧ a≠b := by
+  obtain ⟨d,hd⟩ := IsAlgClosed.exists_pow_nat_eq ((P:ℂ)^2-4*(Q:ℂ)) (by decide : 0<2)
+  let a := ((P:ℂ)+d)/2
+  let b := ((P:ℂ)-d)/2
+  have hs : a+b=(P:ℂ) := by dsimp [a,b]; ring
+  have hp : a*b=(Q:ℂ) := by dsimp [a,b]; linear_combination -hd/4
+  have integral (w : ℂ) (root : w^2-(P:ℂ)*w+(Q:ℂ)=0) : IsIntegral ℤ w :=
+    ⟨X^2-C P*X+C Q,(isMonicOfDegree_sub_add_two P Q).monic,by
+      change eval₂ (Int.castRingHom ℂ) w (X^2-C P*X+C Q)=0
+      simpa only [eval₂_add,eval₂_sub,eval₂_pow,eval₂_mul,eval₂_X,eval₂_C,Int.coe_castRingHom] using root⟩
+  have ia := integral a (by rw [←hs,←hp]; ring)
+  have ib := integral b (by rw [←hs,←hp]; ring)
+  have nonperiodic (m : ℕ) (hm : 0 < m) := lucas_quotient_nonperiodic big nd hs hp hm
+  refine ⟨a,b,ia,ib,hs,hp,nonperiodic,?_⟩
+  intro e
+  have b0 : b≠0 := by
+    intro zero
+    rw [zero,mul_zero] at hp
+    have q0 : Q=0 := by exact_mod_cast hp.symm
+    omega
+  exact nonperiodic 1 (by decide) (by rw [e,div_self b0,one_pow])
+
+/-- The prime-divisor conclusion for complex Lucas pairs, stated with the
+standard quotient of powers, implies the full odd-base square classification. -/
+theorem classify_square_from_lucas_pairs
+    (divisor : ∀ {a b : ℂ} {P Q : ℤ} {p : ℕ}, IsIntegral ℤ a → IsIntegral ℤ b →
+      a+b=(P:ℂ) → a*b=(Q:ℂ) → P≠0 → Q≠0 → IsCoprime P Q →
+      (∀ m : ℕ, 0 < m → (a/b)^m≠1) → p.Prime → 30<p →
+      ∃ l : ℕ, l.Prime ∧ ∃ c : ℤ, (a^p-b^p)/(a-b)=(l:ℂ)*(c:ℂ))
+    {x y k n : ℕ} (hx : x%2=1) (hy : y%2=1)
+    (hk : 2<k) (hn : 2<n) (h : x^2+2^k=y^n) : x=7 ∧ y=3 ∧ k=5 ∧ n=4 := by
+  apply classify_square_from_lucas_divisors _ hx hy hk hn h
+  intro P Q U p big cop nd _ hp large h₀ h₁ rec
+  obtain ⟨a,b,ia,ib,hs,prod,np,hab⟩ := complex_lucas_pair big nd
+  have p0 : P≠0 := by rintro rfl; simp at nd
+  obtain ⟨l,prime,c,hc⟩ := divisor ia ib hs prod p0 (by omega) cop np hp large
+  have hu : (a^p-b^p)/(a-b)=(U p:ℂ) := (div_eq_iff (sub_ne_zero.mpr hab)).mpr
+    ((lucas_complex_terms hs prod h₀ h₁ rec p).trans (mul_comm _ _))
+  exact ⟨l,prime,c,by exact_mod_cast hu.symm.trans hc⟩
+
+end
+
+/-- A square odd summand would give a Lucas term equal to minus one at a prime index above thirty. -/
+theorem square_summand_lucas_restriction {b c p r k : ℕ} (hb : b%2=1) (hc : c%2=1)
     (hp : 2<p) (hr : 2<r) (hk : 2<k) (h : 2^k+b^p=c^r) :
-    (Odd p ∧ ¬IsSquare b) ∨ (6 ∣ k ∧ r.Prime ∧ r%8=7 ∧ 3 ∣ b) := by
+    (Odd p ∧ ¬IsSquare b) ∨ (6 ∣ k ∧ r.Prime ∧ 30 < r ∧ r%8=7 ∧ 3 ∣ b ∧
+      ∃ P : ℤ, ∃ U : ℕ → ℤ, 1<(c:ℤ) ∧ IsCoprime P (c:ℤ) ∧
+        (¬(c:ℤ)∣P^2) ∧ P^2<4*(c:ℤ) ∧ U 0=0 ∧ U 1=1 ∧
+        (∀ j, U (j+2)=P*U (j+1)-(c:ℤ)*U j) ∧ U r= -1) := by
   have on_square (u j : ℕ) (hj : 1<j) (hu : u%2=1) (he : (u^j)^2=b^p) :
-      6 ∣ k ∧ r.Prime ∧ r%8=7 ∧ 3 ∣ b := by
+      6 ∣ k ∧ r.Prime ∧ 30 < r ∧ r%8=7 ∧ 3 ∣ b ∧
+      ∃ P : ℤ, ∃ U : ℕ → ℤ, 1<(c:ℤ) ∧ IsCoprime P (c:ℤ) ∧
+        (¬(c:ℤ)∣P^2) ∧ P^2<4*(c:ℤ) ∧ U 0=0 ∧ U 1=1 ∧
+        (∀ j, U (j+2)=P*U (j+1)-(c:ℤ)*U j) ∧ U r= -1 := by
     have hodd : (u^j)%2=1 := by rw [Nat.pow_mod,hu,one_pow]; decide
     have hh : (u^j)^2+2^k=c^r := by rw [he,Nat.add_comm]; exact h
-    rcases classify_square_shift hodd hc hk hr hh with ex|res
+    rcases square_lucas_obstruction hodd hc hk hr hh with ex|⟨d6,prime,large,rem,dx,witness⟩
     · have := (Nat.Prime.pow_eq_iff (by decide : Nat.Prime 7)).mp ex.1
       omega
-    · have dvd : 3 ∣ b^p := he ▸ res.2.2.2.trans (dvd_pow_self (u^j) (by decide : 2≠0))
-      exact ⟨res.1,res.2.1,res.2.2.1,Nat.prime_three.dvd_of_dvd_pow dvd⟩
+    · have dvd : 3 ∣ b^p := he ▸ dx.trans (dvd_pow_self (u^j) (by decide : 2≠0))
+      exact ⟨d6,prime,large,rem,Nat.prime_three.dvd_of_dvd_pow dvd,witness⟩
   rcases Nat.even_or_odd p with pe|po
   · obtain ⟨j,hj⟩ := pe
     exact Or.inr (on_square b j (by omega) hb (by rw [←pow_mul,hj]; congr 1; omega))
@@ -749,6 +1132,15 @@ theorem square_summand_restriction {b c p r k : ℕ} (hb : b%2=1) (hc : c%2=1)
       simp [e] at hb
     exact Or.inr (on_square u p (by omega) uo (by rw [hu,mul_pow,pow_two]))
   · exact Or.inl ⟨po,sq⟩
+
+/-- A square in the odd summand forces a multiple of six on two, a prime
+congruent to seven modulo eight on the output, and a base divisible by three. -/
+theorem square_summand_restriction {b c p r k : ℕ} (hb : b%2=1) (hc : c%2=1)
+    (hp : 2<p) (hr : 2<r) (hk : 2<k) (h : 2^k+b^p=c^r) :
+    (Odd p ∧ ¬IsSquare b) ∨ (6 ∣ k ∧ r.Prime ∧ r%8=7 ∧ 3 ∣ b) := by
+  rcases square_summand_lucas_restriction hb hc hp hr hk h with ans|⟨d6,prime,_,rem,divides,_⟩
+  · exact Or.inl ans
+  · exact Or.inr ⟨d6,prime,rem,divides⟩
 
 end BealQuadratic
 
@@ -898,7 +1290,7 @@ theorem main : H1 → H2 → H3 → H4 → OMA.R_BealConjecture_beal_conjecture_
     apply mixed repeated weighted sieve hcz hbz.neg hBC.symm.neg_right hk (a := C) (b := -B)
     linear_combination -he
   exact rest hbo hco hbase hpr hp hr hk hor
-    (BealQuadratic.square_summand_restriction hbo hco hp' hr' hk h) (by omega) (by omega) h
+    (BealQuadratic.square_summand_lucas_restriction hbo hco hp' hr' hk h) (by omega) (by omega) h
 
 end OMA.R_BealConjecture_beal_conjecture_R2_H2_R1
 
