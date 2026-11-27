@@ -3,7 +3,8 @@ import Mathlib
 
 open OMA.S_oeis_a160077 in
 theorem OMA.solution : type_of% @OMA.S_oeis_a160077.main := by
-  haveI : Fact (Nat.Prime 13) := ⟨by norm_num⟩
+  have h19 : (19 : ZMod 13) ≠ 0 := by decide
+  have : Fact (Nat.Prime 13) := ⟨by norm_num⟩
   have hrec : ∀ n : ℕ, hermiteAt (19 / 26) (n + 2)
       = 2 * (19 / 26) * hermiteAt (19 / 26) (n + 1)
         - 2 * ((n : ℚ) + 1) * hermiteAt (19 / 26) n := by
@@ -41,7 +42,7 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a160077.main := by
       intro hd
       have h0 : (z : ZMod 13) = 0 := (ZMod.intCast_zmod_eq_zero_iff_dvd z 13).mpr hd
       rw [hm] at h0
-      exact pow_ne_zero n (by decide : (19 : ZMod 13) ≠ 0) h0
+      exact pow_ne_zero n h19 h0
     have hH : hermiteAt (19 / 26) n = (z : ℚ) / ((13 ^ n : ℤ) : ℚ) := by
       rw [eq_div_iff (by positivity)]
       push_cast
