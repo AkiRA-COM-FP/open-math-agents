@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "@/components/Link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import CopyPrompt from "@/components/CopyPrompt";
 import { outcomeBadge, outcomeOf, outcomeText, variantNote, reviewOf } from "@/lib/outcome";
 import Credit from "@/components/Credit";
@@ -10,6 +10,7 @@ import { getLiveMap, getActiveIds, getEvents, getSolved, getSteps, type Step, ty
 import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
 import { STEP_RE, stepSkeleton, parseStep } from "@/lib/steps";
+import { findStep, rootProblem } from "@/lib/stepinfo";
 import { SITE, REPO_URL } from "@/lib/site";
 import { ago } from "@/lib/time";
 import { pendingFor } from "@/lib/pending";
@@ -41,7 +42,7 @@ function Tree({ target, steps, solvedIds, live }: { target: string; steps: Step[
         return (
           <li key={r}>
             <span style={{ color: "var(--muted)" }}>reduction </span><a href={own[0]?.reduction_pr}>{r.slice(target.length + 1)}</a>
-            <span style={{ color: "var(--faint)" }}> by <Link href={`/a/${own[0]?.reduction_by}`}>@{own[0]?.reduction_by}</Link></span>
+            {own[0]?.reduction_by ? <span style={{ color: "var(--faint)" }}> by <Link href={`/a/${own[0].reduction_by}`}>@{own[0].reduction_by}</Link></span> : null}
             <ul style={{ paddingLeft: 18 }}>
               {own.map((s) => (
                 <li key={s.id}>
@@ -63,14 +64,23 @@ export default async function ProblemPage({ params }: Props) {
   const id = decodeURIComponent((await params).id);
   const p = await getFull(id);
   const isStep = !p && STEP_RE.test(id);
-  if (!p && !isStep) notFound();
+  if (!p && !isStep) {
+    // A reduction id (X.R1, as the feed lists "split it into steps"): its page is the page of what it splits.
+    const red = id.match(/^(.+)\.R\d{1,2}$/);
+    if (red && (getProblem(red[1]) || (STEP_RE.test(red[1]) && rootProblem(red[1])))) redirect(`/p/${encodeURIComponent(red[1])}`);
+    notFound();
+  }
 
   // A problem nobody has touched (the vast majority) has no history, no solution and no steps: its page asks the
   // database nothing beyond the shared, cached list of active ids.
-  const touched = STEP_RE.test(id) || (await getActiveIds()).has(id);
-  const [live, events, solvedAll, steps] = touched
-    ? await Promise.all([getLiveMap(), getEvents(20, id), getSolved(), getSteps(id)])
-    : [new Map<string, number>(), [], [] as Solved[], [] as Step[]];
+  const touched = isStep || (await getActiveIds()).has(id);
+  // A step page is rendered whenever the step exists, from the database or else from the merged reduction file
+  // (lib/stepinfo.ts): a slow or failed database read no longer turns a published link into a 404.
+  const [live, events, solvedAll, found] = touched
+    ? await Promise.all([getLiveMap(), getEvents(20, id), getSolved(), isStep ? findStep(id) : getSteps(id).then((subtree) => ({ subtree, step: undefined }))])
+    : [new Map<string, number>(), [], [] as Solved[], { subtree: [] as Step[], step: undefined }];
+  if (isStep && !found) notFound();
+  const steps: Step[] = found?.subtree ?? [];
   // Before a problem had a Lean statement, what an agent sent was the statement itself, not a proof.
   const firstFormalized = events.filter((e) => e.kind === "formalized").map((e) => e.created_at).sort()[0];
   const statementPhase = (at: string) => (p?.kind === "unformalized" || !!firstFormalized) && (!firstFormalized || at < firstFormalized);
@@ -106,18 +116,14 @@ export default async function ProblemPage({ params }: Props) {
       ? <div className="statement" dangerouslySetInnerHTML={{ __html: renderStatement(p.statement) }} />
       : <p className="statement">No informal statement upstream. The Lean statement below is the problem.</p>;
   } else {
-    step = steps.find((s) => s.id === id);
-    if (!step) notFound();
-    const st = parseStep(id)!;
-    let top = st.parent;
-    while (!getProblem(top) && parseStep(top)) top = parseStep(top)!.parent;
-    root = getProblem(top);
+    step = found!.step!;
+    root = rootProblem(id);
     title = `Step H${step.k} of ${getProblem(step.parent)?.title ?? step.parent}`;
-    lean = `def H${step.k} : Prop :=\n  ${step.statement}`;
+    lean = step.statement ? `def H${step.k} : Prop :=\n  ${step.statement}` : `-- The statement of H${step.k} is in the merged file reductions/${step.reduction}.lean`;
     file = `proofs/${id}.lean`; sk = stepSkeleton(step); points = step.points;
     body = (
       <p className="statement" style={{ fontSize: "1.05rem" }}>
-        One of the hypotheses of <a href={step.reduction_pr}>reduction {step.reduction}</a> by <Link href={`/a/${step.reduction_by}`}>@{step.reduction_by}</Link>.
+        One of the hypotheses of <a href={step.reduction_pr}>reduction {step.reduction}</a>{step.reduction_by ? <> by <Link href={`/a/${step.reduction_by}`}>@{step.reduction_by}</Link></> : null}.
         That reduction is already checked by Lean: proving every one of its hypotheses closes{" "}
         <Link href={`/p/${encodeURIComponent(step.parent)}`}>{getProblem(step.parent)?.title ?? step.parent}</Link>.
       </p>
