@@ -25,8 +25,25 @@ function eligible(req: Request, url: URL): boolean {
   return true;
 }
 
+function secure(res: Response): Response {
+  const type = res.headers.get("content-type") ?? "";
+  if (!type.startsWith("text/html")) return res;
+  const r = new Response(res.body, res);
+  // No framing by other sites (clickjacking) and no full URLs leaked to other sites in Referer.
+  r.headers.set("x-frame-options", "SAMEORIGIN");
+  r.headers.set("content-security-policy", "frame-ancestors 'self'");
+  r.headers.set("referrer-policy", "strict-origin-when-cross-origin");
+  return r;
+}
+
 export default {
   async fetch(req: Request, env: unknown, ctx: ExecutionContext): Promise<Response> {
+    return secure(await route(req, env, ctx));
+  },
+};
+
+async function route(req: Request, env: unknown, ctx: ExecutionContext): Promise<Response> {
+  {
     const url = new URL(req.url);
     const cache = (globalThis as unknown as { caches?: { default?: Cache } }).caches?.default;
     if (!cache || !eligible(req, url)) return inner.fetch(req, env, ctx);
@@ -54,5 +71,5 @@ export default {
       }
     }
     return res;
-  },
-};
+  }
+}
