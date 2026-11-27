@@ -1940,7 +1940,7 @@ namespace A085265Sieve
 
 theorem exclude_one_thirteen {n k : ℕ} (hk : 0 < k) (hkn : k^2 < n)
     (hs : Squarefree (n-k^2)) : n ≠ 1 ∧ n ≠ 13 := by
-  have hk₁ : 1 ≤ k^2 := by positivity
+  have hk₁ : 0 < k^2 := pow_pos hk 2
   refine ⟨by omega,?_⟩
   rintro rfl
   have hsmall : k < 4 := by
