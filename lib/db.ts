@@ -11,7 +11,7 @@ const SECRET = process.env.OMA_DB_SECRET;
 
 export const deskOnline = Boolean(URL_ && KEY && SECRET);
 
-// Circuit breaker: after a timeout or a 5xx, this Worker instance stops calling the database for 30 s, so an overloaded
+// Circuit breaker: after a timeout or a 5xx, this Worker instance stops calling the database for 2 min, so an overloaded
 // database gets room to recover instead of a pile of waiting requests, and pages answer at once (cached or empty values).
 let downUntil = 0;
 export const deskDown = () => Date.now() < downUntil;
@@ -21,7 +21,7 @@ async function rpc<T>(fn: string, args: Record<string, unknown>, timeoutMs = 800
   try {
     return await rpcOnce<T>(fn, args, timeoutMs);
   } catch (e) {
-    downUntil = Date.now() + 30_000;
+    downUntil = Date.now() + 120_000;
     throw e;
   }
 }
@@ -81,7 +81,7 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
     }
     let value: T;
     try {
-      value = await rpc<T>(fn, args, 2500);
+      value = await rpc<T>(fn, args, 1000);
     } catch (e) {
       const stale = MEM.get(key) ?? (cache ? await cache.match(new Request(`${CACHE_ORIGIN}/__desk_stale/${encodeURIComponent(key)}`)).then((r) => (r ? r.json() : null)).catch(() => null) : null);
       if (stale) return (stale as { value: T }).value;
@@ -121,7 +121,7 @@ const EMPTY: Stats = { liveAgents: 0, liveProblems: 0, top: [], solved: [], solv
 export async function getStats(): Promise<Stats> {
   if (!deskOnline) return EMPTY;
   try {
-    return await api<Stats>("stats", {}, 60);
+    return await api<Stats>("stats", {}, 120);
   } catch (e) {
     console.error(e);
     return EMPTY;
@@ -229,17 +229,17 @@ async function safe<T>(fn: string, args: Record<string, unknown>, fallback: T, r
 }
 
 export type Leader2 = Leader & { points: number; agent: string | null; model: string | null };
-export const getLeaderboard2 = (minutes?: number) => safe<Leader2[]>("leaderboard2", minutes ? { minutes } : {}, [], 300);
+export const getLeaderboard2 = (minutes?: number) => safe<Leader2[]>("leaderboard2", minutes ? { minutes } : {}, [], 600);
 
 export type Solved = { problem_id: string; handle: string; agent: string | null; model: string | null; polarity: string; pr_url: string; points: number; contributors: string[] | null; created_at: string };
-export const getSolved = (limit = 2000) => safe<Solved[]>("solved", { limit }, [], 300);
+export const getSolved = (limit = 2000) => safe<Solved[]>("solved", { limit }, [], 600);
 
 export type Day = { day: string; claims: number; released: number; submitted: number; solved: number; reduced: number; people: number };
 export const getCalendar = (days = 90) => safe<Day[]>("calendar", { days }, [], 600);
 
 export type Step = { id: string; reduction: string; parent: string; k: number; statement: string; module: string; points: number; created_at: string; solved: boolean; reduction_pr: string; reduction_by: string };
 /** Steps of accepted reductions. Pages: 60 s cache. The desk (fresh=true): 15 s; a step solved meanwhile is refused at claim time (already_solved). */
-export const getSteps = (parent?: string, fresh = false) => safe<Step[]>("steps", parent ? { parent } : {}, [], fresh ? 30 : 180);
+export const getSteps = (parent?: string, fresh = false) => safe<Step[]>("steps", parent ? { parent } : {}, [], fresh ? 60 : 600);
 
 export const logEvent = (kind: string, problem: string, handle: string, detail: string) =>
   api<{ ok?: boolean; error?: string }>("log", { kind, problem, handle, detail });
@@ -254,7 +254,7 @@ export const getContributions = (problem: string) => safe<Contribution[]>("contr
 export async function getActiveIds(): Promise<Set<string>> {
   if (!deskOnline) return new Set();
   try {
-    return new Set(await api<string[]>("active_ids", {}, 180));
+    return new Set(await api<string[]>("active_ids", {}, 600));
   } catch (e) {
     console.error(e);
     return new Set();
