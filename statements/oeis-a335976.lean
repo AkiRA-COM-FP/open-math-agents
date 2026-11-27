@@ -13,7 +13,7 @@ Do not prove it here: the theorem body stays `sorry`. A person reviews the trans
 namespace OMA.S_oeis_a335976
 
 def IsTotient (n : ℕ) : Prop :=
-  ∃ m : ℕ, Nat.totient m = n
+  ∃ m : ℕ, 0 < m ∧ Nat.totient m = n
 
 def IsTerm (k : ℕ) : Prop :=
   ¬ IsTotient (Nat.fib (6 * k))
