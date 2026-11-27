@@ -30,7 +30,12 @@ lemma liftPower (p : ℕ) (a b : ℤ) (h : (a : ZMod p) = (b : ZMod p)) :
   have hs := mul_dvd_mul (dvd_geom_sum₂_self (n := p) (x := b) (y := a) hd) hd
   have hl : a ^ p ≡ b ^ p [ZMOD (↑(p ^ 2 : ℕ) : ℤ)] := by
     rw [Int.modEq_iff_dvd]
-    simpa only [Nat.cast_pow, pow_two, geom_sum₂_mul] using hs
+    obtain ⟨c, hc⟩ := hs
+    refine ⟨c, ?_⟩
+    have hcast : ((p^2 : ℕ) : ℤ) = (p:ℤ)*(p:ℤ) :=
+      (congrArg (fun n : ℕ => (n:ℤ)) (pow_two p)).trans (Nat.cast_mul p p)
+    rw [hcast]
+    simpa only [geom_sum₂_mul] using hc
   simpa only [Int.cast_pow] using (ZMod.intCast_eq_intCast_iff _ _ _).mpr hl
 
 -- A generator mod p² remains a generator mod p.
@@ -156,6 +161,10 @@ lemma secondMoment {p : ℕ} (hp : 0 < p) (q : ℕ) {ζ : ℂ}
   calc
     _ = ∑ k ∈ range p, ∑ j ∈ T, ∑ l ∈ T, A k j l := by
       simp only [period, T, A, pow_two, sum_mul, mul_sum, Nat.mul_add, pow_add]
+      refine sum_congr rfl fun _ _ => ?_
+      refine sum_congr rfl fun _ _ => ?_
+      refine sum_congr rfl fun _ _ => ?_
+      exact mul_comm _ _
     _ = ∑ j ∈ T, ∑ k ∈ range p, ∑ l ∈ T, A k j l := sum_comm
     _ = ∑ j ∈ T, ∑ l ∈ T, ∑ k ∈ range p, A k j l :=
       sum_congr rfl fun _ _ => sum_comm
