@@ -3,6 +3,7 @@ import OMAStatements.S_mo_171478
 open OMA.S_mo_171478
 
 -- The zero operator on the real line satisfies the weak monotonicity inequality.
+-- Its coercivity quotient stays zero, and its range misses one.
 theorem OMA.solution : type_of% @OMA.S_mo_171478.main := by
   refine ⟨ℝ, inferInstance, inferInstance, inferInstance, fun _ => 0, ?_, continuous_const, ?_, ?_, ?_⟩
   · intro R
