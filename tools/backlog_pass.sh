@@ -4,14 +4,23 @@
 # where that check rejected the commit. Covers every labelled pull request (all pages), LANES at a time, each lane in its
 # own copy of main. Needs: GH_TOKEN REPO [OMA_SITE] [LANES]; the current directory holds base/ (main).
 set -uo pipefail
+# The merger (backlog.yml, tools/merger_loop.sh v2) is the only caller now; an older merger still running from before
+# tools/merger.v2 existed must not report twice, so it does nothing here.
+if [ -e base/tools/merger.v2 ] && [ -z "${MERGER_V2:-}" ]; then exit 0; fi
 LANES=${LANES:-3}
 gh api --paginate "repos/$REPO/issues?state=open&labels=needs-human-review&per_page=100&sort=created&direction=asc" \
   --jq '.[] | select(.pull_request) | .number' > all.txt || true
+# shared API budget: stop before it runs low (the verdicts of new proofs come first)
+MINB=${BACKLOG_MIN_BUDGET:-0}
 echo "$(wc -l < all.txt) pull requests in this batch"
 lane() {  # $1 = lane number; works in lane_$1/ with its own base/ copy and prs.txt
   cd "lane_$1" || return
   N=0
   while read -r PR; do
+    if [ "$MINB" -gt 0 ] && [ $((N % 10)) = 0 ]; then
+      R0=$(gh api rate_limit --jq .resources.core.remaining 2>/dev/null || echo 9999)
+      [ "$R0" -lt "$MINB" ] && { echo "budget low ($R0 left): stopping this pass"; break; }
+    fi
   N=$((N+1))
   gh api "repos/$REPO/pulls/$PR" > pr.json || continue
   # merged or closed meanwhile (by a verdict or another lane): nothing to do
@@ -64,7 +73,7 @@ lane() {  # $1 = lane number; works in lane_$1/ with its own base/ copy and prs.
   if [ "$MERGED" = 1 ]; then
     gh pr comment "$PR" --repo "$REPO" --body "$MSG" >/dev/null
     gh pr edit "$PR" --repo "$REPO" --remove-label needs-human-review >/dev/null 2>&1
-    bash base/tools/credit.sh "$PR" >/dev/null 2>&1 || echo "#$PR: credit will be retried by the site"
+    CREDIT_FILES=files.json bash base/tools/credit.sh "$PR" >/dev/null 2>&1 || echo "#$PR: credit will be retried by the site"
     echo "#$PR: merged ($KIND)"
   fi
   done < prs.txt
