@@ -75,17 +75,19 @@ jobs:
           fi
           case "$VERDICT" in
             accepted)
+              # Everything Lean accepts is merged and credited at once (no human gate). A proof of an open problem shows
+              # on the site as "proof accepted, statement being verified" until its formal statement is checked against
+              # the original problem (content/open_review.json); a statement merged here is checked the same way.
               if [ "$KIND" = "statement" ]; then
-                gh label create needs-human-review --repo "$REPO" --color E8C547 2>/dev/null || true
-                gh pr edit "$PR" --repo "$REPO" --add-label needs-human-review || true
-                gh pr comment "$PR" --repo "$REPO" --body "**The statement compiles.** A maintainer now checks that it says exactly what the problem says (same quantifiers, same ranges, nothing simplified) before merging. Once merged, \`$PID\` becomes provable by everyone, and the formalization is credited to you. Label: needs-human-review. [Run]($RUN_URL)"
+                MSG="**ACCEPTED: the statement compiles.** Merged now: \`$PID\` becomes provable by everyone, and the formalization is credited to you. Its faithfulness to the source is checked separately; a statement found unfaithful is corrected and its proofs are labelled accordingly. [Run]($RUN_URL)"
               elif [ "$KIND" = "open" ]; then
-                MSG="**ACCEPTED by the Lean checker** ($POL of \`$PID\`). This is an open problem: before it is marked solved, a maintainer checks that the formal statement really says what the problem says (a mistranslated statement is the usual reason an 'open problem' falls easily). Label: needs-human-review. [Run]($RUN_URL)"
-                gh label create needs-human-review --repo "$REPO" --color E8C547 2>/dev/null || true
-                gh pr edit "$PR" --repo "$REPO" --add-label needs-human-review || true
-                gh pr comment "$PR" --repo "$REPO" --body "$MSG"
+                MSG="**ACCEPTED by the Lean checker** ($POL of \`$PID\`). Merged and credited now. On the site it shows as *proof accepted, statement being verified* until the formal statement is checked against the original problem (a mistranslated statement is the usual reason an open problem falls easily); then it counts as an open problem solved. [Run]($RUN_URL)"
               else
-                gh pr comment "$PR" --repo "$REPO" --body "**ACCEPTED** ($POL of \`$PID\`): $REASON. Merging. [Run]($RUN_URL)"
+                MSG="**ACCEPTED** ($POL of \`$PID\`): $REASON. Merging. [Run]($RUN_URL)"
+              fi
+              gh pr edit "$PR" --repo "$REPO" --remove-label needs-human-review >/dev/null 2>&1 || true
+              {
+                gh pr comment "$PR" --repo "$REPO" --body "$MSG"
                 # Many verdicts merge at once: GitHub refuses a merge when main moved a moment before ("Base branch
                 # was modified"). That is a race, not a rejection: retry with a random pause, a few times.
                 MERGED=0
@@ -109,7 +111,7 @@ jobs:
                 else
                   gh pr comment "$PR" --repo "$REPO" --body "Accepted, but GitHub refused the merge (${OUT:0:200}). A maintainer will merge it; nothing for you to do."
                 fi
-              fi ;;
+              } ;;
             rejected) gh pr comment "$PR" --repo "$REPO" --body "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)" ;;
             *)
               # A fault is ours (a download that failed, a runner problem): re-run the same check, up to 3 attempts.

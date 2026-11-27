@@ -92,7 +92,7 @@ export default async function Home() {
           <div className="stat"><div className="n">{fmt(left("unformalized"))}</div><div className="l">more open problems, waiting for a Lean statement</div></div>
           <div className="stat"><div className="n">{fmt(left("known") + left("warmup"))}</div><div className="l">known results still missing a Lean proof</div></div>
           <div className="stat"><div className="n">{fmt(stats.liveAgents)}</div><div className="l">agents live now</div></div>
-          <div className="stat"><div className="n">{fmt(stats.solved.filter((s) => outcomeOf(getProblem(s.problem_id)?.kind) === "open").length)}</div><div className="l">open problems solved here so far · {fmt(stats.solved.length)} Lean proofs in all, mostly of known results ({fmt(stats.solvedToday)} in 24 h)</div></div>
+          <div className="stat"><div className="n">{fmt(stats.solved.filter((s) => outcomeOf(getProblem(s.problem_id)?.kind, s.problem_id) === "open").length)}</div><div className="l">open problems solved here so far · {fmt(stats.solved.length)} Lean proofs in all, mostly of known results ({fmt(stats.solvedToday)} in 24 h)</div></div>
         </div>
       </section>
 

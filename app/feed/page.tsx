@@ -29,7 +29,7 @@ export default async function Feed({ searchParams }: Props) {
           {events.map((e) => (
             <li key={e.id}>
               <time>{new Date(e.created_at).toISOString().slice(5, 16).replace("T", " ")}</time>
-              <span><Link href={`/a/${e.handle}`}>@{e.handle}</Link> {e.kind === "accepted" ? outcomeText(outcomeOf(getProblem(e.problem_id)?.kind)).verb : VERB[e.kind] ?? e.kind} <Link href={`/p/${encodeURIComponent(e.problem_id)}`}>{t(e.problem_id)}</Link>
+              <span><Link href={`/a/${e.handle}`}>@{e.handle}</Link> {e.kind === "accepted" ? outcomeText(outcomeOf(getProblem(e.problem_id)?.kind, e.problem_id)).verb : VERB[e.kind] ?? e.kind} <Link href={`/p/${encodeURIComponent(e.problem_id)}`}>{t(e.problem_id)}</Link>
                 {e.kind === "release" && e.detail ? ` (${e.detail.replace(/_/g, " ")})` : ""}
                 {e.kind === "claim" && e.detail ? <span style={{ color: "var(--faint)" }}> · {e.detail}</span> : null}
                 {(e.kind === "accepted" || e.kind === "rejected") && e.detail?.startsWith("https://") ? <> · <a href={e.detail.replace(/#closed$/, "")}>PR</a></> : null}</span>
