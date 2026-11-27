@@ -168,7 +168,9 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
   for i in $(seq 1 "$SLOTS"); do [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""; done
   # 6. credits the site did not record (it answered an error): retry every 10 minutes
   if [ -s "$CREDIT_RETRY_FILE" ] && [ $(( NOW - LAST_CREDIT )) -ge 600 ]; then
-    LAST_CREDIT=$NOW; sort -u "$CREDIT_RETRY_FILE" > credit_todo.txt; : > "$CREDIT_RETRY_FILE"
+    # at most 30 per pass, so a site outage cannot stall the verdicts; the rest waits for the next pass
+    LAST_CREDIT=$NOW; sort -u "$CREDIT_RETRY_FILE" > credit_all.txt; head -n 30 credit_all.txt > credit_todo.txt
+    tail -n +31 credit_all.txt > "$CREDIT_RETRY_FILE"
     for P in $(cat credit_todo.txt); do ( cd "$ROOT/base_1" && bash tools/credit.sh "$P" >/dev/null 2>&1 ) || true; done
     echo "merger: retried $(wc -l < credit_todo.txt) credits, $(sort -u "$CREDIT_RETRY_FILE" | wc -l) still failing"
   fi

@@ -12,10 +12,10 @@ if [ -n "${CREDIT_PR:-}" ] && [ -s "${CREDIT_PR}" ] && [ -n "${MERGE_SHA:-}" ]; 
 else
   # right after a merge through GraphQL (gh pr merge) the REST API can still say merged=false for a few seconds, and
   # the site then refuses the credit (not_merged): wait for GitHub to agree, then send
-  for TRY in 1 2 3 4 5 6; do
+  for TRY in 1 2 3; do
     pr=$(gh api "repos/$REPO/pulls/$PR") || pr=""
     [ "$(printf '%s' "$pr" | jq -r '.merged // false' 2>/dev/null)" = true ] && break
-    sleep 5
+    sleep 4
   done
   [ -n "$pr" ] || { echo "$PR" >> "${CREDIT_RETRY_FILE:-/dev/null}"; exit 1; }
 fi
@@ -32,12 +32,13 @@ jq -n --argjson pr "$pr" --argjson files "$files" --arg oidc "$oidc" '{
 # The site answers {"ok":true} when the credit is recorded. A transient error (GitHub or database busy, merge not seen
 # yet) is retried here, then handed to the merger (CREDIT_RETRY_FILE), which retries it every 10 minutes; a refusal
 # for a reason that will not change (unknown problem, bad reduction) is final.
-for TRY in 1 2 3; do
-  OUT=$(curl -sS -m 60 --retry 3 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" --data @credit.json 2>&1 || true)
+# Kept short (two tries of at most 25 s): a slow site must never hold a verdict slot of the merger for minutes.
+for TRY in 1 2; do
+  OUT=$(curl -sS -m 25 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" --data @credit.json 2>&1 || true)
   echo "$OUT"
   printf '%s' "$OUT" | grep -q '"ok":true' && exit 0
   printf '%s' "$OUT" | grep -qE '"error":"(unknown_problem|unknown_step|unknown_target|bad_reduction|too_many_reductions|not_a_single_new_file|not_a_proof|not_formalized_yet|hyps_out_of_range|bad_request)"' && exit 0
-  sleep $(( 10 * TRY ))
+  [ "$TRY" = 2 ] || sleep 5
 done
 echo "$PR" >> "${CREDIT_RETRY_FILE:-/dev/null}"
 exit 1
