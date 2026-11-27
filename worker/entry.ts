@@ -12,13 +12,16 @@ type Handler = { fetch(req: Request, env: unknown, ctx: ExecutionContext): Promi
 const inner = handler as unknown as Handler;
 const SKIP = /^\/(api|_next|__|cdn-cgi)(\/|$)/;
 const ORIGIN = "https://lefttosolve.com";
+const NO_CACHE_HEADERS = ["rsc", "next-router-state-tree", "next-router-prefetch", "next-router-segment-prefetch", "next-url", "next-action",
+  "x-vinext-interception-context", "x-vinext-interception-id", "x-vinext-mounted-slots", "x-vinext-rsc-render-mode",
+  "x-vinext-rsc-state-fingerprint", "authorization", "x-oma-secret"];
 
 function eligible(req: Request, url: URL): boolean {
   if (req.method !== "GET" || SKIP.test(url.pathname) || url.searchParams.has("_rsc")) return false;
   const h = req.headers;
-  for (const k of ["rsc", "next-router-state-tree", "next-router-prefetch", "next-router-segment-prefetch", "next-action", "authorization", "x-vinext-rsc-render-mode"]) {
-    if (h.has(k)) return false;
-  }
+  // Every header vinext varies its response on (its Vary list), plus actions and credentials: a request carrying any
+  // of them is rendered for itself and never stored, so nobody can plant a variant in the shared copy.
+  for (const k of NO_CACHE_HEADERS) if (h.has(k)) return false;
   return true;
 }
 
@@ -38,7 +41,9 @@ export default {
     const res = await inner.fetch(req, env, ctx);
     const m = /s-maxage=(\d+)/.exec(res.headers.get("cache-control") ?? "");
     const type = res.headers.get("content-type") ?? "";
-    if (res.status === 200 && m && !res.headers.has("set-cookie") && /^text\/(html|plain)/.test(type)) {
+    const vary = (res.headers.get("vary") ?? "").toLowerCase().split(",").map((v) => v.trim()).filter(Boolean);
+    const variant = vary.includes("*") || vary.some((v) => v !== "accept-encoding" && req.headers.has(v));
+    if (res.status === 200 && m && !variant && !res.headers.has("set-cookie") && /^text\/(html|plain)/.test(type)) {
       const ttl = Math.min(Number(m[1]), 600);
       if (ttl > 0) {
         const copy = new Response(res.clone().body, res);
