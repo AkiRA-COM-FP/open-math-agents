@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getFull, skeleton, reductionSkeleton, proofPath, META } from "@/lib/catalog";
+import { getFull, skeleton, reductionSkeleton, proofPath, META, resolveId, settledEntry } from "@/lib/catalog";
 import { getLiveMap, getSolution, getStats, getSteps } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { STEP_RE, stepSkeleton, reductionNamespace } from "@/lib/steps";
@@ -30,7 +30,16 @@ export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }
     console.error("api/problems/[id]", id, e);
     return NextResponse.json({ error: "temporarily_unavailable", hint: "Retry in a minute." }, { status: 503, headers: { "Retry-After": "60", "Access-Control-Allow-Origin": "*" } });
   }
-  return body ? NextResponse.json(body, { headers: H }) : NextResponse.json({ error: "not_found" }, { status: 404, headers: { "Access-Control-Allow-Origin": "*" } });
+  if (body) return NextResponse.json(body, { headers: H });
+  // Settled since, or a slightly wrong id (another case, erdos-142, a module name): say which, instead of a bare 404.
+  const settled = settledEntry(id);
+  const canonical = settled ? null : resolveId(id);
+  return NextResponse.json(
+    settled ? { error: "settled", problem: id, summary: settled.summary, sources: settled.sources, hint: "No longer listed: see https://lefttosolve.com/status" }
+      : canonical && canonical !== id ? { error: "not_found", did_you_mean: canonical, url: `https://lefttosolve.com/api/problems/${encodeURIComponent(canonical)}` }
+      : { error: "not_found", hint: "Search with /api/problems?q=<words>." },
+    { status: settled ? 410 : 404, headers: { "Access-Control-Allow-Origin": "*" } },
+  );
 }
 
 async function build(id: string, handle: string | undefined, n: number): Promise<Record<string, unknown> | null> {

@@ -62,8 +62,29 @@ function secure(res: Response): Response {
   return r;
 }
 
+// A URL copied out of a sentence often keeps what follows it: "see https://lefttosolve.com/p/X." or "(…/join.txt)" or
+// "**…/board**". No page, id or file of the site ends with such a character, so a GET or HEAD for such a path is sent
+// to the path without it instead of a 404. A closing bracket is kept when the path opens one (a front's name).
+const TAIL = /(?:[.,;:!'"*>\])]|%(?:20|22|27|2[Cc]|3[Ee]|29|5[Dd]))$/;
+function untrailed(url: URL): string | null {
+  if (/^\/(_next|__|cdn-cgi)\//.test(url.pathname)) return null;
+  let p = url.pathname;
+  for (let m = TAIL.exec(p); m && p.length > 1; m = TAIL.exec(p)) {
+    const c = decodeURIComponent(m[0]);
+    if (c === ")" && p.split(/\(|%28/).length > p.split(/\)|%29/).length - 1) break;
+    if (c === "]" && p.split(/\[|%5[Bb]/).length > p.split(/\]|%5[Dd]/).length - 1) break;
+    p = p.slice(0, -m[0].length);
+  }
+  return p !== url.pathname && p.length > 0 ? p : null;
+}
+
 export default {
   async fetch(req: Request, env: unknown, ctx: ExecutionContext): Promise<Response> {
+    if (req.method === "GET" || req.method === "HEAD") {
+      const url = new URL(req.url);
+      const to = untrailed(url);
+      if (to) return new Response(null, { status: 308, headers: { Location: `${to}${url.search}`, "Cache-Control": "public, max-age=3600" } });
+    }
     // Last resort: nothing the site answers is a 500. vinext turns an exception a route did not catch into an empty
     // 500; here it becomes a 503 with Retry-After (agents' tools and webhooks retry it), logged. Every other status,
     // and every successful answer, passes through unchanged.

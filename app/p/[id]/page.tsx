@@ -5,7 +5,7 @@ import CopyPrompt from "@/components/CopyPrompt";
 import { outcomeBadge, outcomeOf, outcomeText, variantNote, reviewOf } from "@/lib/outcome";
 import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
-import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, TASK, answerPlaceholder, type Problem } from "@/lib/catalog";
+import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, TASK, answerPlaceholder, settledEntry, resolveId, type Problem } from "@/lib/catalog";
 import { getLiveMap, getActiveIds, getEvents, getSolved, getSteps, type Step, type Solved } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
@@ -76,6 +76,11 @@ export default async function ProblemPage({ params }: Props) {
     // A reduction id (X.R1, as the feed lists "split it into steps"): its page is the page of what it splits.
     const red = id.match(/^(.+)\.R\d{1,2}$/);
     if (red && (getProblem(red[1]) || (STEP_RE.test(red[1]) && rootProblem(red[1])))) redirect(`/p/${encodeURIComponent(red[1])}`);
+    // Settled since (taken out of the catalogue): its old links lead to the entry that says how, not to a 404.
+    if (settledEntry(id)) redirect(`/status#${encodeURIComponent(id)}`);
+    // The same id in another case, an Erdős problem by number (erdos-142), a module with one statement (Erdos142).
+    const canonical = resolveId(id);
+    if (canonical && canonical !== id) redirect(`/p/${encodeURIComponent(canonical)}`);
     notFound();
   }
 

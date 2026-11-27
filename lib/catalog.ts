@@ -139,6 +139,45 @@ export function getProblem(id: string) {
   return BY_ID.get(id);
 }
 
+/** A problem taken out of the catalogue because it was settled (listed on /status), or null. Its old links still work:
+ * they lead to /status instead of a 404. */
+export function settledEntry(id: string): Override | null {
+  const o = OV.get(id);
+  return o && o.status === "solved" && !o.silent ? o : null;
+}
+
+let LOWER: Map<string, string> | null = null;
+/**
+ * The catalogue id that a URL with a slightly wrong id most likely means, or null (then the page is a 404): the same
+ * id in another case (erdos142.erdos_142), an Erdős problem by number written like the ids of the unformalized ones
+ * (erdos-142, erdos_142 → Erdos142.erdos_142), or a module holding a single statement (Erdos142 → Erdos142.erdos_142).
+ * Only asked for ids that are not in the catalogue; the lower-case index is built on first use.
+ */
+export function resolveId(raw: string): string | null {
+  if (BY_ID.has(raw)) return raw;
+  if (!LOWER) {
+    LOWER = new Map();
+    for (const p of PROBLEMS) LOWER.set(p.id.toLowerCase(), p.id);
+  }
+  const low = raw.toLowerCase();
+  const same = LOWER.get(low);
+  if (same) return same;
+  const erdos = /^erdos[-_]?(\d{1,4})$/.exec(low);
+  if (erdos) {
+    const n = Number(erdos[1]);
+    return LOWER.get(`erdos${n}.erdos_${n}`) ?? LOWER.get(`erdos-${n}`) ?? null;
+  }
+  const prefix = `${low}.`;
+  const under: string[] = [];
+  for (const [k, id] of LOWER) {
+    if (k.startsWith(prefix) && !k.slice(prefix.length).includes(".")) {
+      under.push(id);
+      if (under.length > 1) return null;
+    }
+  }
+  return under[0] ?? null;
+}
+
 /** The problem with its statement, Lean source and references (one D1 read). */
 export async function getFull(id: string): Promise<FullProblem | undefined> {
   const p = BY_ID.get(id);
