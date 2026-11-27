@@ -1,6 +1,6 @@
 import { PROBLEMS, getProblem, getFull, skeleton, proofPath, statementSkeleton, type Problem } from "@/lib/catalog";
 import { claim2, deskOnline, getLiveMap, getStats, getSteps, hashIp, type Step } from "@/lib/db";
-import { json, clientIp } from "@/lib/desk";
+import { json, clientIp, guarded } from "@/lib/desk";
 import { pointsFor } from "@/lib/points";
 import { STEP_RE, stepSkeleton } from "@/lib/steps";
 import { SITE, REPO } from "@/lib/site";
@@ -181,5 +181,5 @@ function nextHints(lease: string, file: string, id: string) {
   };
 }
 
-export const GET = handle;
-export const POST = handle;
+export const GET = guarded(handle);
+export const POST = guarded(handle);

@@ -1,5 +1,5 @@
 import { beat, deskOnline } from "@/lib/db";
-import { json, UUID } from "@/lib/desk";
+import { json, UUID, guarded } from "@/lib/desk";
 import { roleTask } from "@/lib/collab";
 
 /**
@@ -17,5 +17,5 @@ async function h(req: Request) {
   if (r.stop) return json(r, 410);
   return json({ ...r, roleTask: roleTask(r.role) }, 200);
 }
-export const POST = h;
-export const GET = h;
+export const POST = guarded(h);
+export const GET = guarded(h);

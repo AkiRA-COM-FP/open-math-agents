@@ -128,7 +128,11 @@ export function getProblem(id: string) {
 export async function getFull(id: string): Promise<FullProblem | undefined> {
   const p = BY_ID.get(id);
   if (!p) return undefined;
-  const d = await problemDetail(p, MO_BUCKETS);
+  const d = await problemDetail(p, MO_BUCKETS).catch(() => problemDetail(p, MO_BUCKETS)).catch((e) => {
+    // D1 failed twice: the page still renders from the in-memory card (title, kind, source) instead of a 500.
+    console.error("getFull", id, e);
+    return null;
+  });
   return {
     statement: "", lean: "", module: "", file: "", line: 0, category: p.kind === "unformalized" ? "unformalized" : "", ref: null, erdosState: null,
     ...(d as Partial<FullProblem>), ...p,
@@ -138,7 +142,10 @@ export async function getFull(id: string): Promise<FullProblem | undefined> {
 /** Full data for several problems at once (one or two D1 queries instead of one per problem). */
 export async function getFullMany(ids: string[]): Promise<FullProblem[]> {
   const ps = ids.map((id) => BY_ID.get(id)).filter((p): p is Problem => Boolean(p));
-  const d = await problemDetails(ps, MO_BUCKETS);
+  const d = await problemDetails(ps, MO_BUCKETS).catch(() => problemDetails(ps, MO_BUCKETS)).catch((e) => {
+    console.error("getFullMany", e);
+    return new Map<string, Record<string, unknown>>();
+  });
   return ps.map((p) => ({
     statement: "", lean: "", module: "", file: "", line: 0, category: p.kind === "unformalized" ? "unformalized" : "", ref: null, erdosState: null,
     ...(d.get(p.id) as Partial<FullProblem>), ...p,

@@ -13,18 +13,31 @@ const SECRET = process.env.OMA_DB_SECRET;
 
 export const deskOnline = Boolean(URL_ && KEY && SECRET);
 
-// Circuit breaker: after a timeout or a 5xx, this Worker instance stops calling the database for 2 min, so an overloaded
-// database gets room to recover instead of a pile of waiting requests, and pages answer at once (cached or empty values).
-let downUntil = 0;
-export const deskDown = () => Date.now() < downUntil;
+// Circuit breaker: after a timeout or a 5xx, this Worker instance stops calling the database for a while, so an
+// overloaded database gets room to recover instead of a pile of waiting requests, and pages answer at once (cached or
+// empty values). Two of them: a failed read (pages refresh with a 1 s budget, and have a last good value to fall back
+// on) pauses reads for 2 min but not the agents' writes; a failed write pauses both, writes for 30 s.
+let readsDownUntil = 0;
+let writesDownUntil = 0;
+export const deskDown = () => Date.now() < Math.max(readsDownUntil, writesDownUntil);
 
-async function rpc<T>(fn: string, args: Record<string, unknown>, timeoutMs = 8000): Promise<T> {
-  if (Date.now() < downUntil) throw new Error("desk_unavailable");
+/** Thrown when the database cannot answer (breaker open, timeout, 5xx): API routes answer 503 with Retry-After. */
+export class DeskUnavailable extends Error {
+  constructor(cause?: unknown) {
+    super(`desk_unavailable${cause instanceof Error ? `: ${cause.message}` : ""}`);
+    this.name = "DeskUnavailable";
+  }
+}
+
+async function rpc<T>(fn: string, args: Record<string, unknown>, timeoutMs = 8000, kind: "read" | "write" = "write"): Promise<T> {
+  const now = Date.now();
+  if (now < writesDownUntil || (kind === "read" && now < readsDownUntil)) throw new DeskUnavailable();
   try {
     return await rpcOnce<T>(fn, args, timeoutMs);
   } catch (e) {
-    downUntil = Date.now() + 120_000;
-    throw e;
+    readsDownUntil = Date.now() + 120_000;
+    if (kind === "write") writesDownUntil = Date.now() + 30_000;
+    throw new DeskUnavailable(e);
   }
 }
 
@@ -115,7 +128,7 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
     }
     let value: T;
     try {
-      value = await rpc<T>(fn, args, 1000);
+      value = await rpc<T>(fn, args, 1000, "read");
     } catch (e) {
       const stale = MEM.get(key) ?? kvStale ?? (cache ? await cache.match(new Request(`${CACHE_ORIGIN}/__desk_stale/${encodeURIComponent(key)}`)).then((r) => (r ? r.json() : null)).catch(() => null) : null);
       if (stale) return (stale as { value: T }).value;
@@ -279,12 +292,29 @@ export type Step = { id: string; reduction: string; parent: string; k: number; s
 /** Steps of accepted reductions. Pages: 60 s cache. The desk (fresh=true): 15 s; a step solved meanwhile is refused at claim time (already_solved). */
 export const getSteps = (parent?: string, fresh = false) => safe<Step[]>("steps", parent ? { parent } : {}, [], fresh ? 60 : 600);
 
+/** The same read with no cache and no fallback: throws DeskUnavailable when the database cannot answer. For the
+ * verdict route, which must never mistake a failed read for "this step does not exist" (that refused merged work). */
+export const getStepsStrict = async (parent: string) => {
+  if (!deskOnline) throw new DeskUnavailable();
+  return rpc<Step[]>("steps", { parent }, 8000, "read");
+};
+
 export const logEvent = (kind: string, problem: string, handle: string, detail: string) =>
   api<{ ok?: boolean; error?: string }>("log", { kind, problem, handle, detail });
 
 export type Contribution = { handle: string; share: number; roles: { role: "proof" | "step" | "reduction"; item: string; pr: string; agent?: string | null; model?: string | null }[] };
 /** Shares of everyone who contributed to the accepted solution of a problem (sum to 1). Empty if unsolved. */
 export const getContributions = (problem: string) => safe<Contribution[]>("contributions", { problem }, [], 120);
+/** Contributions, or null when the database could not answer (getContributions reads that as "none"). */
+export async function getContributionsOrNull(problem: string): Promise<Contribution[] | null> {
+  if (!deskOnline) return null;
+  try {
+    return await api<Contribution[]>("contributions", { problem }, 120);
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
 
 
 /** Ids of every problem or step that has any history (taken, sent, proved...): a small list, refreshed once a minute.
