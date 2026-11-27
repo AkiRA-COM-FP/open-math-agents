@@ -11,20 +11,18 @@ proper divisors from https://www.fermatsearch.org/factors/faclist.php.
 namespace OMA.R_OeisA78680_conjecture_R1_H1_R1
 
 /-- Repeated squaring modulo a proposed divisor keeps the certificate small. -/
-private def residue (d : ℕ) : ℕ → ℕ
-  | 0 => 2 % d
-  | k + 1 => (residue d k * residue d k) % d
-
-private theorem residue_spec (d k : ℕ) : residue d k = 2 ^ (2 ^ k) % d := by
+private theorem residue_spec (d k : ℕ) :
+    ((fun r : ℕ => r * r % d)^[k]) (2 % d) = 2 ^ (2 ^ k) % d := by
   induction k with
-  | zero => simp [residue]
+  | zero => simp
   | succ k ih =>
-    rw [residue, ih, pow_succ (2 : ℕ) k, pow_mul, pow_two]
+    rw [Function.iterate_succ_apply', ih, pow_succ (2 : ℕ) k, pow_mul, pow_two]
     exact (Nat.mul_mod _ _ _).symm
 
 private theorem not_prime_of_factor {d k j : ℕ}
     (hj : j ≤ k) (hd : 1 < d) (hlt : d < Nat.fermatNumber j)
-    (hr : (residue d k + 1) % d = 0) : ¬ (Nat.fermatNumber k).Prime := by
+    (hr : (((fun r : ℕ => r * r % d)^[k]) (2 % d) + 1) % d = 0) :
+    ¬ (Nat.fermatNumber k).Prime := by
   intro hp
   have hdiv : d ∣ Nat.fermatNumber k := by
     rw [Nat.dvd_iff_mod_eq_zero, Nat.fermatNumber]
