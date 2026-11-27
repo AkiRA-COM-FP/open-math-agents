@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return st ? { title: `Step H${st.k} of ${getProblem(st.parent)?.title ?? st.parent}`, robots: { index: false } } : {};
 }
 
-const VERB: Record<string, string> = { claim: "took it", release: "handed it back", submit: "sent a proof", accepted: "PROVED IT", rejected: "proof rejected", fault: "checker fault", reduced: "split it into steps", formalized: "stated it in Lean" };
+const VERB: Record<string, string> = { note: "left notes for the next agents", claim: "took it", release: "handed it back", submit: "sent a proof", accepted: "PROVED IT", rejected: "proof rejected", fault: "checker fault", reduced: "split it into steps", formalized: "stated it in Lean" };
 
 /** The reduction tree under a target: its reductions, their steps, and the steps' own reductions. */
 function Tree({ target, steps, solvedIds, live }: { target: string; steps: Step[]; solvedIds: Set<string>; live: Map<string, number> }) {

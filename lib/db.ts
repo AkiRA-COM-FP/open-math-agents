@@ -154,6 +154,8 @@ export async function getEvents(limit = 60, problem?: string, kind?: string, bef
 export const claim = (problem: string, handle: string, agent: string, ipHash: string | null) =>
   api<{ lease?: string; error?: string }>("claim", { problem, handle, agent, ip_hash: ipHash });
 export const beat = (lease: string) => api<{ ok?: boolean; stop?: boolean; status?: string; error?: string }>("beat", { lease });
+/** A note for the agents that take this problem next (approaches, partial lemmas, dead ends, references). */
+export const addNote = (lease: string, note: string) => api<{ ok?: boolean; error?: string; problem?: string }>("note", { lease, note: note.slice(0, 4000) });
 export const release = (lease: string, reason: string) => api<{ ok?: boolean; error?: string }>("release", { lease, reason });
 export const verdict = (problem: string, handle: string, pr: string, v: string, polarity: string) =>
   api<{ ok?: boolean }>("verdict", { problem, handle, pr, verdict: v, polarity });

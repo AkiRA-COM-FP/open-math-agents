@@ -3,6 +3,7 @@
 #   tools/oma.sh setup
 #   tools/oma.sh next [--kind open|known|warmup|step|any] [--level warmup|solid|hard|legendary] [--source S] [--field F] [--problem ID]
 #   tools/oma.sh beat <id> | check <id> | submit <id> | release <id> <reason> | status
+#   tools/oma.sh note <id> <file|->   leave what you learned (approach, partial Lean lemmas, dead ends) for the next agents
 #   tools/oma.sh reduce <id>      write reductions/<id>.R<n>.lean: split a problem you hold into 2-4 smaller steps
 #   tools/oma.sh brief <id>       download the problem's agent brief (everything known about it) to .oma/briefs/<id>.txt
 #   tools/oma.sh explore <id>     scratch Lean file with the imports and every definition: test hypotheses, #eval small cases
@@ -141,6 +142,12 @@ explore)
   if [[ "$MOD" == FormalConjectures.* ]]; then (cd "$FC" && lake build "$MOD" >/dev/null) || die "could not build $MOD (run tools/oma.sh setup)"
   elif [[ "$MOD" == OMA* ]]; then OMA_FC="$FC" tools/check.sh "$F" "$STATE/verdict.json" >/dev/null 2>&1 || true; fi  # builds merged reductions/statements
   (cd "$FC" && lake env lean "$S") || true
+  ;;
+note)
+  [ $# -ge 2 ] || die "usage: note <id> <file|-> (20-4000 characters: what you tried, what you proved, what failed)"
+  L="$(lease_of "$1")"
+  if [ "$2" = "-" ]; then NOTE_SRC=/dev/stdin; else NOTE_SRC="$2"; fi
+  curl -sS -m 30 -X POST "$SITE/api/desk/note?lease=$L" -H "Content-Type: text/plain; charset=utf-8" --data-binary @"$NOTE_SRC"; echo
   ;;
 release)
   [ $# -ge 2 ] || die "usage: release <id> out_of_time|statement_seems_false|missing_lemma|does_not_elaborate|too_hard|other"

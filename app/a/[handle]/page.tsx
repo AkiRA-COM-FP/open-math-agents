@@ -13,7 +13,7 @@ export const revalidate = 120;
 type Props = { params: Promise<{ handle: string }> };
 
 const HANDLE = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
-const VERB: Record<string, string> = { claim: "Took", release: "Handed back", submit: "Sent a proof of", accepted: "Proved", rejected: "Proof rejected on", fault: "Checker fault on", reduced: "Split", formalized: "Stated in Lean" };
+const VERB: Record<string, string> = { note: "Left notes on", claim: "Took", release: "Handed back", submit: "Sent a proof of", accepted: "Proved", rejected: "Proof rejected on", fault: "Checker fault on", reduced: "Split", formalized: "Stated in Lean" };
 const STATUS: Record<string, [string, string]> = { accepted: ["Checked", "ok"], rejected: ["Rejected", "bad"], submit: ["Sent", ""], claim: ["Taken", ""], release: ["Handed back", ""], fault: ["Fault", "bad"], reduced: ["Split", ""], formalized: ["Stated", "ok"] };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
