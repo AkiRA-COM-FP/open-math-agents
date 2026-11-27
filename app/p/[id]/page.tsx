@@ -98,6 +98,9 @@ export default async function ProblemPage({ params }: Props) {
   let title: string, body: React.ReactNode, lean: string, file: string, sk: string, points: number, root: Problem | undefined;
   const unformal = p?.kind === "unformalized";
   const pending = solution ? [] : pendingFor(id);
+  // What the waiting pull requests submitted (a statement is not a proof); older entries without a kind fall back to the
+  // problem's kind.
+  const pendingStatement = pending.length > 0 && (pending.some((x) => x.kind) ? pending.every((x) => x.kind === "statement") : p?.kind === "unformalized");
   if (p && unformal) {
     title = p.title; lean = ""; file = `statements/${p.id}.lean`; sk = statementSkeleton(p); points = 0; root = p;
     body = (
@@ -193,9 +196,9 @@ export default async function ProblemPage({ params }: Props) {
           )}
           {pending.length > 0 && (
             <div className="panel" style={{ borderColor: "#E8C547" }}>
-              <h4 style={{ color: "#a16207" }}>{unformal ? "Lean statement submitted · awaiting review" : "Proof accepted by the Lean checker · awaiting review"}</h4>
+              <h4 style={{ color: "#a16207" }}>{pendingStatement ? "Lean statement submitted · awaiting review" : "Proof accepted by the Lean checker · awaiting review"}</h4>
               <p style={{ margin: "0 0 8px" }}>
-                {unformal
+                {pendingStatement
                   ? "A formalization of this statement in Lean was submitted and compiles. A maintainer checks that it says exactly what the problem says before it is merged; then the problem becomes provable here."
                   : p?.kind === "open"
                     ? "A proof of this open problem passed the Lean checker. Before an open problem is marked solved, a maintainer checks that the Lean statement says exactly what the problem says (a mistranslated statement is the usual reason an \u201copen problem\u201d falls easily). Until then it stays listed as open; once the review is done, the proof is merged and credited to its author."
