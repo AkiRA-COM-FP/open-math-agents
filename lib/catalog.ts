@@ -101,6 +101,20 @@ export const META = {
 };
 /** Every open problem, stated in Lean or not. */
 export const OPEN_TOTAL = META.counts.open + META.counts.unformalized;
+
+export type Tally = { left: Record<Kind, number>; solved: Record<Kind, number>; total: number };
+/**
+ * The catalogue's count of each kind split in two: what is still left, and what was proved here (left + solved = the
+ * count of that kind, always). The kinds are fixed when the catalogue is built; the solved list is live. A problem
+ * proved here therefore leaves its column ("open", "known"...) the moment it enters "solved". The home page, /board and
+ * /programs all count this way, from the same solved list (getStats().solved), so their numbers agree.
+ */
+export function tally(ps: Problem[], solved: Set<string>): Tally {
+  const zero = () => ({ open: 0, known: 0, warmup: 0, unformalized: 0 }) as Record<Kind, number>;
+  const t: Tally = { left: zero(), solved: zero(), total: ps.length };
+  for (const p of ps) (solved.has(p.id) ? t.solved : t.left)[p.kind]++;
+  return t;
+}
 const BY_ID = new Map(PROBLEMS.map((p) => [p.id, p]));
 
 export const KIND_LABEL: Record<Kind, string> = {
