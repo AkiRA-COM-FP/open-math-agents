@@ -20,8 +20,12 @@ export const deskOnline = Boolean(URL_ && KEY && SECRET);
 // on) pauses reads for 2 min but not the agents' writes; a failed write pauses both, writes for 30 s.
 // The state is also shared with every other instance of the data centre (a marker in its Cache API), so one failure
 // pauses the whole data centre instead of costing each of its instances its own timed-out call.
+// During a long outage the pauses grow (30 s, 1, 2, 4 min, then 5 min) and only one call per data centre probes the
+// database when a pause ends; the others fail at once instead of each waiting for its own timeout (that waiting made
+// 1 to 10% of requests take 8 s while the database was down).
 let readsDownUntil = 0;
 let writesDownUntil = 0;
+let failStreak = 0;
 export const deskDown = () => Date.now() < Math.max(readsDownUntil, writesDownUntil);
 
 /** Thrown when the database cannot answer (breaker open, timeout, 5xx): API routes answer 503 with Retry-After. */
@@ -42,10 +46,11 @@ async function coloBreaker(): Promise<void> {
   if (!cache) return;
   const hit = await cache.match(breakerReq()).catch(() => undefined);
   if (!hit) return;
-  const b = (await hit.json().catch(() => null)) as { reads?: number; writes?: number } | null;
+  const b = (await hit.json().catch(() => null)) as { reads?: number; writes?: number; streak?: number } | null;
   if (b) {
     readsDownUntil = Math.max(readsDownUntil, Number(b.reads) || 0);
     writesDownUntil = Math.max(writesDownUntil, Number(b.writes) || 0);
+    failStreak = Math.max(failStreak, Number(b.streak) || 0);
   }
 }
 
@@ -53,13 +58,14 @@ async function tripColo(): Promise<void> {
   const cache = edgeCache();
   if (!cache) return;
   const until = Math.max(readsDownUntil, writesDownUntil);
-  const s = Math.max(1, Math.ceil((until - Date.now()) / 1000));
+  // kept a while after the pause ends, so the failure streak (and thus probe mode) survives until a call succeeds
+  const s = Math.max(1, Math.ceil((until - Date.now()) / 1000)) + (failStreak ? 900 : 0);
   await cache
-    .put(breakerReq(), new Response(JSON.stringify({ reads: readsDownUntil, writes: writesDownUntil }), { headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${s}` } }))
+    .put(breakerReq(), new Response(JSON.stringify({ reads: readsDownUntil, writes: writesDownUntil, streak: failStreak }), { headers: { "Content-Type": "application/json", "Cache-Control": `public, max-age=${s}` } }))
     .catch(() => undefined);
 }
 
-async function rpc<T>(fn: string, args: Record<string, unknown>, timeoutMs = 8000, kind: "read" | "write" = "write"): Promise<T> {
+async function rpc<T>(fn: string, args: Record<string, unknown>, timeoutMs = 4000, kind: "read" | "write" = "write"): Promise<T> {
   const open = () => {
     const now = Date.now();
     return now < writesDownUntil || (kind === "read" && now < readsDownUntil);
@@ -67,13 +73,32 @@ async function rpc<T>(fn: string, args: Record<string, unknown>, timeoutMs = 800
   if (open()) throw new DeskUnavailable();
   await coloBreaker();
   if (open()) throw new DeskUnavailable();
+  const probing = failStreak > 0;
+  if (probing) {
+    // after failures, this call is the data centre's single probe: everyone else fails fast until it returns
+    const lock = Date.now() + timeoutMs + 500;
+    readsDownUntil = Math.max(readsDownUntil, lock);
+    writesDownUntil = Math.max(writesDownUntil, lock);
+    await tripColo();
+  }
   try {
-    return await rpcOnce<T>(fn, args, timeoutMs);
+    const value = await rpcOnce<T>(fn, args, timeoutMs);
+    if (probing) {
+      failStreak = 0; readsDownUntil = 0; writesDownUntil = 0;
+      await edgeCache()?.delete(breakerReq()).catch(() => undefined);
+    }
+    return value;
   } catch (e) {
     if (!(e instanceof DeskRefused)) {
-      readsDownUntil = Date.now() + 120_000;
-      if (kind === "write") writesDownUntil = Date.now() + 30_000;
+      failStreak = Math.min(failStreak + 1, 10);
+      const pause = Math.min(30_000 * 2 ** (failStreak - 1), 300_000);
+      readsDownUntil = Date.now() + Math.max(120_000, pause);
+      writesDownUntil = Date.now() + pause;
       await tripColo();
+    } else if (probing) {
+      // the database answered (a 4xx is an answer): it is up
+      failStreak = 0; readsDownUntil = 0; writesDownUntil = 0;
+      await edgeCache()?.delete(breakerReq()).catch(() => undefined);
     }
     throw new DeskUnavailable(e);
   }
@@ -401,7 +426,7 @@ export async function getSteps(parent?: string, fresh = false): Promise<Step[]> 
  * verdict route, which must never mistake a failed read for "this step does not exist" (that refused merged work). */
 export const getStepsStrict = async (parent: string) => {
   if (!deskOnline) throw new DeskUnavailable();
-  return rpc<Step[]>("steps", { parent }, 8000, "read");
+  return rpc<Step[]>("steps", { parent }, 4000, "read");
 };
 
 export const logEvent = (kind: string, problem: string, handle: string, detail: string) =>
