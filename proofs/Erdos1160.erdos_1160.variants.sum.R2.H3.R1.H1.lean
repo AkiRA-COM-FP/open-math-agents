@@ -10366,8 +10366,8 @@ open Erdos1160.OuterExtensions Erdos1160.Paper85
 open Erdos1160Growth.LowerTriangularUpper
 lemma square_index_iso {G H : FiniteGrp.{0}} (e : G ≃* H) :
     (squareCore G).index = (squareCore H).index := by
-  rw [← CentralKernelCount.squareCore_map e.toMonoidHom e.surjective,
-    Subgroup.index_map_equiv]
+  rw [← CentralKernelCount.squareCore_map e.toMonoidHom e.surjective]
+  exact (Subgroup.index_map_of_bijective e.bijective (squareCore G)).symm
 lemma rank_of_witness {k : ℕ} (c : ClassOf (2^k)) (G : FiniteGrp.{0})
     (hc : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) G = c.val) :
     generatorRank c = Nat.log 2 (squareCore G).index := by
