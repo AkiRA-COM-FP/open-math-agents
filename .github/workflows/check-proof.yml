@@ -32,8 +32,19 @@ jobs:
             echo '{"verdict":"rejected","reason":"the one change must be a new file proofs/<id>.lean, reductions/<id>.R<n>.lean or statements/<id>.lean (letters, digits, _ . - only)"}' > verdict.json; exit 0
           fi
           echo "file=$F" >> "$GITHUB_OUTPUT"
-      - name: Lint (before anything compiles)
+      - name: Already on main? (a duplicate is turned away before minutes of compiling)
         if: steps.diff.outputs.file != ''
+        id: dup
+        env:
+          FILE: ${{ steps.diff.outputs.file }}
+        run: |
+          git fetch -q origin main
+          if git cat-file -e "origin/main:$FILE" 2>/dev/null; then
+            python3 -I -c 'import json,os; json.dump({"verdict":"rejected","reason":"already proved: "+os.environ["FILE"]+" is on main (someone else'"'"'s proof was merged first); take another problem"},open("verdict.json","w"))'
+            echo "dup=1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Lint (before anything compiles)
+        if: steps.diff.outputs.file != '' && steps.dup.outputs.dup != '1'
         id: lint
         env:
           FILE: ${{ steps.diff.outputs.file }}
