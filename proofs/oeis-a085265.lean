@@ -4,6 +4,9 @@ import Mathlib
 /-!
 # A positive square plus a positive squarefree number
 
+Source: https://oeis.org/A085265
+Credit: @dwilfand-sys (proof prepared by Codex). Statement by @niclorusso.
+
 For large inputs, select square roots of a suitable parity and remove common
 factors with the product of the odd primes whose squares divide the input.
 Ordinary prime-square obstructions occupy two residue classes. We count these
