@@ -1,7 +1,7 @@
 import OMAReductions.R_Erdos89_erdos_89_R1
 import Mathlib
 
-/- H1 do problema de Erdős nº 89. Crédito pela submissão: @deyvidantonio.
+/-! H1 do problema de Erdős nº 89. Crédito pela submissão: @deyvidantonio.
 
 As construções de especialização algébrica e de elemento primitivo foram adaptadas de
 OpenAI, OAI/Geometry/UnitDistances/Basic.lean (Apache-2.0), revisão
@@ -423,8 +423,8 @@ lemma gapNum_real (a b c d e f g h : ℝ) (hb : b ≠ 0) (hd : d ≠ 0)
     (hf : f ≠ 0) (hh : h ≠ 0) :
     (a*d-c*b)^2 * (f*h)^2 + (e*h-g*f)^2 * (b*d)^2 =
     ((a/b-c/d)^2+(e/f-g/h)^2) * ((b*d)^2*(f*h)^2) := by
-  have hx : (a/b-c/d)*(b*d) = a*d-c*b := by field_simp <;> ring
-  have hy : (e/f-g/h)*(f*h) = e*h-g*f := by field_simp <;> ring
+  have hx : (a/b-c/d)*(b*d) = a*d-c*b := by field_simp
+  have hy : (e/f-g/h)*(f*h) = e*h-g*f := by field_simp
   rw [← hx, ← hy]
   ring
 
@@ -564,7 +564,10 @@ theorem algebraic_planar_equal {κ : Type*} [Finite κ]
     exact ⟨(hclose i).trans hερ,fun k => (hy (i,k)).1⟩
   · intro i j k l h
     have anterior : squaredGap (fun k => p k.1 k.2) (i,j) = squaredGap (fun k => p k.1 k.2) (k,l) := by
-      simpa only [squaredGap, plane_dist_sq] using congrArg (fun d : ℝ => d^2) h
+      calc
+        _ = dist (p i) (p j)^2 := (plane_dist_sq (p i) (p j)).symm
+        _ = dist (p k) (p l)^2 := congrArg (fun d : ℝ => d^2) h
+        _ = _ := plane_dist_sq (p k) (p l)
     have posterior : dist (q i) (q j)^2 = dist (q k) (q l)^2 := by
       simpa only [plane_dist_sq, squaredGap, q, WithLp.ofLp_toLp] using heq (i,j) (k,l) anterior
     simpa only [Real.sqrt_sq dist_nonneg] using congrArg Real.sqrt posterior
@@ -581,6 +584,8 @@ abbrev PlanoIntegral := {p : ℝ² // ∀ i : Fin 2, IsIntegral ℤ (p i)}
 lemma multiplicador {ι : Type*} [Fintype ι] (x : ι → ℝ) (hx : ∀ i, IsAlgebraic ℚ (x i)) :
     ∃ z : ℤ, z ≠ 0 ∧ ∀ i, IsIntegral ℤ ((z : ℝ) * x i) := by
   classical
+  letI : Algebra.IsAlgebraic ℤ ℚ :=
+    IsLocalization.isAlgebraic (R := ℤ) (S := ℚ) (nonZeroDivisors ℤ)
   have h (i : ι) := ((hx i).restrictScalars ℤ).exists_integral_multiple
   choose a ha hb using h
   refine ⟨∏ i, a i, Finset.prod_ne_zero_iff.mpr (fun i _ => ha i), ?_⟩
