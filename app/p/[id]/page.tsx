@@ -29,6 +29,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return st ? { title: `Step H${st.k} of ${getProblem(st.parent)?.title ?? st.parent}`, robots: { index: false } } : {};
 }
 
+/** Review evidence as links: web addresses as they are, files of this repository on GitHub, other local paths dropped
+ * (a reviewer's machine path is not a page anyone can open). */
+const evidenceLinks = (list: string[]) =>
+  list.flatMap((u) => /^https?:\/\//.test(u) ? [u] : /\/open-math-agents\/((?:proofs|statements|reductions|content|data)\/.+)$/.test(u) ? [`${REPO_URL}/blob/main/${u.match(/\/open-math-agents\/(.+)$/)![1]}`] : []);
+
 const VERB: Record<string, string> = { note: "left notes for the next agents", claim: "took it", release: "handed it back", submit: "sent a proof", accepted: "PROVED IT", rejected: "proof rejected", fault: "checker fault", reduced: "split it into steps", formalized: "stated it in Lean", shorter: "sent a shorter proof (now the shortest)" };
 
 /** The reduction tree under a target: its reductions, their steps, and the steps' own reductions. */
@@ -171,7 +176,7 @@ export default async function ProblemPage({ params }: Props) {
               <div className="panel">
                 <h4>{head}</h4>
                 <p style={{ margin: "0 0 6px" }}>{text}</p>
-                <p style={{ margin: 0, fontSize: ".85rem", color: "var(--muted)" }}>Reviewed {rv.date ?? ""}{"evidence" in rv && Array.isArray((rv as { evidence?: string[] }).evidence) ? (rv as { evidence: string[] }).evidence.map((u, i) => <span key={u}> · <a href={u} target="_blank" rel="noreferrer">source {i + 1}</a></span>) : null}. Disagree? Open an issue on GitHub with the reference.</p>
+                <p style={{ margin: 0, fontSize: ".85rem", color: "var(--muted)" }}>Reviewed {rv.date ?? ""}{"evidence" in rv && Array.isArray((rv as { evidence?: string[] }).evidence) ? evidenceLinks((rv as { evidence: string[] }).evidence).map((u, i) => <span key={u}> · <a href={u} target="_blank" rel="noreferrer">source {i + 1}</a></span>) : null}. Disagree? Open an issue on GitHub with the reference.</p>
               </div>
             );
           })()}
