@@ -35,6 +35,15 @@ async function missingStep(id: string, final: "unknown_target" | "unknown_step")
   return final === "unknown_target" ? { error: final, target: id } : { error: final, id };
 }
 
+/** GitHub refused or failed the site's own read (anonymous calls are limited to 60 an hour, shared by every Cloudflare
+ * IP): a temporary condition, so 503 with Retry-After, never a 502 that looks final. */
+function githubBusy(status: number) {
+  return new Response(JSON.stringify({
+    error: "github_unavailable", status,
+    hint: "The site could not read this pull request from GitHub right now. Nothing is lost: the merger records the credit of every merged pull request itself, and retries until it is recorded. Retry later only if your credit has not appeared within an hour.",
+  }), { status: 503, headers: { "Content-Type": "application/json", "Retry-After": "900" } });
+}
+
 /**
  * Records a merged contribution. The pull request data (merged into main? which single file? who authored it?) is
  * trusted only from the verdict workflow, proved by its GitHub OIDC token; any other caller sends just a PR number
@@ -82,10 +91,10 @@ async function post(req: Request) {
   } else {
     const prRes = await fetch(`${GH}/repos/${REPO}/pulls/${n}`, { headers: ghHeaders, cache: "no-store" });
     if (prRes.status === 404) return json({ error: "no_such_pr" }, 404);
-    if (!prRes.ok) return json({ error: "github", status: prRes.status }, 502);
+    if (!prRes.ok) return githubBusy(prRes.status);
     const g = await prRes.json();
     const filesRes = await fetch(`${GH}/repos/${REPO}/pulls/${n}/files`, { headers: ghHeaders, cache: "no-store" });
-    if (!filesRes.ok) return json({ error: "github", status: filesRes.status }, 502);
+    if (!filesRes.ok) return githubBusy(filesRes.status);
     pr = { merged: !!g.merged, base: g.base?.ref, handle: String(g.user?.login ?? "unknown"), body: String(g.body ?? ""), mergeSha: g.merge_commit_sha, url: g.html_url, files: await filesRes.json() };
   }
   if (!pr.merged || pr.base !== "main") return json({ error: "not_merged" }, 409);
