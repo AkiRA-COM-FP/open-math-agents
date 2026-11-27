@@ -5,7 +5,7 @@
     {
       "id": "backer",
       "name": "Backer",
-      "price": 50,
+      "price": 100,
       "period": "one-time",
       "perks": [
         "Your logo and a link to your website in the 'Made possible by' band at the top of the home page",
