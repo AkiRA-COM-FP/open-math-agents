@@ -11,7 +11,22 @@ PR=$(head -c 12 artifact/pr.txt | tr -cd '0-9')
 [ -n "$PR" ] || exit 0
 gh api "repos/$REPO/pulls/$PR" > pr.json
 [ "$(jq -r .state pr.json)" = open ] || exit 0   # merged or closed meanwhile: nothing to report
-gh api "repos/$REPO/pulls/$PR/files" > files.json
+# The changed files and the checked file come from git (GitHub's merge ref of the pull request), which does not use
+# the API budget; the API is the fallback when the merge ref is missing or not at the checked commit.
+GITREF=0
+if git -C base fetch -q --depth 2 origin "refs/pull/$PR/merge" 2>/dev/null \
+   && [ "$(git -C base rev-parse FETCH_HEAD^2 2>/dev/null)" = "$HEAD_SHA" ]; then
+  git -C base diff --name-status FETCH_HEAD^1 FETCH_HEAD > names.txt
+  python3 -I -c '
+import json
+st = {"A": "added", "M": "modified", "D": "removed"}
+rows = [l.rstrip("\n").split("\t") for l in open("names.txt") if l.strip()]
+json.dump([{"filename": r[-1], "status": st.get(r[0][0], r[0])} for r in rows], open("files.json", "w"))'
+  git -C base rev-parse FETCH_HEAD^1 > mergebase.txt   # main as GitHub merged it (parent shas kept: later fetches move FETCH_HEAD)
+  GITREF=1
+else
+  gh api "repos/$REPO/pulls/$PR/files" > files.json
+fi
 python3 -I - <<'PY' > decision.txt
 import json, os, re
 pr = json.load(open("pr.json")); files = json.load(open("files.json")); v = json.load(open("artifact/verdict.json"))
@@ -40,9 +55,15 @@ if [ "$VERDICT" = "accepted" ]; then
   mkdir -p "base/$(dirname "$FPATH")"
   if [ "$MODE" = replace ]; then
     # Shortest-proof rule, re-checked here with trusted code: the proof on main right now against the checked one.
-    gh api "repos/$REPO/contents/$FPATH?ref=main" --jq .content | base64 -d > old.lean
+    if [ "$GITREF" = 1 ] && git -C base show "$(cat mergebase.txt):$FPATH" > old.lean 2>/dev/null; then :; else
+      gh api "repos/$REPO/contents/$FPATH?ref=main" --jq .content | base64 -d > old.lean
+    fi
   fi
-  gh api "repos/$REPO/contents/$FPATH?ref=$HEAD_SHA" --jq .content | base64 -d > "base/$FPATH"
+  if [ "$GITREF" = 1 ] && git -C base show "$HEAD_SHA:$FPATH" > checked.lean 2>/dev/null; then
+    cp checked.lean "base/$FPATH"
+  else
+    gh api "repos/$REPO/contents/$FPATH?ref=$HEAD_SHA" --jq .content | base64 -d > "base/$FPATH"
+  fi
   if [ "$MODE" = replace ]; then
     read -r RES NEWLEN OLDLEN < <(python3 -I base/tools/prooflen.py old.lean "base/$FPATH")
     if [ "$RES" != shorter ]; then
@@ -71,25 +92,29 @@ case "$VERDICT" in
     else
       MSG="**ACCEPTED** ($POL of \`$PID\`): $REASON. Merging. [Run]($RUN_URL)"
     fi
-    gh pr edit "$PR" --repo "$REPO" --remove-label needs-human-review >/dev/null 2>&1 || true
+    if jq -e '.labels | map(.name) | index("needs-human-review")' pr.json >/dev/null; then
+      gh pr edit "$PR" --repo "$REPO" --remove-label needs-human-review >/dev/null 2>&1 || true
+    fi
     {
       gh pr comment "$PR" --repo "$REPO" --body "$MSG"
       # Many verdicts merge at once: GitHub refuses a merge when main moved a moment before ("Base branch
       # was modified"). That is a race, not a rejection: retry with a random pause, a few times.
       MERGED=0
       # GitHub never merges a draft: an accepted draft is marked ready first.
-      if [ "$(gh pr view "$PR" --repo "$REPO" --json isDraft -q .isDraft 2>/dev/null)" = "true" ]; then
+      if [ "$(jq -r .draft pr.json)" = "true" ]; then
         gh pr ready "$PR" --repo "$REPO" || true
       fi
       for TRY in 1 2 3 4 5 6 7 8; do
-        if OUT="$(gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$HEAD_SHA" 2>&1)"; then MERGED=1; break; fi
+        if OUT="$(gh api -X PUT "repos/$REPO/pulls/$PR/merge" -f merge_method=squash -f sha="$HEAD_SHA" 2>&1)"; then
+          MERGED=1; MERGE_SHA="$(printf '%s' "$OUT" | jq -r '.sha // empty' 2>/dev/null)"; break
+        fi
         echo "merge attempt $TRY: $OUT"
         echo "$OUT" | grep -qiE "base branch was modified|try the merge again|is not mergeable|still a draft|timeout|502|503" || break
         sleep $(( (RANDOM % 20) + 5 * TRY ))
       done
       if [ "$MERGED" = 1 ]; then
         # A merge made with GITHUB_TOKEN triggers no other workflow, so credit it here.
-        CREDIT_FILES=files.json bash base/tools/credit.sh "$PR" || true
+        CREDIT_FILES=files.json CREDIT_PR=pr.json MERGE_SHA="${MERGE_SHA:-}" bash base/tools/credit.sh "$PR" || true
       elif [ "$MODE" = new ] && gh api "repos/$REPO/contents/$FPATH?ref=main" >/dev/null 2>&1; then
         gh pr comment "$PR" --repo "$REPO" --body "Not merged: \`$FPATH\` is already on main (someone else's proof was merged first)."
       elif [ "${RUN_ATTEMPT:-1}" -lt 4 ] && gh api -X POST "repos/$REPO/actions/runs/$RUN_ID/rerun" >/dev/null; then
