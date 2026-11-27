@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
 # One pass over the pull requests that waited under the old human-review rule (label needs-human-review): merge those
-# whose latest check of their exact head commit was accepted, after re-running the linter from main. Extracted unchanged
-# from backlog.yml. Needs: GH_TOKEN REPO [OMA_SITE]; the current directory holds base/ (main).
+# whose latest check of their exact head commit was accepted, after re-running the linter from main; remove the label
+# where that check rejected the commit. Covers every labelled pull request (all pages), LANES at a time, each lane in its
+# own copy of main. Needs: GH_TOKEN REPO [OMA_SITE] [LANES]; the current directory holds base/ (main).
 set -uo pipefail
-gh api "repos/$REPO/issues?state=open&labels=needs-human-review&per_page=100&sort=created&direction=asc" --jq '.[] | select(.pull_request) | .number' > prs.txt
-echo "$(wc -l < prs.txt) pull requests in this batch"
-N=0
-while read -r PR; do
+LANES=${LANES:-3}
+gh api --paginate "repos/$REPO/issues?state=open&labels=needs-human-review&per_page=100&sort=created&direction=asc" \
+  --jq '.[] | select(.pull_request) | .number' > all.txt || true
+echo "$(wc -l < all.txt) pull requests in this batch"
+lane() {  # $1 = lane number; works in lane_$1/ with its own base/ copy and prs.txt
+  cd "lane_$1" || return
+  N=0
+  while read -r PR; do
   N=$((N+1))
   gh api "repos/$REPO/pulls/$PR" > pr.json || continue
+  # merged or closed meanwhile (by a verdict or another lane): nothing to do
+  [ "$(jq -r .state pr.json)" = open ] || continue
+  jq -e '.labels | map(.name) | index("needs-human-review")' pr.json >/dev/null || continue
   SHA=$(jq -r .head.sha pr.json)
   gh api "repos/$REPO/pulls/$PR/files" > files.json || continue
   if [ "$(jq 'length' files.json)" != 1 ] || [ "$(jq -r '.[0].status' files.json)" != added ]; then echo "#$PR: not a single new file, left for a person"; continue; fi
@@ -19,7 +27,12 @@ while read -r PR; do
         --jq '[.workflow_runs[] | select(.name=="check-proof")] | sort_by(.created_at) | last | .id // empty')
   [ -n "$RUN" ] || { echo "#$PR: no completed check for $SHA"; continue; }
   rm -rf art; gh run download "$RUN" --repo "$REPO" -n verdict -D art >/dev/null 2>&1 || { echo "#$PR: no verdict artifact"; continue; }
-  [ "$(jq -r .verdict art/verdict.json)" = accepted ] || { echo "#$PR: check verdict is $(jq -r .verdict art/verdict.json)"; continue; }
+  V=$(jq -r .verdict art/verdict.json)
+  if [ "$V" = rejected ]; then
+    # the latest check of this commit refused it (the author was told so in the check's comment): not waiting for anyone
+    gh pr edit "$PR" --repo "$REPO" --remove-label needs-human-review >/dev/null 2>&1; echo "#$PR: latest check rejected, label removed"; continue
+  fi
+  [ "$V" = accepted ] || { echo "#$PR: check verdict is $V"; continue; }
   if gh api "repos/$REPO/contents/$FPATH?ref=main" >/dev/null 2>&1; then
     gh pr comment "$PR" --repo "$REPO" --body "Closing: \`$FPATH\` is already on main (another proof of the same target was merged first). Thank you; take the next problem." >/dev/null
     gh pr close "$PR" --repo "$REPO" >/dev/null; gh pr edit "$PR" --repo "$REPO" --remove-label needs-human-review >/dev/null 2>&1
@@ -54,5 +67,15 @@ while read -r PR; do
     bash base/tools/credit.sh "$PR" >/dev/null 2>&1 || echo "#$PR: credit will be retried by the site"
     echo "#$PR: merged ($KIND)"
   fi
-done < prs.txt
-echo "done: $N looked at"
+  done < prs.txt
+  echo "done: $N looked at (lane $1)"
+}
+PIDS=()
+trap 'kill "${PIDS[@]}" 2>/dev/null' TERM INT
+for L in $(seq 0 $((LANES - 1))); do
+  rm -rf "lane_$L"; mkdir -p "lane_$L"; cp -a "$(readlink -f base)" "lane_$L/base"
+  awk -v n="$LANES" -v l="$L" 'NR % n == l' all.txt > "lane_$L/prs.txt"
+  RELINT="$PWD/lane_$L/relint.json" lane "$L" &
+  PIDS+=($!)
+done
+wait

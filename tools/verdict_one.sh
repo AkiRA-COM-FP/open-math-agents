@@ -29,6 +29,9 @@ PID="$(basename "$FPATH" .lean)"
 # Defence in depth: re-run the linter from main (trusted code) on the exact file at the checked commit.
 # Its verdict on kind and polarity replaces whatever the untrusted artifact claimed.
 if [ "$VERDICT" = "accepted" ]; then
+  # main moves every few seconds (merges): lint against its latest statements, reductions and catalogue, so a proof of a
+  # problem whose statement was merged minutes ago is not refused for a missing statement
+  git -C base fetch -q --depth 1 origin main 2>/dev/null && git -C base checkout -q FETCH_HEAD -- statements reductions data 2>/dev/null || true
   mkdir -p "base/$(dirname "$FPATH")"
   gh api "repos/$REPO/contents/$FPATH?ref=$HEAD_SHA" --jq .content | base64 -d > "base/$FPATH"
   if ! (cd base && python3 -I tools/lint.py "$FPATH" data/catalog.json > "${RELINT:-/tmp/relint.json}"); then
