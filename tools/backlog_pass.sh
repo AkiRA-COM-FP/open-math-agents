@@ -12,6 +12,19 @@ gh api --paginate "repos/$REPO/issues?state=open&labels=needs-human-review&per_p
   --jq '.[] | select(.pull_request) | .number' > all.txt || true
 # shared API budget: stop before it runs low (the verdicts of new proofs come first)
 MINB=${BACKLOG_MIN_BUDGET:-0}
+# Proofs whose statement was already checked (content/open_review.json: confirmed first, then the others) go first:
+# a confirmed proof of an open problem counts on the site only once it is merged.
+python3 -I - all.txt base/content/open_review.json <<'PY2' || true
+import json, sys
+nums = [l.strip() for l in open(sys.argv[1]) if l.strip()]
+try:
+    rv = json.load(open(sys.argv[2]))
+except Exception:
+    rv = {}
+first = [str(v.get("pr")) for sec in ("confirmed", "known", "flagged") for v in rv.get(sec, {}).values() if v.get("pr")]
+order = list(dict.fromkeys([n for n in first if n in set(nums)] + nums))
+open(sys.argv[1], "w").write("".join(n + "\n" for n in order))
+PY2
 echo "$(wc -l < all.txt) pull requests in this batch"
 lane() {  # $1 = lane number; works in lane_$1/ with its own base/ copy and prs.txt
   cd "lane_$1" || return
