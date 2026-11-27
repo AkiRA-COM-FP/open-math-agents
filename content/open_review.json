@@ -56,14 +56,6 @@
    ],
    "note": "HasAddVCNDimAtMost C 2 2 means no convex C in R^3 can 2-shatter a 3x3 sumset grid a_i+b_j by translates, and the proof shows exactly that. The steps: shattering forbids opposite-sign convex dependencies, so the direction planes of a and b are distinct 2-planes; a normal form follows; then a covering of R^3 minus 0 by four facial cones forces a convex-combination contradiction between two translates. This is a genuine geometric argument, and the statement is the project's own faithful definition. The problem comes from formal-conjectures itself (section 'What's not in the literature', tagged open), not from an external source. Known neighbours are VC_2 <= 1 false (KitaKen1) and a finite bound of 2^{8(n+2)^n}-1 (KitaKen1). I found no prior proof of the bound 2. No earlier proof was found as of this review; corrections welcome."
   },
-  "WrittenOnTheWallII.GraphConjecture72.conjecture72": {
-   "date": "2026-11-27",
-   "pr": 620,
-   "evidence": [
-    "http://cms.uhd.edu/faculty/delavinae/research/wowII/all.html#conj72"
-   ],
-   "note": "The counterexample has 19 vertices in layers of sizes 7,2,1,2,7: consecutive layers are completely joined, the outer layers are cliques and the inner layers independent. I verified by brute force that the average eccentricity is 70/19, max lambda(v) = 4 (the middle vertex), and the largest induced tree has 5 vertices, while ceil(70/19+4/3) = 6. The definitions (eccent averaged, induced-subgraph indepNum of the neighbourhood, largest induced tree) are faithful to WOWII #72. Caveat: the WOWII site was unreachable from here, so the open status rests on the formal-conjectures transcription ('status O') and a web search that found no earlier refutation. No earlier proof was found as of this review; corrections welcome."
-  },
   "OeisA208425.conjecture_2": {
    "date": "2026-11-27",
    "pr": 2841,
@@ -2381,6 +2373,18 @@
     "https://arxiv.org/abs/2611.33108"
    ],
    "note": "The statement says that for t >= 3 and all alpha, beta in (0, 1/2), F^{(t)}(n, alpha) = Theta(F^{(t)}(n, beta)), using balancedColoringThreshold. This faithfully encodes 'for fixed t >= 3, do all positive densities below 1/2 give the same asymptotic order?' (the 'one jump at 0' guess). The proof file itself says the result is Corollary 3 of Dhruv Mubayi, 'Large blow-ups of uniform hypergraphs', arXiv:2611.33108 (posted 24 Nov 2026), and it formalises Mubayi's blow-up theorem. Mubayi's abstract gives the order (log n)^{1/(k-1)} for every fixed 0 < alpha < 1/2 and refers to Erdős's $500 question. The t=3 case was already Conlon-Fox-Sudakov 2011. The published solution predates the 2026-11-27 merge, so this is a formalisation of a known result (the erdosproblems page is not yet updated)."
+  },
+  "WrittenOnTheWallII.GraphConjecture72.conjecture72": {
+   "date": "2026-11-27",
+   "pr": 620,
+   "evidence": [
+    "https://github.com/google-deepmind/formal-conjectures/pull/7666",
+    "https://github.com/google-deepmind/formal-conjectures/issues/7662",
+    "https://github.com/google-deepmind/formal-conjectures/pull/7675",
+    "https://vibemathed.com/problem/wowii-conjecture-72-two-induced-trees-pin-down-tree-g",
+    "https://data.palomar-registry.org/feed.xml"
+   ],
+   "reason": "The disproof is correct for the reading ceil(ecc_avg + maxL/3) <= tree(G), which the formal-conjectures reviewer confirmed against the source, but it is not new. RhudeJJJJ/Gebendorfer published a Lean-certified 31-vertex counterexample to exactly this reading in formal-conjectures PR #7666 / issue #7662 on 28 Oct 2026, and the reviewer approved it. VibeMathed records that 'the stronger reading that divides only L by three is false', going back to a 23 Jul 2026 post. A separate 19-vertex Palomar entry (PALOMAR-2026-11-26-000022) was also first published on 26 Nov 2026 at 04:44 UTC, before PR #620 was opened (26 Nov, 23:24 UTC). It should be listed as known, not as an open problem solved."
   }
  },
  "reviewed": "2026-11-27"
