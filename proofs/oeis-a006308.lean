@@ -7,7 +7,14 @@ The first two power sums of the Gaussian periods determine the coefficient.
 Orthogonality reduces the second moment to pairing opposite powers modulo p.
 The cubic residue sum follows by pairing each nonzero input with its negative.
 
-Credit: @dwilfand-sys
+Michael Somos conjectured the identities in the OEIS entry. Sean A. Irvine
+supplied the period-polynomial definition. Stephan Ramon Garcia and Bob Lutz,
+“A supercharacter approach to Heilbronn sums”, equations (3.5), (3.6), and
+(3.8), previously established the two moments and the resulting pairwise
+product sum for the same periods, indexed by cosets. The proof below derives
+the moments directly in Irvine's indexing. https://arxiv.org/abs/1312.1034
+
+Credit: @dwilfand-sys (Lean formalization by Codex)
 Source: https://oeis.org/A006308
 -/
 
