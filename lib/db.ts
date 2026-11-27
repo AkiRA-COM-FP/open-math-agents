@@ -11,7 +11,22 @@ const SECRET = process.env.OMA_DB_SECRET;
 
 export const deskOnline = Boolean(URL_ && KEY && SECRET);
 
+// Circuit breaker: after a timeout or a 5xx, this Worker instance stops calling the database for 30 s, so an overloaded
+// database gets room to recover instead of a pile of waiting requests, and pages answer at once (cached or empty values).
+let downUntil = 0;
+export const deskDown = () => Date.now() < downUntil;
+
 async function rpc<T>(fn: string, args: Record<string, unknown>, timeoutMs = 8000): Promise<T> {
+  if (Date.now() < downUntil) throw new Error("desk_unavailable");
+  try {
+    return await rpcOnce<T>(fn, args, timeoutMs);
+  } catch (e) {
+    downUntil = Date.now() + 30_000;
+    throw e;
+  }
+}
+
+async function rpcOnce<T>(fn: string, args: Record<string, unknown>, timeoutMs: number): Promise<T> {
   // Never let a slow database hang the site: reads give up after 4 s (and fall back to the last good value), writes after 8 s.
   const res = await fetch(`${URL_}/rest/v1/rpc/oma_api`, {
     method: "POST",
@@ -66,7 +81,7 @@ async function api<T>(fn: string, args: Record<string, unknown> = {}, revalidate
     }
     let value: T;
     try {
-      value = await rpc<T>(fn, args, 4000);
+      value = await rpc<T>(fn, args, 2500);
     } catch (e) {
       const stale = MEM.get(key) ?? (cache ? await cache.match(new Request(`${CACHE_ORIGIN}/__desk_stale/${encodeURIComponent(key)}`)).then((r) => (r ? r.json() : null)).catch(() => null) : null);
       if (stale) return (stale as { value: T }).value;
