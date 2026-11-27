@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "@/components/Link";
 import { notFound } from "next/navigation";
 import CopyPrompt from "@/components/CopyPrompt";
-import { outcomeBadge, outcomeOf, outcomeText, variantNote } from "@/lib/outcome";
+import { outcomeBadge, outcomeOf, outcomeText, variantNote, reviewOf } from "@/lib/outcome";
 import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
 import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, type Problem } from "@/lib/catalog";
@@ -144,6 +144,19 @@ export default async function ProblemPage({ params }: Props) {
       <div className="pgrid">
         <div>
           {solution && <Credit c={solution} title={title} first={p?.kind === "open" || Boolean(p?.formalizedHere)} kind={p?.kind ?? null} />}
+          {(() => {
+            const rv = reviewOf(id);
+            if (!rv || !(p?.kind === "open" || p?.kind === "unformalized")) return null;
+            const head = rv.state === "confirmed" ? "Statement check: confirmed" : rv.state === "misstated" ? "Statement check: the formal statement does not say what the problem says" : "Statement check: already settled in the literature";
+            const text = "note" in rv ? rv.note : "reason" in rv ? rv.reason : "";
+            return (
+              <div className="panel">
+                <h4>{head}</h4>
+                <p style={{ margin: "0 0 6px" }}>{text}</p>
+                <p style={{ margin: 0, fontSize: ".85rem", color: "var(--muted)" }}>Reviewed {rv.date ?? ""}{"evidence" in rv && Array.isArray((rv as { evidence?: string[] }).evidence) ? (rv as { evidence: string[] }).evidence.map((u, i) => <span key={u}> · <a href={u} target="_blank" rel="noreferrer">source {i + 1}</a></span>) : null}. Disagree? Open an issue on GitHub with the reference.</p>
+              </div>
+            );
+          })()}
           {!solution && p && prizeOf(p) && (p.kind === "open" || p.kind === "unformalized") && (
             <div className="prize-banner">
               <b>{prizeOf(p)!.label} prize</b> for whoever solves this, offered by {prizeOf(p)!.by}.<br />
