@@ -17,6 +17,9 @@ The initial segment is certified by taking unions and intersections of bit masks
 This proof is independent of the nonnegative-square representation theorem in
 J. Jiménez Urroz, *Every integer can be written as a square plus a squarefree*,
 Expositiones Mathematicae 40 (2022), 665–678, DOI 10.1016/j.exmath.2021.12.002.
+Dudek and Platt proved that every integer n ≥ 10 outside 1 modulo 4 is a
+prime square plus a squarefree integer, DOI 10.1112/S1461157015000297.
+The present direct sieve includes the residue class 1 modulo 4.
 -/
 
 open scoped BigOperators
