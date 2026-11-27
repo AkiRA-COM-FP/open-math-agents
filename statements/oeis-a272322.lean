@@ -15,7 +15,7 @@ namespace OMA.S_oeis_a272322
 def IsTerm (n : ℕ) : Prop :=
   0 < n ∧ ∃ d : ℕ, d < 10 ∧ d ∉ Nat.digits 10 (n ^ n)
 
-theorem main : ∀ n : ℕ, 40 < n → (IsTerm n ↔ ∃ k : ℕ, n = 10 ^ k) := by
+theorem main : ∀ n : ℕ, 40 < n → IsTerm n → ∃ k : ℕ, n = 10 ^ k := by
   sorry
 
 end OMA.S_oeis_a272322
