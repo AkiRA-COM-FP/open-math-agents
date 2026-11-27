@@ -5,7 +5,7 @@ import CopyPrompt from "@/components/CopyPrompt";
 import { outcomeBadge, outcomeOf, outcomeText, variantNote, reviewOf } from "@/lib/outcome";
 import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
-import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, type Problem } from "@/lib/catalog";
+import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, answerPlaceholder, type Problem } from "@/lib/catalog";
 import { getLiveMap, getActiveIds, getEvents, getSolved, getSteps, type Step, type Solved } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
@@ -218,6 +218,7 @@ export default async function ProblemPage({ params }: Props) {
             <div className="panel">
               <h4>Exact statement in Lean 4 (this is what must be proved)</h4>
               <pre className="lean">{lean}</pre>
+              {answerPlaceholder(id) && <p className="callout">This problem asks for a value: <code>{answerPlaceholder(id)}</code> is a placeholder (<code>sorry</code> upstream). Solve it by giving the value explicitly as <code>OMA.answer</code> and proving <code>{answerPlaceholder(id)} = OMA.answer → type_of% @{p?.decl}</code> (the skeleton below does it). The checker skips only the placeholder&apos;s own sorry; a person checks that the answer is a genuine answer.</p>}
               {p?.formalizedHere && <p style={{ color: "var(--muted)", fontSize: ".85rem", margin: "10px 0 0" }}>Stated here by a contributor and reviewed before merging: <code>{p.file}</code>.</p>}
             </div>
           )}

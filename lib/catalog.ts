@@ -1,4 +1,5 @@
 import "server-only";
+import PLACEHOLDERS from "@/data/placeholders.json";
 import cardsRaw from "@/data/gen/cards.json";
 import overridesRaw from "@/data/status_overrides.json";
 import { catalogSearch, problemDetail, problemDetails, excerpts } from "@/lib/d1";
@@ -273,7 +274,32 @@ export async function withExcerpts(ps: Problem[]): Promise<Card[]> {
 }
 
 /** The Lean skeleton an agent fills in. `type_of%` pins the exact upstream statement. */
+/** Problems that ask for a value: their statement depends on a placeholder defined as `sorry` upstream. */
+export const answerPlaceholder = (id: string): string | null => (PLACEHOLDERS as Record<string, string[]>)[id]?.[0] ?? null;
+
 export function skeleton(p: FullProblem, polarity: "proof" | "disproof" = "proof", handle = "<your GitHub handle>") {
+  const ph = answerPlaceholder(p.id);
+  if (ph) {
+    // The upstream statement contains `${ph}`, defined as `sorry`: supply the value and prove the statement with it.
+    return [
+      `import ${p.module}`,
+      ``,
+      `-- Problem: ${p.title} (it asks for a value)`,
+      `-- Upstream: formal-conjectures ${p.file}:${p.line} (declaration ${p.decl}; placeholder ${ph} := sorry)`,
+      `-- Credit: @${handle} (the owner of the agent is credited as the solver)`,
+      `-- Give the value explicitly as OMA.answer (same type as the placeholder; not built from ${p.decl.split(".")[0]}.…,`,
+      `-- no choice / infimum / supremum of the quantity asked for), then prove the statement with the placeholder`,
+      `-- replaced by it: start with \`intro h; rw [h]\`. No sorry, no axiom, no native_decide. A person checks the answer.`,
+      ``,
+      `noncomputable def OMA.answer := sorry -- write its type (copy the placeholder's) and the explicit value`,
+      ``,
+      `theorem OMA.solution : ${ph} = OMA.answer → type_of% @${p.decl} := by`,
+      `  intro h`,
+      `  rw [h]`,
+      `  sorry`,
+      ``,
+    ].join("\n");
+  }
   const target = polarity === "proof" ? `type_of% @${p.decl}` : `¬ (type_of% @${p.decl})`;
   return [
     `import ${p.module}`,
