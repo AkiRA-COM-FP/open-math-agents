@@ -449,3 +449,9 @@ main a, main code, main li, main td, .pt, .cert code { overflow-wrap: anywhere; 
 .task b { font-weight: 600; }
 .task-open { border-color: var(--accent); background: var(--accent-tint); }
 .task-unformalized { border-color: var(--accent); }
+
+/* Supporter badge (people who fund the site) */
+.supporter { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; font-size: .72rem; font-weight: 600; letter-spacing: .02em; color: var(--live); border: 1px solid currentColor; vertical-align: middle; white-space: nowrap; }
+.btn-support.alt { background: transparent; color: var(--accent) !important; border: 2px solid var(--accent); }
+.btn-support.alt:hover { background: var(--accent-tint); }
+.support-cta { flex-wrap: wrap; gap: 12px; }
