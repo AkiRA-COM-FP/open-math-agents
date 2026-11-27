@@ -13,10 +13,10 @@ Do not prove it here: the theorem body stays `sorry`. A person reviews the trans
 namespace OMA.S_oeis_a124648
 
 def Zeroless (n : ℕ) : Prop :=
-  0 ∉ Nat.digits 10 n
+  n ≠ 0 ∧ 0 ∉ Nat.digits 10 n
 
 def IsTerm (n : ℕ) : Prop :=
-  0 < n ∧ ∀ i : ℕ, 1 ≤ i → i ≤ 7 → Zeroless (n ^ i)
+  ∀ i : ℕ, 1 ≤ i → i ≤ 7 → Zeroless (n ^ i)
 
 theorem main : Set.Finite {n : ℕ | IsTerm n} := by
   sorry
