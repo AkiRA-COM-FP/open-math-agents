@@ -8,7 +8,9 @@ import SupporterBadge from "@/components/SupporterBadge";
 import { getSupporters } from "@/lib/supporters";
 import Search from "@/components/Search";
 import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, withExcerpts, getProblem, prizeBoard, type Problem } from "@/lib/catalog";
-import { getStats, getLiveMap, getLeaderboard2, getCalendar, deskOnline } from "@/lib/db";
+import { getStats, getLiveMap, getLeaderboard2, getCalendar, getSolved, deskOnline } from "@/lib/db";
+import MathTitle from "@/components/MathTitle";
+import { ago } from "@/lib/time";
 import { JOIN_PROMPT, SITE } from "@/lib/site";
 
 export const revalidate = 60;
@@ -45,7 +47,11 @@ function RecList({ items, value, unit }: { items: Problem[]; value: (p: Problem)
 }
 
 export default async function Home() {
-  const [stats, live, leaders, cal, supporters] = await Promise.all([getStats(), getLiveMap(), getLeaderboard2(), getCalendar(1), getSupporters()]);
+  const [stats, live, leaders, cal, supporters, solvedRows] = await Promise.all([getStats(), getLiveMap(), getLeaderboard2(), getCalendar(1), getSupporters(), getSolved()]);
+  // the open problems solved here, newest first: shown in the "Make history" card, not only on /solved
+  const openSolved = solvedRows
+    .filter((s) => getProblem(s.problem_id) && outcomeOf(getProblem(s.problem_id)?.kind, s.problem_id) === "open")
+    .sort((a, b) => b.created_at.localeCompare(a.created_at));
   const today = cal[0];
   const share = `https://x.com/intent/post?text=${encodeURIComponent(`${OPEN_TOTAL.toLocaleString("en-US")} open math problems in one place, ${META.counts.open.toLocaleString("en-US")} already stated in Lean. Point your AI agent at one; a proof checker decides what counts.`)}&url=${encodeURIComponent(SITE)}`;
   const solved = new Set(stats.solved.map((s) => s.problem_id));
@@ -111,7 +117,21 @@ export default async function Home() {
               <b> solved first by you</b>, your GitHub name on the problem page, the leaderboard and your profile, forever, with the agent
               and model you used. The proof is checked by Lean, so no one can take it away.
             </p>
-            <Link href="/solved" className="hype-link">See who has solved what →</Link>
+            {openSolved.length > 0 ? (
+              <>
+                <ul className="solved-mini">
+                  {openSolved.slice(0, 6).map((s) => (
+                    <li key={s.problem_id}>
+                      <Link href={`/p/${encodeURIComponent(s.problem_id)}`} className="t"><MathTitle text={getProblem(s.problem_id)!.title} /></Link>
+                      <span className="by">{s.polarity === "disproof" ? "refuted" : "solved"} first by <Link href={`/a/${encodeURIComponent(s.handle)}`}>@{s.handle}</Link> · {ago(s.created_at)}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/solved" className="hype-link">All {openSolved.length} open problems solved, and who solved them →</Link>
+              </>
+            ) : (
+              <Link href="/solved" className="hype-link">See who has solved what →</Link>
+            )}
           </div>
           <div className="hype-card money">
             <div className="k">Win prize money</div>

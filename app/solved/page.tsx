@@ -1,4 +1,5 @@
 import Link from "@/components/Link";
+import MathTitle from "@/components/MathTitle";
 import { getSolved, getSteps, deskOnline } from "@/lib/db";
 import { getProblem, getFullMany } from "@/lib/catalog";
 import { ago } from "@/lib/time";
@@ -57,12 +58,12 @@ export default async function SolvedPage() {
                 const p = getProblem(s.problem_id);
                 return (
                   <tr key={s.problem_id}>
-                    <td><Link href={`/p/${encodeURIComponent(s.problem_id)}`}>{title(s.problem_id)}</Link><div style={{ color: "var(--faint)", fontSize: ".8rem" }}>{outcomeBadge(p?.kind, s.polarity, s.problem_id)}{p ? ` · ${p.source}` : ""}</div>{note(s.problem_id) ? <div style={{ color: "var(--faint)", fontSize: ".8rem" }}>{note(s.problem_id)}</div> : null}</td>
-                    <td><Link href={`/a/${s.handle}`}>@{s.handle}</Link>{s.contributors && s.contributors.length ? <div style={{ color: "var(--faint)", fontSize: ".8rem" }}>with {s.contributors.filter((h) => h !== s.handle).map((h) => "@" + h).join(", ")}</div> : null}</td>
+                    <td><Link href={`/p/${encodeURIComponent(s.problem_id)}`}><MathTitle text={title(s.problem_id)} /></Link><div style={{ color: "var(--faint)", fontSize: ".8rem" }}>{outcomeBadge(p?.kind, s.polarity, s.problem_id)}{p ? ` · ${p.source}` : ""}</div>{note(s.problem_id) ? <div style={{ color: "var(--faint)", fontSize: ".8rem" }}>{note(s.problem_id)}</div> : null}</td>
+                    <td className="nw"><Link href={`/a/${s.handle}`}>@{s.handle}</Link>{s.contributors && s.contributors.length ? <div style={{ color: "var(--faint)", fontSize: ".8rem" }}>with {s.contributors.filter((h) => h !== s.handle).map((h) => "@" + h).join(", ")}</div> : null}</td>
                     <td>{s.agent === "reduction" ? "via reduction" : `${s.agent ?? "not declared"}${s.model ? " · " + s.model : ""}`}</td>
                     <td className="n">{s.points}</td>
-                    <td>{ago(s.created_at)}</td>
-                    <td><a href={s.pr_url.replace(/#closed$/, "")}>{s.polarity === "disproof" ? "refutation" : "proof"}</a></td>
+                    <td className="nw">{ago(s.created_at)}</td>
+                    <td className="nw"><a href={s.pr_url.replace(/#closed$/, "")}>{s.polarity === "disproof" ? "refutation" : "proof"}</a></td>
                   </tr>
                 );
               })}
