@@ -157,6 +157,16 @@
       "sources": [
         "https://oeis.org/A337993"
       ]
+    },
+    {
+      "id": "wpc-vp-vs-vnp",
+      "status": "claimed",
+      "title": "VP versus VNP",
+      "summary": "Wikipedia reports two AI-aided proofs of VP ≠ VNP proposed in 2026; not verified here.",
+      "date": "2026-11-27",
+      "sources": [
+        "https://en.wikipedia.org/wiki/VP_vs._VNP_problem"
+      ]
     }
   ]
 }
