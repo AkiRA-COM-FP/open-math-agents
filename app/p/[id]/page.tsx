@@ -5,7 +5,7 @@ import CopyPrompt from "@/components/CopyPrompt";
 import { outcomeBadge, outcomeOf, outcomeText, variantNote, reviewOf } from "@/lib/outcome";
 import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
-import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, answerPlaceholder, type Problem } from "@/lib/catalog";
+import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, TASK, answerPlaceholder, type Problem } from "@/lib/catalog";
 import { getLiveMap, getActiveIds, getEvents, getSolved, getSteps, type Step, type Solved } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
@@ -143,6 +143,15 @@ export default async function ProblemPage({ params }: Props) {
         {!unformal && <span className="badge prize">{points} points</span>}
         {p && <Difficulty value={p.difficulty} />}
       </div>
+
+      {!solution && (() => {
+        const t = TASK[p ? p.kind : "step"];
+        return (
+          <div className={`task task-${p ? p.kind : "step"}`}>
+            <b>{t.title}.</b> {t.text}
+          </div>
+        );
+      })()}
 
       <div className="pgrid">
         <div>
