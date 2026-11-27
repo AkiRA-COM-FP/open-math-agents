@@ -58,7 +58,7 @@ private lemma prime_block (n : ℕ) (hn : 5 < n) :
 theorem primeCountWheel (J : ℕ) (hJ : 10 ≤ J) :
     15 * ((Finset.range (2*J+2)).filter (fun p => 2 < p ∧ Nat.Prime p)).card ≤ 8*J+34 := by
   induction J using Nat.strong_induction_on with
-  | h J ih =>
+  | ind J ih =>
     by_cases hs : J < 25
     · have base : ∀ j : Fin 25, 10 ≤ j.val →
           15 * ((Finset.range (2*j.val+2)).filter
@@ -124,7 +124,7 @@ private theorem multiplesRow_marks (fuel d k : ℕ) (hd : 0 < d)
       rcases Nat.mod_two_eq_zero_or_one k with heven | hodd
       · have hki : 2*(k/2) = k := by omega
         have hindex : d*k = (2*d)*(k/2) := by rw [hreorder, hki]
-        rw [multiplesRow, if_neg hstop, Nat.testBit_or, hindex, hrec]
+        simp only [multiplesRow, if_neg hstop, Nat.testBit_or, hindex, hrec, Bool.true_or]
       · have hki : 2*(k/2)+1 = k := by omega
         have hindex : (2*d)*(k/2)+d = d*k := by
           calc
@@ -361,7 +361,7 @@ private lemma largeRankBounds (t : ℕ) (S : Finset ℕ) (hc : S.card = 10+t)
     have hh := ranked_bounds false 10 (by decide) S (by simpa using hc) hS (by intro h; cases h)
     constructor
     · exact (show 8*(10+0)*8^(10+0)+2 ≤ rankedProd false 10 by decide).trans hh.1
-    · have nn : (3:ℚ) ≤ 10*rankedRho false 10 := by decide
+    · have nn : (3:ℚ) ≤ 10*rankedRho false 10 := by decide +kernel
       change (3:ℚ) ≤ 10*largeRho S
       linarith [hh.2]
   | succ t ih =>
@@ -387,9 +387,11 @@ private lemma largeRankBounds (t : ℕ) (S : Finset ℕ) (hc : S.card = 10+t)
     change (3:ℚ) ≤ (r:ℚ)*largeRho U at hrho
     have hpn : 11 ≤ p := by omega
     have hgeom : 8*(r+1)*8^(r+1)+2 ≤ (8*r*8^r+2)*11 := by
+      have hcoeff : 8*(r+1) ≤ 11*r := by omega
       rw [pow_succ]
-      have hh := Nat.mul_le_mul_right (8^r) hr
-      nlinarith only [hh]
+      calc
+        _ ≤ 11*r*(8^r*8)+2 := Nat.add_le_add_right (Nat.mul_le_mul_right _ hcoeff) _
+        _ ≤ _ := by ring_nf; omega
     constructor
     · change 8*(r+1)*8^(r+1)+2 ≤ ∏ q ∈ S, q
       have hh := hgeom.trans (Nat.mul_le_mul hprod hpn)
@@ -451,13 +453,13 @@ private lemma pow4_big (t : ℕ) : 100*(32*(10+t)+3) ≤ 4*4^(10+t) := by
 
 private lemma primeCost16 (J : ℕ) : 4*largePi (2*J+1) ≤ 4*22000+J+1 := by
   have h := large_prime_cutoff (2*J+1) 16
-  change 16*largePi (2*J+1) ≤ 2*(2*J+1)+16*largePi 65536 at h
+  rw [show (2:ℕ)^16 = 65536 by norm_num] at h
   have h' := pi_fixed
   omega
 
 private lemma primeCost18 (J : ℕ) : 18*largePi (2*J+1) ≤ 4*J+4+18*262145 := by
   have h := large_prime_cutoff (2*J+1) 18
-  change 18*largePi (2*J+1) ≤ 2*(2*J+1)+18*largePi 262144 at h
+  rw [show (2:ℕ)^18 = 262144 by norm_num] at h
   have h' := largePi_le 262144
   omega
 
@@ -592,8 +594,12 @@ theorem sift_main (ps : List ℕ) (X : ℚ) (d : ℕ) :
   induction ps generalizing d with
   | nil => simp [sift, density]
   | cons p rest ih =>
-    simp only [sift, ih, density, List.map_cons, List.prod_cons, Nat.cast_mul]
-    simp only [div_eq_mul_inv, mul_inv_rev, one_mul]
+    change sift rest (fun t => X / (t : ℚ)) d -
+      sift rest (fun t => X / (t : ℚ)) (d*p) = _
+    rw [ih d, ih (d*p)]
+    change X / (d : ℚ) * density rest - X / ((d*p : ℕ) : ℚ) * density rest =
+      X / (d : ℚ) * ((1 - 1 / (p : ℚ)) * density rest)
+    simp only [Nat.cast_mul, div_eq_mul_inv, mul_inv_rev, one_mul]
     ring
 
 theorem sift_shift (ps : List ℕ) (F : ℕ → ℚ) (c : ℚ) (d : ℕ) :
@@ -648,7 +654,7 @@ theorem sift_indicator (ps : List ℕ) (x d : ℕ) (hpair : ps.Pairwise Nat.Copr
         exact ⟨(Nat.dvd_mul_right d p).trans hh, (Nat.dvd_mul_left p d).trans hh⟩
       · rintro ⟨h1,h2⟩
         exact hdp.mul_dvd_of_dvd_of_dvd h1 h2
-    rw [sift, ih d hr hprimes hcop, ih (d*p) hr hprimes hcop',
+    simp only [sift, ih d hr hprimes hcop, ih (d*p) hr hprimes hcop',
       List.prod_cons, Nat.coprime_mul_iff_left, hprime.coprime_iff_not_dvd, hmul]
     by_cases h1 : d ∣ x <;> by_cases h2 : p ∣ x <;> by_cases h3 : rest.prod.Coprime x <;>
       simp [h1,h2,h3]
@@ -842,12 +848,13 @@ theorem odd_divisor_error {d : ℕ} (hd : Odd d) (J : ℕ) :
     dsimp [C]
     split_ifs with ht
     · nlinarith
-    · nlinarith
+    · simp only [Nat.add_zero, Nat.mul_assoc]
+      omega
   have hl : 2*(J:ℚ) ≤ (2*(C:ℚ)+1)*(d:ℚ) := by exact_mod_cast hlow
   have hu : 2*(C:ℚ)*(d:ℚ) ≤ 2*(J:ℚ)+(d:ℚ) := by exact_mod_cast hhigh
   have hpos : (0:ℚ) < d := by exact_mod_cast hdpos
-  have h1 : (J:ℚ)/d ≤ (C:ℚ)+1/2 := (div_le_iff₀ hpos).mpr (by linarith)
-  have h2 : (C:ℚ)-1/2 ≤ (J:ℚ)/d := (le_div_iff₀ hpos).mpr (by linarith)
+  have h1 : (J:ℚ)/d ≤ (C:ℚ)+1/2 := (div_le_iff₀ hpos).mpr (by nlinarith only [hl])
+  have h2 : (C:ℚ)-1/2 ≤ (J:ℚ)/d := (le_div_iff₀ hpos).mpr (by nlinarith only [hu])
   change |(C:ℚ)-(J:ℚ)/d| ≤ 1/2
   exact abs_le.mpr ⟨by linarith,by linarith⟩
 
@@ -922,7 +929,7 @@ theorem affine_crt_class (d Q b s : ℕ) (hc : d.Coprime Q) (ho : Odd (d*Q)) :
   exact ⟨fun ⟨h1,h2⟩ => ⟨h1.trans c.property.1.symm,h2.trans c.property.2.symm⟩,
     fun ⟨h1,h2⟩ => ⟨h1.trans c.property.1,h2.trans c.property.2⟩⟩
 
-theorem one_residue_error {m a : ℕ} (hm : 0<m) (ha : a<m) (J : ℕ) :
+theorem one_residue_error {m a : ℕ} (hm : 0 < m) (ha : a < m) (J : ℕ) :
     |(((Finset.range J).filter (fun x => x%m=a)).card : ℚ)-(J:ℚ)/m| ≤ 1 := by
   rw [residue_card m J a hm ha]
   have hJ := Nat.div_add_mod' J m
@@ -931,7 +938,7 @@ theorem one_residue_error {m a : ℕ} (hm : 0<m) (ha : a<m) (J : ℕ) :
     exact_mod_cast (show (J/m)*m ≤ J by omega)
   have hu : (J:ℚ) ≤ (((J/m:ℕ):ℚ)+1)*(m:ℚ) := by
     exact_mod_cast (show J ≤ (J/m+1)*m by rw [Nat.add_mul,one_mul]; omega)
-  have hpos : (0:ℚ)<m := by exact_mod_cast hm
+  have hpos : (0 : ℚ) < m := by exact_mod_cast hm
   have hlow := (le_div_iff₀ hpos).mpr hl
   have hhigh := (div_le_iff₀ hpos).mpr hu
   split_ifs <;> push_cast <;> apply abs_le.mpr <;> constructor <;> linarith
@@ -1045,24 +1052,24 @@ theorem raw_prime_loss {n p b J : ℕ} (hp : p.Prime) (hp2 : 2<p) (hn : ¬p^2 �
     have hs := root_or_opposite hp hp2 hn (show 2*x+b ≤ 2*y+b by omega)
       (Finset.mem_filter.mp hx).2 (Finset.mem_filter.mp hy).2
     change (2*x+b)/(p^2)=(2*y+b)/(p^2) at hf
-    have h1 := Nat.div_add_mod' (2*x+b) (p^2)
-    have h2 := Nat.div_add_mod' (2*y+b) (p^2)
-    rw [← hf] at h2
-    have h3 := Nat.mod_lt (2*x+b) hm
-    have h4 := Nat.mod_lt (2*y+b) hm
     by_contra hne
+    have bounds {L M : ℕ} (lo : L ≤ 2*x+b) (hi : 2*y+b < L+M) :
+        (0 < y-x ∧ y-x < M) ∧ (0 < x+y+b-L ∧ x+y+b-L < M) := by omega
+    have hi : 2*y+b < ((2*x+b)/(p^2))*(p^2) + p^2 := by
+      calc
+        2*y+b < (p^2)*((2*y+b)/(p^2)+1) := Nat.lt_mul_div_succ _ hm
+        _ = _ := by rw [← hf]; ring
+    obtain ⟨hdiff,hmid⟩ := bounds (Nat.div_mul_le_self (2*x+b) (p^2)) hi
     rcases hs with hd | hsum
     · have he : 2*y+b-(2*x+b)=2*(y-x) := by omega
       rw [he] at hd
-      have := Nat.le_of_dvd (show 0<y-x by omega) (hcop.dvd_of_dvd_mul_left hd)
-      omega
+      exact (Nat.not_le_of_lt hdiff.2) (Nat.le_of_dvd hdiff.1 (hcop.dvd_of_dvd_mul_left hd))
     · have he : (2*x+b)+(2*y+b)=2*(x+y+b) := by omega
       rw [he] at hsum
       have hv := hcop.dvd_of_dvd_mul_left hsum
       have hbase : p^2 ∣ ((2*x+b)/(p^2))*(p^2) := Nat.dvd_mul_left _ _
       have hh := Nat.dvd_sub hv hbase
-      have := Nat.le_of_dvd (show 0<(x+y+b)-((2*x+b)/(p^2))*(p^2) by omega) hh
-      omega
+      exact (Nat.not_le_of_lt hmid.2) (Nat.le_of_dvd hmid.1 hh)
   have hc : A.card ≤ bins.card := by
     apply Finset.card_le_card_of_injOn f
     · intro x hx
@@ -1160,8 +1167,9 @@ theorem prime_enumeration (S : Finset ℕ) (hS : ∀ p ∈ S, 2<p ∧ p.Prime) :
       simp [D.mem]
     · simp [ha,D.len]
     · simp [ha,D.product]
-    · simpa only [density,List.map_cons,List.prod_cons,largeRho,Finset.prod_insert ha] using
-        congrArg (fun z : ℚ => (1-1/(a:ℚ))*z) D.rho
+    · change (1 - 1 / (a : ℚ)) * density D.ps = largeRho (insert a S)
+      rw [D.rho]
+      simp only [largeRho, Finset.prod_insert ha]
 
 private theorem odd_product_list (ps : List ℕ) (h : ∀ p ∈ ps, Odd p) : Odd ps.prod := by
   induction ps with
@@ -1315,11 +1323,10 @@ private theorem odd_reciprocal_tail_aux (count : ℕ) (P : Finset ℕ)
       omega
     have htail := ih (P.erase p) hcard' (p+1) (by omega)
       (fun q hq => hP q (hsub hq)) hnext
+    simp only [Nat.cast_add, Nat.cast_one] at htail
+    have hsum := add_le_add (le_refl (1 / (p : ℚ)^2)) htail
     rw [← Finset.add_sum_erase P (fun q => 1/(q : ℚ)^2) hp]
-    calc
-      _ ≤ 1/(p : ℚ)^2 + 1/(2*(((p+1 : ℕ) : ℚ))) := add_le_add_left htail _
-      _ ≤ _ := by simpa only [Nat.cast_add, Nat.cast_one] using
-        odd_reciprocal_step hT (hcut p hp)
+    exact hsum.trans (odd_reciprocal_step hT (hcut p hp))
 
 /-- A finite subset of the odd primes past `T` has reciprocal-square sum at
 most `1/(2T)`, by telescoping along successive odd integers. -/
@@ -1399,7 +1406,7 @@ private theorem sift_empty_interval (ps : List ℕ) (x d : ℕ) (h : x < d)
 theorem fastSift_cast (ps : List ℕ) (x d : ℕ) (hp : ∀ p ∈ ps, 0 < p) :
     (fastSift ps x d : ℚ) = sift ps (fun t => ((x/t : ℕ):ℚ)) d := by
   induction ps generalizing d with
-  | nil => simp [fastSift,sift]
+  | nil => simp only [fastSift, sift, Int.cast_natCast]
   | cons p rest ih =>
     have hrest : ∀ q ∈ rest, 0 < q := fun q hq => hp q (by simp [hq])
     by_cases h : x < d
@@ -1422,6 +1429,10 @@ theorem rough_card (ps : List ℕ) (x : ℕ) (hp : ∀ p ∈ ps, p.Prime)
 def wheel : List ℕ :=
   [101,97,89,83,79,73,71,67,61,59,53,47,43,41,37,31,29,23,19,17,13,11,7,5,3,2]
 
+set_option maxRecDepth 20000 in
+private theorem wheel_complete : ∀ p : Fin 102, 2 < p.val → Nat.Prime p.val →
+    p.val ∈ wheel.toFinset.erase 2 := by decide +kernel
+
 theorem odd_prime_count_upper (x : ℕ) (hx : 101 ≤ x) :
     ((((Finset.range (x+1)).filter (fun p => 2 < p ∧ p.Prime)).card : ℤ)) ≤
       fastSift wheel x 1 + 24 := by
@@ -1437,8 +1448,7 @@ theorem odd_prime_count_upper (x : ℕ) (hx : 101 ≤ x) :
     obtain ⟨hx',h₂,hp'⟩ := Finset.mem_filter.mp h
     have hpx := Finset.mem_range.mp hx'
     by_cases hsmall : p ≤ 101
-    · have complete : ∀ p : Fin 102, 2 < p.val → Nat.Prime p.val → p.val ∈ known := by decide
-      exact Finset.mem_union_left _ (complete ⟨p,by omega⟩ h₂ hp')
+    · exact Finset.mem_union_left _ (wheel_complete ⟨p,by omega⟩ h₂ hp')
     · apply Finset.mem_union_right
       apply Finset.mem_erase.mpr
       refine ⟨by omega,Finset.mem_filter.mpr ⟨Finset.mem_Ioc.mpr ⟨by omega,by omega⟩,?_⟩⟩
@@ -1464,7 +1474,7 @@ def costUpper (j : ℕ) : ℤ := fastSift wheel (2*j+1) 1 + 24 + primeDeltas j
 
 theorem cost_upper (j : ℕ) (hlo : 300 ≤ j) (hhi : j ≤ 1000000) :
     ((∑ p ∈ (Finset.range (2*j+2)).filter (fun p => 2 < p ∧ p.Prime),
-      (2*j)/(p^2)+1 : ℕ):ℤ) ≤ costUpper j := by
+      ((2*j)/(p^2)+1) : ℕ):ℤ) ≤ costUpper j := by
   let P := (Finset.range (2*j+2)).filter (fun p => 2 < p ∧ p.Prime)
   let Q := (Finset.range 1415).filter (fun p => 2 < p ∧ p.Prime)
   have outside (p : ℕ) (hp : p ∈ P \ Q) : 2*j/(p^2) = 0 := by
@@ -1487,7 +1497,7 @@ theorem cost_upper (j : ℕ) (hlo : 300 ≤ j) (hhi : j ≤ 1000000) :
     exact fun _ _ _ => Nat.zero_le _
   have hcard := odd_prime_count_upper (2*j+1) (by omega)
   change (P.card : ℤ) ≤ _ at hcard
-  change ((∑ p ∈ P, 2*j/(p^2)+1 : ℕ):ℤ) ≤ _
+  change ((∑ p ∈ P, (2*j/(p^2)+1) : ℕ):ℤ) ≤ _
   rw [Finset.sum_add_distrib]
   simp only [Finset.sum_const, nsmul_eq_mul, mul_one, Nat.cast_add]
   unfold costUpper
@@ -1588,7 +1598,7 @@ private def smallPrimes : Finset ℕ := {3,5,7,11,13,17}
 
 private def initialError (r : ℕ) : ℚ := if r = 0 then 0 else (2:ℚ)^(r-1)
 
-private def refund (J : ℕ) (A : Finset ℕ) : ℕ := ∑ p ∈ A, 2*J/(p^2)+1
+private def refund (J : ℕ) (A : Finset ℕ) : ℕ := ∑ p ∈ A, (2*J/(p^2)+1)
 
 private def profileChecks (lo hi : ℕ) (c : ℤ) : Prop :=
   ∀ A ∈ smallPrimes.powerset, ∀ t : Fin 5,
@@ -1633,8 +1643,8 @@ private theorem rho_nonneg' {S : Finset ℕ} (h : ∀ p ∈ S, 2 < p) : 0 ≤ la
   exact sub_nonneg.mpr ((div_le_one (by linarith : (0:ℚ) < p)).mpr h₁)
 
 private theorem missing_mono {J H : ℕ} (hj : J ≤ H) {S A : Finset ℕ} (ha : A ⊆ S) :
-    (∑ p ∈ largePrimeSet (2*J+1) \ S, 2*J/(p^2)+1) ≤
-      ∑ p ∈ largePrimeSet (2*H+1) \ A, 2*H/(p^2)+1 := by
+    (∑ p ∈ largePrimeSet (2*J+1) \ S, (2*J/(p^2)+1)) ≤
+      ∑ p ∈ largePrimeSet (2*H+1) \ A, (2*H/(p^2)+1) := by
   have sub : largePrimeSet (2*J+1) \ S ⊆ largePrimeSet (2*H+1) \ A := by
     intro p hp
     obtain ⟨hP,hs⟩ := Finset.mem_sdiff.mp hp
@@ -1643,15 +1653,16 @@ private theorem missing_mono {J H : ℕ} (hj : J ≤ H) {S A : Finset ℕ} (ha :
     exact Finset.mem_sdiff.mpr ⟨Finset.mem_filter.mpr ⟨Finset.mem_range.mpr (by omega),hp⟩,
       fun hp => hs (ha hp)⟩
   calc
-    _ ≤ ∑ p ∈ largePrimeSet (2*J+1) \ S, 2*H/(p^2)+1 := by
+    _ ≤ ∑ p ∈ largePrimeSet (2*J+1) \ S, (2*H/(p^2)+1) := by
       apply Finset.sum_le_sum
       intro p hp
       exact Nat.add_le_add_right (Nat.div_le_div_right (Nat.mul_le_mul_left 2 hj)) 1
     _ ≤ _ := Finset.sum_le_sum_of_subset_of_nonneg sub (fun _ _ _ => Nat.zero_le _)
 
+set_option maxHeartbeats 2000000 in
 theorem moderate_sieve_budget {J : ℕ} (hlo : 300 ≤ J) (hhi : J ≤ 1000000)
     {S : Finset ℕ} (hS : ∀ p ∈ S, 2 < p ∧ p.Prime) (hB : (∏ p ∈ S,p) ≤ 2*J+2) :
-    ((∑ p ∈ largePrimeSet (2*J+1) \ S, 2*J/(p^2)+1 : ℕ):ℚ) +
+    ((∑ p ∈ largePrimeSet (2*J+1) \ S, (2*J/(p^2)+1) : ℕ):ℚ) +
         (if S.card=0 then 0 else (2:ℚ)^(S.card-1)) < (J:ℚ)*largeRho S := by
   obtain ⟨c,hc,hl,hu⟩ := covers_mem hlo hhi (show covers 300 rows by decide)
   obtain ⟨hl₀,hu₀,hcases,hcost⟩ := checks c hc
@@ -1683,13 +1694,21 @@ theorem moderate_sieve_budget {J : ℕ} (hlo : 300 ≤ J) (hhi : J ≤ 1000000)
   have hcase := hcases A (Finset.mem_powerset.mpr Finset.inter_subset_right) ⟨T.card,ht⟩
       (pA.trans (by omega))
   have hTρ : (18/19:ℚ)^T.card ≤ largeRho T := by
-    rw [← Finset.prod_const]
-    apply Finset.prod_le_prod
-    · intro p hp; norm_num
-    · intro p hp
+    have point (p : ℕ) (hp : p ∈ T) : (18/19:ℚ) ≤ 1-1/(p:ℚ) := by
       have pq : (19:ℚ) ≤ p := by exact_mod_cast large p hp
       have inf := one_div_le_one_div_of_le (by norm_num : (0:ℚ) < 19) pq
       linarith
+    have bound (U : Finset ℕ) (hu : ∀ p ∈ U, (18/19:ℚ) ≤ 1-1/(p:ℚ)) :
+        (18/19:ℚ)^U.card ≤ largeRho U := by
+      induction U using Finset.induction_on with
+      | empty => simp [largeRho]
+      | @insert p U hp ih =>
+        have hp' := hu p (Finset.mem_insert_self p U)
+        have hi := ih (fun q hq => hu q (Finset.mem_insert_of_mem hq))
+        have h := mul_le_mul hp' hi (by positivity)
+          (by linarith only [hp'] : 0 ≤ 1-1/(p:ℚ))
+        simpa [largeRho, hp, pow_succ, mul_comm] using h
+    exact bound T point
   have hρA := rho_nonneg' (S := A) (fun p hp => (hS p (haS hp)).1)
   have hrho : largeRho A * largeRho T = largeRho S := by
     unfold largeRho
@@ -1708,15 +1727,19 @@ theorem moderate_sieve_budget {J : ℕ} (hlo : 300 ≤ J) (hhi : J ≤ 1000000)
   have hrebate := Finset.sum_sdiff (f := fun p => 2*c.2.1/(p^2)+1) hA
   have htotal := (cost_upper c.2.1 (hl₀.trans (hl.trans hu)) hu₀).trans hcost
   have hmono := missing_mono hu haS
-  have hleft : ((∑ p ∈ largePrimeSet (2*J+1) \ S, 2*J/(p^2)+1 : ℕ):ℚ) ≤
+  have hleft : ((∑ p ∈ largePrimeSet (2*J+1) \ S, (2*J/(p^2)+1) : ℕ):ℚ) ≤
       (c.2.2:ℚ) - (refund c.2.1 A:ℚ) := by
-    change _ ≤ _ - ((∑ p ∈ A, 2*c.2.1/(p^2)+1 : ℕ):ℚ)
     apply le_sub_iff_add_le.mpr
-    exact_mod_cast (by omega : (∑ p ∈ largePrimeSet (2*J+1) \ S, 2*J/(p^2)+1) +
-      (∑ p ∈ A, 2*c.2.1/(p^2)+1) ≤ c.2.2)
+    have hsum := (Nat.add_le_add_right hmono (refund c.2.1 A)).trans_eq hrebate
+    have hsumZ : (((∑ p ∈ largePrimeSet (2*J+1) \ S, (2*J/(p^2)+1)) +
+        refund c.2.1 A : ℕ) : ℤ) ≤ c.2.2 := calc
+      _ ≤ ((∑ p ∈ largePrimeSet (2*c.2.1+1), (2*c.2.1/(p^2)+1) : ℕ) : ℤ) := by
+        exact_mod_cast hsum
+      _ ≤ _ := htotal
+    exact_mod_cast hsumZ
   change _ + initialError S.card < _
   rw [← card]
-  exact (add_le_add_right hleft _).trans_lt (hcase.trans_le hright)
+  exact (add_le_add hleft le_rfl).trans_lt (hcase.trans_le hright)
 
 end A085265Moderate
 
@@ -1739,7 +1762,7 @@ private theorem nat_divide_cost (J p : ℕ) (hp : 0<p) :
   have hd : (0:ℚ)<(p:ℚ)^2 := by positivity
   have := (le_div_iff₀ hd).mpr hq
   push_cast
-  simpa only [div_eq_mul_inv,one_mul] using add_le_add_right this (1:ℚ)
+  simpa only [div_eq_mul_inv,one_mul] using add_le_add this (le_refl (1:ℚ))
 
 /-- Estimate the union of bad prime-square divisors on the retained parity progression. -/
 private theorem large_hit_total {n J b T : ℕ} {S : Finset ℕ} (D : PrimeEnumeration S)
@@ -1839,15 +1862,16 @@ theorem large_or_moderate_rep {n J b : ℕ} (S : Finset ℕ) (hJ : 300 ≤ J)
   have initial := initial_candidates D b J hS hb
   by_cases hm : J ≤ 1000000
   · have budget := moderate_sieve_budget (S:=S) hJ hm hS hB
-    have hh : (candidateSet D.ps J b).card ≤ ∑ p ∈ P, 2*J/(p^2)+1 := by
-      apply hc.trans (Finset.sum_le_sum ?_)
+    have hh : (candidateSet D.ps J b).card ≤ ∑ p ∈ P, (2*J/(p^2)+1) := by
+      refine hc.trans ?_
+      apply Finset.sum_le_sum
       intro p hp
       obtain ⟨hh,hno⟩ := Finset.mem_sdiff.mp hp
       obtain ⟨h2,hpr⟩ := (Finset.mem_filter.mp hh).2
       exact hit_card_raw D.ps hpr h2 (fun h => hno ((hreg p h2 hpr).mpr h)) hb2
-    have hcast : ((candidateSet D.ps J b).card:ℚ) ≤ ((∑ p ∈ P, 2*J/(p^2)+1 : ℕ):ℚ) := by
+    have hcast : ((candidateSet D.ps J b).card:ℚ) ≤ ((∑ p ∈ P, (2*J/(p^2)+1) : ℕ):ℚ) := by
       exact_mod_cast hh
-    change ((∑ p ∈ P, 2*J/(p^2)+1 : ℕ):ℚ) + initialError S.card < (J:ℚ)*largeRho S at budget
+    change ((∑ p ∈ P, (2*J/(p^2)+1) : ℕ):ℚ) + initialError S.card < (J:ℚ)*largeRho S at budget
     linarith
   · obtain ⟨T,hT,hTJ,budget⟩ := large_sieve_budget (by omega : 1000000≤J) hS hB
     have loss := large_hit_total (J:=J) D hT hS hreg hb2
@@ -1947,7 +1971,7 @@ theorem exclude_one_thirteen {n k : ℕ} (hk : 0 < k) (hkn : k^2 < n)
     by_contra! h
     have := Nat.pow_le_pow_left h 2
     omega
-  have table : ∀ j : Fin 4, 0 < j.val → ¬ Squarefree (13-j.val^2) := by decide
+  have table : ∀ j : Fin 4, 0 < j.val → ¬ Squarefree (13-j.val^2) := by decide +kernel
   exact table ⟨k,hsmall⟩ hk hs
 
 end A085265Sieve
