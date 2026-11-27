@@ -4,7 +4,7 @@ import Mathlib
 # Generalization of Penney's game (Penney's paradox)
 
 Source: https://mathoverflow.net/questions/306162
-Credit: @<your GitHub handle>
+Credit: @D3DataScience
 
 The source asks about a two-level Penney game.  A word is a finite binary
 sequence.  A player completes a two-word choice when both of its words have
