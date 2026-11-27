@@ -233,6 +233,40 @@
     "https://oeis.org/A263243"
    ],
    "note": "The statement defines Rule 155 from a single ON cell. The rule is applied to the background too, so the background turns ON after step 1, as in the OEIS data. Cells -n..n are read in base 2, and I checked that this reproduces all 1001 b-file terms. It states the conjunction of Colin Barker's conjectured recurrence and g.f. with Karl V. Keller's odd and even closed forms (the ℤ-division exponents are exact under the parity hypotheses), so it faithfully captures the conjectures in the entry. Barker's separate 'Empirical' formula is omitted, but it follows from the g.f. The proof is a genuine induction. It shows that for t ≥ 1 the row is all ON except at position 1-t (odd t), or except at positions 1-t and 2-t (even t). From this it computes a(n) = 3*2^(2n-1) - 1 and 5*2^(2n-2) - 1, then a(n+2) = 16a(n) + 15, and derives the recurrence and g.f. coefficientwise. It uses no native_decide or other tricks. A263245 and its companions A263243/A263244 still label all these formulas as conjectures or empirical, and I found no earlier proof as of this review. The result is mathematically routine (a trivially eventually-periodic automaton), so it is a confirmation of an OEIS-level conjecture, not a significant open problem."
+  },
+  "oeis-a379181": {
+   "date": "2026-11-27",
+   "pr": 6283,
+   "evidence": [
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A379/A379181.seq"
+   ],
+   "note": "The source conjecture (Stefano Spezia, Jul 23 2025) is 'a(n+1)/a(n) ~ 10', i.e. the ratio tends to 10; the formal statement is exactly Tendsto (term(n+1)/term(n)) atTop (nhds 10), and the disproof proves its negation. term(n) counts k < 10^n with exactly n digits (0 counted for n=1, so term 1 = 10) whose digit multiset has a unique mode m equal to the mean (sum = m*n), matching the OEIS definition and the Mathematica code Commonest==={Mean}; the n=0 term (0, giving ratio 0 in Lean) does not affect the limit. The proof is a genuine argument: the mean must be an integer, hence at distance >= 1/2 from 4.5, and a digit-flip symmetry plus an exponential-moment (Chernoff-type) bound gives term(n) <= 2*(9.9)^n, whereas a ratio tending to 10 would force term(N+r) >= 9.95^r*term(N), a contradiction via Bernoulli's inequality. The current OEIS entry (rev #27) still lists the conjecture with no refutation, so this disproof is new. The true growth rate is a constrained large-deviation constant strictly below 10, which is consistent with the listed terms (ratios ~9.1-9.6)."
+  },
+  "oeis-a292727": {
+   "date": "2026-11-27",
+   "pr": 6249,
+   "evidence": [
+    "https://oeis.org/A292727",
+    "https://oeis.org/A292726",
+    "https://oeis.org/A292728"
+   ],
+   "note": "The move relation matches the entry: you pick two equal piles x,x, move 1<=y<=x stones, and drop an emptied pile. a(n) is the number of positive partitions of n not reachable from 1^n. The statement indexes from n>=1 and agrees with the data (a(10)=4 with the listed unreachable states; a(12)=7, a(24)=26, a(20)=9, a(40)=30, a(28)=11, a(56)=34). The two iff conjectures (a(n)=0 iff n is a power of 2, a(n)=1 iff n is an odd prime) are not new: Charlie Neder proved both in the companion entry A292726 (Jan 2019, 'both conjectures are true'), and the proof uses the same odd-divisor invariant. The new part is the pair of formulas a(4p)=p+4 and a(8p)=2p+20, which A292727 still gives only as Neder's conjecture; no proof turned up in a search. The proof derives them from its own lemmas, not by computation for particular p (the only decide calls are partition counts for 4 and 8): reachable_of_pow_two_mul_prime, explicit counts of odd pairs not divisible by p, and ncard_mul_prime. I confirm it on the strength of those two formulas; the iff parts should be credited to Neder."
+  },
+  "oeis-a309417": {
+   "date": "2026-11-27",
+   "pr": 6309,
+   "evidence": [
+    "https://oeis.org/A309417"
+   ],
+   "note": "A309417 (Moewald, 2019) conjectures that lim a(n+1)/a(n) = 10, where a(n) is the number of steps from 10^n to 0 under x -> x - digitsum(x). term n = countSteps(10^n)(10^n), and the fuel 10^n is enough because each step strictly decreases a positive x. This gives term 1 = 2, matching a(1)=2. Including the extra index n=0 (term 0 = 1) does not change the limit, and term n > 0 is proved, so the real ratio is well defined. The proof is a genuine second-moment argument. The orbit from 10^n visits distinct numbers below 10^n whose digit sums add up to exactly 10^n. Exact second-moment and bounded fourth-moment computations for the digit sum over [0,10^n) show that few numbers have digit sum far from 4.5n. Together these give term n ~ 10^n/(4.5n), so the ratio tends to 10. The entry still lists it as a conjecture with no proof, and a web search found no earlier proof."
+  },
+  "oeis-a108629": {
+   "date": "2026-11-27",
+   "pr": 5993,
+   "evidence": [
+    "https://oeis.org/A108629"
+   ],
+   "note": "The statement encodes the g.f. (1+x-sqrt(1-2x-3x^2-4x^3))/(2+2x+2x^2) over Q, taking the square-root branch with constant term 1 via binomialSeries(1/2) composed with -2X-3X^2-4X^3. With a(n) = coeff n, a(0)=0 and a(1)=1, which matches OEIS offset 1 (1,0,1,2,4,11,...). The recurrence is exactly R. J. Mathar's 'Conjecture D-finite with recurrence' (Jan 2020), stated for n>=6 where every index is defined; I checked it by hand at n=6 (66=66). The proof is a genuine algebraic derivation. It uses R^2 = 1+t to get 2(1+t)R' = t'R, substitutes R = 1+X-2(1+X+X^2)A to get a first-order linear ODE for A, and reads off coefficients. The entry still marks the recurrence as conjectural. The result is routine (any algebraic g.f. is D-finite), so its novelty is low, but no earlier proof exists in the source."
   }
  },
  "flagged": {
@@ -279,6 +313,15 @@
     "https://mathoverflow.net/posts/93022/revisions"
    ],
    "reason": "The formal statement takes literally the question's 'that is' clause: v is connecting if for all p != q some k > 0 gives p.v^k = q or q.v^k = p. It then asks for such a v of length <= n-1 whenever one exists. The disproof is a 5-state, 3-letter automaton with a reset letter, checked by decide. It has a connecting word of length 6, and every word of length <= 4 is constant or preserves a nontrivial 2-colouring. Under that literal reading the counterexample is valid. However, the question is not precise or self-consistent. It asks about words whose 'underlying graph is connected' (Berlinkov's one-cluster setting), and in the comments the author says one may also assume that w takes A into one state. A constant map is never connecting in the literal sense once n >= 3, so the literal clause cannot be what was meant. A commenter also notes that assumptions are missing, which makes the answer obviously 'no'. Under the graph-connectivity reading the counterexample fails: its length-1 reset letter has a connected (one-cluster) functional graph. So the disproof settles a literal reading the author's own clarifications contradict, not a precise open question."
+  },
+  "Erdos40.erdos_40": {
+   "date": "2026-11-27",
+   "pr": 6150,
+   "evidence": [
+    "https://www.erdosproblems.com/40",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/main/FormalConjectures/ErdosProblems/40.lean"
+   ],
+   "reason": "The upstream erdos_40 is a 'question value' statement: {g | g -> infinity and Erdos40For g} = erdos_40.answer, where answer is a sorry placeholder. The PR proves only that this holds if answer is replaced by its own OMA.answer. OMA.answer is {g | g -> infinity and for all k there is T >= k such that every p in maximalProfiles k T violates a finite inequality against sqrt(i)/g(i)}. The proof gets there by rewriting with erdos40For_iff_finite (a compactness truncation to finite sets with representation count <= k) and finite_iff_profile_obstruction. So the 'answer' is a mechanical restatement of the defining predicate Erdos40For through finite truncations, not an explicit characterisation of the admissible g. The file header admits that the criterion 'does not settle whether there is any divergent denominator satisfying it', so it does not even settle the weaker variant or Erdős #28. The extra side results (log-band and fourth-root counterexamples) are partial and are not the stated problem. erdosproblems.com still lists #40 as open with 0 proof claims; this is a trivialised answer, not a solution."
   }
  },
  "known": {
@@ -1350,6 +1393,71 @@
     "https://www.combinatorics.org/ojs/index.php/eljc/article/view/v7i1r24"
    ],
    "reason": "The variant asserts 𝔠.ord → (ω₁, n)^3_2 for all finite n ≥ 2, for colourings of triples of the initial ordinal of the continuum. It was added upstream as a speculative 'research open' variant. It is not one of the questions on erdosproblems.com/70, which asks only about countable β and the real order type. The disproof at n = 4 is genuine and short. It injects 𝔠.ord into ℝ and colours a triple blue iff it is a 'peak', f x < f y > f z. Then no 4 points are all blue, and a peak-free set splits into a strictly increasing part and a strictly decreasing part of an ω₁-indexed real sequence, each of which must be countable, so no red set has type ω₁. This is the standard ZFC negative relation 𝔠 ↛ (ω₁, 4)^3 (attributed in the PR to Hajnal 1964, using the peak-type colouring of Jones, EJC 7 (2000) R24). The PR itself says 'We do not claim a new mathematical result'. The proof is correct, but the variant was never a genuinely open question and its negation is classical."
+  },
+  "oeis-a000033": {
+   "date": "2026-11-27",
+   "pr": 6243,
+   "evidence": [
+    "https://oeis.org/A000033",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A000/A000426.seq",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A000/A000179.seq",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A000/A000159.seq"
+   ],
+   "reason": "The formal statement is faithful: the Lean definition of a(n) (reindexed rook-coefficient sum) reproduces A000033 (0,2,3,4,40,210,1477,... checked numerically for n=1..14), and main states p | a(n)+2a(n+p)+a(n+2p) for all n>=1 and all primes p, which is van Hoeij's Jun 10 2019 conjecture in A000033. However, the companion entry A000426 lists, as a formula without any 'conjecture' label, 'a(n)+2*a(n+p)+a(n+2*p) is divisible by p for any prime p. - Mark van Hoeij, Jun 13 2019'. Since A000033(n) = n*A000426(n) (formula in A000033) and n, n+p, n+2p are all congruent mod p, the A000426 statement immediately gives the A000033 one; the statement file's own docstring admits this. So the result was already asserted as true by its originator three days after the conjecture was posed, and the A000033 version is a one-line corollary. The Lean proof (Frobenius identity (1+X)^p = 1+X^p giving vanishing second p-differences of the binomials below 2p, factorial cutoff at r>=p, separate p=2 case) is a genuine argument, but the result is not new."
+  },
+  "oeis-a164137": {
+   "date": "2026-11-27",
+   "pr": 6258,
+   "evidence": [
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A164/A164137.seq",
+    "https://arxiv.org/abs/1112.6207",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/rps.html",
+    "https://sites.math.rutgers.edu/~zeilberg/tokhniot/oRPS23"
+   ],
+   "reason": "The formal statement is faithful: occurrences counts (possibly overlapping) starting positions of 000/001, a(n) reproduces 1,2,4,6,11,19,35,61,111,200,... (checked n=0..15), and the integer recurrence is McKone's Apr 2024 conjecture multiplied through by n, for n>=10. But the sequence was already rigorously solved in 2011: the OEIS entry itself links Ekhad-Zeilberger (arXiv:1112.6207) saying the subpages give 'rigorous derivations of g.f., recurrence, asymptotics for this sequence', and Proposition 1 of oRPS23 gives a rigorously proven quadratic equation for the g.f. P(t) together with an order-8 P-recurrence. Once an algebraic equation for the g.f. is proven, verifying that a given order-10 operator annihilates it is a mechanical computation, so McKone's recurrence was a routine corollary of a known result rather than an open problem. The Lean proof (weighted automaton, Laurent constant term, telescoping ODE, coefficient extraction) is independent and genuine, and it even cites the Ekhad-Zeilberger result, but the mathematical content is not new."
+  },
+  "OeisA208425.conjecture_1": {
+   "date": "2026-11-27",
+   "pr": 5983,
+   "evidence": [
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A208/A208425.seq",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/main/FormalConjectures/OEIS/208425.lean",
+    "https://arxiv.org/abs/2012.05121",
+    "https://arxiv.org/pdf/2012.05121"
+   ],
+   "reason": "The upstream formal statement is faithful: a(n) = sum C(n,k)C(n-k,k)C(n+k,k) is the OEIS formula for A208425, and 0 <= v_p((a(pn)-a(n))/(pn)^3) for primes p>3 and n>0 is exactly Sun's Conjecture (i). However, this was proved by Hao Pan and Zhi-Wei Sun, 'Supercongruences for central trinomial coefficients', arXiv:2012.05121 (Dec 2020), published in Frontiers in Combinatorics and Number Theory 2 (2026) 55-62: Theorem 1.2 states precisely that (a_{pn}-a_n)/(pn)^3 is in Z_p for p>3, n>=1, explicitly identifying a_n with A208425 and saying it confirms the 2016 conjecture. The OEIS entry links this paper. The Lean file openly ports Pan-Sun Section 3 (MacMahon identity in Z[omega], Kazandzidis/Robert-Zuber supercongruence for C(pn,pk)^3). It is a substantial and correct formalization, but of a published proof."
+  },
+  "oeis-a396111": {
+   "date": "2026-11-27",
+   "pr": 5934,
+   "evidence": [
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A396/A396111.seq"
+   ],
+   "reason": "The formal statement (every k is attained by n^4 mod (2n+1), and each k only finitely often) faithfully combines both OEIS conjectures. Both were already settled in the OEIS entry: 'True because a(8*k-1) = k for all k >= 1' and 'True because 2*n+1 divides 16*a(n)-1', both by Robert Israel, Jun 11 2026. The Lean proof is a direct port of exactly these two arguments: it proves 16*a(n) = 1 mod (2n+1) from (2n)^2 = 1 mod (2n+1), uses n = 8k-1 for surjectivity, and bounds n <= 8k for finiteness. Nothing new."
+  },
+  "oeis-a352844": {
+   "date": "2026-11-27",
+   "pr": 5931,
+   "evidence": [
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A352/A352844.seq"
+   ],
+   "reason": "The formal statement (for every n >= 0 there is k > 1 with sopfr(k) - tau(k) = n) faithfully encodes the conjecture 'There is no -1 in this sequence'. But the OEIS entry already says 'Conjecture above is true. Assume k = 2^(n+1). Then sopfr(k) = 2n+2, tau(k) = n+2', by Nicolas Belohoubek, Jul 09 2026, and adds a(n) <= 2^(n+1). The Lean proof uses exactly the witness k = 2^(n+1) and the same two computations. The problem is trivial and the solution was already in the source entry."
+  },
+  "oeis-a131401": {
+   "date": "2026-11-27",
+   "pr": 5938,
+   "evidence": [
+    "https://oeis.org/A131401"
+   ],
+   "reason": "The formal statement (for n>=1, a(n)=0 iff n=2, with a defined as sInf of the divisors of fib n that divide no fib m for 1<=m<n) faithfully encodes the conjecture 'only a(2)=0'. But the OEIS entry already says 'In other words, the conjecture is true': for n>2, Fibonacci(n) has a divisor that divides no earlier Fibonacci number. T. D. Noe's comment (Jan 2009) also notes that Fibonacci(n) itself is an upper bound for a(n) when n>2. The 48-line proof uses exactly that argument: fib n is in the set because 0 < fib m < fib n for 1<=m<n, and for n=2 the set is empty because fib 1 = fib 2. The statement file's own docstring says 'The entry notes that the conjecture is true.' This is not an open problem."
+  },
+  "oeis-a283050": {
+   "date": "2026-11-27",
+   "pr": 5924,
+   "evidence": [
+    "https://oeis.org/A283050"
+   ],
+   "reason": "The statement faithfully encodes R. J. Cano's conjecture (Feb 27 2017) that consecutive terms of A283050 (m>=2 with minFac(m)^2 | m) differ by between 1 and 4. However, the OEIS entry already contains the proof: 'The conjecture is true since all multiples of 4 are in this sequence' (Charles R Greathouse IV, Feb 28 2017). The 47-line PR proof uses exactly that argument (isTerm_four_mul: every 4(t+1) is a term), plus strict monotonicity of Nat.nth. The result is trivial and was proved a day after it was posed, so it was never open."
   }
  },
  "reviewed": "2026-11-27"
