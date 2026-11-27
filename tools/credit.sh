@@ -32,13 +32,13 @@ jq -n --argjson pr "$pr" --argjson files "$files" --arg oidc "$oidc" '{
 # The site answers {"ok":true} when the credit is recorded. A transient error (GitHub or database busy, merge not seen
 # yet) is retried here, then handed to the merger (CREDIT_RETRY_FILE), which retries it every 10 minutes; a refusal
 # for a reason that will not change (unknown problem, bad reduction) is final.
-# Kept short (two tries of at most 25 s): a slow site must never hold a verdict slot of the merger for minutes.
-for TRY in 1 2; do
-  OUT=$(curl -sS -m 25 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" --data @credit.json 2>&1 || true)
+# One try of at most 15 s: a slow or failing site must never hold a verdict slot of the merger; the merger retries
+# failures later in the background.
+for TRY in 1; do
+  OUT=$(curl -sS -m 15 -X POST "$SITE/api/verdict" -H "Content-Type: application/json" --data @credit.json 2>&1 || true)
   echo "$OUT"
   printf '%s' "$OUT" | grep -q '"ok":true' && exit 0
   printf '%s' "$OUT" | grep -qE '"error":"(unknown_problem|unknown_step|unknown_target|bad_reduction|too_many_reductions|not_a_single_new_file|not_a_proof|not_formalized_yet|hyps_out_of_range|bad_request)"' && exit 0
-  [ "$TRY" = 2 ] || sleep 5
 done
 echo "$PR" >> "${CREDIT_RETRY_FILE:-/dev/null}"
 exit 1

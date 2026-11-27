@@ -59,7 +59,7 @@ else
   BPID=""; LAST_BACKLOG=0; LAST_SCAN=0
 fi
 touch "$ROOT/queue.tsv"
-SLOTS=${SLOTS:-4}; BATCH=${BATCH:-40}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0
+SLOTS=${SLOTS:-4}; BATCH=${BATCH:-40}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0; CPID=""
 iso() { date -u -d "@$1" +%Y-%m-%dT%H:%M:%SZ; }
 JQ_RUN='[.id, .head_sha, .run_attempt, .html_url, .updated_at, (.conclusion // ""), (.display_title // "")] | @tsv'
 remaining() { gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset)"' 2>/dev/null || echo "999 0"; }
@@ -194,12 +194,14 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
   done < batch.tsv
   for i in $(seq 1 "$SLOTS"); do [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""; done
   # 6. credits the site did not record (it answered an error): retry every 10 minutes
-  if [ -s "$CREDIT_RETRY_FILE" ] && [ $(( NOW - LAST_CREDIT )) -ge 600 ]; then
-    # at most 30 per pass, so a site outage cannot stall the verdicts; the rest waits for the next pass
+  # in the background and at most 5 minutes per pass, never blocking the verdicts (the site may be down for hours)
+  if [ -s "$CREDIT_RETRY_FILE" ] && [ $(( NOW - LAST_CREDIT )) -ge 600 ] && { [ -z "${CPID:-}" ] || ! kill -0 "$CPID" 2>/dev/null; }; then
     LAST_CREDIT=$NOW; sort -u "$CREDIT_RETRY_FILE" > credit_all.txt; head -n 30 credit_all.txt > credit_todo.txt
     tail -n +31 credit_all.txt > "$CREDIT_RETRY_FILE"
-    for P in $(cat credit_todo.txt); do ( cd "$ROOT/base_1" && bash tools/credit.sh "$P" >/dev/null 2>&1 ) || true; done
-    echo "merger: retried $(wc -l < credit_todo.txt) credits, $(sort -u "$CREDIT_RETRY_FILE" | wc -l) still failing"
+    ( C="$ROOT/credit_work"; rm -rf "$C"; mkdir -p "$C"; cd "$C"
+      timeout 300 bash -c 'for P in $(cat "$1"); do bash "$2/tools/credit.sh" "$P" >/dev/null 2>&1 || true; done' _ "$ROOT/credit_todo.txt" "$ROOT/base" || true
+      echo "merger: retried $(wc -l < "$ROOT/credit_todo.txt") credits in the background" ) &
+    CPID=$!
   fi
   # 7. every 15 minutes: the open pull requests to the site, so no agent is sent to a problem with a proof waiting
   if [ $(( NOW - LAST_PENDING )) -ge 900 ]; then LAST_PENDING=$NOW; publish_pending; fi
