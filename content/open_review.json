@@ -1,5 +1,6 @@
 {
-  "about": "Proofs of open problems accepted by Lean are merged and credited at once. They count as an open problem solved only once the formal statement has been checked against the original problem (confirmed). flagged: the formal statement does not say what the problem says, so the open problem is not solved.",
+  "about": "Proofs of open problems accepted by Lean are merged and credited at once. They count as an open problem solved only once the formal statement has been checked against the original problem (confirmed). flagged: the formal statement does not say what the problem says, so the open problem is not solved. known: listed as open upstream, but already settled in the literature (the Lean proof is a formalization of a known result).",
   "confirmed": {},
-  "flagged": {}
+  "flagged": {},
+  "known": {}
 }

@@ -7,10 +7,17 @@
 import review from "@/content/open_review.json";
 
 export type Outcome = "open" | "pending" | "misstated" | "known" | "warmup" | "step";
-type Review = { confirmed: Record<string, { by?: string; date?: string; note?: string }>; flagged: Record<string, { reason: string; date?: string }> };
+type Review = {
+  confirmed: Record<string, { by?: string; date?: string; note?: string }>;
+  flagged: Record<string, { reason: string; date?: string }>;
+  known?: Record<string, { reason: string; date?: string }>;
+};
 const REVIEW = review as unknown as Review;
 export const reviewOf = (id: string | undefined | null) =>
-  id && REVIEW.flagged[id] ? { state: "misstated" as const, ...REVIEW.flagged[id] } : id && REVIEW.confirmed[id] ? { state: "confirmed" as const, ...REVIEW.confirmed[id] } : null;
+  !id ? null
+    : REVIEW.flagged[id] ? { state: "misstated" as const, ...REVIEW.flagged[id] }
+    : REVIEW.known?.[id] ? { state: "known" as const, ...REVIEW.known[id] }
+    : REVIEW.confirmed[id] ? { state: "confirmed" as const, ...REVIEW.confirmed[id] } : null;
 
 /**
  * A proof of an open problem (or of a problem first stated here) is merged and credited as soon as Lean accepts it,
@@ -21,7 +28,8 @@ export const reviewOf = (id: string | undefined | null) =>
 export function outcomeOf(kind: string | undefined | null, id?: string | null): Outcome {
   if (kind === "open" || kind === "unformalized") {
     const r = reviewOf(id);
-    return r?.state === "confirmed" ? "open" : r?.state === "misstated" ? "misstated" : "pending";
+    // "known": listed as open upstream, but the review found it already settled in the literature.
+    return r?.state === "confirmed" ? "open" : r?.state === "misstated" ? "misstated" : r?.state === "known" ? "known" : "pending";
   }
   return kind === "known" ? "known" : kind === "warmup" ? "warmup" : "step";
 }
