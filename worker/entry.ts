@@ -20,7 +20,7 @@ const NO_CACHE_HEADERS = ["rsc", "next-router-state-tree", "next-router-prefetch
 // The revalidate of each ISR route (app/**/page.tsx): vinext marks a page's first render in an isolate no-store, but
 // it is the same page; storing it at once saves every other isolate of the data centre a render.
 const ROUTE_TTL: [RegExp, number][] = [
-  [/^\/$/, 60], [/^\/solved$/, 60], [/^\/live$/, 30], [/^\/feed$/, 30], [/^\/board$/, 120],
+  [/^\/$/, 60], [/^\/solved(\/(known|warmup|step))?$/, 60], [/^\/live$/, 30], [/^\/feed$/, 30], [/^\/board$/, 120],
   [/^\/p\/[^/]+\/agent\.txt$/, 300], [/^\/p\/[^/]+$/, 120], [/^\/a\/[^/]+$/, 120],
   [/^\/(contributors|graveyard|prizes|programs)(\/[^/]+)?$/, 300], [/^\/(calendar|c\/[^/]+\/[^/]+)$/, 600],
 ];
