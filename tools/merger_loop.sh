@@ -103,9 +103,17 @@ publish_pending() {  # the open pull requests, by problem id (their title), to t
 verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot, $7 conclusion, $8 title, $9 mode
   local ID="$1" SHA="$2" ATT="$3" URL="$4" OLD="$5" B="$ROOT/base_$6" W="$ROOT/work_$6" CONC="$7" TITLE="$8" MODE="${9:-}" PR
   rm -rf "$W"; mkdir -p "$W"; ln -s "$B" "$W/base"
+  # green = accepted, but only for a run of the current check-proof (it ends with the step "Fail unless accepted"):
+  # an old copy of the workflow on another branch is green whatever the verdict and is titled with the PR title, so
+  # its title must never be trusted; those runs (and anything unusual) go through the artifact, whose pr.txt is the
+  # run's own pull request number. Kind and polarity come from the trusted re-lint either way.
+  local GREEN_PR=""
   if [ "$CONC" = success ] && [[ "$TITLE" =~ ^check-proof\ \#([0-9]+)$ ]]; then
-    # green = accepted (check-proof fails every other verdict); kind and polarity come from the trusted re-lint
-    mkdir -p "$W/artifact"; echo "${BASH_REMATCH[1]}" > "$W/artifact/pr.txt"; echo '{"verdict":"accepted","reason":""}' > "$W/artifact/verdict.json"
+    GREEN_PR="${BASH_REMATCH[1]}"
+    [ "$(gh api "repos/$REPO/actions/runs/$ID/jobs" --jq '[.jobs[].steps[]? | select(.name == "Fail unless accepted" and .conclusion == "success")] | length' 2>/dev/null)" -ge 1 ] 2>/dev/null || GREEN_PR=""
+  fi
+  if [ -n "$GREEN_PR" ]; then
+    mkdir -p "$W/artifact"; echo "$GREEN_PR" > "$W/artifact/pr.txt"; echo '{"verdict":"accepted","reason":""}' > "$W/artifact/verdict.json"
   elif ! gh run download "$ID" --repo "$REPO" -n verdict -D "$W/artifact" >/dev/null 2>&1; then
     # not finished yet (left the in-progress list for a re-run or a queue) or no artifact: look again later
     echo "$ID" >> "$ROOT/watch.txt"; rm -f "$ROOT/done/$ID.$ATT"; return 0
