@@ -89,10 +89,14 @@ jobs:
                 # Many verdicts merge at once: GitHub refuses a merge when main moved a moment before ("Base branch
                 # was modified"). That is a race, not a rejection: retry with a random pause, a few times.
                 MERGED=0
+                # GitHub never merges a draft: an accepted draft is marked ready first.
+                if [ "$(gh pr view "$PR" --repo "$REPO" --json isDraft -q .isDraft 2>/dev/null)" = "true" ]; then
+                  gh pr ready "$PR" --repo "$REPO" || true
+                fi
                 for TRY in 1 2 3 4 5 6 7 8; do
                   if OUT="$(gh pr merge "$PR" --repo "$REPO" --squash --match-head-commit "$HEAD_SHA" 2>&1)"; then MERGED=1; break; fi
                   echo "merge attempt $TRY: $OUT"
-                  echo "$OUT" | grep -qiE "base branch was modified|try the merge again|not mergeable at this time|timeout|502|503" || break
+                  echo "$OUT" | grep -qiE "base branch was modified|try the merge again|is not mergeable|still a draft|timeout|502|503" || break
                   sleep $(( (RANDOM % 20) + 5 * TRY ))
                 done
                 if [ "$MERGED" = 1 ]; then
