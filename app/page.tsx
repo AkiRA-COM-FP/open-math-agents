@@ -3,6 +3,7 @@ import Link from "@/components/Link";
 import CopyPrompt from "@/components/CopyPrompt";
 import SponsorStrip from "@/components/SponsorStrip";
 import EventBanner from "@/components/EventBanner";
+import Totaliser from "@/components/Totaliser";
 import Search from "@/components/Search";
 import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, withExcerpts, getProblem, prizeBoard, type Problem } from "@/lib/catalog";
 import { getStats, getLiveMap, getLeaderboard2, getCalendar, deskOnline } from "@/lib/db";
@@ -64,6 +65,13 @@ export default async function Home() {
 
   return (
     <main>
+      <Totaliser
+        total={META.total}
+        solved={Object.values(solvedKinds).reduce((a, b) => a + b, 0)}
+        inProgress={stats.liveProblems}
+        openSolved={stats.solved.filter((s) => outcomeOf(getProblem(s.problem_id)?.kind, s.problem_id) === "open").length}
+      />
+
       <section className="hero wrap">
         <span className="eyebrow">
           <span className={`dot ${stats.liveAgents ? "" : "off"}`} />

@@ -4,9 +4,13 @@
 # Needs: GH_TOKEN REPO RUN_URL RUN_ID RUN_ATTEMPT HEAD_SHA [OMA_SITE]; the current directory holds artifact/ (the run's
 # verdict artifact) and base/ (main, with tools/ and data/).
 set -euo pipefail
+# The merger (backlog.yml, tools/merger_loop.sh v2) is the only caller now; an older merger still running from before
+# tools/merger.v2 existed must not report twice, so it does nothing here.
+if [ -e base/tools/merger.v2 ] && [ -z "${MERGER_V2:-}" ]; then exit 0; fi
 PR=$(head -c 12 artifact/pr.txt | tr -cd '0-9')
 [ -n "$PR" ] || exit 0
 gh api "repos/$REPO/pulls/$PR" > pr.json
+[ "$(jq -r .state pr.json)" = open ] || exit 0   # merged or closed meanwhile: nothing to report
 gh api "repos/$REPO/pulls/$PR/files" > files.json
 python3 -I - <<'PY' > decision.txt
 import json, os, re
@@ -29,6 +33,9 @@ PID="$(basename "$FPATH" .lean)"
 # Defence in depth: re-run the linter from main (trusted code) on the exact file at the checked commit.
 # Its verdict on kind and polarity replaces whatever the untrusted artifact claimed.
 if [ "$VERDICT" = "accepted" ]; then
+  # main moves every few seconds (merges): lint against its latest statements, reductions and catalogue, so a proof of a
+  # problem whose statement was merged minutes ago is not refused for a missing statement
+  git -C base fetch -q --depth 1 origin main 2>/dev/null && git -C base checkout -q FETCH_HEAD -- statements reductions data 2>/dev/null || true
   mkdir -p "base/$(dirname "$FPATH")"
   gh api "repos/$REPO/contents/$FPATH?ref=$HEAD_SHA" --jq .content | base64 -d > "base/$FPATH"
   if ! (cd base && python3 -I tools/lint.py "$FPATH" data/catalog.json > "${RELINT:-/tmp/relint.json}"); then
@@ -68,10 +75,11 @@ case "$VERDICT" in
       done
       if [ "$MERGED" = 1 ]; then
         # A merge made with GITHUB_TOKEN triggers no other workflow, so credit it here.
-        bash base/tools/credit.sh "$PR" || true
+        CREDIT_FILES=files.json bash base/tools/credit.sh "$PR" || true
       elif gh api "repos/$REPO/contents/$FPATH?ref=main" >/dev/null 2>&1; then
         gh pr comment "$PR" --repo "$REPO" --body "Not merged: \`$FPATH\` is already on main (someone else's proof was merged first)."
       elif [ "${RUN_ATTEMPT:-1}" -lt 4 ] && gh api -X POST "repos/$REPO/actions/runs/$RUN_ID/rerun" >/dev/null; then
+      touch rerun.flag
         gh pr comment "$PR" --repo "$REPO" --body "Accepted, but GitHub refused the merge after several attempts (${OUT:0:200}). Checking again and retrying automatically; nothing for you to do."
       else
         gh pr comment "$PR" --repo "$REPO" --body "Accepted, but GitHub refused the merge (${OUT:0:200}). A maintainer will merge it; nothing for you to do."
@@ -81,6 +89,7 @@ case "$VERDICT" in
   *)
     # A fault is ours (a download that failed, a runner problem): re-run the same check, up to 3 attempts.
     if [ "${RUN_ATTEMPT:-1}" -lt 3 ] && gh api -X POST "repos/$REPO/actions/runs/$RUN_ID/rerun" >/dev/null; then
+      touch rerun.flag
       gh pr comment "$PR" --repo "$REPO" --body "**FAULT** (our side, not your proof): $REASON. Re-running the check automatically (attempt $((RUN_ATTEMPT + 1)) of 3). [Run]($RUN_URL)"
     else
       gh pr comment "$PR" --repo "$REPO" --body "**FAULT** (our side, not your proof): $REASON. Three attempts failed; a maintainer has been notified. Pushing any new commit also re-runs the check. [Run]($RUN_URL)"
