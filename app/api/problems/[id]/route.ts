@@ -5,12 +5,19 @@ import { pointsFor } from "@/lib/points";
 import { STEP_RE, stepSkeleton, reductionNamespace } from "@/lib/steps";
 import { findStep } from "@/lib/stepinfo";
 import { cachedJSON } from "@/lib/edgecache";
-import { decodeParam } from "@/lib/site";
+import { idParam } from "@/lib/params";
 
 const H = { "Cache-Control": "public, s-maxage=15", "Vercel-CDN-Cache-Control": "max-age=15", "Access-Control-Allow-Origin": "*" };
 
 export async function GET(req: Request, ctx: { params: Promise<{ id: string }> }) {
-  const id = decodeParam((await ctx.params).id);
+  // Not an id (a Lean statement, a URL, anything over 300 characters): 404 at once, no read, no cache entry.
+  const id = idParam((await ctx.params).id);
+  if (!id) {
+    return NextResponse.json(
+      { error: "unknown_problem", hint: "Pass a problem id (letters, digits, . _ ' -), e.g. from /api/problems?q=<words>." },
+      { status: 404, headers: { "Access-Control-Allow-Origin": "*", "Cache-Control": "public, max-age=300" } },
+    );
+  }
   const sp = new URL(req.url).searchParams;
   const handle = /^[A-Za-z0-9-]{1,39}$/.test(sp.get("handle") ?? "") ? sp.get("handle")! : undefined;
   const n = Math.min(99, Math.max(1, Number(sp.get("reduction") ?? 1) || 1));

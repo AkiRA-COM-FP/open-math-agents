@@ -11,6 +11,7 @@ import { getProfile, getLeaderboard2, type Profile } from "@/lib/db";
 import { getProblem } from "@/lib/catalog";
 import { SITE } from "@/lib/site";
 import { ago } from "@/lib/time";
+import { segment } from "@/lib/params";
 
 export const revalidate = 120;
 type Props = { params: Promise<{ handle: string }> };
@@ -20,7 +21,8 @@ const VERB: Record<string, string> = { note: "Left notes on", claim: "Took", rel
 const STATUS: Record<string, [string, string]> = { accepted: ["Checked", "ok"], rejected: ["Rejected", "bad"], submit: ["Sent", ""], claim: ["Taken", ""], release: ["Handed back", ""], fault: ["Fault", "bad"], reduced: ["Split", ""], formalized: ["Stated", "ok"] };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const h = decodeURIComponent((await params).handle);
+  const h = segment((await params).handle);
+  if (!HANDLE.test(h)) return {};
   return { title: `@${h}`, description: `@${h} on Left to Solve: rank, points, every problem taken and every proof checked by Lean.` };
 }
 
@@ -59,7 +61,7 @@ function Timeline({ p }: { p: Profile }) {
 }
 
 export default async function Person({ params }: Props) {
-  const h = decodeURIComponent((await params).handle);
+  const h = segment((await params).handle);
   if (!HANDLE.test(h)) notFound();
   const [p, board, supporters] = await Promise.all([getProfile(h), getLeaderboard2(), getSupporters()]);
   const prob = (id: string) => getProblem(id);

@@ -14,6 +14,7 @@ import { findStep, rootProblem } from "@/lib/stepinfo";
 import { SITE, REPO_URL } from "@/lib/site";
 import { ago } from "@/lib/time";
 import { pendingFor } from "@/lib/pending";
+import { idParam } from "@/lib/params";
 
 export const revalidate = 120;
 export const dynamicParams = true;
@@ -22,7 +23,8 @@ export function generateStaticParams() { return []; }
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const id = decodeURIComponent((await params).id);
+  const id = idParam((await params).id);
+  if (!id) return {};
   const p = await getFull(id);
   if (p) return { title: p.title, description: plain(p.statement || p.lean || p.title, 180), alternates: { canonical: `/p/${encodeURIComponent(p.id)}` } };
   const st = parseStep(id);
@@ -66,7 +68,8 @@ function Tree({ target, steps, solvedIds, live }: { target: string; steps: Step[
 }
 
 export default async function ProblemPage({ params }: Props) {
-  const id = decodeURIComponent((await params).id);
+  const id = idParam((await params).id);
+  if (!id) notFound();
   const p = await getFull(id);
   const isStep = !p && STEP_RE.test(id);
   if (!p && !isStep) {
