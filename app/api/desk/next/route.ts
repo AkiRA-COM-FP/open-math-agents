@@ -27,7 +27,11 @@ function pick<T extends { id: string }>(cands: T[], live: Map<string, number>) {
 async function handle(req: Request) {
   const u = new URL(req.url);
   let body: Record<string, string> = {};
-  if (req.method === "POST") body = (await req.json().catch(() => ({}))) as Record<string, string>;
+  if (req.method === "POST") {
+    // a JSON null, array or number is no options object (null used to throw on body[k])
+    const b: unknown = await req.json().catch(() => null);
+    if (b && typeof b === "object" && !Array.isArray(b)) body = b as Record<string, string>;
+  }
   const get = (k: string) => (body[k] ?? u.searchParams.get(k) ?? "").toString().trim();
 
   const handleName = get("handle");
