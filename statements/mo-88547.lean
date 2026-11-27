@@ -41,11 +41,11 @@ def coverEdges {a b : ℕ} (H : Finset (Fin a × Fin b))
 finitely many cover patterns and bounded multiplicity vectors works.
 The empty list corresponds to the empty graph. -/
 theorem main : ∀ (k : ℕ) (m : Fin (k + 1) → ℕ), (∀ i, 0 < m i) →
-    (∃ (a b : ℕ) (E : Finset (Fin a × Fin b)), realizes E m) ↔
+    ((∃ (a b : ℕ) (E : Finset (Fin a × Fin b)), realizes E m) ↔
       ∃ (a b : ℕ) (H : Finset (Fin a × Fin b))
         (p : Finset (Fin a) → ℕ) (q : Finset (Fin b) → ℕ),
         a + b = k + 1 ∧ p ∅ = 0 ∧ q ∅ = 0 ∧
-        (∀ S, p S ≤ m 0) ∧ (∀ S, q S ≤ m 0) ∧ realizes (coverEdges H p q) m := by
+        (∀ S, p S ≤ m 0) ∧ (∀ S, q S ≤ m 0) ∧ realizes (coverEdges H p q) m) := by
   sorry
 
 end OMA.S_mo_88547
