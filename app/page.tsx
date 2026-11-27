@@ -2,6 +2,7 @@ import { outcomeOf } from "@/lib/outcome";
 import Link from "@/components/Link";
 import CopyPrompt from "@/components/CopyPrompt";
 import SponsorStrip from "@/components/SponsorStrip";
+import EventBanner from "@/components/EventBanner";
 import Search from "@/components/Search";
 import { PROBLEMS, META, OPEN_TOTAL, SOURCES, FIELDS, search, withExcerpts, getProblem, prizeBoard, type Problem } from "@/lib/catalog";
 import { getStats, getLiveMap, getLeaderboard2, getCalendar, deskOnline } from "@/lib/db";
@@ -85,6 +86,7 @@ export default async function Home() {
       </section>
 
       <SponsorStrip />
+      <EventBanner />
 
       <section className="wrap hero-stats">
         <div className="stats stats5">
