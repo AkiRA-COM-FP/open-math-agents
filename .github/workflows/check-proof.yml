@@ -59,7 +59,9 @@ jobs:
           git init -q "$RUNNER_TEMP/fc" && cd "$RUNNER_TEMP/fc"
           git remote add origin https://github.com/google-deepmind/formal-conjectures
           git fetch -q --depth 1 origin "$C" && git checkout -q FETCH_HEAD
-      - uses: actions/cache@v4
+      # Read-only: the cache is filled on main by warm-lean-cache.yml, which every pull request can read. A cache saved
+      # from a pull request is visible to that pull request only, so saving here cost ~30 s per run for nothing.
+      - uses: actions/cache/restore@v4
         if: steps.lint.outputs.ok == '1'
         with:
           path: |
