@@ -66,7 +66,7 @@ def H3 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
       (¬ ∀ a ∈ s, ∀ b ∈ s, ∀ k : P, a < k → b < k) ∧
       (¬ ∀ a ∈ s, ∀ b ∈ s, ∀ k : P, k < a → k < b) ∧
       ∀ t : Finset P, (t : Set P).Pairwise (fun a b => ¬ a ≤ b) → t.card ≤ 5) →
-    9 ≤ Fintype.card P →
+    10 ≤ Fintype.card P →
     (∀ t : Finset P, t.card = 3 → (t : Set P).Pairwise (fun a b => ¬ a ≤ b) →
       let bad (r : P → P → Prop) := ∃ k ∉ t, (∃ c ∈ t, k < c ∨ c < k) ∧
         ∃ a ∈ t, ¬ a ≤ k ∧ ¬ k ≤ a ∧ ∃ b ∈ t, b ≠ a ∧ ¬ r k b
@@ -935,6 +935,367 @@ lemma very_good_pair_gold (P : Type) [PartialOrder P] [Fintype P] :
   · exact good_pair_gold P x y inc rev (fun a => (same a).mpr) (lin (x,y) (by simp)) h
   · exact good_pair_gold P y x rev inc (fun a => (same a).mp) (lin (y,x) (by simp)) (show C [] ≤ 2 * C [(y,x)] by omega)
 
+-- Each of five antichain members compares with at least two of four outsiders.
+-- The eleven masks list its possible comparison sets. The side mask records
+-- which outsiders lie below a member. Test each new pair and triple as soon
+-- as its last row is available; only the remaining cases need the outsider test.
+set_option synthInstance.maxSize 4096 in
+set_option maxHeartbeats 0 in
+set_option maxRecDepth 20000 in
+lemma four_outsider_table : ∀ side : Fin 16,
+    let mask (i : Fin 11) : Nat := (![3,5,6,7,9,10,11,12,13,14,15] : Fin 11 → Nat) i
+    let d (i : Fin 11) := mask i &&& side.val
+    let u (i : Fin 11) := mask i &&& (15 - side.val)
+    let sub (a b : Nat) := (a &&& b) == a
+    let one (a b : Nat) := let m := a &&& (15 - b); (m &&& (m - 1)) == 0
+    let pair (a b : Fin 11) :=
+      ((d a == d b) && one (u a) (u b) && one (u b) (u a)) ||
+      ((u a == u b) && one (d a) (d b) && one (d b) (d a))
+    let triple (a b c : Fin 11) :=
+      (sub (u b) (u c) && sub (d c) (d a ||| d b)) ||
+      (sub (d b) (d a) && sub (u a) (u b ||| u c))
+    let D (i : Fin 11) (k : Fin 4) := (d i).testBit k.val = true
+    let U (i : Fin 11) (k : Fin 4) := (u i).testBit k.val = true
+    let outer (f : Fin 5 → Fin 11) := ∃ q r : Fin 4, q ≠ r ∧
+      (∃ i, D (f i) q ∧ ¬ D (f i) r) ∧ (∃ i, D (f i) r ∧ ¬ D (f i) q) ∧
+      (∀ i, D (f i) q → ¬ D (f i) r → ∀ j, D (f j) q → ¬ D (f j) r → i = j) ∧
+      (∀ i, D (f i) r → ¬ D (f i) q → ∀ j, D (f j) r → ¬ D (f j) q → i = j) ∧
+      ∀ k, k ≠ q → k ≠ r → ∃ i, D (f i) q ∧ D (f i) r ∧ U (f i) k
+    ∀ a : Fin 11,
+    ∀ b : Fin 11, (pair a b) = true ∨
+    ∀ c : Fin 11, (pair a c || pair b c || triple a b c) = true ∨
+    ∀ d : Fin 11, (pair a d || pair b d || pair c d || triple a b d || triple a c d || triple b c d) = true ∨
+    ∀ e : Fin 11, (pair a e || pair b e || pair c e || pair d e || triple a b e || triple a c e || triple a d e ||
+      triple b c e || triple b d e || triple c d e) = true ∨
+    outer ![a,b,c,d,e] := by
+  dsimp only
+  decide
+
+
+-- Interpret the table in terms of strict predecessor and successor relations.
+-- A pair test asks for equal neighborhoods in one direction and at most one
+-- exclusive neighbor on each side in the other direction.
+set_option synthInstance.maxSize 4096 in
+set_option maxHeartbeats 1200000 in
+lemma four_outsider_cover (D U : Fin 5 → Fin 4 → Prop)
+    (polar : ∀ i j k, D i k → U j k → False)
+    (two : ∀ i, ∃ k l, k ≠ l ∧ (D i k ∨ U i k) ∧ (D i l ∨ U i l)) :
+    let same (F : Fin 4 → Prop) (G : Fin 4 → Prop) := ∀ k, F k ↔ G k
+    let single (F : Fin 4 → Prop) (G : Fin 4 → Prop) :=
+      ∀ k, F k → ¬ G k → ∀ l, F l → ¬ G l → k = l
+    let pair (a b : Fin 5) :=
+      (same (D a) (D b) ∧ single (U a) (U b) ∧ single (U b) (U a)) ∨
+      (same (U a) (U b) ∧ single (D a) (D b) ∧ single (D b) (D a))
+    let triple (a b c : Fin 5) :=
+      ((∀ k, U b k → U c k) ∧ (∀ k, D c k → D a k ∨ D b k)) ∨
+      ((∀ k, D b k → D a k) ∧ (∀ k, U a k → U b k ∨ U c k))
+    let outer (f : Fin 5 → Fin 5) := ∃ q r : Fin 4, q ≠ r ∧
+      (∃ i, D (f i) q ∧ ¬ D (f i) r) ∧ (∃ i, D (f i) r ∧ ¬ D (f i) q) ∧
+      (∀ i, D (f i) q → ¬ D (f i) r → ∀ j, D (f j) q → ¬ D (f j) r → i = j) ∧
+      (∀ i, D (f i) r → ¬ D (f i) q → ∀ j, D (f j) r → ¬ D (f j) q → i = j) ∧
+      ∀ k, k ≠ q → k ≠ r → ∃ i, D (f i) q ∧ D (f i) r ∧ U (f i) k
+    (∃ i j, i < j ∧ pair i j) ∨ (∃ i j k, i < j ∧ j < k ∧ triple i j k) ∨ outer id := by
+  classical
+  intro same single pair triple outer
+  by_cases hp : ∃ i j, i < j ∧ pair i j
+  · exact Or.inl hp
+  right
+  by_cases ht : ∃ i j k, i < j ∧ j < k ∧ triple i j k
+  · exact Or.inl ht
+  right
+  let code (i : Fin 11) : Nat := (![3,5,6,7,9,10,11,12,13,14,15] : Fin 11 → Nat) i
+  have encS : ∀ f : Fin 4 → Bool, ∃ m : Fin 16, ∀ k : Fin 4, m.val.testBit k.val = f k := by decide
+  have encR : ∀ f : Fin 4 → Bool, (∃ k l, k ≠ l ∧ f k = true ∧ f l = true) →
+      ∃ m : Fin 11, ∀ k : Fin 4, (code m).testBit k.val = f k := by decide
+  have inv : ∀ m : Fin 16, ∀ k : Fin 4, (15-m.val).testBit k.val = !(m.val.testBit k.val) := by decide
+  obtain ⟨side,hs⟩ := encS (fun k => decide (∃ i, D i k))
+  have enc (i : Fin 5) := encR (fun k => decide (D i k ∨ U i k)) (by
+    obtain ⟨k,l,ne,h,g⟩ := two i
+    exact ⟨k,l,ne,decide_eq_true h,decide_eq_true g⟩)
+  choose row hr using enc
+  let d (i : Fin 11) := code i &&& side.val
+  let u (i : Fin 11) := code i &&& (15-side.val)
+  have db (i : Fin 5) (k : Fin 4) : (d (row i)).testBit k.val = true ↔ D i k := by
+    simp only [d, Nat.testBit_and, hr, hs, Bool.and_eq_true, decide_eq_true_eq]
+    constructor
+    · rintro ⟨h,j,hj⟩
+      exact h.resolve_right (polar j i k hj)
+    · exact fun h => ⟨Or.inl h,i,h⟩
+  have ub (i : Fin 5) (k : Fin 4) : (u (row i)).testBit k.val = true ↔ U i k := by
+    simp only [u, Nat.testBit_and, hr, inv, hs, Bool.and_eq_true, Bool.not_eq_true',
+      decide_eq_true_eq, decide_eq_false_iff_not]
+    constructor
+    · rintro ⟨h,none⟩
+      exact h.resolve_left (fun g => none ⟨i,g⟩)
+    · exact fun h => ⟨Or.inr h,fun ⟨j,g⟩ => polar j i k g h⟩
+  let sub (a b : Nat) := (a &&& b) == a
+  let one (a b : Nat) := let m := a &&& (15 - b); (m &&& (m - 1)) == 0
+  let pairMask (a b : Fin 11) :=
+      ((d a == d b) && one (u a) (u b) && one (u b) (u a)) ||
+      ((u a == u b) && one (d a) (d b) && one (d b) (d a))
+  let tripleMask (a b c : Fin 11) :=
+      (sub (u b) (u c) && sub (d c) (d a ||| d b)) ||
+      (sub (d b) (d a) && sub (u a) (u b ||| u c))
+  have oneSound : ∀ a b : Fin 16, one a.val b.val = true →
+      ∀ k l : Fin 4, a.val.testBit k.val = true → ¬ b.val.testBit k.val = true →
+        a.val.testBit l.val = true → ¬ b.val.testBit l.val = true → k = l := by decide
+  have toSame {a b : Nat} {F G : Fin 4 → Prop}
+      (ha : ∀ k : Fin 4, a.testBit k.val = true ↔ F k) (hb : ∀ k : Fin 4, b.testBit k.val = true ↔ G k)
+      (eq : (a == b) = true) : same F G := by
+    have e := beq_iff_eq.mp eq
+    subst b
+    exact fun k => (ha k).symm.trans (hb k)
+  have toSingle {a b : Nat} {F G : Fin 4 → Prop} (al : a < 16) (bl : b < 16)
+      (ha : ∀ k : Fin 4, a.testBit k.val = true ↔ F k) (hb : ∀ k : Fin 4, b.testBit k.val = true ↔ G k)
+      (ok : one a b = true) : single F G := fun k fk ng l fl nh =>
+    oneSound ⟨a,al⟩ ⟨b,bl⟩ ok k l ((ha k).2 fk) (fun b => ng ((hb k).1 b))
+      ((ha l).2 fl) (fun b => nh ((hb l).1 b))
+  have dl (i : Fin 11) : d i < 16 := lt_of_le_of_lt Nat.and_le_right side.isLt
+  have ul (i : Fin 11) : u i < 16 := lt_of_le_of_lt Nat.and_le_right (by omega : 15-side.val < 16)
+  let pairTest (i j : Fin 5) := pairMask (row i) (row j)
+  let tripleTest (i j l : Fin 5) := tripleMask (row i) (row j) (row l)
+  have noPair (i j : Fin 5) (ij : i < j) : pairTest i j = false := by
+    apply Bool.eq_false_iff.mpr
+    intro yes
+    apply hp
+    refine ⟨i,j,ij,?_⟩
+    simp only [pairTest,pairMask,Bool.or_eq_true,Bool.and_eq_true] at yes
+    rcases yes with ⟨⟨eq,g⟩,h⟩ | ⟨⟨eq,g⟩,h⟩
+    · exact Or.inl ⟨toSame (db i) (db j) eq,toSingle (ul _) (ul _) (ub i) (ub j) g,
+        toSingle (ul _) (ul _) (ub j) (ub i) h⟩
+    · exact Or.inr ⟨toSame (ub i) (ub j) eq,toSingle (dl _) (dl _) (db i) (db j) g,
+        toSingle (dl _) (dl _) (db j) (db i) h⟩
+  have incl {a b : Nat} (h : sub a b = true) (k : Fin 4) (bit : a.testBit k.val = true) :
+      b.testBit k.val = true := by
+    have eq : a &&& b = a := beq_iff_eq.mp h
+    have bits := congrArg (fun v : Nat => v.testBit k.val) eq
+    simpa [Nat.testBit_and,bit] using bits
+  have noTriple (i j l : Fin 5) (ij : i < j) (jl : j < l) : tripleTest i j l = false := by
+    apply Bool.eq_false_iff.mpr
+    intro yes
+    apply ht
+    refine ⟨i,j,l,ij,jl,?_⟩
+    simp only [tripleTest,tripleMask,Bool.or_eq_true,Bool.and_eq_true] at yes
+    rcases yes with ⟨a,b⟩ | ⟨a,b⟩
+    · left
+      refine ⟨fun k h => (ub l k).1 (incl a k ((ub j k).2 h)), ?_⟩
+      intro k h
+      simpa only [Nat.testBit_or,Bool.or_eq_true,db] using incl b k ((db l k).2 h)
+    · right
+      refine ⟨fun k h => (db i k).1 (incl a k ((db j k).2 h)), ?_⟩
+      intro k h
+      simpa only [Nat.testBit_or,Bool.or_eq_true,ub] using incl b k ((ub i k).2 h)
+  have next1 := (four_outsider_table side (row 0) (row 1)).resolve_left (by
+    change ¬ (pairTest 0 1) = true
+    simp (disch := decide) [noPair])
+  have next2 := (next1 (row 2)).resolve_left (by
+    change ¬ (pairTest 0 2 || pairTest 1 2 || tripleTest 0 1 2) = true
+    simp (disch := decide) [noPair, noTriple])
+  have next3 := (next2 (row 3)).resolve_left (by
+    change ¬ (pairTest 0 3 || pairTest 1 3 || pairTest 2 3 || tripleTest 0 1 3 || tripleTest 0 2 3 ||
+      tripleTest 1 2 3) = true
+    simp (disch := decide) [noPair, noTriple])
+  have next4 := (next3 (row 4)).resolve_left (by
+    change ¬ (pairTest 0 4 || pairTest 1 4 || pairTest 2 4 || pairTest 3 4 || tripleTest 0 1 4 ||
+      tripleTest 0 2 4 || tripleTest 0 3 4 || tripleTest 1 2 4 || tripleTest 1 3 4 || tripleTest 2 3 4) = true
+    simp (disch := decide) [noPair, noTriple])
+  have rows : ![row 0,row 1,row 2,row 3,row 4] = row := by
+    have cases : ∀ i : Fin 5, i = 0 ∨ i = 1 ∨ i = 2 ∨ i = 3 ∨ i = 4 := by decide
+    funext i
+    rcases cases i with h|h|h|h|h <;> subst i <;> rfl
+  change ∃ q r : Fin 4, _ at next4
+  dsimp only at next4
+  rw [rows] at next4
+  simpa only [outer,id_eq,← db,← ub] using next4
+
+
+lemma singleton_difference_gold (P : Type) [PartialOrder P] [Fintype P] (x y : P) (ne : x ≠ y)
+    (pred : ∀ k, k < x ↔ k < y)
+    (xy : ∀ a, x < a → ¬ y < a → ∀ b, x < b → ¬ y < b → a = b)
+    (yx : ∀ a, y < a → ¬ x < a → ∀ b, y < b → ¬ x < b → a = b) :
+    let C (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        C [p] + C [p, q] ≤ C [] := by
+  apply very_good_pair_gold P
+  refine ⟨x,y,ne,pred,?_⟩
+  intro p hp
+  have cases : p = (x,y) ∨ p = (y,x) := by simpa using hp
+  rcases cases with rfl | rfl
+  · exact fun a b h m g n => Or.inr (Or.inl (xy a h m b g n))
+  · exact fun a b h m g n => Or.inr (Or.inl (yx a h m b g n))
+
+-- No rigidity assumption is needed. The final alternative finds two minimal
+-- outsiders with common upper neighbors apart from at most one on each side.
+lemma nine_gold (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) (five : s.card = 5)
+    (nine : Fintype.card P = 9)
+    (thin : ∀ a ∈ s, ({k : P | k ∉ s ∧ ¬ a ≤ k ∧ ¬ k ≤ a} : Set P).ncard ≤ 2) :
+    let C (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        C [p] + C [p, q] ≤ C [] := by
+  classical
+  intro C
+  by_contra noGold
+  obtain ⟨v,mem,earlier,diff⟩ := majority_five_labels P s five noGold
+  have inside {x : P} (hx : x ∈ s) : ∃ i, v i = x := by
+    let f (i : Fin 5) : ↥s := ⟨v i, mem i⟩
+    have inj : Function.Injective f := by
+      intro i j eq
+      have val : v i = v j := congrArg Subtype.val eq
+      rcases lt_trichotomy i j with h | h | h
+      · exact False.elim (diff h val)
+      · exact h
+      · exact False.elim (diff h val.symm)
+    have onto := ((Fintype.bijective_iff_injective_and_card f).2
+      ⟨inj, by simp [five]⟩).2
+    obtain ⟨i,hi⟩ := onto ⟨x,hx⟩
+    exact ⟨i, congrArg Subtype.val hi⟩
+  have cardOut : sᶜ.card = 4 := by simp [Finset.card_compl,nine,five]
+  let out := (Fintype.equivFinOfCardEq (show Fintype.card (↥(sᶜ)) = 4 by simpa only [Fintype.card_coe] using cardOut)).symm
+  let r : Fin 4 ↪ P := out.toEmbedding.trans (Function.Embedding.subtype _)
+  have outside (k : Fin 4) : r k ∉ s := Finset.mem_compl.mp (out k).property
+  have labelOut {x : P} (h : x ∉ s) : ∃ k, r k = x := by
+    obtain ⟨k,eq⟩ := out.surjective ⟨x,Finset.mem_compl.mpr h⟩
+    exact ⟨k, congrArg Subtype.val eq⟩
+  let D (i : Fin 5) (k : Fin 4) := r k < v i
+  let U (i : Fin 5) (k : Fin 4) := v i < r k
+  have asPred (i : Fin 5) {x : P} (h : x < v i) : ∃ k, r k = x :=
+    labelOut (fun hx => anti hx (mem i) h.ne h.le)
+  have asSucc (i : Fin 5) {x : P} (h : v i < x) : ∃ k, r k = x :=
+    labelOut (fun hx => anti (mem i) hx h.ne h.le)
+  have polar (i j : Fin 5) (k : Fin 4) (a : D i k) (b : U j k) : False := by
+    have h := lt_trans b a
+    exact anti (mem j) (mem i) h.ne h.le
+  have two (i : Fin 5) : ∃ k l, k ≠ l ∧ (D i k ∨ U i k) ∧ (D i l ∨ U i l) := by
+    let t := Finset.univ.filter (fun k => D i k ∨ U i k)
+    have sub : ((tᶜ.image r : Finset P) : Set P) ⊆ {x : P | x ∉ s ∧ ¬ v i ≤ x ∧ ¬ x ≤ v i} := by
+      intro x hx
+      obtain ⟨k,hk,rfl⟩ := Finset.mem_image.mp hx
+      have no := Finset.mem_compl.mp hk
+      have ne : v i ≠ r k := fun eq => outside k (eq ▸ mem i)
+      refine ⟨outside k, fun h => no ?_, fun h => no ?_⟩
+      · exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, Or.inr (lt_of_le_of_ne h ne)⟩
+      · exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, Or.inl (lt_of_le_of_ne h ne.symm)⟩
+    have cap := (Set.ncard_le_ncard sub).trans (thin _ (mem i))
+    rw [Set.ncard_coe_finset,Finset.card_image_of_injective _ r.injective] at cap
+    have sum := Finset.card_add_card_compl t
+    change t.card + tᶜ.card = 4 at sum
+    obtain ⟨k,hk,l,hl,ne⟩ := Finset.one_lt_card.mp (show 1 < t.card by omega)
+    exact ⟨k,l,ne,(Finset.mem_filter.mp hk).2,(Finset.mem_filter.mp hl).2⟩
+  have liftSame {F G : P → Prop} (f : ∀ {x}, F x → ∃ k, r k = x)
+      (g : ∀ {x}, G x → ∃ k, r k = x) (eq : ∀ k, F (r k) ↔ G (r k)) : ∀ x, F x ↔ G x := by
+    intro x
+    constructor
+    · intro h
+      obtain ⟨k,rfl⟩ := f h
+      exact (eq k).mp h
+    · intro h
+      obtain ⟨k,rfl⟩ := g h
+      exact (eq k).mpr h
+  have liftSingle {n : Nat} (labels : Fin n → P) {F G : P → Prop}
+      (loc : ∀ {x}, F x → ¬ G x → ∃ k, labels k = x)
+      (eq : ∀ i, F (labels i) → ¬ G (labels i) → ∀ j, F (labels j) → ¬ G (labels j) → i = j) :
+      ∀ a, F a → ¬ G a → ∀ b, F b → ¬ G b → a = b := by
+    intro a fa ga b fb gb
+    obtain ⟨i,rfl⟩ := loc fa ga
+    obtain ⟨j,rfl⟩ := loc fb gb
+    exact congrArg labels (eq i fa ga j fb gb)
+  rcases four_outsider_cover D U polar two with ⟨i,j,ij,h | h⟩ | ⟨i,j,l,ij,jl,h | h⟩ | ext
+  · apply noGold
+    apply singleton_difference_gold P (v i) (v j) (diff ij)
+    · exact liftSame (asPred i) (asPred j) h.1
+    · exact liftSingle r (fun a _ => asSucc i a) h.2.1
+    · exact liftSingle r (fun a _ => asSucc j a) h.2.2
+  · apply noGold
+    apply OMA.R_wp_1_3_2_3_conjecture_R1.gold_of_dual P
+    apply singleton_difference_gold Pᵒᵈ (v i) (v j) (diff ij)
+    · exact liftSame (asSucc i) (asSucc j) h.1
+    · exact liftSingle r (fun a _ => asPred i a) h.2.1
+    · exact liftSingle r (fun a _ => asPred j a) h.2.2
+  · obtain ⟨succ,pred⟩ := h
+    apply noGold
+    apply directed_gold P s anti _ (mem i) _ (mem j) _ (mem l)
+      (diff ij) (diff jl) (diff (lt_trans ij jl)) (earlier ij).le (earlier jl).le
+    · intro x hx
+      obtain ⟨k,rfl⟩ := asSucc j hx
+      exact succ k hx
+    · intro x hx
+      obtain ⟨k,rfl⟩ := asPred l hx
+      exact pred k hx
+  · obtain ⟨pred,succ⟩ := h
+    apply noGold
+    apply OMA.R_wp_1_3_2_3_conjecture_R1.gold_of_dual P
+    let sd : Finset Pᵒᵈ := s
+    have ant : (sd : Set Pᵒᵈ).Pairwise (fun a b => ¬ a ≤ b) :=
+      fun a ha b hb ne h => anti hb ha ne.symm h
+    apply directed_gold Pᵒᵈ sd ant (v l) (mem l) (v j) (mem j) (v i) (mem i)
+      (Ne.symm (diff jl)) (Ne.symm (diff ij)) (Ne.symm (diff (lt_trans ij jl)))
+    · exact (OMA.R_wp_1_3_2_3_conjecture_R1.dual_comparison_counts P []).trans_le
+        ((earlier jl).le.trans_eq (congrArg (2 * ·)
+          (OMA.R_wp_1_3_2_3_conjecture_R1.dual_comparison_counts P [(v l,v j)])).symm)
+    · exact (OMA.R_wp_1_3_2_3_conjecture_R1.dual_comparison_counts P []).trans_le
+        ((earlier ij).le.trans_eq (congrArg (2 * ·)
+          (OMA.R_wp_1_3_2_3_conjecture_R1.dual_comparison_counts P [(v j,v i)])).symm)
+    · intro x hx
+      obtain ⟨k,eq⟩ := asPred j (x := OrderDual.ofDual x) hx
+      change OrderDual.ofDual x < v j at hx
+      change OrderDual.ofDual x < v i
+      rw [← eq] at hx ⊢
+      exact pred k hx
+    · intro x hx
+      obtain ⟨k,eq⟩ := asSucc i (x := OrderDual.ofDual x) hx
+      change v i < OrderDual.ofDual x at hx
+      change v l < OrderDual.ofDual x ∨ v j < OrderDual.ofDual x
+      rw [← eq] at hx ⊢
+      exact (succ k hx).symm
+  · obtain ⟨q,t,ne,⟨i,iq,it'⟩,⟨j,jt,jq⟩,sq,st,above⟩ := ext
+    have qt : ¬ r q < r t := fun h => jq (h.trans jt)
+    have tq : ¬ r t < r q := fun h => it' (h.trans iq)
+    have both {k : Fin 4} (kq : k ≠ q) (kt : k ≠ t) : r q < r k ∧ r t < r k := by
+      obtain ⟨a,aq,at',ak⟩ := above k kq kt
+      exact ⟨lt_trans aq ak, lt_trans at' ak⟩
+    have minimal (x : P) : ¬ x < r q ∧ ¬ x < r t := by
+      by_cases hx : x ∈ s
+      · obtain ⟨a,rfl⟩ := inside hx
+        exact ⟨fun h => polar i a q iq h, fun h => polar j a t jt h⟩
+      obtain ⟨k,rfl⟩ := labelOut hx
+      by_cases hq : k = q
+      · subst k
+        exact ⟨lt_irrefl _,qt⟩
+      by_cases ht : k = t
+      · subst k
+        exact ⟨tq,lt_irrefl _⟩
+      exact ⟨not_lt_of_gt (both hq ht).1,not_lt_of_gt (both hq ht).2⟩
+    have equalOutside (k : Fin 4) : r q < r k ↔ r t < r k := by
+      by_cases hq : k = q
+      · subst k
+        exact iff_of_false (lt_irrefl _) tq
+      by_cases ht : k = t
+      · subst k
+        exact iff_of_false qt (lt_irrefl _)
+      exact iff_of_true (both hq ht).1 (both hq ht).2
+    apply noGold
+    apply singleton_difference_gold P (r q) (r t) (fun eq => ne (r.injective eq))
+    · exact fun x => iff_of_false (minimal x).1 (minimal x).2
+    · apply liftSingle v _ sq
+      intro x h miss
+      by_cases hx : x ∈ s
+      · exact inside hx
+      obtain ⟨k,rfl⟩ := labelOut hx
+      exact (miss ((equalOutside k).mp h)).elim
+    · apply liftSingle v _ st
+      intro x h miss
+      by_cases hx : x ∈ s
+      · exact inside hx
+      obtain ⟨k,rfl⟩ := labelOut hx
+      exact (miss ((equalOutside k).mpr h)).elim
+
 theorem main : H1 → H2 → H3 → OMA.R_wp_1_3_2_3_conjecture_R1.H1 := by
   classical
   intro w3 w4 w5 P _ _ nonchain indecomp rigid three thin upper lower noGold
@@ -984,7 +1345,10 @@ theorem main : H1 → H2 → H3 → OMA.R_wp_1_3_2_3_conjecture_R1.H1 := by
     have nine : 9 ≤ Fintype.card P := by
       by_contra! small
       exact noGold (eight_gold P t at' five (by omega) ex)
-    apply w5 P nonchain indecomp rigid ⟨t,at',five,ex,?_,?_,?_,maxT⟩ nine
+    have ten : 10 ≤ Fintype.card P := by
+      by_contra! small
+      exact noGold (nine_gold P t at' five (by omega) ex)
+    apply w5 P nonchain indecomp rigid ⟨t,at',five,ex,?_,?_,?_,maxT⟩ ten
       (trace_obstructions P noGold) thin noVeryGood noGold
     · rintro ⟨r, outside, profiles⟩
       exact noGold (three_profile_gold P t at' five r outside profiles ex)
