@@ -4948,17 +4948,6 @@
    ],
    "note": "Yanev's closed form in terms of floor(sqrt n) and floor(sqrt 2n) for triples with w^2 = x+y in {1..n}. Statement faithful (Nat.sqrt, comparison in Q, all n>=0); I verified it for n<300. The proof is the direct count (w^2-1 or 2n+1-w^2 pairs per w, then sums of squares): routine, no prior proof found. Second review: Faithful and true. It follows by summing, over w, the number of x+y = w^2 in the box, which splits at w^2 <= n+1 and w^2 <= 2n; a short elementary count, so routine."
   },
-  "oeis-a269822": {
-   "date": "2026-11-28",
-   "pr": 22415,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A269822",
-    "https://oeis.org/A269822",
-    "https://oeis.org/A269822/b269822.txt"
-   ],
-   "note": "Barker's g.f. 5x^2/(1-4x)^2, closed form 5*4^(n-2)*(n-1) and Hardin's recurrence for n X 1 arrays over 0..4 with exactly one adjacent pair summing to 4 (only vertical neighbors exist in one column). Statement faithful, checked by brute force for n<=7 and against the data. Elementary transfer count (each letter has exactly one partner); routine. Second review: Faithful and true; every letter has exactly one partner summing to 4, so the count is (n-1)*5*4^(n-2) by choosing the position of the pair. Trivially routine."
-  },
   "oeis-a262267": {
    "date": "2026-11-28",
    "pr": 22583,
@@ -4970,18 +4959,6 @@
     "https://oeis.org/A262267/b262267.txt"
    ],
    "note": "A 3-bit row is divisible by 5 only as 000 or 101, so the arrays are (b,0,b) with b a multiple of 5 below 2^(n+2), giving a(n) = (2^(n+2)+4)/5 (div). I checked this against all 210 b-file terms. Barker's g.f. and complex closed form follow routinely, and the statement is faithful. Second review: Faithful and true; since the only 3-bit multiples of 5 are 0 and 5, the problem reduces to counting binary words divisible by 5, a 5-state automaton. Routine."
-  },
-  "oeis-a111779": {
-   "date": "2026-11-28",
-   "pr": 22700,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A111779",
-    "https://oeis.org/A111779",
-    "https://oeis.org/A111595",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's P-recurrence (5-n)a(n) + 5n a(n-1) + n(n-1)^2 a(n-2) = 0 is stated for n >= 7 (all indices >= offset 5), with a(n) given by the entry's explicit binomial-sum formula (Lang), over Q. I verified the definition against the data and the recurrence for n = 7..79. This is a routine holonomic derivation from the explicit sum / e.g.f. Second review: Faithful and true. The e.g.f. is D-finite and the recurrence follows mechanically (holonomic closure); a routine identity, but not previously recorded as proved."
   },
   "oeis-a027483": {
    "date": "2026-11-28",
@@ -5005,18 +4982,6 @@
     "https://oeis.org/A224671/b224671.txt"
    ],
    "note": "Barker's g.f. and closed form (n>1) and Hardin's recurrence (n>6) are faithful. The row-transfer definition with integer idempotence of every 2x2 block reproduces the b-file, and I checked the closed form numerically for n<=38. The proof is a transfer-matrix recurrence modelled on the site's earlier A224669 proof (a sibling entry, not the same statement). Second review: Faithful and true. Transfer-matrix result with eigenvalues 1 and the golden ratio pair; routine. The proof file says it follows the site's own accepted proof of the sister entry A224669, not outside work."
-  },
-  "oeis-a232921": {
-   "date": "2026-11-28",
-   "pr": 22590,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A232921",
-    "https://oeis.org/A232921/b232921.txt",
-    "https://oeis.org/A232921",
-    "https://oeis.org/A232921/b232921.txt"
-   ],
-   "note": "Barker's g.f. 9x/(1-2x-2x^2) and closed form (n>=1) are faithful. The adjacency reading (horizontal, diagonal and antidiagonal pairs restricted, vertical not) reproduces the b-file, which I checked by transfer matrix for n<60. The proof is a transfer-matrix recurrence. Second review: Faithful and true. Small transfer matrix, routine."
   },
   "oeis-a204645": {
    "date": "2026-11-28",
@@ -5215,17 +5180,6 @@
    ],
    "note": "Barker's g.f. and the two parity closed forms are stated faithfully (offset 1, arrays in [-n,n]^3 with zero sum and all six differences nonzero). Brute force for n < 30 matches the data and both closed forms. The proof is a short count, giving a(n) = 3n^2 - 3n - 4 floor(n/2). Routine. Second review: Faithful and true. This is an elementary lattice-point count, so routine."
   },
-  "oeis-a232950": {
-   "date": "2026-11-28",
-   "pr": 22783,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A232950",
-    "https://oeis.org/A232950",
-    "https://oeis.org/A232950/b232950.txt"
-   ],
-   "note": "Barker's g.f. 3x(3-2x)/(1-15x+6x^2) and Binet closed form are stated faithfully. Horizontal, diagonal and antidiagonal neighbours may not sum to 3, vertical pairs are free, and the top-left cell is 0. Controls proved in Lean reproduce all 9 data terms. A transfer-matrix argument, so routine; no prior proof found. Second review: Faithful and true. It is a finite transfer-matrix computation followed by Binet, so routine."
-  },
   "oeis-a285360": {
    "date": "2026-11-28",
    "pr": 22657,
@@ -5331,17 +5285,6 @@
    ],
    "note": "Wu's recurrence (n > 7) and g.f. for 2D Rule 73 are stated faithfully (plane model with evolving background, cells (-n..0) read in base 10, data reproduced in the proof). I checked both numerically for n <= 40 by direct simulation. This is a routine eventual-pattern CA argument, and no prior proof was found. Second review: Faithful and true. Barker/Wu's conjectured formulas for A278757 (Rule 73) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
   },
-  "oeis-a233106": {
-   "date": "2026-11-28",
-   "pr": 23026,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A233106",
-    "https://oeis.org/A233106",
-    "https://oeis.org/A233106/b233106.txt"
-   ],
-   "note": "Barker's g.f. and closed form are stated faithfully (n X 1 column, sums of adjacent entries not equal to 5, top entry 0, the first-appearance order constraints). I checked by brute force that the definition gives the data for n <= 7, and the closed form matches. This is a routine transfer-matrix count, and no prior proof was found. Second review: Faithful and true. It is a small automaton count, so routine. A related n x 2 version, oeis-a233107, is a separate open problem on the site, not a duplicate."
-  },
   "oeis-a192249": {
    "date": "2026-11-28",
    "pr": 22937,
@@ -5405,29 +5348,6 @@
     "https://arxiv.org/abs/2610.04842"
    ],
    "note": "Kimberling's bound -1 < n*sqrt(2) - a(n) < 1 for the 1s of the fixed point of 0->01, 1->1011 is stated faithfully, with the data reproduced. I checked it for all 1s within the first 400000 letters (max |deviation| = 0.998). The proof is a standard Pisot-substitution discrepancy argument (E is multiplied by the second eigenvalue). No prior proof was found, and the sibling A284930 conjecture is still open. Second review: Faithful and numerically sound (Kimberling 2017). Dvořáková-Pelantová-Shallit (arXiv:2510.11318) and the recent Wythoff/Fibonacci-word proof paper (arXiv:2610.04842) settle other Kimberling conjectures, not A284931. I found no earlier proof. Not routine."
-  },
-  "oeis-a174808": {
-   "date": "2026-11-28",
-   "pr": 22584,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A174808",
-    "https://oeis.org/A174808",
-    "https://oeis.org/A174808/b174808.txt",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence is stated faithfully for a(n) = Sum C(k,n-k) A006318(k) (Mathlib largeSchroder), n >= 5, and I checked it numerically for n < 60. Deriving a recurrence from the algebraic g.f. is routine. No prior proof was found. Second review: Faithful and true. It follows from the algebraic g.f. via the standard ODE-to-recurrence method; not in the 1707.04654 output. Routine."
-  },
-  "oeis-a269760": {
-   "date": "2026-11-28",
-   "pr": 22480,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A269760",
-    "https://oeis.org/A269760",
-    "https://oeis.org/A269760/b269760.txt"
-   ],
-   "note": "The empirical recurrence and Barker's g.f. and closed form 6*5^(n-2)*(n-1) are stated faithfully (n X 1 columns with exactly one adjacent pair summing to 5). I checked them by brute force for n <= 7. The proof is an elementary count, and no prior proof was found. Second review: Faithful and true, with a short combinatorial argument, so routine."
   },
   "oeis-a159807": {
    "date": "2026-11-28",
@@ -5639,39 +5559,6 @@
     "https://oeis.org/A308160/b308160.txt"
    ],
    "note": "Barker's g.f. and order-9 recurrence for the sum of the middle sides b over isosceles triangles with perimeter n are stated faithfully (equilateral counted once). Lean controls reproduce 26 data terms. A quasi-polynomial count, so routine; no prior proof found. Second review: Faithful and true; quasi-polynomial count of lattice points, routine."
-  },
-  "oeis-a268164": {
-   "date": "2026-11-28",
-   "pr": 22173,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A268164",
-    "https://oeis.org/A268164",
-    "https://oeis.org/A268164/b268164.txt"
-   ],
-   "note": "Barker's g.f. x(1-x-3x^2)/((1-3x)(1-2x-4x^2)) and closed form for n X 1 arrays over 0..3 with cyclically increasing repeats are stated faithfully. The scan reproduces all 13 data terms. A transfer-matrix count, so routine; no prior proof found. Second review: Faithful and true; finite-state DP, routine."
-  },
-  "oeis-a045994": {
-   "date": "2026-11-28",
-   "pr": 22576,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A045994",
-    "https://oeis.org/A045994",
-    "https://oeis.org/A045994/b045994.txt"
-   ],
-   "note": "The Motzkin convolution definition and Mathar's order-5 polynomial recurrence (for n>=5, all indices are terms) are stated faithfully; the data match. The g.f. 1/(1-x(1+x)M(x)) is algebraic, so this is a routine holonomic recurrence, which I verified numerically to n=80. No prior proof found. Second review: Faithful and true. The g.f. is algebraic (quadratic), so the D-finite recurrence follows by a routine annihilator/creative-telescoping or explicit g.f. computation (Ekhad-Yang-Zeilberger's 'provable conjecture' class)."
-  },
-  "oeis-a269895": {
-   "date": "2026-11-28",
-   "pr": 22485,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A269895",
-    "https://oeis.org/A269895",
-    "https://oeis.org/A269895/b269895.txt"
-   ],
-   "note": "For an n X 1 column only vertical neighbours exist, so a(n) counts 0..6 words with exactly one adjacent pair summing to 6. The empirical recurrence (n>=3), Barker's g.f. and the closed form 7*6^(n-2)*(n-1) are stated faithfully (a(1)=0 handled). I brute-forced n<=7. Elementary counting; no prior proof found. Second review: Faithful and true; for each value x exactly one partner 6-x, so the count is (n-1)*7*6^(n-2). Routine."
   },
   "oeis-a094061": {
    "date": "2026-11-28",
@@ -6078,16 +5965,6 @@
    ],
    "note": "Both of Stephan's claims are stated faithfully over all primes p in A080050: 8p divides gcd(2^p-1, F(p)) - 1, and a > 1 when p is not 1 mod 10. I checked both for every such p < 30000 (14 primes, including 11, 8501, 10867). No proof found in the entry, Fried's papers or the libraries. The proof is a genuine elementary argument: common prime factors are 1 mod p, 2 is a QR, odd prime factors of F(odd) are 1 mod 4, and the rank of apparition forces 8p+1 to be 1 mod 5. Not a template. Second review: Faithful and true, with a short elementary proof (orders mod q, rank of apparition, quadratic reciprocity). Not noted as proved anywhere I could find, though it is a listed conjecture in Stephan's 2004 collection."
   },
-  "oeis-a081052": {
-   "date": "2026-11-28",
-   "pr": 23824,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A081052",
-    "https://oeis.org/A081052"
-   ],
-   "note": "Mathar's recurrence for n >= 3 is stated faithfully, with the listed terms a(n) = s(n+1,2) - s(n+1,3) at offset 0 (the PARI program and e.g.f. confirm the shift; it reproduces the data). I checked it for n < 60. The proof unfolds the Stirling recurrence and closes with ring. Routine. Second review: Faithful and true; Mathar's recurrence follows from the Stirling recurrence (the proof is a few rewrites plus ring). Routine."
-  },
   "oeis-a083807": {
    "date": "2026-11-28",
    "pr": 7321,
@@ -6357,76 +6234,6 @@
    ],
    "note": "Same as A156201 with E_n(1/16), 64(k+1)^2 and 1+7x. The numerator equals 16^n E_n(1/16), and the depth-N convergents agree through n = 2N+1 numerically. The proof is the same classical Laplace-transform derivation of the continued fraction. No prior proof found. Second review: Faithful and true. It reduces by a binomial (Euler) transform to Stieltjes' classical continued fraction for the secant numbers, so routine; the proof is long only because of Lean series plumbing."
   },
-  "oeis-a164586": {
-   "date": "2026-11-28",
-   "pr": 24412,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A164586",
-    "https://oeis.org/A164586"
-   ],
-   "note": "Faithful: the coefficient shift n+1 and the denominator 2-2x-8x^2-6x^3-2x^4 correctly rewrite the entry's g.f., and the radicand matches; the series reproduces the data. Mathar's order-7 recurrence holds for n = 7..58. The proof is a routine annihilator certificate; no prior proof found. Second review: Faithful and true; routine algebraic-g.f. recurrence."
-  },
-  "oeis-a166228": {
-   "date": "2026-11-28",
-   "pr": 22223,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A166228",
-    "https://oeis.org/A166228"
-   ],
-   "note": "Faithful: a(n) = Sum (-1)^(n-k) S(k) with large Schroeder numbers (data match). Mathar's order-3 recurrence holds for n = 3..49. Routine algebraic-g.f. recurrence; no prior proof found. Second review: Faithful and true; routine."
-  },
-  "oeis-a166290": {
-   "date": "2026-11-28",
-   "pr": 24470,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A166290",
-    "https://oeis.org/A166290"
-   ],
-   "note": "Faithful: the entry's g.f. (z-1)(z+2)/(2z^2) + P/(2z^2 sqrt(R)) is rationalized correctly, with (z^2+z-2)R expanded and checked. The series reproduces the data. Mathar's large order-6 recurrence is expanded correctly ((n+2)(60283n-319055) and (166729n-863288)(n-6)) and holds for n = 6..57. Routine certificate proof; no prior proof found. Second review: Faithful and true; routine (big coefficients, same method)."
-  },
-  "oeis-a166694": {
-   "date": "2026-11-28",
-   "pr": 22545,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A166694",
-    "https://oeis.org/A166694"
-   ],
-   "note": "Faithful algebraic g.f. (with an existence clause, so not vacuous), reproducing the data. Mathar's order-4 recurrence holds for n = 5..57. Routine; no prior proof found. Second review: True from n=5; fails at the first index n=4, which the statement documents (usual reading of Mathar recurrences). Mention the exception if announced. Routine."
-  },
-  "oeis-a166696": {
-   "date": "2026-11-28",
-   "pr": 22566,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A166696",
-    "https://oeis.org/A166696"
-   ],
-   "note": "Faithful algebraic g.f. (1-3x+x^2-sqrt(1-14x+27x^2-14x^3+x^4))/(4x) with an existence clause; it reproduces the data. Mathar's recurrence holds for n = 5..57. Routine; no prior proof found. Second review: True from n=5; fails at the first index n=4, which the statement documents (usual reading of Mathar recurrences). Mention the exception if announced. Routine."
-  },
-  "oeis-a166697": {
-   "date": "2026-11-28",
-   "pr": 22608,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A166697",
-    "https://oeis.org/A166697"
-   ],
-   "note": "Faithful g.f. (the A166696 g.f. divided by (1-x)) with an existence clause; it reproduces the data. Mathar's order-5 recurrence holds for n = 5..57. Routine; no prior proof found. Second review: Faithful and true; routine."
-  },
-  "oeis-a168503": {
-   "date": "2026-11-28",
-   "pr": 22626,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A168503",
-    "https://oeis.org/A168503"
-   ],
-   "note": "The period-3 continued fraction 1/(1-x/(1-2x/(1-3x/...))) is encoded faithfully by its three tails, with an existence clause, and reproduces the data. Mathar's recurrence holds for n = 4..59. Routine; no prior proof found. Second review: Faithful and true; the entry's algebraic g.f. makes it routine."
-  },
   "OeisA79727.conjecture1": {
    "date": "2026-11-28",
    "pr": 7091,
@@ -6640,26 +6447,6 @@
    ],
    "note": "Israel's 2019 conjectured formula (1 if n=1 mod 3, 2 if n=2 mod 3, else 3+v2(n/3)) is stated for all n>=1 against a faithful greedy definition (least positive letter avoiding a palindromic suffix of length >=2 and a square suffix). I recomputed the greedy word by brute force to n=1500 and it matches. The proof is a genuine combinatorics-on-words argument (no palindromes, no squares via a ruler lemma, minimality). No prior proof found; note the statement credits @frido22 while the PR is by Salofe. Second review: Correct; a short combinatorics-on-words argument."
   },
-  "oeis-a102319": {
-   "date": "2026-11-28",
-   "pr": 24674,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A102319",
-    "https://oeis.org/A102319"
-   ],
-   "note": "Both of Mathar's recurrences (order 6 for n>=6, order 4 for n>=4) are stated with coefficients copied correctly and a(n) = sum C(n,k)C(2k,k)(1+(-1)^(n-k))/2 as in the entry; both hold for n<80. Proof derives three-term recurrences for the two binomial transforms and combines them; routine holonomic work. No prior proof found. Second review: Routine."
-  },
-  "oeis-a102880": {
-   "date": "2026-11-28",
-   "pr": 24583,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A102880",
-    "https://oeis.org/A102880"
-   ],
-   "note": "Mathar's recurrence is stated with the entry's g.f. ((1-x^2)/(1+x^2))c(x/(1+x^2)) as definition. It fails at n=4 (left side 3), so the statement starts at n=5; the entry gives no range, and from n=5 on the identity holds (checked to n=40), which is the usual reading for such g.f.-derived recurrences. The restriction is disclosed and reasonable. Routine D-finite derivation; no prior proof found. Second review: Routine. Mathar's recurrence holds exactly from n=5. Say 'for n>=5' explicitly in any announcement."
-  },
   "oeis-a106249": {
    "date": "2026-11-28",
    "pr": 23972,
@@ -6669,16 +6456,6 @@
     "https://oeis.org/A106249"
    ],
    "note": "Barry's conjecture a(n) = Sum_{k<=n} Jacobi(2^k, 2k+1) is stated faithfully for all n>=0 with the entry's g.f. as definition. Since (2^k|2k+1) = chi_8(2k+1)^k is 4-periodic (-1 iff k=1 mod 4), the claim is elementary; checked to n=200. thatnealpatel/proofs has an A106249 file, but it refutes Lagneau's different left-half-plane conjecture, so it is not a prior proof of this one. Second review: Routine periodicity argument."
-  },
-  "oeis-a106391": {
-   "date": "2026-11-28",
-   "pr": 23381,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A106391",
-    "https://oeis.org/A106391"
-   ],
-   "note": "Both Mathar recurrences (order 6 for n>=6, order 4 for n>=4) are transcribed correctly with a(n) = Sum binomial(n,2k) binomial(2(n-2k), n-2k+1) from the entry; both hold for n<80. Routine holonomic proof via the binomial and inverse binomial transforms of binomial(2j,j+1). No prior proof found; the statement credits @JeremyDevs while the PR is by Salofe. Second review: Routine."
   },
   "oeis-a107793": {
    "date": "2026-11-28",
@@ -6694,16 +6471,6 @@
     "https://arxiv.org/abs/1907.09120"
    ],
    "note": "Disproof of Sloane's 2018 conjecture that A107793, relabeled (5->6, 4->5) and with the first two terms dropped, is a shift of A275925. The definitions (f-morphism limit S[3k+1], sigma-trajectory of 3) are faithful and reproduce both entries' data, and the statement allows shifts in both directions. Numerically the best shift (11) agrees only for 41 terms. In ~10^5-term windows no shift in [-20000,20000] even agrees eventually. The proof writes the relabeled word as a sigma-image and uses aperiodicity of A275925; no prior refutation found. Second review: Sloane's 2018 'appears to be a shifted version' is false: the two words share a language but are not shifts of each other. The disproof is genuinely new."
-  },
-  "oeis-a108600": {
-   "date": "2026-11-28",
-   "pr": 24400,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A108600",
-    "https://oeis.org/A108600"
-   ],
-   "note": "Mathar's order-6 recurrence for n>=6 is transcribed correctly; the normalised g.f. used as the definition equals the entry's (Vatter) g.f. as a series (checked to x^40), and the recurrence holds for n<40. It is about the g.f., not the pattern class. Routine certificate proof from S^2 = 1-4x; no prior proof found. The statement credits @vivanpoddar, the proof and PR credit ivillar. Second review: Routine."
   },
   "oeis-a110521": {
    "date": "2026-11-28",
@@ -6726,26 +6493,6 @@
     "https://oeis.org/A111999"
    ],
    "note": "Mathar's first-order recurrence n(4n+5)a(n) + (2n+3)(n+2)(4n+9)a(n-1) = 0 is stated faithfully for n>=1, with a(n) = A111999(n+3,2)/2 and A111999 given by its formula-section recurrence (it reproduces rows -1; 3,2; -15,-20,-6). Checked for n<40. The proof finds closed forms for columns 0-2 by induction; routine. Second review: Routine closed form."
-  },
-  "oeis-a116383": {
-   "date": "2026-11-28",
-   "pr": 24402,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A116383",
-    "https://oeis.org/A116383"
-   ],
-   "note": "Mathar's order-6 recurrence for n>=6 is transcribed correctly; the normalised g.f. equals Barry's g.f. as a series (checked to x^40), and the recurrence holds for n<40. The row-sum (A116382) interpretation is replaced by the entry's g.f., which is standard. Routine certificate proof; no prior proof found. The statement credits @vivanpoddar, the PR ivillar. Second review: Routine."
-  },
-  "oeis-a116637": {
-   "date": "2026-11-28",
-   "pr": 24237,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A116637",
-    "https://oeis.org/A116637"
-   ],
-   "note": "Mathar's recurrence is stated for n>=3, with the entry's explicit factorial formula (a(2k+1)=2*A006013(k), a(2k+2)=2*A001764(k+1), a(0)=1) as the definition; it reproduces the data. The n=2 exclusion is disclosed: the left side is 48 there because of the exceptional a(0)=1, and the recurrence holds for 3<=n<60. Given the closed form, the proof is a routine hypergeometric-ratio check; no prior proof found. Second review: Routine. Valid for n>=3 only; state that."
   },
   "oeis-a119012": {
    "date": "2026-11-28",
@@ -7185,78 +6932,6 @@
    ],
    "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. G=z^5 g^2(g-1)^2/((1-z)(1-z^2g^2)) with g the peakless-Motzkin series. The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful encoding of Mathar's 2022 D-finite recurrence conjecture; numerics agree; nothing in the literature. Routine (algebraic g.f.)."
   },
-  "oeis-a190166": {
-   "date": "2026-11-28",
-   "pr": 24545,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A190166",
-    "https://oeis.org/A190166",
-    "https://oeis.org/A110236",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. z/((1-z+z^2)sqrt((1+z+z^2)(1-3z+z^2))). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful; checks numerically; not the same as A110236's recurrence (different sequence). No prior proof found. Routine."
-  },
-  "oeis-a190169": {
-   "date": "2026-11-28",
-   "pr": 24190,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A190169",
-    "https://oeis.org/A190169",
-    "https://oeis.org/A110236",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. for level-odd flat steps in peakless Motzkin paths. The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful; numerics agree; no prior proof found. Routine."
-  },
-  "oeis-a191307": {
-   "date": "2026-11-28",
-   "pr": 24011,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A191307",
-    "https://oeis.org/A191307",
-    "https://oeis.org/A191306",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. with sqrt(1-4z^2). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful; numerics agree; no prior proof found. Routine."
-  },
-  "oeis-a191585": {
-   "date": "2026-11-28",
-   "pr": 24192,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A191585",
-    "https://oeis.org/A191585",
-    "https://oeis.org/A191582",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Munarini g.f. with sqrt(1-4x). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. Only Mathar's first (order-3) recurrence is formalized; the second (order-4) is not stated. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful to one of the entry's two Mathar conjectures; the second (4*n*a(n)+... order 4) is not covered, so any announcement should say 'the first conjecture'. Numerics agree; no prior proof found. Routine."
-  },
-  "oeis-a191786": {
-   "date": "2026-11-28",
-   "pr": 24546,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A191786",
-    "https://oeis.org/A191786",
-    "https://oeis.org/A191785",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. 2(1+z+z^2)/(1-z^2-2z^3+sqrt(1-2z^2-3z^4)). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful; numerics agree; no prior proof found. Routine."
-  },
-  "oeis-a191790": {
-   "date": "2026-11-28",
-   "pr": 24191,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A191790",
-    "https://oeis.org/A191790",
-    "https://oeis.org/A191788",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. z^2c^2/((1-z^2)(1-zc)). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. Only Mathar's first (order-5) recurrence is formalized; the second is not stated. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful to the first of two Mathar conjectures; the second is not covered, so an announcement should say so. Numerics agree; no prior proof found. Routine."
-  },
   "oeis-a201044": {
    "date": "2026-11-28",
    "pr": 21247,
@@ -7401,18 +7076,6 @@
    ],
    "note": "Barker's g.f. x(19+247x-206x^2-76x^3+53x^4-5x^5)/(1-x)^6 and order-6 recurrence (n>=7) for n X 6 binary arrays avoiding 000, 101 horizontally and 001, 110 vertically; the formal pattern test is faithful and my transfer-matrix count matches all 12 data terms. Routine finite-transfer-matrix polynomial. No prior proof found (entry, A207305, Palomar, Lean libraries, BG/Fried, Epoch). Second review: Barker's g.f./recurrence; finite-state/transfer-matrix count, rational g.f.."
   },
-  "oeis-a208355": {
-   "date": "2026-11-28",
-   "pr": 24038,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A208355",
-    "https://oeis.org/A099363",
-    "https://oeis.org/A208355",
-    "https://oeis.org/A099363"
-   ],
-   "note": "Mathar's P-recurrence -(n+3)(n-2)a(n) - 4a(n-1) + 4(n-1)^2 a(n-2) = 0 (n>=2) with a defined by Russell's g.f. ((1+z)(1-sqrt(1-4z^2))/(2z^2)-1)/z; my expansion of the formal series gives a(n) = Catalan(floor((n+1)/2)), the entry's established formula and data, and the recurrence holds for n<40. Splitting into even/odd n it reduces to C_m/C_{m-1} = 2(2m-1)/(m+1); routine. No prior proof found (entry, A099363 whose own Mathar recurrence is also conjectural, Palomar, libraries, BG/Fried, Epoch). Second review: Mathar's P-recursive recurrence for the repeated Catalan numbers; follows from a(n)=C(floor((n+1)/2)), a short argument. (A099363 = signed version carries a different Mathar recurrence, separate site id, not a duplicate.)"
-  },
   "oeis-a209944": {
    "date": "2026-11-28",
    "pr": 24219,
@@ -7423,17 +7086,6 @@
     "https://oeis.org/A209944"
    ],
    "note": "Hardin's recurrence (n>=3), Barker's g.f. and Binet form, and Spezia's e.g.f. for half the number of (n+1) X 2 0..2 arrays whose 2 X 2 blocks have at most one duplicate among the four clockwise edge differences (formalized as >= 3 distinct values, which is the same thing for 4 values). My transfer-matrix count gives N(n) even and N(n)/2 = all 9 data terms checked. Routine transfer-matrix result; no prior proof found (entry, A209951, Palomar, Lean libraries, BG/Fried, Epoch). Second review: Hardin/Barker/Spezia conjectures; finite-state/transfer-matrix count, rational g.f.."
-  },
-  "oeis-a210496": {
-   "date": "2026-11-28",
-   "pr": 24547,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A210496",
-    "https://doi.org/10.1016/j.aam.2012.09.002",
-    "https://oeis.org/A210496"
-   ],
-   "note": "Mathar's order-8 P-recurrence (n>=8) for set partitions avoiding {1123, 1211}, with a defined by the entry's algebraic g.f. (Jelinek-Mansour-Shattuck Thm 4.27, so using it as the definition is faithful); my expansion of the formal normalised series reproduces the data and the recurrence holds for all n<38 checked. Deriving a P-recurrence from an explicit algebraic g.f. is routine. No prior proof of the recurrence found (entry, JMS paper gives only the g.f., Palomar, libraries, BG/Fried, Epoch). Second review: Mathar's order-8 P-recursive recurrence derived from an algebraic g.f.; a routine algebraic-function-to-recurrence computation."
   },
   "oeis-a210627": {
    "date": "2026-11-28",
@@ -7545,16 +7197,6 @@
    ],
    "note": "Infinitude of positive integers not in A218852 (sigma(n) = sigma(x)+sigma(y)+sigma(z), n = x+y+z, x,y,z >= 1), stated faithfully. Proof: for a prime p == 2 mod 3, p > 5, sigma(x) >= x+1 for x>1 forces two of x,y,z to be 1 and the third p-2 prime, impossible as 3 | p-2; Dirichlet supplies infinitely many such p. Short elementary argument; routine. No prior proof found (entries, Palomar, libraries, formal-conjectures issues/PRs, BG/Fried, Epoch). Second review: Perry's 'this sequence is infinite' is easy: for prime p, sigma(m)-m>=1 for m>=2 forces p = q+2 with q prime, so primes p=2 mod 3 (p>5) are excluded from A218852; a short argument (A218852's comment on twin primes already points to it). Different from site id oeis-a218981 (four summands)."
   },
-  "oeis-a222939": {
-   "date": "2026-11-28",
-   "pr": 23771,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222939",
-    "https://oeis.org/A222939"
-   ],
-   "note": "Barker's g.f. and closed form (256 + 9*2^(n+3) + 5*4^n)/384 (n>2) for n X 1 arrays over 0..4 with no two entries at city-block distance 2 equal (only rows i, i+2 in one column) and values introduced in order; the scan encodes restricted growth plus x(i) != x(i-2), and my brute force matches data n=1..10 and the closed form. Routine transfer-matrix count. No prior proof found (entry, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state count, routine."
-  },
   "oeis-a223181": {
    "date": "2026-11-28",
    "pr": 23942,
@@ -7630,17 +7272,6 @@
    ],
    "note": "Barker's g.f. 4x(7-16x+2x^2)/((1-2x)(1-4x)) and closed form a(n) = 2^(n-2)(4+25*2^n) (n>1) for n X 2 arrays on the 15-node binary fanout tree (edges exactly as listed in the entry, no start condition), horizontal and vertical moves along edges. My transfer count matches all 11 data terms and the closed form. Routine (bipartite tree, small transfer matrix). No prior proof found (entry, A223449, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
   },
-  "oeis-a168505": {
-   "date": "2026-11-28",
-   "pr": 22631,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A168505",
-    "https://oeis.org/A168505",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "CF 1/(1-x/(1+x/(1-x/(1-x/...)))) with period-3 numerators is encoded as A=1/(1-XU), U=1/(1+XV), V=1/(1-XA), which is correct; recurrence coefficients match. Python: CF reproduces 38 data terms and recurrence holds n<90. Note a(n)=2-A174015(n) (same Mathar recurrence, also solved in this batch); no prior proof found in the searched sources. Routine. Second review: Faithful and true; routine (algebraic g.f., ODE certificate). Note A168505(n)=2-A174015(n) and the recurrence's coefficients sum to 0, so this conjecture and the A174015 one (same recurrence, also in this batch) are equivalent; not literal duplicates but the owner may want to count them once."
-  },
   "oeis-a171556": {
    "date": "2026-11-28",
    "pr": 10677,
@@ -7674,17 +7305,6 @@
    ],
    "note": "S^2=1-2x+x^2+4x^3, S(0)=1, 2x(1-x)A=3x-1+S encodes the entry's g.f.; recurrence matches. Python: 38 data terms and recurrence verified. a(n)=2-A168505(n), so this and A168505 are essentially the same identity (both open as separate entries). No prior proof found; routine. Second review: Faithful and true; routine. Equivalent to the A168505 conjecture in this batch (A174015=2-A168505, same recurrence, coefficients summing to 0)."
   },
-  "oeis-a178072": {
-   "date": "2026-11-28",
-   "pr": 24179,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A178072",
-    "https://oeis.org/A178072",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Entry's g.f. 2/(1+2x+x^2+sqrt(1-4x+6x^2+x^4)) is rationalised correctly to x^{-1}(1+2x+x^2-S)/(4+2x^2); all eight quadratic coefficients expand correctly. Python: 34 data terms and recurrence for 7<=n<88 verified. No prior proof found; routine. Second review: Faithful and true; routine (algebraic g.f.)."
-  },
   "oeis-a182560": {
    "date": "2026-11-28",
    "pr": 10268,
@@ -7705,28 +7325,6 @@
    ],
    "note": "a = coefficients of (1+35x)/(1-90x^2) with offset 1; statement says a(n) is the least h>a(n-1) with a(n-2)a(n-1)h | (a(n-2)+a(n-1))(a(n-2)+h)(a(n-1)+h) and the quotient is 130, exactly the entry's comment. Python brute force confirms minimality for n<=9. Proof via scaling/coprime reduction to finitely many divisor pairs; no prior proof found. Second review: Faithful and true. The proof reduces to gcd(p,q)=1 divisor conditions (q|36, p|1260; q|5, p|15750) plus a finite check, a short elementary argument, so routine."
   },
-  "oeis-a182894": {
-   "date": "2026-11-28",
-   "pr": 24485,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A182894",
-    "https://oeis.org/A182894",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Deutsch's g.f. 1/(z+z^2+sqrt((1+z+z^2)(1-3z+z^2))) is rationalised correctly (radicand and denominator 1-2x-2x^2-4x^3 checked). Python: 33 data terms and recurrence 7<=n<90 verified. No prior proof found; routine. Second review: Faithful and true; routine (algebraic g.f.)."
-  },
-  "oeis-a182904": {
-   "date": "2026-11-28",
-   "pr": 24654,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A182904",
-    "https://oeis.org/A182904",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "g.f. 1/sqrt(R) encoded as S*R^{-1} with S=sqrt(R); recurrence coefficients match. Python: 31 data terms and recurrence verified. No prior proof found; routine. Second review: Faithful and true; routine."
-  },
   "oeis-a183702": {
    "date": "2026-11-28",
    "pr": 23985,
@@ -7737,28 +7335,6 @@
     "https://oeis.org/A183710"
    ],
    "note": "Arrays (n+1)x2 over 0..3 with every 2x2 block nonsingular; recurrence, g.f. and real closed form all stated. Python transfer-matrix count matches the data, the recurrence and the closed form numerically. No prior proof found; routine. Second review: Faithful and true; finite transfer-matrix argument, routine. The parallel sibling A183626 was settled by a Nov 2026 proof in its parent table, but nothing comparable exists for A183710/A183702 as far as I can find."
-  },
-  "oeis-a186338": {
-   "date": "2026-11-28",
-   "pr": 22629,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A186338",
-    "https://oeis.org/A186338",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "CF with period-3 numerators 2x,2x,x is encoded as A=1/(1-2XU), U=1/(1-2XV), V=1/(1-XA), which is correct; recurrence matches. Python: data and recurrence verified. No prior proof found; routine. Second review: Faithful and true; routine."
-  },
-  "oeis-a186341": {
-   "date": "2026-11-28",
-   "pr": 24484,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A186341",
-    "https://oeis.org/A186341",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Entry's g.f. with sqrt(P/(1-x)) is rewritten as sqrt(P(1-x))/(1-x); I checked the radicand expansion and that the encoded series equals both the stated g.f. and the defining sum binomial(n-k,k)*A186338(k) for n<80. Recurrence (n>=9) verified numerically. No prior proof found; routine. Second review: Faithful and true; routine."
   },
   "oeis-a187049": {
    "date": "2026-11-28",
@@ -7894,17 +7470,6 @@
    ],
    "note": "Disproof of Browne's conjecture a(3n+9) > a(3n+8): at n = 13344, a(40041) = a(40040) = 33203. I recomputed this with a sieve, and it is the first failure of either clause (beyond the 10000-term b-file). The definition (x in 1..n with x and 2n-x composite) matches the entry's PARI formula and data. Genuine counterexample, not a typo exploit; no prior refutation found (entry, Palomar, Epoch, libraries, formal-conjectures). Second review: A disproof by explicit counterexample (n=13344), which I reproduced independently. Faithful, no earlier report of it found. Routine (finite check)."
   },
-  "oeis-a226434": {
-   "date": "2026-11-28",
-   "pr": 24555,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A226434",
-    "https://oeis.org/A226434",
-    "https://arxiv.org/abs/1309.0832"
-   ],
-   "note": "Mathar's order-6 P-recurrence, with coefficients expanded correctly (e.g. (95n+537)(n+2), 192(38n-67)(2n-13)), stated for n >= 7 on the sequence defined by the entry's algebraic g.f. (rationalized; my series reproduces the data 0,1,3,10,37,...). Exact check: holds for n = 7..56 and fails only at 4..6, where truncated indices fall below the offset, so the range is the natural one. Routine algebraic-to-holonomic. No prior proof found. Second review: Mathar's guessed P-recurrence for an algebraic g.f. that is proved in the cited paper; faithful, true, no earlier proof found. Routine (holonomic closure of an algebraic g.f.)."
-  },
   "oeis-a228254": {
    "date": "2026-11-28",
    "pr": 24039,
@@ -7951,17 +7516,6 @@
     "https://oeis.org/A231978/b231978.txt"
    ],
    "note": "This proves Shevelev's conjecture that the sequence has a composite term, with the witness m = 19609^2 (19609 prime). m^2 = 19609^4 is odd and composite, and n+d, n*d, n/d are odious for its five divisors; I rechecked this independently. The A231558 definition is faithful. Moses's 2500-term b-file (to 934883) is all primes, and my search found no composite term below 4*10^5, so the witness is new and lies beyond the published data. Witness search, routine. No prior claim found (OEIS search for 384512881, Palomar, Epoch, libraries). Second review: An existence conjecture settled by an explicit witness (finite check). Faithful and correct; no earlier report found. Routine; 'first one should be very large' is not part of the claim (the least composite seems to be 10150441, smaller than the site's witness)."
-  },
-  "oeis-a232951": {
-   "date": "2026-11-28",
-   "pr": 24671,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A232951",
-    "https://oeis.org/A232951",
-    "https://oeis.org/A232951/b232951.txt"
-   ],
-   "note": "Barker's g.f. 3x(9-22x+5x^2)/((1-x)(1-30x+5x^2)) and closed form for n X 4 arrays over 0..3 with no x adjacent to 3-x horizontally, diagonally or antidiagonally, x(0,0)=0, offset 1. My transfer-matrix count reproduces the data and the g.f. for n <= 20, and the closed form gives 27, 771, 22971. Routine. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
   },
   "oeis-a234779": {
    "date": "2026-11-28",
@@ -8207,49 +7761,6 @@
     "https://oeis.org/A293290"
    ],
    "note": "Yanev's 2017 conjecture a(n) = n(n+3)/2 - v2(A293290(n)) for n > 0 is encoded faithfully (reversed binary words, 0 as [0], List.Lex, S_n = {0..n}); the definition reproduces the whole b-file (n = 0..599) and the identity holds against the b-file up to n = 2999. The proof derives Heinz's recurrence from the lexicographic definition and a recursion for the row sums of v2(k^2+j^2). trureturing mentions A264596 only in a different A030101 identity; no prior proof found. Second review: Yanev's 2017 conjectured formula for the reversed-binary sort position, now proved via the 2-adic valuation of k^2+j^2 and Heinz's recurrence. No prior proof found anywhere. The argument is elementary but not a pure recurrence identity."
-  },
-  "oeis-a188861": {
-   "date": "2026-11-28",
-   "pr": 24601,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A188861",
-    "https://oeis.org/A188861",
-    "https://oeis.org/A188866"
-   ],
-   "note": "Hardin's a(n)=27n-13 (n>1) with Barker's g.f. and recurrence is stated as a(1)=16 and a(n)=27n-13 for n>=2. That is equivalent to all three claims. The definition (no 0 with a 1 directly, diagonally or antidiagonally below it in the next row) reproduces the data in my brute force for n<=5. It is a routine transfer-matrix argument. No prior proof found. Second review: Definition reproduces the data; linear formula verified; no prior proof. Routine transfer-matrix argument."
-  },
-  "oeis-a222139": {
-   "date": "2026-11-28",
-   "pr": 24077,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222139",
-    "https://oeis.org/A222144",
-    "https://oeis.org/A222139"
-   ],
-   "note": "Barker's g.f. 4x(4-11x)/(1-45x+116x^2) and Binet form for n X 3 arrays over 0..4 with no entry increasing mod 5 by 4 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 8 data terms. Order-2 recurrence for a 125-state transfer matrix is a routine (if computational) verification. No prior proof found (entry, A222144, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
-  },
-  "oeis-a222276": {
-   "date": "2026-11-28",
-   "pr": 24067,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222276",
-    "https://oeis.org/A222281",
-    "https://oeis.org/A222276"
-   ],
-   "note": "Barker's g.f. 5x(5-19x)/(1-92x+335x^2) and Binet form for n X 3 arrays over 0..5 with no entry increasing mod 6 by 5 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 7 data terms. Routine transfer-matrix result. No prior proof found (entry, its table, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
-  },
-  "oeis-a222459": {
-   "date": "2026-11-28",
-   "pr": 24585,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222459",
-    "https://oeis.org/A222459"
-   ],
-   "note": "Barker's g.f. 7x(7-41x)/(1-270x+1547x^2) and Binet form for n X 3 arrays over 0..7 with no entry increasing mod 8 by 7 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 6 data terms. Routine. No prior proof found (entry, its table, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
   },
   "oeis-a239171": {
    "date": "2026-11-28",
@@ -9030,16 +8541,6 @@
    ],
    "note": "Bala's 2023 congruences a(2^k) = 1 mod 2^k, a(3^k) = 1 mod 3^(k+1) and a(p^k) = 1 mod p^(k+1) (p >= 5), for a(n) = Sum_k C(n(n-k),k), are stated faithfully. I spot-checked small prime powers. The proof is a short Kummer/Pascal argument, C(n(n-k),k) = (-1)^k p^m mod p^(m+1), plus alternating cancellation for odd p. Routine; no prior proof found (entry, A359842, Palomar, libraries, collections). Second review: Faithful and true; a genuine (though one-page, elementary) proof of Bala's congruences, not a finite check, hence routine=false. No prior proof found on the web, GitHub or the proof collections."
   },
-  "oeis-a100098": {
-   "date": "2026-11-28",
-   "pr": 19505,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A100098",
-    "https://oeis.org/A100098"
-   ],
-   "note": "Mathar's 2012 recurrence 2n a(n) + (4-5n) a(n-1) + 2(3-4n) a(n-2) + 20(n-2) a(n-3) = 0 (n >= 3), with a(n) defined by Barry's normalized g.f. (1+2x+3 sqrt(1-4x^2))/(4-2x-20x^2). That g.f. reproduces the data, and the recurrence holds for n < 60 using the entry's binomial-sum formula. Routine holonomic proof (first-order ODE for the algebraic g.f.). No prior proof found. Second review: Faithful and true; standard D-finite recurrence from an algebraic g.f."
-  },
   "oeis-a104041": {
    "date": "2026-11-28",
    "pr": 24980,
@@ -9074,17 +8575,6 @@
    ],
    "note": "Mathar's 2017 recurrence for a(n) = [x^(2n+1)](1+x+x^2+x^3+x^4)^n / n (n >= 4) is stated faithfully over Q. My check reproduces the data and the recurrence for 4 <= n < 40. The proof is a routine polynomial/creative-telescoping identity using the reciprocity of the pentanomial. No prior proof found (entry, Banderier et al. 2016 give explicit formulas but not this recurrence; Palomar, libraries, collections). Second review: Faithful, true, routine."
   },
-  "oeis-a105524": {
-   "date": "2026-11-28",
-   "pr": 25720,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A105524",
-    "https://oeis.org/A105524",
-    "https://oeis.org/A105522"
-   ],
-   "note": "Mathar's 2012 order-4 recurrence, with a(n) defined by a rationalized form of the entry's g.f. ((1+2x)sqrt(1+4x^2)-4x^2-2x-1)/(x^2(sqrt(1+4x^2)-3)). With sympy I checked that this form equals the entry's g.f. through x^39 and reproduces the data, and that the recurrence (polynomial coefficients expanded correctly) holds for 4 <= n < 40. Routine algebraic-g.f. holonomic proof. No prior proof found. Second review: Faithful, true, routine g.f.-to-recurrence identity."
-  },
   "oeis-a105794": {
    "date": "2026-11-28",
    "pr": 25541,
@@ -9118,17 +8608,6 @@
     "https://oeis.org/A110510"
    ],
    "note": "Mathar's 2011 order-4 recurrence for the g.f. 1/(1-x^2 c(2x)) is stated faithfully. The g.f. is characterized by S^2 = 1-8x, S(0) = 1, 4x c = 1-S, G(1-x^2 c) = 1, and the coefficient polynomials are expanded correctly. My check reproduces the data and the recurrence for 4 <= n < 45. Routine algebraic-g.f. holonomic identity. No prior proof found. Second review: Faithful, true, routine."
-  },
-  "oeis-a109263": {
-   "date": "2026-11-28",
-   "pr": 24913,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A109263",
-    "https://oeis.org/A109263",
-    "https://oeis.org/A109267"
-   ],
-   "note": "Mathar's 2012 recurrence for the Catalan transform x^2c^2/(1-xc-x^2c^2), encoded as G(x c(x)) with G = x^2/(1-x-x^2) via PowerSeries.subst. The formalizer correctly notes that the left side is -2 at n = 3 and states the recurrence for n >= 4, the usual 'for large n' reading; my check confirms LHS(3) = -2 and 0 for 4 <= n < 45. Routine holonomic identity. No prior proof found. Second review: True and routine. The only caveat is the n=3 exception, which is where the recurrence's leading coefficient vanishes; I regard n>=4 as the intended meaning of Mathar's D-finite conjecture, but the owner may want to mention it."
   },
   "oeis-a111097": {
    "date": "2026-11-28",
@@ -9218,16 +8697,6 @@
    ],
    "note": "a(n) = reduced numerator of Re(((-1-3i)/10)^n) reproduces the data. Both Barker conjectures check to n=80: the g.f. with denominator (1-8x^2+25x^4)(1+8x^2+25x^4), and a(n)=14a(n-4)-625a(n-8) for n>10. The proof controls the 2- and 5-adic cancellation explicitly. No prior proof found. Second review: Faithful and true; routine (denominator/valuation analysis of a rational linear recurrence). No prior proof found."
   },
-  "oeis-a125267": {
-   "date": "2026-11-28",
-   "pr": 25723,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A125267",
-    "https://oeis.org/A125267"
-   ],
-   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the rationalized g.f. reproduces the data, and the expanded coefficients match Mathar's (n>=4). No prior proof found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
-  },
   "oeis-a126089": {
    "date": "2026-11-28",
    "pr": 25604,
@@ -9283,26 +8752,6 @@
     "https://oeis.org/A020711"
    ],
    "note": "The formal recurrence is a(n)=floor(sqrt(a(n-1)^2+a(n-2)^2+a(n-1)a(n-2))) with a(1)=1, a(2)=3 (padded a(0)=0). Barker's recurrence (n>7) and g.f. hold: exact computation to n=400, and the data match. The proof shows a(n+4)-1 satisfies b(n+3)=b(n+2)+b(n) with explicit error margins bracketing the square root. No prior proof found. (A020711 agreeing only for n<=41 concerns that Pisot sequence, not this one.) Second review: Faithful and true; no prior proof found."
-  },
-  "oeis-a128726": {
-   "date": "2026-11-28",
-   "pr": 25858,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A128726",
-    "https://oeis.org/A128726"
-   ],
-   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the series used is the negative of the printed g.f.; the docstring says the printed version expands to -a(n), and the recurrence is homogeneous. It reproduces the data, and the coefficients match (n>=3). No prior proof found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
-  },
-  "oeis-a128734": {
-   "date": "2026-11-28",
-   "pr": 24999,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A128734",
-    "https://oeis.org/A128734"
-   ],
-   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the rationalized g.f. reproduces the data, and the expanded coefficients match Mathar's (n>=3). No prior proof found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
   },
   "oeis-a128828": {
    "date": "2026-11-28",
@@ -9989,17 +9438,6 @@
    ],
    "note": "Zumkeller's comment that (2n+1)^2 first occurs at position A068722(n) is stated faithfully, including 'no earlier position'. blk/pre reproduce the data, and I checked n <= 14 directly. A068722's own comment states a garbled version, 2n+1 instead of (2n+1)^2, but the formalization follows A255437. The proof is a short block-length count. Routine; no prior proof found. Second review: Short explicit argument: (2n+1)^2 is itself a square, so it first appears as an odd number inside the block of k^2 with k = 2n^2+2n+1, at position (2n^2+2n+1)(3n^2+3n+1) = A068722(n). Faithful, no prior proof found; routine."
   },
-  "oeis-a257104": {
-   "date": "2026-11-28",
-   "pr": 25168,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A257104",
-    "https://oeis.org/A257104",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence for Motzkin paths with no peaks at level 3. I checked that the normalised algebraic g.f. equals the entry's continued fraction to 40 terms and reproduces the data. The recurrence holds for 7 <= n < 40 and fails at n = 6 (residual 3), so the n >= 7 range is the correct reading, not a weakening. Routine guess-and-check of an algebraic g.f.; no prior proof found. Second review: Algebraic g.f., so the D-finite recurrence is a routine certified computation; no specific prior proof."
-  },
   "oeis-a257106": {
    "date": "2026-11-28",
    "pr": 25641,
@@ -10009,17 +9447,6 @@
     "https://oeis.org/A257106"
    ],
    "note": "Curtz's two period-3 conjectures on the denominators of the inverse binomial transform of Bernoulli numbers with B(1)=2/3 are stated faithfully, and the definition reproduces the data. My check covers n < 120. By the entry's formula c(n) = B_n - (-1)^n n/6, both claims reduce to von Staudt-Clausen at the prime 3. Routine; no prior proof found. Second review: Follows quickly from the entry's own formula plus von Staudt-Clausen (3-part of the denominator cancels exactly when n=2 mod 3). Routine."
-  },
-  "oeis-a257300": {
-   "date": "2026-11-28",
-   "pr": 25617,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A257300",
-    "https://oeis.org/A257300",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence (n >= 6) for Motzkin paths with no peaks at level 2. I checked that the normalised algebraic g.f. equals the entry's continued fraction to 40 terms and matches the data. The recurrence holds for all 6 <= n < 40. Routine algebraic-g.f. verification; no prior proof found. Second review: Same as A257104: routine D-finite recurrence of an algebraic g.f.; no specific prior proof found."
   },
   "oeis-a259056": {
    "date": "2026-11-28",
@@ -10145,16 +9572,6 @@
    ],
    "note": "Bala's Aug 2026 conjecture: a(np^k) == a(np^(k-1)) mod p^(3k) for p >= 5, and the same for the negative extension a(-n) = Sum C(-n,k)^4 Sum C(k,j)^4. The statement is faithful: Ring.choose(-n,k) is the generalized binomial, and aneg reproduces Bala's values 1, 3, 1491, 1663491. I checked both claims numerically for p = 5..13, k = 1,2. I found no prior proof. The cube analogue in A141057 (Bala 2022) is still listed as a conjecture. The proof is a genuine Jacobsthal-Kazandzidis p-adic argument. Second review: Faithful formalization of both of Bala's claims; the fourth-power case is a direct analog of the A141057 result proved in arXiv:2608.11941 with the same technique, so the novelty is modest, but neither claim of A172434 (nor the negative extension) is settled anywhere I could find."
   },
-  "oeis-a174783": {
-   "date": "2026-11-28",
-   "pr": 25745,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A174783",
-    "https://oeis.org/A174783"
-   ],
-   "note": "Mathar's 2012 recurrence n a(n) - 2a(n-1) + (8-5n)a(n-2) + 2a(n-3) + 4(n-2)a(n-4) = 0 is stated for n >= 4. The g.f. is pinned down by S^2 = 1-4x^2, S(0) = 1 and G*2(1-x^2)S = 1+2x-S, which is faithful. I checked it numerically to n = 80 using Kruchinin's sum. This is the routine derivation from an algebraic g.f., and I found no prior proof. Second review: Faithful; routine algebraic-g.f. recurrence (Mathar 2012), no prior proof found."
-  },
   "oeis-a175625": {
    "date": "2026-11-28",
    "pr": 26127,
@@ -10205,17 +9622,6 @@
     "https://oeis.org/A018252"
    ],
    "note": "Barker's 2019 conjectures (g.f. x(5-2x)/(1-x)^2, a(n) = 2a(n-1) - a(n-2), a(n) = 3n+2) are stated faithfully as the increasing listing of the set of ceilings. A179896(k) = 3k(k-1)/2, which is divisible by k exactly when k is odd. So the set is {(3k-2)/2 : k even >= 4} = {5, 8, 11, ...}. This is elementary and routine, and I found no prior written proof. Second review: Faithful; the Barker formulas follow from a two-line computation (only even nonprimes contribute)."
-  },
-  "oeis-a181270": {
-   "date": "2026-11-28",
-   "pr": 26155,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A181270",
-    "https://oeis.org/A181266",
-    "https://oeis.org/A181270"
-   ],
-   "note": "Barker's 2018 g.f. and order-3 recurrence (n > 4) for Hardin's 2 x n count. The statement encodes the count by a hand-built column automaton, not the literal definition. I transliterated it to Python: it reproduces the brute-force count for n <= 8 and the listed data to n = 11. The numerator and denominator match the entry. The parent table A181266 (rev. Jul 2025) carries no proof. This is a routine transfer-matrix result. Second review: Faithful; routine transfer-matrix result."
   },
   "oeis-a181271": {
    "date": "2026-11-28",
@@ -10330,18 +9736,6 @@
    ],
    "note": "Barker's cubic a(n)=(n^3+6n^2+5n+24)/6 for n>1 and the order-4 recurrence for n>5, for (n+1)X2 binary arrays with lexicographically sorted rows and columns and adjacent 2X2 block sums differing by at most 1. Lex reading matches Hardin's examples; my brute force reproduces the data for n=1..15 and the cubic for n>=2 (fails only at n=1, as stated). No proof in the entry, the parent A184071, the Lean libraries or the proof collections. Second review: Faithful; routine."
   },
-  "oeis-a184138": {
-   "date": "2026-11-28",
-   "pr": 27002,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A184138",
-    "https://oeis.org/A180985",
-    "https://oeis.org/A184138",
-    "https://oeis.org/A180985"
-   ],
-   "note": "Hardin's degree-7 polynomial (stated coefficient by coefficient, equal to Barker's /5040 form), Barker's g.f. (for a(n+1)) and the order-8 recurrence for n X 3 binary arrays with lexicographically sorted rows and columns. My count over sorted row multisets matches the data for n=1..13 and the polynomial reproduces all 30 data terms. The entry and the parent A180985 (Hasler 2022 cross-reference only) still mark it empirical. A transfer/flag induction, so routine. Second review: Faithful; routine."
-  },
   "oeis-a187303": {
    "date": "2026-11-28",
    "pr": 24848,
@@ -10392,17 +9786,6 @@
    ],
    "note": "Barker's g.f. (numerator coefficients) and order-3 recurrence (n>11) for 9-move self-avoiding walks on the k X k square. The statement (KoaOkano) uses a surrogate definition: a symmetry-reduced shape list with translation counts prod (n-e_i)_+ (Israel's bounding-box argument from A188784), whose equivalence to the walk count is argued only in the docstring; I checked it equals a direct walk count for n<30 and matches the OEIS data and Barker's numerator. Unlike the 3D table, A188147 still marks the formulas empirical. With that encoding the proof is a finite computation. Second review: Faithful; routine."
   },
-  "oeis-a188312": {
-   "date": "2026-11-28",
-   "pr": 25920,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A188312",
-    "https://oeis.org/A188314",
-    "https://oeis.org/A188312"
-   ],
-   "note": "Mathar's 2011 P-recurrence for the algebraic g.f. (1-x^2-sqrt(1-4x-6x^2+x^4))/(2x(1+x)), n>=4. The statement characterizes the g.f. by T^2(1-x)(1-x^2)=(1-x)(1-x^2)-4x, T(0)=1, 2xG=(1-x)(1-T); I checked this gives T=S/(1-x^2) and reproduces the data, and the recurrence holds for n=4..58. Blanco Gomez proved the sister A188314 (Prop. 10.26) but not this one; it is not among the Ekhad-Yang-Zeilberger Mathar proofs. Routine D-finite computation. Second review: Faithful; routine algebraic-g.f. recurrence."
-  },
   "oeis-a188573": {
    "date": "2026-11-28",
    "pr": 27446,
@@ -10414,18 +9797,6 @@
     "https://oeis.org/A377109"
    ],
    "note": "Kimberling's two claims for the sqrt(6)-coefficient: infinitely many multiples of each prime, and eventually periodic gaps (stated as eventual periodicity of the divisibility indicator, which is equivalent once the set is infinite). The listed periods are left out, which is reasonable. Not covered by Fried's note (g.f. only). Both claims follow from periodicity mod p and a(0)=0. Routine. Second review: Faithful full statement of Kimberling's conjecture; true by a routine periodicity argument."
-  },
-  "oeis-a188819": {
-   "date": "2026-11-28",
-   "pr": 25881,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A188819",
-    "https://oeis.org/A188824",
-    "https://oeis.org/A188819",
-    "https://oeis.org/A188824"
-   ],
-   "note": "Barker's even/odd quadratics and g.f. for n X 3 binary arrays avoiding 0 1 diagonally and antidiagonally. The statement (KoaOkano) uses a row transfer recursion (the row above must cover the neighbours of each 1). I checked it against brute force for n<=5 and against all data terms, and the closed forms hold for n=1..39. The parent A188824 still says empirical. Routine. Second review: Faithful; routine."
   },
   "oeis-a188820": {
    "date": "2026-11-28",
@@ -10499,26 +9870,6 @@
    ],
    "note": "Barker's g.f. over (1-x)^3(1+x) and even/odd closed forms (n>7) for rhombuses (squares included) on an (n+1) X 5 grid. The equal-sides definition is a genuine rhombus in the plane, and brute force over 4-sets agrees with the data. My count matches the data, the g.f. and the closed forms for n<40. Still empirical in the entry and A190098. Routine. Second review: Faithful; routine."
   },
-  "oeis-a191309": {
-   "date": "2026-11-28",
-   "pr": 25753,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A191309",
-    "https://oeis.org/A191309"
-   ],
-   "note": "Mathar's 2016 recurrence (n>=4). The statement defines a(n) from a rationalized form of the entry's g.f. 2z^2(1-q)/(q(1-2z+q)^2). I checked that it equals the entry's g.f. and the data as power series up to x^59, that the coefficients equal Mathar's, and that the recurrence holds for n=4..59. No prior proof found (not in Ekhad-Yang-Zeilberger or Blanco Gomez). Routine algebraic-to-D-finite. Second review: Faithful; routine."
-  },
-  "oeis-a191313": {
-   "date": "2026-11-28",
-   "pr": 25752,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A191313",
-    "https://oeis.org/A191313"
-   ],
-   "note": "Mathar's 2016 recurrence (n>=5). The statement's rationalized g.f. equals the entry's z(4z-1+q)/(q(1-z)^2(1-2z+q)) and the data up to x^59. The coefficients match Mathar's, and the recurrence holds for n=5..59. No prior proof found. Routine. Second review: Faithful; routine."
-  },
   "oeis-a191668": {
    "date": "2026-11-28",
    "pr": 25801,
@@ -10529,16 +9880,6 @@
     "https://oeis.org/A016825"
    ],
    "note": "s(m)=4m-2 matches the data (2 is in s; the name's 'k>0' is a typo) and the entry's comment (4k+2, k>=0). The complement of 2 mod 4 is floor((4n+1)/3), and iterating x -> 4x-2 (fixed point 2/3) gives (8+(3t-2)4^k)/12 directly. No prior proof found in the entry, the libraries, Palomar or the OEIS proof collections. Routine. Second review: Faithful; routine."
-  },
-  "oeis-a191782": {
-   "date": "2026-11-28",
-   "pr": 25751,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A191782",
-    "https://oeis.org/A191782"
-   ],
-   "note": "The rationalized g.f. used as the definition reproduces the data (I checked 33 terms), and the expanded polynomial coefficients equal Mathar's factored ones. The recurrence holds numerically for n = 5..33. Luschny's closed binomial form (2019) is in the entry, but it is not a proof of the P-recurrence. The proof derives it from the algebraic g.f. Routine holonomic computation. Second review: Faithful; routine."
   },
   "oeis-a191792": {
    "date": "2026-11-28",
@@ -10608,42 +9949,6 @@
     "https://oeis.org/A221463"
    ],
    "note": "Barker's order-7 recurrence (n >= 8) and g.f. 8x(1+23x+54x^2+14x^3-2x^4)/(1-x)^7 for length-7 0..n arrays starting with 0, each element unequal to at least one neighbour. The formal 'ok' predicate is faithful and reproduces 8,240,1944,8960,30000,81648 (brute force). Mathar's row formula in the parent A221463 is only 'apparently', and I found no prior proof. The count is a polynomial (n^6+4n^5+3n^4), so the proof is routine. Second review: Faithful; proof sums out entries to get the polynomial; nothing prior found."
-  },
-  "oeis-a222834": {
-   "date": "2026-11-28",
-   "pr": 27238,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222834",
-    "https://oeis.org/A222838",
-    "https://oeis.org/A222834",
-    "https://oeis.org/A222838"
-   ],
-   "note": "Barker's g.f. x(7+82x+10x^2-17x^3)/((1+x)(1-3x+x^2)) and closed form for n X 4 0..3 arrays with no equal entries at city-block distance 2, new values introduced in row-major order. RowMajorNew (every smaller value already used earlier) is the restricted-growth condition. My DFS count of the formal conditions gives 7,96,216,600,1536,4056,10584,27744, which matches the data. I found no prior proof. The proof is a transfer-matrix computation. Second review: Faithful transcription of Barker's g.f. and closed form; transfer-matrix result, nothing prior found."
-  },
-  "oeis-a222869": {
-   "date": "2026-11-28",
-   "pr": 27193,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222869",
-    "https://oeis.org/A222871",
-    "https://oeis.org/A222869",
-    "https://oeis.org/A222871"
-   ],
-   "note": "Barker's g.f. and closed form 4*3^(n-1)+20*39^(n-2) (n>2) for n X 3 0..5 city-block-distance-2 arrays with values introduced in row-major order. The formal definition reproduces 3,34,816,30528,1186704 (my DFS). I found no prior proof. The proof is a transfer-matrix computation. Second review: Faithful transcription of Barker's g.f. and closed form; transfer-matrix result, nothing prior found."
-  },
-  "oeis-a222940": {
-   "date": "2026-11-28",
-   "pr": 24822,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222940",
-    "https://oeis.org/A222944",
-    "https://oeis.org/A222940",
-    "https://oeis.org/A222944"
-   ],
-   "note": "Barker's g.f. and closed form 3+10*3^(2n-5) (n>2) for n X 2 0..4 city-block-distance-2 arrays with values introduced in row-major order. The formal definition reproduces 2,7,33,273,2433,21873,196833 (my DFS). I found no prior proof. The proof is a transfer-matrix computation. Second review: Faithful transcription of Barker's g.f. and closed form; transfer-matrix result, nothing prior found."
   },
   "oeis-a223278": {
    "date": "2026-11-28",
@@ -11738,18 +11043,6 @@
    ],
    "note": "Disproof of Gutkovskiy's order-7 recurrence and g.f. for the Pisot sequence L(6,15) = ceiling(a(n-1)^2/a(n-2)). It is stated faithfully (n>=7), and no ties occur, so L = S. My computation shows that the recurrence first fails at n=44, just past the 29 listed terms. No prior disproof found (ESZ 2016 treats r=1/2; Oliveira e Silva's r=1 list does not include (6,15)). Routine finite check. Second review: Correct disproof: Gutkovskiy's conjectured recurrence and g.f. fail at n=44, just beyond the listed data. No prior report found. Routine finite check."
   },
-  "oeis-a278008": {
-   "date": "2026-11-28",
-   "pr": 26006,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A278008",
-    "https://oeis.org/A278014",
-    "https://oeis.org/A278008",
-    "https://oeis.org/A278014"
-   ],
-   "note": "Barker's g.f. 6x^2/(1-5x-8x^2) (which also encodes Hardin's empirical recurrence) and the sqrt(57) closed form for column 2 of Hardin's A278014. The row/column offsets are read as (row, col); my brute force reproduces 0,6,30,198,1230,7734,48510 with that reading, but not with the transposed one. The parent table A278014 has no proof. Routine transfer-matrix argument. Second review: Faithful and true; Hardin's empirical recurrence and Barker's forms follow from a small transfer matrix. No earlier proof found. Routine."
-  },
   "oeis-a278023": {
    "date": "2026-11-28",
    "pr": 15069,
@@ -11761,16 +11054,6 @@
    ],
    "note": "Mathar's 2018 order-4 D-finite recurrence. G is pinned down implicitly via S^2 = 1-4x, S(0) = 1 and G(1+2x^2+S)S = 2x(1-xS), which reproduces the data, and the coefficients expand correctly. The recurrence leaves 156 at n=4 and vanishes for n = 5..44 in my check. Restricting to n>=5 is the usual eventual-validity reading of a D-finite claim, not a weakening the proof exploits. Not in Ekhad-Yang-Zeilberger's proved Mathar list. Routine holonomic identity. Second review: True for n>=5, the usual reading of an OEIS D-finite recurrence; fails at n=4 on the entry's terms, which the statement documents. Routine holonomic identity. Any announcement should mention the n=4 exception."
   },
-  "oeis-a278472": {
-   "date": "2026-11-28",
-   "pr": 24197,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A278472",
-    "https://oeis.org/A278472"
-   ],
-   "note": "The first of Mathar's two 2017 recurrences (order 3, cubic coefficients, expanded correctly) is stated for n>=3. a is defined from the entry's g.f., rationalised; I checked that it equals the Fibonacci-binomial sum for n<43. The recurrence vanishes for n = 3..42. The second (order-5) conjecture is not formalised, which is fine. Not in the Ekhad-Yang-Zeilberger list. Routine. Second review: Faithful and true; routine D-finite certificate from an algebraic g.f. No earlier proof found."
-  },
   "oeis-a279013": {
    "date": "2026-11-28",
    "pr": 25025,
@@ -11780,16 +11063,6 @@
     "https://oeis.org/A279013"
    ],
    "note": "Mathar's 2020 order-5 recurrence, with his typo '(2*n7)' read as (2n-7), as the pattern requires. G is defined implicitly by T^2 = 1-4x, xU^2 = x-(1-T)^2 and G(1-T)^2 T = x(1-U)(1+T) with G(0) = 1. These hypotheses are satisfiable and give the data (checked against the binomial sum). The expanded coefficients are right, and the recurrence vanishes for n = 5..41. No prior proof found. Routine. Second review: Faithful (with the obvious typo fix) and true from n=5. Routine holonomic identity. No earlier proof found."
-  },
-  "oeis-a279014": {
-   "date": "2026-11-28",
-   "pr": 24916,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A279014",
-    "https://oeis.org/A279014"
-   ],
-   "note": "The first of Mathar's 2017 recurrences (order 4) is stated for n>=5, with a from the entry's g.f. rationalised; I checked it against the Fibonacci-binomial sum for all n<45. The recurrence leaves 49 at n=4 and vanishes for n = 5..44, which is the standard eventual-validity reading. The second (order-3) conjecture is not formalised. Routine. Second review: True for n>=5; fails at n=4 (documented in the statement). Routine D-finite identity. Announcement should state the range. No earlier proof found."
   },
   "oeis-a278692": {
    "date": "2026-11-28",
@@ -11815,18 +11088,6 @@
    ],
    "note": "The order-6 recurrence (n>=6) and the g.f. for the floor Pisot sequence T(5,13) are stated faithfully. My computation shows both hold for n<4000 (no exact divisions occur). The proof is the standard model-sequence plus error-bound argument. ESZ 2016 covers only r=1/2, and this 2016 entry does not cite Boyd. Small residual risk from Boyd's 1993 paper, which could not be read. Second review: Faithful and true; same situation as A278692 (T case outside ESZ). No earlier proof found. Routine."
   },
-  "oeis-a279865": {
-   "date": "2026-11-28",
-   "pr": 24154,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A279865",
-    "https://oeis.org/A279871",
-    "https://oeis.org/A279865",
-    "https://oeis.org/A279871"
-   ],
-   "note": "Barker's g.f. and parity closed forms for column 1 of Hardin's A279871 (n X 1 ternary columns with exactly two 'minority' elements, restricted-growth values). My brute force reproduces the data to n=14 with the statement's reading (vertical neighbours only, strict majority), and the closed forms match. The parent table A279871 has no proof. Routine transfer-matrix argument. Second review: Faithful and true; transfer-matrix count. No earlier proof found. Routine."
-  },
   "oeis-a279915": {
    "date": "2026-11-28",
    "pr": 26182,
@@ -11837,42 +11098,6 @@
     "https://oeis.org/A279894"
    ],
    "note": "Disproof of Sun's conjecture (i), which is stated faithfully together with the trivial perfect-number remarks. Witness: x=127, y=173369889 = 3^4*7^2*11^2*19^2 (odd). Then sigma(y) = 349491681 and 126*349491681 = 2*127*y = 44035951806, which I checked independently, so the odd number 127*y ~ 2.2e10 is a term (beyond Sun's 1e8 search). No earlier counterexample found in the OEIS entry (last edited Mar 2026), formal-conjectures, Palomar or web search. Second review: Correct and apparently new disproof of Sun's conjecture (i): an odd solution with sigma(y)/y=127/63. Nothing in OEIS, the web or the proof collections mentions it. Verification is a finite check (routine), but finding the witness was not obvious; worth announcing carefully as 'part (i) is false', not as anything about odd perfect numbers."
-  },
-  "oeis-a267905": {
-   "date": "2026-11-28",
-   "pr": 23556,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267905",
-    "https://oeis.org/A267911",
-    "https://oeis.org/A267905",
-    "https://oeis.org/A267911"
-   ],
-   "note": "Barker's g.f. and sqrt(2) closed form for n X 1 0..2 arrays (row condition empty; column repeats must equal the previous repeat; values introduced in order 0,1,2, upper-left 0). My brute force of the Lean scan matches the data for n=1..12 and both formulas, exactly in Z[sqrt 2]. Restricted-growth condition puts it outside the Fried / Ma-Zhang repetition-word families; no prior proof found (trureturing, thatnealpatel, Palomar, GitHub code search, parent A267911). Second review: Faithful and true; a 5-state transfer count. No earlier proof found (Fried/Ma-Zhang treat only loopless relations). Routine."
-  },
-  "oeis-a267960": {
-   "date": "2026-11-28",
-   "pr": 24107,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267960",
-    "https://oeis.org/A267966",
-    "https://oeis.org/A267960",
-    "https://oeis.org/A267966"
-   ],
-   "note": "Barker's g.f. and both parity closed forms for n X 1 0..2 columns with strictly increasing successive repeats. Lean scan brute-forced: matches data n=1..12 and every formula exactly. The relation v<c has non-constant indegree, so the Ma-Zhang constant-indegree theorem does not apply; no prior proof found. Second review: Faithful and true; finite-state count. No earlier proof found. Routine."
-  },
-  "oeis-a268093": {
-   "date": "2026-11-28",
-   "pr": 23804,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A268093",
-    "https://oeis.org/A268092",
-    "https://oeis.org/A268093",
-    "https://oeis.org/A268092"
-   ],
-   "note": "Barker's g.f. and sqrt(3) closed form for 1 X n 0..2 rows with upper-left 0 and successive repeats never one larger mod 3. Brute force matches data n=1..12 and both formulas exactly. The allowed relation has loops, so the Ma-Zhang / Fried families do not cover it; no prior proof found. Second review: Faithful and true; finite-state count. No earlier proof found. Routine."
   },
   "oeis-a268301": {
    "date": "2026-11-28",
@@ -12085,17 +11310,6 @@
    ],
    "note": "Barker's even/odd closed forms (all n), recurrence (n>3) and g.f. for 2D Rule 261 (x-axis, origin to right edge, base-10 digits) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z (bit c+2s of the rule, background evolving) as Price's program does; my own Python re-simulation reproduces every listed term, and every conjunct holds for n<70. No proof of any Rule 261 formula found in the entry, trureturing/thatnealpatel (searched by A-number and rule number), Palomar or the OEIS proof collections. Routine: explicit stage shape by induction. Second review: Faithful and true. Cohen's paper has a digit automaton for Rule 261 but states only the stage-2^n-1 population, not this x-axis formula, so not prior. Routine finite-certificate proof."
   },
-  "oeis-a157125": {
-   "date": "2026-11-28",
-   "pr": 24934,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A157125",
-    "https://oeis.org/A157125",
-    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
-   ],
-   "note": "Mathar's order-5 P-recursive recurrence (n >= 5) is stated for the coefficients of Barry's g.f., with Mathar's x^3 correction. The series is characterized by S1^2 = 1+x^2+4x^3, S2^2 = 1+x^2 and 2x^3 S2 A = (1-x)(S1-S2). I checked that the g.f. reproduces the data and that the recurrence holds for n < 80. A routine holonomic derivation from the algebraic g.f.; no prior proof found. Second review: Faithful. Routine D-finite recurrence of an algebraic g.f.; no prior proof found."
-  },
   "oeis-a157792": {
    "date": "2026-11-28",
    "pr": 15702,
@@ -12129,17 +11343,6 @@
    ],
    "note": "Mathar's row-sum conjecture, with the upper limits as corrected on 2026-11-24, is stated faithfully: T(n,k) = k-th forward difference of F at n-k. It is elementary: Delta F(i) = F(i-1), so T(n,k) = F(n-2k) (Somos's 2022 program in the entry). The even rows then cancel by F(-m) = (-1)^(m+1) F(m), and the odd rows sum to 2F(2n+2). Correct but routine. Second review: Faithful to the corrected conjecture (the correction only fixes the summation limits to the full rows). Routine from Heinz's closed form in the entry."
   },
-  "oeis-a161006": {
-   "date": "2026-11-28",
-   "pr": 25067,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A161006",
-    "https://oeis.org/A161006",
-    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
-   ],
-   "note": "Mathar's order-7 P-recursive recurrence is stated faithfully for the coefficients of c(x)c(x^2) (Deutsch's g.f.), for n >= 7. I checked it against the convolution definition for n < 60. The proof is a routine holonomic/algebraic-g.f. certificate. No prior proof was found. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found."
-  },
   "oeis-a162475": {
    "date": "2026-11-28",
    "pr": 13992,
@@ -12149,17 +11352,6 @@
     "https://oeis.org/A162475"
    ],
    "note": "Mathar's recurrence for the coefficients of c(x/(1-x)^4) is stated for n >= 6. The printed recurrence genuinely fails at n = 5 (I confirm the LHS is 3), and Mathar gives no range, so this is the natural reading rather than a weakening. The g.f. is pinned down by T^2(1-x)^4 = (1-x)^4 - 4x with T(0) = 1. I checked it numerically for n < 60. A routine algebraic-g.f. certificate. Second review: Faithful corrected form (holds for n>=6, false at n=5 as printed). Routine D-finite recurrence; no prior proof found. Announcement should state the n=5 exception."
-  },
-  "oeis-a162482": {
-   "date": "2026-11-28",
-   "pr": 26105,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A162482",
-    "https://oeis.org/A162482",
-    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
-   ],
-   "note": "Mathar's order-6 recurrence for (1/(1-x)^3) M(x/(1-x)^3) is stated faithfully for n >= 6, with the Motzkin square-root branch fixed by T(0) = 1. I checked it against the binomial-sum formula for n < 60. A routine algebraic-g.f. certificate, with no prior proof found. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found."
   },
   "oeis-a164010": {
    "date": "2026-11-28",
@@ -12205,39 +11397,6 @@
     "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
    ],
    "note": "Mathar's order-8 recurrence is stated for n >= 8, for Deutsch's g.f. rewritten in rationalized form with the sqrt branch fixed by constant term 1. I checked that this normalized form reproduces the data (0,0,0,1,3,8,20,49,119,291,...) and that the recurrence holds for n < 45. A routine algebraic-g.f. certificate, with no prior proof found. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found."
-  },
-  "oeis-a172025": {
-   "date": "2026-11-28",
-   "pr": 25818,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A172025",
-    "https://oeis.org/A172025",
-    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
-   ],
-   "note": "Mathar's 2016 second-order recurrence is stated faithfully for n >= 2, for the Choulet diagonal g.f. 2c^3/(3 sqrt(1-4x) - 1 + 4x). I checked it for n < 60 against the binomial-sum formula. Dubickas's Choulet paper (Mathematics 2026) covers the other Choulet family (the convolution recurrences A1766xx/A1771xx), not these diagonals, and Ekhad-Yang-Zeilberger 2017 does not list them. Routine. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found. Siblings A172062/3/5 of the same family are separate site ids with different recurrences, not duplicates."
-  },
-  "oeis-a172064": {
-   "date": "2026-11-28",
-   "pr": 25903,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A172064",
-    "https://oeis.org/A172064",
-    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
-   ],
-   "note": "This is the same family as A172025, with k = 7. Mathar's recurrence 2n(n+7)(3n+11)a(n) - ... = 0 is stated faithfully for n >= 2, with the coefficients expanded correctly. I checked it for n < 60. Routine, and not covered by Dubickas's Choulet paper. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found. Siblings A172062/3/5 of the same family are separate site ids with different recurrences, not duplicates."
-  },
-  "oeis-a172066": {
-   "date": "2026-11-28",
-   "pr": 25913,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A172066",
-    "https://oeis.org/A172066",
-    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
-   ],
-   "note": "This is the same family, with k = 9. Mathar's recurrence 2n(n+9)(n+5)a(n) - ... = 0 is stated faithfully for n >= 2. I checked it for n < 60. A routine algebraic-g.f. certificate. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found. Siblings A172062/3/5 of the same family are separate site ids with different recurrences, not duplicates."
   },
   "oeis-a172067": {
    "date": "2026-11-28",
@@ -12449,19 +11608,6 @@
     "https://zenodo.org/records/24384895"
    ],
    "note": "Wu's 2024 recurrence (n>26) and degree-26 g.f. for 2D Rule 633 (x-axis, left edge to origin, base-10 digits) are stated faithfully; the proof reuses CA infrastructure from the site's A283407 (Rule 637) solve, not a prior solve of this statement. Statement models the 2D outer-totalistic von Neumann CA on Z x Z (bit c+2s of the rule, background evolving) as Price's program does; my own Python re-simulation reproduces every listed term, and every conjunct holds for n<70. No proof of any Rule 633 formula found in the entry, trureturing/thatnealpatel (searched by A-number and rule number), Palomar or the OEIS proof collections. Routine: explicit stage shape by induction. Second review: The statement is faithful (Chai Wah Wu's 2024 conjectures), and the recurrence threshold n>26 is sharp. The proof openly reuses the light-cone and strip framework of the site's own A283407 proof for Rule 637. That is a different rule and a different sequence, so this is neither a duplicate nor prior settlement. No other proof found. Routine (eventually periodic row shape)."
-  },
-  "oeis-a280399": {
-   "date": "2026-11-28",
-   "pr": 24018,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A280399",
-    "https://oeis.org/A280398",
-    "https://oeis.org/A280399",
-    "https://oeis.org/A280399/b280399.txt",
-    "https://oeis.org/A280398"
-   ],
-   "note": "Barker's g.f. 2x^3(1-x-x^2)/((1+x)^2(1-2x)^2) and closed form (n>1) for row 1 of Hardin's A280398. The 1 X n reading (no antidiagonal neighbours; end cells have one neighbour, middle cells must differ from both) reproduces the data; my brute force matches a(1..12) and the closed form. Parent table A280398 has no proof; none found elsewhere. Routine transfer-matrix argument. Second review: The statement is faithful, and the reading of 'antidiagonal neighbours' (none in one row) matches Hardin's data exactly. Both of Barker's formulas hold on all 210 b-file terms. No earlier proof, including in Hardin's parent table. Routine (finite-state transfer matrix)."
   },
   "oeis-a280739": {
    "date": "2026-11-28",
@@ -12864,17 +12010,6 @@
    ],
    "note": "Barker's g.f. and closed form (n>1) for length-n words over 0..3 in which every element after the first adjacent repeat is smaller than the repeated value. The adjacent-repeat reading reproduces the data (n <= 9 by brute force), while the 'any earlier occurrence' reading does not. The g.f. agrees with the closed form for n < 30. Routine transfer count; no prior proof found. Second review: Faithful (the adjacency reading is forced by the data) and routine. No proof in the parent table A267232 or elsewhere."
   },
-  "oeis-a227081": {
-   "date": "2026-11-28",
-   "pr": 25610,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A227081",
-    "https://oeis.org/A124576",
-    "https://oeis.org/A227081"
-   ],
-   "note": "Mathar's P-recurrence for the row sums of A124576. The statement takes Kotesovec's g.f. 1/(6x-1+2 sqrt((2x-1)(6x-1))) as the definition, rationalized correctly to (1-6x+2 sqrt R)/(12x^2-20x+3). I checked that the g.f. reproduces the triangle's row sums and that the recurrence holds for n < 40. The recurrence follows mechanically from the algebraic g.f.; no prior proof found. Second review: An unattributed recurrence conjecture for an algebraic g.f.; holonomic, so routine. Faithful, and no prior proof was found."
-  },
   "oeis-a227776": {
    "date": "2026-11-28",
    "pr": 26175,
@@ -12974,17 +12109,6 @@
    ],
    "note": "This is the same family for length-9 arrays: Barker's order-8 recurrence (n > 8) and g.f. It is stated faithfully, and I brute-forced n <= 3 against Hardin's degree-7 polynomial. The proof is a characterization plus a count. No prior proof found. Routine. Second review: Barker's polynomial g.f. for a Hardin maxima count. Faithful and verified; no prior proof was found. Routine."
   },
-  "oeis-a228770": {
-   "date": "2026-11-28",
-   "pr": 24906,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A228770",
-    "https://arxiv.org/abs/1309.0832",
-    "https://oeis.org/A228770"
-   ],
-   "note": "Mathar's order-6 P-recurrence for Pantone's algebraic g.f. (the enumeration of 3124/4312-avoiders is proved in Pantone's paper). The statement's normalized g.f., with its index shift, reproduces the data, and I expanded the recurrence coefficients and checked them term by term against Mathar's. The recurrence holds for 7 <= n < 31. The proof is a certificate of linear combinations of S^2 = R. Routine; no prior proof found. Second review: Mathar's holonomic recurrence for an algebraic g.f. from Pantone's enumeration. Routine and faithful; no prior proof was found."
-  },
   "oeis-a228934": {
    "date": "2026-11-28",
    "pr": 25732,
@@ -13043,28 +12167,6 @@
    ],
    "note": "Hanna's parity conjecture: for n > 0, a(n) is odd iff n is a power of 2. The recursive definition, a(n) = -[x^n](earlier part)^(n^2+n+1)/(n^2+n+1) with a(0) = a(1) = 1, reproduces the data, and I checked that the division is exact and the parity claim holds for n < 70. The proof shows that the division is exact and that mod 2 the series is B with B = B^2 + X. That is a short but genuine argument. No prior proof found in the sister entries (A229044 lists the analogous claim, still as a conjecture). Second review: A genuine proof. Mod 2 the g.f. is B = 1 + sum x^(2^k), the solution of B = B^2 + X, using that n^2+n+1 is odd. Web search (Hanna parity, A292877 cross-reference, Fried's parity papers) found no prior proof. Faithful."
   },
-  "oeis-a232956": {
-   "date": "2026-11-28",
-   "pr": 25116,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A232956",
-    "https://oeis.org/A232955",
-    "https://oeis.org/A232956"
-   ],
-   "note": "Hardin's recurrence and Barker's g.f. and parity closed forms for 2 X n 0..3 arrays with no horizontal or diagonal neighbour equal to 3-x and top left 0. The adjacency (column difference exactly 1, no vertical constraint) reproduces the data; my transfer-matrix computation for n <= 11 matches it and the closed forms. Routine transfer-matrix count; the parent A232955 has no proof. Second review: A finite transfer-matrix count; faithful, and no prior proof was found. Routine."
-  },
-  "oeis-a233107": {
-   "date": "2026-11-28",
-   "pr": 24825,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A233107",
-    "https://oeis.org/A233113",
-    "https://oeis.org/A233107"
-   ],
-   "note": "Barker's closed form (105+18*7^n+5*21^n)/168 and g.f. for Hardin's n X 2 0..5 arrays (no horizontal or vertical neighbour equal to 5-x, top left 0, first 1 before any 2, 3, 4, first 2 before any 3). The row-major scan with two flags encodes these conditions, and my independent DP reproduces all 9 data terms and the closed form. Routine transfer-matrix count; the parent A233113 has no proof. Second review: Barker's closed form for a Hardin count; transfer matrix. Faithful, with no prior proof. Routine."
-  },
   "oeis-a233402": {
    "date": "2026-11-28",
    "pr": 26568,
@@ -13108,50 +12210,6 @@
     "https://oeis.org/A238714"
    ],
    "note": "Stauduhar's conjecture that the set of final divisors of the rem -> rem mod sopfr(rem) loop is exactly {m >= 2, m != 6}. The loop matches A238529's SageMath and PARI programs, and the model reproduces the data. The proof is elementary: sopfr(r) = 6 forces r in {8, 9}, where the loop continues; m is attained via r = m*u with sopfr(u) = m - sopfr(m). No prior proof found. Second review: A short constructive argument; routine. Faithful, and no prior proof was found."
-  },
-  "oeis-a238807": {
-   "date": "2026-11-28",
-   "pr": 25175,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A238807",
-    "https://oeis.org/A238812",
-    "https://oeis.org/A238807"
-   ],
-   "note": "Barker's g.f. and order-7 recurrence (n > 9) for Hardin's n X 3 0..2 arrays where no element equals 1 + (sum to its left) or 1 + (sum above it) mod 3. The definition reproduces all 25 data terms; I ran an independent column-sum-state DP. Routine transfer count with a 27-state column-sum vector. No prior proof found. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
-  },
-  "oeis-a239024": {
-   "date": "2026-11-28",
-   "pr": 25134,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A239024",
-    "https://oeis.org/A239030",
-    "https://oeis.org/A239024"
-   ],
-   "note": "Barker's g.f. and closed form (2+(-2)^n+2(-1)^n+7*2^n)/12 for Hardin's n X 2 0..2 arrays where no element equals (sum to its left) or 1 + (sum above it) mod 3. The definition reproduces 17 data terms; I ran an independent row DP over column sums. Routine transfer count; the parent A239030 has no proof. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
-  },
-  "oeis-a239031": {
-   "date": "2026-11-28",
-   "pr": 25162,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A239031",
-    "https://oeis.org/A239030",
-    "https://oeis.org/A239031"
-   ],
-   "note": "Barker's g.f. and order-5 recurrence (n > 5) for the same family with 4 rows (row 4 of A239030). It is stated faithfully, and my column-state DP reproduces the 16 data terms. Routine transfer count (a polynomial in n); no prior proof found. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
-  },
-  "oeis-a239032": {
-   "date": "2026-11-28",
-   "pr": 25470,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A239032",
-    "https://oeis.org/A239030",
-    "https://oeis.org/A239032"
-   ],
-   "note": "This is the same family with 5 rows: Barker's g.f. and order-7 recurrence (n > 8; Hardin's sextic holds only for n > 1, and the g.f. numerator has degree 8). It is stated faithfully, and my DP reproduces the 14 data terms. Routine; no prior proof found. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
   },
   "oeis-a239033": {
    "date": "2026-11-28",
@@ -29931,6 +28989,630 @@
     "https://oeis.org/A288729"
    ],
    "reason": "The formal statement is the shared length conjecture (|w(n)| = A288732(n) for the iterates of 00->1000, 10->01), stated faithfully; the 3-limiting word itself does not enter. Michel Dekking posted a proof of this exact length conjecture in A288729 (Mar 29 2018), with the block structure also noted in A288732; the same claim was merged on this site earlier as oeis-a288733 (judged known)."
+  },
+  "oeis-a269822": {
+   "date": "2026-11-28",
+   "pr": 22415,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+140 min before site 2026-11-28 07:17): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a111779": {
+   "date": "2026-11-28",
+   "pr": 22700,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+255 min before site 2026-11-28 07:33): recurrence true for all n>=5 (site: n>=7), by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a232921": {
+   "date": "2026-11-28",
+   "pr": 22590,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+242 min before site 2026-11-28 08:59): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a232950": {
+   "date": "2026-11-28",
+   "pr": 22783,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+247 min before site 2026-11-28 09:04): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a233106": {
+   "date": "2026-11-28",
+   "pr": 23026,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+175 min before site 2026-11-28 07:52): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a174808": {
+   "date": "2026-11-28",
+   "pr": 22584,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+341 min before site 2026-11-28 08:59): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a269760": {
+   "date": "2026-11-28",
+   "pr": 22480,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+143 min before site 2026-11-28 07:20): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a268164": {
+   "date": "2026-11-28",
+   "pr": 22173,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+237 min before site 2026-11-28 08:54): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a045994": {
+   "date": "2026-11-28",
+   "pr": 22576,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+298 min before site 2026-11-28 08:59): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a269895": {
+   "date": "2026-11-28",
+   "pr": 22485,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+143 min before site 2026-11-28 07:20): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a081052": {
+   "date": "2026-11-28",
+   "pr": 23824,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+272 min before site 2026-11-28 07:50): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a164586": {
+   "date": "2026-11-28",
+   "pr": 24412,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+73 min before site 2026-11-28 04:31): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a166228": {
+   "date": "2026-11-28",
+   "pr": 22223,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+511 min before site 2026-11-28 11:49): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a166290": {
+   "date": "2026-11-28",
+   "pr": 24470,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+32 min before site 2026-11-28 04:33): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a166694": {
+   "date": "2026-11-28",
+   "pr": 22545,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+500 min before site 2026-11-28 11:38): recurrence false at n=4, true for n>4 (site: n>=5), by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a166696": {
+   "date": "2026-11-28",
+   "pr": 22566,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+498 min before site 2026-11-28 11:36): recurrence false at n=4, true for n>4 (site: n>=5), by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a166697": {
+   "date": "2026-11-28",
+   "pr": 22608,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+498 min before site 2026-11-28 11:36): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a168503": {
+   "date": "2026-11-28",
+   "pr": 22626,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+538 min before site 2026-11-28 11:35): same Mathar recurrence decided true in the same range as the site statement, by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a102880": {
+   "date": "2026-11-28",
+   "pr": 24583,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+54 min before site 2026-11-28 04:55): recurrence false at n=4, true for n>4 (site: n>=5), by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a106391": {
+   "date": "2026-11-28",
+   "pr": 23381,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+248 min before site 2026-11-28 08:09): both recurrences (n>=6 and n>=4) true, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a108600": {
+   "date": "2026-11-28",
+   "pr": 24400,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+73 min before site 2026-11-28 04:31): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a116383": {
+   "date": "2026-11-28",
+   "pr": 24402,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+57 min before site 2026-11-28 04:15): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a116637": {
+   "date": "2026-11-28",
+   "pr": 24237,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00228 filed before this site's proof. iis:2611.00228 filed 2026-11-28 04:10 UTC (+289 min before site 2026-11-28 08:59): recurrence true for n>2, false at n=2 (site: n>=3); listed undecided in iis:2611.00226, settled in iis:2611.00228, by exact algebraic-function reduction."
+  },
+  "oeis-a190169": {
+   "date": "2026-11-28",
+   "pr": 24190,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+33 min before site 2026-11-28 04:34): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a191307": {
+   "date": "2026-11-28",
+   "pr": 24011,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+73 min before site 2026-11-28 04:31): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a191585": {
+   "date": "2026-11-28",
+   "pr": 24192,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+74 min before site 2026-11-28 04:32): order-3 recurrence true for all n>=3, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a191786": {
+   "date": "2026-11-28",
+   "pr": 24546,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+73 min before site 2026-11-28 04:31): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a208355": {
+   "date": "2026-11-28",
+   "pr": 24038,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+74 min before site 2026-11-28 04:32): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a210496": {
+   "date": "2026-11-28",
+   "pr": 24547,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+74 min before site 2026-11-28 04:32): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a222939": {
+   "date": "2026-11-28",
+   "pr": 23771,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00237 filed before this site's proof. iis:2611.00237 filed 2026-11-28 05:28 UTC (+184 min before site 2026-11-28 08:32): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a168505": {
+   "date": "2026-11-28",
+   "pr": 22631,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+537 min before site 2026-11-28 11:34): same Mathar recurrence decided true in the same range as the site statement, by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a178072": {
+   "date": "2026-11-28",
+   "pr": 24179,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+55 min before site 2026-11-28 04:13): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a186338": {
+   "date": "2026-11-28",
+   "pr": 22629,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+537 min before site 2026-11-28 11:34): same Mathar recurrence decided true in the same range as the site statement, by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a186341": {
+   "date": "2026-11-28",
+   "pr": 24484,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+73 min before site 2026-11-28 04:31): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a226434": {
+   "date": "2026-11-28",
+   "pr": 24555,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+74 min before site 2026-11-28 04:32): recurrence false at n=6, true for n>6 (site: n>=7), by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a222139": {
+   "date": "2026-11-28",
+   "pr": 24077,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+234 min before site 2026-11-28 08:51): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a222276": {
+   "date": "2026-11-28",
+   "pr": 24067,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+234 min before site 2026-11-28 08:51): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a222459": {
+   "date": "2026-11-28",
+   "pr": 24585,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+257 min before site 2026-11-28 09:14): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a100098": {
+   "date": "2026-11-28",
+   "pr": 19505,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+630 min before site 2026-11-28 13:48): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a105524": {
+   "date": "2026-11-28",
+   "pr": 25720,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+33 min before site 2026-11-28 04:34): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a109263": {
+   "date": "2026-11-28",
+   "pr": 24913,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+97 min before site 2026-11-28 04:55): recurrence false at n=3, true for n>3 (site: n>=4), by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a125267": {
+   "date": "2026-11-28",
+   "pr": 25723,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+257 min before site 2026-11-28 08:18): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a128726": {
+   "date": "2026-11-28",
+   "pr": 25858,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+63 min before site 2026-11-28 05:04): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a128734": {
+   "date": "2026-11-28",
+   "pr": 24999,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+208 min before site 2026-11-28 07:29): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a257104": {
+   "date": "2026-11-28",
+   "pr": 25168,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+252 min before site 2026-11-28 07:30): recurrence false at n=6, true for n>6 (site: n>=7), by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a257300": {
+   "date": "2026-11-28",
+   "pr": 25617,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+405 min before site 2026-11-28 10:03): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a174783": {
+   "date": "2026-11-28",
+   "pr": 25745,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+451 min before site 2026-11-28 10:08): same Mathar recurrence decided true in the same range as the site statement, by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a181270": {
+   "date": "2026-11-28",
+   "pr": 26155,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+184 min before site 2026-11-28 08:01): Barker g.f. and recurrence (n>4) proved, by exact transfer matrix built from the definition."
+  },
+  "oeis-a184138": {
+   "date": "2026-11-28",
+   "pr": 27002,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+355 min before site 2026-11-28 10:52): Barker g.f. proved; site polynomial closed form and recurrence follow from it, by exact transfer matrix built from the definition."
+  },
+  "oeis-a188312": {
+   "date": "2026-11-28",
+   "pr": 25920,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+459 min before site 2026-11-28 10:16): same Mathar recurrence decided true in the same range as the site statement, by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a188819": {
+   "date": "2026-11-28",
+   "pr": 25881,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+228 min before site 2026-11-28 08:45): Barker g.f. and Hardin recurrence (n>4) proved; site parity closed forms follow, by exact transfer matrix built from the definition."
+  },
+  "oeis-a191309": {
+   "date": "2026-11-28",
+   "pr": 25753,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+208 min before site 2026-11-28 07:29): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a191313": {
+   "date": "2026-11-28",
+   "pr": 25752,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+257 min before site 2026-11-28 08:18): same Mathar recurrence decided true in the same range as the site statement, by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a191782": {
+   "date": "2026-11-28",
+   "pr": 25751,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00226 filed before this site's proof. iis:2611.00226 filed 2026-11-28 04:01 UTC (+209 min before site 2026-11-28 07:30): recurrence true for all n>=4 (site: n>=5), by exact computation from a hand-transcribed g.f. (E simplified to a polynomial)."
+  },
+  "oeis-a222834": {
+   "date": "2026-11-28",
+   "pr": 27238,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00271 filed before this site's proof. iis:2611.00271 filed 2026-11-28 09:04 UTC (+115 min before site 2026-11-28 10:59): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a222869": {
+   "date": "2026-11-28",
+   "pr": 27193,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00260 filed before this site's proof. iis:2611.00260 filed 2026-11-28 08:00 UTC (+178 min before site 2026-11-28 10:58): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a222940": {
+   "date": "2026-11-28",
+   "pr": 24822,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00246 filed before this site's proof. iis:2611.00246 filed 2026-11-28 05:39 UTC (+227 min before site 2026-11-28 09:26): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a278008": {
+   "date": "2026-11-28",
+   "pr": 26006,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+321 min before site 2026-11-28 10:18): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a278472": {
+   "date": "2026-11-28",
+   "pr": 24197,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+74 min before site 2026-11-28 04:32): order-3 recurrence true for all n>=3, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a279014": {
+   "date": "2026-11-28",
+   "pr": 24916,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+74 min before site 2026-11-28 04:32): order-4 recurrence false only at n=4, true for n>4, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a279865": {
+   "date": "2026-11-28",
+   "pr": 24154,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00237 filed before this site's proof. iis:2611.00237 filed 2026-11-28 05:28 UTC (+207 min before site 2026-11-28 08:55): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a267905": {
+   "date": "2026-11-28",
+   "pr": 23556,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00237 filed before this site's proof. iis:2611.00237 filed 2026-11-28 05:28 UTC (+231 min before site 2026-11-28 09:19): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a267960": {
+   "date": "2026-11-28",
+   "pr": 24107,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00237 filed before this site's proof. iis:2611.00237 filed 2026-11-28 05:28 UTC (+205 min before site 2026-11-28 08:53): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a268093": {
+   "date": "2026-11-28",
+   "pr": 23804,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+218 min before site 2026-11-28 08:35): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a157125": {
+   "date": "2026-11-28",
+   "pr": 24934,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+97 min before site 2026-11-28 04:55): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a161006": {
+   "date": "2026-11-28",
+   "pr": 25067,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+98 min before site 2026-11-28 04:56): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a162482": {
+   "date": "2026-11-28",
+   "pr": 26105,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+466 min before site 2026-11-28 10:23): recurrence true for all n>=6 (final page; sqrt D as formal symbol), by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a172025": {
+   "date": "2026-11-28",
+   "pr": 25818,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+454 min before site 2026-11-28 10:11): same Mathar recurrence decided true in the same range as the site statement, by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a172064": {
+   "date": "2026-11-28",
+   "pr": 25903,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+458 min before site 2026-11-28 10:15): same Mathar recurrence decided true in the same range as the site statement, by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a172066": {
+   "date": "2026-11-28",
+   "pr": 25913,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00211 filed before this site's proof. iis:2611.00211 filed 2026-11-28 02:37 UTC (+458 min before site 2026-11-28 10:15): same Mathar recurrence decided true in the same range as the site statement, by exact g.f./c.f. annihilator computation (E polynomial)."
+  },
+  "oeis-a280399": {
+   "date": "2026-11-28",
+   "pr": 24018,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00235 filed before this site's proof. iis:2611.00235 filed 2026-11-28 05:09 UTC (+219 min before site 2026-11-28 08:48): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a227081": {
+   "date": "2026-11-28",
+   "pr": 25610,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+404 min before site 2026-11-28 10:02): same Mathar recurrence decided true in the same range as the site statement, by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a228770": {
+   "date": "2026-11-28",
+   "pr": 24906,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00219 filed before this site's proof. iis:2611.00219 filed 2026-11-28 03:18 UTC (+74 min before site 2026-11-28 04:32): recurrence true for all n>=6 (site: n>=7), by exact g.f. annihilator computation (E simplified to a polynomial)."
+  },
+  "oeis-a232956": {
+   "date": "2026-11-28",
+   "pr": 25116,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+285 min before site 2026-11-28 09:42): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a233107": {
+   "date": "2026-11-28",
+   "pr": 24825,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+269 min before site 2026-11-28 09:26): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a238807": {
+   "date": "2026-11-28",
+   "pr": 25175,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00260 filed before this site's proof. iis:2611.00260 filed 2026-11-28 08:00 UTC (+105 min before site 2026-11-28 09:45): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a239024": {
+   "date": "2026-11-28",
+   "pr": 25134,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00233 filed before this site's proof. iis:2611.00233 filed 2026-11-28 04:57 UTC (+287 min before site 2026-11-28 09:44): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a239031": {
+   "date": "2026-11-28",
+   "pr": 25162,
+   "evidence": [
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Second review: isitsolved.com preprint iis:2611.00264 filed before this site's proof. iis:2611.00264 filed 2026-11-28 08:32 UTC (+73 min before site 2026-11-28 09:45): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
   }
  },
  "reviewed": "2026-11-28"
