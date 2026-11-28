@@ -6,6 +6,8 @@ import Mathlib
 Source: https://oeis.org/A189450
 Credit: @bmendonca3
 
+[Lean proof of this statement](https://github.com/bmendonca3/open-math-agents/blob/73df85bbef281090c2e091bf03b0cb4d1cb568cb/proofs/oeis-a189450.lean)
+
 Entry A189450 (R. H. Hardin, Apr 22 2011), offset 1, data 1, 5, 16, 61, 225, 841, 3136, 11705, ...
 Formula section:
 Conjectures from Colin Barker, May 02 2018:
