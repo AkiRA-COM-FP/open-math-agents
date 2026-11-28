@@ -8159,6 +8159,24 @@
     "https://oeis.org/A008934"
    ],
    "reason": "Irwin's nested-sum 'conjecture' just unrolls the definition: a tournament sequence continues from a_i to a_i + j with j in 1..a_i, and nest m s sums over these choices with the new limit s + j. The proof is the direct induction seqsFrom m s = nest m s. It is faithful, but it follows from the definition and is not an open problem."
+  },
+  "oeis-a098660": {
+   "date": "2026-11-28",
+   "pr": 24553,
+   "evidence": [
+    "https://oeis.org/A098660",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "The disproof shows that Mathar's recurrence (n+1)a(n)+(n-1)a(n-1)-n a(n-2)+(2-n)a(n-3)=0 fails at n=3 (value 28), i.e. on the first data terms, so the posted coefficients are an evident error. The disproof exploits this and leaves the intended identity untouched. The falsity and the correct recurrence of the same shape, (n+1)a(n)+4(n-1)a(n-1)-8n a(n-2)-32(n-2)a(n-3)=0 (which I also derived), were already published in Blanco Gomez's Zenodo paper (record 23112421, Prop. 6.6, 2026-10-02)."
+  },
+  "oeis-a103995": {
+   "date": "2026-11-28",
+   "pr": 23233,
+   "evidence": [
+    "https://oeis.org/A103995",
+    "https://oeis.org/A103910"
+   ],
+   "reason": "A103995 is the first column of A103910, which is defined as the inverse of the Fibonomial triangle A010048. Stephan's recurrence a(n) = -Sum a(i) A010048(n-1,i-1) is just row n-1, column 0 of F*T = I with the diagonal 1 split off, which is exactly the proof. The statement is faithful but follows directly from the definition. Bala's 2026 comment in A103910 (1/E(x) is the g.f. of the first column) also gives it."
   }
  },
  "known": {
@@ -14898,6 +14916,104 @@
     "https://oeis.org/A007808"
    ],
    "reason": "Plouffe's (corrected) e.g.f. 1 + (1 - (x^2+1)e^{-x})e^x/(x-1)^2 simplifies to (e^x - 2x)/(1-x)^2, which is exactly Somos's 2011 e.g.f. already in the entry. The rounding formula a(n) = round(n! n (e-2)) follows in a few lines from the closed forms already listed (Deutsch 2006, Freedman 2014), giving a(n) = n n!(sum_{k<=n} 1/k! - 2) + 1. Faithful formalization, but no new content."
+  },
+  "oeis-a094856": {
+   "date": "2026-11-28",
+   "pr": 13498,
+   "evidence": [
+    "https://oeis.org/A094856"
+   ],
+   "reason": "The statement formalizes Mathar's recurrence and Bala's eventual periodicity mod k faithfully. But the entry already contains Peter Bala's derivation (Oct 27 2026, a month before the Nov 27 merge): A'(x)/A(x) = (16x-5)/(4x-1), from which Mathar's recurrence follows; the statement file quotes this itself. Eventual periodicity mod k then follows routinely from the recurrence (finite state space with coefficients periodic mod k)."
+  },
+  "oeis-a097189": {
+   "date": "2026-11-28",
+   "pr": 24085,
+   "evidence": [
+    "https://zenodo.org/records/23112421",
+    "https://oeis.org/A097189"
+   ],
+   "reason": "The statement (Mathar's recurrence for n>=3 from the g.f. 3/((1-9x)+2(1-9x)^(2/3))) is faithful and correct. But Roberto Blanco Gomez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo 23112421, 2026-10-02), Proposition 9.14, already proves exactly this recurrence for all n>=3 from the same g.f. That predates the 2026-11-27 merge."
+  },
+  "oeis-a099363": {
+   "date": "2026-11-28",
+   "pr": 23827,
+   "evidence": [
+    "https://zenodo.org/records/23112421",
+    "https://oeis.org/A099363"
+   ],
+   "reason": "Faithful statement of Mathar's recurrence for n>=3 (g.f. (1-(1-x)c(x^2))/x). Blanco Gomez's Zenodo paper 'Proofs and corrections of 306 conjectures in the OEIS' (record 23112421, 2026-10-02), Proposition 9.37, already proves it for all n>=3 from the same g.f., before the 2026-11-28 merge."
+  },
+  "oeis-a105849": {
+   "date": "2026-11-28",
+   "pr": 24212,
+   "evidence": [
+    "https://zenodo.org/records/23112421",
+    "https://oeis.org/A105849"
+   ],
+   "reason": "Faithful statement of Mathar's recurrence for n>=4 from Barry's g.f. Blanco Gomez's Zenodo paper 'Proofs and corrections of 306 conjectures in the OEIS' (record 23112421, 2026-10-02), Proposition 8.15, already proves it for all n>=4 from the same g.f. That predates the 2026-11-27/28 merge. Credit note: the statement names @vivanpoddar, the proof ivillar."
+  },
+  "oeis-a108306": {
+   "date": "2026-11-28",
+   "pr": 23995,
+   "evidence": [
+    "https://github.com/google-deepmind/formal-conjectures/pull/4957",
+    "https://github.com/google-deepmind/formal-conjectures/pull/6059",
+    "https://oeis.org/A108306"
+   ],
+   "reason": "The general INVERT-transform/matrix-power conjecture (and the a=5, b=2 case) is stated faithfully. formal-conjectures PR #4957 (merged 2026-08-15) already marked OeisA108306.conjecture as solved, linking KitaKen1's kernel-checked Lean proof, and PR #6059 (2026-09-18) proved the specific case. Both predate this site's 2026-11-28 merge. The maintainer remarked that it almost follows from the definition."
+  },
+  "oeis-a110034": {
+   "date": "2026-11-28",
+   "pr": 24669,
+   "evidence": [
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A110034Refutation.lean",
+    "https://oeis.org/A110034"
+   ],
+   "reason": "Bergot's |a(n)| = Sum_{k=1..n-1} A061646(k) is stated for n>=1, with a(n) defined as row sums of the Fibonacci-Hankel characteristic polynomials (A110033); the n=0 exclusion is the empty-sum boundary. thatnealpatel/proofs (commit of 2026-10-25 or earlier) already proves the identity for every n>=1 (abs_eq_sum_of_one_le), with a(n) defined by the entry's g.f./recurrence. The new part here, row sums equal det(1-H(n)) via a rank-2 factorization, is a definitional link, not the conjecture."
+  },
+  "oeis-a110454": {
+   "date": "2026-11-28",
+   "pr": 23966,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Digit/Admissibility/DistinctPartitionConcatenationComposite.lean",
+    "https://oeis.org/A110454"
+   ],
+   "reason": "Murthy's conjecture (a(n)=0 only for n=1,2,4) is stated faithfully (at least two distinct parts, which matches the data and the Maple m>4 test). trureturing proved it in Lean as murthy_conjecture on 2026-09-13 (commits aa0d648619 and d5301ac90b), with the same route: [n-2,2] gives the even 10(n-2)+2. That predates this site's 2026-11-28 merge, and the argument is elementary."
+  },
+  "oeis-a110508": {
+   "date": "2026-11-28",
+   "pr": 24456,
+   "evidence": [
+    "https://zenodo.org/records/23112421",
+    "https://oeis.org/A110508"
+   ],
+   "reason": "The statement repairs Mathar's printed recurrence by reading the bare term 2n(3n-7) as 2n(3n-7)a(n-2); this is disclosed and correct. Blanco Gomez's Zenodo paper (record 23112421, 2026-10-02), Proposition 10.9, already found the same error and proved exactly this corrected recurrence for all n>=4 from the definition, before the 2026-11-27 merge."
+  },
+  "oeis-a116191": {
+   "date": "2026-11-28",
+   "pr": 22559,
+   "evidence": [
+    "https://arxiv.org/abs/1010.6216",
+    "https://oeis.org/A116191"
+   ],
+   "reason": "The statement is the conditional claim from the entry's comment: Schanuel's conjecture (standard trdeg form) implies i^(i^i) is transcendental. Marques and Sondow (East-West J. Math. 2010, arXiv:1010.6216), the paper the comment cites, prove exactly this: their abstract states that (S) implies the transcendence of i^(i^i), among others. So it is settled conditional material, not an open problem. The formalization itself is faithful (principal branch)."
+  },
+  "oeis-a116944": {
+   "date": "2026-11-28",
+   "pr": 21019,
+   "evidence": [
+    "https://oeis.org/A116944",
+    "https://oeis.org/A068894"
+   ],
+   "reason": "The statement is that the recurrence a(n)=(a(n-1)+1)^n differs from A068894 at some n. The A116944 entry itself already says this ('There was a conjecture that this recurrence would produce the sequence A068894, but this is not the case'), and the data shows it at n=4: 252047376 vs 10556001. The proof is a decide computation at n=4, so this was never open and is trivial."
+  },
+  "oeis-a126501": {
+   "date": "2026-11-28",
+   "pr": 24037,
+   "evidence": [
+    "https://oeis.org/A126501"
+   ],
+   "reason": "Barker's Binet-form conjecture is stated faithfully, with a(n) counting tuples in [0..5]^n whose adjacent entries differ by at most 4; checked for n<=6. But the entry already contains Howroyd's 2017 transfer-matrix proof of the g.f. (1+x)/(1-5x-4x^2) ('See PARI script for proof of g.f.'). The conjectured closed form is just the standard Binet solution of a(n)=5a(n-1)+4a(n-2), a(0)=1, a(1)=6, so it is settled material."
   }
  },
  "reviewed": "2026-11-28"
