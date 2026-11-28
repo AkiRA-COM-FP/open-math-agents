@@ -21,8 +21,8 @@ noncomputable def contained (P L : Type*) [Fintype L] [Membership P L] (S : Fins
   classical
   exact univ.filter (fun l => ∀ p : P, p ∈ l → p ∈ S)
 
-theorem main (P L : Type*) [Fintype P] [Fintype L] [Membership P L]
-    [ProjectivePlane P L] :
+theorem main : ∀ (P L : Type*) [Fintype P] [Fintype L] [Membership P L]
+    [ProjectivePlane P L],
     let q := ProjectivePlane.order P L
     ∀ m : ℕ, 1 ≤ m → m ≤ q^2+q+1 →
       ∃ f : ℕ, IsGreatest {t : ℕ | ∃ S : Finset P, S.card=m ∧ (contained P L S).card=t} f ∧
