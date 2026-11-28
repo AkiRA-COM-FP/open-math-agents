@@ -846,7 +846,10 @@ theorem joined_two {V : Fin (N + 1) → Submodule ℝ (Vec (N + 1))}
       simpa only [frame_left M hpq] using z.1.property
     rw [frame_other M hip hiq, ← hx i hip hiq]
     exact hX.1 i
-  simpa only [ex, ey] using (hj.map hemb.continuousOn).mono himg
+  obtain ⟨γ, hγ⟩ := hj
+  have hpath : JoinedIn (good V s) (embed x) (embed y) :=
+    ⟨γ.map hemb, fun t => himg ⟨γ t, hγ t, rfl⟩⟩
+  simpa only [ex, ey] using hpath
 
 end OMA.Basis2986503.Sweep
 
@@ -884,9 +887,8 @@ private theorem joined_ball {V : Fin (N + 1) → Submodule ℝ (Vec (N + 1))}
   have hx : x ∈ Metric.ball x r := Metric.mem_ball_self hr
   have hj : JoinedIn (Metric.ball x r) x y :=
     ((convex_ball x r).isPathConnected ⟨x, hx⟩).joinedIn x hx y hy
-  apply (hj.map continuous_matrix.continuousOn).mono
-  rintro _ ⟨z, hz, rfl⟩
-  exact ⟨fun i => (z i).property, h hz⟩
+  obtain ⟨γ, hγ⟩ := hj
+  exact ⟨γ.map continuous_matrix, fun t => ⟨fun i => (γ t i).property, h (hγ t)⟩⟩
 
 theorem connect {V : Fin (N + 1) → Submodule ℝ (Vec (N + 1))}
     (hN : N ≠ 0) (hHall : ∀ S : Finset (Fin (N + 1)), S.Nonempty → S ≠ Finset.univ →
