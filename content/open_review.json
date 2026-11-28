@@ -18678,6 +18678,62 @@
     "https://oeis.org/A065381"
    ],
    "reason": "Second review: The statement keeps a false typo conjunct (a(2*3)=1) so its negation is trivial. The proof does in fact exhibit the genuine counterexample 3697 (x=959), so restating the target as 'not forall n>1, a(2*A065381(n))=0' would make it a correct routine disproof, one already visible in the entry's b-file."
+  },
+  "oeis-a288999": {
+   "date": "2026-11-28",
+   "pr": 28539,
+   "evidence": [
+    "https://oeis.org/A288999"
+   ],
+   "reason": "The statement is the conjunction of Kimberling's limit/bound conjecture and Chai Wah Wu's closed form a(n)=2n+round(n*sqrt 2); the disproof only uses a(11)=37 vs 38, which is visible in the entry's own data line (3,7,10,...,34,37). Kimberling's bound also fails trivially at n=1 (2+sqrt2-3 = sqrt2-1, equality). The substantive part (a(n)/n -> 2+sqrt 2) is not addressed; trivial disproof from listed terms."
+  },
+  "oeis-a290191": {
+   "date": "2026-11-28",
+   "pr": 28347,
+   "evidence": [
+    "https://oeis.org/A290191"
+   ],
+   "reason": "The disproof exploits an index typo: the data 1,10,111,1110,11111,... are the binary forms of 2^(n+1)-1-(n mod 2) (verified by simulating Rule 673 for 60 stages), and the entry's formula 2^(n-1)-1-(n mod 2) is the same expression with n shifted by 2. The proof refutes the literal formula at n=2 (value 1 vs 111), and it also fails trivially at n=0 (negative value)."
+  },
+  "oeis-a290195": {
+   "date": "2026-11-28",
+   "pr": 27851,
+   "evidence": [
+    "https://oeis.org/A290195"
+   ],
+   "reason": "Corneth's closed forms are stated with the parities swapped relative to the entry's own data (a(4)=7=2^3-1 is even n, a(5)=47=3*2^4-1 is odd n); the disproof uses only this, at n=4. The proof file also proves the corrected parity-exchanged forms and Wu's recurrence and g.f. (theorem `corrected`), but the merged result is a disproof exploiting a parity typo."
+  },
+  "oeis-a290525": {
+   "date": "2026-11-28",
+   "pr": 27679,
+   "evidence": [
+    "https://oeis.org/A290525"
+   ],
+   "reason": "Barker's g.f. matches the data (simulated Rule 833 for 40 stages; numerator 1-10x^2+101x^3-111x^4+110x^6-100x^7 is right), but the recurrence is stated for n>4 while the g.f. only gives it for n>7. The disproof exploits exactly this range off-by-one (coefficient 6 of the g.f. vs the recurrence at n=6); the true content (the g.f.) is not proved."
+  },
+  "oeis-a319674": {
+   "date": "2026-11-28",
+   "pr": 29089,
+   "evidence": [
+    "https://oeis.org/A319674"
+   ],
+   "reason": "McEachen's two conjectures are false at n=1 (a(1)=1>0, 1 is not in A047235, 'otherwise' gives 3(1+1)/2=3). The statement silently restricts to n>=2 and the proof proves this weakened version; it is the only failure for n<3000 (checked). The content is a routine period-6 quasi-polynomial identity. The literal conjecture should have been disproved, not proved."
+  },
+  "oeis-a347365": {
+   "date": "2026-11-28",
+   "pr": 16778,
+   "evidence": [
+    "https://oeis.org/A347365"
+   ],
+   "reason": "Trivial: the 'conjecture' is a comment, a(6n+1)/3 = 6n+1 and a(6n+5)/3 = 6n+5, that follows immediately from the definition a(n) = n(2-(-1)^n) = 3n for odd n (the entry's own formula line states a(n)=3n for n odd). Nothing open is resolved; the statement is correct but definitional."
+  },
+  "oeis-a352446": {
+   "date": "2026-11-28",
+   "pr": 17123,
+   "evidence": [
+    "https://oeis.org/A352446"
+   ],
+   "reason": "Trivial: a partition of n into L=2k consecutive parts starting at m has sum k(2k+1)+2k(m-1), so j=m-1 reindexes the definition directly into the coefficient of Sum_k 2k x^(k(2k+1))/(1-x^(2k)). Kotesovec's g.f. 'conjecture' is a one-line change of variables from the definition, and the statement is exactly that coefficient identity. The proof is correct, but nothing substantive is resolved."
   }
  },
  "known": {
@@ -34810,6 +34866,148 @@
     "https://github.com/the-omega-institute/trureturing"
    ],
    "reason": "Second review (zbatch38): Kurkov's double-array conjecture is proved in trureturing, D5/S1/Recurrence/Algebraic/IndecomposablePermutationDoubleArray.lean (commit ff316027188, 2026-09-23), filed under A003319."
+  },
+  "oeis-a288710": {
+   "date": "2026-11-28",
+   "pr": 28128,
+   "evidence": [
+    "https://oeis.org/A288710",
+    "https://oeis.org/A288925",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/proofs/oeis-a288925.lean"
+   ],
+   "reason": "Disproof is correct (w(3)=10000100011000 has 14 letters, A288925(3)=13), but the counterexample is the iterate listed in the entry itself, and the identical claim (same mapping, same A288925 recurrence) was already disproved on this site as oeis-a288925 (proof commit 2026-11-28 11:05 UTC, same @agchua), 27 minutes before this proof (11:32 UTC)."
+  },
+  "oeis-a288926": {
+   "date": "2026-11-28",
+   "pr": 28677,
+   "evidence": [
+    "https://oeis.org/A288926",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/proofs/oeis-a288925.lean",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/proofs/oeis-a288710.lean"
+   ],
+   "reason": "Disproof (n=3: 14 letters vs A288925(3)=13) is correct, but the proof file itself credits note #90298 (@lenpr found the counterexample first), the iterate is listed in the entry, and the same claim was already disproved on this site as oeis-a288925 (11:05 UTC) and oeis-a288710 (11:32 UTC) before this proof (11:56 UTC)."
+  },
+  "oeis-a290277": {
+   "date": "2026-11-28",
+   "pr": 28462,
+   "evidence": [
+    "https://oeis.org/A290277",
+    "https://oeis.org/A001006",
+    "https://oeis.org/A002426"
+   ],
+   "reason": "Mathar's conjecture n*a(n)=Sum_{d|n} mu(d) A002426(n/d) is the Moebius inversion of x*M'(x)/M(x) = T(x)-1 (T = g.f. of central trinomials), which is stated as a formula in sister entries: A001006 (Alexander Burstein, Oct 05 2017: E(x) = 1 + x*A'(x)/A(x) with E the g.f. of A002426) and A002426 (G.f. A(x) = 1 + x*M'(x)/M(x); Kruchinin 2013 equivalent). With the inverse Euler transform definition used by the statement, the conjecture follows at once. Lean proof is correct, but the result was already available."
+  },
+  "oeis-a292726": {
+   "date": "2026-11-28",
+   "pr": 28352,
+   "evidence": [
+    "https://oeis.org/A292726"
+   ],
+   "reason": "Both conjectures were already proved in the entry itself: Charlie Neder's comment (Jan 28 2019) gives the inverse-move argument (states without inverse moves are all-equal-odd; powers of 2 reach everything; odd primes miss only [n]; an odd divisor 1<d<n gives at least two unreachable states) and ends 'Therefore, both conjectures are true.' The Lean proof follows the same argument; statement fidelity is fine."
+  },
+  "oeis-a293821": {
+   "date": "2026-11-28",
+   "pr": 27977,
+   "evidence": [
+    "https://oeis.org/A293821",
+    "https://arxiv.org/abs/1710.11245"
+   ],
+   "reason": "Barker's closed form is stated in his indexing (the g.f. starts at x^3, the entry's offset is 4), so closed(n)=a(n+1); I checked this against brute-force counts for n<=38. The count of quadrilaterals up to rotation has an exact Burnside formula p'_{m,n} = Sum_{d|gcd(m,n)} phi(d)/n (...) in Section 6 of East-Niles, arXiv:1710.11245, which the entry cites. Barker's quasi-polynomial is the case-by-case evaluation of that formula for m=4. The site proof uses the same Burnside argument."
+  },
+  "oeis-a293822": {
+   "date": "2026-11-28",
+   "pr": 28511,
+   "evidence": [
+    "https://oeis.org/A293822",
+    "https://arxiv.org/abs/1710.11245"
+   ],
+   "reason": "Barker's g.f. for pentagons up to rotation is correct (brute force for n<36). The entry cites East-Niles, arXiv:1710.11245, Section 6, which gives the exact Burnside formula p'_{5,n} = Sum_{d|gcd(5,n)} phi(d)/n (...). The rational g.f. is a routine consequence, and the site proof re-derives it by the same Burnside argument."
+  },
+  "oeis-a295292": {
+   "date": "2026-11-28",
+   "pr": 20216,
+   "evidence": [
+    "https://oeis.org/A295292",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "reason": "Barker's recurrence for n>13 is correct (checked to n=400) and routine, since a(n) is a period-4 cubic quasi-polynomial given by Hurt's closed form in the entry. It was already proved in iis:2611.00231 ('Colin Barker's g.f. and recurrence conjectures proved for 22 partition-statistic sequences', A295292 listed 'proved, n>13'), filed 2026-11-28 04:30 UTC, 17 minutes before the site proof commit (04:47 UTC)."
+  },
+  "oeis-a301977": {
+   "date": "2026-11-28",
+   "pr": 14001,
+   "evidence": [
+    "https://oeis.org/A301977",
+    "https://oeis.org/A007306",
+    "https://oeis.org/A002487",
+    "https://doi.org/10.1016/j.disc.2017.01.003"
+   ],
+   "reason": "Gutkovskiy's conjecture follows at once from results recorded in sister entries. (1) The RHS Sum_{k<=n} S2(n+1,k) mod 2 is the number of odd entries in row n+1 minus the last 1, i.e. A007306(n+1)-1 (A007306 comment by Cloitre; Carlitz 1964, cited in A002487). (2) A301977(n)+1 is the number of nonzero entries in the row of the generalized Pascal triangle P_2 indexed by rep(n), which equals A007306(n+1) (A007306 comment by Sloane, citing Leroy-Rigo-Stipulanti, Discrete Math 340 (2017) 862-881). I checked numerically for n<=28. The Lean proof goes through Stern's sequence in the same way."
+  },
+  "oeis-a324017": {
+   "date": "2026-11-28",
+   "pr": 27963,
+   "evidence": [
+    "https://oeis.org/A324017",
+    "https://github.com/blakestone-x/math/blob/main/A324017/README.md"
+   ],
+   "reason": "The disproof refutes the third conjecture with j=9 (not a least residue) at n=1, a loophole of the formalization rather than of the conjecture. In any case the conjecture had already been resolved by Blake Stone (github.com/blakestone-x/math, A324017/README.md, Nov 26 2026): conjectures 1 and 2 proved, and 3 false even for the least residue (m=n=2, j=27: A(3,2)=59). The statement itself is credited to @blakestone-x."
+  },
+  "oeis-a334511": {
+   "date": "2026-11-28",
+   "pr": 28252,
+   "evidence": [
+    "https://zenodo.org/records/23830607",
+    "https://oeis.org/A334511",
+    "https://github.com/blakestone-x/math/blob/main/A334501/README.md"
+   ],
+   "reason": "Spezia's formula a(n)=(3-(-1)^n)n/2 for n>10 for Rule 9 ring periods was already proved, with a Lean 4 formalization (LF0045.cell_eventual_period), in 'Low-Hanging Fruit, Vol. IV' (Zenodo 23830607, 2026-10-31). Blake Stone's repo also lists exact ring periods for A334511. Barker's recurrence and g.f. follow from the formula and the data a(1..10)."
+  },
+  "oeis-a334513": {
+   "date": "2026-11-28",
+   "pr": 27937,
+   "evidence": [
+    "https://zenodo.org/records/23853032",
+    "https://oeis.org/A334513",
+    "https://github.com/blakestone-x/math/blob/main/A334501/README.md"
+   ],
+   "reason": "Kotesovec's a(n)=2n for n>=10 for Rule 25 ring periods was already proved, with Lean (LF0044.cell_eventual_period), in 'Low-Hanging Fruit, Vol. V' (Zenodo 23853032, 2026-11-01); also in Blake Stone's A334501 ring-period note. Barker's recurrence and g.f. follow directly from it plus the data."
+  },
+  "oeis-a341724": {
+   "date": "2026-11-28",
+   "pr": 28634,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Recurrence/Residue/TebniA341724RowDivisibility.lean",
+    "https://oeis.org/A341724"
+   ],
+   "reason": "Both of Tebni's row-divisibility conjectures (T(p,k) == 0 mod p for 0<k<p; T(2^m,k) == 0 mod 2^m) were already proved in the trureturing Lean library, D5/S1/Recurrence/Residue/TebniA341724RowDivisibility.lean (0 sorry; added to the dev branch 2026-10-28), stated via the column e.g.f. x^k/(k!(1-2 sinh(-x))), equivalent to the binomial formula used here."
+  },
+  "oeis-a347285": {
+   "date": "2026-11-28",
+   "pr": 23022,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Primes/OeisA347285PrimePowerDescent.lean",
+    "https://oeis.org/A347285"
+   ],
+   "reason": "De Vlieger's conjecture n - S = 1 (telescoping, since rows strictly decrease and end in 1) was already proved in the trureturing Lean library, D5/S3/Arith/Primes/OeisA347285PrimePowerDescent.lean (0 sorry, added 2026-10-21, 'open-problem-resolution #18689; Proved'), with the same definitions (floor log of the previous prime power, row cut at the first zero)."
+  },
+  "oeis-a348618": {
+   "date": "2026-11-28",
+   "pr": 28021,
+   "evidence": [
+    "https://isitsolved.com/journal/e21d7e6ffc27",
+    "https://oeis.org/A348618"
+   ],
+   "reason": "Mathar's recurrence (fails at n=2, so restricted to n>=3 here) was already decided in iis:2611.00206 ('Six OEIS D-finite recurrence conjectures settled exactly ... A348618 ... true except at small n', true for n>=3, false at n=2), filed 2026-11-28 02:12 UTC, before the site proof commit (13:48 UTC). A routine hypergeometric-ratio check for the closed form."
+  },
+  "oeis-a354242": {
+   "date": "2026-11-28",
+   "pr": 28507,
+   "evidence": [
+    "https://github.com/blakestone-x/math/blob/main/A354242/README.md",
+    "https://the-omega-institute.github.io/trureturing-mdbook/Blueprint/D5/S1/Recurrence/Periodic/IntegralEgfTotientPeriod.html",
+    "https://doi.org/10.33774/coe-2026-4d6jr"
+   ],
+   "reason": "Bala's two conjectures (A354242 mod k eventually periodic with period dividing phi(k), and the same for every G(exp(x)-1) with G integral) were already proved. There is a prior Lean formalization in trureturing (Blueprint D5/S1/Recurrence/Periodic/IntegralEgfTotientPeriod, Theorem 1.8), Payam Danesh's Aug 2026 preprint (Carmichael period, doi:10.33774/coe-2026-4d6jr), and Blake Stone's note (github.com/blakestone-x/math A354242/README.md), all cited there. The standard argument: j! kills terms mod k, and the remaining u^n are periodic."
   }
  },
  "reviewed": "2026-11-28"
