@@ -18734,6 +18734,14 @@
     "https://oeis.org/A352446"
    ],
    "reason": "Trivial: a partition of n into L=2k consecutive parts starting at m has sum k(2k+1)+2k(m-1), so j=m-1 reindexes the definition directly into the coefficient of Sum_k 2k x^(k(2k+1))/(1-x^(2k)). Kotesovec's g.f. 'conjecture' is a one-line change of variables from the definition, and the statement is exactly that coefficient identity. The proof is correct, but nothing substantive is resolved."
+  },
+  "oeis-a061232": {
+   "date": "2026-11-28",
+   "pr": 15692,
+   "evidence": [
+    "https://oeis.org/A061232"
+   ],
+   "reason": "With the entry's offset 0 (a(2)=2, a(3)=6), Bouayoun's conjecture as printed (n+1/2 <= a(n)/a(n-1) <= n+2/3 for n>2) already fails at n=3, since 6/2=3. The main disproof uses only this, so it exploits an indexing slip. The intended reading is a(n+1)/a(n), which fits the data: 21/6=3.5 and 98/21=4.67. The proof file also proves, as an auxiliary theorem, that the upper bound of the shifted reading fails for some 3<=n<2^48. That is a real disproof, but it is not the accepted main statement, so the statement should be redone with a(n+1)/a(n)."
   }
  },
  "known": {
@@ -35008,6 +35016,195 @@
     "https://doi.org/10.33774/coe-2026-4d6jr"
    ],
    "reason": "Bala's two conjectures (A354242 mod k eventually periodic with period dividing phi(k), and the same for every G(exp(x)-1) with G integral) were already proved. There is a prior Lean formalization in trureturing (Blueprint D5/S1/Recurrence/Periodic/IntegralEgfTotientPeriod, Theorem 1.8), Payam Danesh's Aug 2026 preprint (Carmichael period, doi:10.33774/coe-2026-4d6jr), and Blake Stone's note (github.com/blakestone-x/math A354242/README.md), all cited there. The standard argument: j! kills terms mod k, and the remaining u^n are periodic."
+  },
+  "oeis-a167137": {
+   "date": "2026-11-28",
+   "pr": 18791,
+   "evidence": [
+    "https://oeis.org/A167137",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/OrdinaryIntegralEGF.lean",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A004123BalaModEventually.lean"
+   ],
+   "reason": "Statement matches Bala's two conjectures (period dividing phi(k) for a(n) and for every integral G). thatnealpatel/proofs (snapshot commit 39d62b2, 2026-10-25) already proves in Lean the general theorem weightedStirlingTransform_eventuallyPeriodic: for every a : N -> Z, Sum_j S(n,j) j! a(j) has eventual period phi(k) mod every k >= 1, which is exactly part 2 and implies part 1. Site proof (2026-11-28) uses the same surjection/Euler argument."
+  },
+  "oeis-a301921": {
+   "date": "2026-11-28",
+   "pr": 18760,
+   "evidence": [
+    "https://oeis.org/A301921",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/OrdinaryIntegralEGF.lean"
+   ],
+   "reason": "Faithful statement of Bala's Aug 2025 conjecture. It is a special case (g = A005169) of the general Lean theorem weightedStirlingTransform_eventuallyPeriodic in thatnealpatel/proofs (commit dated 2026-10-25), which covers every integral weight sequence; the site proof itself says it is valid for every weight sequence."
+  },
+  "oeis-a052895": {
+   "date": "2026-11-28",
+   "pr": 18629,
+   "evidence": [
+    "https://oeis.org/A052895",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Sorry/Enumerative/A052895SumStirlingCatalan.lean",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/OrdinaryIntegralEGF.lean"
+   ],
+   "reason": "Faithful. thatnealpatel/proofs has a file for this exact A-number (A052895SumStirlingCatalan, theorem a_eventually_periodic: a(n+phi m) = a(n) mod m for n >= m), plus the general weighted-Stirling theorem, both in the 2026-10-25 snapshot, a month before the site proof."
+  },
+  "oeis-a208309": {
+   "date": "2026-11-28",
+   "pr": 29164,
+   "evidence": [
+    "https://isitsolved.com/journal/0f6811814620",
+    "https://oeis.org/A208309"
+   ],
+   "reason": "Statement = Barker's g.f. plus the Binet closed form, faithful. isitsolved iis:2611.00258 (filed 2026-11-28 07:43 UTC) lists A208309 'Barker g.f. proved; Hardin recurrence proved'; the site proof was committed 12:17 UTC the same day, later. The closed form follows directly from the g.f."
+  },
+  "oeis-a281200": {
+   "date": "2026-11-28",
+   "pr": 29254,
+   "evidence": [
+    "https://isitsolved.com/journal/0f6811814620",
+    "https://oeis.org/A281200"
+   ],
+   "reason": "Statement = Barker g.f. and a(n) = 7*2^(n-1)*(n-1) for n>1, faithful. iis:2611.00258 (filed 07:43 UTC 2026-11-28) lists A281200 'Barker g.f. proved; Hardin recurrence (n>3) proved', before the site proof commit at 12:21 UTC; the closed form is immediate from the g.f."
+  },
+  "oeis-a208079": {
+   "date": "2026-11-28",
+   "pr": 29285,
+   "evidence": [
+    "https://isitsolved.com/journal/e9039b327f56",
+    "https://oeis.org/A208079"
+   ],
+   "reason": "Statement = Barker g.f. plus Binet form, faithful. iis:2611.00264 (filed 08:32 UTC 2026-11-28) lists A208079 'Barker g.f. proved; Hardin recurrence (n>3) proved', before the site commit at 12:22 UTC; the closed form follows from the g.f."
+  },
+  "oeis-a295321": {
+   "date": "2026-11-28",
+   "pr": 20222,
+   "evidence": [
+    "https://isitsolved.com/journal/844f1dfae2e1",
+    "https://oeis.org/A295321"
+   ],
+   "reason": "Statement = Barker's order-13 recurrence for n>13, faithful. iis:2611.00231 (filed 04:30 UTC 2026-11-28) lists A295321 with g.f. and recurrence (n>13) proved, 17 minutes before the site proof commit (04:47 UTC). Also routine: the entry already carries Hurt's closed form and an explicit finite-sum definition."
+  },
+  "oeis-a338040": {
+   "date": "2026-11-28",
+   "pr": 18776,
+   "evidence": [
+    "https://oeis.org/A338040",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a338040-weighted-stirling-power-prime-period.md",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Recurrence/bala2022a338040.md"
+   ],
+   "reason": "Statement (a(n+p-1) = a(n) mod p for prime p, n >= 1, with the entry's finite formula) is faithful to Bala's 2022 conjecture. trureturing already proves exactly this (bala_conjecture, a(n+(p-1)) = a(n) in ZMod p), files added 2026-09-09, by the same Fermat/surjection argument the site proof uses."
+  },
+  "oeis-a390871": {
+   "date": "2026-11-28",
+   "pr": 23000,
+   "evidence": [
+    "https://oeis.org/A390871",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Library/Words/zizka2025a390871.md"
+   ],
+   "reason": "Statement matches Zizka's exponent-interval conjecture (k > 8 not a power of 2, m <= k, r < k). trureturing (file dated 2026-09-10) proves the same interval floor(log2 k)+3 <= m <= 2 floor(log2 k)+1 with the same gap argument (k-r >= 3). It is also elementary."
+  },
+  "oeis-a288522": {
+   "date": "2026-11-28",
+   "pr": 29317,
+   "evidence": [
+    "https://zenodo.org/records/23407380",
+    "https://oeis.org/A288522"
+   ],
+   "reason": "Statement faithfully encodes Kimberling's conjecture (limit m starting 2.91 and -1 < m - a(n)/n < 1 for n >= 1, for the 0-limiting word of 00->0101, 10->010). Ashburn, Zenodo 23407380 (2026-10-16), map M32, lists A288522 with m = 2.9179879 and the bound -1 < m - a(n)/n < 1 as 'true' (proved)."
+  },
+  "oeis-a288525": {
+   "date": "2026-11-28",
+   "pr": 29321,
+   "evidence": [
+    "https://zenodo.org/records/23407380",
+    "https://oeis.org/A288525"
+   ],
+   "reason": "Faithful statement (m in [1.52,1.53), limit and two-sided bound, 1-limiting word of map 00->0101, 10->010). Ashburn, Zenodo 23407380 (2026-10-16), map M32, proves A288525 with m = 1.5213797 (root of x^3-x-2) and -1 < m - a(n)/n < 1."
+  },
+  "oeis-a288526": {
+   "date": "2026-11-28",
+   "pr": 29326,
+   "evidence": [
+    "https://zenodo.org/records/23407380",
+    "https://oeis.org/A288526"
+   ],
+   "reason": "Faithful statement (m in [2.91,2.92), limit and bound). Ashburn, Zenodo 23407380 (2026-10-16), map M32, lists A288526 with m = 2.9179879 and -1 < m - a(n)/n < 1 as true, six weeks before the site proof."
+  },
+  "mo-229136": {
+   "date": "2026-11-28",
+   "pr": 16095,
+   "evidence": [
+    "https://mathoverflow.net/questions/229136",
+    "https://mathoverflow.net/a/229189"
+   ],
+   "reason": "The Lean statement asserts the tail events are independent and the site proves its negation with a trivial counterexample (the same fair-coin event placed in alternating rows, so each column has at most one nontrivial event). The question was already answered negatively on MO in 2016: Douglas Zare's answer 229189 gives a correct counterexample (Polya-urn rows; the two limiting-frequency tail events have P(A1 cap A2)=1/20 != 1/100). Formalization is faithful (0-indexed, column n is (n+1)-wise independent), but the disproof is not new."
+  },
+  "mo-171478": {
+   "date": "2026-11-28",
+   "pr": 9886,
+   "evidence": [
+    "https://mathoverflow.net/questions/171478"
+   ],
+   "reason": "The statement asks for a bounded, continuous, monotone, non-coercive, non-surjective map on a Hilbert space; the site uses the zero map on R. The asker answered his own question in a comment on 2014-06-11 ('I found it very simple, for example e^x'), and Dirk's comment discusses the same point. Trivial and already settled on the source page."
+  },
+  "oeis-a176952": {
+   "date": "2026-11-28",
+   "pr": 16190,
+   "evidence": [
+    "https://oeis.org/A176952",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence with (a0,a1,k,l)=(1,0,-1,-1); the Lean definition matches the OEIS name and data, and the statement is Mathar's conjectured order-5 P-recurrence for n>=5. Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177, Theorem 3, proves this recurrence for every Choulet sequence for n>=5; with these parameters its coefficients equal the Lean ones exactly (checked symbolically), and the recurrence holds numerically to n=118. Not new."
+  },
+  "oeis-a176759": {
+   "date": "2026-11-28",
+   "pr": 16027,
+   "evidence": [
+    "https://oeis.org/A176759",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,0,1,-1); faithful statement of Mathar's conjecture for n>=5. Dubickas (Mathematics 14 (2026) 2177) names A176759 explicitly and says Theorem 3 gives the result claimed in OEIS; I checked the Theorem 3 coefficients equal the Lean ones symbolically, and the recurrence holds numerically to n=118. Not new."
+  },
+  "oeis-a176757": {
+   "date": "2026-11-28",
+   "pr": 15897,
+   "evidence": [
+    "https://oeis.org/A176757",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,5,0,-2); faithful statement of Mathar's order-4 conjecture for n>=4. Dubickas (Mathematics 14 (2026) 2177) Theorem 4 (case k=0, n>=4) lists A176749-A176757 as proved; its coefficients with these parameters equal the Lean ones exactly. Not new."
+  },
+  "mo-182345": {
+   "date": "2026-11-28",
+   "pr": 16041,
+   "evidence": [
+    "https://mathoverflow.net/questions/182345"
+   ],
+   "reason": "The site disproves the claim with Z(t)=exp(-2t) on R. The question was answered negatively in comments on 2014-10-02: Jochen Wengenroth gave the translation-group counterexample, and Andras Batkai gave the one-dimensional version Z(t)=e^{-t} on R, which is essentially the site's example. The asker thanked them. Formalization is faithful, but the disproof is not new."
+  },
+  "oeis-a176832": {
+   "date": "2026-11-28",
+   "pr": 15904,
+   "evidence": [
+    "https://oeis.org/A176832",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,5,1,-1); the Lean definition matches the entry (a(n+1)=sum a(p)a(n-p)+n) and the statement is Mathar's order-5 conjecture for n>=5. Dubickas, Mathematics 14 (2026) 2177, Theorem 3 proves the recurrence for every Choulet sequence for n>=5; its coefficients with these parameters equal the Lean ones exactly (checked symbolically, and numerically to n=118). Not new."
+  },
+  "oeis-a176829": {
+   "date": "2026-11-28",
+   "pr": 15884,
+   "evidence": [
+    "https://oeis.org/A176829",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,3,1,-1); faithful statement of Mathar's order-5 conjecture for n>=5. Dubickas, Mathematics 14 (2026) 2177, Theorem 3, covers every Choulet sequence, and its coefficients with these parameters equal the Lean ones exactly. It also appears in isitsolved iis:2611.00226 (2026-11-28 04:01). Not new."
+  },
+  "mo-447657": {
+   "date": "2026-11-28",
+   "pr": 15733,
+   "evidence": [
+    "https://mathoverflow.net/questions/447657"
+   ],
+   "reason": "The site disproves 'going down implies Spec B -> Spec A is open' with Z -> Q. This is exactly the counterexample R. van Dobben de Bruyn gave in a 2023-05-27 comment ('A localisation is an easy counterexample; for instance Z -> Q'), and the asker replied 'Thanks a lot'. Faithful, but already settled on the source."
   }
  },
  "reviewed": "2026-11-28"
