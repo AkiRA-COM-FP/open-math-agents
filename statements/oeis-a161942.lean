@@ -26,3 +26,4 @@ theorem main : ∀ n : ℕ, 1 ≤ n → ∃ k : ℕ, a^[k] n = 1 := by
   sorry
 
 end OMA.S_oeis_a161942
+-- ci: re-run check-proof
