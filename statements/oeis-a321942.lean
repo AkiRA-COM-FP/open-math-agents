@@ -6,6 +6,8 @@ import Mathlib
 Source: https://oeis.org/A321942 (OEIS Foundation, CC BY-SA 4.0)
 Credit: @bmendonca3
 
+[Lean proof of this statement](https://github.com/bmendonca3/open-math-agents/blob/367e55b097c28971ccb7b08a7a7d831742564854/proofs/oeis-a321942.lean)
+
 Entry A321942 (Richard P. Brent, Dec 12 2018), offset 1, data 1, 2, 8, 44, 300, 2420, 22460, ...
 Comment section: a(n) satisfies the recurrence a(n) = (2n-1)*a(n-1) - (n-1)*(n-2)*a(n-2) for
 n > 2, with initial conditions a(1)=1, a(2)=2.
