@@ -1191,6 +1191,132 @@ theorem incoming_only_defeat :
   obtain ⟨emb⟩ := @pair_search_code I order wf f safe
   exact Function.cantor_injective emb emb.injective
 
+/-- A binary sequence at each stage can separate it from a countable
+collection of specified earlier stages, even on arbitrarily long horizons. -/
+private theorem separate_countable_rows {I : Type} [LinearOrder I] [WellFoundedLT I]
+    (Q : I → Set I) (small : ∀ j, (Q j).Countable) :
+    ∃ lab : I → ℕ → Bool, ∀ b c, b < c → b ∈ Q c → lab b ≠ lab c := by
+  classical
+  let step (c : I) (prev : (b : I) → b < c → ℕ → Bool) (n : ℕ) :=
+    let b := Set.enumerateCountable (small c) c n
+    if h : b < c then !(prev b h n) else false
+  let lab : I → ℕ → Bool := wellFounded_lt.fix step
+  refine ⟨lab,?_⟩
+  intro b c bc mem eq
+  obtain ⟨n,hn⟩ := Set.subset_range_enumerate (small c) c mem
+  have rule : lab c = step c (fun b _ => lab b) := WellFounded.fix_eq _ _ c
+  have flip : lab c n = !(lab b n) := by simpa only [step,hn,dif_pos bc] using congrFun rule n
+  rw [eq] at flip
+  cases lab c n <;> simp_all
+
+/-- Above the continuum, a winning full-history rule must respond to inserted
+stars on a graph of pairs which cannot be properly labelled by binary
+sequences. The change occurs on an actual incoming edge. Consequently one
+batch is sensitive to uncountably many different single earlier rows. -/
+theorem two_star_sensitivity {I : Type} [LinearOrder I] [WellFoundedLT I]
+    (large : ¬ Nonempty (I ↪ (ℕ → Bool))) (paint : I → Set (I × I) → I → ℕ)
+    (win : ∀ (G : SimpleGraph I), G.CliqueFree 4 → ∀ a b c, a < b → b < c →
+      G.Adj a b → G.Adj a c → G.Adj b c →
+      let past := fun j => {q : I × I | q.1 ≤ j ∧ q.2 ≤ j ∧ G.Adj q.1 q.2}
+      paint b (past b) a = paint c (past c) a → paint b (past b) a ≠ paint c (past c) b) :
+    let snap := fun (H : Set I) (j : I) => {q : I × I | q.1 ≤ j ∧ q.2 ≤ j ∧
+      ((q.1 < q.2 ∧ q.2 ∈ H) ∨ (q.2 < q.1 ∧ q.1 ∈ H))}
+    let changed := fun b c => b < c ∧ ∃ i ≤ b,
+      paint c (snap {c} c) i ≠ paint c (snap {b,c} c) i
+    (∀ lab : I → ℕ → Bool, ∃ b c, changed b c ∧ lab b = lab c) ∧
+      ∃ c, ¬ Set.Countable {b | changed b c} := by
+  classical
+  intro snap changed
+  have forced (lab : I → ℕ → Bool) : ∃ b c, changed b c ∧ lab b = lab c := by
+    by_contra no
+    apply large
+    apply pair_colouring_iff_binary_code.mp
+    obtain ⟨edge,within,decode⟩ := binary_label_palette
+    let f (x y : I) := paint y (snap {y} y) x
+    refine ⟨fun x y => edge (lab x) (lab y) (f x y),?_⟩
+    intro a b c ab bc same other
+    obtain ⟨acLab,bcLab,_⟩ := decode _ _ _ _ _ _ same other
+    dsimp only at same other
+    rw [acLab,bcLab,within,within] at same
+    rw [acLab,bcLab,within,within] at other
+    have ac : f a b = f a c := by omega
+    have hit : f a b = f b c := by omega
+    have stable (i : I) (hi : i ≤ b) : f i c = paint c (snap {b,c} c) i := by
+      by_contra h
+      exact no ⟨b,c,⟨bc,i,hi,h⟩,bcLab⟩
+    let H : Set I := {b,c}
+    let G : SimpleGraph I := {
+      Adj := fun x y => (x < y ∧ y ∈ H) ∨ (y < x ∧ x ∈ H)
+      symm := ⟨fun _ _ => Or.symm⟩
+      loopless := ⟨fun _ h => h.elim (fun e => e.1.false) (fun e => e.1.false)⟩ }
+    have free : G.CliqueFree 4 := by
+      by_contra bad
+      obtain ⟨g⟩ := (not_cliqueFree_iff_top_isContained 4).mp bad
+      let col (x : I) : Fin 3 := if x = b then 0 else if x = c then 1 else 2
+      have proper {x y} (e : G.Adj x y) : col x ≠ col y := by
+        change (x < y ∧ y ∈ H) ∨ (y < x ∧ x ∈ H) at e
+        simp only [H,Set.mem_insert_iff,Set.mem_singleton_iff] at e
+        dsimp [col]
+        split_ifs <;> grind
+      have inj : Function.Injective (fun i : Fin 4 => col (g i)) := fun i j eq =>
+        by_contra fun ne => proper (g.toHom.map_rel ne) eq
+      have := Fintype.card_le_of_injective _ inj
+      simp at this
+    have pastEq : snap H b = snap {b} b := by
+      ext ⟨x,y⟩
+      simp only [snap,H,Set.mem_ofPred_eq,Set.mem_insert_iff,Set.mem_singleton_iff]
+      grind
+    have h := win G free a b c ab bc (Or.inl ⟨ab,Or.inl rfl⟩)
+      (Or.inl ⟨ab.trans bc,Or.inr rfl⟩) (Or.inl ⟨bc,Or.inr rfl⟩)
+    change paint b (snap H b) a = paint c (snap H c) a →
+      paint b (snap H b) a ≠ paint c (snap H c) b at h
+    rw [pastEq] at h
+    exact h (ac.trans (stable a ab.le)) (hit.trans (stable b le_rfl))
+  refine ⟨forced,?_⟩
+  by_contra! small
+  obtain ⟨lab,sep⟩ := separate_countable_rows (fun c => {b | changed b c}) small
+  obtain ⟨b,c,h,eq⟩ := forced lab
+  exact sep b c h.1 h eq
+
+/-- Allow the batch at each vertex to depend on the whole incoming row and
+on countably many earlier incoming rows. Its determining set may itself
+depend on the observed history. The sharp horizon threshold stays the
+continuum. The determining set is shared across the batch of spokes. -/
+theorem countable_row_history_iff {I : Type} [LinearOrder I] [WellFoundedLT I] :
+    let row := fun (s : Set (I × I)) (k : I) => {i | i < k ∧ (i,k) ∈ s}
+    (∃ paint : I → Set (I × I) → I → ℕ,
+      (∀ j s, ∃ Q : Set I, Q.Countable ∧ Q ⊆ Set.Iio j ∧ ∀ t, row s j = row t j →
+        (∀ k ∈ Q, row s k = row t k) → ∀ i < j, paint j s i = paint j t i) ∧
+      ∀ (G : SimpleGraph I), G.CliqueFree 4 → ∀ a b c, a < b → b < c →
+        G.Adj a b → G.Adj a c → G.Adj b c →
+        let past := fun j => {p : I × I | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2}
+        paint b (past b) a = paint c (past c) a → paint b (past b) a ≠ paint c (past c) b) ↔
+      Nonempty (I ↪ (ℕ → Bool)) := by
+  classical
+  intro row
+  constructor
+  · rintro ⟨paint,depends,win⟩
+    by_contra large
+    let snap (H : Set I) (j : I) := {q : I × I | q.1 ≤ j ∧ q.2 ≤ j ∧
+      ((q.1 < q.2 ∧ q.2 ∈ H) ∨ (q.2 < q.1 ∧ q.1 ∈ H))}
+    obtain ⟨_,c,many⟩ := two_star_sensitivity large paint win
+    obtain ⟨Q,small,_,read⟩ := depends c (snap {c} c)
+    apply many
+    apply small.mono
+    rintro b ⟨bc,i,ib,ne⟩
+    by_contra absent
+    have unchanged (k : I) (hk : k ≠ b) :
+        row (snap {c} c) k = row (snap {b,c} c) k := by
+      ext x
+      simp only [row,snap,Set.mem_ofPred_eq,Set.mem_insert_iff,Set.mem_singleton_iff]
+      grind
+    exact ne (read (snap {b,c} c) (unchanged c bc.ne.symm)
+      (fun k mem => unchanged k (fun e => absent (e ▸ mem))) i (ib.trans_lt bc))
+  · rintro ⟨e⟩
+    obtain ⟨f,safe⟩ := pair_colouring_iff_binary_code.mpr ⟨e⟩
+    exact ⟨fun j _ i => f i j,fun _ _ => ⟨∅,Set.countable_empty,Set.empty_subset _,by intros; rfl⟩,
+      fun _ _ a b c ab bc _ _ _ => safe a b c ab bc⟩
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
