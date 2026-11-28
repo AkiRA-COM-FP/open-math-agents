@@ -21,14 +21,6 @@
    ],
    "note": "The disproof shows 81 (indeed any multiple of 81) never occurs. v_3(a(n)) = floor(log_3 n) + v_3(H(n)). Using the 3-adic splitting H(n) = H(n/3)/3 + (3-integral part) (cf. Shiu, arXiv:1607.02863), the proof shows v_3(H(n)) + log_3 n <= 3 for all n >= 27, and checks 27 <= n < 81 directly. I independently confirmed numerically that max v_3(a(n)) = 3 for n < 3000 and that 27 occurs but 81 does not. The definition matches OEIS (a(1..6) = 1,1,1,1,1,3), and the conjecture (Jianing Song, 2022) is still listed as open in OEIS. The argument is elementary and close to the classical result J_3 = {2,7,22} (Eswarathasan-Levine), but I found no prior record of the refutation. No earlier proof was found as of this review; corrections welcome."
   },
-  "OeisA189409.conjecture_1": {
-   "date": "2026-11-27",
-   "pr": 172,
-   "evidence": [
-    "https://oeis.org/A189409"
-   ],
-   "note": "The statement 'a(n) = (p_n#)^2+1 is always squarefree' is faithful (offset 0, a(0)=2). The disproof is a direct computational counterexample: a(9) = 223092870^2 + 1 = 49770428644836901 = 29^2 * 59180057841661. I verified this independently, and a(0..8) have no square factor below 10^5. The OEIS entry still says it is 'unknown whether or not numbers in this sequence are always squarefree'. Correct and resolves the stated question, though it is a trivial computational observation rather than a deep result. No earlier proof was found as of this review; corrections welcome."
-  },
   "OeisA234360.conjecture_1": {
    "date": "2026-11-27",
    "pr": 3375,
@@ -442,15 +434,6 @@
     "https://mathoverflow.net/questions/352184"
    ],
    "note": "The formal statement ('every score-class contains a fair-indexed tournament') is the natural reading of the 2020 question, which has 0 answers. The comment-thread counterexamples (22225555 and others) concern stronger variants or monotone orderings, not the question itself. The disproof is an exhaustive kernel search: for n=16, no fair-indexed tournament has scores 3^4 9^12, and a tournament with those scores exists. This genuinely answers the question (no), and it is a finite check."
-  },
-  "oeis-a000332": {
-   "date": "2026-11-28",
-   "pr": 10696,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A000332"
-   ],
-   "note": "Adamson's family is x*prod_i (1+x^{b^i}+...+x^{(b-1)b^i})^5 = x/(1-x)^5 for every base b>=2, stated as a coefficientwise limit. The product without the 5th power is 1/(1-x) by uniqueness of base-b digits (a classical identity), so the claim is immediate. The formal statement is faithful. The entry's displayed '1,5,14' is a typo for 1,5,15, as the statement file notes."
   },
   "oeis-a028886": {
    "date": "2026-11-28",
@@ -1339,15 +1322,6 @@
    ],
    "note": "Xausa's conjecture: A382462 (the lexicographically earliest stream with every even digit preceded by a smaller digit) is a permutation of A382465. The greedy encoding equals lexicographically earliest because a repunit always extends, so there are no dead ends. Each admissible number is eventually chosen because terms ending in 1 recur. A short argument."
   },
-  "oeis-a384270": {
-   "date": "2026-11-28",
-   "pr": 10761,
-   "routine": false,
-   "evidence": [
-    "https://oeis.org/A384270"
-   ],
-   "note": "Hanna's parity conjecture. The statement asserts existence of a normalized integer solution of A(x) A(x^3+3xA^3) = A(x^4+4xA^4) and, for every such solution, odd coefficients exactly at powers of 2. This matches the data (1,1,4,21,130). The proof is a char-2 analysis of the functional equation (27 KB). No earlier proof found. Moderate."
-  },
   "oeis-a390007": {
    "date": "2026-11-28",
    "pr": 10823,
@@ -1780,15 +1754,6 @@
    ],
    "note": "Xausa's 2025 conjecture that A382621 (lexicographically earliest digit-stream sequence) sorted is A382624. The greedy state with seed 9 and the least-unused rule reproduce A382621's opening (1,3,2,5,4,7,6,9,8,10,...). The statement says this sequence is injective with image exactly the admissible numbers. The proof uses that all-nines repunits can follow anything, so every admissible number is eventually used. Routine."
   },
-  "oeis-a386580": {
-   "date": "2026-11-28",
-   "pr": 10956,
-   "routine": false,
-   "evidence": [
-    "https://oeis.org/A386580"
-   ],
-   "note": "Wiseman's 2025 conjecture that the multisets with a distinct-run-length permutation are equinumerous with those admitting disjoint strict partitions of their multiplicities. The Composition/splitBy encoding is faithful. A brute force for n <= 12 reproduces the data (1,1,1,3,3,5,12,13,20,27,64,71,108), and the two properties agree composition by composition. The proof shows this per-multiset equivalence by merging blocks of an overrepresented letter and then arranging blocks with distinct letters at each boundary. Elementary but a real combinatorial argument."
-  },
   "oeis-a390815": {
    "date": "2026-11-28",
    "pr": 13074,
@@ -1992,15 +1957,6 @@
    ],
    "note": "Mathar's closed form via A000071. The polynomial recursion p(n) = x p(n-1) + 4n+3 reproduces the data (checked). Routine."
   },
-  "oeis-a200312": {
-   "date": "2026-11-28",
-   "pr": 13050,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A200312"
-   ],
-   "note": "Mathar's P-recurrence for Catalan(n)*A006130(n). The definitions reproduce the data (checked). A routine holonomic identity."
-  },
   "oeis-a207262": {
    "date": "2026-11-28",
    "pr": 8986,
@@ -2018,15 +1974,6 @@
     "https://oeis.org/A233656"
    ],
    "note": "Forberg's period-20 pattern of last digits, with equal frequencies. The recurrence matches the data (checked). A finite check of the recurrence mod 10 (with n mod 20)."
-  },
-  "oeis-a254074": {
-   "date": "2026-11-28",
-   "pr": 13297,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A254074"
-   ],
-   "note": "Wu's conjecture that no term is a multiple of 5. Faithful. Trivial: a multiple of 5 with all digits in 5..9 ends in 5, so its square ends in 25 and contains the digit 2 < 5."
   },
   "oeis-a259914": {
    "date": "2026-11-28",
@@ -2284,15 +2231,6 @@
     "https://oeis.org/A087808"
    ],
    "note": "Irvine's conjecture that A086845 is the partial sums of A087808 is a divide-and-conquer recurrence identity (definitions checked against the data). Routine."
-  },
-  "oeis-a092287": {
-   "date": "2026-11-28",
-   "pr": 13506,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A092287"
-   ],
-   "note": "The square case was already recorded as proved (Greathouse, 2013 comment). The new rectangle case (Kaydalov 2019) is the same one-line count: v_p of prod gcd(j,k) = sum_i #{p^i | j, p^i | k} = sum_i floor(n/p^i) floor(m/p^i). Routine."
   },
   "oeis-a096069": {
    "date": "2026-11-28",
@@ -3062,15 +3000,6 @@
    ],
    "note": "Xausa's conjecture: A342044 (greedy digit-stream sequence) is a permutation of A383248 (no digit 9, every non-final odd digit followed by a larger digit). A Python run of the formal 'next/state' model reproduces the first 3000 terms of Sigrist's A342044 b-file exactly, so the encoding is faithful. The proof uses the repdigit 88...8 as a universal bridge, a standard greedy-permutation argument. Routine."
   },
-  "oeis-a387319": {
-   "date": "2026-11-28",
-   "pr": 12521,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A387319"
-   ],
-   "note": "Scheller's conjecture: every composite k except 4, 8, 10 and 25 has m=3j (j>=2, 3j<=k) with (2k mod 3j)/(3j) = (2k mod 3)/3, and no prime does. The formalization follows the entry's programs. The proof is an elementary factorization argument (2k=g*w, take m=3g). Routine."
-  },
   "oeis-a003592": {
    "date": "2026-11-28",
    "pr": 8722,
@@ -3107,15 +3036,6 @@
     "https://oeis.org/A347748"
    ],
    "note": "Spezia's 2021 conjecture: lim a(n)/a(n-1) = 10, where a(n) counts n-digit m that are both (..4)(..4) and (..6)(..6). Such m are 4k with k = 4 mod 5 having divisors in both classes 2 and 3 mod 5. The exceptional k, essentially those built from primes = +-1 mod 5, have density 0, so the count is about c*9*10^(n-1). The proof gets that density-zero step from the divergence of sum 1/p over primes in residue classes mod 10. The formal statement (exact divisor pairs, n-digit window, real ratio limit) is faithful. A modest but genuine analytic density argument; no earlier proof found."
-  },
-  "arxiv-2611.14718": {
-   "date": "2026-11-28",
-   "pr": 9000,
-   "routine": true,
-   "evidence": [
-    "https://arxiv.org/abs/2611.14718"
-   ],
-   "note": "Conjecture 5.2 of Higuita-Diaz, Lopez and Roldan-Correa (v2, 18 Nov 2026) says that for every finite simple graph with max degree <= 3, RSA occupancy stochastically dominates the uniform-maximal-independent-set occupancy. The paper has no extra hypotheses, and its computational support covers connected graphs up to 12 vertices. The formalization (static CDF over maximal independent sets, sequential CDF by uniform choice and closed-neighbourhood removal) is faithful. The disproof is a 15-vertex connected subcubic graph: a triangle with a pendant 'Y' gadget at each vertex. My exact Python recomputation gives P_seq(size<=6) = 64/3375 = 0.018963 > P_stat(size<=6) = 1/55 = 0.018182. It is a finite counterexample to a two-week-old conjecture."
   },
   "mo-195959": {
    "date": "2026-11-28",
@@ -3407,15 +3327,6 @@
    ],
    "note": "Adamson's 2003 conjecture: the number of even denominators among the 2^n mediants inserted at level n (Stern-Brocot/Farey row starting from 0/1, 1/1) equals a(n) = a(n-1) + 2a(n-2). The definition reproduces 1, 0, 2, 2, 6, ... and the comment is still an unmarked conjecture. It is a routine consequence of the period-3 parity of the denominators (Stern's diatomic sequence), which the proof verifies by induction on the gap list."
   },
-  "mse-141308": {
-   "date": "2026-11-28",
-   "pr": 17782,
-   "routine": true,
-   "evidence": [
-    "https://math.stackexchange.com/questions/141308"
-   ],
-   "note": "Terzic's 2012 conjecture (no answers on MSE): for N = 3*2^n+1 with n = 2,6,8,10 (mod 12) or n = 1 (mod 4), and the stated seeds, N is prime iff S_{n-2} = 0 (mod N). It is encoded faithfully (the seed classes are disjoint; the recursion runs in ZMod N). The proof is the standard Lucas-sequence argument. The seeds are t^3-3t for t = 37, 32, 12, 28; quadratic reciprocity makes t +/- 2 non-residues, and an order-2^n element in (ZMod q)[X]/(X^2-sX+1) gives the converse. It is a textbook (Bosma/Berrizbeitia-style) Lucasian test, so routine."
-  },
   "mo-430643": {
    "date": "2026-11-28",
    "pr": 17716,
@@ -3540,16 +3451,6 @@
     "https://mathoverflow.net/a/488763"
    ],
    "note": "Pinelis conjectured that the best constant c in E|X-Y| - (1/2)E|X+Y-2Z| >= c E|X-Y| is 1/9 for iid log-concave densities, attained by exponentials. The statement gives IsGreatest of 1/9 plus equality for every Exp(r), with log-concavity in multiplicative form (zeros allowed). The best published bound is c = 1/10 (MO answer 488763, Mar 2025, which itself calls 1/9 conjectural). The question has no answer."
-  },
-  "mo-477402": {
-   "date": "2026-11-28",
-   "pr": 16444,
-   "routine": false,
-   "evidence": [
-    "https://mathoverflow.net/questions/477402",
-    "https://arxiv.org/abs/2601.04079"
-   ],
-   "note": "The statement is the MO conjecture verbatim: Poisson binomial tails with p_i >= q_i and n even, max over k (0..n+1 suffices) of |P(X>=k)-P(Y>=k)| at least the binomial tail difference at n/2. Both MO answers are partial (one covers only gamma > 2/n, one loses a factor 2). The 2026 Bernoulli-product TV papers give only constant-factor homogenization bounds. I found no full prior resolution."
   },
   "mo-488874": {
    "date": "2026-11-28",
@@ -3763,16 +3664,6 @@
     "https://oeis.org/A144677"
    ],
    "note": "Mathar's 2011 conjecture is A006501(n) = A144677(n) + A144677(n-2). The statement defines both sequences by their o.g.f.s: (1+x^2)/((1-x)^2(1-x^3)^2), and 1/((1-x)^4(1+x+x^2)^2) as recorded in A144677 by Meijer in May 2011. With those, the claim is literally (1+x^2)B = B + x^2 B, and the 13-line proof is just that. The statement is faithful only to the extent that A144677 is identified with its recorded g.f.; its name refers to a 'quantum states' definition in a reference. It is trivial, answered by the formulas already in the two entries, and I found no explicit earlier resolution."
-  },
-  "oeis-a256481": {
-   "date": "2026-11-28",
-   "pr": 7125,
-   "routine": false,
-   "evidence": [
-    "https://oeis.org/A256481",
-    "https://arxiv.org/abs/1503.08883"
-   ],
-   "note": "The statement faithfully encodes Chai Wah Wu's conjecture: if no prime arises by appending a repdigit to n, then 3 | n. 'Appending i copies of d' is encoded as n*10^i + d*(10^i-1)/9. The disproof gives an explicit 80-digit n0 = 1 mod 3 with 7 | n0. For each digit 1, 3, 9, 26 primes with 10^360 = 1 cover every length, digit 7 is divisible by 7, and the even digits, 0 and 5 are trivial. I re-verified the covering for i = 1..360 numerically. Wu's arXiv:1503.08883 is about a different sequence (A090287), and the entry still lists the conjecture. A genuine computational disproof."
   },
   "oeis-a096306": {
    "date": "2026-11-28",
@@ -3994,15 +3885,6 @@
    ],
    "note": "The statement faithfully renders Havenaar's 2026 uniqueness conjecture: 110(10^{n+1}-1) is the only (n+4)-digit fixed point of x -> |x-rev x| + rev|x-rev x|, which he verified exhaustively only for n <= 4. The disproof is the 9-digit fixed point 108910890 ≠ 109999890, which I checked by hand and in Python. The entry and Havenaar's repository record no counterexample. Caveat: trivial. 10m is a fixed point for every m with rev(m) = 9m (A001232), and 10891089 is such an m."
   },
-  "oeis-a394431": {
-   "date": "2026-11-28",
-   "pr": 7719,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A394431"
-   ],
-   "note": "The statement faithfully encodes Irvine's March 2026 conjecture that the least base 1 < b < n maximizing the digit sum of n is ceil((n+1)/2) = floor(n/2)+1 for n > 8. The proof compares two-digit bases (digit sum 1 + n - b) with bases b <= n/2. Elementary; I found no earlier proof."
-  },
   "oeis-a364554": {
    "date": "2026-11-28",
    "pr": 7703,
@@ -4011,15 +3893,6 @@
     "https://oeis.org/A364554"
    ],
    "note": "The statement is faithful to Ngom's 2023 formula conjecture: the primes p with T(k) = np are exactly the primes among (2r±1)/d and (r±1)/(2d) over factorizations n = dr, so the counts agree. The entry explicitly says '(Proof is welcome.)'. Correct and new, but elementary (p divides one of the factors x, 2x±1 of 2T(k))."
-  },
-  "oeis-a349958": {
-   "date": "2026-11-28",
-   "pr": 7189,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A349958"
-   ],
-   "note": "Robert Israel's Aug 2026 conjecture is that a(n) = n (the first Pascal row containing a multiple of n is row n) iff n is a prime power. The statement (IsLeast {row | some C(row,k) divisible by n} n iff IsPrimePow n, n>0; n=1 gives row 0) is faithful. The proof is elementary: Kummer/Legendre for prime powers, and for other n a CRT construction gives m < n with n | C(m,2). The entry still lists it as a conjecture, and I found no earlier proof. Statement PR #6506, proof PR #7189."
   },
   "arxiv-2102.09941": {
    "date": "2026-11-28",
@@ -10415,6 +10288,140 @@
     "https://teorth.github.io/optimizationproblems/constants/1a.html"
    ],
    "reason": "The proof fills the answer with 13/10 and proves 1.3 <= C1a, which beats the 1.292 named in the upstream question; the upstream C1a definition (nonnegative L^2 f) is faithful to Tao's 1a. But stronger certified lower bounds were public before the PR (merged 27 Nov 2026). Tejasvi Singh Tomar proved C1 >= 1.32 (Zenodo, 19 Oct 2026, with Lean-checked 1.31) and then C1 >= 1.335/1.337 (aiXiv 2610.02333 on 24 Oct, Hexagon 12 Nov 2026), citing an earlier 1.2937 by Kim-Pilanci. The constant is the same. So improving 1.292 was already done. (A Palomar entry for this same 1.30 proof is dated 27 Nov 23:17 UTC, after the merge.)"
+  },
+  "oeis-a256481": {
+   "date": "2026-11-28",
+   "pr": 7125,
+   "evidence": [
+    "https://oeis.org/A256481",
+    "https://arxiv.org/abs/1903.05023",
+    "https://arxiv.org/abs/1503.08883"
+   ],
+   "reason": "Second review: The site's counterexample is correct, but the existence of such n with 3 not dividing n was already published in 2014 (before Wu's 2015 conjecture), so the disproof is known."
+  },
+  "arxiv-2611.14718": {
+   "date": "2026-11-28",
+   "pr": 9000,
+   "evidence": [
+    "https://arxiv.org/abs/2611.14718",
+    "https://github.com/AmirMakir/broken-conjectures/tree/main/conjectures/rsa-jamming-2611.14718"
+   ],
+   "reason": "Second review: The site's counterexample is correct, but the conjecture had already been publicly refuted (with Lean) two days earlier, so the disproof is known."
+  },
+  "mse-141308": {
+   "date": "2026-11-28",
+   "pr": 17782,
+   "evidence": [
+    "https://math.stackexchange.com/questions/141308",
+    "https://arxiv.org/abs/1506.03444"
+   ],
+   "reason": "Second review: The site's proof is correct, but the statement is a routine specialization of Z.-H. Sun's 2006 Lucas-sequence criterion, so it was already settled."
+  },
+  "oeis-a092287": {
+   "date": "2026-11-28",
+   "pr": 13506,
+   "evidence": [
+    "https://oeis.org/A092287",
+    "https://arxiv.org/abs/2509.13354"
+   ],
+   "reason": "Second review: Half of the formal statement (the square case) is explicitly settled in the entry and in print; the other half is a one-line generalization of that same proof. Not new."
+  },
+  "oeis-a384270": {
+   "date": "2026-11-28",
+   "pr": 10761,
+   "evidence": [
+    "https://oeis.org/A384270",
+    "https://the-omega-institute.github.io/trureturing-mdbook/Blueprint/D5/S1/Recurrence/Invariants/QuarticCubicCatalanQuotientParity.html",
+    "https://github.com/the-omega-institute/trureturing/commit/8614633afd02cd6a7b0b266f75380671ac9660aa",
+    "https://openwitness.net/p/10125"
+   ],
+   "reason": "Second review: The statement is faithful and true, but the problem was already solved: a Lean formalization in the Omega Institute trureturing repo (Sep 2026) and a published hand proof (Oct 2026) both predate the site's proof (Nov 27 2026). Not new."
+  },
+  "oeis-a254074": {
+   "date": "2026-11-28",
+   "pr": 13297,
+   "evidence": [
+    "https://oeis.org/A254074",
+    "https://the-omega-institute.github.io/trureturing-mdbook/Problems/oeis-a254074-wu-digit-range-square-not-multiple-of-five.html",
+    "https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html"
+   ],
+   "reason": "Second review: Already proved (machine-checked) in the trureturing repo in Sept 2026, before the site's proof. The claim is also trivial: n = ...5 forces n^2 = ...25, whose digit 2 breaks the minimum-digit-5 condition."
+  },
+  "oeis-a387319": {
+   "date": "2026-11-28",
+   "pr": 12521,
+   "evidence": [
+    "https://oeis.org/A387319",
+    "https://the-omega-institute.github.io/trureturing-mdbook/Problems/oeis-a387319-multiple-of-three-coincidence.html"
+   ],
+   "reason": "Second review: Same mathematical statement was already proved and machine-checked in the trureturing repo in Sept 2026, before this site's proof. Not new."
+  },
+  "oeis-a394431": {
+   "date": "2026-11-28",
+   "pr": 7719,
+   "evidence": [
+    "https://oeis.org/A394431",
+    "https://the-omega-institute.github.io/trureturing-mdbook/open-problems.html"
+   ],
+   "reason": "Second review: True and faithful but already proved and machine-checked in the trureturing repo on 2026-09-24. Not new."
+  },
+  "mo-477402": {
+   "date": "2026-11-28",
+   "pr": 16444,
+   "evidence": [
+    "https://mathoverflow.net/questions/477402",
+    "https://github.com/long-mathematics/poisson-binomial-comparison"
+   ],
+   "reason": "Second review: The MO conjecture was already proved (with Lean) in Christopher D. Long's public preprint/repo dated Sept 13 2026, and the site's proof file states it is adapted from that repo. Not a new result of the site."
+  },
+  "oeis-a349958": {
+   "date": "2026-11-28",
+   "pr": 7189,
+   "evidence": [
+    "https://oeis.org/A349958",
+    "https://oeis.org/A011772",
+    "https://oeis.org/A344005"
+   ],
+   "reason": "Second review: Robert Israel's Aug 2026 conjecture is an immediate corollary of a long-standing statement in A011772 (Hasler 2021; the CRT fact behind A344005) plus the Kummer remark already in the entry. Not a new result, at most a routine observation."
+  },
+  "oeis-a386580": {
+   "date": "2026-11-28",
+   "pr": 10956,
+   "evidence": [
+    "https://oeis.org/A386580",
+    "https://oeis.org/A383111",
+    "https://oeis.org/A239455",
+    "https://oeis.org/A351592"
+   ],
+   "reason": "Second review: The per-multiplicity-vector equivalence that implies A386580's conjecture was proved publicly on OEIS A383111 (Ferudun, Jul 2026), and A351592 states it as fact. The site proof uses the same strategy (merge blocks when one letter dominates, then arrange). This is prior work; the A386580 entry simply was not updated."
+  },
+  "oeis-a000332": {
+   "date": "2026-11-28",
+   "pr": 10696,
+   "evidence": [
+    "https://oeis.org/A000332"
+   ],
+   "reason": "Second review: The statement is faithful, but the 'conjecture' is the classical base-b telescoping product, known since Euler, raised to the 5th power. It should not be counted as a new solution of an open problem."
+  },
+  "oeis-a200312": {
+   "date": "2026-11-28",
+   "pr": 13050,
+   "evidence": [
+    "https://oeis.org/A200312",
+    "https://sites.math.rutgers.edu/~zeilberg/tokhniot/oMathar1maple12.txt"
+   ],
+   "reason": "Second review: Already proved: Ekhad-Yang 2017, Theorem 28, linked from the A200312 entry, proves exactly Mathar's recurrence. The OEIS line still says 'Conjecture', but the result is not new."
+  },
+  "OeisA189409.conjecture_1": {
+   "date": "2026-11-28",
+   "pr": 172,
+   "evidence": [
+    "https://oeis.org/A189409",
+    "https://tadamcz.com/oeis-open/",
+    "https://arxiv.org/pdf/2608.11941",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/189409.lean"
+   ],
+   "reason": "Second review: The disproof is correct, but it is not new: Epoch's OEIS Open evaluation (arXiv 2608.11941, results public at tadamcz.com/oeis-open) already contains verified disproofs that use the identical counterexample n=9, 29^2. The counterexample is also a trivial small factorization."
   }
  },
  "reviewed": "2026-11-28"
