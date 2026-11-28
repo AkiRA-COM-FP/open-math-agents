@@ -23,7 +23,7 @@ namespace OMA.S_oeis_a188648
 def a (n : ℕ) : ℕ := ∑ k ∈ Finset.range (n + 1), (Nat.choose (2 * n - k) k) ^ 2
 
 /-- The k-th term of the series hypergeom([-n,-n,n+1,n+1], [1/2,1/2,1], 1/16). -/
-def term (n k : ℕ) : ℚ :=
+noncomputable def term (n k : ℕ) : ℚ :=
   (ascPochhammer ℚ k).eval (-(n : ℚ)) * (ascPochhammer ℚ k).eval (-(n : ℚ)) *
       (ascPochhammer ℚ k).eval ((n : ℚ) + 1) * (ascPochhammer ℚ k).eval ((n : ℚ) + 1) /
     ((ascPochhammer ℚ k).eval (1 / 2) * (ascPochhammer ℚ k).eval (1 / 2) *
