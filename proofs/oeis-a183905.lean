@@ -366,3 +366,4 @@ theorem sol : type_of% @OMA.S_oeis_a183905.main := ⟨gf, recur⟩
 end OMA.P183905
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a183905.main := OMA.P183905.sol
+
