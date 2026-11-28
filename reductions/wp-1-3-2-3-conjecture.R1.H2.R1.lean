@@ -10,7 +10,7 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (¬ ∀ x y : P, x ≤ y ∨ y ≤ x) →
     (¬ ∃ L : Set P, L.Nonempty ∧ (∃ y, y ∉ L) ∧
       ∀ x ∈ L, ∀ y ∉ L, x < y) →
-    (∀ (e : P ≃o P) (x : P), e x = x) →
+    (∀ (e : P ≃o P) x, e x = x) →
     (∃ a b c : P, (¬ a ≤ b ∧ ¬ b ≤ a) ∧ (¬ a ≤ c ∧ ¬ c ≤ a) ∧ (¬ b ≤ c ∧ ¬ c ≤ b)) →
     (∃ x : P, let N := {y : P | ¬ x ≤ y ∧ ¬ y ≤ x}
       let Q := {y : P // y ≠ x}
@@ -25,12 +25,11 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
         C P [] < 3 * C P l ∧ blocked l u x ∧ blocked l x v;
       (2 * C P [] < 3 * C P [(x,a)] ∧ blocked [(x,a)] x a) ∨
       (2 * C P [] < 3 * C P [(d,x)] ∧ blocked [(d,x)] d x) ∨ jump a b ∨ jump b c ∨ jump c d)) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
-      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
-      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
+    (let fork (r c : P → P → Prop) := ∃ x y, x ≠ y ∧ (∀ z, c z x ↔ c z y) ∧
+      ∀ z ∈ [x,y], IsChain r {a | r z a}
+     ¬ fork (· ≤ ·) (· ⋖ ·) ∧ ¬ fork (· ≥ ·) (fun a b => b ⋖ a)) →
+    (∀ a b : P, ¬ a ≤ b → 2 * C P [] < 3 * C P [(a,b)] →
+      2 ≤ ({z : P | (z < b ∧ ¬ z < a) ∨ (a < z ∧ ¬ b < z)} : Set P).ncard) →
     (¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
       ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
         C P [p] + C P [p, q] ≤ C P [])) →
@@ -48,7 +47,7 @@ def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (¬ ∀ x y : P, x ≤ y ∨ y ≤ x) →
     (¬ ∃ L : Set P, L.Nonempty ∧ (∃ y, y ∉ L) ∧
       ∀ x ∈ L, ∀ y ∉ L, x < y) →
-    (∀ (e : P ≃o P) (x : P), e x = x) →
+    (∀ (e : P ≃o P) x, e x = x) →
     (∃ x : P, let N := {y : P | ¬ x ≤ y ∧ ¬ y ≤ x}
       let Q := {y : P // y ≠ x}
       7 ≤ N.ncard ∧ (∀ a b : Q, a ≠ b → 2 * C P [] <
@@ -57,12 +56,11 @@ def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
       (¬ ∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d) ∧
       ∃ t : Finset P, x ∈ t ∧ (t : Set P).Pairwise (fun a b => ¬ a ≤ b) ∧
         4 ≤ t.card ∧ N.ncard + 3 ≤ 3 * t.card) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
-      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
-      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
+    (let fork (r c : P → P → Prop) := ∃ x y, x ≠ y ∧ (∀ z, c z x ↔ c z y) ∧
+      ∀ z ∈ [x,y], IsChain r {a | r z a}
+     ¬ fork (· ≤ ·) (· ⋖ ·) ∧ ¬ fork (· ≥ ·) (fun a b => b ⋖ a)) →
+    (∀ a b : P, ¬ a ≤ b → 2 * C P [] < 3 * C P [(a,b)] →
+      2 ≤ ({z : P | (z < b ∧ ¬ z < a) ∨ (a < z ∧ ¬ b < z)} : Set P).ncard) →
     (¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
       ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
         C P [p] + C P [p, q] ≤ C P [])) →
@@ -214,8 +212,57 @@ lemma four_chain_slots (P : Type) [PartialOrder P] [Fintype P] :
     · exact Or.inr (Or.inr (Or.inl (middle a b xa ab la hb)))
   · exact Or.inl ha
 
--- If no relation crosses the interval of the swap, the exchange sends
--- each extension satisfying l to a distinct extension with j before i.
+-- Rank transposition injects the source cell into any target cell whose
+-- comparisons survive the swap.
+open scoped Classical in
+lemma swap_cell_bound (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∀ (l m : List (P × P)) (i j : P), ¬ i ≤ j → (i,j) ∈ l →
+      (∀ r : P ≃ Fin (Fintype.card P), StrictMono r → (∀ p ∈ l, r p.1 < r p.2) →
+        (∀ b, i < b → r j < r b) ∧ (∀ a, a < j → r a < r i) ∧
+        ∀ p ∈ m, r (Equiv.swap i j p.1) < r (Equiv.swap i j p.2)) → C l ≤ C m := by
+  classical
+  intro C l m i j ij ordered safe
+  let ranks (cs : List (P × P)) := {r : P ≃ Fin (Fintype.card P) //
+    (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ cs, r p.1 < r p.2}
+  let swap := Equiv.swap i j
+  have valid (r : ranks l) : StrictMono (swap.trans r.val) := by
+    have mono : StrictMono r.val := fun _ _ h => r.property.1 _ _ h
+    have before := r.property.2 (i,j) ordered
+    obtain ⟨upper,lower,_⟩ := safe r.val mono r.property.2
+    intro a b ab
+    change r.val (swap a) < r.val (swap b)
+    by_cases ai : a = i
+    · subst a
+      have bj : b ≠ j := fun h => ij (h ▸ ab.le)
+      simp only [swap, Equiv.swap_apply_left, Equiv.swap_apply_of_ne_of_ne ab.ne.symm bj]
+      exact upper b ab
+    by_cases bj : b = j
+    · subst b
+      simp only [swap, Equiv.swap_apply_right, Equiv.swap_apply_of_ne_of_ne ai ab.ne]
+      exact lower a ab
+    have left : r.val (swap a) ≤ r.val a := by
+      by_cases aj : a = j
+      · simpa [aj,swap] using before.le
+      · simp [swap, Equiv.swap_apply_of_ne_of_ne ai aj]
+    have right : r.val b ≤ r.val (swap b) := by
+      by_cases bi : b = i
+      · simpa [bi,swap] using before.le
+      · simp [swap, Equiv.swap_apply_of_ne_of_ne bi bj]
+    exact lt_of_le_of_lt left (lt_of_lt_of_le (mono ab) right)
+  let move (r : ranks l) : ranks m := ⟨swap.trans r.val, fun _ _ h => valid r h,
+    (safe r.val (fun _ _ h => r.property.1 _ _ h) r.property.2).2.2⟩
+  have inj : Function.Injective move := by
+    intro r s h
+    apply Subtype.ext
+    apply Equiv.ext
+    intro a
+    have eq := congrArg (fun t : ranks m => t.val (swap.symm a)) h
+    change r.val (swap (swap.symm a)) = s.val (swap (swap.symm a)) at eq
+    simpa using eq
+  exact Nat.card_le_card_of_injective move inj
+
 lemma obstruction_of_count_excess (P : Type) [PartialOrder P] [Fintype P] :
     let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
       (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
@@ -226,49 +273,21 @@ lemma obstruction_of_count_excess (P : Type) [PartialOrder P] [Fintype P] :
   classical
   intro C l i j ij ordered excess
   by_contra absent
-  let ranks (cs : List (P × P)) := {r : P ≃ Fin (Fintype.card P) //
-    (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ cs, r p.1 < r p.2}
-  let swap := Equiv.swap i j
-  have valid (r : ranks l) : StrictMono (swap.trans r.val) := by
-    have mono : StrictMono r.val := fun _ _ h => r.property.1 _ _ h
-    have before := r.property.2 (i,j) ordered
-    intro a b ab
-    change r.val (swap a) < r.val (swap b)
-    by_cases ai : a = i
-    · subst a
-      have bj : b ≠ j := fun h => ij (h ▸ ab.le)
-      simp only [swap, Equiv.swap_apply_left, Equiv.swap_apply_of_ne_of_ne ab.ne.symm bj]
-      by_contra! h
-      exact absent ⟨r.val, b, mono, r.property.2, mono ab,
-        lt_of_le_of_ne h (r.val.injective.ne bj), Or.inl ab⟩
-    by_cases bj : b = j
-    · subst b
-      simp only [swap, Equiv.swap_apply_right, Equiv.swap_apply_of_ne_of_ne ai ab.ne]
-      by_contra! h
-      exact absent ⟨r.val, a, mono, r.property.2,
-        lt_of_le_of_ne h (r.val.injective.ne (Ne.symm ai)), mono ab, Or.inr ab⟩
-    have left : r.val (swap a) ≤ r.val a := by
-      by_cases aj : a = j
-      · simpa [aj,swap] using before.le
-      · simp [swap, Equiv.swap_apply_of_ne_of_ne ai aj]
-    have right : r.val b ≤ r.val (swap b) := by
-      by_cases bi : b = i
-      · simpa [bi,swap] using before.le
-      · simp [swap, Equiv.swap_apply_of_ne_of_ne bi bj]
-    exact lt_of_le_of_lt left (lt_of_lt_of_le (mono ab) right)
-  let move (r : ranks l) : ranks [(j,i)] := ⟨swap.trans r.val, fun _ _ h => valid r h, by
-    intro p hp
+  apply (not_le_of_gt excess)
+  apply swap_cell_bound P l [(j,i)] i j ij ordered
+  intro r mono extra
+  refine ⟨?_,?_,?_⟩
+  · intro b ib
+    have bj : b ≠ j := fun h => ij (h ▸ ib.le)
+    by_contra! h
+    exact absent ⟨r,b,mono,extra,mono ib,lt_of_le_of_ne h (r.injective.ne bj),Or.inl ib⟩
+  · intro a aj
+    have ai : a ≠ i := fun h => ij (h ▸ aj.le)
+    by_contra! h
+    exact absent ⟨r,a,mono,extra,lt_of_le_of_ne h (r.injective.ne ai.symm),mono aj,Or.inr aj⟩
+  · intro p hp
     obtain rfl : p = (j,i) := by simpa using hp
-    simpa [swap] using r.property.2 (i,j) ordered⟩
-  have inj : Function.Injective move := by
-    intro r s h
-    apply Subtype.ext
-    apply Equiv.ext
-    intro a
-    have eq := congrArg (fun t : ranks [(j,i)] => t.val (swap.symm a)) h
-    change r.val (swap (swap.symm a)) = s.val (swap (swap.symm a)) at eq
-    simpa using eq
-  exact (not_le_of_gt excess) (Nat.card_le_card_of_injective move inj)
+    simpa using extra (i,j) ordered
 
 lemma four_chain_obstructions (P : Type) [PartialOrder P] [Fintype P] :
     let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
@@ -618,6 +637,131 @@ lemma degree_seven_tie_transfer (P : Type) [PartialOrder P] [Fintype P] (x : P) 
   rw [seven]
   omega
 
+-- With no exclusive successor of a and one exclusive predecessor z of b,
+-- swap a and z from the first cell into the second, then swap a and b
+-- from the second cell into the reverse orientation.
+lemma one_predecessor_bound (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∀ a b : P, ¬ a ≤ b → (∀ k, a < k → b < k) →
+      (∀ k, k < b → ¬ k < a → ∀ t, t < b → ¬ t < a → k = t) →
+      C [(a,b)] ≤ 2 * C [(b,a)] := by
+  classical
+  intro C a b ab upper unique
+  by_cases ex : ∃ z, z < b ∧ ¬ z < a
+  · obtain ⟨z,zb,za⟩ := ex
+    have az : ¬ a ≤ z := fun h => ab (h.trans zb.le)
+    have ne : a ≠ z := fun e => az e.le
+    have bn : b ≠ a := fun e => ab e.ge
+    have lower (k : P) (kb : k < b) : k < a ∨ k = z :=
+      or_iff_not_imp_left.mpr (fun miss => unique k kb miss z zb za)
+    have first : C [(a,b),(a,z)] ≤ C [(a,b),(z,a)] := by
+      apply swap_cell_bound P _ _ a z az (by simp)
+      intro r mono extra
+      have before := extra (a,z) (by simp)
+      refine ⟨fun k h => mono (lt_trans zb (upper k h)), ?_, ?_⟩
+      · intro k kz
+        exact mono ((lower k (kz.trans zb)).resolve_right kz.ne)
+      · intro p hp
+        have cases : p = (a,b) ∨ p = (z,a) := by simpa using hp
+        rcases cases with rfl | rfl
+        · simpa [Equiv.swap_apply_of_ne_of_ne bn zb.ne.symm] using mono zb
+        · simpa using before
+    have second : C [(a,b),(z,a)] ≤ C [(b,a)] := by
+      apply swap_cell_bound P _ _ a b ab (by simp)
+      intro r mono extra
+      refine ⟨fun k h => mono (upper k h), ?_, ?_⟩
+      · intro k kb
+        rcases lower k kb with h | rfl
+        · exact mono h
+        · exact extra (k,a) (by simp)
+      · intro p hp
+        obtain rfl : p = (b,a) := by simpa using hp
+        simpa using extra (a,b) (by simp)
+    have split : C [(a,b),(a,z)] + C [(a,b),(z,a)] = C [(a,b)] :=
+      (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P).2.2.1 [(a,b)] a z ne
+    omega
+  · have bound : C [(a,b)] ≤ C [(b,a)] := by
+      apply OMA.R_wp_1_3_2_3_conjecture_R1.exchange_count_le P a b _ ab
+        (fun k kb => by_contra (fun miss => ex ⟨k,kb,miss⟩))
+      exact fun r mono extra => ⟨extra (a,b) (by simp),fun k h => mono (upper k h)⟩
+    omega
+
+-- A majority exceeding two thirds requires at least two distinct elements
+-- that obstruct exchanging the given pair in that direction.
+lemma one_defect_bound (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∀ a b : P, ¬ a ≤ b →
+      ({z : P | (z < b ∧ ¬ z < a) ∨ (a < z ∧ ¬ b < z)} : Set P).ncard ≤ 1 →
+      3 * C [(a,b)] ≤ 2 * C [] := by
+  classical
+  intro C a b ab small
+  let S := Finset.univ.filter (fun z : P => (z < b ∧ ¬ z < a) ∨ (a < z ∧ ¬ b < z))
+  have size : S.card ≤ 1 := by simpa [S,← Set.ncard_coe_finset] using small
+  have same := Finset.card_le_one.mp size
+  have mem (z : P) : z ∈ S ↔ (z < b ∧ ¬ z < a) ∨ (a < z ∧ ¬ b < z) := by simp [S]
+  have bound : C [(a,b)] ≤ 2 * C [(b,a)] := by
+    by_cases h : ∀ k, a < k → b < k
+    · apply one_predecessor_bound P a b ab h
+      exact fun k kb ka t tb ta => same k ((mem k).2 (Or.inl ⟨kb,ka⟩)) t ((mem t).2 (Or.inl ⟨tb,ta⟩))
+    · push Not at h
+      obtain ⟨k,ak,bk⟩ := h
+      have pred (u : P) (ub : u < b) : u < a := by
+        by_contra ua
+        have eq := same u ((mem u).2 (Or.inl ⟨ub,ua⟩)) k ((mem k).2 (Or.inr ⟨ak,bk⟩))
+        exact ab ((ak.trans (eq ▸ ub)).le)
+      have dual := one_predecessor_bound Pᵒᵈ b a ab pred
+        (fun k ak bk t at' bt => same k ((mem k).2 (Or.inr ⟨ak,bk⟩)) t ((mem t).2 (Or.inr ⟨at',bt⟩)))
+      let D (l : List (Pᵒᵈ × Pᵒᵈ)) := Nat.card {r : Pᵒᵈ ≃ Fin (Fintype.card Pᵒᵈ) //
+        (∀ a b : Pᵒᵈ, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+      have rev (u v : P) : D [(v,u)] = C [(u,v)] :=
+        OMA.R_wp_1_3_2_3_conjecture_R1.dual_comparison_counts P [(v,u)]
+      exact (rev a b).symm.trans_le (dual.trans_eq (congrArg (2 * ·) (rev b a)))
+  have split : C [(a,b)] + C [(b,a)] = C [] :=
+    (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P).2.2.1 [] a b (fun e => ab e.le)
+  omega
+
+-- Apply the directional bound twice to certify the named pair itself.
+lemma two_sided_defect_balance (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    let defects (a b : P) := {z : P | (z < b ∧ ¬ z < a) ∨ (a < z ∧ ¬ b < z)}
+    ∀ a b : P, ¬ a ≤ b → ¬ b ≤ a → (defects a b).ncard ≤ 1 → (defects b a).ncard ≤ 1 →
+      C [] ≤ 3 * C [(a,b)] ∧ 3 * C [(a,b)] ≤ 2 * C [] := by
+  intro C defects a b ab ba forward reverse
+  have lo : 3 * C [(b,a)] ≤ 2 * C [] := one_defect_bound P b a ba reverse
+  have split : C [(a,b)] + C [(b,a)] = C [] :=
+    (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P).2.2.1 [] a b (fun e => ab e.le)
+  exact ⟨by omega,one_defect_bound P a b ab forward⟩
+
+-- In particular a pair of twins exposed by deleting x is balanced after x
+-- is restored. Only x can belong to either set of exceptional elements.
+-- See also Zaguia, arXiv:1610.00809, Theorem 3, on good pairs.
+lemma deletion_twins_balance (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∀ x a b : P, a ≠ x → b ≠ x → a ≠ b →
+      (∀ k, k ≠ x → (k < a ↔ k < b) ∧ (a < k ↔ b < k)) →
+      C [] ≤ 3 * C [(a,b)] ∧ 3 * C [(a,b)] ≤ 2 * C [] := by
+  classical
+  intro C x a b ax bx ne twins
+  have small (u v : P) (h : ∀ k, k ≠ x → (k < u ↔ k < v) ∧ (u < k ↔ v < k)) :
+      ({k : P | (k < v ∧ ¬ k < u) ∨ (u < k ∧ ¬ v < k)} : Set P).ncard ≤ 1 := by
+    have sub : {k : P | (k < v ∧ ¬ k < u) ∨ (u < k ∧ ¬ v < k)} ⊆ ({x} : Set P) := by
+      intro k hk
+      by_contra miss
+      have kx : k ≠ x := fun e => miss (Set.mem_singleton_iff.mpr e)
+      rcases hk with ⟨kv,ku⟩ | ⟨uk,vk⟩
+      · exact ku ((h k kx).1.mpr kv)
+      · exact vk ((h k kx).2.mp uk)
+    simpa only [Set.ncard_singleton] using Set.ncard_le_ncard sub
+  apply two_sided_defect_balance P a b
+  · exact fun le => lt_irrefl a ((twins a ax).1.mpr (lt_of_le_of_ne le ne))
+  · exact fun le => lt_irrefl b ((twins b bx).1.mp (lt_of_le_of_ne le ne.symm))
+  · exact small a b twins
+  · exact small b a (fun k kx => ⟨(twins k kx).1.symm,(twins k kx).2.symm⟩)
+
 theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
   classical
   intro chainCase antichainCase P _ _ nonchain indecomp rigid three wide up down noGold
@@ -626,6 +770,36 @@ theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
   let Q := {y : P // y ≠ x}
   let C (A : Type) [PartialOrder A] [Fintype A] (l : List (A × A)) :=
       Nat.card {f : A ≃ Fin (Fintype.card A) // (∀ u v, u < v → f u < f v) ∧ ∀ p ∈ l, f p.1 < f p.2}
+  have forks :
+    let fork (r c : P → P → Prop) := ∃ x y, x ≠ y ∧ (∀ z, c z x ↔ c z y) ∧
+      ∀ z ∈ [x,y], IsChain r {a | r z a}
+    ¬ fork (· ≤ ·) (· ⋖ ·) ∧ ¬ fork (· ≥ ·) (fun a b => b ⋖ a) := by
+    constructor
+    · rintro ⟨u,v,ne,cover,chains⟩
+      apply up ⟨u,v,ne,cover,?_,?_⟩
+      · intro a b ha hb
+        by_cases e : a = b
+        · exact Or.inl e.le
+        · exact chains u (by simp) ha hb e
+      · intro a b ha hb
+        by_cases e : a = b
+        · exact Or.inl e.le
+        · exact chains v (by simp) ha hb e
+    · rintro ⟨u,v,ne,cover,chains⟩
+      apply down ⟨u,v,ne,cover,?_,?_⟩
+      · intro a b ha hb
+        by_cases e : a = b
+        · exact Or.inl e.le
+        · exact (chains u (by simp) ha hb e).symm
+      · intro a b ha hb
+        by_cases e : a = b
+        · exact Or.inl e.le
+        · exact (chains v (by simp) ha hb e).symm
+  have barrier : ∀ a b : P, ¬ a ≤ b → 2 * C P [] < 3 * C P [(a,b)] →
+      2 ≤ ({z : P | (z < b ∧ ¬ z < a) ∨ (a < z ∧ ¬ b < z)} : Set P).ncard := by
+    intro a b ab heavy
+    by_contra! small
+    exact (not_le_of_gt heavy) (one_defect_bound P a b ab (by omega))
   by_contra noPair
   have obstruction (a b : Q) (ne : a ≠ b) :
       2 * C P [] < 3 * ((N.ncard+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ∧
@@ -652,11 +826,11 @@ theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
         rcases hy with rfl | rfl | rfl | rfl <;> assumption
       exact pair_of_count_bounds P x y (ne y yn) lo hi
     · exact chainCase P nonchain indecomp rigid three
-        ⟨x, hx, obstruction, a, ha, b, hb, c, hc, d, hd, ab, bc, cd, gap⟩ up down
+        ⟨x, hx, obstruction, a, ha, b, hb, c, hc, d, hd, ab, bc, cd, gap⟩ forks barrier
         noGold
   · obtain ⟨t, xt, anti, bound⟩ := antichain_through_vertex P x chain
     have four : 4 ≤ t.card := by omega
-    exact antichainCase P nonchain indecomp rigid ⟨x, hx, obstruction, chain, t, xt, anti, four, bound⟩ up down
+    exact antichainCase P nonchain indecomp rigid ⟨x, hx, obstruction, chain, t, xt, anti, four, bound⟩ forks barrier
       noGold
 
 end OMA.R_wp_1_3_2_3_conjecture_R1_H2_R1
