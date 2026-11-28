@@ -18,16 +18,16 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
         3 * ((N.ncard+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ∧
         3 * min (C Q [(a,b)]) (C Q [(b,a)]) < C P []) ∧
       (∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a ⋖ b ∧ b ⋖ c ∧ c ⋖ d ∧
-      let blocked (l : List (P × P)) (i j : P) := ∃ (r : P ≃ Fin (Fintype.card P)) (z : P),
-        StrictMono r ∧ (∀ p ∈ l, r p.1 < r p.2) ∧ r i < r z ∧ r z < r j ∧ (i < z ∨ z < j);
-      let jump (u v : P) := let l := [(u,x),(x,v)];
-        3 * C P [(x,u)] < C P [] ∧ 2 * C P [] < 3 * C P [(x,v)] ∧
-        C P [] < 3 * C P l ∧ blocked l u x ∧ blocked l x v;
-      (2 * C P [] < 3 * C P [(x,a)] ∧ blocked [(x,a)] x a) ∨
-      (2 * C P [] < 3 * C P [(d,x)] ∧ blocked [(d,x)] d x) ∨ jump a b ∨ jump b c ∨ jump c d)) →
-    (let fork (r c : P → P → Prop) := ∃ x y, x ≠ y ∧ (∀ z, c z x ↔ c z y) ∧
-      ∀ z ∈ [x,y], IsChain r {a | r z a}
-     ¬ fork (· ≤ ·) (· ⋖ ·) ∧ ¬ fork (· ≥ ·) (fun a b => b ⋖ a)) →
+      let jump (u v : P) := 3 * C P [(x,u)] < C P [] ∧ 2 * C P [] < 3 * C P [(x,v)] ∧
+        C P [] < 3 * C P [(u,x),(x,v)]
+      2 * C P [] < 3 * C P [(x,a)] ∨ 2 * C P [] < 3 * C P [(d,x)] ∨
+        jump a b ∨ jump b c ∨ jump c d)) →
+    (let terminal (A : Type) [PartialOrder A] [Fintype A] := ∃ t a b c d : A,
+      let inc (u v : A) := ¬ u ≤ v ∧ ¬ v ≤ u
+      a ⋖ b ∧ a ⋖ c ∧ d ⋖ c ∧ inc d a ∧ inc d b ∧ inc b c ∧
+      (∀ z ∈ [a,b,c], inc t z) ∧ 2 * C A [] < 3 * C A [(b,c)] ∧
+      2 * C A [] < 3 * C A [(a,t)] ∧ 3 * C A [(b,t)] < C A [] ∧ 3 * C A [(c,t)] < C A []
+     terminal P ∧ terminal Pᵒᵈ) →
     (∀ a b : P, ¬ a ≤ b → 2 * C P [] < 3 * C P [(a,b)] →
       2 ≤ ({z : P | (z < b ∧ ¬ z < a) ∨ (a < z ∧ ¬ b < z)} : Set P).ncard) →
     (¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
@@ -331,6 +331,216 @@ lemma four_chain_obstructions (P : Type) [PartialOrder P] [Fintype P] :
   · exact Or.inr (Or.inr (Or.inr (Or.inl (middle b c (by simp) (by simp) lo hi mass))))
   · exact Or.inr (Or.inr (Or.inr (Or.inr (middle c d (by simp) (by simp) lo hi mass))))
 
+lemma next_cover_le (P : Type) [PartialOrder P] [Fintype P] (s t : P) (st : s < t) :
+    ∃ y, s ⋖ y ∧ y ≤ t := by
+  classical
+  obtain ⟨rank, mono⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.rank_exists P
+  let candidates := Finset.univ.filter (fun z : P => s < z ∧ z ≤ t)
+  have mem (z : P) : z ∈ candidates ↔ s < z ∧ z ≤ t := by simp [candidates]
+  obtain ⟨y,hy,least⟩ := candidates.exists_min_image rank ⟨t,(mem t).2 ⟨st,le_rfl⟩⟩
+  obtain ⟨sy,yt⟩ := (mem y).1 hy
+  exact ⟨y,⟨sy,fun z sz zy => (mono zy).not_ge (least z ((mem z).2 ⟨sz,zy.le.trans yt⟩))⟩,yt⟩
+
+-- At a maximal majority comparison only the successors outside the other
+-- vertex's upper cone obstruct exchange. Compare Peczarski's upper-chain
+-- argument in the parent reduction and Zaguia's good pairs (arXiv:1610.00809).
+lemma majority_cover_alternative (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∀ s y : P, ¬ s ≤ y → ¬ y ≤ s → (∀ z, z < y → z < s) → C [] ≤ 2 * C [(s,y)] →
+      ((∃ i j k l : P, i ≠ j ∧ k ≠ l ∧
+        ∀ p ∈ [(i,j),(j,i)], ∀ q ∈ [(k,l),(l,k)], C [p] + C [p,q] ≤ C []) ∧
+       ∃ t : P, s ≤ t ∧ t ≠ y ∧ C [] ≤ 3 * C [(t,y)] ∧ 3 * C [(t,y)] ≤ 2 * C []) ∨
+      ∃ a b c : P, s ≤ a ∧ ¬ y ≤ a ∧ C [] ≤ 2 * C [(a,y)] ∧
+        b ≠ c ∧ ∀ z ∈ [b,c], a ⋖ z ∧ ¬ y ≤ z ∧ 2 * C [(z,y)] < C [] := by
+  classical
+  intro C s y sy ys pred start
+  obtain ⟨rank,mono⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.rank_exists P
+  let eligible := Finset.univ.filter (fun a : P => s ≤ a ∧ ¬ y ≤ a ∧ C [] ≤ 2 * C [(a,y)])
+  have mem (a : P) : a ∈ eligible ↔ s ≤ a ∧ ¬ y ≤ a ∧ C [] ≤ 2 * C [(a,y)] := by simp [eligible]
+  obtain ⟨a,ha,last⟩ := eligible.exists_max_image rank ⟨s,(mem s).2 ⟨le_rfl,ys,start⟩⟩
+  obtain ⟨sa,ya,majority⟩ := (mem a).1 ha
+  have ay : ¬ a ≤ y := fun h => sy (sa.trans h)
+  have ne : a ≠ y := fun h => ay h.le
+  have below (z : P) (zy : z < y) : z < a := lt_of_lt_of_le (pred z zy) sa
+  have minority (z : P) (az : a < z) (yz : ¬ y ≤ z) : 2 * C [(z,y)] < C [] := by
+    by_contra! high
+    exact (mono az).not_ge (last z ((mem z).2 ⟨sa.trans az.le,yz,high⟩))
+  obtain ⟨_,_,split,_⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P
+  have row : C [(a,y)] + C [(y,a)] = C [] := split [] a y ne
+  by_cases existsCover : ∃ b : P, a ⋖ b ∧ ¬ y ≤ b
+  · obtain ⟨b,ab,yb⟩ := existsCover
+    by_cases second : ∃ c : P, a ⋖ c ∧ ¬ y ≤ c ∧ b ≠ c
+    · obtain ⟨c,ac,yc,bc⟩ := second
+      right
+      refine ⟨a,b,c,sa,ya,majority,bc,?_⟩
+      intro z hz
+      simp only [List.mem_cons,List.not_mem_nil,or_false] at hz
+      rcases hz with rfl | rfl
+      · exact ⟨ab,yb,minority _ ab.1 yb⟩
+      · exact ⟨ac,yc,minority _ ac.1 yc⟩
+    left
+    have cell : C [(a,y),(y,b)] ≤ C [(y,a)] := by
+      apply OMA.R_wp_1_3_2_3_conjecture_R1.exchange_count_le P a y _ ay below
+      intro r hr extra
+      refine ⟨extra (a,y) (by simp),?_⟩
+      intro t at'
+      by_cases yt : y ≤ t
+      · exact hr (lt_of_le_of_ne yt (fun e => ay (e ▸ at'.le)))
+      obtain ⟨c,ac,ct⟩ := next_cover_le P a t at'
+      have bc : b = c := by
+        by_contra h
+        exact second ⟨c,ac,fun yc => yt (yc.trans ct),h⟩
+      exact lt_of_lt_of_le (extra (y,b) (by simp)) (hr.monotone (bc ▸ ct))
+    have small := minority b ab.1 yb
+    constructor
+    · exact OMA.R_wp_1_3_2_3_conjecture_R1.balanced_triple_gold P a y b ne
+        (fun e => yb e.le) ab.1.ne (cell.trans (le_max_left _ _)) (by
+          change 2 * max (C [(y,a)]) (C [(b,y)]) ≤ C []
+          omega)
+    · by_cases hi : 3 * C [(a,y)] ≤ 2 * C []
+      · exact ⟨a,sa,ne,by omega,hi⟩
+      have partition : C [(y,a)] + C [(a,y),(y,b)] = C [(y,b)] :=
+        insertion_count P y a b ne.symm ab.1
+      have both : C [(y,b)] + C [(b,y)] = C [] := split [] y b (fun e => yb e.le)
+      exact ⟨b,sa.trans ab.1.le,fun e => yb e.ge,by omega,by omega⟩
+  · left
+    have bound : C [(a,y)] ≤ C [(y,a)] := by
+      apply OMA.R_wp_1_3_2_3_conjecture_R1.exchange_count_le P a y _ ay below
+      intro r hr extra
+      refine ⟨extra (a,y) (by simp),?_⟩
+      intro t at'
+      obtain ⟨c,ac,ct⟩ := next_cover_le P a t at'
+      have yc : y ≤ c := by
+        by_contra h
+        exact existsCover ⟨c,ac,h⟩
+      exact hr (lt_of_le_of_ne (yc.trans ct) (fun e => ay (e ▸ at'.le)))
+    have tie : 2 * C [(a,y)] = C [] := by omega
+    exact ⟨OMA.R_wp_1_3_2_3_conjecture_R1.tied_comparison_gold P a y ne tie,
+      a,sa,ne,by omega,by omega⟩
+
+-- Common successors can branch freely. A chain of exclusive successors
+-- rules out the two distinct covers supplied by majority_cover_alternative.
+lemma exclusive_chain_certificate (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∀ s y : P, ¬ s ≤ y → ¬ y ≤ s → (∀ z, z < y → z < s) → C [] ≤ 2 * C [(s,y)] →
+      IsChain (· ≤ ·) {z : P | s < z ∧ ¬ y ≤ z} →
+      (∃ i j k l : P, i ≠ j ∧ k ≠ l ∧
+        ∀ p ∈ [(i,j),(j,i)], ∀ q ∈ [(k,l),(l,k)], C [p] + C [p,q] ≤ C []) ∧
+      ∃ t : P, s ≤ t ∧ t ≠ y ∧ C [] ≤ 3 * C [(t,y)] ∧ 3 * C [(t,y)] ≤ 2 * C [] := by
+  intro C s y sy ys pred start chain
+  rcases majority_cover_alternative P s y sy ys pred start with cert | ⟨a,b,c,sa,_,_,bc,h⟩
+  · exact cert
+  obtain ⟨ab,yb,_⟩ := h b (by simp)
+  obtain ⟨ac,yc,_⟩ := h c (by simp)
+  rcases chain (show s < b ∧ ¬ y ≤ b from ⟨lt_of_le_of_lt sa ab.1,yb⟩)
+    (show s < c ∧ ¬ y ≤ c from ⟨lt_of_le_of_lt sa ac.1,yc⟩) bc with le | le
+  · exact (ac.2 ab.1 (lt_of_le_of_ne le bc)).elim
+  · exact (ab.2 ac.1 (lt_of_le_of_ne le bc.symm)).elim
+
+-- Restart the alternative at the two children whenever their majority
+-- orientation still has predecessor inclusion. A maximal start rules that
+-- out and forces a second lower cover of the later child, giving an induced N.
+lemma terminal_majority_covers (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    let start (s y : P) := ¬ s ≤ y ∧ ¬ y ≤ s ∧ (∀ z, z < y → z < s) ∧ C [] ≤ 2 * C [(s,y)]
+    ∀ s y : P, start s y →
+      (∃ i j k l : P, i ≠ j ∧ k ≠ l ∧
+        ∀ p ∈ [(i,j),(j,i)], ∀ q ∈ [(k,l),(l,k)], C [p] + C [p,q] ≤ C []) ∨
+      ∃ t a b c d : P, s ≤ a ∧ a ⋖ b ∧ a ⋖ c ∧ d ⋖ c ∧
+        (¬ d ≤ a ∧ ¬ a ≤ d) ∧ (¬ d ≤ b ∧ ¬ b ≤ d) ∧ (¬ b ≤ c ∧ ¬ c ≤ b) ∧
+        (∀ z ∈ [a,b,c], ¬ t ≤ z ∧ ¬ z ≤ t) ∧
+        C [] ≤ 2 * C [(b,c)] ∧ C [] ≤ 2 * C [(a,t)] ∧
+        2 * C [(b,t)] < C [] ∧ 2 * C [(c,t)] < C [] := by
+  classical
+  intro C start s y initial
+  obtain ⟨rank,mono⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.rank_exists P
+  let candidates := Finset.univ.filter (fun i : P => s ≤ i ∧ ∃ j, start i j)
+  have mem (i : P) : i ∈ candidates ↔ s ≤ i ∧ ∃ j, start i j := by simp [candidates]
+  obtain ⟨i,hi,last⟩ := candidates.exists_max_image rank ⟨s,(mem s).2 ⟨le_rfl,y,initial⟩⟩
+  obtain ⟨si,t,it,ti,pred,majority⟩ := (mem i).1 hi
+  rcases majority_cover_alternative P i t it ti pred majority with cert | ⟨a,b,c,ia,ta,am,bc,fork⟩
+  · exact Or.inl cert.1
+  right
+  obtain ⟨ab,tb,bm⟩ := fork b (by simp)
+  obtain ⟨ac,tc,cm⟩ := fork c (by simp)
+  have ai : ¬ a ≤ t := fun h => it (ia.trans h)
+  have bi : ¬ b ≤ t := fun h => ai (ab.1.le.trans h)
+  have ci : ¬ c ≤ t := fun h => ai (ac.1.le.trans h)
+  have finish (b c : P) (ab : a ⋖ b) (ac : a ⋖ c) (bc : b ≠ c)
+
+      (major : C [] ≤ 2 * C [(b,c)]) :
+      ∃ d : P, d ⋖ c ∧ (¬ d ≤ a ∧ ¬ a ≤ d) ∧ (¬ d ≤ b ∧ ¬ b ≤ d) ∧ (¬ b ≤ c ∧ ¬ c ≤ b) := by
+    have cross : ¬ b ≤ c ∧ ¬ c ≤ b :=
+      ⟨fun h => ac.2 ab.1 (lt_of_le_of_ne h bc),fun h => ab.2 ac.1 (lt_of_le_of_ne h bc.symm)⟩
+    have fails : ¬ ∀ z, z < c → z < b := by
+      intro h
+      have ib := lt_of_le_of_lt ia ab.1
+      exact (mono ib).not_ge (last b ((mem b).2 ⟨si.trans ib.le,c,cross.1,cross.2,h,major⟩))
+    push Not at fails
+    obtain ⟨z,zc,zb⟩ := fails
+    obtain ⟨d',dc',zd⟩ := next_cover_le Pᵒᵈ c z zc
+    let d : P := OrderDual.ofDual d'
+    have dc : d ⋖ c := ⟨dc'.1,fun k dk kc => dc'.2 kc dk⟩
+    have db : ¬ d ≤ b := by
+      intro le
+      have ne : z ≠ b := fun h => cross.1 (h ▸ zc.le)
+      exact zb (lt_of_le_of_ne (LE.le.trans (show z ≤ d from zd) le) ne)
+    have da : ¬ d ≤ a := fun h => db (h.trans ab.1.le)
+    exact ⟨d,dc,⟨da,fun h => ac.2 (lt_of_le_of_ne h (fun e => da e.ge)) dc.1⟩,
+      ⟨db,fun h => cross.1 (h.trans dc.1.le)⟩,cross⟩
+  have part : C [(b,c)] + C [(c,b)] = C [] :=
+    (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P).2.2.1 [] b c bc
+  by_cases h : C [] ≤ 2 * C [(b,c)]
+  · obtain ⟨d,dc,da,db,incBC⟩ := finish b c ab ac bc h
+    refine ⟨t,a,b,c,d,si.trans ia,ab,ac,dc,da,db,incBC,?_,h,am,bm,cm⟩
+    simpa using And.intro (And.intro ta ai) (And.intro (And.intro tb bi) (And.intro tc ci))
+  · have rev : C [] ≤ 2 * C [(c,b)] := by omega
+    obtain ⟨d,db,da,dc,incCB⟩ := finish c b ac ab bc.symm rev
+    refine ⟨t,a,c,b,d,si.trans ia,ac,ab,db,da,dc,incCB,?_,rev,am,cm,bm⟩
+    simpa using And.intro (And.intro ta ai) (And.intro (And.intro tc ci) (And.intro tb bi))
+
+-- An indecomposable finite nonchain has two distinct minimal elements.
+-- Their majority orientation gives a start without probability hypotheses.
+lemma minimal_majority_start (P : Type) [PartialOrder P] [Fintype P]
+    (nonchain : ¬ ∀ x y : P, x ≤ y ∨ y ≤ x)
+    (indecomp : ¬ ∃ L : Set P, L.Nonempty ∧ (∃ y, y ∉ L) ∧ ∀ x ∈ L, ∀ y ∉ L, x < y) :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∃ s y : P, (∀ z, ¬ z < s) ∧ (∀ z, ¬ z < y) ∧ ¬ s ≤ y ∧ ¬ y ≤ s ∧ C [] ≤ 2 * C [(s,y)] := by
+  classical
+  intro C
+  obtain ⟨rank,mono⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.rank_exists P
+  have bottom (x : P) : ∃ m : P, m ≤ x ∧ ∀ z, ¬ z < m := by
+    let lower := Finset.univ.filter (fun z : P => z ≤ x)
+    have mem (z : P) : z ∈ lower ↔ z ≤ x := by simp [lower]
+    obtain ⟨m,hm,least⟩ := lower.exists_min_image rank ⟨x,(mem x).2 le_rfl⟩
+    have mx := (mem m).1 hm
+    exact ⟨m,mx,fun z zm => (mono zm).not_ge (least z ((mem z).2 (zm.le.trans mx)))⟩
+  push Not at nonchain
+  obtain ⟨u,v,uv,vu⟩ := nonchain
+  obtain ⟨m,mu,minM⟩ := bottom u
+  have outside : ¬ ∀ z, m ≤ z := by
+    intro least
+    apply indecomp
+    refine ⟨{m},⟨m,rfl⟩,⟨v,?_⟩,?_⟩
+    · intro h
+      exact vu ((Set.mem_singleton_iff.mp h) ▸ mu)
+    · intro x hx y hy
+      obtain rfl := Set.mem_singleton_iff.mp hx
+      exact lt_of_le_of_ne (least y) (fun e => hy (Set.mem_singleton_iff.mpr e.symm))
+  obtain ⟨w,mw⟩ := Classical.not_forall.mp outside
+  obtain ⟨n,nw,minN⟩ := bottom w
+  have mn : ¬ m ≤ n := fun h => mw (h.trans nw)
+  have nm : ¬ n ≤ m := fun h => minM n (lt_of_le_of_ne h (fun e => mn e.ge))
+  have sum : C [(m,n)] + C [(n,m)] = C [] :=
+    (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P).2.2.1 [] m n (fun h => mn h.le)
+  by_cases h : C [] ≤ 2 * C [(m,n)]
+  · exact ⟨m,n,minM,minN,mn,nm,h⟩
+  · exact ⟨n,m,minN,minM,nm,mn,by omega⟩
+
 -- The interval between two neighbors of x stays in the incomparable neighborhood.
 -- Choose the next cover by minimizing an extension rank in the finite interval.
 lemma neighborhood_cover_chain (P : Type) [PartialOrder P] [Fintype P] (x a b c d : P)
@@ -338,18 +548,11 @@ lemma neighborhood_cover_chain (P : Type) [PartialOrder P] [Fintype P] (x a b c 
     ∃ i j k : P, (¬ x ≤ i ∧ ¬ i ≤ x) ∧ (¬ x ≤ j ∧ ¬ j ≤ x) ∧
       (¬ x ≤ k ∧ ¬ k ≤ x) ∧ a ⋖ i ∧ i ⋖ j ∧ j ⋖ k := by
   classical
-  obtain ⟨rank, mono⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.rank_exists P
-  have step (s t : P) (st : s < t) : ∃ y, s ⋖ y ∧ y ≤ t := by
-    let candidates := Finset.univ.filter (fun z : P => s < z ∧ z ≤ t)
-    have mem (z : P) : z ∈ candidates ↔ s < z ∧ z ≤ t := by simp [candidates]
-    obtain ⟨y,hy,least⟩ := candidates.exists_min_image rank ⟨t,(mem t).2 ⟨st,le_rfl⟩⟩
-    obtain ⟨sy,yt⟩ := (mem y).1 hy
-    exact ⟨y,⟨sy,fun z sz zy => (mono zy).not_ge (least z ((mem z).2 ⟨sz,zy.le.trans yt⟩))⟩,yt⟩
   have inside (z : P) (az : a ≤ z) (zd : z ≤ d) : ¬ x ≤ z ∧ ¬ z ≤ x :=
     ⟨fun h => xd (h.trans zd),fun h => ax (az.trans h)⟩
-  obtain ⟨i,ai,ib⟩ := step a b ab
-  obtain ⟨j,ij,jc⟩ := step i c (lt_of_le_of_lt ib bc)
-  obtain ⟨k,jk,kd⟩ := step j d (lt_of_le_of_lt jc cd)
+  obtain ⟨i,ai,ib⟩ := next_cover_le P a b ab
+  obtain ⟨j,ij,jc⟩ := next_cover_le P i c (lt_of_le_of_lt ib bc)
+  obtain ⟨k,jk,kd⟩ := next_cover_le P j d (lt_of_le_of_lt jc cd)
   exact ⟨i,j,k,inside i ai.1.le (ib.trans (bc.trans cd).le),
     inside j (ai.1.trans ij.1).le (jc.trans cd.le),
     inside k ((ai.1.trans ij.1).trans jk.1).le kd,ai,ij,jk⟩
@@ -928,18 +1131,59 @@ theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
     obtain ⟨b,c,d,hb,hc,hd,ab,bc,cd⟩ :=
       neighborhood_cover_chain P x a b₀ c₀ d₀ ha.2 hd₀.1 ab₀ bc₀ cd₀
     have ne (y : P) (hy : y ∈ N) : x ≠ y := fun h => hy.1 h.le
-    have inc (y : P) (hy : y ∈ [a,b,c,d]) : ¬ x ≤ y ∧ ¬ y ≤ x := by
-      simp only [List.mem_cons, List.not_mem_nil, or_false] at hy
-      rcases hy with rfl | rfl | rfl | rfl <;> assumption
-    rcases four_chain_obstructions P x a b c d inc ab.1 bc.1 cd.1 with ok | gap
+    rcases four_chain_slots P x a b c d (ne a ha) (ne b hb) (ne c hc) (ne d hd)
+      ab.1 bc.1 cd.1 with ok | gap
     · obtain ⟨y, hy, lo, hi⟩ := ok
       have yn : y ∈ N := by
         simp only [List.mem_cons, List.not_mem_nil, or_false] at hy
         rcases hy with rfl | rfl | rfl | rfl <;> assumption
       exact pair_of_count_bounds P x y (ne y yn) lo hi
-    · exact chainCase P nonchain indecomp rigid three
-        ⟨x, hx, obstruction, a, ha, b, hb, c, hc, d, hd, ab, bc, cd, gap⟩ forks barrier
+    · refine chainCase P nonchain indecomp rigid three
+        ⟨x, hx, obstruction, a, ha, b, hb, c, hc, d, hd, ab, bc, cd, gap⟩ ?_ barrier
         noGold
+      have force (A : Type) [PartialOrder A] [Fintype A]
+          (nc : ¬ ∀ u v : A, u ≤ v ∨ v ≤ u)
+          (ind : ¬ ∃ L : Set A, L.Nonempty ∧ (∃ y, y ∉ L) ∧ ∀ x ∈ L, ∀ y ∉ L, x < y)
+          (ng : ¬ ∃ i j k l : A, i ≠ j ∧ k ≠ l ∧ ∀ p ∈ [(i,j),(j,i)],
+            ∀ q ∈ [(k,l),(l,k)], C A [p] + C A [p,q] ≤ C A [])
+          (absent : ∀ i j : A, i ≠ j → ¬ (C A [] ≤ 3 * C A [(i,j)] ∧ 3 * C A [(i,j)] ≤ 2 * C A [])) :
+          ∃ t a b c d : A, a ⋖ b ∧ a ⋖ c ∧ d ⋖ c ∧
+            (¬ d ≤ a ∧ ¬ a ≤ d) ∧ (¬ d ≤ b ∧ ¬ b ≤ d) ∧ (¬ b ≤ c ∧ ¬ c ≤ b) ∧
+            (∀ z ∈ [a,b,c], ¬ t ≤ z ∧ ¬ z ≤ t) ∧ 2 * C A [] < 3 * C A [(b,c)] ∧
+            2 * C A [] < 3 * C A [(a,t)] ∧ 3 * C A [(b,t)] < C A [] ∧ 3 * C A [(c,t)] < C A [] := by
+        obtain ⟨s,y,_,my,sy,ys,majority⟩ := minimal_majority_start A nc ind
+        rcases terminal_majority_covers A s y ⟨sy,ys,fun z zy => (my z zy).elim,majority⟩
+          with cert | ⟨t,a,b,c,d,_,ab,ac,dc,da,db,bc,inc,order,am,bm,cm⟩
+        · exact (ng cert).elim
+        · have heavy (u v : A) (ne : u ≠ v) (h : C A [] ≤ 2 * C A [(u,v)]) :
+              2 * C A [] < 3 * C A [(u,v)] := by
+            have fail := absent u v ne
+            omega
+          have light (u v : A) (ne : u ≠ v) (h : 2 * C A [(u,v)] < C A []) :
+              3 * C A [(u,v)] < C A [] := by
+            have fail := absent u v ne
+            omega
+          have ne (u : A) (hu : u ∈ [a,b,c]) : u ≠ t := fun e => (inc u hu).2 e.le
+          exact ⟨t,a,b,c,d,ab,ac,dc,da,db,bc,inc,heavy _ _ (fun e => bc.1 e.le) order,
+            heavy _ _ (ne a (by simp)) am,light _ _ (ne b (by simp)) bm,light _ _ (ne c (by simp)) cm⟩
+      have absent (u v : P) (ne : u ≠ v) :
+          ¬ (C P [] ≤ 3 * C P [(u,v)] ∧ 3 * C P [(u,v)] ≤ 2 * C P []) :=
+        fun h => noPair (pair_of_count_bounds P u v ne h.1 h.2)
+      refine ⟨force P nonchain indecomp noGold absent,force Pᵒᵈ ?_ ?_ ?_ ?_⟩
+      · exact fun h => nonchain (fun u v => h v u)
+      · rintro ⟨L,⟨i,hi⟩,⟨j,hj⟩,cut⟩
+        apply indecomp
+        refine ⟨{v : P | v ∉ L},⟨j,hj⟩,⟨i,fun h => h hi⟩,?_⟩
+        intro u hu v hv
+        exact cut v (Classical.byContradiction hv) u hu
+      · exact fun h => noGold (OMA.R_wp_1_3_2_3_conjecture_R1.gold_of_dual P h)
+      · intro u v ne h
+        have cell : C Pᵒᵈ [(u,v)] = C P [(v,u)] :=
+          OMA.R_wp_1_3_2_3_conjecture_R1.dual_comparison_counts P [(u,v)]
+        have total : C Pᵒᵈ [] = C P [] :=
+          OMA.R_wp_1_3_2_3_conjecture_R1.dual_comparison_counts P []
+        rw [cell,total] at h
+        exact absent v u ne.symm h
   · obtain ⟨t, xt, anti, bound⟩ := antichain_through_vertex P x chain
     have four : 4 ≤ t.card := by omega
     exact antichainCase P nonchain indecomp rigid ⟨x, hx, obstruction, chain, t, xt, anti, four, bound⟩ forks barrier
