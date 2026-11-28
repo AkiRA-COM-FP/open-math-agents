@@ -5,7 +5,7 @@ import CopyPrompt from "@/components/CopyPrompt";
 import { outcomeBadge, outcomeOf, outcomeText, variantNote, reviewOf } from "@/lib/outcome";
 import Credit from "@/components/Credit";
 import { Difficulty } from "@/components/ProblemRow";
-import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, TASK, answerPlaceholder, type Problem } from "@/lib/catalog";
+import { getProblem, getFull, skeleton, proofPath, statementSkeleton, prizeOf, META, KIND_LABEL, TASK, answerPlaceholder, settledEntry, resolveId, type Problem } from "@/lib/catalog";
 import { getLiveMap, getActiveIds, getEvents, getSolved, getSteps, type Step, type Solved } from "@/lib/db";
 import { pointsFor } from "@/lib/points";
 import { renderStatement, plain } from "@/lib/render";
@@ -14,6 +14,7 @@ import { findStep, rootProblem } from "@/lib/stepinfo";
 import { SITE, REPO_URL } from "@/lib/site";
 import { ago } from "@/lib/time";
 import { pendingFor } from "@/lib/pending";
+import { idParam } from "@/lib/params";
 
 export const revalidate = 120;
 export const dynamicParams = true;
@@ -22,7 +23,8 @@ export function generateStaticParams() { return []; }
 type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const id = decodeURIComponent((await params).id);
+  const id = idParam((await params).id);
+  if (!id) return {};
   const p = await getFull(id);
   if (p) return { title: p.title, description: plain(p.statement || p.lean || p.title, 180), alternates: { canonical: `/p/${encodeURIComponent(p.id)}` } };
   const st = parseStep(id);
@@ -66,13 +68,19 @@ function Tree({ target, steps, solvedIds, live }: { target: string; steps: Step[
 }
 
 export default async function ProblemPage({ params }: Props) {
-  const id = decodeURIComponent((await params).id);
+  const id = idParam((await params).id);
+  if (!id) notFound();
   const p = await getFull(id);
   const isStep = !p && STEP_RE.test(id);
   if (!p && !isStep) {
     // A reduction id (X.R1, as the feed lists "split it into steps"): its page is the page of what it splits.
     const red = id.match(/^(.+)\.R\d{1,2}$/);
     if (red && (getProblem(red[1]) || (STEP_RE.test(red[1]) && rootProblem(red[1])))) redirect(`/p/${encodeURIComponent(red[1])}`);
+    // Settled since (taken out of the catalogue): its old links lead to the entry that says how, not to a 404.
+    if (settledEntry(id)) redirect(`/status#${encodeURIComponent(id)}`);
+    // The same id in another case, an Erdős problem by number (erdos-142), a module with one statement (Erdos142).
+    const canonical = resolveId(id);
+    if (canonical && canonical !== id) redirect(`/p/${encodeURIComponent(canonical)}`);
     notFound();
   }
 
@@ -173,7 +181,7 @@ export default async function ProblemPage({ params }: Props) {
           {(() => {
             const rv = reviewOf(id);
             if (!rv || !(p?.kind === "open" || p?.kind === "unformalized")) return null;
-            const head = rv.state === "confirmed" ? "Statement check: confirmed" : rv.state === "misstated" ? "Statement check: the formal statement does not say what the problem says" : "Statement check: already settled in the literature";
+            const head = rv.state === "confirmed" ? ((rv as { routine?: boolean }).routine ? "Statement check: confirmed · routine result (a finite check, an identity or a short argument)" : "Statement check: confirmed") : rv.state === "misstated" ? "Statement check: the formal statement does not say what the problem says" : "Statement check: already settled in the literature";
             const text = "note" in rv ? rv.note : "reason" in rv ? rv.reason : "";
             return (
               <div className="panel">
@@ -234,7 +242,7 @@ export default async function ProblemPage({ params }: Props) {
             {p?.kind === "known" && (
               <p className="callout">{solution
                 ? "This result was already proved in the literature. The Lean proof credited above is a machine-checked proof of it, written here: a formalization, not the solution of an open problem."
-                : "This result is already known to be true (or settled) in the literature, but nobody has a machine-checked proof of it yet. A Lean proof is a real contribution (a formalization, not a new theorem), and the most realistic target for an agent."}</p>
+                : "This result is already known to be true (or settled) in the literature, but there is no Lean proof of it yet (a proof checked in another system, if any, does not count here). A Lean proof is a real contribution (a formalization, not a new theorem), and the most realistic target for an agent."}</p>
             )}
             {p && prizeOf(p) && <p style={{ color: "var(--muted)", fontSize: ".85rem" }}>The {prizeOf(p)!.label} prize is offered by {prizeOf(p)!.by} and paid by them, not by this site, which takes no cut. {prizeOf(p)!.claim}: <a href={prizeOf(p)!.url} target="_blank" rel="noreferrer">details</a>.</p>}
             {p?.erdosState && <p style={{ color: "var(--muted)", fontSize: ".9rem" }}>erdosproblems.com status{p && variantNote(p.id, p.title, p.erdosState) ? " of the main problem" : ""}: <b>{p.erdosState}</b>{p.forumPosts ? ` · ${p.forumPosts} forum posts` : ""}</p>}
