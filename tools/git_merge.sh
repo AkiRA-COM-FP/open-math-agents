@@ -57,7 +57,7 @@ merge_alone() {
     CHANGES=$($G diff-tree -r --name-status "$MAIN" "$TREE")
     [ "$CHANGES" = "$(printf 'A\t%s' "$FPATH")" ] || [ "$CHANGES" = "$(printf 'M\t%s' "$FPATH")" ] || fail "unexpected change: $CHANGES"
     C=$($G "${ID[@]}" commit-tree "$TREE" -p "$MAIN" -p "$HEAD_SHA" -m "$MSG") || fail "cannot commit"
-    if OUT=$($G push -q origin "$C:refs/heads/main" 2>&1); then echo "$C"; exit 0; fi
+    if OUT=$($G -c push.negotiate=true push -q origin "$C:refs/heads/main" 2>&1); then echo "$C"; exit 0; fi
     if printf '%s' "$OUT" | grep -qiE "$RACE"; then
       flock -u 8; sleep 1; continue
     fi
@@ -77,33 +77,50 @@ merge_alone() {
 # --- group commit ---
 Q=/tmp/oma-merge-spool; mkdir -p "$Q/req" "$Q/res"
 RID="$(date +%s%N).$PR.$$"
-printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$PR" "$HEAD_SHA" "$FPATH" "$MODE" "$$" "$(printf '%s' "$MSG" | base64 -w0)" > "$Q/req/.$RID"
+# The leader takes this head from this slot's own repository (a local fetch, a fraction of a second) instead of
+# fetching it from GitHub again: the ref below points at it, and the request gives the repository's path.
+$G update-ref "refs/oma/req/$PR" "$HEAD_SHA" 2>/dev/null || true
+MYREPO=$(cd base && git rev-parse --absolute-git-dir 2>/dev/null || echo -)
+printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$PR" "$HEAD_SHA" "$FPATH" "$MODE" "$$" "$(printf '%s' "$MSG" | base64 -w0)" "$MYREPO" > "$Q/req/.$RID"
 mv "$Q/req/.$RID" "$Q/req/$RID"
 MAXCHAIN=${OMA_MAX_CHAIN:-60}
 
 # The leader, holding the main lock: every live request in the spool (oldest first, at most MAXCHAIN) in one push.
 lead() {
-  local TRY REQS R P H F M PID B64 MAIN TIP C TREE CHANGES RES OUT HEADS N=0 IDX="$PWD/gm_index_lead"
+  local TRY REQS R P H F M PID B64 SRC MAIN TIP C TREE CHANGES RES OUT HEADS N=0 IDX="$PWD/gm_index_lead"
   find "$Q/res" -type f -mmin +30 -delete 2>/dev/null   # results nobody came back for
   for TRY in 1 2 3 4 5 6 7 8 9 10; do
     REQS=()
     for R in $(ls "$Q/req" 2>/dev/null | grep -v '^\.' | sort | head -n "$MAXCHAIN"); do
-      IFS=$'\t' read -r P H F M PID B64 < "$Q/req/$R" 2>/dev/null || { rm -f "$Q/req/$R"; continue; }
+      IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R" 2>/dev/null || { rm -f "$Q/req/$R"; continue; }
       kill -0 "$PID" 2>/dev/null || { rm -f "$Q/req/$R"; continue; }   # its slot gave up (timeout): not merged for it
       REQS+=("$R")
     done
     [ "${#REQS[@]}" -gt 0 ] || return 0
     # main and every head not here yet, in one fetch
-    HEADS=()
+    T0=$(date +%s.%N)
+    HEADS=(); LOCAL=()
     for R in "${REQS[@]}"; do
-      IFS=$'\t' read -r P H _ < "$Q/req/$R"; $G cat-file -e "$H^{commit}" 2>/dev/null || HEADS+=("refs/pull/$P/head")
+      IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R"
+      $G cat-file -e "$H^{commit}" 2>/dev/null && continue
+      HEADS+=("refs/pull/$P/head"); LOCAL+=("$P"$'\t'"${SRC:--}")
     done
+    # One or two missing heads: take them from the requesting slots' repositories (local, under a second each). More:
+    # one batched fetch from GitHub with main below (one round trip, a few seconds), since each local fetch packs out
+    # of a 400 MB repository and they run one after another (measured: ~1 s per head, 10-21 s per chain).
+    if [ "${#LOCAL[@]}" -le 2 ]; then
+      HEADS=()
+      for L in "${LOCAL[@]}"; do
+        P=${L%%$'\t'*}; SRC=${L#*$'\t'}
+        { [ "$SRC" != - ] && [ -d "$SRC" ] && $G fetch -q --no-tags --depth 1 "file://$SRC" "refs/oma/req/$P" 2>/dev/null; } || HEADS+=("refs/pull/$P/head")
+      done
+    fi
     $G fetch -q --no-tags --depth 1 origin "+refs/heads/main:refs/oma/main" "${HEADS[@]}" 2>/dev/null \
       || $G fetch -q --no-tags --depth 1 origin "+refs/heads/main:refs/oma/main" || { sleep 5; continue; }
-    MAIN=$($G rev-parse refs/oma/main); TIP=$MAIN
+    MAIN=$($G rev-parse refs/oma/main); TIP=$MAIN; T1=$(date +%s.%N)
     : > gm_results
     for R in "${REQS[@]}"; do
-      IFS=$'\t' read -r P H F M PID B64 < "$Q/req/$R"
+      IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R"
       B=$($G rev-parse "$H:$F" 2>/dev/null) || { printf '%s\tALONE\t-\n' "$R" >> gm_results; continue; }
       if $G cat-file -e "$TIP:$F" 2>/dev/null; then
         [ "$M" = replace ] || { printf '%s\tRULE\talready on main\n' "$R" >> gm_results; continue; }
@@ -120,9 +137,13 @@ lead() {
       C=$(printf '%s' "$B64" | base64 -d | $G "${ID[@]}" commit-tree "$TREE" -p "$TIP" -p "$H") || { printf '%s\tALONE\t-\n' "$R" >> gm_results; continue; }
       printf '%s\tOK\t%s\n' "$R" "$C" >> gm_results; TIP=$C
     done
+    T2=$(date +%s.%N)
     if [ "$TIP" != "$MAIN" ]; then
-      if OUT=$($G push -q origin "$TIP:refs/heads/main" 2>&1); then
-        N=$(grep -c $'\tOK\t' gm_results); echo "group commit: $N merges in one push ($TIP)" >&2
+      # push.negotiate: find what GitHub already has through the fetch protocol, which sees refs/pull/*, so the heads'
+      # trees and blobs (already on GitHub) are not sent again; without it a chain of ten merges uploaded ten trees
+      if OUT=$($G -c push.negotiate=true push -q origin "$TIP:refs/heads/main" 2>&1); then
+        N=$(grep -c $'\tOK\t' gm_results)
+        echo "group commit: $N merges in one push ($TIP) fetch=$(echo "$T1 - $T0" | bc)s build=$(echo "$T2 - $T1" | bc)s push=$(echo "$(date +%s.%N) - $T2" | bc)s" >&2
       elif printf '%s' "$OUT" | grep -qiE "$RACE"; then
         sleep 1; continue   # main moved (a push from elsewhere): the whole chain again on the new main
       else
