@@ -157,14 +157,18 @@ refresh() {  # main moved on (merges): pull it; each verdict slot's copy is sync
     git -C "$ROOT/base" fetch -q --depth 1 origin main && git -C "$ROOT/base" reset -q --hard FETCH_HEAD; git -C "$ROOT/base" clean -fdq
   ) 7> "$ROOT/base.lock"
   BASE_REV=$(git -C "$ROOT/base" rev-parse HEAD 2>/dev/null || date +%s%N)
+  TOOLS_REV=$(git -C "$ROOT/base" rev-parse HEAD:tools 2>/dev/null || echo "$BASE_REV")
 }
-declare -A SYNCED
+declare -A SYNCED SYNCED_AT
 sync_slot() {  # $1 slot: bring its copy of main up to date (rsync: only what changed), never while it works
-  [ "${SYNCED[$1]:-}" = "$BASE_REV" ] && [ -d "$ROOT/base_$1" ] && return 0
+  # Only when tools/ changed, or every 15 minutes: verdict_one.sh fetches main's statements, reductions and data
+  # itself and git_merge.sh fetches main, so a slot needs a fresh copy for the code only. (Re-syncing every slot after
+  # each refresh, one after the other in the dispatcher, left the slots without new work for most of the time.)
+  [ -d "$ROOT/base_$1" ] && [ "${SYNCED[$1]:-}" = "$TOOLS_REV" ] && [ $(( $(date +%s) - ${SYNCED_AT[$1]:-0} )) -lt 900 ] && return 0
   ( flock -w 300 7
     if command -v rsync >/dev/null; then rsync -a --delete "$ROOT/base/" "$ROOT/base_$1/"; else rm -rf "$ROOT/base_$1"; cp -a "$ROOT/base" "$ROOT/base_$1"; fi
   ) 7> "$ROOT/base.lock"
-  SYNCED[$1]=$BASE_REV
+  SYNCED[$1]=$TOOLS_REV; SYNCED_AT[$1]=$(date +%s)
 }
 scan() {  # completed runs created in the last $1 seconds, in 30-minute slices (at most 1,000 runs per query)
   local NOW A B FLOOR; NOW=$(date -u +%s); FLOOR=$(( START - INITIAL_BACK ))
