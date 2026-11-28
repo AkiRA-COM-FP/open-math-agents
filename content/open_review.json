@@ -38002,6 +38002,16 @@
     "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a300732-diagonal-index-divisibility.md"
    ],
    "reason": "Statement takes a(0)=a(1)=1 and the vanishing condition for n>1 (the printed n>=1 would force a(1)=0, contrary to the data), which matches the entry's data. Hanna's divisibility conjecture n | a(n) was already proved in trureturing (Problems/oeis-a300732-diagonal-index-divisibility.md, D5/S1/Recurrence/Residue/DiagonalVanishingIndexDivisibility, committed 2026-09-11) via a general theorem covering exponent e(n)=2n. Not new."
+  },
+  "oeis-a372420": {
+   "date": "2026-11-28",
+   "pr": 15193,
+   "evidence": [
+    "https://oeis.org/A372420",
+    "https://github.com/the-omega-institute/trureturing-experiments/blob/main/docs/reports/oeis-a372239-a372420-a372611-tebni-central-binomial-congruences/README.md",
+    "https://github.com/the-omega-institute/trureturing-experiments/commit/a64b7ca"
+   ],
+   "reason": "Tebni's two congruences (a(p) == 5 mod p for p == 1 mod 4, a(p) == -1 mod p for p == 3 mod 4) are faithful, and I checked them for p < 60. trureturing-experiments (commit a64b7ca, 2026-10-17) treats A372239/A372420/A372611 together: a_c(n) = b(n) + c b(n-1), with 'the proof's two congruences' b(p) == 2((-1)^((p-1)/2)+1) and b(p-1) == (-1)^((p-1)/2) mod p. Those are checked numerically there, not proved. They follow at once from C(2k,k) == (-4)^k C((p-1)/2,k), so the argument was public before the site proof; at worst this is routine."
   }
  },
  "reviewed": "2026-11-28"
