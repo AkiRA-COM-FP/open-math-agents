@@ -63,7 +63,13 @@ def H3 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
       ∀ x ∈ L, ∀ y ∉ L, x < y) →
     (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ s : Finset P, (s : Set P).Pairwise (fun a b => ¬ a ≤ b) ∧ s.card = 5 ∧
+      (∀ a ∈ s, ({k : P | k ∉ s ∧ ¬ a ≤ k ∧ ¬ k ≤ a} : Set P).ncard ≤ 2) ∧
       ∀ t : Finset P, (t : Set P).Pairwise (fun a b => ¬ a ≤ b) → t.card ≤ 5) →
+    8 ≤ Fintype.card P →
+    (∀ t : Finset P, t.card = 3 → (t : Set P).Pairwise (fun a b => ¬ a ≤ b) →
+      let bad (r : P → P → Prop) := ∃ k ∉ t, (∃ c ∈ t, k < c ∨ c < k) ∧
+        ∃ a ∈ t, ¬ a ≤ k ∧ ¬ k ≤ a ∧ ∃ b ∈ t, b ≠ a ∧ ¬ r k b
+      bad (· < ·) ∧ bad (· > ·)) →
     (∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ 6) →
     (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
       (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
@@ -175,11 +181,11 @@ lemma rigid_antichain_bound (P : Type) [PartialOrder P] [Fintype P] (d : ℕ) (p
 
 -- At equality in the width bound, each member can have at most one
 -- incomparable neighbor outside the antichain.
-lemma outside_card_le_one (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+lemma outside_degree_bound (P : Type) [PartialOrder P] [Fintype P] (s : Finset P) (d : ℕ)
     (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b))
-    (thin : ∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ s.card)
+    (thin : ∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ d)
     {a : P} (ha : a ∈ s) :
-    ({y : P | y ∉ s ∧ ¬ a ≤ y ∧ ¬ y ≤ a} : Set P).ncard ≤ 1 := by
+    ({y : P | y ∉ s ∧ ¬ a ≤ y ∧ ¬ y ≤ a} : Set P).ncard + (s.card - 1) ≤ d := by
   classical
   let outside := Finset.univ.filter (fun y : P => y ∉ s ∧ ¬ a ≤ y ∧ ¬ y ≤ a)
   let neighbors := Finset.univ.filter (fun y : P => ¬ a ≤ y ∧ ¬ y ≤ a)
@@ -200,6 +206,14 @@ lemma outside_card_le_one (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
     · exact (Finset.mem_filter.mp ho).2.2
   have bound := (Finset.card_le_card sub).trans cap
   rw [Finset.card_union_of_disjoint dis, Finset.card_erase_of_mem ha] at bound
+  omega
+
+lemma outside_card_le_one (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b))
+    (thin : ∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ s.card)
+    {a : P} (ha : a ∈ s) :
+    ({y : P | y ∉ s ∧ ¬ a ≤ y ∧ ¬ y ≤ a} : Set P).ncard ≤ 1 := by
+  have h := outside_degree_bound P s s.card anti thin ha
   omega
 
 lemma rigid_near_saturated_size (P : Type) [PartialOrder P] [Fintype P]
@@ -249,14 +263,14 @@ lemma rigid_near_saturated_size (P : Type) [PartialOrder P] [Fintype P]
 
 -- Members of a common class can be exchanged once a third member has
 -- appeared. Inject the extensions with x,y,z in order into those with z before y.
-lemma three_exchange (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+lemma three_trace_exchange (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
     (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) :
     let C (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
     ∀ x ∈ s, ∀ y ∈ s, ∀ z ∈ s, x ≠ y → y ≠ z →
-    (∀ k ∉ s, ¬ y ≤ k → ¬ k ≤ y → ∀ b ∈ s, b ≠ y → k < b) →
-    (∀ k ∉ s, ¬ z ≤ k → ¬ k ≤ z → ∀ b ∈ s, b ≠ z → k < b) →
+    (∀ k ∉ s, ¬ y ≤ k → ¬ k ≤ y → (∃ c ∈ s, k < c ∨ c < k) → ∀ b ∈ s, b ≠ y → k < b) →
+    (∀ k ∉ s, ¬ z ≤ k → ¬ k ≤ z → (∃ c ∈ s, k < c ∨ c < k) → ∀ b ∈ s, b ≠ z → k < b) →
     C [(x,y),(y,z)] ≤ C [(z,y)] := by
   classical
   intro C x hx y hy z hz xy yz ly lz
@@ -278,7 +292,7 @@ lemma three_exchange (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
       by_contra bad
       have zb : ¬ z ≤ b := fun h => bad (lt_of_le_of_ne h bz.symm)
       have bz' : ¬ b ≤ z := fun h => anti hy hz yz (ab.le.trans h)
-      exact (lt_asymm ab) (lz b out zb bz' y hy yz)
+      exact (lt_asymm ab) (lz b out zb bz' ⟨y,hy,Or.inr ab⟩ y hy yz)
     by_cases bz : b = z
     · subst b
       have out : a ∉ s := fun ha => anti ha hz ab.ne ab.le
@@ -286,7 +300,7 @@ lemma three_exchange (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
       by_cases h : a ≤ y
       · exact mono (lt_of_le_of_ne h ay)
       have ya : ¬ y ≤ a := fun h => anti hy hz yz (h.trans ab.le)
-      exact lt_trans (mono (ly a out ya h x hx xy)) first
+      exact lt_trans (mono (ly a out ya h ⟨z,hz,Or.inl ab⟩ x hx xy)) first
     have left : r.val (swap a) ≤ r.val a := by
       by_cases az : a = z
       · simpa [az,swap] using next.le
@@ -310,9 +324,9 @@ lemma three_exchange (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
   change r.val (swap (swap.symm a)) = t.val (swap (swap.symm a)) at eq
   simpa using eq
 
-lemma three_lower_gold (P : Type) [PartialOrder P] [Fintype P] (s t : Finset P)
+lemma three_trace_gold (P : Type) [PartialOrder P] [Fintype P] (s t : Finset P)
     (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) (sub : t ⊆ s) (size : 2 < t.card)
-    (lower : ∀ a ∈ t, ∀ k ∉ s, ¬ a ≤ k → ¬ k ≤ a → ∀ b ∈ s, b ≠ a → k < b) :
+    (lower : ∀ a ∈ t, ∀ k ∉ s, ¬ a ≤ k → ¬ k ≤ a → (∃ c ∈ s, k < c ∨ c < k) → ∀ b ∈ s, b ≠ a → k < b) :
     let C (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
@@ -328,7 +342,7 @@ lemma three_lower_gold (P : Type) [PartialOrder P] [Fintype P] (s t : Finset P)
   have finish (x y z : P) (hx : x ∈ t) (hy : y ∈ t) (hz : z ∈ t)
       (xy : x ≠ y) (yz : y ≠ z) (xz : x ≠ z) (h : R x y) (k : R y z) : False := by
     have cell : C [(x,y),(y,z)] ≤ C [(z,y)] :=
-      three_exchange P s anti x (sub hx) y (sub hy) z (sub hz) xy yz (lower y hy) (lower z hz)
+      three_trace_exchange P s anti x (sub hx) y (sub hy) z (sub hz) xy yz (lower y hy) (lower z hz)
     obtain ⟨_, _, split, _⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P
     have e : C [(x,y)] + C [(y,x)] = C [] := split [] x y xy
     have f : C [(y,z)] + C [(z,y)] = C [] := split [] y z yz
@@ -348,6 +362,30 @@ lemma three_lower_gold (P : Type) [PartialOrder P] [Fintype P] (s t : Finset P)
     rcases orient b c bc with p | p
     · exact finish b c a hb hc ha bc ac.symm ab.symm p k
     · exact finish c b a hc hb ha bc.symm ab.symm ac.symm p h
+
+lemma three_exchange (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) :
+    let C (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x ∈ s, ∀ y ∈ s, ∀ z ∈ s, x ≠ y → y ≠ z →
+    (∀ k ∉ s, ¬ y ≤ k → ¬ k ≤ y → ∀ b ∈ s, b ≠ y → k < b) →
+    (∀ k ∉ s, ¬ z ≤ k → ¬ k ≤ z → ∀ b ∈ s, b ≠ z → k < b) →
+    C [(x,y),(y,z)] ≤ C [(z,y)] := by
+  intro C x hx y hy z hz xy yz ly lz
+  exact three_trace_exchange P s anti x hx y hy z hz xy yz
+    (fun k hk ak ka _ => ly k hk ak ka) (fun k hk ak ka _ => lz k hk ak ka)
+
+lemma three_lower_gold (P : Type) [PartialOrder P] [Fintype P] (s t : Finset P)
+    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) (sub : t ⊆ s) (size : 2 < t.card)
+    (lower : ∀ a ∈ t, ∀ k ∉ s, ¬ a ≤ k → ¬ k ≤ a → ∀ b ∈ s, b ≠ a → k < b) :
+    let C (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        C [p] + C [p, q] ≤ C [] := by
+  exact three_trace_gold P s t anti sub size (fun a ha k hk ak ka _ => lower a ha k hk ak ka)
 
 -- At the degree bound an outside exception belongs to at most one member.
 -- Its comparisons with the remaining antichain cannot point both ways.
@@ -417,6 +455,66 @@ lemma near_antichain_gold (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
     intro a ha k hk ak ka
     exact up a ha k ⟨hk,ka,ak⟩
 
+-- No gold partition forces a witness against each orientation of the
+-- exchange test on every three-element antichain.
+lemma trace_obstructions (P : Type) [PartialOrder P] [Fintype P] :
+    let C (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        C [p] + C [p, q] ≤ C []) →
+    ∀ t : Finset P, t.card = 3 → (t : Set P).Pairwise (fun a b => ¬ a ≤ b) →
+      let bad (r : P → P → Prop) := ∃ k ∉ t, (∃ c ∈ t, k < c ∨ c < k) ∧
+        ∃ a ∈ t, ¬ a ≤ k ∧ ¬ k ≤ a ∧ ∃ b ∈ t, b ≠ a ∧ ¬ r k b
+      bad (· < ·) ∧ bad (· > ·) := by
+  classical
+  intro C absent t size anti bad
+  have lowerBad (Q : Type) [PartialOrder Q] [Fintype Q] (u : Finset Q) (n : u.card = 3)
+      (ant : (u : Set Q).Pairwise (fun a b => ¬ a ≤ b))
+      (noCert : let C (extra : List (Q × Q)) :=
+        Nat.card {r : Q ≃ Fin (Fintype.card Q) //
+          (∀ a b : Q, a < b → r a < r b) ∧ ∀ p ∈ extra, r p.1 < r p.2}
+        ¬ (∃ x y u v : Q, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        C [p] + C [p, q] ≤ C [])) :
+      ∃ k ∉ u, (∃ c ∈ u, k < c ∨ c < k) ∧
+        ∃ a ∈ u, ¬ a ≤ k ∧ ¬ k ≤ a ∧ ∃ b ∈ u, b ≠ a ∧ ¬ k < b := by
+    by_contra h
+    apply noCert
+    apply three_trace_gold Q u u ant (fun _ h => h) (by omega)
+    intro a ha k hk ak ka touched b hb ba
+    by_contra missed
+    exact h ⟨k,hk,touched,a,ha,ak,ka,b,hb,ba,missed⟩
+  refine ⟨lowerBad P t size anti absent, ?_⟩
+  let td : Finset Pᵒᵈ := t
+  have dualAnti : (td : Set Pᵒᵈ).Pairwise (fun a b => ¬ a ≤ b) := by
+    intro a ha b hb ne le
+    exact anti hb ha (Ne.symm ne) le
+  obtain ⟨k,hk,⟨c,hc,cmp⟩,a,ha,ka,ak,b,hb,ba,miss⟩ :=
+    lowerBad Pᵒᵈ td size dualAnti (fun cert => absent (OMA.R_wp_1_3_2_3_conjecture_R1.gold_of_dual P cert))
+  exact ⟨k,hk,⟨c,hc,cmp.symm⟩,a,ha,ak,ka,b,hb,ba,miss⟩
+
+-- Every member of a rigid antichain is distinguished by the subset
+-- of outsiders incomparable with it, even when this subset has size two.
+lemma rigid_profile_capacity (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b))
+    (rigid : ∀ (e : P ≃o P) (a : P), e a = a) :
+    s.card ≤ 2 ^ (Fintype.card P - s.card) := by
+  classical
+  let profile (a : s) := Finset.univ.filter (fun k : ↥(sᶜ) => ¬ a.val ≤ k.val ∧ ¬ k.val ≤ a.val)
+  have inj : Function.Injective profile := by
+    intro a b eqp
+    have cmp (z : P) (hz : z ∉ s) : (a.val ≤ z ∨ z ≤ a.val) ↔ (b.val ≤ z ∨ z ≤ b.val) := by
+      let k : ↥(sᶜ) := ⟨z, Finset.mem_compl.mpr hz⟩
+      have h : k ∈ profile a ↔ k ∈ profile b := eqp ▸ Iff.rfl
+      simp only [profile, Finset.mem_filter, Finset.mem_univ, true_and] at h
+      change (¬ a.val ≤ z ∧ ¬ z ≤ a.val) ↔ (¬ b.val ≤ z ∧ ¬ z ≤ b.val) at h
+      tauto
+    obtain ⟨e, moved⟩ := swap_of_same_comparabilities P s anti a.property b.property cmp
+    exact Subtype.ext ((rigid e a.val).symm.trans moved)
+  simpa using Fintype.card_le_of_injective profile inj
+
 theorem main : H1 → H2 → H3 → OMA.R_wp_1_3_2_3_conjecture_R1.H1 := by
   classical
   intro w3 w4 w5 P _ _ nonchain indecomp rigid three thin upper lower noGold
@@ -443,7 +541,20 @@ theorem main : H1 → H2 → H3 → OMA.R_wp_1_3_2_3_conjecture_R1.H1 := by
   rcases cases with h | h | h | h <;> rw [h] at width
   · exact w3 P nonchain indecomp rigid width thin upper lower noGold
   · exact w4 P nonchain indecomp rigid width thin upper lower noGold
-  · exact w5 P nonchain indecomp rigid width thin upper lower noGold
+  · obtain ⟨t, at', five, maxT⟩ := width
+    have ex (a : P) (ha : a ∈ t) : ({k : P | k ∉ t ∧ ¬ a ≤ k ∧ ¬ k ≤ a} : Set P).ncard ≤ 2 := by
+      have bound := outside_degree_bound P t 6 at' thin ha
+      rw [five] at bound
+      omega
+    have eight : 8 ≤ Fintype.card P := by
+      by_contra! small
+      have cap := rigid_profile_capacity P t at' rigid
+      rw [five] at cap
+      have bound : 2 ^ (Fintype.card P - 5) ≤ (2 : ℕ)^2 :=
+        Nat.pow_le_pow_right (by decide) (by omega)
+      omega
+    exact w5 P nonchain indecomp rigid ⟨t,at',five,ex,maxT⟩ eight
+      (trace_obstructions P noGold) thin upper lower noGold
   · have cap (x : P) : ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ s.card := h ▸ thin x
     exact (noGold (near_antichain_gold P s ant (by omega) cap rigid)).elim
 
