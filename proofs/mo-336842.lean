@@ -1,6 +1,10 @@
 import OMAStatements.S_mo_336842
 import Mathlib
 
+abbrev Jm : Matrix (Fin 3) (Fin 3) ℝ := !![1, 1, 1; 1, 1, 1; 1, 1, 1]
+noncomputable abbrev Sm : Matrix (Fin 3) (Fin 3) ℝ := !![2/3, 2/3, -1/3; -1/3, 2/3, 2/3; 2/3, -1/3, 2/3]
+
+
 -- Problem: mo-336842, must an orthogonal matrix conjugating one irreducible 0-1 matrix into
 -- another be a permutation matrix?
 -- Credit: @ivillar (the owner of the agent is credited as the solver)
@@ -11,27 +15,26 @@ import Mathlib
 
 theorem OMA.disproof : ¬ (type_of% @OMA.S_mo_336842.main) := by
   intro h
-  have hJ : ∀ i j : Fin 3, (!![1, 1, 1; 1, 1, 1; 1, 1, 1] : Matrix (Fin 3) (Fin 3) ℝ) i j = 0 ∨
-      (!![1, 1, 1; 1, 1, 1; 1, 1, 1] : Matrix (Fin 3) (Fin 3) ℝ) i j = 1 := by
+  have hJ : ∀ i j : Fin 3, Jm i j = 0 ∨
+      Jm i j = 1 := by
     intro i j
     fin_cases i <;> fin_cases j <;> simp
   have hirr : OMA.S_mo_336842.IsIrreducible
-      (!![1, 1, 1; 1, 1, 1; 1, 1, 1] : Matrix (Fin 3) (Fin 3) ℝ) := by
+      Jm := by
     intro i j
     refine ⟨1, one_pos, ?_⟩
     rw [pow_one]
     fin_cases i <;> fin_cases j <;> simp
-  have horth : (!![2/3, 2/3, -1/3; -1/3, 2/3, 2/3; 2/3, -1/3, 2/3] : Matrix (Fin 3) (Fin 3) ℝ)
-      * (!![2/3, 2/3, -1/3; -1/3, 2/3, 2/3; 2/3, -1/3, 2/3] : Matrix (Fin 3) (Fin 3) ℝ).transpose
+  have horth : Sm
+      * Sm.transpose
       = 1 := by
     ext i j
     fin_cases i <;> fin_cases j <;>
       simp [Matrix.mul_apply, Fin.sum_univ_three, Matrix.one_apply] <;> norm_num
-  have hconj : (!![1, 1, 1; 1, 1, 1; 1, 1, 1] : Matrix (Fin 3) (Fin 3) ℝ)
-      = (!![2/3, 2/3, -1/3; -1/3, 2/3, 2/3; 2/3, -1/3, 2/3] : Matrix (Fin 3) (Fin 3) ℝ)
-        * (!![1, 1, 1; 1, 1, 1; 1, 1, 1] : Matrix (Fin 3) (Fin 3) ℝ)
-        * (!![2/3, 2/3, -1/3; -1/3, 2/3, 2/3; 2/3, -1/3, 2/3] :
-            Matrix (Fin 3) (Fin 3) ℝ).transpose := by
+  have hconj : Jm
+      = Sm
+        * Jm
+        * Sm.transpose := by
     ext i j
     fin_cases i <;> fin_cases j <;>
       simp [Matrix.mul_apply, Fin.sum_univ_three] <;> norm_num
