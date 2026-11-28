@@ -5,6 +5,8 @@ import Mathlib.Algebra.Group.TransferInstance
 import Mathlib.Algebra.Group.TypeTags.Finite
 import Mathlib.Data.Set.Card.Arithmetic
 import Mathlib.Data.Set.Finite.Range
+import Mathlib.Data.Nat.Log
+import Mathlib.Tactic.IntervalCases
 import Mathlib.Tactic.Linarith
 
 /- Credit: @wispiANt. Count the groups with cyclic Sylow subgroups explicitly.
@@ -18,6 +20,7 @@ namespace OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2_H2_R1
 
 def H1 : Prop :=
   ∃ E : ℕ, ∀ q r : ℕ, Odd q → q < 2^r → ¬ IsPrimePow q →
+    ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ l < p ∧ 0 < a ∧ q = p^a*l) →
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ ¬ Group.IsNilpotent G ∧ ¬ IsZGroup G ∧
         (∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P)}).ncard ≤
@@ -25,6 +28,7 @@ def H1 : Prop :=
 
 def H2 : Prop :=
   ∃ E : ℕ, ∀ q r : ℕ, Odd q → q < 2^r → ¬ IsPrimePow q →
+    ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ l < p ∧ 0 < a ∧ q = p^a*l) →
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ ¬ Group.IsNilpotent G ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
@@ -196,6 +200,177 @@ lemma prime_power_count {q : ℕ} (hpp : IsPrimePow q) :
     exact ⟨G, hG, rfl⟩
   exact Set.ncard_le_ncard sub (finite_classes _)
 
+/-- Thin a finite generating set, recording the doubling of subgroup order at each step. -/
+theorem thin_generators {G : Type*} [Group G] [Finite G] (s : Finset G) :
+    ∃ t : Finset G, t ⊆ s ∧ Subgroup.closure (t : Set G) = Subgroup.closure (s : Set G) ∧
+      2 ^ t.card ≤ Nat.card (Subgroup.closure (s : Set G)) := by
+  classical
+  induction s using Finset.induction_on with
+  | empty => exact ⟨∅, by simp, rfl, by simp⟩
+  | @insert x s hx ih =>
+    obtain ⟨t, hts, ht, hpow⟩ := ih
+    let H := Subgroup.closure (s : Set G)
+    let J := Subgroup.closure ((insert x s : Finset G) : Set G)
+    have hle : H ≤ J := Subgroup.closure_mono (by simp)
+    have hxJ : x ∈ J := Subgroup.subset_closure (by simp)
+    by_cases hxH : x ∈ H
+    · have heq : J = H := by
+        apply le_antisymm _ hle
+        apply (Subgroup.closure_le _).2
+        rw [Finset.coe_insert, Set.insert_subset_iff]
+        exact ⟨hxH, fun _ hy => Subgroup.subset_closure hy⟩
+      refine ⟨t, hts.trans (Finset.subset_insert _ _), ht.trans heq.symm, ?_⟩
+      change 2 ^ t.card ≤ Nat.card J
+      rw [heq]
+      exact hpow
+    · have hlt : Nat.card H < Nat.card J := by
+        apply lt_of_not_ge
+        intro h
+        exact hxH ((Subgroup.eq_of_le_of_card_ge hle h).symm ▸ hxJ)
+      obtain ⟨k, hk⟩ := Subgroup.card_dvd_of_le hle
+      have hk2 : 2 ≤ k := by
+        by_contra! h
+        interval_cases k <;> simp_all
+      have hxT : x ∉ t := fun h => hx (hts h)
+      refine ⟨insert x t, Finset.insert_subset_insert _ hts, ?_, ?_⟩
+      · simp only [Finset.coe_insert, Set.insert_eq, Subgroup.closure_union, ht]
+      · change 2 ^ (insert x t).card ≤ Nat.card J
+        rw [Finset.card_insert_of_notMem hxT, pow_succ, hk]
+        exact Nat.mul_le_mul hpow hk2
+
+theorem hom_count (G A : Type*) [Group G] [Group A] [Finite G] [Finite A] :
+    Nat.card (G →* A) ≤ Nat.card A ^ Nat.log 2 (Nat.card G) := by
+  classical
+  let _ := Fintype.ofFinite G
+  obtain ⟨t, _, ht, hsize⟩ := thin_generators (Finset.univ : Finset G)
+  rw [Finset.coe_univ, Subgroup.closure_univ] at ht hsize
+  rw [Subgroup.card_top] at hsize
+  let restrict (f : G →* A) (x : t) := f x
+  have inj : Function.Injective restrict := by
+    intro f g h
+    apply MonoidHom.eq_of_eqOn_dense ht
+    intro x hx
+    exact congrFun h ⟨x, hx⟩
+  calc
+    Nat.card (G →* A) ≤ Nat.card (t → A) := Nat.card_le_card_of_injective restrict inj
+    _ = Nat.card A ^ t.card := by simp [Nat.card_fun]
+    _ ≤ _ := Nat.pow_le_pow_right Nat.card_pos (Nat.le_log_of_pow_le (by decide) hsize)
+
+theorem cyclic_action_count (H K : FiniteGrp.{0}) [IsCyclic H] :
+    Nat.card (H →* MulAut K) ≤ Nat.card K ^ Nat.log 2 (Nat.card K) := by
+  let _ : Finite (MulAut K) := Finite.of_injective (fun a : MulAut K => (a : K → K))
+    (fun _ _ h => DFunLike.ext' h)
+  obtain ⟨x, hx⟩ := IsCyclic.exists_generator (α := H)
+  have inj : Function.Injective (fun f : H →* MulAut K => f x) := by
+    intro f g h
+    apply MonoidHom.ext
+    intro y
+    obtain ⟨z, rfl⟩ := hx y
+    simpa only [map_zpow] using congrArg (fun a : MulAut K => a ^ z) h
+  let _ : Finite (K →* K) := Finite.of_injective (fun f : K →* K => (f : K → K))
+    (fun _ _ h => DFunLike.ext' h)
+  have injAut : Function.Injective (fun e : MulAut K => e.toMonoidHom) := by
+    intro e f h
+    exact DFunLike.ext' (congrArg (fun a : K →* K => (a : K → K)) h)
+  exact (Nat.card_le_card_of_injective _ inj).trans
+    ((Nat.card_le_card_of_injective _ injAut).trans (hom_count K K))
+
+/-- Remove a smallest prime factor of multiplicity one by Burnside transfer. -/
+theorem peel {k l : ℕ} (hk : 0 < k) (hl : l.Prime)
+    (hmin : (k*l).minFac = l) (hcop : ¬ l ∣ k) :
+    g (k*l) ≤ g k * k^(Nat.log 2 k) := by
+  classical
+  let orderClasses (n : ℕ) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+    {G : FiniteGrp.{0} | Nat.card G = n}
+  let _ : NeZero l := ⟨hl.ne_zero⟩
+  let _ : Fact l.Prime := ⟨hl⟩
+  let H := FiniteGrp.of (Multiplicative (ZMod l))
+  let _ : IsCyclic H := inferInstanceAs (IsCyclic (Multiplicative (ZMod l)))
+  let K (x : orderClasses k) : FiniteGrp.{0} := x.property.choose
+  have rep (x : orderClasses k) : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (K x) = x.val :=
+    x.property.choose_spec.2
+  have order (x : orderClasses k) : Nat.card (K x) = k := x.property.choose_spec.1
+  let _ : Finite (orderClasses k) := (finite_classes _).to_subtype
+  let _ := Fintype.ofFinite (orderClasses k)
+  let A (x : orderClasses k) := H →* MulAut (K x)
+  let (x : orderClasses k) : Finite (A x) := by
+    let _ : Finite (MulAut (K x)) := Finite.of_injective (fun a : MulAut (K x) => (a : K x → K x))
+      (fun _ _ h => DFunLike.ext' h)
+    exact Finite.of_injective (fun a : A x => (a : H → MulAut (K x))) (fun _ _ h => DFunLike.ext' h)
+  let decode (z : (x : orderClasses k) × A x) : Quotient (isIsomorphicSetoid FiniteGrp.{0}) := by
+    letI : Finite (SemidirectProduct (K z.1) H z.2) :=
+      Finite.of_equiv (K z.1 × H) SemidirectProduct.equivProd.symm
+    exact Quotient.mk _ (FiniteGrp.of (SemidirectProduct (K z.1) H z.2))
+  have cover : orderClasses (k*l) ⊆ Set.range decode := by
+    rintro _ ⟨G, hG, rfl⟩
+    let P : Sylow l G := default
+    have hP : Nat.card P = l := by
+      rw [P.card_eq_multiplicity, hG, Nat.factorization_mul hk.ne' hl.ne_zero]
+      simp [Nat.factorization_eq_zero_of_not_dvd hcop, hl.factorization]
+    have hc : IsCyclic P := isCyclic_of_prime_card hP
+    have hm : (Nat.card G).minFac = l := hG ▸ hmin
+    let N := (MonoidHom.transferSylow P (hc.normalizer_le_centralizer hm)).ker
+    have comp : N.IsComplement' (P : Subgroup G) := hc.isComplement' hm
+    have hn : Nat.card N = k := by
+      have h := comp.card_mul_card
+      change Nat.card N * Nat.card P = Nat.card G at h
+      rw [hP, hG] at h
+      exact Nat.eq_of_mul_eq_mul_right hl.pos h
+    let x : orderClasses k := ⟨Quotient.mk _ (FiniteGrp.of N), FiniteGrp.of N, hn, rfl⟩
+    let i := Classical.choice (Quotient.exact (rep x))
+    let fn : N ≃* K x := ((inducedFunctor FiniteGrp.toGrp).mapIso i).groupIsoToMulEquiv.symm
+    let fh : P ≃* H := mulEquivOfCyclicCardEq (hP.trans (Nat.card_zmod _).symm)
+    let e := SemidirectProduct.mulEquivSubgroup comp
+    let f := e.symm.trans (SemidirectProduct.congr' fn fh)
+    let a : P →* MulAut N := N.normalizerMonoidHom.comp (Subgroup.inclusion (N.normalizer_eq_top ▸ le_top))
+    refine ⟨⟨x, MonoidHom.comp (MulAut.congr fn) (a.comp fh.symm)⟩, Quotient.sound ?_⟩
+    exact ⟨InducedCategory.isoMk (F := FiniteGrp.toGrp) f.symm.toGrpIso⟩
+  calc
+    _ ≤ (Set.range decode).ncard := Set.ncard_le_ncard cover (Set.finite_range _)
+    _ ≤ Nat.card ((x : orderClasses k) × A x) :=
+      Nat.card_le_card_of_surjective _ (Set.rangeFactorization_surjective (f := decode))
+    _ = ∑ x : orderClasses k, Nat.card (A x) := Nat.card_sigma
+    _ ≤ ∑ _x : orderClasses k, k^(Nat.log 2 k) := Finset.sum_le_sum fun x _ => by
+      simpa only [order] using cyclic_action_count H (K x)
+    _ = _ := by simp [← Nat.card_eq_fintype_card, g, orderClasses]
+
+/-- The requested estimate with E = 1 for orders p^a l, where l < p are primes. -/
+theorem two_prime_bound {p l a r : ℕ} (hp : p.Prime) (hl : l.Prime) (hlt : l < p)
+    (ha : 0 < a) (hr : p^a*l < 2^r) :
+    g (p^a*l) ≤ 2^((r+1)^2) *
+      ∏ b ∈ (p^a*l).primeFactors, g (b^(p^a*l).factorization b) := by
+  have hk : 0 < p^a := pow_pos hp.pos _
+  have hlq : l ∣ p^a*l := dvd_mul_left _ _
+  have hq : 1 < p^a*l := hl.one_lt.trans_le (Nat.le_of_dvd (Nat.mul_pos hk hl.pos) hlq)
+  have hm : (p^a*l).minFac = l := by
+    apply (Nat.minFac_le_of_dvd hl.two_le hlq).antisymm
+    apply (Nat.le_minFac.mpr _).resolve_left hq.ne'
+    intro d hd h
+    rcases hd.dvd_mul.mp h with h | h
+    · rw [(Nat.prime_dvd_prime_iff_eq hd hp).mp (hd.dvd_of_dvd_pow h)]
+      exact hlt.le
+    · rw [(Nat.prime_dvd_prime_iff_eq hd hl).mp h]
+  have hcop : ¬ l ∣ p^a := fun h =>
+    hlt.ne ((Nat.prime_dvd_prime_iff_eq hl hp).mp (hl.dvd_of_dvd_pow h))
+  have hkr := (Nat.le_mul_of_pos_right (p^a) hl.pos).trans_lt hr
+  have overhead : (p^a)^(Nat.log 2 (p^a)) ≤ 2^((r+1)^2) := by
+    calc
+      _ ≤ (2^r)^(Nat.log 2 (p^a)) := Nat.pow_le_pow_left hkr.le _
+      _ ≤ (2^r)^r := Nat.pow_le_pow_right (by positivity) (Nat.log_lt_of_lt_pow hk.ne' hkr).le
+      _ = 2^(r*r) := (pow_mul ..).symm
+      _ ≤ _ := Nat.pow_le_pow_right (by decide) (by nlinarith)
+  have hv : (p^a*l).factorization p = a := by
+    rw [Nat.factorization_mul hk.ne' hl.ne_zero, Finsupp.add_apply, Nat.factorization_pow_self hp,
+      Nat.factorization_eq_zero_of_not_dvd (fun h => hlt.ne' ((Nat.prime_dvd_prime_iff_eq hp hl).mp h)), add_zero]
+  have hmem : p ∈ (p^a*l).primeFactors := Nat.mem_primeFactors.mpr
+    ⟨hp, dvd_mul_of_dvd_left (dvd_pow_self p ha.ne') _, (Nat.mul_pos hk hl.pos).ne'⟩
+  have positive (b : ℕ) (hb : b ∈ (p^a*l).primeFactors) :
+      1 ≤ g (b^(p^a*l).factorization b) := by
+    exact positive_count (pow_pos (Nat.prime_of_mem_primeFactors hb).pos _)
+  have component := Finset.single_le_prod' positive hmem
+  rw [hv] at component
+  exact (peel hk hl hm hcop).trans ((Nat.mul_comm ..).le.trans (Nat.mul_le_mul overhead component))
+
 theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2.H2 := by
   classical
   rintro ⟨A, hA⟩ ⟨B, hB⟩
@@ -203,6 +378,19 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
   refine ⟨D+2, fun q r odd hr => ?_⟩
   by_cases hpp : IsPrimePow q
   · exact (prime_power_count hpp).trans (Nat.le_mul_of_pos_left _ (Nat.pow_pos (by decide)))
+  by_cases htwo : ∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ l < p ∧ 0 < a ∧ q = p^a*l
+  · obtain ⟨p, l, a, hp, hl, hlt, ha, rfl⟩ := htwo
+    have sub : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+        {G : FiniteGrp.{0} | Nat.card G = p^a*l ∧ Group.IsSolvable G} ⊆
+        Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+        {G : FiniteGrp.{0} | Nat.card G = p^a*l} := by
+      rintro _ ⟨G, ⟨hG, _⟩, rfl⟩
+      exact ⟨G, hG, rfl⟩
+    apply (Set.ncard_le_ncard sub (finite_classes _)).trans
+    apply (two_prime_bound hp hl hlt ha hr).trans
+    apply Nat.mul_le_mul_right
+    apply Nat.pow_le_pow_right (by decide)
+    exact Nat.le_mul_of_pos_left _ (by omega)
   let S (P : FiniteGrp.{0} → Prop) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
     {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ P G}
   let N (G : FiniteGrp.{0}) := Group.IsNilpotent G
@@ -240,8 +428,8 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
       _ ≤ 2^(1*m) := Nat.pow_le_pow_right (by decide) (by dsimp [m]; nlinarith [Nat.zero_le (r^2)])
       _ ≤ 2^(1*m)*L := Nat.le_mul_of_pos_right _ posL
       _ ≤ _ := mono _ _ (le_max_left ..)
-  have aa := (hA q r odd hr hpp).trans (mono _ D ((le_max_left A B).trans (le_max_right ..)))
-  have bb := (hB q r odd hr hpp).trans (mono _ D ((le_max_right A B).trans (le_max_right ..)))
+  have aa := (hA q r odd hr hpp htwo).trans (mono _ D ((le_max_left A B).trans (le_max_right ..)))
+  have bb := (hB q r odd hr hpp htwo).trans (mono _ D ((le_max_right A B).trans (le_max_right ..)))
   have nn : (S N).ncard ≤ 2^(D*m)*L := (nilpotent_bound q).trans
     (Nat.le_mul_of_pos_left _ (Nat.pow_pos (by decide)))
   have cost : 4 ≤ 2^(2*m) := by
