@@ -1,1040 +1,680 @@
 import OMAStatements.S_arxiv_1803_02550
+import Mathlib.Combinatorics.SimpleGraph.Metric
+import Mathlib.Data.Finset.Lattice.Fold
+import Mathlib.Order.Lattice.Nat
+import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 
-/-! The two-path construction follows Sk Samim Islam, arXiv:2608.20036v2. -/
+/-!
+# Broadcast domination versus multipacking
 
-namespace OMA.BroadcastCheckpoint
+Proof of Conjecture 2 of Beaudou, Brewster, and Foucaud (arXiv:1803.02550):
+for every finite connected graph `G`, `broadcastNumber G ≤ 2 * multipackingNumber G`.
+Formalizes the constructive two-path proof of Sk Samim Islam (arXiv:2608.20036).
+-/
 
-theorem shortestWalk_segment {V : Type*} {G : SimpleGraph V}
-    (connected : G.Connected) {u v : V} (walk : G.Walk u v)
-    (shortest : walk.length = G.dist u v) {i j : ℕ}
-    (ordered : i ≤ j) (inRange : j ≤ walk.length) :
-    G.dist (walk.getVert i) (walk.getVert j) = j - i := by
-  have iInRange : i ≤ walk.length := ordered.trans inRange
-  have prefixBound : G.dist u (walk.getVert i) ≤ i := by
-    simpa [min_eq_left iInRange] using G.dist_le (walk.take i)
-  have suffixBound : G.dist (walk.getVert j) v ≤ walk.length - j := by
-    simpa using G.dist_le (walk.drop j)
-  have segmentBound : G.dist (walk.getVert i) (walk.getVert j) ≤ j - i := by
-    have offset : i + (j - i) = j := by omega
-    have remaining : j - i ≤ walk.length - i := by omega
-    simpa [offset, min_eq_left remaining] using
-      G.dist_le ((walk.drop i).take (j - i))
-  have firstTriangle :
-      G.dist u v ≤ G.dist u (walk.getVert i) + G.dist (walk.getVert i) v :=
-    connected.dist_triangle
-  have secondTriangle :
-      G.dist (walk.getVert i) v ≤
-        G.dist (walk.getVert i) (walk.getVert j) + G.dist (walk.getVert j) v :=
-    connected.dist_triangle
-  omega
+namespace OMA.P_arxiv_1803_02550
 
-theorem multipacking_of_far_pair {n : ℕ} {G : SimpleGraph (Fin n)}
-    (connected : G.Connected) (packing : Finset (Fin n))
-    (farPair : ∀ subset ⊆ packing, 2 ≤ subset.card →
-      ∃ a ∈ subset, ∃ b ∈ subset, 2 * subset.card - 1 ≤ G.dist a b) :
-    OMA.S_arxiv_1803_02550.IsMultipacking G packing := by
-  intro center radius positive
-  let subset := packing.filter fun vertex => G.dist center vertex ≤ radius
-  change subset.card ≤ radius
-  by_contra! tooMany
-  obtain ⟨a, aMem, b, bMem, far⟩ :=
-    farPair subset (Finset.filter_subset _ _) (by omega)
-  have aNear : G.dist center a ≤ radius := (Finset.mem_filter.mp aMem).2
-  have bNear : G.dist center b ≤ radius := (Finset.mem_filter.mp bMem).2
-  have triangle : G.dist a b ≤ G.dist center a + G.dist center b := by
-    calc
-      G.dist a b ≤ G.dist a center + G.dist center b := connected.dist_triangle
-      _ = _ := by rw [show G.dist a center = G.dist center a from G.dist_comm]
-  omega
+open OMA.S_arxiv_1803_02550
 
+section Core
 
+variable {n : ℕ} {G : SimpleGraph (Fin n)}
 
-private theorem card_le_interval {indices : Finset ℕ} {low high : ℕ}
-    (bounded : ∀ i ∈ indices, low ≤ i ∧ i ≤ high) :
-    indices.card ≤ high + 1 - low := by
-  have subset : indices ⊆ Finset.Icc low high :=
-    fun i hi => Finset.mem_Icc.mpr (bounded i hi)
-  simpa using Finset.card_le_card subset
+private lemma bc_le (f : Fin n → ℕ) (hf : IsDominatingBroadcast G f) :
+    broadcastNumber G ≤ ∑ v, f v := Nat.sInf_le ⟨f, hf, rfl⟩
 
-private theorem card_le_span (indices : Finset ℕ) (nonempty : indices.Nonempty) :
-    indices.card ≤ indices.max' nonempty - indices.min' nonempty + 1 := by
-  have smallest := indices.min'_mem nonempty
-  have ordered := indices.le_max' _ smallest
-  have bound := card_le_interval (indices := indices)
-    (low := indices.min' nonempty) (high := indices.max' nonempty)
-    (fun i hi => ⟨indices.min'_le i hi, indices.le_max' i hi⟩)
-  omega
+private lemma le_mp (P : Finset (Fin n)) (hP : IsMultipacking G P) :
+    P.card ≤ multipackingNumber G :=
+  le_csSup ⟨n, by rintro _ ⟨Q, _, rfl⟩; exact (Finset.card_le_univ Q).trans (by simp)⟩ ⟨P, hP, rfl⟩
 
-private theorem clearance_one_side (indices : Finset ℕ) (nonempty : indices.Nonempty)
-    {mid last clearance : ℕ} (bounded : ∀ i ∈ indices, i ≤ last)
-    (far : ∀ i ∈ indices, clearance ≤ Nat.dist mid i)
-    (side : (∀ i ∈ indices, i ≤ mid) ∨ (∀ i ∈ indices, mid ≤ i)) :
-    clearance + indices.card ≤ max mid (last - mid) + 1 := by
-  rcases side with left | right
-  · let farthest := indices.max' nonempty
-    have memFarthest : farthest ∈ indices := indices.max'_mem nonempty
-    have farthestLe := left farthest memFarthest
-    have h := far farthest memFarthest
-    rw [Nat.dist_eq_sub_of_le_right farthestLe] at h
-    have count : indices.card ≤ farthest + 1 := by
-      simpa using card_le_interval (indices := indices) (low := 0) (high := farthest)
-        (fun i hi => ⟨Nat.zero_le i, indices.le_max' i hi⟩)
-    have := le_max_left mid (last - mid)
-    omega
-  · let nearest := indices.min' nonempty
-    have memNearest : nearest ∈ indices := indices.min'_mem nonempty
-    have nearestGe := right nearest memNearest
-    have h := far nearest memNearest
-    rw [Nat.dist_eq_sub_of_le nearestGe] at h
-    have count := card_le_interval (indices := indices) (low := nearest) (high := last)
-      (fun i hi => ⟨indices.min'_le i hi, bounded i hi⟩)
-    have nearestLe := bounded nearest memNearest
-    have := le_max_right mid (last - mid)
-    omega
-
-private theorem clearance_both_sides (indices : Finset ℕ) (nonempty : indices.Nonempty)
-    {mid clearance : ℕ} (far : ∀ i ∈ indices, clearance ≤ Nat.dist mid i)
-    (left : ∃ i ∈ indices, i < mid) (right : ∃ i ∈ indices, mid < i) :
-    2 * clearance + indices.card ≤ indices.max' nonempty - indices.min' nonempty + 2 := by
-  let low := indices.min' nonempty
-  let high := indices.max' nonempty
-  have lowMem : low ∈ indices := indices.min'_mem nonempty
-  have highMem : high ∈ indices := indices.max'_mem nonempty
-  obtain ⟨i, hi, iLeft⟩ := left
-  obtain ⟨j, hj, jRight⟩ := right
-  have lowLeft : low < mid := lt_of_le_of_lt (indices.min'_le i hi) iLeft
-  have highRight : mid < high := lt_of_lt_of_le jRight (indices.le_max' j hj)
-  by_cases midMem : mid ∈ indices
-  · have zero : clearance = 0 := by simpa [Nat.dist] using far mid midMem
-    have span := card_le_span indices nonempty
-    omega
-  · have farLow := far low lowMem
-    have farHigh := far high highMem
-    rw [Nat.dist_eq_sub_of_le_right lowLeft.le] at farLow
-    rw [Nat.dist_eq_sub_of_le highRight.le] at farHigh
-    have covers : indices ⊆ Finset.Icc low (mid - clearance) ∪ Finset.Icc (mid + clearance) high := by
-      intro a ha
-      have aFar := far a ha
-      rcases le_total a mid with h | h
-      · rw [Nat.dist_eq_sub_of_le_right h] at aFar
-        exact Finset.mem_union_left _ (Finset.mem_Icc.mpr ⟨indices.min'_le a ha, by omega⟩)
-      · rw [Nat.dist_eq_sub_of_le h] at aFar
-        exact Finset.mem_union_right _ (Finset.mem_Icc.mpr ⟨by omega, indices.le_max' a ha⟩)
-    have count := (Finset.card_le_card covers).trans (Finset.card_union_le _ _)
-    simp only [Nat.card_Icc] at count
-    omega
-
-/-- The mixed-subset count for the every-third-point construction. -/
-theorem mixed_indices_impossible (R : ℕ) (positive : 0 < R)
-    (I J : Finset ℕ) (iNonempty : I.Nonempty) (jNonempty : J.Nonempty)
-    (iBound : ∀ i ∈ I, i ≤ R / 3) (jBound : ∀ j ∈ J, j < (R - 1) / 6)
-    (samePath : ∀ i ∈ I, ∀ i' ∈ I,
-      3 * Nat.dist i i' + 2 ≤ 2 * (I.card + J.card))
-    (crossPath : ∀ i ∈ I, ∀ j ∈ J,
-      R + 2 ≤ 3 * j + 3 * Nat.dist (R / 6) i + 2 * (I.card + J.card)) :
-    False := by
-  let k := R / 6
-  let p := R / 3
-  let ell := (R - 1) / 6
-  let low := I.min' iNonempty
-  let high := I.max' iNonempty
-  let jFirst := J.min' jNonempty
-  let radial := I.image (Nat.dist k)
-  have radialNonempty : radial.Nonempty := iNonempty.image _
-  let clearance := radial.min' radialNonempty
-  obtain ⟨nearest, nearestMem, nearestDist⟩ :=
-    Finset.mem_image.mp (radial.min'_mem radialNonempty)
-  have clearanceLe : ∀ i ∈ I, clearance ≤ Nat.dist k i := by
-    intro i hi
-    exact radial.min'_le _ (Finset.mem_image_of_mem _ hi)
-  have jFirstMem : jFirst ∈ J := J.min'_mem jNonempty
-  have jCount : jFirst + J.card ≤ ell := by
-    have subset : J ⊆ Finset.Ico jFirst ell :=
-      fun j hj => Finset.mem_Ico.mpr ⟨J.min'_le j hj, jBound j hj⟩
-    have count := Finset.card_le_card subset
-    rw [Nat.card_Ico] at count
-    have := jBound jFirst jFirstMem
-    omega
-  have cross := crossPath nearest nearestMem jFirst jFirstMem
-  change Nat.dist k nearest = clearance at nearestDist
-  rw [nearestDist] at cross
-  have crossCount : R + J.card + 2 ≤ 3 * ell + 3 * clearance + 2 * I.card := by omega
-  have iSubset : I ⊆ Finset.Iic p := fun i hi => Finset.mem_Iic.mpr (iBound i hi)
-  have iCount : I.card ≤ p + 1 := by simpa [Nat.card_Iic] using Finset.card_le_card iSubset
-  have jSubset : J ⊆ Finset.range ell := fun j hj => Finset.mem_range.mpr (jBound j hj)
-  have jTotal : J.card ≤ ell := by simpa using Finset.card_le_card jSubset
-  have iPositive := Finset.card_pos.mpr iNonempty
-  have jPositive := Finset.card_pos.mpr jNonempty
-  have residues : R = 6*k + R%6 := by dsimp [k]; omega
-  have pValue : p = 2*k + (if R%6 < 3 then 0 else 1) := by split <;> (dsimp [p,k]; omega)
-  have ellValue : ell = (if R%6 = 0 then k - 1 else k) := by split <;> (dsimp [ell,k]; omega)
-  by_cases side : (∀ i ∈ I, i ≤ k) ∨ (∀ i ∈ I, k ≤ i)
-  · have oneSide := clearance_one_side I iNonempty iBound clearanceLe side
-    have maxValue : max k (p-k) = (if R%6 < 3 then k else k+1) := by
-      by_cases h : R%6 < 3 <;> simp [h] at pValue ⊢ <;> omega
-    rw [maxValue] at oneSide
-    omega
-  · push Not at side
-    obtain ⟨⟨i, hi, iRight⟩, ⟨j, hj, jLeft⟩⟩ := side
-    have spread := clearance_both_sides I iNonempty clearanceLe ⟨j,hj,jLeft⟩ ⟨i,hi,iRight⟩
-    have lowMem : low ∈ I := I.min'_mem iNonempty
-    have highMem : high ∈ I := I.max'_mem iNonempty
-    have lowLeHigh : low ≤ high := I.le_max' _ lowMem
-    have close := samePath low lowMem high highMem
-    rw [Nat.dist_eq_sub_of_le lowLeHigh] at close
-    have bothSides : 2 * R ≤ 6 * ell + 3 * I.card := by omega
-    have remaining : (R%6 = 1 ∨ R%6 = 3) ∧ I.card = p + 1 := by omega
-    have fullI : I = Finset.Iic p := Finset.eq_of_subset_of_card_le iSubset (by simp [Nat.card_Iic, remaining.2])
-    have zeroMem : 0 ∈ I := by rw [fullI]; simp
-    have endMem : p ∈ I := by rw [fullI]; simp
-    have endpoints := samePath 0 zeroMem p endMem
-    rw [Nat.dist_eq_sub_of_le (Nat.zero_le p), Nat.sub_zero, remaining.2] at endpoints
-    have remainderOne : R%6 = 1 := by omega
-    have jFullCard : J.card = ell := by omega
-    have fullJ : J = Finset.range ell := Finset.eq_of_subset_of_card_le jSubset (by simp [jFullCard])
-    have kMem : k ∈ I := by rw [fullI]; exact Finset.mem_Iic.mpr (by omega)
-    have jZero : 0 ∈ J := by rw [fullJ]; exact Finset.mem_range.mpr (by omega)
-    have endCross := crossPath k kMem 0 jZero
-    change R + 2 ≤ 3 * 0 + 3 * Nat.dist k k + 2 * (I.card + J.card) at endCross
-    rw [Nat.dist_eq_zero rfl] at endCross
-    omega
-
-
-private theorem image_injective_of_spacing {n : ℕ} {G : SimpleGraph (Fin n)}
-    (indices : Finset ℕ) (f : ℕ → Fin n)
-    (spacing : ∀ i ∈ indices, ∀ j ∈ indices, G.dist (f i) (f j) = 3 * Nat.dist i j) :
-    Set.InjOn f (↑indices : Set ℕ) := by
-  intro i hi j hj equal
-  have far := spacing i (Finset.mem_coe.mp hi) j (Finset.mem_coe.mp hj)
-  rw [equal, G.dist_self] at far
-  rcases le_total i j with h | h
-  · rw [Nat.dist_eq_sub_of_le h] at far; omega
-  · rw [Nat.dist_eq_sub_of_le_right h] at far; omega
-
-private theorem far_pair_one_image {n : ℕ} {G : SimpleGraph (Fin n)}
-    (indices : Finset ℕ) (f : ℕ → Fin n)
-    (spacing : ∀ i ∈ indices, ∀ j ∈ indices, G.dist (f i) (f j) = 3 * Nat.dist i j)
-    (large : 2 ≤ indices.card) :
-    ∃ a ∈ indices.image f, ∃ b ∈ indices.image f, 3 * (indices.card - 1) ≤ G.dist a b := by
-  have nonempty := Finset.card_pos.mp (by omega : 0 < indices.card)
-  let low := indices.min' nonempty
-  let high := indices.max' nonempty
-  have lowMem : low ∈ indices := indices.min'_mem nonempty
-  have highMem : high ∈ indices := indices.max'_mem nonempty
-  have ordered : low ≤ high := indices.le_max' _ lowMem
-  refine ⟨f low, Finset.mem_image_of_mem _ lowMem, f high, Finset.mem_image_of_mem _ highMem, ?_⟩
-  rw [spacing low lowMem high highMem, Nat.dist_eq_sub_of_le ordered]
-  have span : indices.card ≤ high - low + 1 := card_le_span _ nonempty
-  omega
-
-private theorem sampled_disjoint {n : ℕ} {G : SimpleGraph (Fin n)} (R : ℕ)
-    (positive : 0 < R) (x z : ℕ → Fin n)
-    (cross : ∀ i ≤ R / 3, ∀ j < (R - 1) / 6,
-      R ≤ 3 * j + 3 * Nat.dist (R / 6) i + G.dist (x i) (z j)) :
-    Disjoint ((Finset.Iic (R / 3)).image x) ((Finset.range ((R - 1) / 6)).image z) := by
-  rw [Finset.disjoint_left]
-  intro a hx hz
-  obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp hx
-  obtain ⟨j, hj, equal⟩ := Finset.mem_image.mp hz
-  have iBound := Finset.mem_Iic.mp hi
-  have jBound := Finset.mem_range.mp hj
-  have close := cross i iBound j jBound
-  rw [equal, G.dist_self] at close
-  have radial : Nat.dist (R / 6) i ≤ R / 6 + 1 := by
-    rcases le_total i (R / 6) with h | h
-    · rw [Nat.dist_eq_sub_of_le_right h]
-      omega
-    · rw [Nat.dist_eq_sub_of_le h]
-      omega
-  omega
-
-private theorem sampled_farPair {n : ℕ} {G : SimpleGraph (Fin n)}
-    (X Z : Finset ℕ) (x z : ℕ → Fin n)
-    (xDist : ∀ i ∈ X, ∀ j ∈ X, G.dist (x i) (x j) = 3 * Nat.dist i j)
-    (zDist : ∀ i ∈ Z, ∀ j ∈ Z, G.dist (z i) (z j) = 3 * Nat.dist i j)
-    (disjoint : Disjoint (X.image x) (Z.image z))
-    (threshold : ℕ → ℕ) (minimum : ℕ) (minimumTwo : 2 ≤ minimum)
-    (threshold_le : ∀ t, minimum ≤ t → threshold t ≤ 3 * (t - 1))
-    (mixed : ∀ I J : Finset ℕ, I ⊆ X → J ⊆ Z → I.Nonempty → J.Nonempty →
-      (∀ i ∈ I, ∀ i' ∈ I, G.dist (x i) (x i') < threshold (I.card + J.card)) →
-      (∀ i ∈ I, ∀ j ∈ J, G.dist (x i) (z j) < threshold (I.card + J.card)) → False) :
-    ∀ subset ⊆ X.image x ∪ Z.image z, minimum ≤ subset.card →
-      ∃ a ∈ subset, ∃ b ∈ subset, threshold subset.card ≤ G.dist a b := by
-  have xInjective := image_injective_of_spacing X x xDist
-  have zInjective := image_injective_of_spacing Z z zDist
-  intro subset inside large
-  let I := X.filter fun i => x i ∈ subset
-  let J := Z.filter fun j => z j ∈ subset
-  have iSubset : I ⊆ X := Finset.filter_subset _ _
-  have jSubset : J ⊆ Z := Finset.filter_subset _ _
-  have union : I.image x ∪ J.image z = subset := by
-    ext a
-    constructor
-    · intro h
-      rcases Finset.mem_union.mp h with hx | hz
-      · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp hx
-        exact (Finset.mem_filter.mp hi).2
-      · obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp hz
-        exact (Finset.mem_filter.mp hj).2
-    · intro h
-      rcases Finset.mem_union.mp (inside h) with hx | hz
-      · obtain ⟨i, hi, rfl⟩ := Finset.mem_image.mp hx
-        exact Finset.mem_union_left _ (Finset.mem_image_of_mem _ (Finset.mem_filter.mpr ⟨hi, h⟩))
-      · obtain ⟨j, hj, rfl⟩ := Finset.mem_image.mp hz
-        exact Finset.mem_union_right _ (Finset.mem_image_of_mem _ (Finset.mem_filter.mpr ⟨hj, h⟩))
-  have iImageSubset : I.image x ⊆ subset := by
-    rw [← union]
-    exact Finset.subset_union_left
-  have jImageSubset : J.image z ⊆ subset := by
-    rw [← union]
-    exact Finset.subset_union_right
-  have count : subset.card = I.card + J.card := by
-    rw [← union, Finset.card_union_of_disjoint (disjoint.mono
-      (Finset.image_subset_image iSubset) (Finset.image_subset_image jSubset))]
-    rw [Finset.card_image_of_injOn (xInjective.mono (fun _ hi => iSubset hi)),
-      Finset.card_image_of_injOn (zInjective.mono (fun _ hj => jSubset hj))]
-  by_cases iNonempty : I.Nonempty
-  · by_cases jNonempty : J.Nonempty
-    · by_contra! close
-      apply mixed I J iSubset jSubset iNonempty jNonempty
-      · intro i hi j hj
-        rw [← count]
-        exact close (x i) (iImageSubset (Finset.mem_image_of_mem _ hi))
-          (x j) (iImageSubset (Finset.mem_image_of_mem _ hj))
-      · intro i hi j hj
-        rw [← count]
-        exact close (x i) (iImageSubset (Finset.mem_image_of_mem _ hi))
-          (z j) (jImageSubset (Finset.mem_image_of_mem _ hj))
-    · have zero : J.card = 0 := by simpa using jNonempty
-      obtain ⟨a, ha, b, hb, far⟩ := far_pair_one_image I x
-        (fun i hi j hj => xDist i (iSubset hi) j (iSubset hj)) (by omega)
-      have cardEq : subset.card = I.card := by omega
-      rw [← cardEq] at far
-      exact ⟨a, iImageSubset ha, b, iImageSubset hb, (threshold_le _ large).trans far⟩
-  · have zero : I.card = 0 := by simpa using iNonempty
-    obtain ⟨a, ha, b, hb, far⟩ := far_pair_one_image J z
-      (fun i hi j hj => zDist i (jSubset hi) j (jSubset hj)) (by omega)
-    have cardEq : subset.card = J.card := by omega
-    rw [← cardEq] at far
-    exact ⟨a, jImageSubset ha, b, jImageSubset hb, (threshold_le _ large).trans far⟩
-
-/-- The base packing in Islam, arXiv:2608.20036, Lemma 2. -/
-theorem baseMultipacking_from_distances {n : ℕ} {G : SimpleGraph (Fin n)}
-    (connected : G.Connected) (R : ℕ) (positive : 0 < R) (x z : ℕ → Fin n)
-    (xSpacing : ∀ i ≤ R / 3, ∀ j ≤ R / 3, G.dist (x i) (x j) = 3 * Nat.dist i j)
-    (zSpacing : ∀ i < (R - 1) / 6, ∀ j < (R - 1) / 6,
-      G.dist (z i) (z j) = 3 * Nat.dist i j)
-    (cross : ∀ i ≤ R / 3, ∀ j < (R - 1) / 6,
-      R ≤ 3 * j + 3 * Nat.dist (R / 6) i + G.dist (x i) (z j)) :
-    let packing := (Finset.Iic (R / 3)).image x ∪ (Finset.range ((R - 1) / 6)).image z
-    OMA.S_arxiv_1803_02550.IsMultipacking G packing ∧
-      packing.card = R / 3 + 1 + (R - 1) / 6 := by
-  let X := Finset.Iic (R / 3)
-  let Z := Finset.range ((R - 1) / 6)
-  let packing := X.image x ∪ Z.image z
-  change OMA.S_arxiv_1803_02550.IsMultipacking G packing ∧ packing.card = _
-  have xDist : ∀ i ∈ X, ∀ j ∈ X, G.dist (x i) (x j) = 3 * Nat.dist i j :=
-    fun i hi j hj => xSpacing i (Finset.mem_Iic.mp hi) j (Finset.mem_Iic.mp hj)
-  have zDist : ∀ i ∈ Z, ∀ j ∈ Z, G.dist (z i) (z j) = 3 * Nat.dist i j :=
-    fun i hi j hj => zSpacing i (Finset.mem_range.mp hi) j (Finset.mem_range.mp hj)
-  have xInjective := image_injective_of_spacing X x xDist
-  have zInjective := image_injective_of_spacing Z z zDist
-  have disjoint := sampled_disjoint (G := G) R positive x z cross
-  refine ⟨?_, ?_⟩
-  · apply multipacking_of_far_pair connected packing
-    apply sampled_farPair X Z x z xDist zDist disjoint (fun t => 2 * t - 1) 2 (by omega)
-    · intro t ht
-      omega
-    · intro I J iSubset jSubset iNonempty jNonempty same close
-      apply mixed_indices_impossible R positive I J iNonempty jNonempty
-      · exact fun i hi => Finset.mem_Iic.mp (iSubset hi)
-      · exact fun j hj => Finset.mem_range.mp (jSubset hj)
-      · intro i hi j hj
-        have h := same i hi j hj
-        rw [xDist i (iSubset hi) j (iSubset hj)] at h
-        omega
-      · intro i hi j hj
-        have h := close i hi j hj
-        have bound := cross i (Finset.mem_Iic.mp (iSubset hi)) j (Finset.mem_range.mp (jSubset hj))
-        omega
-  · change (X.image x ∪ Z.image z).card = _
-    rw [Finset.card_union_of_disjoint disjoint, Finset.card_image_of_injOn xInjective,
-      Finset.card_image_of_injOn zInjective]
-    simp [X, Z, Nat.card_Iic]
-
-/-- The two sampled paths satisfy the distance bounds used in Lemmas 2, 4 and 5. -/
-private theorem spacing_from_paths {n : ℕ} {G : SimpleGraph (Fin n)}
-    (connected : G.Connected) (R : ℕ) (x z : ℕ → Fin n)
-    (hX : ∀ i ≤ R, ∀ j ≤ R, G.dist (x i) (x j) = Nat.dist i j)
-    (hZ : ∀ i ≤ R, ∀ j ≤ R, G.dist (z i) (z j) = Nat.dist i j)
-    (joined : z 0 = x (3 * (R / 6))) :
-    (∀ i ≤ R / 3, ∀ j ≤ R / 3,
-      G.dist (x (3 * i)) (x (3 * j)) = 3 * Nat.dist i j) ∧
-    (∀ i < (R - 1) / 6, ∀ j < (R - 1) / 6,
-      G.dist (z (R - 3 * i)) (z (R - 3 * j)) = 3 * Nat.dist i j) ∧
-    (∀ i ≤ R / 3, ∀ j < (R - 1) / 6,
-      R ≤ 3 * j + 3 * Nat.dist (R / 6) i + G.dist (x (3 * i)) (z (R - 3 * j))) := by
-  have xSpacing : ∀ i ≤ R / 3, ∀ j ≤ R / 3,
-      G.dist (x (3 * i)) (x (3 * j)) = 3 * Nat.dist i j := by
-    intro i hi j hj
-    rw [hX _ (by omega) _ (by omega)]
-    rcases le_total i j with h | h
-    · rw [Nat.dist_eq_sub_of_le h, Nat.dist_eq_sub_of_le (by omega : 3 * i ≤ 3 * j)]
-      omega
-    · rw [Nat.dist_eq_sub_of_le_right h,
-        Nat.dist_eq_sub_of_le_right (by omega : 3 * j ≤ 3 * i)]
-      omega
-  refine ⟨xSpacing, ?_, ?_⟩
-  · intro i hi j hj
-    rw [hZ _ (by omega) _ (by omega)]
-    rcases le_total i j with h | h
-    · rw [Nat.dist_eq_sub_of_le h,
-        Nat.dist_eq_sub_of_le_right (by omega : R - 3 * j ≤ R - 3 * i)]
-      omega
-    · rw [Nat.dist_eq_sub_of_le_right h,
-        Nat.dist_eq_sub_of_le (by omega : R - 3 * i ≤ R - 3 * j)]
-      omega
-  · intro i hi j hj
-    have base := hZ 0 (Nat.zero_le _) (R - 3 * j) (Nat.sub_le _ _)
-    rw [joined, Nat.dist_eq_sub_of_le (Nat.zero_le _), Nat.sub_zero] at base
-    have xBound := xSpacing (R / 6) (by omega) i hi
-    have triangle : G.dist (x (3 * (R / 6))) (z (R - 3 * j)) ≤
-        G.dist (x (3 * (R / 6))) (x (3 * i)) + G.dist (x (3 * i)) (z (R - 3 * j)) :=
-      connected.dist_triangle
-    omega
-
-theorem baseMultipacking_from_paths {n : ℕ} {G : SimpleGraph (Fin n)}
-    (connected : G.Connected) (R : ℕ) (positive : 0 < R) (x z : ℕ → Fin n)
-    (hX : ∀ i ≤ R, ∀ j ≤ R, G.dist (x i) (x j) = Nat.dist i j)
-    (hZ : ∀ i ≤ R, ∀ j ≤ R, G.dist (z i) (z j) = Nat.dist i j)
-    (joined : z 0 = x (3 * (R / 6))) :
-    ∃ packing, OMA.S_arxiv_1803_02550.IsMultipacking G packing ∧
-      packing.card = R / 3 + 1 + (R - 1) / 6 := by
-  obtain ⟨xDist, zDist, cross⟩ := spacing_from_paths connected R x z hX hZ joined
-  exact ⟨_, baseMultipacking_from_distances connected R positive _ _ xDist zDist cross⟩
-
-private theorem mixed_exception_impossible (k : ℕ)
-    (I J : Finset ℕ) (iNonempty : I.Nonempty) (jNonempty : J.Nonempty)
-    (iBound : ∀ i ∈ I, i ≤ 2 * k + 1) (jBound : ∀ j ∈ J, j < k)
-    (samePath : ∀ i ∈ I, ∀ i' ∈ I, 3 * Nat.dist i i' ≤ 2 * (I.card + J.card))
-    (crossPath : ∀ i ∈ I, ∀ j ∈ J,
-      6 * k + 5 ≤ 3 * j + 3 * Nat.dist k i + 2 * (I.card + J.card)) :
-    False := by
-  let radial := I.image (Nat.dist k)
-  have radialNonempty := iNonempty.image (Nat.dist k)
-  let clearance := radial.min' radialNonempty
-  obtain ⟨nearest, nearestMem, nearestDist⟩ :=
-    Finset.mem_image.mp (radial.min'_mem radialNonempty)
-  have clearanceLe : ∀ i ∈ I, clearance ≤ Nat.dist k i :=
-    fun i hi => radial.min'_le _ (Finset.mem_image_of_mem _ hi)
-  let jFirst := J.min' jNonempty
-  have jFirstMem : jFirst ∈ J := J.min'_mem jNonempty
-  have jCount : jFirst + J.card ≤ k := by
-    have subset : J ⊆ Finset.Ico jFirst k :=
-      fun j hj => Finset.mem_Ico.mpr ⟨J.min'_le j hj, jBound j hj⟩
-    have count := Finset.card_le_card subset
-    rw [Nat.card_Ico] at count
-    have := jBound jFirst jFirstMem
-    omega
-  have cross := crossPath nearest nearestMem jFirst jFirstMem
-  change Nat.dist k nearest = clearance at nearestDist
-  rw [nearestDist] at cross
-  have crossCount : 3 * k + J.card + 5 ≤ 3 * clearance + 2 * I.card := by omega
-  have iSubset : I ⊆ Finset.Iic (2 * k + 1) := fun i hi => Finset.mem_Iic.mpr (iBound i hi)
-  have iCount : I.card ≤ 2 * k + 2 := by
-    simpa [Nat.card_Iic] using Finset.card_le_card iSubset
-  have iPositive := Finset.card_pos.mpr iNonempty
-  have jPositive := Finset.card_pos.mpr jNonempty
-  by_cases side : (∀ i ∈ I, i ≤ k) ∨ (∀ i ∈ I, k ≤ i)
-  · have oneSide := clearance_one_side I iNonempty iBound clearanceLe side
-    omega
-  · push Not at side
-    obtain ⟨⟨i, hi, iRight⟩, ⟨j, hj, jLeft⟩⟩ := side
-    have spread := clearance_both_sides I iNonempty clearanceLe ⟨j, hj, jLeft⟩ ⟨i, hi, iRight⟩
-    have lowMem := I.min'_mem iNonempty
-    have highMem := I.max'_mem iNonempty
-    have close := samePath _ lowMem _ highMem
-    rw [Nat.dist_eq_sub_of_le (I.le_max' _ lowMem)] at close
-    have fullCard : I.card = 2 * k + 2 := by omega
-    have full : I = Finset.Iic (2 * k + 1) :=
-      Finset.eq_of_subset_of_card_le iSubset (by simp [Nat.card_Iic, fullCard])
-    have kMem : k ∈ I := by rw [full]; exact Finset.mem_Iic.mpr (by omega)
-    have noClearance : clearance = 0 := by simpa [Nat.dist] using clearanceLe k kMem
-    have zeroMem : 0 ∈ I := by rw [full]; simp
-    have endMem : 2 * k + 1 ∈ I := by rw [full]; simp
-    have endpoints := samePath 0 zeroMem (2 * k + 1) endMem
-    rw [Nat.dist_eq_sub_of_le (Nat.zero_le _), Nat.sub_zero] at endpoints
-    omega
-
-private theorem exception_farPair {n : ℕ} {G : SimpleGraph (Fin n)}
-    (k : ℕ) (X Z : ℕ → Fin n)
-    (xDist : ∀ i ≤ 2 * k + 1, ∀ j ≤ 2 * k + 1, G.dist (X i) (X j) = 3 * Nat.dist i j)
-    (zDist : ∀ i < k, ∀ j < k, G.dist (Z i) (Z j) = 3 * Nat.dist i j)
-    (cross : ∀ i ≤ 2 * k + 1, ∀ j < k,
-      6 * k + 5 ≤ 3 * j + 3 * Nat.dist k i + G.dist (X i) (Z j))
-    (disjoint : Disjoint ((Finset.Iic (2 * k + 1)).image X) ((Finset.range k).image Z)) :
-    ∀ subset ⊆ (Finset.Iic (2 * k + 1)).image X ∪ (Finset.range k).image Z, 4 ≤ subset.card →
-      ∃ a ∈ subset, ∃ b ∈ subset, 2 * subset.card + 1 ≤ G.dist a b := by
-  have xSpacing : ∀ i ∈ Finset.Iic (2 * k + 1), ∀ j ∈ Finset.Iic (2 * k + 1),
-      G.dist (X i) (X j) = 3 * Nat.dist i j :=
-    fun i hi j hj => xDist i (Finset.mem_Iic.mp hi) j (Finset.mem_Iic.mp hj)
-  have zSpacing : ∀ i ∈ Finset.range k, ∀ j ∈ Finset.range k,
-      G.dist (Z i) (Z j) = 3 * Nat.dist i j :=
-    fun i hi j hj => zDist i (Finset.mem_range.mp hi) j (Finset.mem_range.mp hj)
-  apply sampled_farPair _ _ _ _ xSpacing zSpacing disjoint (fun t => 2 * t + 1) 4 (by omega)
-  · intro t ht
-    omega
-  · intro I J hi hj ine jne same close
-    have iBound : ∀ i ∈ I, i ≤ 2 * k + 1 := fun i h => Finset.mem_Iic.mp (hi h)
-    have jBound : ∀ j ∈ J, j < k := fun j h => Finset.mem_range.mp (hj h)
-    apply mixed_exception_impossible k I J ine jne iBound jBound
-    · intro i iMem j jMem
-      have small := same i iMem j jMem
-      rw [xDist i (iBound i iMem) j (iBound j jMem)] at small
-      omega
-    · intro i iMem j jMem
-      have small := close i iMem j jMem
-      have bound := cross i (iBound i iMem) j (jBound j jMem)
-      omega
-
-private theorem card_le_two_of_endpoint_options {V : Type*} [DecidableEq V]
-    (subset : Finset V) (x0 x1 xLast zPrev zLast : V)
-    (possible : ∀ a ∈ subset,
-      a = x0 ∨ a = x1 ∨ a = xLast ∨ a = zPrev ∨ a = zLast)
-    (noX0XLast : x0 ∈ subset → xLast ∉ subset)
-    (noX0ZPrev : x0 ∈ subset → zPrev ∉ subset)
-    (noX0ZLast : x0 ∈ subset → zLast ∉ subset)
-    (noX1ZLast : zLast ∈ subset → x1 ∉ subset)
-    (noXLastZPrev : xLast ∈ subset → zPrev ∉ subset) :
-    subset.card ≤ 2 := by
-  have bound (a b : V) (included : ∀ c ∈ subset, c = a ∨ c = b) : subset.card ≤ 2 :=
-    (Finset.card_le_card (show subset ⊆ {a, b} by
-      intro c hc
-      simpa using included c hc)).trans Finset.card_le_two
-  by_cases x0Mem : x0 ∈ subset
-  · apply bound x0 x1
-    intro a ha
-    have noLast := noX0XLast x0Mem
-    have noPrev := noX0ZPrev x0Mem
-    have noZ := noX0ZLast x0Mem
-    rcases possible a ha with rfl | rfl | rfl | rfl | rfl <;> aesop
-  · by_cases lastMem : xLast ∈ subset
-    · have noPrev := noXLastZPrev lastMem
-      by_cases zLastMem : zLast ∈ subset
-      · apply bound xLast zLast
-        intro a ha
-        have noX1 := noX1ZLast zLastMem
-        rcases possible a ha with rfl | rfl | rfl | rfl | rfl <;> aesop
-      · apply bound x1 xLast
-        intro a ha
-        rcases possible a ha with rfl | rfl | rfl | rfl | rfl <;> aesop
-    · by_cases zLastMem : zLast ∈ subset
-      · apply bound zPrev zLast
-        intro a ha
-        have noX1 := noX1ZLast zLastMem
-        rcases possible a ha with rfl | rfl | rfl | rfl | rfl <;> aesop
-      · apply bound x1 zPrev
-        intro a ha
-        rcases possible a ha with rfl | rfl | rfl | rfl | rfl <;> aesop
-
-/-- If a small ball contains the extra vertex in Islam's construction,
-    it cannot contain as many sampled vertices as its radius. -/
-private theorem exception_small_card {n : ℕ} {G : SimpleGraph (Fin n)}
-    (k : ℕ) (positive : 0 < k) (X Z : ℕ → Fin n) (b : Fin n)
-    (xDist : ∀ i ≤ 2 * k + 1, ∀ j ≤ 2 * k + 1, G.dist (X i) (X j) = 3 * Nat.dist i j)
-    (cross : ∀ i ≤ 2 * k + 1, ∀ j < k,
-      6 * k + 5 ≤ 3 * j + 3 * Nat.dist k i + G.dist (X i) (Z j))
-    (xFar : ∀ i ≤ 2 * k + 1, 3 * k + 6 ≤ G.dist b (X i) + 3 * Nat.dist (k + 1) i)
-    (zFar : ∀ j < k, 3 * k ≤ G.dist b (Z j) + 3 * j)
-    (subset : Finset (Fin n))
-    (within : subset ⊆ (Finset.Iic (2 * k + 1)).image X ∪ (Finset.range k).image Z)
-    (r : ℕ) (rPos : 1 ≤ r) (rSmall : r ≤ 3)
-    (nearB : ∀ a ∈ subset, G.dist b a ≤ 2 * r)
-    (nearPairs : ∀ a ∈ subset, ∀ c ∈ subset, G.dist a c ≤ 2 * r) :
-    subset.card < r := by
-  have classify (a : Fin n) (ha : a ∈ subset) :
-      (∃ i ≤ 2 * k + 1, X i = a) ∨ (∃ j < k, Z j = a) := by
-    rcases Finset.mem_union.mp (within ha) with hx | hz
-    · obtain ⟨i, hi, equal⟩ := Finset.mem_image.mp hx
-      exact Or.inl ⟨i, Finset.mem_Iic.mp hi, equal⟩
-    · obtain ⟨j, hj, equal⟩ := Finset.mem_image.mp hz
-      exact Or.inr ⟨j, Finset.mem_range.mp hj, equal⟩
-  have crossZeroLast := cross 0 (by omega) (k - 1) (by omega)
-  rw [Nat.dist_eq_sub_of_le_right (Nat.zero_le _), Nat.sub_zero] at crossZeroLast
-  rcases (show r = 1 ∨ r = 2 ∨ r = 3 by omega) with rfl | rfl | rfl
-  · have empty : subset = ∅ := Finset.eq_empty_iff_forall_notMem.mpr (by
-      intro a ha
-      have close := nearB a ha
-      rcases classify a ha with ⟨i, hi, equal⟩ | ⟨j, hj, equal⟩
-      · rw [← equal] at close
-        have h := xFar i hi
-        rcases le_total i (k + 1) with le | ge
-        · rw [Nat.dist_eq_sub_of_le_right le] at h
-          omega
-        · rw [Nat.dist_eq_sub_of_le ge] at h
-          omega
-      · rw [← equal] at close
-        have h := zFar j hj
-        omega)
-    simp [empty]
-  · have twoOptions : ∀ a ∈ subset, a = X 0 ∨ a = Z (k - 1) := by
-      intro a ha
-      have close := nearB a ha
-      rcases classify a ha with ⟨i, hi, equal⟩ | ⟨j, hj, equal⟩
-      · rw [← equal] at close
-        have h := xFar i hi
-        have index : i = 0 := by
-          rcases le_total i (k + 1) with le | ge
-          · rw [Nat.dist_eq_sub_of_le_right le] at h
-            omega
-          · rw [Nat.dist_eq_sub_of_le ge] at h
-            omega
-        exact Or.inl (index ▸ equal.symm)
-      · rw [← equal] at close
-        have h := zFar j hj
-        have index : j = k - 1 := by omega
-        exact Or.inr (index ▸ equal.symm)
-    have count : subset.card ≤ 1 := Finset.card_le_one.mpr (by
-      intro a ha c hc
-      rcases twoOptions a ha with rfl | rfl <;> rcases twoOptions c hc with rfl | rfl
-      · rfl
-      · have h := nearPairs _ ha _ hc
-        omega
-      · have h := nearPairs _ hc _ ha
-        omega
-      · rfl)
-    omega
-  · let xLast := X (2 * k + 1)
-    let zLast := Z (k - 1)
-    let zPrev := Z (k - 2)
-    have x0Last := xDist 0 (by omega) (2 * k + 1) (by omega)
-    rw [Nat.dist_eq_sub_of_le (Nat.zero_le _), Nat.sub_zero] at x0Last
-    have crossOneLast := cross 1 (by omega) (k - 1) (by omega)
-    rw [Nat.dist_eq_sub_of_le_right (by omega : 1 ≤ k)] at crossOneLast
-    have crossZeroPrev := cross 0 (by omega) (k - 2) (by omega)
-    rw [Nat.dist_eq_sub_of_le_right (Nat.zero_le _), Nat.sub_zero] at crossZeroPrev
-    have crossLastPrev := cross (2 * k + 1) (by omega) (k - 2) (by omega)
-    rw [Nat.dist_eq_sub_of_le (by omega : k ≤ 2 * k + 1)] at crossLastPrev
-    by_cases size : 2 ≤ k
-    · apply Nat.lt_of_le_of_lt _ (by decide : 2 < 3)
-      apply card_le_two_of_endpoint_options subset (X 0) (X 1) xLast zPrev zLast
-      · intro a ha
-        have close := nearB a ha
-        rcases classify a ha with ⟨i, hi, equal⟩ | ⟨j, hj, equal⟩
-        · rw [← equal] at close
-          have h := xFar i hi
-          have options : i = 0 ∨ i = 1 ∨ i = 2 * k + 1 := by
-            rcases le_total i (k + 1) with le | ge
-            · rw [Nat.dist_eq_sub_of_le_right le] at h
-              omega
-            · rw [Nat.dist_eq_sub_of_le ge] at h
-              omega
-          rcases options with rfl | rfl | rfl <;> aesop
-        · rw [← equal] at close
-          have h := zFar j hj
-          have options : j = k - 2 ∨ j = k - 1 := by omega
-          rcases options with rfl | rfl <;> aesop
-      · intro h0 hEnd
-        have close := nearPairs _ h0 _ hEnd
-        change G.dist (X 0) (X (2 * k + 1)) ≤ 6 at close
-        omega
-      · intro h0 hPrev
-        have close := nearPairs _ h0 _ hPrev
-        change G.dist (X 0) (Z (k - 2)) ≤ 6 at close
-        omega
-      · intro h0 hLast
-        have close := nearPairs _ h0 _ hLast
-        change G.dist (X 0) (Z (k - 1)) ≤ 6 at close
-        omega
-      · intro hLast h1
-        have close := nearPairs _ h1 _ hLast
-        change G.dist (X 1) (Z (k - 1)) ≤ 6 at close
-        omega
-      · intro hEnd hPrev
-        have close := nearPairs _ hEnd _ hPrev
-        change G.dist (X (2 * k + 1)) (Z (k - 2)) ≤ 6 at close
-        omega
-    · have one : k = 1 := by omega
-      have fourOptions : ∀ a ∈ subset, a = X 0 ∨ a = X 1 ∨ a = xLast ∨ a = zLast := by
-        intro a ha
-        have close := nearB a ha
-        rcases classify a ha with ⟨i, hi, equal⟩ | ⟨j, hj, equal⟩
-        · rw [← equal] at close
-          have h := xFar i hi
-          have options : i = 0 ∨ i = 1 ∨ i = 2 * k + 1 := by
-            rcases le_total i (k + 1) with le | ge
-            · rw [Nat.dist_eq_sub_of_le_right le] at h
-              omega
-            · rw [Nat.dist_eq_sub_of_le ge] at h
-              omega
-          rcases options with rfl | rfl | rfl <;> aesop
-        · have index : j = k - 1 := by omega
-          refine Or.inr (Or.inr (Or.inr ?_))
-          change a = Z (k - 1)
-          rw [← index]
-          exact equal.symm
-      have bound (a c : Fin n) (included : ∀ v ∈ subset, v = a ∨ v = c) : subset.card < 3 :=
-        ((Finset.card_le_card (show subset ⊆ {a, c} by
-          intro v hv
-          simpa using included v hv)).trans Finset.card_le_two).trans_lt (by decide)
-      by_cases h0 : X 0 ∈ subset
-      · have noXLast : xLast ∉ subset := by
-          intro hEnd
-          have close := nearPairs _ h0 _ hEnd
-          change G.dist (X 0) (X (2 * k + 1)) ≤ 6 at close
-          omega
-        have noZLast : zLast ∉ subset := by
-          intro hLast
-          have close := nearPairs _ h0 _ hLast
-          change G.dist (X 0) (Z (k - 1)) ≤ 6 at close
-          omega
-        apply bound (X 0) (X 1)
-        intro a ha
-        rcases fourOptions a ha with rfl | rfl | rfl | rfl <;> aesop
-      · by_cases hLast : zLast ∈ subset
-        · have noX1 : X 1 ∉ subset := by
-            intro h1
-            have close := nearPairs _ h1 _ hLast
-            change G.dist (X 1) (Z (k - 1)) ≤ 6 at close
-            omega
-          apply bound xLast zLast
-          intro a ha
-          rcases fourOptions a ha with rfl | rfl | rfl | rfl <;> aesop
-        · apply bound (X 1) xLast
-          intro a ha
-          rcases fourOptions a ha with rfl | rfl | rfl | rfl <;> aesop
-
-/-- Islam, arXiv:2608.20036, Lemma 5, in terms of the registered multipacking predicate. -/
-theorem extendMultipacking_from_paths {n : ℕ} {G : SimpleGraph (Fin n)}
-    (connected : G.Connected) (k : ℕ) (positive : 0 < k) (x z : ℕ → Fin n)
-    (hX : ∀ i ≤ 6 * k + 5, ∀ j ≤ 6 * k + 5, G.dist (x i) (x j) = Nat.dist i j)
-    (hZ : ∀ i ≤ 6 * k + 5, ∀ j ≤ 6 * k + 5, G.dist (z i) (z j) = Nat.dist i j)
-    (joined : z 0 = x (3 * k)) (b : Fin n)
-    (bOutsideX : 3 * k + 5 < G.dist b (x (3 * k + 3)))
-    (bOutsideZ : 3 * k - 1 < G.dist b (z (6 * k + 5))) :
-    ∃ packing, OMA.S_arxiv_1803_02550.IsMultipacking G packing ∧
-      packing.card = 3 * k + 3 := by
-  let R := 6 * k + 5
-  let X := fun i => x (3 * i)
-  let Z := fun j => z (R - 3 * j)
-  let packing := (Finset.Iic (2 * k + 1)).image X ∪ (Finset.range k).image Z
-  have rPositive : 0 < R := by dsimp [R]; omega
-  have divThree : R / 3 = 2 * k + 1 := by dsimp [R]; omega
-  have divSix : R / 6 = k := by dsimp [R]; omega
-  have divTail : (R - 1) / 6 = k := by dsimp [R]; omega
-  have joined' : z 0 = x (3 * (R / 6)) := by simpa [divSix] using joined
-  obtain ⟨xSpacing, zSpacing, crossSpacing⟩ := spacing_from_paths connected R x z hX hZ joined'
-  have base := baseMultipacking_from_distances connected R rPositive X Z xSpacing zSpacing crossSpacing
-  have disjoint := sampled_disjoint R rPositive X Z crossSpacing
-  rw [divThree, divTail] at base disjoint
-  change OMA.S_arxiv_1803_02550.IsMultipacking G packing ∧ packing.card = _ at base
-  have xDist : ∀ i ≤ 2 * k + 1, ∀ j ≤ 2 * k + 1,
-      G.dist (X i) (X j) = 3 * Nat.dist i j := by
-    simpa only [X, divThree] using xSpacing
-  have zDist : ∀ i < k, ∀ j < k, G.dist (Z i) (Z j) = 3 * Nat.dist i j := by
-    simpa only [Z, divTail] using zSpacing
-  have cross : ∀ i ≤ 2 * k + 1, ∀ j < k,
-      6 * k + 5 ≤ 3 * j + 3 * Nat.dist k i + G.dist (X i) (Z j) := by
-    simpa only [X, Z, divThree, divTail, divSix] using crossSpacing
-  have strong := exception_farPair k X Z xDist zDist cross disjoint
-  have bFarX : 3 * k + 6 ≤ G.dist b (X (k + 1)) := by
-    have center : X (k + 1) = x (3 * k + 3) := rfl
-    rw [center]
-    omega
-  have bFarZ : 3 * k ≤ G.dist b (Z 0) := by
-    change 3 * k ≤ G.dist b (z (R - 3 * 0))
-    simp only [Nat.mul_zero, Nat.sub_zero]
-    change 3 * k ≤ G.dist b (z (6 * k + 5))
-    omega
-  have xFar : ∀ i ≤ 2 * k + 1, 3 * k + 6 ≤ G.dist b (X i) + 3 * Nat.dist (k + 1) i := by
-    intro i hi
-    have triangle : G.dist b (X (k + 1)) ≤ G.dist b (X i) + G.dist (X i) (X (k + 1)) :=
-      connected.dist_triangle
-    rw [xDist i hi (k + 1) (by omega), Nat.dist_comm i (k + 1)] at triangle
-    exact bFarX.trans triangle
-  have zFar : ∀ j < k, 3 * k ≤ G.dist b (Z j) + 3 * j := by
-    intro j hj
-    have triangle : G.dist b (Z 0) ≤ G.dist b (Z j) + G.dist (Z j) (Z 0) :=
-      connected.dist_triangle
-    rw [zDist j hj 0 positive, Nat.dist_eq_sub_of_le_right (Nat.zero_le _), Nat.sub_zero] at triangle
-    exact bFarZ.trans triangle
-  have notInPacking : b ∉ packing := by
-    intro h
-    rcases Finset.mem_union.mp h with hx | hz
-    · obtain ⟨i, hi, equal⟩ := Finset.mem_image.mp hx
-      have bounded := Finset.mem_Iic.mp hi
-      have far := xFar i bounded
-      rw [equal, G.dist_self] at far
-      rcases le_total i (k + 1) with le | ge
-      · rw [Nat.dist_eq_sub_of_le_right le] at far
-        omega
-      · rw [Nat.dist_eq_sub_of_le ge] at far
-        omega
-    · obtain ⟨j, hj, equal⟩ := Finset.mem_image.mp hz
-      have bounded := Finset.mem_range.mp hj
-      have far := zFar j bounded
-      rw [equal, G.dist_self] at far
-      omega
-  refine ⟨insert b packing, ?_, ?_⟩
-  · intro center r rPositive
-    let subset := packing.filter fun a => G.dist center a ≤ r
-    change ((insert b packing).filter fun a => G.dist center a ≤ r).card ≤ r
-    have count : subset.card ≤ r := base.1 center r rPositive
-    have within : subset ⊆ packing := Finset.filter_subset _ _
-    have nearPair {a c : Fin n} (ha : G.dist center a ≤ r) (hc : G.dist center c ≤ r) :
-        G.dist a c ≤ 2 * r := by
-      have triangle : G.dist a c ≤ G.dist a center + G.dist center c := connected.dist_triangle
-      rw [show G.dist a center = G.dist center a from G.dist_comm] at triangle
-      omega
-    rw [Finset.filter_insert]
-    by_cases bNear : G.dist center b ≤ r
-    · rw [if_pos bNear]
-      change (insert b subset).card ≤ r
-      rw [Finset.card_insert_of_notMem (fun h => notInPacking (within h))]
-      suffices subset.card < r by omega
-      by_cases large : 4 ≤ subset.card
-      · obtain ⟨a, ha, c, hc, far⟩ := strong subset within large
-        have close := nearPair (Finset.mem_filter.mp ha).2 (Finset.mem_filter.mp hc).2
-        omega
-      · by_contra! fail
-        have rSmall : r ≤ 3 := by omega
-        have h := exception_small_card k positive X Z b xDist cross xFar zFar
-          subset within r rPositive rSmall
-          (fun _ ha => nearPair bNear (Finset.mem_filter.mp ha).2)
-          (fun _ ha _ hc => nearPair (Finset.mem_filter.mp ha).2 (Finset.mem_filter.mp hc).2)
-        omega
-    · rw [if_neg bNear]
-      exact count
-  · rw [Finset.card_insert_of_notMem notInPacking, base.2]
-    omega
-
-
-end OMA.BroadcastCheckpoint
-
-namespace OMA.BroadcastAssembly
-
-open Finset
-open OMA.S_arxiv_1803_02550 (IsDominatingBroadcast IsMultipacking broadcastNumber multipackingNumber)
-
-def IsometricPrefix {n : ℕ} (G : SimpleGraph (Fin n)) (r : ℕ) (x : ℕ → Fin n) : Prop :=
-  ∀ i j : ℕ, i ≤ j → j ≤ r → G.dist (x i) (x j) = j - i
-
-theorem IsometricPrefix.natDist {n : ℕ} {G : SimpleGraph (Fin n)} {r : ℕ} {x : ℕ → Fin n}
-    (hx : IsometricPrefix G r x) (i : ℕ) (hi : i ≤ r) (j : ℕ) (hj : j ≤ r) :
-    G.dist (x i) (x j) = Nat.dist i j := by
-  rcases le_total i j with hij | hji
-  · simpa [Nat.dist_eq_sub_of_le hij] using hx i j hij hj
-  · rw [show G.dist (x i) (x j) = G.dist (x j) (x i) from G.dist_comm]
-    simpa [Nat.dist_eq_sub_of_le_right hji] using hx j i hji hi
-
-def BasePacking {n : ℕ} (G : SimpleGraph (Fin n)) : Prop :=
-  ∀ (r : ℕ), 0 < r → ∀ (x z : ℕ → Fin n),
-    IsometricPrefix G r x → IsometricPrefix G r z → z 0 = x (3 * (r / 6)) →
-    ∃ P : Finset (Fin n), IsMultipacking G P ∧
-      r ≤ 2 * P.card + 1 ∧ (r % 6 ≠ 5 → r ≤ 2 * P.card)
-
-def ExceptionalPacking {n : ℕ} (G : SimpleGraph (Fin n)) : Prop :=
-  ∀ (k : ℕ), 0 < k → ∀ (x z : ℕ → Fin n) (b : Fin n),
-    IsometricPrefix G (6 * k + 5) x → IsometricPrefix G (6 * k + 5) z →
-    z 0 = x (3 * k) →
-    3 * k + 6 ≤ G.dist b (x (3 * k + 3)) →
-    3 * k ≤ G.dist b (z (6 * k + 5)) →
-    ∃ P : Finset (Fin n), IsMultipacking G P ∧ 6 * k + 5 ≤ 2 * P.card
-
-theorem base_size (r : ℕ) (pos : 0 < r) :
-    r ≤ 2 * (r / 3 + 1 + (r - 1) / 6) + 1 ∧
-      (r % 6 ≠ 5 → r ≤ 2 * (r / 3 + 1 + (r - 1) / 6)) := by
-  constructor <;> omega
-
-private theorem broadcast_le_cost {n : ℕ} {G : SimpleGraph (Fin n)} {f : Fin n → ℕ}
-    (h : IsDominatingBroadcast G f) : broadcastNumber G ≤ ∑ v, f v :=
-  csInf_le (OrderBot.bddBelow _) ⟨f, h, rfl⟩
-
-private theorem packing_card_le {n : ℕ} {G : SimpleGraph (Fin n)} {P : Finset (Fin n)}
-    (h : IsMultipacking G P) : P.card ≤ multipackingNumber G := by
-  apply le_csSup
-  · refine ⟨n, ?_⟩
-    rintro k ⟨Q, _, rfl⟩
-    simpa using card_le_univ Q
-  · exact ⟨P, h, rfl⟩
-
-private theorem broadcast_le_single {n : ℕ} {G : SimpleGraph (Fin n)}
-    (c : Fin n) (r : ℕ) (positive : 0 < r) (covers : ∀ v, G.dist v c ≤ r) :
-    broadcastNumber G ≤ r := by
-  let f : Fin n → ℕ := fun v => if v = c then r else 0
-  have h : IsDominatingBroadcast G f := by
-    intro u
-    exact ⟨c, by simpa [f] using positive, by simpa [f] using covers u⟩
-  simpa [f] using broadcast_le_cost h
-
-private theorem broadcast_le_two {n : ℕ} {G : SimpleGraph (Fin n)}
-    (a b : Fin n) (ra rb : ℕ) (ha : 0 < ra) (hb : 0 < rb)
-    (covers : ∀ v, G.dist v a ≤ ra ∨ G.dist v b ≤ rb) :
-    broadcastNumber G ≤ ra + rb := by
-  let f : Fin n → ℕ := fun v => (if v = a then ra else 0) + (if v = b then rb else 0)
-  have fa : ra ≤ f a := by simp [f]
-  have fb : rb ≤ f b := by simp [f]
-  have h : IsDominatingBroadcast G f := by
-    intro v
-    rcases covers v with va | vb
-    · exact ⟨a, ha.trans_le fa, va.trans fa⟩
-    · exact ⟨b, hb.trans_le fb, vb.trans fb⟩
-  simpa [f, sum_add_distrib] using broadcast_le_cost h
-
-private theorem far_from_two {n : ℕ} {G : SimpleGraph (Fin n)}
-    (a b : Fin n) (ra rb : ℕ) (ha : 0 < ra) (hb : 0 < rb)
-    (h : ra + rb < broadcastNumber G) :
-    ∃ v, ra + 1 ≤ G.dist v a ∧ rb + 1 ≤ G.dist v b := by
-  by_contra! noFar
-  have covers (v : Fin n) : G.dist v a ≤ ra ∨ G.dist v b ≤ rb := by
-    by_cases h' : G.dist v a ≤ ra
-    · exact Or.inl h'
-    · exact Or.inr (by have := noFar v (by omega); omega)
-  exact (not_le_of_gt h) (broadcast_le_two a b ra rb ha hb covers)
-
-private theorem singleton_packing {n : ℕ} (G : SimpleGraph (Fin n)) (u : Fin n) :
-    IsMultipacking G {u} := by
+private lemma mp_of_pair (hc : G.Connected) (M : Finset (Fin n))
+    (h : ∀ U ⊆ M, 2 ≤ U.card → ∃ u ∈ U, ∃ v ∈ U, 2 * U.card - 1 ≤ G.dist u v) :
+    IsMultipacking G M := by
   intro v r hr
-  have h := card_le_card (filter_subset (fun w => G.dist v w ≤ r) ({u} : Finset (Fin n)))
-  simpa using h.trans (by simpa using hr)
-
-private theorem small_exception {n : ℕ} {G : SimpleGraph (Fin n)} (conn : G.Connected)
-    {u v : Fin n} (huv : G.dist u v = 5) (hcost : broadcastNumber G = 5) :
-    broadcastNumber G ≤ 2 * multipackingNumber G := by
-  obtain ⟨b, hbu, hbv⟩ := far_from_two (G := G) u v 2 2 (by decide) (by decide) (by omega)
-  let P : Finset (Fin n) := {u, v, b}
-  have uv : u ≠ v := by rintro rfl; simp at huv
-  have bu : b ≠ u := by rintro rfl; simp at hbu
-  have bv : b ≠ v := by rintro rfl; simp at hbv
-  have size : P.card = 3 := by simp [P, uv, Ne.symm bu, Ne.symm bv]
-  have pack : IsMultipacking G P := by
-    intro w r hr
-    let Q := P.filter fun t => G.dist w t ≤ r
-    change Q.card ≤ r
-    have inside {a : Fin n} (ha : a ∈ Q) : G.dist w a ≤ r := (mem_filter.mp ha).2
-    have close (a b : Fin n) (ha : a ∈ Q) (hb : b ∈ Q) : G.dist a b ≤ 2 * r := by
-      have tri : G.dist a b ≤ G.dist a w + G.dist w b := conn.dist_triangle
-      rw [show G.dist a w = G.dist w a from G.dist_comm] at tri
-      have aa := inside ha
-      have bb := inside hb
-      omega
-    by_cases large : 3 ≤ r
-    · exact (card_le_card (filter_subset _ _)).trans (size.le.trans large)
-    interval_cases r
-    · apply card_le_one.mpr
-      intro a aQ d dQ
-      have da : G.dist a d ≤ 2 := close a d aQ dQ
-      have aP : a = u ∨ a = v ∨ a = b := by simpa [P] using (mem_filter.mp aQ).1
-      have dP : d = u ∨ d = v ∨ d = b := by simpa [P] using (mem_filter.mp dQ).1
-      have hub : 3 ≤ G.dist u b := by rw [show G.dist u b = G.dist b u from G.dist_comm]; exact hbu
-      have hvb : 3 ≤ G.dist v b := by rw [show G.dist v b = G.dist b v from G.dist_comm]; exact hbv
-      have hvu : G.dist v u = 5 := by rw [show G.dist v u = G.dist u v from G.dist_comm, huv]
-      rcases aP with rfl | rfl | rfl <;> rcases dP with rfl | rfl | rfl <;>
-        first | rfl | omega
-    · by_cases uQ : u ∈ Q
-      · have vQ : v ∉ Q := by
-          intro hv
-          have := close u v uQ hv
-          omega
-        have sub : Q ⊆ ({u, b} : Finset (Fin n)) := by
-          intro a ha
-          have aP : a = u ∨ a = v ∨ a = b := by simpa [P] using (mem_filter.mp ha).1
-          rcases aP with rfl | rfl | rfl
-          · simp
-          · exact (vQ ha).elim
-          · simp
-        exact (card_le_card sub).trans (by simp [Ne.symm bu])
-      · have sub : Q ⊆ ({v, b} : Finset (Fin n)) := by
-          intro a ha
-          have aP : a = u ∨ a = v ∨ a = b := by simpa [P] using (mem_filter.mp ha).1
-          rcases aP with rfl | rfl | rfl
-          · exact (uQ ha).elim
-          · simp
-          · simp
-        exact (card_le_card sub).trans (by simp [Ne.symm bv])
-  have lower := packing_card_le pack
+  set U := M.filter (fun u => G.dist v u ≤ r)
+  by_contra hlt; push Not at hlt
+  obtain ⟨u, hu, w, hw, hd⟩ := h U (Finset.filter_subset _ M) (by omega)
+  have h1 := (Finset.mem_filter.mp hu).2
+  have h2 := (Finset.mem_filter.mp hw).2
+  have h3 : G.dist u w ≤ G.dist u v + G.dist v w := hc.dist_triangle
+  have h4 : G.dist u v = G.dist v u := G.dist_comm
   omega
 
-private theorem eccentricity_min {n : ℕ} {G : SimpleGraph (Fin n)} (conn : G.Connected) :
-    ∃ (r : ℕ) (c : Fin n), (∀ v, G.dist v c ≤ r) ∧ ∀ v, ∃ w, r ≤ G.dist v w := by
-  let ecc (v : Fin n) : ℕ := univ.sup (G.dist v)
-  have hn : (univ : Finset (Fin n)).Nonempty := by
-    obtain ⟨v⟩ := conn.nonempty
-    exact ⟨v, mem_univ v⟩
-  let values := univ.image ecc
-  have hvalues : values.Nonempty := hn.image ecc
-  let r := values.min' hvalues
-  obtain ⟨c, _, hc⟩ := mem_image.mp (values.min'_mem hvalues)
-  refine ⟨r, c, ?_, ?_⟩
-  · intro v
-    change G.dist v c ≤ values.min' hvalues
-    rw [show G.dist v c = G.dist c v from G.dist_comm, ← hc]
-    exact le_sup (f := G.dist c) (mem_univ v)
-  · intro v
-    have hmin : r ≤ ecc v := values.min'_le _ (mem_image_of_mem _ (mem_univ v))
-    obtain ⟨w, _, hw⟩ := sup_mem_of_nonempty (f := G.dist v) hn
-    exact ⟨w, hw.symm ▸ hmin⟩
+private noncomputable def ecc (G : SimpleGraph (Fin n)) (v : Fin n) : ℕ :=
+  Finset.univ.sup (fun u => G.dist v u)
 
-private theorem prefix_exists {n : ℕ} {G : SimpleGraph (Fin n)} (conn : G.Connected)
-    (r : ℕ) (u : Fin n) (far : ∃ v, r ≤ G.dist u v) :
-    ∃ x : ℕ → Fin n, x 0 = u ∧ IsometricPrefix G r x := by
-  obtain ⟨v, hv⟩ := far
-  obtain ⟨p, hp⟩ := conn.exists_walk_length_eq_dist u v
-  refine ⟨p.getVert, by simp, ?_⟩
-  intro i j ordered bound
-  exact OMA.BroadcastCheckpoint.shortestWalk_segment conn p hp ordered (bound.trans (hp ▸ hv))
+private lemma dist_le_ecc (v u : Fin n) : G.dist v u ≤ ecc G v :=
+  Finset.le_sup (f := fun u => G.dist v u) (Finset.mem_univ u)
 
-theorem registered_from_two_path_packings {n : ℕ} (G : SimpleGraph (Fin n))
-    (conn : G.Connected) (base : BasePacking G) (exceptional : ExceptionalPacking G) :
-    broadcastNumber G ≤ 2 * multipackingNumber G := by
-  obtain ⟨r, c, covers, far⟩ := eccentricity_min conn
-  by_cases hr : r = 0
-  · have up := broadcast_le_single c 1 (by decide) (fun v => (covers v).trans (by omega))
-    have low := packing_card_le (singleton_packing G c)
-    simp only [card_singleton] at low
+private noncomputable def rad (G : SimpleGraph (Fin n)) (hc : G.Connected) : ℕ :=
+  have : Nonempty (Fin n) := hc.nonempty
+  Finset.univ.inf' Finset.univ_nonempty (ecc G)
+
+private lemma rad_le_ecc (hc : G.Connected) (v : Fin n) : rad G hc ≤ ecc G v := by
+  have : Nonempty (Fin n) := hc.nonempty
+  exact Finset.inf'_le (f := ecc G) (Finset.mem_univ v)
+
+private lemma sum_ite_one (c : Fin n) (a : ℕ) : (∑ v : Fin n, if v = c then a else 0) = a := by
+  rw [Finset.sum_eq_single c]
+  · simp
+  · intro b _ h; simp [h]
+  · intro h; exact (h (Finset.mem_univ c)).elim
+
+private lemma exists_uncovered (u v : Fin n) (huv : u ≠ v) (r1 r2 : ℕ)
+    (hr1 : 0 < r1) (hr2 : 0 < r2) (hbc : r1 + r2 < broadcastNumber G) :
+    ∃ b : Fin n, r1 + 1 ≤ G.dist b u ∧ r2 + 1 ≤ G.dist b v := by
+  let f : Fin n → ℕ := fun w => if w = u then r1 else if w = v then r2 else 0
+  have hsum : ∑ w : Fin n, f w = r1 + r2 := by
+    have h1 : ∀ w : Fin n, f w = (if w = u then r1 else 0) + (if w = v then r2 else 0) := by
+      intro w; by_cases h : w = u
+      · subst h; simp [f, huv]
+      · simp [f, h]
+    simp_rw [h1, Finset.sum_add_distrib, sum_ite_one]
+  have hnot : ¬ IsDominatingBroadcast G f := fun hf => by have := bc_le f hf; omega
+  unfold IsDominatingBroadcast at hnot; push Not at hnot
+  obtain ⟨b, hb⟩ := hnot
+  have h1 := hb u (by simp [f, hr1])
+  have h2 := hb v (by simp [f, huv.symm, hr2])
+  simp [f] at h1; simp [f, huv.symm] at h2
+  exact ⟨b, by omega, by omega⟩
+
+private lemma walk_dist_le (hc : G.Connected) {u v : Fin n} (p : G.Walk u v) :
+    ∀ k i, i + k ≤ p.length → G.dist (p.getVert i) (p.getVert (i + k)) ≤ k := by
+  intro k; induction k with
+  | zero => intro i _; simp
+  | succ k ih =>
+    intro i hik
+    have hstep : G.dist (p.getVert (i + k)) (p.getVert (i + k + 1)) = 1 :=
+      SimpleGraph.dist_eq_one_iff_adj.mpr (p.adj_getVert_succ (by omega))
+    have htri : G.dist (p.getVert i) (p.getVert (i + k + 1)) ≤
+        G.dist (p.getVert i) (p.getVert (i + k)) +
+        G.dist (p.getVert (i + k)) (p.getVert (i + k + 1)) := hc.dist_triangle
+    have := ih i (by omega)
+    have heq : i + (k + 1) = i + k + 1 := by omega
+    rw [heq]; omega
+
+private lemma exists_iso (hc : G.Connected) (u : Fin n) (R : ℕ) (hR : R ≤ ecc G u) :
+    ∃ x : ℕ → Fin n, x 0 = u ∧ ∀ i j, i ≤ j → j ≤ R → G.dist (x i) (x j) = j - i := by
+  have : Nonempty (Fin n) := hc.nonempty
+  obtain ⟨v, _, hv⟩ := Finset.exists_mem_eq_sup Finset.univ Finset.univ_nonempty (fun w => G.dist u w)
+  obtain ⟨p, hp⟩ := hc.exists_walk_length_eq_dist u v
+  refine ⟨p.getVert, p.getVert_zero, fun i j hij hj => ?_⟩
+  have hL : R ≤ p.length := by change ecc G u = G.dist u v at hv; omega
+  have h1 := walk_dist_le hc p (j - i) i (by omega)
+  rw [Nat.add_sub_of_le hij] at h1
+  have h2 := walk_dist_le hc p i 0 (by omega); simp only [zero_add, p.getVert_zero] at h2
+  have h3 := walk_dist_le hc p (p.length - j) j (by omega)
+  rw [Nat.add_sub_of_le (by omega), p.getVert_length] at h3
+  have ht1 : G.dist u v ≤ G.dist u (p.getVert i) + G.dist (p.getVert i) v := hc.dist_triangle
+  have ht2 : G.dist (p.getVert i) v ≤ G.dist (p.getVert i) (p.getVert j) + G.dist (p.getVert j) v :=
+    hc.dist_triangle
+  omega
+
+private lemma iso_symm {x : ℕ → Fin n} {R : ℕ}
+    (hx : ∀ i j, i ≤ j → j ≤ R → G.dist (x i) (x j) = j - i) {i j : ℕ} (hi : i ≤ R) (hj : j ≤ R) :
+    G.dist (x i) (x j) = (i - j) + (j - i) := by
+  rcases le_total i j with h | h
+  · rw [hx i j h hj]; omega
+  · rw [G.dist_comm, hx j i h hi]; omega
+
+private lemma cross_lb (hc : G.Connected) {x z : ℕ → Fin n} {R h : ℕ}
+    (hx : ∀ i j, i ≤ j → j ≤ R → G.dist (x i) (x j) = j - i)
+    (hz : ∀ i j, i ≤ j → j ≤ R → G.dist (z i) (z j) = j - i)
+    (hz0 : z 0 = x h) (hh : h ≤ R) {i j : ℕ} (hi : i ≤ R) (hj : j ≤ R) :
+    j ≤ G.dist (x i) (z j) + ((i - h) + (h - i)) := by
+  have h1 : G.dist (x h) (z j) = j := by rw [← hz0]; simpa using hz 0 j (Nat.zero_le _) hj
+  have h2 : G.dist (x h) (x i) = (i - h) + (h - i) := by rw [iso_symm hx hh hi]; omega
+  have ht : G.dist (x h) (z j) ≤ G.dist (x h) (x i) + G.dist (x i) (z j) := hc.dist_triangle
+  omega
+
+private lemma card_pair_le {α : Type*} [DecidableEq α] {T : Finset α} {a b : α} (h : T ⊆ {a, b}) :
+    T.card ≤ 2 := by
+  have := (Finset.card_le_card h).trans (Finset.card_insert_le a {b}); simp at this; exact this
+
+private lemma straddle_span (I : Finset ℕ) (k s : ℕ) (hI : I.Nonempty)
+    (hlt : ∃ i ∈ I, i < k) (hgt : ∃ i ∈ I, k < i) (hs : ∀ i ∈ I, s ≤ (i - k) + (k - i)) :
+    2 * s + I.card - 2 ≤ I.max' hI - I.min' hI := by
+  let L := I.filter (· < k); let U := I.filter (k < ·)
+  have hd : Disjoint L U := Finset.disjoint_filter.mpr fun _ _ h1 h2 => by omega
+  have hml : ∀ a ∈ I, I.min' hI ≤ a := fun a ha => Finset.min'_le I a ha
+  have hmu : ∀ a ∈ I, a ≤ I.max' hI := fun a ha => Finset.le_max' I a ha
+  obtain ⟨al, hal, halk⟩ := hlt; obtain ⟨ag, hag, hkag⟩ := hgt
+  have hmin_lt : I.min' hI < k := lt_of_le_of_lt (hml al hal) halk
+  have hmax_gt : k < I.max' hI := lt_of_lt_of_le hkag (hmu ag hag)
+  by_cases hk : k ∈ I
+  · have hs0 : s = 0 := by have := hs k hk; omega
+    have hL : L.card ≤ k - I.min' hI := by
+      have := Finset.card_le_card (show L ⊆ Finset.Icc (I.min' hI) (k - 1) from fun a ha =>
+        Finset.mem_Icc.mpr ⟨hml a (Finset.mem_filter.mp ha).1, by have := (Finset.mem_filter.mp ha).2; omega⟩)
+      rw [Nat.card_Icc] at this; omega
+    have hU : U.card ≤ I.max' hI - k := by
+      have := Finset.card_le_card (show U ⊆ Finset.Icc (k + 1) (I.max' hI) from fun a ha =>
+        Finset.mem_Icc.mpr ⟨by have := (Finset.mem_filter.mp ha).2; omega, hmu a (Finset.mem_filter.mp ha).1⟩)
+      rw [Nat.card_Icc] at this; omega
+    have hc : I.card ≤ 1 + L.card + U.card := by
+      have hcov : I ⊆ insert k (L ∪ U) := fun a ha => by
+        simp only [Finset.mem_insert, Finset.mem_union, L, U, Finset.mem_filter]
+        rcases lt_trichotomy a k with h | rfl | h
+        · exact Or.inr (Or.inl ⟨ha, h⟩)
+        · exact Or.inl rfl
+        · exact Or.inr (Or.inr ⟨ha, h⟩)
+      have h1 := (Finset.card_le_card hcov).trans (Finset.card_insert_le k (L ∪ U))
+      rw [Finset.card_union_of_disjoint hd] at h1; omega
     omega
-  have pos : 0 < r := Nat.pos_of_ne_zero hr
-  have up := broadcast_le_single c r pos covers
-  obtain ⟨x, _, xIso⟩ := prefix_exists conn r c (far c)
-  obtain ⟨z, start, zIso⟩ := prefix_exists conn r (x (3 * (r / 6))) (far _)
-  obtain ⟨P, pack, weak, strong⟩ := base r pos x z xIso zIso start
-  have low := packing_card_le pack
-  by_cases mod : r % 6 = 5
-  · by_cases eqr : broadcastNumber G = r
-    · let k := r / 6
-      have rk : r = 6 * k + 5 := by dsimp [k]; omega
-      by_cases hk : k = 0
-      · have r5 : r = 5 := by omega
-        apply small_exception conn (u := x 0) (v := x r)
-        · simpa [r5] using xIso 0 r (Nat.zero_le _) le_rfl
-        · omega
-      · obtain ⟨b, ba, bz⟩ := far_from_two (G := G) (x (3 * k + 3)) (z r) (3 * k + 5) (3 * k - 1)
-          (by omega) (by omega) (by omega)
-        have ba' : 3 * k + 6 ≤ G.dist b (x (3 * k + 3)) := by omega
-        have bz' : 3 * k ≤ G.dist b (z (6 * k + 5)) := by
-          rw [← rk]
+  · have hsal : s ≤ k - al := by have := hs al hal; omega
+    have hsag : k + s ≤ ag := by have := hs ag hag; omega
+    have hL : L.card ≤ (k - s) - I.min' hI + 1 := by
+      have := Finset.card_le_card (show L ⊆ Finset.Icc (I.min' hI) (k - s) from fun a ha => by
+        have hf := Finset.mem_filter.mp ha; have := hs a hf.1
+        exact Finset.mem_Icc.mpr ⟨hml a hf.1, by omega⟩)
+      rw [Nat.card_Icc] at this; have := hml al hal; omega
+    have hU : U.card ≤ I.max' hI - (k + s) + 1 := by
+      have := Finset.card_le_card (show U ⊆ Finset.Icc (k + s) (I.max' hI) from fun a ha => by
+        have hf := Finset.mem_filter.mp ha; have := hs a hf.1
+        exact Finset.mem_Icc.mpr ⟨by omega, hmu a hf.1⟩)
+      rw [Nat.card_Icc] at this; have := hmu ag hag; omega
+    have hc : I.card ≤ L.card + U.card := by
+      have hcov : I ⊆ L ∪ U := fun a ha => by
+        simp only [Finset.mem_union, L, U, Finset.mem_filter]
+        rcases lt_trichotomy a k with h | rfl | h
+        · exact Or.inl ⟨ha, h⟩
+        · exact (hk ha).elim
+        · exact Or.inr ⟨ha, h⟩
+      have h1 := Finset.card_le_card hcov; rwa [Finset.card_union_of_disjoint hd] at h1
+    have := hml al hal; have := hmu ag hag; omega
+
+private lemma card_span (S : Finset ℕ) (hS : S.Nonempty) : S.card ≤ S.max' hS - S.min' hS + 1 := by
+  have hle := Finset.min'_le S (S.max' hS) (Finset.max'_mem S hS)
+  have := Finset.card_le_card (show S ⊆ Finset.Icc (S.min' hS) (S.max' hS) from fun a ha =>
+    Finset.mem_Icc.mpr ⟨Finset.min'_le S a ha, Finset.le_max' S a ha⟩)
+  rw [Nat.card_Icc] at this; omega
+
+end Core
+
+section TwoPath
+
+variable {n : ℕ} {G : SimpleGraph (Fin n)}
+
+private def setA (x : ℕ → Fin n) (R : ℕ) : Finset (Fin n) :=
+  (Finset.range (R / 3 + 1)).image (fun i => x (3 * i))
+
+private def setB (z : ℕ → Fin n) (R : ℕ) : Finset (Fin n) :=
+  (Finset.range ((R - 1) / 6)).image (fun j => z (R - 3 * j))
+
+private def setM (x z : ℕ → Fin n) (R : ℕ) : Finset (Fin n) := setA x R ∪ setB z R
+
+private lemma injA {x : ℕ → Fin n} {R : ℕ}
+    (hx : ∀ i j, i ≤ j → j ≤ R → G.dist (x i) (x j) = j - i) :
+    Set.InjOn (fun i => x (3 * i)) (Finset.range (R / 3 + 1)) := fun i₁ h₁ i₂ h₂ heq => by
+  dsimp only at heq; simp only [Finset.coe_range, Set.mem_Iio] at h₁ h₂
+  have h0 : G.dist (x (3 * i₁)) (x (3 * i₂)) = 0 := by rw [heq, G.dist_self]
+  rw [iso_symm hx (by omega) (by omega)] at h0; omega
+
+private lemma injB {z : ℕ → Fin n} {R : ℕ}
+    (hz : ∀ i j, i ≤ j → j ≤ R → G.dist (z i) (z j) = j - i) :
+    Set.InjOn (fun j => z (R - 3 * j)) (Finset.range ((R - 1) / 6)) := fun j₁ h₁ j₂ h₂ heq => by
+  dsimp only at heq; simp only [Finset.coe_range, Set.mem_Iio] at h₁ h₂
+  have h0 : G.dist (z (R - 3 * j₁)) (z (R - 3 * j₂)) = 0 := by rw [heq, G.dist_self]
+  rw [iso_symm hz (by omega) (by omega)] at h0; omega
+
+private lemma disjAB {x z : ℕ → Fin n} {R : ℕ} (hR : 1 ≤ R)
+    (hx : ∀ i j, i ≤ j → j ≤ R → G.dist (x i) (x j) = j - i)
+    (hz : ∀ i j, i ≤ j → j ≤ R → G.dist (z i) (z j) = j - i)
+    (hz0 : z 0 = x (3 * (R / 6))) : Disjoint (setA x R) (setB z R) := by
+  rw [Finset.disjoint_left]; intro v hA hB
+  rcases Finset.mem_image.mp hA with ⟨i, hi, rfl⟩
+  rcases Finset.mem_image.mp hB with ⟨j, hj, heq⟩
+  rw [Finset.mem_range] at hi hj
+  have h1 : G.dist (x (3 * (R / 6))) (x (3 * i)) = (3 * i - 3 * (R / 6)) + (3 * (R / 6) - 3 * i) := by
+    rw [iso_symm hx (by omega) (by omega)]; omega
+  have h2 : G.dist (z 0) (z (R - 3 * j)) = R - 3 * j := by simpa using hz 0 (R - 3 * j) (Nat.zero_le _) (by omega)
+  rw [hz0, heq] at h2; omega
+
+private lemma card_setM {x z : ℕ → Fin n} {R : ℕ} (hR : 1 ≤ R)
+    (hx : ∀ i j, i ≤ j → j ≤ R → G.dist (x i) (x j) = j - i)
+    (hz : ∀ i j, i ≤ j → j ≤ R → G.dist (z i) (z j) = j - i)
+    (hz0 : z 0 = x (3 * (R / 6))) :
+    (setM x z R).card = R / 3 + 1 + (R - 1) / 6 := by
+  rw [setM, Finset.card_union_of_disjoint (disjAB hR hx hz hz0),
+    setA, Finset.card_image_of_injOn (injA hx), Finset.card_range,
+    setB, Finset.card_image_of_injOn (injB hz), Finset.card_range]
+
+/-- Unified distance analysis for any bounded-diameter subset `U ⊆ setM x z R`. -/
+private lemma setM_diam_cases (hc : G.Connected) {x z : ℕ → Fin n} {R bound : ℕ} (hR : 1 ≤ R)
+    (hx : ∀ i j, i ≤ j → j ≤ R → G.dist (x i) (x j) = j - i)
+    (hz : ∀ i j, i ≤ j → j ≤ R → G.dist (z i) (z j) = j - i)
+    (hz0 : z 0 = x (3 * (R / 6)))
+    {U : Finset (Fin n)} (hU : U ⊆ setM x z R) (hU1 : 1 ≤ U.card)
+    (hb : ∀ u ∈ U, ∀ v ∈ U, G.dist u v ≤ bound) :
+    3 * (U.card - 1) ≤ bound ∨
+    (let I := (Finset.range (R / 3 + 1)).filter (fun i => x (3 * i) ∈ U)
+     let J := (Finset.range ((R - 1) / 6)).filter (fun j => z (R - 3 * j) ∈ U)
+     U.card = I.card + J.card ∧ 1 ≤ I.card ∧ 1 ≤ J.card ∧ I.card ≤ R / 3 + 1 ∧ J.card ≤ (R - 1) / 6 ∧
+     ∃ s : ℕ, (∀ i ∈ I, s ≤ (i - R / 6) + (R / 6 - i)) ∧
+       R + 3 * J.card ≤ 3 * ((R - 1) / 6) + bound + 3 * s ∧
+       (I.card + s ≤ R / 3 - R / 6 + 1 ∨ 3 * (2 * s + I.card - 2) ≤ bound)) := by
+  set k := R / 6; set p := R / 3; set l := (R - 1) / 6
+  set I := (Finset.range (p + 1)).filter (fun i => x (3 * i) ∈ U)
+  set J := (Finset.range l).filter (fun j => z (R - 3 * j) ∈ U)
+  have hcard : U.card = I.card + J.card := by
+    have hUA : U ∩ setA x R = I.image (fun i => x (3 * i)) := by
+      ext v; simp only [Finset.mem_inter, setA, Finset.mem_image, I, Finset.mem_filter]
+      exact ⟨fun ⟨h1, i, h2, h3⟩ => ⟨i, ⟨h2, h3 ▸ h1⟩, h3⟩, fun ⟨i, ⟨h2, h1⟩, h3⟩ => ⟨h3 ▸ h1, i, h2, h3⟩⟩
+    have hUB : U ∩ setB z R = J.image (fun j => z (R - 3 * j)) := by
+      ext v; simp only [Finset.mem_inter, setB, Finset.mem_image, J, Finset.mem_filter]
+      exact ⟨fun ⟨h1, j, h2, h3⟩ => ⟨j, ⟨h2, h3 ▸ h1⟩, h3⟩, fun ⟨j, ⟨h2, h1⟩, h3⟩ => ⟨h3 ▸ h1, j, h2, h3⟩⟩
+    have hUeq : U = (U ∩ setA x R) ∪ (U ∩ setB z R) := by
+      ext v; simp only [Finset.mem_union, Finset.mem_inter]
+      exact ⟨fun hv => (Finset.mem_union.mp (hU hv)).imp (⟨hv, ·⟩) (⟨hv, ·⟩), fun h => h.elim And.left And.left⟩
+    have hdisj : Disjoint (U ∩ setA x R) (U ∩ setB z R) :=
+      (disjAB hR hx hz hz0).mono Finset.inter_subset_right Finset.inter_subset_right
+    have hcA : (U ∩ setA x R).card = I.card := by
+      rw [hUA, Finset.card_image_of_injOn ((injA hx).mono fun a ha => (Finset.mem_filter.mp ha).1)]
+    have hcB : (U ∩ setB z R).card = J.card := by
+      rw [hUB, Finset.card_image_of_injOn ((injB hz).mono fun a ha => (Finset.mem_filter.mp ha).1)]
+    rw [hUeq, Finset.card_union_of_disjoint hdisj, hcA, hcB]
+  by_cases hJ : J = ∅
+  · left
+    have hIc : I.card = U.card := by rw [hJ, Finset.card_empty] at hcard; omega
+    have hIne : I.Nonempty := Finset.card_pos.mp (by omega)
+    set imin := I.min' hIne; set imax := I.max' hIne
+    have hm1 := Finset.mem_filter.mp (Finset.min'_mem I hIne)
+    have hm2 := Finset.mem_filter.mp (Finset.max'_mem I hIne)
+    have hsp := card_span I hIne
+    have hd := hx (3 * imin) (3 * imax) (Nat.mul_le_mul_left 3 (Finset.min'_le I imax (Finset.max'_mem I hIne)))
+      (by have := Finset.mem_range.mp hm2.1; omega)
+    have hle : G.dist (x (3 * imin)) (x (3 * imax)) ≤ bound := hb _ hm1.2 _ hm2.2
+    omega
+  · by_cases hI : I = ∅
+    · left
+      have hJc : J.card = U.card := by rw [hI, Finset.card_empty] at hcard; omega
+      have hJne : J.Nonempty := Finset.card_pos.mp (by omega)
+      set jmin := J.min' hJne; set jmax := J.max' hJne
+      have hm1 := Finset.mem_filter.mp (Finset.min'_mem J hJne)
+      have hm2 := Finset.mem_filter.mp (Finset.max'_mem J hJne)
+      have hsp := card_span J hJne
+      have hjle := Finset.min'_le J jmax (Finset.max'_mem J hJne)
+      have hrm := Finset.mem_range.mp hm2.1
+      have hd := hz (R - 3 * jmax) (R - 3 * jmin) (by omega) (by omega)
+      have hle : G.dist (z (R - 3 * jmax)) (z (R - 3 * jmin)) ≤ bound := hb _ hm2.2 _ hm1.2
+      omega
+    · right
+      have hIne := Finset.nonempty_iff_ne_empty.mpr hI
+      have hJne := Finset.nonempty_iff_ne_empty.mpr hJ
+      have hIpos := Finset.one_le_card.mpr hIne; have hJpos := Finset.one_le_card.mpr hJne
+      have hIl : I.card ≤ p + 1 := (Finset.card_filter_le _ _).trans (by rw [Finset.card_range])
+      have hJl : J.card ≤ l := (Finset.card_filter_le _ _).trans (by rw [Finset.card_range])
+      set jmin := J.min' hJne
+      have hjm := Finset.mem_filter.mp (Finset.min'_mem J hJne)
+      have hjmlt : jmin < l := Finset.mem_range.mp hjm.1
+      have hju : jmin + J.card ≤ l := by
+        have := Finset.card_le_card (show J ⊆ Finset.Ico jmin l from fun a ha =>
+          Finset.mem_Ico.mpr ⟨Finset.min'_le J a ha, Finset.mem_range.mp (Finset.mem_filter.mp ha).1⟩)
+        rw [Nat.card_Ico] at this; omega
+      obtain ⟨i₀, hi₀, hsmin⟩ := Finset.exists_min_image I (fun i => (i - k) + (k - i)) hIne
+      set s := (i₀ - k) + (k - i₀)
+      have hi₀f := Finset.mem_filter.mp hi₀
+      have hi₀lt := Finset.mem_range.mp hi₀f.1
+      have hcr : R - 3 * jmin ≤ G.dist (x (3 * i₀)) (z (R - 3 * jmin)) + 3 * s := by
+        have := cross_lb hc hx hz hz0 (by omega) (i := 3 * i₀) (j := R - 3 * jmin) (by omega) (by omega); omega
+      have hcr_ub : G.dist (x (3 * i₀)) (z (R - 3 * jmin)) ≤ bound := hb _ hi₀f.2 _ hjm.2
+      refine ⟨hcard, hIpos, hJpos, hIl, hJl, s, hsmin, by omega, ?_⟩
+      by_cases hng : ∀ i ∈ I, i ≤ k
+      · left
+        have hsub : I ⊆ Finset.range (k - s + 1) := fun i hi => by
+          have := hng i hi; have := hsmin i hi; rw [Finset.mem_range]; omega
+        have := (Finset.card_le_card hsub).trans (by rw [Finset.card_range])
+        have := hng i₀ hi₀; omega
+      · by_cases hnl : ∀ i ∈ I, k ≤ i
+        · left
+          have hsub : I ⊆ Finset.Icc (k + s) p := fun i hi => by
+            have := hnl i hi; have := hsmin i hi; have := Finset.mem_range.mp (Finset.mem_filter.mp hi).1
+            exact Finset.mem_Icc.mpr ⟨by omega, by omega⟩
+          have := Finset.card_le_card hsub; rw [Nat.card_Icc] at this
+          have := hnl i₀ hi₀; omega
+        · right
+          push Not at hng hnl
+          have hsp := straddle_span I k s hIne hnl hng hsmin
+          set imin := I.min' hIne; set imax := I.max' hIne
+          have hm1 := Finset.mem_filter.mp (Finset.min'_mem I hIne)
+          have hm2 := Finset.mem_filter.mp (Finset.max'_mem I hIne)
+          have hmlt := Finset.mem_range.mp hm2.1
+          have hd := hx (3 * imin) (3 * imax) (Nat.mul_le_mul_left 3 (Finset.min'_le I imax (Finset.max'_mem I hIne))) (by omega)
+          have hle : G.dist (x (3 * imin)) (x (3 * imax)) ≤ bound := hb _ hm1.2 _ hm2.2
           omega
-        obtain ⟨Q, qPack, enough⟩ :=
-          exceptional k (Nat.pos_of_ne_zero hk) x z b (rk ▸ xIso) (rk ▸ zIso) start ba' bz'
-        have := packing_card_le qPack
-        omega
+
+private lemma isMultipacking_setM (hc : G.Connected) {x z : ℕ → Fin n} {R : ℕ} (hR : 1 ≤ R)
+    (hx : ∀ i j, i ≤ j → j ≤ R → G.dist (x i) (x j) = j - i)
+    (hz : ∀ i j, i ≤ j → j ≤ R → G.dist (z i) (z j) = j - i)
+    (hz0 : z 0 = x (3 * (R / 6))) : IsMultipacking G (setM x z R) := by
+  apply mp_of_pair hc; intro U hU hU2
+  by_contra hbad; push Not at hbad
+  have hb : ∀ u ∈ U, ∀ v ∈ U, G.dist u v ≤ 2 * U.card - 2 := fun u hu v hv => by have := hbad u hu v hv; omega
+  rcases setM_diam_cases hc hR hx hz hz0 hU (by omega) hb with h | ⟨hcard, hI1, hJ1, hIl, hJl, s, _, hcr, hcase⟩
+  · omega
+  · rcases hcase with hside | hstr
     · omega
-  · have := strong mod
+    · set I := (Finset.range (R / 3 + 1)).filter (fun i => x (3 * i) ∈ U)
+      set J := (Finset.range ((R - 1) / 6)).filter (fun j => z (R - 3 * j) ∈ U)
+      have hrem : R % 6 = 1 ∨ R % 6 = 3 := by omega
+      have hIeq : I = Finset.range (R / 3 + 1) :=
+        Finset.eq_of_subset_of_card_le (Finset.filter_subset _ _) (by rw [Finset.card_range]; omega)
+      have h0U : x 0 ∈ U := by
+        have : 0 ∈ I := by rw [hIeq, Finset.mem_range]; omega
+        simpa using (Finset.mem_filter.mp this).2
+      have hpU : x (3 * (R / 3)) ∈ U := by
+        have : R / 3 ∈ I := by rw [hIeq, Finset.mem_range]; omega
+        exact (Finset.mem_filter.mp this).2
+      have hd0p : G.dist (x 0) (x (3 * (R / 3))) = 3 * (R / 3) := by
+        simpa using hx 0 (3 * (R / 3)) (Nat.zero_le _) (by omega)
+      have h0p_ub := hb _ h0U _ hpU
+      rcases hrem with h1 | h3
+      · have hJeq : J = Finset.range ((R - 1) / 6) :=
+          Finset.eq_of_subset_of_card_le (Finset.filter_subset _ _) (by rw [Finset.card_range]; omega)
+        have hkU : x (3 * (R / 6)) ∈ U := by
+          have : R / 6 ∈ I := by rw [hIeq, Finset.mem_range]; omega
+          exact (Finset.mem_filter.mp this).2
+        have hzRU : z R ∈ U := by
+          have : 0 ∈ J := by rw [hJeq, Finset.mem_range]; omega
+          simpa using (Finset.mem_filter.mp this).2
+        have hd0R : G.dist (x (3 * (R / 6))) (z R) = R := by
+          rw [← hz0]; simpa using hz 0 R (Nat.zero_le _) (le_refl R)
+        have := hb _ hkU _ hzRU; omega
+      · omega
+
+private lemma robust_setM (hc : G.Connected) {x z : ℕ → Fin n} {k : ℕ} (hk : 1 ≤ k)
+    (hx : ∀ i j, i ≤ j → j ≤ 6 * k + 5 → G.dist (x i) (x j) = j - i)
+    (hz : ∀ i j, i ≤ j → j ≤ 6 * k + 5 → G.dist (z i) (z j) = j - i)
+    (hz0 : z 0 = x (3 * k)) {T : Finset (Fin n)} (hT : T ⊆ setM x z (6 * k + 5)) (hT4 : 4 ≤ T.card) :
+    ∃ u ∈ T, ∃ v ∈ T, 2 * T.card + 1 ≤ G.dist u v := by
+  set R := 6 * k + 5
+  have hz0' : z 0 = x (3 * (R / 6)) := by
+    have : R / 6 = k := by omega
+    rwa [this]
+  by_contra hbad; push Not at hbad
+  have hb : ∀ u ∈ T, ∀ v ∈ T, G.dist u v ≤ 2 * T.card := fun u hu v hv => by have := hbad u hu v hv; omega
+  rcases setM_diam_cases hc (by omega) hx hz hz0' hT (by omega) hb with h | ⟨hcard, hI1, hJ1, hIl, hJl, s, hsmin, hcr, hcase⟩
+  · omega
+  · rcases hcase with hside | hstr
+    · omega
+    · set I := (Finset.range (R / 3 + 1)).filter (fun i => x (3 * i) ∈ T)
+      have hIeq : I = Finset.range (R / 3 + 1) :=
+        Finset.eq_of_subset_of_card_le (Finset.filter_subset _ _) (by rw [Finset.card_range]; omega)
+      have hs0 : s = 0 := by have := hsmin k (by rw [hIeq, Finset.mem_range]; omega); omega
+      have h0T : x 0 ∈ T := by simpa using (Finset.mem_filter.mp (show 0 ∈ I by rw [hIeq, Finset.mem_range]; omega)).2
+      have hpT : x (6 * k + 3) ∈ T := by
+        have hmem := (Finset.mem_filter.mp (show 2 * k + 1 ∈ I by rw [hIeq, Finset.mem_range]; omega)).2
+        have h3 : 3 * (2 * k + 1) = 6 * k + 3 := by omega
+        rwa [h3] at hmem
+      have hd : G.dist (x 0) (x (6 * k + 3)) = 6 * k + 3 := by simpa using hx 0 (6 * k + 3) (Nat.zero_le _) (by omega)
+      have := hb _ h0T _ hpT; omega
+
+private lemma aug_setM (hc : G.Connected) {x z : ℕ → Fin n} {k : ℕ} (hk : 1 ≤ k)
+    (hx : ∀ i j, i ≤ j → j ≤ 6 * k + 5 → G.dist (x i) (x j) = j - i)
+    (hz : ∀ i j, i ≤ j → j ≤ 6 * k + 5 → G.dist (z i) (z j) = j - i)
+    (hz0 : z 0 = x (3 * k)) {b : Fin n}
+    (hb1 : 3 * k + 6 ≤ G.dist b (x (3 * k + 3))) (hb2 : 3 * k ≤ G.dist b (z (6 * k + 5))) :
+    b ∉ setM x z (6 * k + 5) ∧ IsMultipacking G (insert b (setM x z (6 * k + 5))) := by
+  set R := 6 * k + 5
+  have hz0' : z 0 = x (3 * (R / 6)) := by
+    have : R / 6 = k := by omega
+    rwa [this]
+  have hMmp := isMultipacking_setM hc (by omega) hx hz hz0'
+  have hbX : ∀ i ≤ 2 * k + 1, 3 * k + 6 ≤ G.dist b (x (3 * i)) + 3 * ((i - (k + 1)) + ((k + 1) - i)) := fun i hi => by
+    have ht : G.dist b (x (3 * k + 3)) ≤ G.dist b (x (3 * i)) + G.dist (x (3 * i)) (x (3 * k + 3)) := hc.dist_triangle
+    have hd : G.dist (x (3 * i)) (x (3 * k + 3)) = 3 * ((i - (k + 1)) + ((k + 1) - i)) := by
+      rw [iso_symm hx (by omega) (by omega)]; omega
     omega
+  have hbZ : ∀ j < k, 3 * k ≤ G.dist b (z (R - 3 * j)) + 3 * j := fun j hj => by
+    have ht : G.dist b (z R) ≤ G.dist b (z (R - 3 * j)) + G.dist (z (R - 3 * j)) (z R) := hc.dist_triangle
+    have hd := hz (R - 3 * j) R (by omega) (le_refl R); omega
+  have hb_nm : b ∉ setM x z R := fun hbM => by
+    rcases Finset.mem_union.mp hbM with hA | hB
+    · rcases Finset.mem_image.mp hA with ⟨i, hi, heq⟩; rw [Finset.mem_range] at hi
+      have := hbX i (by omega); rw [heq, G.dist_self] at this; omega
+    · rcases Finset.mem_image.mp hB with ⟨j, hj, heq⟩; rw [Finset.mem_range] at hj
+      have := hbZ j (by omega); rw [heq, G.dist_self] at this; omega
+  refine ⟨hb_nm, fun v r hr => ?_⟩
+  by_cases hvb : G.dist v b ≤ r
+  · set T := (setM x z R).filter (fun u => G.dist v u ≤ r)
+    have hfilt : (insert b (setM x z R)).filter (fun u => G.dist v u ≤ r) = insert b T := by
+      ext u; simp only [Finset.mem_filter, Finset.mem_insert, T]
+      exact ⟨fun ⟨h1, h2⟩ => h1.elim Or.inl (fun h => Or.inr ⟨h, h2⟩), fun h => h.elim (fun h => ⟨Or.inl h, h ▸ hvb⟩) (fun ⟨h1, h2⟩ => ⟨Or.inr h1, h2⟩)⟩
+    rw [hfilt, Finset.card_insert_of_notMem (fun h => hb_nm (Finset.mem_filter.mp h).1)]
+    have hTle : T.card ≤ r := hMmp v r hr
+    by_cases hTlt : T.card < r
+    · exact Nat.succ_le_of_lt hTlt
+    · exfalso
+      have hpair : ∀ u ∈ T, ∀ w ∈ T, G.dist u w ≤ 2 * r := fun u hu w hw => by
+        have h1 := (Finset.mem_filter.mp hu).2; have h2 := (Finset.mem_filter.mp hw).2
+        have ht : G.dist u w ≤ G.dist u v + G.dist v w := hc.dist_triangle
+        have hcm : G.dist u v = G.dist v u := G.dist_comm; omega
+      have hbu : ∀ u ∈ T, G.dist b u ≤ 2 * r := fun u hu => by
+        have h1 := (Finset.mem_filter.mp hu).2
+        have ht : G.dist b u ≤ G.dist b v + G.dist v u := hc.dist_triangle
+        have hcm : G.dist b v = G.dist v b := G.dist_comm; omega
+      by_cases hr4 : 4 ≤ r
+      · obtain ⟨u, hu, w, hw, hd⟩ := robust_setM hc hk hx hz hz0 (show T ⊆ setM x z (6 * k + 5) from Finset.filter_subset _ _) (by omega)
+        have := hpair u hu w hw; omega
+      · have hrc : r = 1 ∨ r = 2 ∨ r = 3 := by omega
+        rcases hrc with rfl | rfl | rfl
+        · obtain ⟨u, hu⟩ := Finset.card_pos.mp (by omega : 0 < T.card)
+          have := hbu u hu
+          rcases Finset.mem_union.mp (Finset.mem_filter.mp hu).1 with hA | hB
+          · rcases Finset.mem_image.mp hA with ⟨i, hi, rfl⟩; rw [Finset.mem_range] at hi; have := hbX i (by omega); omega
+          · rcases Finset.mem_image.mp hB with ⟨j, hj, rfl⟩; rw [Finset.mem_range] at hj; have := hbZ j (by omega); omega
+        · have hsub : T ⊆ {x 0, z (R - 3 * (k - 1))} := fun u hu => by
+            have := hbu u hu; simp only [Finset.mem_insert, Finset.mem_singleton]
+            rcases Finset.mem_union.mp (Finset.mem_filter.mp hu).1 with hA | hB
+            · rcases Finset.mem_image.mp hA with ⟨i, hi, rfl⟩; rw [Finset.mem_range] at hi
+              have := hbX i (by omega)
+              have hi0 : i = 0 := by omega
+              left; simp [hi0]
+            · rcases Finset.mem_image.mp hB with ⟨j, hj, rfl⟩; rw [Finset.mem_range] at hj
+              have := hbZ j (by omega)
+              have hjk : j = k - 1 := by omega
+              right; rw [hjk]
+          have h0T : x 0 ∈ T := by
+            by_contra h0
+            have := Finset.card_le_card (show T ⊆ {z (R - 3 * (k - 1))} from fun u hu =>
+              (Finset.mem_insert.mp (hsub hu)).resolve_left (fun he => h0 (he ▸ hu)))
+            simp at this; omega
+          have hzT : z (R - 3 * (k - 1)) ∈ T := by
+            by_contra hz1
+            have := Finset.card_le_card (show T ⊆ {x 0} from fun u hu =>
+              Finset.mem_singleton.mpr ((Finset.mem_insert.mp (hsub hu)).resolve_right
+                (fun he => hz1 (Finset.mem_singleton.mp he ▸ hu))))
+            simp at this; omega
+          have := cross_lb hc hx hz hz0 (by omega) (i := 0) (j := R - 3 * (k - 1)) (by omega) (by omega)
+          have := hpair _ h0T _ hzT; omega
+        · have hcand : ∀ u ∈ T, u = x 0 ∨ u = x 3 ∨ u = x (6 * k + 3) ∨
+              u = z (R - 3 * (k - 1)) ∨ (2 ≤ k ∧ u = z (R - 3 * (k - 2))) := fun u hu => by
+            have := hbu u hu
+            rcases Finset.mem_union.mp (Finset.mem_filter.mp hu).1 with hA | hB
+            · rcases Finset.mem_image.mp hA with ⟨i, hi, rfl⟩; rw [Finset.mem_range] at hi
+              have := hbX i (by omega)
+              rcases (show i = 0 ∨ i = 1 ∨ i = 2 * k + 1 by omega) with rfl | rfl | rfl
+              · left; simp
+              · right; left; simp
+              · right; right; left; congr 1; omega
+            · rcases Finset.mem_image.mp hB with ⟨j, hj, rfl⟩; rw [Finset.mem_range] at hj
+              have := hbZ j (by omega)
+              by_cases hj1 : j = k - 1
+              · right; right; right; left; rw [hj1]
+              · right; right; right; right
+                refine ⟨by omega, ?_⟩
+                have hj2 : j = k - 2 := by omega
+                rw [hj2]
+          by_cases h0T : x 0 ∈ T
+          · have hsub : T ⊆ {x 0, x 3} := fun u hu => by
+              simp only [Finset.mem_insert, Finset.mem_singleton]
+              rcases hcand u hu with rfl | rfl | rfl | rfl | ⟨hk2, rfl⟩
+              · exact Or.inl rfl
+              · exact Or.inr rfl
+              · exfalso; have := hx 0 (6 * k + 3) (Nat.zero_le _) (by omega); have := hpair _ h0T _ hu; omega
+              · exfalso; have := cross_lb hc hx hz hz0 (by omega) (i := 0) (j := R - 3 * (k - 1)) (by omega) (by omega); have := hpair _ h0T _ hu; omega
+              · exfalso; have := cross_lb hc hx hz hz0 (by omega) (i := 0) (j := R - 3 * (k - 2)) (by omega) (by omega); have := hpair _ h0T _ hu; omega
+            have := card_pair_le hsub; omega
+          · by_cases h3T : x 3 ∈ T
+            · have hsub : T ⊆ {x 3, x (6 * k + 3)} := fun u hu => by
+                simp only [Finset.mem_insert, Finset.mem_singleton]
+                rcases hcand u hu with rfl | rfl | rfl | rfl | ⟨hk2, rfl⟩
+                · exact (h0T hu).elim
+                · exact Or.inl rfl
+                · exact Or.inr rfl
+                · exfalso; have := cross_lb hc hx hz hz0 (by omega) (i := 3) (j := R - 3 * (k - 1)) (by omega) (by omega); have := hpair _ h3T _ hu; omega
+                · exfalso; have := cross_lb hc hx hz hz0 (by omega) (i := 3) (j := R - 3 * (k - 2)) (by omega) (by omega); have := hpair _ h3T _ hu; omega
+              have := card_pair_le hsub; omega
+            · by_cases hk2 : 2 ≤ k
+              · have hlT : x (6 * k + 3) ∈ T := by
+                  by_contra hno
+                  have := card_pair_le (show T ⊆ {z (R - 3 * (k - 1)), z (R - 3 * (k - 2))} from fun u hu => by
+                    simp only [Finset.mem_insert, Finset.mem_singleton]
+                    rcases hcand u hu with rfl | rfl | rfl | rfl | ⟨_, rfl⟩
+                    · exact (h0T hu).elim
+                    · exact (h3T hu).elim
+                    · exact (hno hu).elim
+                    · exact Or.inl rfl
+                    · exact Or.inr rfl)
+                  omega
+                have hz2T : z (R - 3 * (k - 2)) ∈ T := by
+                  by_contra hno
+                  have := card_pair_le (show T ⊆ {x (6 * k + 3), z (R - 3 * (k - 1))} from fun u hu => by
+                    simp only [Finset.mem_insert, Finset.mem_singleton]
+                    rcases hcand u hu with rfl | rfl | rfl | rfl | ⟨_, rfl⟩
+                    · exact (h0T hu).elim
+                    · exact (h3T hu).elim
+                    · exact Or.inl rfl
+                    · exact Or.inr rfl
+                    · exact (hno hu).elim)
+                  omega
+                have := cross_lb hc hx hz hz0 (by omega) (i := 6 * k + 3) (j := R - 3 * (k - 2)) (by omega) (by omega)
+                have := hpair _ hlT _ hz2T; omega
+              · have := card_pair_le (show T ⊆ {x (6 * k + 3), z (R - 3 * (k - 1))} from fun u hu => by
+                  simp only [Finset.mem_insert, Finset.mem_singleton]
+                  rcases hcand u hu with rfl | rfl | rfl | rfl | ⟨h2, _⟩
+                  · exact (h0T hu).elim
+                  · exact (h3T hu).elim
+                  · exact Or.inl rfl
+                  · exact Or.inr rfl
+                  · omega)
+                omega
+  · have hfilt : (insert b (setM x z R)).filter (fun u => G.dist v u ≤ r) =
+        (setM x z R).filter (fun u => G.dist v u ≤ r) := by
+      ext u; simp only [Finset.mem_filter, Finset.mem_insert]
+      exact ⟨fun ⟨h1, h2⟩ => ⟨h1.resolve_left (fun he => hvb (he ▸ h2)), h2⟩, fun ⟨h1, h2⟩ => ⟨Or.inr h1, h2⟩⟩
+    rw [hfilt]; exact hMmp v r hr
 
-end OMA.BroadcastAssembly
+private lemma five_class (hc : G.Connected)
+    (hmod : rad G hc % 6 = 5) (hbc : broadcastNumber G = rad G hc) :
+    broadcastNumber G ≤ 2 * multipackingNumber G := by
+  set R := rad G hc; set k := R / 6
+  have : Nonempty (Fin n) := hc.nonempty
+  let v₀ : Fin n := Classical.arbitrary (Fin n)
+  obtain ⟨x, _, hx⟩ := exists_iso hc v₀ R (rad_le_ecc hc v₀)
+  by_cases hk0 : k = 0
+  · let u := x 0; let v := x 5
+    have hduv : G.dist u v = 5 := by simpa [u, v] using hx 0 5 (Nat.zero_le _) (by omega)
+    have huv : u ≠ v := fun h => by rw [h, G.dist_self] at hduv; omega
+    obtain ⟨b, hbu, hbv⟩ := exists_uncovered (G := G) u v huv 2 2 (by omega) (by omega) (by omega)
+    have hbu_ne : b ≠ u := fun h => by rw [h, G.dist_self] at hbu; omega
+    have hbv_ne : b ≠ v := fun h => by rw [h, G.dist_self] at hbv; omega
+    let P : Finset (Fin n) := {u, v, b}
+    have hPcard : P.card = 3 := by
+      rw [Finset.card_insert_of_notMem, Finset.card_insert_of_notMem, Finset.card_singleton]
+      · simp [hbv_ne.symm]
+      · simp [huv, hbu_ne.symm]
+    have hPmp : IsMultipacking G P := fun w r hr => by
+      by_cases hr3 : 3 ≤ r
+      · exact (Finset.card_filter_le _ _).trans (by omega)
+      · rcases (show r = 1 ∨ r = 2 by omega) with rfl | rfl
+        · by_contra hgt; push Not at hgt
+          obtain ⟨a, ha, c, hc', hac⟩ := Finset.one_lt_card.mp hgt
+          have h1 := (Finset.mem_filter.mp ha).2; have h2 := (Finset.mem_filter.mp hc').2
+          have ht : G.dist a c ≤ G.dist a w + G.dist w c := hc.dist_triangle
+          have hcm : G.dist a w = G.dist w a := G.dist_comm
+          have haP := (Finset.mem_filter.mp ha).1; have hcP := (Finset.mem_filter.mp hc').1
+          simp only [P, Finset.mem_insert, Finset.mem_singleton] at haP hcP
+          rcases haP with rfl | rfl | rfl <;> rcases hcP with rfl | rfl | rfl
+          · exact hac rfl
+          · omega
+          · rw [G.dist_comm] at ht; omega
+          · rw [G.dist_comm] at ht; omega
+          · exact hac rfl
+          · rw [G.dist_comm] at ht; omega
+          · omega
+          · omega
+          · exact hac rfl
+        · by_contra hgt; push Not at hgt
+          have heq : P.filter (fun y => G.dist w y ≤ 2) = P :=
+            Finset.eq_of_subset_of_card_le (Finset.filter_subset _ _) (by omega)
+          have h1 : G.dist w u ≤ 2 :=
+            (Finset.mem_filter.mp (show u ∈ P.filter (fun y => G.dist w y ≤ 2) by rw [heq]; simp [P])).2
+          have h2 : G.dist w v ≤ 2 :=
+            (Finset.mem_filter.mp (show v ∈ P.filter (fun y => G.dist w y ≤ 2) by rw [heq]; simp [P])).2
+          have ht : G.dist u v ≤ G.dist u w + G.dist w v := hc.dist_triangle
+          have hcm : G.dist u w = G.dist w u := G.dist_comm; omega
+    have := le_mp P hPmp; omega
+  · have hk1 : 1 ≤ k := by omega
+    obtain ⟨z, hz0, hz⟩ := exists_iso hc (x (3 * k)) R (rad_le_ecc hc (x (3 * k)))
+    have hx' : ∀ i j, i ≤ j → j ≤ 6 * k + 5 → G.dist (x i) (x j) = j - i := fun i j hij hj => hx i j hij (by omega)
+    have hz' : ∀ i j, i ≤ j → j ≤ 6 * k + 5 → G.dist (z i) (z j) = j - i := fun i j hij hj => hz i j hij (by omega)
+    have huv : x (3 * k + 3) ≠ z (6 * k + 5) := fun h => by
+      have hd := cross_lb hc hx' hz' hz0 (by omega) (i := 3 * k + 3) (j := 6 * k + 5) (by omega) (le_refl _)
+      rw [h, G.dist_self] at hd; omega
+    obtain ⟨b, hb1, hb2⟩ := exists_uncovered (G := G) (x (3 * k + 3)) (z (6 * k + 5)) huv (3 * k + 5) (3 * k - 1)
+      (by omega) (by omega) (by omega)
+    obtain ⟨hnm, hmp⟩ := aug_setM hc hk1 hx' hz' hz0 (by omega) (by omega)
+    have hz0' : z 0 = x (3 * ((6 * k + 5) / 6)) := by
+      have hk6 : (6 * k + 5) / 6 = k := by omega
+      rwa [hk6]
+    have hcard := card_setM (by omega) hx' hz' hz0'
+    have hle := le_mp (insert b (setM x z (6 * k + 5))) hmp
+    rw [Finset.card_insert_of_notMem hnm, hcard] at hle; omega
 
+end TwoPath
 
-theorem OMA.solution : type_of% @OMA.S_arxiv_1803_02550.main := by
-  intro n G conn
-  apply OMA.BroadcastAssembly.registered_from_two_path_packings G conn
-  · intro r positive x z xIso zIso joined
-    obtain ⟨P, pack, size⟩ := OMA.BroadcastCheckpoint.baseMultipacking_from_paths
-      conn r positive x z xIso.natDist zIso.natDist joined
-    refine ⟨P, pack, ?_⟩
-    rw [size]
-    exact OMA.BroadcastAssembly.base_size r positive
-  · intro k positive x z b xIso zIso joined bFarX bFarZ
-    obtain ⟨P, pack, size⟩ := OMA.BroadcastCheckpoint.extendMultipacking_from_paths
-      conn k positive x z xIso.natDist zIso.natDist joined b (by omega) (by omega)
-    exact ⟨P, pack, by omega⟩
+theorem prove_main : ∀ (n : ℕ) (G : SimpleGraph (Fin n)), G.Connected →
+    broadcastNumber G ≤ 2 * multipackingNumber G := by
+  intro n G hc
+  have hn_pos : 0 < n := by obtain ⟨v⟩ := hc.nonempty; exact Nat.pos_of_ne_zero (fun h => by subst h; exact Fin.elim0 v)
+  by_cases hn1 : n = 1
+  · subst hn1
+    have hbc : broadcastNumber G ≤ 1 := by
+      have h1 := bc_le (G := G) (fun _ => 1) (fun u => ⟨u, Nat.zero_lt_one, by simp⟩); simpa using h1
+    have hmp : 1 ≤ multipackingNumber G := by
+      have := le_mp (G := G) (Finset.univ : Finset (Fin 1)) (fun _ r hr => (Finset.card_filter_le _ _).trans (by simpa))
+      simpa using this
+    omega
+  · set R := rad G hc
+    have : Nonempty (Fin n) := hc.nonempty
+    obtain ⟨c, _, hce⟩ := Finset.exists_mem_eq_inf' Finset.univ_nonempty (ecc G)
+    have hR1 : 1 ≤ R := by
+      let u : Fin n := if c.val = 0 then ⟨1, by omega⟩ else ⟨0, by omega⟩
+      have hcu : c ≠ u := fun h => by
+        by_cases h0 : c.val = 0
+        · have hc1 : c.val = 1 := by simpa [u, h0] using congrArg Fin.val h
+          omega
+        · exact h0 (by simpa [u, h0] using congrArg Fin.val h)
+      have h1 := hc.pos_dist_of_ne hcu; have h2 := dist_le_ecc (G := G) c u
+      change R = ecc G c at hce; omega
+    have hbc_le : broadcastNumber G ≤ R := by
+      have h1 := bc_le (G := G) (fun v => if v = c then R else 0) (fun u => ⟨c, by simp; omega, by
+        simp only [↓reduceIte]; rw [G.dist_comm]
+        have h2 := dist_le_ecc (G := G) c u; change R = ecc G c at hce; omega⟩)
+      rwa [sum_ite_one] at h1
+    let v₀ : Fin n := Classical.arbitrary (Fin n)
+    obtain ⟨x, _, hx⟩ := exists_iso hc v₀ R (rad_le_ecc hc v₀)
+    obtain ⟨z, hz0, hz⟩ := exists_iso hc (x (3 * (R / 6))) R (rad_le_ecc hc (x (3 * (R / 6))))
+    have hmp_ge := le_mp (setM x z R) (isMultipacking_setM hc hR1 hx hz hz0)
+    rw [card_setM hR1 hx hz hz0] at hmp_ge
+    by_cases hmod : R % 6 = 5
+    · by_cases hbc_eq : broadcastNumber G = R
+      · exact five_class hc hmod hbc_eq
+      · omega
+    · omega
+
+end OMA.P_arxiv_1803_02550
+
+theorem OMA.solution : type_of% @OMA.S_arxiv_1803_02550.main :=
+  OMA.P_arxiv_1803_02550.prove_main
