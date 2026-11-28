@@ -1,13 +1,20 @@
 import OMAReductions.R_Erdos114_erdos_114_variants_large_n_R1
 import Mathlib.RingTheory.Polynomial.ScaleRoots
 import Mathlib.Algebra.Polynomial.Taylor
+import Mathlib.Analysis.Complex.CoveringMap
+import Mathlib.Analysis.Complex.OpenMapping
+import Mathlib.Topology.Homotopy.Lifting
+import Mathlib.Analysis.Normed.Module.Connected
 
 /-! The analytic steps are Lemmas 4–6 of Eremenko and Hayman, arXiv:0805.2295.
-The translation and rotation in Tao's Proposition 1.2 are proved below. -/
+The translation and rotation in Tao's Proposition 1.2 are proved below.
+Connectedness follows by lifting a radial homotopy over exterior regular values,
+then using properness and openness to pass to the unit level. -/
 
 namespace OMA.R_Erdos114_erdos_114_variants_large_n_R1_H1_R1
 
-open Polynomial Erdos114 MeasureTheory
+open Set Topology Polynomial Metric Filter Erdos114 MeasureTheory
+open scoped unitInterval
 
 -- Attainment of the maximum over monic polynomials of fixed positive degree.
 def H1 : Prop :=
@@ -25,11 +32,264 @@ def H2 : Prop :=
       lemniscateLength q = lemniscateLength p ∧
       ∀ z : ℂ, q.derivative.eval z = 0 → z ∈ lemniscate q
 
--- When all critical values are on the unit circle, the lemniscate is connected.
-def H3 : Prop :=
-  ∀ p : ℂ[X], 1 ≤ p.natDegree →
-    (∀ z : ℂ, p.derivative.eval z = 0 → z ∈ lemniscate p) →
-    IsConnected (lemniscate p)
+private lemma exterior_connected {R : ℝ} (hR : 0 ≤ R) :
+    IsConnected {z : ℂ | R < ‖z‖} := by
+  let f : ℝ × ℝ → ℂ := fun p => p.1 • Complex.exp ((p.2 : ℂ) * Complex.I)
+  have hf : Continuous f := by dsimp [f]; fun_prop
+  have hConn := (isConnected_Ioi (a := R)).prod (isConnected_univ (α := ℝ))
+  have hImage : f '' (Ioi R ×ˢ (univ : Set ℝ)) = {z : ℂ | R < ‖z‖} := by
+    ext z
+    constructor
+    · rintro ⟨⟨r,t⟩, ⟨hr,-⟩, rfl⟩
+      change R < ‖r • Complex.exp ((t : ℂ) * Complex.I)‖
+      rwa [norm_smul, Real.norm_of_nonneg (hR.trans hr.le), Complex.norm_exp_ofReal_mul_I,
+        mul_one]
+    · intro hz
+      exact ⟨(‖z‖, z.arg), ⟨hz, mem_univ _⟩, by
+        simpa [f, Complex.real_smul] using Complex.norm_mul_exp_arg_mul_I z⟩
+  exact hImage ▸ hConn.image f hf.continuousOn
+
+private lemma closure_component_inter {U : Set ℂ} {x : ℂ} (hx : x ∈ U)
+    :
+    closure (connectedComponentIn U x) ∩ U ⊆ connectedComponentIn U x := by
+  rw [connectedComponentIn_eq_image hx]
+  intro z hz
+  obtain ⟨hz₁, hz₂⟩ := hz
+  refine ⟨⟨z, hz₂⟩, ?_, rfl⟩
+  have hv : Continuous (Subtype.val : U → ℂ) := continuous_subtype_val
+  have hcl := (IsInducing.subtypeVal : IsInducing (Subtype.val : U → ℂ)).closure_eq_preimage_closure_image
+    (connectedComponent (⟨x, hx⟩ : U))
+  rw [← isClosed_connectedComponent.closure_eq, hcl]
+  exact hz₁
+
+lemma polynomial_exterior_connected {p : ℂ[X]} (hp : 1 ≤ p.natDegree) :
+    IsConnected {z : ℂ | 1 < ‖p.eval z‖} := by
+  let V : Set ℂ := {w | 1 < ‖w‖}
+  let U := p.eval ⁻¹' V
+  have hV : IsConnected V := exterior_connected zero_le_one
+  have hU : IsOpen U := (isOpen_lt continuous_const continuous_norm).preimage p.continuous
+  have hdeg : 0 < p.degree := by
+    rw [degree_eq_natDegree (by intro h; simp [h] at hp)]
+    exact_mod_cast (Nat.zero_lt_of_lt (by omega : 0 < p.natDegree))
+  have hproper := p.isProperMap_eval hdeg
+  have hmap := (p.isOpenQuotientMap_eval (by omega)).isOpenMap
+  have hcpt := hproper.isCompact_preimage (isCompact_closedBall (0 : ℂ) 1)
+  obtain ⟨R, hR⟩ := hcpt.isBounded.subset_closedBall (0 : ℂ)
+  let T : Set ℂ := {z | max R 0 < ‖z‖}
+  have hT : IsConnected T := exterior_connected (le_max_right _ _)
+  have hTU : T ⊆ U := by
+    intro z hz
+    by_contra nh
+    have hb : p.eval z ∈ closedBall (0 : ℂ) 1 := by
+      simpa [U,V,dist_zero_right,not_lt] using nh
+    have hc : z ∈ closedBall (0 : ℂ) R := hR hb
+    have hd : ‖z‖ ≤ R := by simpa [dist_zero_right] using hc
+    exact (not_lt_of_ge (hd.trans (le_max_left _ _))) hz
+  obtain ⟨t, ht⟩ := hT.nonempty
+  suffices hAll : U ⊆ connectedComponentIn U t by
+    change IsConnected U
+    rw [Subset.antisymm hAll (connectedComponentIn_subset U t)]
+    exact isConnected_connectedComponentIn_iff.mpr (hTU ht)
+  intro z hz
+  let C := connectedComponentIn U z
+  have hCU : C ⊆ U := connectedComponentIn_subset U z
+  have hCOpen : IsOpen C := hU.connectedComponentIn
+  have hCimg : p.eval '' C = p.eval '' closure C ∩ V := by
+    ext w
+    constructor
+    · rintro ⟨a, ha, rfl⟩
+      exact ⟨⟨a, subset_closure ha, rfl⟩, hCU ha⟩
+    · rintro ⟨⟨a, ha, rfl⟩, hw⟩
+      exact ⟨a, closure_component_inter hz ⟨ha, hw⟩, rfl⟩
+  have hcl : IsClosed (p.eval '' closure C) := hproper.isClosedMap _ isClosed_closure
+  have hCV : p.eval '' C = V := by
+    have hs : V ⊆ p.eval '' C ∪ (p.eval '' closure C)ᶜ := by
+      intro w hw
+      by_cases h : w ∈ p.eval '' closure C
+      · exact Or.inl (hCimg.symm ▸ ⟨h, hw⟩)
+      · exact Or.inr h
+    by_contra hne
+    have ⟨w, hw, hw'⟩ := not_subset.mp (fun hs' => hne (Subset.antisymm (image_subset_iff.mpr hCU) hs'))
+    obtain ⟨q, -, hqC, hq'⟩ := hV.isPreconnected _ _ (hmap _ hCOpen) hcl.isOpen_compl hs
+      ⟨p.eval z, hz, ⟨z, mem_connectedComponentIn hz, rfl⟩⟩
+      ⟨w, hw, fun h => hw' (hCimg.symm ▸ ⟨h, hw⟩)⟩
+    exact hq' ((hCimg ▸ hqC).1)
+  have hBound : Bornology.IsBounded (p.eval '' closedBall 0 (max R 0)) :=
+    (isCompact_closedBall _ _).image p.continuous |>.isBounded
+  obtain ⟨B, hB⟩ := hBound.subset_closedBall 0
+  obtain ⟨w, hw⟩ := NormedField.exists_lt_norm ℂ (max B 1)
+  have hwV : w ∈ V := lt_of_le_of_lt (le_max_right _ _) hw
+  obtain ⟨a, ha, rfl⟩ := hCV.symm ▸ hwV
+  have haT : a ∈ T := by
+    by_contra nh
+    have hb : a ∈ closedBall 0 (max R 0) := by
+      rw [mem_closedBall, dist_zero_right]
+      exact le_of_not_gt nh
+    have hc : p.eval a ∈ closedBall 0 B := hB ⟨a, hb, rfl⟩
+    rw [mem_closedBall, dist_zero_right] at hc
+    exact hw.not_ge (hc.trans (le_max_left _ _))
+  have htC : t ∈ C := by
+    have hi := hT.isPreconnected.subset_connectedComponentIn haT hTU ht
+    rw [← connectedComponentIn_eq ha] at hi
+    exact hi
+  rw [← connectedComponentIn_eq htC]
+  exact mem_connectedComponentIn hz
+
+lemma polynomial_level_connected {p : ℂ[X]} (hp : 1 ≤ p.natDegree)
+    (hc : ∀ z : ℂ, p.derivative.eval z = 0 → ‖p.eval z‖ = 1)
+    {r : ℝ} (hr : 1 < r) :
+    IsConnected {z : ℂ | ‖p.eval z‖ = r} := by
+  let V : Set ℂ := {w | 1 < ‖w‖}
+  let U := p.eval ⁻¹' V
+  let F : U → V := fun z => ⟨p.eval z, z.2⟩
+  have hcover : IsCoveringMap F := by
+    apply (p.isCoveringMapOn_eval.mono ?_).isCoveringMap_restrictPreimage
+    intro w hw h
+    obtain ⟨z, hz, rfl⟩ := h
+    exact (ne_of_gt hw) (hc z hz)
+  have hU : ConnectedSpace U :=
+    isConnected_iff_connectedSpace.mp (polynomial_exterior_connected hp)
+  let α (x : I × U) : ℝ := (1 - (x.1 : ℝ)) + (x.1 : ℝ) * r / ‖p.eval (x.2 : ℂ)‖
+  let g (x : I × U) : ℂ := α x • p.eval (x.2 : ℂ)
+  have hnorm (x : I × U) : ‖g x‖ =
+      (1 - (x.1 : ℝ)) * ‖p.eval (x.2 : ℂ)‖ + (x.1 : ℝ) * r := by
+    have hz : 0 < ‖p.eval (x.2 : ℂ)‖ := zero_lt_one.trans x.2.2
+    have ha : 0 ≤ α x := add_nonneg (sub_nonneg.mpr x.1.2.2)
+      (div_nonneg (mul_nonneg x.1.2.1 (zero_le_one.trans hr.le)) hz.le)
+    change ‖α x • p.eval (x.2 : ℂ)‖ = _
+    rw [norm_smul, Real.norm_of_nonneg ha]
+    dsimp [α]
+    field_simp
+  have hg (x : I × U) : g x ∈ V := by
+    have hx : 1 < ‖p.eval (x.2 : ℂ)‖ := x.2.2
+    have hmin : 1 < min ‖p.eval (x.2 : ℂ)‖ r := lt_min hx hr
+    change 1 < ‖g x‖
+    rw [hnorm]
+    refine hmin.trans_le ?_
+    have h₁ := mul_le_mul_of_nonneg_left (min_le_left ‖p.eval (x.2 : ℂ)‖ r) (sub_nonneg.mpr x.1.2.2)
+    have h₂ := mul_le_mul_of_nonneg_left (min_le_right ‖p.eval (x.2 : ℂ)‖ r) x.1.2.1
+    linarith only [h₁, h₂]
+  have hi : Continuous (fun x : I × U => (x.1 : ℝ)) :=
+    continuous_subtype_val.comp continuous_fst
+  have heval : Continuous (fun x : I × U => p.eval (x.2 : ℂ)) :=
+    p.continuous.comp (continuous_subtype_val.comp continuous_snd)
+  have hα : Continuous α :=
+    (continuous_const.sub hi).add ((hi.mul_const r).div heval.norm
+      fun x => (zero_lt_one.trans x.2.2).ne')
+  let H : C(I × U, V) := ⟨fun x => ⟨g x, hg x⟩, (hα.smul heval).subtype_mk hg⟩
+  have h0 (z : U) : H (0, z) = F ((ContinuousMap.id U) z) := by
+    apply Subtype.ext
+    change g (0,z) = p.eval (z : ℂ)
+    simp [g, α]
+  let L := hcover.liftHomotopy H (ContinuousMap.id U) h0
+  have hL (t : I) (z : U) : F (L (t,z)) = H (t,z) :=
+    congr_fun (hcover.liftHomotopy_lifts H (ContinuousMap.id U) h0) (t,z)
+  have hL0 (z : U) : L (0,z) = z :=
+    hcover.liftHomotopy_zero H (ContinuousMap.id U) h0 z
+  let e (z : U) : ℂ := (L (1,z) : ℂ)
+  have he : Continuous e := continuous_subtype_val.comp
+    (L.continuous.comp (continuous_const.prodMk continuous_id))
+  have hImage : Set.range e = {z : ℂ | ‖p.eval z‖ = r} := by
+    ext z
+    constructor
+    · rintro ⟨w,rfl⟩
+      have hh : p.eval (e w) = g (1,w) := congrArg Subtype.val (hL 1 w)
+      change ‖p.eval (e w)‖ = r
+      rw [hh, hnorm]
+      simp
+    · intro hz
+      let w : U := ⟨z, by change 1 < ‖p.eval z‖; rwa [hz]⟩
+      have hfixed (t : I) : H (t,w) = F w := by
+        apply Subtype.ext
+        change α (t,w) • p.eval z = p.eval z
+        have ha : α (t,w) = 1 := by
+          dsimp [α,w]
+          rw [show ‖p.eval z‖ = r from hz]
+          field_simp
+          ring
+        rw [ha, one_smul]
+      have hconst : L (1,w) = L (0,w) :=
+        hcover.const_of_comp (L.continuous.comp (continuous_id.prodMk continuous_const))
+          (fun t₁ t₂ => (hL t₁ w).trans ((hfixed t₁).trans ((hfixed t₂).symm.trans (hL t₂ w).symm))) 1 0
+      exact ⟨w, congrArg Subtype.val (hconst.trans (hL0 w))⟩
+  exact hImage ▸ isConnected_range he
+
+theorem polynomial_lemniscate_connected {p : ℂ[X]} (hp : 1 ≤ p.natDegree)
+    (hc : ∀ z : ℂ, p.derivative.eval z = 0 → z ∈ Erdos114.lemniscate p) :
+    IsConnected (Erdos114.lemniscate p) := by
+  let S : Set ℂ := {z | ‖p.eval z‖ = 1}
+  change IsConnected S
+  have hopen := p.isOpenQuotientMap_eval (by omega)
+  have hS : IsClosed S := isClosed_eq p.continuous.norm continuous_const
+  have hdeg : 0 < p.degree := by
+    rw [degree_eq_natDegree (by intro h; simp [h] at hp)]
+    exact_mod_cast (show 0 < p.natDegree by omega)
+  refine ⟨?_, ?_⟩
+  · obtain ⟨z, hz⟩ := hopen.surjective 1
+    exact ⟨z, by simp [S, hz]⟩
+  intro u v hu hv huv hsu hsv
+  by_contra hbad
+  have hduv : Disjoint (S \ v) (S \ u) := by
+    apply disjoint_left.mpr
+    intro x hx hy
+    exact (huv hx.1).elim hy.2 hx.2
+  obtain ⟨A, B, hA, hB, hSA, hSB, hab⟩ :=
+    normal_separation (hS.sdiff hv) (hS.sdiff hu) hduv
+  have hCover : S ⊆ A ∪ B := by
+    intro z hz
+    by_cases h : z ∈ v
+    · have h' : z ∉ u := fun h' => hbad ⟨z, hz, h', h⟩
+      exact Or.inr (hSB ⟨hz, h'⟩)
+    · exact Or.inl (hSA ⟨hz, h⟩)
+  obtain ⟨a, ha, hau⟩ := hsu
+  obtain ⟨b, hb, hbv⟩ := hsv
+  have haA : a ∈ A := hSA ⟨ha, fun hav => hbad ⟨a, ha, hau, hav⟩⟩
+  have hbB : b ∈ B := hSB ⟨hb, fun hbu => hbad ⟨b, hb, hbu, hbv⟩⟩
+  have hHit (D : Set ℂ) (hD : IsOpen D) {z : ℂ} (hz : z ∈ S) (hzD : z ∈ D) :
+      ∀ᶠ r : ℝ in 𝓝[>] 1, ∃ w ∈ D, ‖p.eval w‖ = r := by
+    have hmem : p.eval '' D ∈ 𝓝 (p.eval z) :=
+      (hopen.isOpenMap D hD).mem_nhds (mem_image_of_mem _ hzD)
+    have hpath : Tendsto (fun r : ℝ => r • p.eval z) (𝓝 1) (𝓝 (p.eval z)) := by
+      have hcont : Continuous (fun r : ℝ => r • p.eval z) :=
+        continuous_id.smul continuous_const
+      have h := hcont.continuousAt (x := (1 : ℝ))
+      unfold ContinuousAt at h
+      simpa only [one_smul] using h
+    have he : ∀ᶠ r : ℝ in 𝓝[>] 1, r • p.eval z ∈ p.eval '' D :=
+      nhdsWithin_le_nhds (hpath.eventually hmem)
+    filter_upwards [he, self_mem_nhdsWithin] with r hr hr'
+    obtain ⟨w, hw, heq⟩ := hr
+    refine ⟨w, hw, ?_⟩
+    change p.eval w = r • p.eval z at heq
+    have hr₁ : 1 < r := hr'
+    rw [heq, norm_smul, Real.norm_of_nonneg (zero_le_one.trans hr₁.le),
+      show ‖p.eval z‖ = 1 from hz, mul_one]
+  let K := (p.eval ⁻¹' closedBall (0 : ℂ) 2) ∩ (A ∪ B)ᶜ
+  let E := (fun z => ‖p.eval z‖) '' K
+  have hKc : IsCompact K :=
+    ((p.isProperMap_eval hdeg).isCompact_preimage (isCompact_closedBall _ _)).inter_right
+      ((hA.union hB).isClosed_compl)
+  have hEc : IsClosed E := (hKc.image p.continuous.norm).isClosed
+  have h1 : (1 : ℝ) ∉ E := by
+    rintro ⟨x, hx, heq⟩
+    exact hx.2 (hCover heq)
+  have hAvoid : ∀ᶠ r : ℝ in 𝓝[>] 1, r ∉ E :=
+    nhdsWithin_le_nhds (hEc.isOpen_compl.mem_nhds h1)
+  have hI : ∀ᶠ r : ℝ in 𝓝[>] 1, r ∈ Ioo 1 2 := Ioo_mem_nhdsGT (by norm_num)
+  obtain ⟨r, ⟨hr, hr2⟩, hnot, ⟨x,hx,hxr⟩, ⟨y,hy,hyr⟩⟩ :=
+    (hI.and (hAvoid.and ((hHit A hA ha haA).and (hHit B hB hb hbB)))).exists
+  let Sr : Set ℂ := {z | ‖p.eval z‖ = r}
+  have hSr : IsConnected Sr := polynomial_level_connected hp hc hr
+  have hrCover : Sr ⊆ A ∪ B := by
+    intro z hz
+    by_contra hn
+    have hzb : p.eval z ∈ closedBall (0 : ℂ) 2 := by
+      rw [mem_closedBall, dist_zero_right, show ‖p.eval z‖ = r from hz]
+      exact hr2.le
+    exact hnot ⟨z, ⟨hzb, hn⟩, hz⟩
+  obtain ⟨w, -, hwA, hwB⟩ := hSr.isPreconnected _ _ hA hB hrCover ⟨x,hxr,hx⟩ ⟨y,hyr,hy⟩
+  exact disjoint_left.mp hab hwA hwB
+
 
 lemma penultimate_taylor {p : ℂ[X]} (hp : p.Monic) (hn : 1 ≤ p.natDegree) (b : ℂ) :
     (p.taylor b).coeff (p.natDegree - 1) =
@@ -149,8 +409,8 @@ lemma normalize (p : ℂ[X]) (hp : p.Monic) (hn : 1 ≤ p.natDegree) :
     hqconn ∘ htconn, hqcrit ∘ htcrit⟩
 
 
-theorem main : H1 → H2 → H3 → OMA.R_Erdos114_erdos_114_variants_large_n_R1.H1 := by
-  intro hExist hDeform hConnected n hn
+theorem main : H1 → H2 → OMA.R_Erdos114_erdos_114_variants_large_n_R1.H1 := by
+  intro hExist hDeform n hn
   obtain ⟨p, hp, hpdeg, hpmax⟩ := hExist n hn
   obtain ⟨q, hq, hqdeg, hqlen, hqcrit⟩ :=
     hDeform p hp (hpdeg.symm ▸ hn) (fun r hr hd => hpmax r hr (hd.trans hpdeg))
@@ -159,7 +419,7 @@ theorem main : H1 → H2 → H3 → OMA.R_Erdos114_erdos_114_variants_large_n_R1
   obtain ⟨r, hr, hrdeg, hcoeff, him, hre, hrlen, hconn, hcrit⟩ :=
     normalize q hq hqpos
   refine ⟨r, hr, hrdeg.trans hqn, hqn ▸ hcoeff, him, hre,
-    hconn (hConnected q hqpos hqcrit), hcrit hqcrit, ?_⟩
+    hconn (polynomial_lemniscate_connected hqpos hqcrit), hcrit hqcrit, ?_⟩
   rw [hrlen, hqlen]
   exact hpmax
 
