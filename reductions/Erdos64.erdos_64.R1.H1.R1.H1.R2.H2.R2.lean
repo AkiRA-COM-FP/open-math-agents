@@ -54,8 +54,9 @@ def H2 : Prop :=
     (let O : Set V := {v | ∃ f : G ≃g G, f r = v}
      ∀ (k : ℕ), 4 ≤ k → ∀ (c : (cycleGraph (2^k)).Copy G) (B : Finset (Fin (2^k))),
        B.card = 4 → (∀ j, c j ∈ O ↔ j ∉ B) →
-       Nat.card (G.induce O).ConnectedComponent = 1 ∨
-         (Nat.card (G.induce O).ConnectedComponent = 3 ∧ Even k ∧ 6 ≤ k)) →
+       {i | i ∉ B ∧ i+1 ∈ B}.ncard ≠ 2 ∧
+       (Nat.card (G.induce O).ConnectedComponent = 1 ∨
+         (Nat.card (G.induce O).ConnectedComponent = 3 ∧ Even k ∧ 6 ≤ k))) →
     (∀ (k d : ℕ), 2 ≤ k → 1 ≤ d → d+3 ≤ 2^k →
       ∀ (c : (cycleGraph (2^k)).Copy G) (start : Fin (2^k)),
         (∀ i : Fin (2^k), (∃ g : G ≃g G, g r = c (i+start)) ↔ d ≤ i.val) →
@@ -1169,11 +1170,11 @@ theorem shortChordSolves {V : Type} [Fintype V] (G : SimpleGraph V) (r x y : V)
 /-- Equal component sizes and the degree bound in an induced proper orbit of
 a connected cubic graph. Every component with at least three vertices yields
 a cycle of exactly its order through the root. -/
-theorem orbitComponentOrder {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+private theorem orbitComponentData {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
     (O : Set V) (orb : ∀ v, v ∈ O ↔ ∃ f : G ≃g G, f r = v) (proper : ∃ v, v ∉ O) :
     ∃ n : ℕ, O.ncard = Nat.card (G.induce O).ConnectedComponent * n ∧
-      (3 ≤ n → ∃ c : (cycleGraph n).Copy G, r ∈ Set.range c) := by
+      (3 ≤ n → (∀ v : O, ((G.induce O).neighborSet v).ncard = 2) ∧ ∃ c : (cycleGraph n).Copy G, r ∈ Set.range c) := by
   classical
   let K := G.induce O
   let a : O := ⟨r,(orb _).mpr ⟨SimpleGraph.Iso.refl,rfl⟩⟩
@@ -1273,7 +1274,17 @@ theorem orbitComponentOrder {V : Type} [Fintype V] (G : SimpleGraph V) [Decidabl
   obtain ⟨g,hg⟩ := (orb _).mp (c j).property
   let d := g.symm.toCopy.comp (embed.comp c)
   have hit : r ∈ Set.range d := ⟨j,by change g.symm (c j) = r; rw [←hg,g.symm_apply_apply]⟩
-  exact ⟨d,hit⟩
+  exact ⟨degree,d,hit⟩
+
+/-- The common component order of a proper root orbit gives a rooted cycle
+when that order is at least three. -/
+theorem orbitComponentOrder {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
+    (O : Set V) (orb : ∀ v, v ∈ O ↔ ∃ f : G ≃g G, f r = v) (proper : ∃ v, v ∉ O) :
+    ∃ n : ℕ, O.ncard = Nat.card (G.induce O).ConnectedComponent * n ∧
+      (3 ≤ n → ∃ c : (cycleGraph n).Copy G, r ∈ Set.range c) := by
+  obtain ⟨n,h,more⟩ := orbitComponentData G r conn cubic O orb proper
+  exact ⟨n,h,fun hn => (more hn).2⟩
 
 open Fin.NatCast in
 /-- Each component of the orbit on a cycle has its own exit label. Heading
@@ -1323,7 +1334,7 @@ theorem componentsLeOmissions {V : Type} (G : SimpleGraph V) {n : ℕ} (hn : 2 �
 /-- For four omissions on a dyadic cycle of order at least sixteen, only
 one component or three equal components remain. Three requires even
 exponent at least six. -/
-theorem fourOmissionComponents {V : Type} [Fintype V] (G : SimpleGraph V)
+private theorem fourOmissionData {V : Type} [Fintype V] (G : SimpleGraph V)
     [DecidableRel G.Adj] (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
     (O : Set V) (orb : ∀ v, v ∈ O ↔ ∃ f : G ≃g G, f r = v) (proper : ∃ v, v ∉ O)
     (forced : ∀ k : ℕ, 2 ≤ k → ∀ c : (cycleGraph (2^k)).Copy G, O ⊆ Set.range c)
@@ -1331,8 +1342,9 @@ theorem fourOmissionComponents {V : Type} [Fintype V] (G : SimpleGraph V)
       r ∈ Set.range c → ¬ (n+1=2^k ∨ n+2=2^k))
     {k : ℕ} (hk : 4 ≤ k) (c : (cycleGraph (2^k)).Copy G)
     (B : Finset (Fin (2^k))) (size : B.card = 4) (omits : ∀ j, c j ∈ O ↔ j ∉ B) :
-    Nat.card (G.induce O).ConnectedComponent = 1 ∨
-      (Nat.card (G.induce O).ConnectedComponent = 3 ∧ Even k ∧ 6 ≤ k) := by
+    (∀ v : O, ((G.induce O).neighborSet v).ncard = 2) ∧
+    (Nat.card (G.induce O).ConnectedComponent = 1 ∨
+      (Nat.card (G.induce O).ConnectedComponent = 3 ∧ Even k ∧ 6 ≤ k)) := by
   classical
   have big : 16 ≤ 2^k := Nat.pow_le_pow_right (by decide : 0 < 2) hk
   have covered := forced k (by omega) c
@@ -1348,7 +1360,7 @@ theorem fourOmissionComponents {V : Type} [Fintype V] (G : SimpleGraph V)
   have total : O.ncard+4 = 2^k := by
     rw [Set.ncard_eq_toFinset_card',←eq,Finset.card_map,Finset.card_compl,Fintype.card_fin,size]
     omega
-  obtain ⟨n,order,ring⟩ := orbitComponentOrder G r conn cubic O orb proper
+  obtain ⟨n,order,ring⟩ := orbitComponentData G r conn cubic O orb proper
   let t := Nat.card (G.induce O).ConnectedComponent
   change O.ncard = t*n at order
   have cap : t ≤ 4 := size ▸ componentsLeOmissions G (by omega) c O covered B omits
@@ -1357,7 +1369,8 @@ theorem fourOmissionComponents {V : Type} [Fintype V] (G : SimpleGraph V)
     by_contra! small
     have bound := Nat.mul_le_mul cap (show n ≤ 2 by omega)
     omega
-  obtain ⟨w,hit⟩ := ring nLarge
+  obtain ⟨degree,w,hit⟩ := ring nLarge
+  refine ⟨degree,?_⟩
   have few : t ≠ 0 := by intro h; rw [h,zero_mul] at order; omega
   change t = 1 ∨ t = 3 ∧ Even k ∧ 6 ≤ k
   interval_cases t
@@ -1393,6 +1406,316 @@ theorem fourOmissionComponents {V : Type} [Fintype V] (G : SimpleGraph V)
     obtain ⟨s,rfl⟩ : ∃ s, k=s+2 := ⟨k-2,by omega⟩
     rw [pow_add] at total
     exact noNear n s w nLarge (by omega) hit (Or.inl (by omega))
+
+/-- With four omissions only one component or three equal components survive. -/
+theorem fourOmissionComponents {V : Type} [Fintype V] (G : SimpleGraph V)
+    [DecidableRel G.Adj] (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
+    (O : Set V) (orb : ∀ v, v ∈ O ↔ ∃ f : G ≃g G, f r = v) (proper : ∃ v, v ∉ O)
+    (forced : ∀ k : ℕ, 2 ≤ k → ∀ c : (cycleGraph (2^k)).Copy G, O ⊆ Set.range c)
+    (noNear : ∀ (n k : ℕ) (c : (cycleGraph n).Copy G), 3 ≤ n → 2 ≤ k →
+      r ∈ Set.range c → ¬ (n+1=2^k ∨ n+2=2^k))
+    {k : ℕ} (hk : 4 ≤ k) (c : (cycleGraph (2^k)).Copy G)
+    (B : Finset (Fin (2^k))) (size : B.card = 4) (omits : ∀ j, c j ∈ O ↔ j ∉ B) :
+    Nat.card (G.induce O).ConnectedComponent = 1 ∨
+      (Nat.card (G.induce O).ConnectedComponent = 3 ∧ Even k ∧ 6 ≤ k) := (fourOmissionData G r conn cubic O orb proper forced noNear hk c B size omits).2
+
+/-- Cancelling the common edges of two cycle unions preserves the cycle-union
+property when their union has maximum degree at most three. -/
+theorem cancelCycles {V : Type*} [Finite V] (C D : SimpleGraph V)
+    (hc : C.IsCycles) (hd : D.IsCycles)
+    (subcubic : ∀ v, ((C ⊔ D).neighborSet v).ncard ≤ 3) :
+    (symmDiff C D).IsCycles := by
+  classical
+  intro v nonempty
+  let A := C.neighborSet v
+  let B := D.neighborSet v
+  have eq : (symmDiff C D).neighborSet v = (A \ B) ∪ (B \ A) := by
+    rw [symmDiff_def,neighborSet_sup,neighborSet_sdiff,neighborSet_sdiff]
+  rw [eq] at nonempty ⊢
+  have count := Set.ncard_union_eq (show Disjoint (A \ B) (B \ A) from
+    Set.disjoint_left.mpr fun _ h k => h.2 k.1)
+  have nz := nonempty.ncard_pos
+  have cap := subcubic v
+  rw [neighborSet_sup] at cap
+  change (A ∪ B).ncard ≤ 3 at cap
+  have a : A.ncard = 0 ∨ A.ncard = 2 := by
+    by_cases h : A.Nonempty
+    · exact Or.inr (hc h)
+    · exact Or.inl (by rw [Set.not_nonempty_iff_eq_empty.mp h]; simp)
+  have b : B.ncard = 0 ∨ B.ncard = 2 := by
+    by_cases h : B.Nonempty
+    · exact Or.inr (hd h)
+    · exact Or.inl (by rw [Set.not_nonempty_iff_eq_empty.mp h]; simp)
+  have ab := Set.ncard_sdiff_add_ncard A B
+  have ba := Set.ncard_sdiff_add_ncard B A
+  rw [Set.union_comm B A] at ba
+  have ub := Set.ncard_union_le A B
+  omega
+
+/-- A two-regular graph on eight vertices has a triangle, square, or octagon. -/
+theorem eightRing {V : Type} [Fintype V] (K : SimpleGraph V)
+    (reg : ∀ v, (K.neighborSet v).ncard = 2) (eight : Fintype.card V = 8) :
+    ∃ n, (n = 3 ∨ n = 4 ∨ n = 8) ∧ cycleGraph n ⊑ K := by
+  classical
+  by_contra! no
+  have bound (v : V) : 5 ≤ (K.connectedComponentMk v).supp.ncard := by
+    obtain ⟨low,w⟩ := cycleOfComponentOrder K reg v
+    by_contra! small
+    exact (no (K.connectedComponentMk v).supp.ncard (by omega)).false w.some
+  obtain ⟨a⟩ := Fintype.card_pos_iff.mp (show 0 < Fintype.card V by omega)
+  let A := K.connectedComponentMk a
+  have all : A.supp = Set.univ := by
+    apply Set.eq_univ_of_forall
+    intro b
+    by_contra outside
+    let B := K.connectedComponentMk b
+    have dis : Disjoint A.supp B.supp := Set.disjoint_left.mpr fun _ ha hb =>
+      outside ((A.mem_supp_iff b).mpr (ConnectedComponent.eq_of_common_vertex ha hb).symm)
+    have count := Set.ncard_union_eq dis
+    have cap := Set.ncard_le_ncard (Set.subset_univ (A.supp ∪ B.supp))
+    have ha := bound a
+    have hb := bound b
+    change 5 ≤ A.supp.ncard at ha
+    change 5 ≤ B.supp.ncard at hb
+    simp only [Set.ncard_univ,Nat.card_eq_fintype_card,eight] at cap
+    omega
+  obtain ⟨_,ring⟩ := cycleOfComponentOrder K reg a
+  change cycleGraph A.supp.ncard ⊑ K at ring
+  rw [all,Set.ncard_univ,Nat.card_eq_fintype_card,eight] at ring
+  exact (no 8 (by simp)).false ring.some
+
+/-- Four omitted labels and four retained labels next to an omission leave a
+cycle of length three, four or eight after cancelling all internal ring edges.
+Every triangle produced by this construction meets the retained set. -/
+theorem fourBoundaryRing {n : ℕ} (hn : 9 ≤ n) (H : SimpleGraph (Fin n))
+    (subcubic : ∀ v, (H.neighborSet v).ncard ≤ 3) (ring : cycleGraph n ≤ H)
+    (S : Set (Fin n)) (internal : ∀ i ∈ S, (H.neighborSet i ∩ S).ncard = 2)
+    (four : Sᶜ.ncard = 4)
+    (boundary : {i | i ∈ S ∧ ∃ j, (cycleGraph n).Adj i j ∧ j ∉ S}.ncard = 4) :
+    ∃ m, ∃ c : (cycleGraph m).Copy H, (m = 3 ∨ m = 4 ∨ m = 8) ∧
+      (m = 3 → ∃ i, c i ∈ S) := by
+  classical
+  let C := cycleGraph n
+  let D : SimpleGraph (Fin n) :=
+    { Adj := fun i j => i ∈ S ∧ j ∈ S ∧ H.Adj i j
+      symm := ⟨fun _ _ h => ⟨h.2.1,h.1,h.2.2.symm⟩⟩
+      loopless := ⟨fun _ h => H.loopless.irrefl _ h.2.2⟩ }
+  let K := symmDiff C D
+  have base (i) : (C.neighborSet i).ncard = 2 := by
+    obtain ⟨t,ht⟩ : ∃ t, n=t+3 := ⟨n-3,by omega⟩
+    subst n
+    rw [Set.ncard_eq_toFinset_card']
+    exact cycleGraph_degree_three_le
+  have inside (i) (hi : i ∈ S) : D.neighborSet i = H.neighborSet i ∩ S := by
+    ext j
+    change (i ∈ S ∧ j ∈ S ∧ H.Adj i j) ↔ H.Adj i j ∧ j ∈ S
+    tauto
+  have leH : C ⊔ D ≤ H := sup_le ring (fun _ _ h => h.2.2)
+  have cycles : K.IsCycles := by
+    apply cancelCycles C D (fun {i} _ => base i) _ (fun i =>
+      (Set.ncard_le_ncard (show (C ⊔ D).neighborSet i ⊆ H.neighborSet i from
+        fun _ h => leH h)).trans (subcubic i))
+    intro i h
+    obtain ⟨j,hj⟩ := h
+    rw [inside i hj.1]
+    exact internal i hj.1
+  have diff (i j) : K.Adj i j ↔
+      (C.Adj i j ∧ ¬ D.Adj i j) ∨ (D.Adj i j ∧ ¬ C.Adj i j) := Iff.rfl
+  have supp : K.support = Sᶜ ∪ {i | i ∈ S ∧ ∃ j, C.Adj i j ∧ j ∉ S} := by
+    ext i
+    by_cases hi : i ∈ S
+    · simp only [Set.mem_union,Set.mem_compl_iff,hi,not_true_eq_false,false_or,
+        Set.mem_ofPred_eq,true_and]
+      constructor
+      · intro h
+        by_contra! closed
+        have sub : C.neighborSet i ⊆ D.neighborSet i :=
+          fun j edge => ⟨hi,closed j edge,ring edge⟩
+        have eq := Set.eq_of_subset_of_ncard_le sub (by rw [inside i hi,internal i hi,base])
+        obtain ⟨j,hj⟩ := h
+        rcases (diff i j).mp hj with ⟨a,b⟩|⟨a,b⟩
+        · exact b (sub a)
+        · exact b (eq.ge a)
+      · rintro ⟨j,hj,out⟩
+        exact ⟨j,(diff i j).mpr (Or.inl ⟨hj,fun d => out d.2.1⟩)⟩
+    · have pos := (Set.ncard_pos (Set.toFinite (C.neighborSet i))).mp (by rw [base]; decide)
+      obtain ⟨j,hj⟩ := pos
+      exact iff_of_true ⟨j,(diff i j).mpr (Or.inl ⟨hj,fun d => hi d.1⟩)⟩ (Or.inl hi)
+  have size : K.support.ncard = 8 := by
+    have dis : Disjoint Sᶜ {i | i ∈ S ∧ ∃ j, C.Adj i j ∧ j ∉ S} :=
+      Set.disjoint_left.mpr fun _ h k => h k.1
+    rw [supp,Set.ncard_union_eq dis,four,boundary]
+  let J := K.induce K.support
+  have reg (i : K.support) : (J.neighborSet i).ncard = 2 := by
+    rw [Set.ncard_eq_toFinset_card']
+    change (K.induce K.support).degree i = 2
+    rw [degree_induce_support]
+    exact (Set.ncard_eq_toFinset_card' _).symm.trans (cycles i.property)
+  obtain ⟨m,hm,⟨w⟩⟩ := eightRing J reg (by rw [← Nat.card_eq_fintype_card,Nat.card_coe_set_eq]; exact size)
+  have kle : K ≤ H := (show K ≤ C ⊔ D from symmDiff_le_sup).trans leH
+  let emb : J.Copy H := ⟨⟨Subtype.val,fun h => kle h⟩,Subtype.val_injective⟩
+  refine ⟨m,emb.comp w,hm,?_⟩
+  rintro rfl
+  by_contra! miss
+  have baseEdge (a b : Fin 3) (e : (cycleGraph 3).Adj a b) :
+      C.Adj (w a).val (w b).val := by
+    have h : K.Adj (w a).val (w b).val := w.toHom.map_rel' e
+    rcases (diff _ _).mp h with h|h
+    · exact h.1
+    · exact (miss a h.1.1).elim
+  have e := baseEdge 0 1 (by decide)
+  have f := baseEdge 1 2 (by decide)
+  have g := baseEdge 2 0 (by decide)
+  have step (x y : Fin n) (edge : C.Adj x y) :
+      x.val+1=y.val ∨ y.val+1=x.val ∨ x.val+1=n ∧ y.val=0 ∨ y.val+1=n ∧ x.val=0 := by
+    have delta (a b : Fin n) (h : (a-b).val=1) :
+        b.val+1=a.val ∨ b.val+1=n ∧ a.val=0 := by
+      have eq := Fin.intCast_val_sub_eq_sub_add_ite a b
+      rw [h] at eq
+      split at eq <;> omega
+    rcases cycleGraph_adj'.mp edge with h|h
+    · rcases delta _ _ h with h|h <;> tauto
+    · rcases delta _ _ h with h|h <;> tauto
+  have h₁ := step _ _ e
+  have h₂ := step _ _ f
+  have h₃ := step _ _ g
+  omega
+
+/-- If each retained label has two retained neighbours in the ambient
+subcubic graph, the boundary has two distinct endpoints for each gap. -/
+theorem cyclicBoundaryCount {t : ℕ} (H : SimpleGraph (Fin (t+3)))
+    (subcubic : ∀ v, (H.neighborSet v).ncard ≤ 3) (ring : cycleGraph (t+3) ≤ H)
+    (S : Set (Fin (t+3))) (internal : ∀ i ∈ S, (H.neighborSet i ∩ S).ncard = 2) :
+    {i | i ∈ S ∧ ∃ j, (cycleGraph (t+3)).Adj i j ∧ j ∉ S}.ncard =
+      2 * {i | i ∈ S ∧ i+1 ∉ S}.ncard := by
+  classical
+  let A : Set (Fin (t+3)) := {i | i ∈ S ∧ i+1 ∉ S}
+  let B : Set (Fin (t+3)) := {i | i ∈ S ∧ i-1 ∉ S}
+  let e : Fin (t+3) ≃ Fin (t+3) := Equiv.addRight 1
+  let T := e ⁻¹' S
+  have shift (U : Set (Fin (t+3))) : (e ⁻¹' U).ncard = U.ncard :=
+    Set.ncard_preimage_of_injective_subset_range e.injective (by simp [e.surjective.range_eq])
+  have same : A.ncard = B.ncard := by
+    have bs : e ⁻¹' B = T \ S := by
+      ext i
+      change (i+1 ∈ S ∧ i+1-1 ∉ S) ↔ i+1 ∈ S ∧ i ∉ S
+      simp
+    have ht := shift S
+    change T.ncard = S.ncard at ht
+    have ab := Set.ncard_sdiff_add_ncard S T
+    have ba := Set.ncard_sdiff_add_ncard T S
+    rw [Set.union_comm T S] at ba
+    change (S \ T).ncard = B.ncard
+    rw [← shift B,bs]
+    omega
+  have union : {i | i ∈ S ∧ ∃ j, (cycleGraph (t+3)).Adj i j ∧ j ∉ S} = A ∪ B := by
+    ext i
+    have pair (j : Fin (t+3)) : (cycleGraph (t+3)).Adj i j ↔ j=i-1 ∨ j=i+1 := by
+      change j ∈ (cycleGraph (t+3)).neighborSet i ↔ _
+      rw [cycleGraph_neighborSet]
+      rfl
+    change (_ ∧ _) ↔ (_ ∧ _) ∨ (_ ∧ _)
+    simp only [pair]
+    grind
+  have dis : Disjoint A B := by
+    apply Set.disjoint_left.mpr
+    intro i ha hb
+    have h₁ := ha.1
+    have out : (cycleGraph (t+3)).neighborSet i ⊆ H.neighborSet i \ S := by
+      intro j hj
+      refine ⟨ring hj,?_⟩
+      rw [cycleGraph_neighborSet] at hj
+      rcases hj with h|h
+      · exact h ▸ hb.2
+      · exact h ▸ ha.2
+    have base : ((cycleGraph (t+3)).neighborSet i).ncard = 2 := by
+      rw [Set.ncard_eq_toFinset_card']; exact cycleGraph_degree_three_le
+    have low := Set.ncard_le_ncard out
+    have eq := Set.ncard_sdiff_add_ncard_of_subset
+      (show H.neighborSet i ∩ S ⊆ H.neighborSet i from Set.inter_subset_left)
+    have diff : H.neighborSet i \ (H.neighborSet i ∩ S) = H.neighborSet i \ S := by
+      ext; simp only [Set.mem_sdiff,Set.mem_inter_iff]; tauto
+    rw [diff,internal i h₁] at eq
+    have cap := subcubic i
+    omega
+  rw [union,Set.ncard_union_eq dis,←same]
+  change A.ncard+A.ncard=2*A.ncard
+  omega
+
+/-- In the forced-orbit case a square or octagon is too short to cover the
+orbit, and a triangle meeting the orbit transports to the root. -/
+theorem fourOmissionBoundary {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (cubic : ∀ v, G.degree v = 3) (O : Set V) (reg : ∀ v : O,
+      ((G.induce O).neighborSet v).ncard = 2)
+    (away : ∀ c : (cycleGraph 3).Copy G, ∀ v ∈ O, v ∉ Set.range c)
+    (forced : ∀ s : ℕ, 2 ≤ s → ∀ c : (cycleGraph (2^s)).Copy G, O ⊆ Set.range c)
+    {k : ℕ} (hk : 4 ≤ k) (c : (cycleGraph (2^k)).Copy G)
+    (B : Finset (Fin (2^k))) (size : B.card = 4) (omits : ∀ j, c j ∈ O ↔ j ∉ B) :
+    {i | i ∉ B ∧ i+1 ∈ B}.ncard ≠ 2 := by
+  classical
+  intro two
+  let S : Set (Fin (2^k)) := (↑B : Set _)ᶜ
+  let H := G.comap c
+  have big : 16 ≤ 2^k := Nat.pow_le_pow_right (by decide : 0 < 2) hk
+  have cover := forced k (by omega) c
+  have im : c '' S = O := by
+    ext v
+    constructor
+    · rintro ⟨j,h,rfl⟩
+      exact (omits j).mpr h
+    · intro h
+      obtain ⟨j,rfl⟩ := cover h
+      exact ⟨j,(omits j).mp h,rfl⟩
+  have many : 8 < O.ncard := by
+    rw [← im,Set.ncard_image_of_injective (f := (c : Fin (2^k) → V)) _ c.injective,Set.ncard_compl]
+    simp only [Set.ncard_coe_finset,Nat.card_eq_fintype_card,Fintype.card_fin,size]
+    omega
+  have cap (i) : (H.neighborSet i).ncard ≤ 3 := by
+    have sub : c '' H.neighborSet i ⊆ G.neighborSet (c i) := by
+      rintro _ ⟨j,h,rfl⟩
+      exact h
+    have h := Set.ncard_le_ncard sub
+    rw [Set.ncard_image_of_injective (f := (c : Fin (2^k) → V)) _ c.injective,Set.ncard_eq_toFinset_card' (G.neighborSet _)] at h
+    exact h.trans (le_of_eq (cubic _))
+  have degree (i) (hi : i ∈ S) : (H.neighborSet i ∩ S).ncard = 2 := by
+    let v : O := ⟨c i,(omits i).mpr hi⟩
+    have eq : c '' (H.neighborSet i ∩ S) =
+        Subtype.val '' ((G.induce O).neighborSet v) := by
+      ext z
+      constructor
+      · rintro ⟨j,h,rfl⟩
+        exact ⟨⟨c j,(omits j).mpr h.2⟩,h.1,rfl⟩
+      · rintro ⟨⟨z,hz⟩,h,rfl⟩
+        obtain ⟨j,rfl⟩ := cover hz
+        exact ⟨j,⟨h,(omits j).mp hz⟩,rfl⟩
+    have h := congrArg Set.ncard eq
+    rwa [Set.ncard_image_of_injective (f := (c : Fin (2^k) → V)) _ c.injective,
+      Set.ncard_image_of_injective _ Subtype.val_injective,reg] at h
+  have count {n : ℕ} [NeZero n] (hn : 3 ≤ n) (L : SimpleGraph (Fin n))
+      (cap : ∀ v, (L.neighborSet v).ncard ≤ 3) (base : cycleGraph n ≤ L)
+      (T : Set (Fin n)) (reg : ∀ i ∈ T, (L.neighborSet i ∩ T).ncard = 2) :
+      {i | i ∈ T ∧ ∃ j, (cycleGraph n).Adj i j ∧ j ∉ T}.ncard =
+        2 * {i | i ∈ T ∧ i+1 ∉ T}.ncard := by
+    obtain ⟨t,rfl⟩ : ∃ t, n=t+3 := ⟨n-3,by omega⟩
+    exact cyclicBoundaryCount L cap base T reg
+  have four := count (by omega : 3 ≤ 2^k) H cap (fun _ _ h => c.toHom.map_rel' h) S degree
+  have starts : {i | i ∈ S ∧ i+1 ∉ S}.ncard = 2 := by simpa [S] using two
+  rw [starts] at four
+  obtain ⟨m,w,hm,touch⟩ := fourBoundaryRing (by omega : 9 ≤ 2^k) H cap
+    (fun _ _ h => c.toHom.map_rel' h) S degree (by simpa [S] using size) four
+  let embed : H.Copy G := ⟨⟨c,fun h => h⟩,c.injective⟩
+  let d := embed.comp w
+  have small {s : ℕ} (hs : 2 ≤ s) (eq : m=2^s) : False := by
+    have sub : O ⊆ Set.range d := by subst m; exact forced s hs _
+    have h := Set.ncard_le_ncard sub
+    rw [Set.ncard_range_of_injective (f := (d : Fin m → V)) d.injective] at h
+    simp only [Nat.card_eq_fintype_card,Fintype.card_fin] at h
+    omega
+  rcases hm with rfl|h|h
+  · obtain ⟨i,hit⟩ := touch rfl
+    exact away d _ ((omits _).mpr hit) ⟨i,rfl⟩
+  · exact small (s := 2) (by decide) h
+  · exact small (s := 3) (by decide) h
 
 open Fin.NatCast in
 /-- A single omitted interval of length d gives a cycle of length d+2
@@ -2083,13 +2406,15 @@ theorem main : H1 → H2 → OMA.R_Erdos64_erdos_64_R1_H1_R1_H1_R2.H2 := by
       hk c B size omits
   · intro O k hk c B size omits
     obtain ⟨v,hv⟩ := proper
-    apply fourOmissionComponents G r conn cubic O (fun _ => Iff.rfl)
-      ⟨v,fun ⟨f,h⟩ => hv f h⟩ _ _ hk c B size omits
-    · intro s hs w z hz
-      obtain ⟨g,rfl⟩ := hz
+    have cover (s : ℕ) (hs : 2 ≤ s) (w : (cycleGraph (2^s)).Copy G) : O ⊆ Set.range w := by
+      rintro z ⟨g,rfl⟩
       exact images s hs w g
-    · intro n s w hn hs hit near
-      exact unsolved ⟨n,s,w,hn,hs,hit,near⟩
+    obtain ⟨reg,count⟩ := fourOmissionData G r conn cubic O (fun _ => Iff.rfl)
+      ⟨v,fun ⟨f,h⟩ => hv f h⟩ cover
+      (fun n s w hn hs hit near => unsolved ⟨n,s,w,hn,hs,hit,near⟩) hk c B size omits
+    refine ⟨fourOmissionBoundary G cubic O reg ?_ cover hk c B size omits,count⟩
+    rintro w z ⟨g,rfl⟩
+    exact away 3 (Or.inl rfl) w g
   · intro k d hk hd room c start interval s hs
     obtain ⟨w,g,h,hit,miss⟩ := omittedIntervalRing G r conn cubic proper hd room c start
       (images k hk c) interval
