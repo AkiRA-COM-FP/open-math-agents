@@ -7,7 +7,8 @@ namespace OMA.R_Erdos89_erdos_89_R1_H2_R3
 
 /-- The remaining squarefree diagonal estimate. For every dense subset and
 assignment of occupied pins, any modulus compatible with the vertical progression
-in each pin-column pair puts more than k pairs in some form-value residue. -/
+in each pin-column pair puts more than k pairs in some form-value residue.
+Every nonempty family of realized gaps also exceeds the divisor budget. -/
 def H1 : Prop :=
   ∃ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
@@ -18,6 +19,16 @@ def H1 : Prop :=
         M ∣ (d:ℤ)*s e*(2*t e+s e) ∧ M ∣ 2*(d:ℤ)*(s e)^2) →
       ∃ r : ℤ, k < ((T.image fun x => (p x,x.1)).filter fun e =>
         ((e.2-e.1.1)^2+(d:ℤ)*(t e)^2) % M = r).card) →
+    (∀ (A : Finset ℕ) (X : ℕ → Finset ℕ) (W : ℕ → ℕ),
+      (∀ a ∈ A, X a ⊆ range (W a+1)) →
+      (∀ a ∈ A, ∀ u ∈ X a, ∃ x ∈ S, ∃ y ∈ S,
+        u = (x.1-y.1).natAbs ∧ a = d*(x.2-y.2).natAbs^2) →
+      let mass := ∑ a ∈ A, (X a).card
+      let cost := ∑ a ∈ A, ∑ b ∈ A, if a=b then (X a).card else
+        let h := max a b-min a b
+        min (min (X a).card (X b).card) (h.divisors.filter fun j =>
+          j ≤ h/j ∧ h/j+j ≤ 2*W (min a b) ∧ h/j-j ≤ 2*W (max a b) ∧ j%2 = (h/j)%2).card
+      0 < mass → k*mass^2 < S.card*cost) →
     let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
     S.card ≤ k*C*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1)
 
@@ -612,8 +623,192 @@ theorem residue_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
     exact mem_image.mpr ⟨x.1,mem_filter.mpr ⟨mem_image_of_mem _ hx,by simpa using hr⟩,rfl⟩
   exact (card_le_card sub).trans (card_image_le.trans (hcap r))
 
-/-- After squarefree normalization, either the assigned pins certify half of the
-points or the configuration satisfies the remaining arithmetic hypothesis. -/
+-- uses note #91253
+-- uses note #91254
+-- uses note #91256
+private lemma factor_of_collision (a b x y : ℕ) (hab : a < b) (he : x^2+a = y^2+b) :
+    y < x ∧ b-a = (x-y)*(x+y) := by
+  have hyx : y < x := by
+    by_contra! h
+    have := Nat.pow_le_pow_left h 2
+    omega
+  refine ⟨hyx,?_⟩
+  have ht := Nat.sub_add_cancel hyx.le
+  have hs := Nat.sub_add_cancel hab.le
+  nlinarith only [he,hs,congrArg (fun z : ℕ => z*(x+y)) ht]
+
+/-- Exact divisor parametrization of the overlap of two shifted square sets
+with complete horizontal gaps from zero through W. -/
+private theorem overlap_exact (a b U V : ℕ) (hab : a < b) :
+    let row := fun (a : ℕ) (X : Finset ℕ) => X.image fun x => x^2+a
+    let factors := fun (h U V : ℕ) => h.divisors.filter fun j =>
+      j ≤ h/j ∧ h/j+j ≤ 2*U ∧ h/j-j ≤ 2*V ∧ j%2 = (h/j)%2
+    ((row a (range (U+1))) ∩ (row b (range (V+1)))).card = (factors (b-a) U V).card := by
+  intro row factors
+  let H := b-a
+  have hH : 0 < H := Nat.sub_pos_of_lt hab
+  let u (s : ℕ) := (H/s+s)/2
+  let v (s : ℕ) := (H/s-s)/2
+  have decode (s) (hs : s ∈ factors H U V) :
+      u s ≤ U ∧ v s ≤ V ∧ u s-v s = s ∧ u s+v s = H/s ∧ (u s)^2+a = (v s)^2+b := by
+    obtain ⟨hd,hle,hwidth,hheight,hpar⟩ := mem_filter.mp hs
+    have hmul := Nat.div_mul_cancel (Nat.mem_divisors.mp hd).1
+    have hsub := Nat.sub_add_cancel hab.le
+    have hdiff : u s = v s+s := by dsimp [u,v]; omega
+    have hsum : u s+v s = H/s := by dsimp [u,v]; omega
+    refine ⟨by dsimp [u]; omega,by dsimp [v]; omega,by omega,hsum,?_⟩
+    rw [← hsum] at hmul
+    change H+a=b at hsub
+    nlinarith only [hmul,hsub,congrArg (fun z : ℕ => z*(u s+v s)) hdiff]
+  let f (s : ℕ) := (u s)^2+a
+  have himage : (factors H U V).image f = row a (range (U+1)) ∩ row b (range (V+1)) := by
+    ext z
+    constructor
+    · intro hz
+      obtain ⟨s,hs,rfl⟩ := mem_image.mp hz
+      obtain ⟨hu,hv,_,_,he⟩ := decode s hs
+      exact mem_inter.mpr ⟨mem_image.mpr ⟨_,mem_range.mpr (Nat.lt_succ_of_le hu),rfl⟩,
+        mem_image.mpr ⟨_,mem_range.mpr (Nat.lt_succ_of_le hv),he.symm⟩⟩
+    · intro hz
+      obtain ⟨ha,hb⟩ := mem_inter.mp hz
+      obtain ⟨x,hx,rfl⟩ := mem_image.mp ha
+      obtain ⟨y,hy,he⟩ := mem_image.mp hb
+      obtain ⟨hlt,hm⟩ := factor_of_collision a b x y hab he.symm
+      have hd : H/(x-y) = x+y := by
+        change (b-a)/(x-y)=_
+        rw [hm,Nat.mul_div_cancel_left _ (Nat.sub_pos_of_lt hlt)]
+      have hxW := mem_range.mp hx
+      have hyW := mem_range.mp hy
+      refine mem_image.mpr ⟨x-y,mem_filter.mpr ⟨Nat.mem_divisors.mpr ⟨⟨x+y,hm⟩,hH.ne'⟩,?_⟩,?_⟩
+      · rw [hd]; omega
+      · change ((H/(x-y)+(x-y))/2)^2+a=x^2+a
+        rw [hd,show (x+y+(x-y))/2=x by omega]
+  rw [← himage]
+  apply card_image_of_injOn
+  intro s hs t ht he
+  obtain ⟨_,_,hds,_,hes⟩ := decode s hs
+  obtain ⟨_,_,hdt,_,het⟩ := decode t ht
+  change (u s)^2+a = (u t)^2+a at he
+  have hu := Nat.pow_left_injective (by decide : 2 ≠ 0) (Nat.add_right_cancel he)
+  have hv := Nat.pow_left_injective (by decide : 2 ≠ 0)
+    (Nat.add_right_cancel (hes.symm.trans (he.trans het)))
+  omega
+
+/-- Deleting horizontal gaps can only decrease the overlap. -/
+private theorem overlap_le (a b U V : ℕ) (hab : a < b) (X Y : Finset ℕ)
+    (hx : X ⊆ range (U+1)) (hy : Y ⊆ range (V+1)) :
+    let row := fun (a : ℕ) (X : Finset ℕ) => X.image fun x => x^2+a
+    let factors := fun (h U V : ℕ) => h.divisors.filter fun j =>
+      j ≤ h/j ∧ h/j+j ≤ 2*U ∧ h/j-j ≤ 2*V ∧ j%2 = (h/j)%2
+    ((row a X) ∩ (row b Y)).card ≤ (factors (b-a) U V).card := by
+  intro row factors
+  rw [← overlap_exact a b U V hab]
+  exact card_le_card (inter_subset_inter (image_mono _ hx) (image_mono _ hy))
+
+private theorem count_row (a : ℕ) (X : Finset ℕ) :
+    let row := fun (a : ℕ) (X : Finset ℕ) => X.image fun x => x^2+a
+    (row a X).card = X.card := by
+  intro row
+  exact card_image_of_injective _ (fun _ _ he => Nat.pow_left_injective (by decide : 2 ≠ 0)
+    (Nat.add_right_cancel he))
+
+/-- Cauchy-Schwarz counts incidences of distinct values with rows.
+The off-diagonal charges retain the parity and width of admissible factors. -/
+private theorem union_bound (A : Finset ℕ) (X : ℕ → Finset ℕ) (W : ℕ → ℕ)
+    (hW : ∀ a ∈ A, X a ⊆ range (W a+1)) :
+    let row := fun (a : ℕ) (X : Finset ℕ) => X.image fun x => x^2+a
+    let factors := fun (h U V : ℕ) => h.divisors.filter fun j =>
+      j ≤ h/j ∧ h/j+j ≤ 2*U ∧ h/j-j ≤ 2*V ∧ j%2 = (h/j)%2
+    (∑ a ∈ A, (X a).card)^2 ≤ (A.biUnion fun a => row a (X a)).card *
+      ∑ a ∈ A, ∑ b ∈ A, if a=b then (X a).card else
+        min (min (X a).card (X b).card) (factors (max a b-min a b) (W (min a b)) (W (max a b))).card := by
+  intro row factors
+  classical
+  have hcount (a) : (row a (X a)).card = (X a).card := count_row a (X a)
+  let F (a) := row a (X a)
+  let U := A.biUnion F
+  let ind (a z : ℕ) : ℕ := if z ∈ F a then 1 else 0
+  have sub (a) (ha : a ∈ A) : F a ⊆ U := subset_biUnion_of_mem _ ha
+  have mass : (∑ a ∈ A, (X a).card) = ∑ z ∈ U, ∑ a ∈ A, ind a z := by
+    rw [sum_comm]
+    apply sum_congr rfl
+    intro a ha
+    have he : U.filter (fun z => z ∈ F a) = F a := by ext z; simp only [mem_filter]; exact
+      ⟨fun h => h.2,fun h => ⟨sub a ha h,h⟩⟩
+    simp only [ind,sum_boole,Nat.cast_id,he,F,hcount]
+  have pair (a b) (ha : a ∈ A) : (∑ z ∈ U, ind a z * ind b z) = ((F a) ∩ (F b)).card := by
+    have hi (z) : ind a z * ind b z = if z ∈ F a ∩ F b then 1 else 0 := by
+      by_cases h : z ∈ F a <;> simp [ind,h]
+    have he : U.filter (fun z => z ∈ F a ∩ F b) = F a ∩ F b := by
+      ext z
+      simp only [mem_filter]
+      exact ⟨fun h => h.2,fun h => ⟨sub a ha (mem_inter.mp h).1,h⟩⟩
+    simp only [hi,sum_boole,Nat.cast_id,he]
+  have energy : (∑ z ∈ U, (∑ a ∈ A, ind a z)^2) =
+      ∑ a ∈ A, ∑ b ∈ A, ((F a) ∩ (F b)).card := by
+    simp only [pow_two,sum_mul,mul_sum]
+    rw [sum_comm (s := U) (t := A)]
+    apply sum_congr rfl
+    intro a ha
+    rw [sum_comm]
+    exact sum_congr rfl fun b _ => by simpa only [Nat.mul_comm] using pair a b ha
+  rw [mass]
+  apply sq_sum_le_card_mul_sum_sq.trans
+  apply Nat.mul_le_mul_left
+  rw [energy]
+  apply sum_le_sum
+  intro a ha
+  apply sum_le_sum
+  intro b hb
+  split_ifs with he
+  · subst b; simp [F,hcount]
+  · apply le_min
+    · apply le_min
+      · simpa [F,hcount] using card_le_card (inter_subset_left (s₁ := F a) (s₂ := F b))
+      · simpa [F,hcount] using card_le_card (inter_subset_right (s₁ := F a) (s₂ := F b))
+    · rcases lt_or_gt_of_ne he with h|h
+      · simpa only [F,max_eq_right h.le,min_eq_left h.le] using
+          overlap_le a b (W a) (W b) h (X a) (X b) (hW a ha) (hW b hb)
+      · simpa only [F,max_eq_left h.le,min_eq_right h.le,inter_comm] using
+          overlap_le b a (W b) (W a) h (X b) (X a) (hW b hb) (hW a ha)
+
+/-- The integer gaps can come from any pairs in S, including from a common pin.
+The square of their total count is controlled by the distinct values times
+a divisor sum that only uses row offsets, widths and row sizes. -/
+theorem divisor_gap_bound (d : ℕ) (S : Finset (ℤ × ℤ))
+    (A : Finset ℕ) (X : ℕ → Finset ℕ) (W : ℕ → ℕ)
+    (width : ∀ a ∈ A, X a ⊆ range (W a+1))
+    (realized : ∀ a ∈ A, ∀ u ∈ X a, ∃ x ∈ S, ∃ y ∈ S,
+      u = (x.1-y.1).natAbs ∧ a = d*(x.2-y.2).natAbs^2) :
+    let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
+    let mass := ∑ a ∈ A, (X a).card
+    let cost := ∑ a ∈ A, ∑ b ∈ A, if a=b then (X a).card else
+        let h := max a b-min a b
+        min (min (X a).card (X b).card) (h.divisors.filter fun j =>
+          j ≤ h/j ∧ h/j+j ≤ 2*W (min a b) ∧ h/j-j ≤ 2*W (max a b) ∧ j%2 = (h/j)%2).card
+    mass^2 ≤ ((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1)*cost := by
+  classical
+  intro q mass cost
+  let U := A.biUnion fun a => (X a).image fun x => x^2+a
+  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
+  have sub : U.image (Nat.cast : ℕ → ℤ) ⊆ insert 0 V := by
+    intro v hv
+    obtain ⟨n,hn,rfl⟩ := mem_image.mp hv
+    obtain ⟨a,ha,hn⟩ := mem_biUnion.mp hn
+    obtain ⟨u,hu,rfl⟩ := mem_image.mp hn
+    obtain ⟨x,hx,y,hy,rfl,rfl⟩ := realized a ha u hu
+    by_cases he : x=y
+    · simp [he]
+    · apply mem_insert_of_mem
+      refine mem_image.mpr ⟨(x,y),mem_offDiag.mpr ⟨hx,hy,he⟩,?_⟩
+      simp [q]
+  have card := card_le_card sub
+  rw [card_image_of_injective _ Nat.cast_injective] at card
+  exact (union_bound A X W width).trans
+    (Nat.mul_le_mul_right cost (card.trans (card_insert_le ..)))
+
+/-- Transfer the squarefree bound using the assigned pins, the divisor estimate,
+or the remaining arithmetic hypothesis. -/
 theorem integral_form_bound (arith : H1) :
   ∃ C : ℕ, ∀ a b c : ℤ, 0 < a → b^2 < 4*a*c → ∀ (S : Finset (ℤ × ℤ)) (k : ℕ),
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
@@ -641,8 +836,40 @@ theorem integral_form_bound (arith : H1) :
         M ∣ (d:ℤ)*s e*(2*t e+s e) ∧ M ∣ 2*(d:ℤ)*(s e)^2) →
       ∃ r : ℤ, k < ((T.image fun x => (p x,x.1)).filter fun e =>
         ((e.2-e.1.1)^2+(d:ℤ)*(t e)^2) % M = r).card
-  · have h := hard d S k hd hsq hk (by rwa [hc]) heavy
-    exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (le_max_left ..)))
+  · by_cases costly : ∀ (A : Finset ℕ) (X : ℕ → Finset ℕ) (W : ℕ → ℕ),
+      (∀ a ∈ A, X a ⊆ range (W a+1)) →
+      (∀ a ∈ A, ∀ u ∈ X a, ∃ x ∈ S, ∃ y ∈ S,
+        u = (x.1-y.1).natAbs ∧ a = d*(x.2-y.2).natAbs^2) →
+      let mass := ∑ a ∈ A, (X a).card
+      let cost := ∑ a ∈ A, ∑ b ∈ A, if a=b then (X a).card else
+        let h := max a b-min a b
+        min (min (X a).card (X b).card) (h.divisors.filter fun j =>
+          j ≤ h/j ∧ h/j+j ≤ 2*W (min a b) ∧ h/j-j ≤ 2*W (max a b) ∧ j%2 = (h/j)%2).card
+      0 < mass → k*mass^2 < S.card*cost
+    · have h := hard d S k hd hsq hk (by rwa [hc]) heavy costly
+      exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (le_max_left ..)))
+    dsimp only at costly
+    push Not at costly
+    obtain ⟨A',X,W,width,pairs,pos,cheap⟩ := costly
+    let mass := ∑ a ∈ A', (X a).card
+    let cost := ∑ a ∈ A', ∑ b ∈ A', if a=b then (X a).card else
+      let h := max a b-min a b
+      min (min (X a).card (X b).card) (h.divisors.filter fun j =>
+        j ≤ h/j ∧ h/j+j ≤ 2*W (min a b) ∧ h/j-j ≤ 2*W (max a b) ∧ j%2 = (h/j)%2).card
+    change 0 < mass at pos
+    change S.card*cost ≤ k*mass^2 at cheap
+    have energy := divisor_gap_bound d S A' X W width pairs
+    change mass^2 ≤ ((V q S).card+1)*cost at energy
+    have hcpos : 0 < cost := by
+      by_contra! he
+      rw [show cost = 0 by omega,mul_zero] at energy
+      exact (Nat.not_lt_of_ge energy) (pow_pos pos 2)
+    apply Nat.le_of_mul_le_mul_right _ hcpos
+    calc
+      _ ≤ k*mass^2 := cheap
+      _ ≤ k*(((V q S).card+1)*cost) := Nat.mul_le_mul_left _ energy
+      _ = k*1*((V q S).card+1)*cost := by ring
+      _ ≤ _ := by gcongr; omega
   push Not at heavy
   obtain ⟨T,hsub,half,M,_,p,t,s,pins,cap⟩ := heavy
   have h := shifted_pin_bound d hd S T p M t s hsub k pins cap
