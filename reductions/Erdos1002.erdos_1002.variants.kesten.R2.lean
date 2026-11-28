@@ -50,7 +50,7 @@ theorem main : H1 → H2 → type_of% @Erdos1002.erdos_1002.variants.kesten := b
   intro hgrid herr
   obtain ⟨ρ, hρ, hlim⟩ := hgrid
   refine ⟨ρ, hρ, ?_⟩
-  intro c
+  intro g c
   have h := (herr c).add (hlim c)
   simpa only [Pi.add_apply, sub_add_cancel, zero_add] using h
 
