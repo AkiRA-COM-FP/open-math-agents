@@ -3,7 +3,7 @@ import Mathlib
 
 open OMA.S_oeis_a159864 in
 theorem OMA.solution : type_of% @OMA.S_oeis_a159864.main := by
-  have rec : ∀ j i : ℕ, D j (i + 2) = D j (i + 1) + D j i := by
+  have hrec : ∀ j i : ℕ, D j (i + 2) = D j (i + 1) + D j i := by
     intro j
     induction j with
     | zero =>
@@ -20,7 +20,7 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a159864.main := by
       linear_combination h1 - h2
   have shift : ∀ j i : ℕ, D (j + 1) (i + 1) = D j i := by
     intro j i
-    have h : D j (i + 1 + 1) = D j (i + 1) + D j i := rec j i
+    have h : D j (i + 1 + 1) = D j (i + 1) + D j i := hrec j i
     show D j (i + 1 + 1) - D j (i + 1) = D j i
     linear_combination h
   have E : ∀ j : ℕ, D j 0 = (-1) ^ (j + 1) * (Nat.fib j : ℤ) ∧
