@@ -16,8 +16,8 @@ def finalB (n : ℕ) : ℕ :=
 
 theorem main :
     ∀ k : ℕ, k % 2 = 1 →
-      (k.Prime ∧ (2 * k - 1).Prime ∧ (3 * k - 2).Prime) ↔
-        k ≠ 1 ∧ k ≠ 5 ∧ finalB k = k := by
+      ((k.Prime ∧ (2 * k - 1).Prime ∧ (3 * k - 2).Prime) ↔
+        k ≠ 1 ∧ k ≠ 5 ∧ finalB k = k) := by
   sorry
 
 end OMA.S_mo_487119
