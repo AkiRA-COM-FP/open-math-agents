@@ -1,5 +1,12 @@
 import FormalConjectures.Wikipedia.ThabitNumber
 
+/-!
+# Thābit ibn Qurra's construction of amicable numbers
+
+We calculate the common divisor sum once for two products of primes and a power of two,
+then specialize the resulting criterion to the Thābit numbers.
+-/
+
 open ArithmeticFunction ThabitNumber
 
 private lemma sigma_mul_prime {a p : ℕ} (hp : p.Prime) (h : a.Coprime p) :
