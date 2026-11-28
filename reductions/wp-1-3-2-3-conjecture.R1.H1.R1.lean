@@ -11,12 +11,10 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∃ s : Finset P, (s : Set P).Pairwise (fun a b => ¬ a ≤ b) ∧ s.card = 3 ∧
       ∀ t : Finset P, (t : Set P).Pairwise (fun a b => ¬ a ≤ b) → t.card ≤ 3) →
     (∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ 6) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
-      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
-      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
+    (let veryGood (r : P → P → Prop) := ∃ x y : P, x ≠ y ∧ (∀ k, r k x ↔ r k y) ∧
+      ∀ p ∈ [(x,y),(y,x)], ∀ a b, r p.1 a → ¬ r p.2 a → r p.1 b → ¬ r p.2 b →
+        r a b ∨ a = b ∨ r b a
+     ¬ veryGood (· < ·) ∧ ¬ veryGood (· > ·)) →
     (let count (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
@@ -38,12 +36,10 @@ def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∃ s : Finset P, (s : Set P).Pairwise (fun a b => ¬ a ≤ b) ∧ s.card = 4 ∧
       ∀ t : Finset P, (t : Set P).Pairwise (fun a b => ¬ a ≤ b) → t.card ≤ 4) →
     (∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ 6) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
-      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
-      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
+    (let veryGood (r : P → P → Prop) := ∃ x y : P, x ≠ y ∧ (∀ k, r k x ↔ r k y) ∧
+      ∀ p ∈ [(x,y),(y,x)], ∀ a b, r p.1 a → ¬ r p.2 a → r p.1 b → ¬ r p.2 b →
+        r a b ∨ a = b ∨ r b a
+     ¬ veryGood (· < ·) ∧ ¬ veryGood (· > ·)) →
     (let count (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
@@ -76,12 +72,10 @@ def H3 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
         ∃ a ∈ t, ¬ a ≤ k ∧ ¬ k ≤ a ∧ ∃ b ∈ t, b ≠ a ∧ ¬ r k b
       bad (· < ·) ∧ bad (· > ·)) →
     (∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ 6) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
-      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
-    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
-      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
-      (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
+    (let veryGood (r : P → P → Prop) := ∃ x y : P, x ≠ y ∧ (∀ k, r k x ↔ r k y) ∧
+      ∀ p ∈ [(x,y),(y,x)], ∀ a b, r p.1 a → ¬ r p.2 a → r p.1 b → ¬ r p.2 b →
+        r a b ∨ a = b ∨ r b a
+     ¬ veryGood (· < ·) ∧ ¬ veryGood (· > ·)) →
     (let count (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
@@ -860,9 +854,98 @@ lemma eight_gold (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
   have eq : r q = k := congrArg Subtype.val hq
   exact Or.inr ⟨q, fun a _ => by simp [eq]⟩
 
+-- Zaguia, arXiv:1610.00809, Definition 1 and Theorem 2. The exchange
+-- here constructs a gold partition using the parent balanced-triple criterion.
+lemma good_pair_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y : P, ¬ x ≤ y → ¬ y ≤ x → (∀ a, a < y → a < x) →
+      (∀ a b, x < a → ¬ y < a → x < b → ¬ y < b → a ≤ b ∨ b ≤ a) →
+      count [] ≤ 2 * count [(x, y)] → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  classical
+  intro count x y inc rev pred chain initial
+  obtain ⟨rank, mono⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.rank_exists P
+  obtain ⟨_, _, split, _⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P
+  let eligible := Finset.univ.filter (fun a : P => x ≤ a ∧ ¬ y < a ∧ count [] ≤ 2 * count [(a, y)])
+  have mem (a : P) : a ∈ eligible ↔ x ≤ a ∧ ¬ y < a ∧ count [] ≤ 2 * count [(a, y)] := by simp [eligible]
+  obtain ⟨a, ha, last⟩ := eligible.exists_max_image rank ⟨x, (mem x).2 ⟨le_rfl, fun h => rev h.le, initial⟩⟩
+  obtain ⟨xa, _, majority⟩ := (mem a).1 ha
+  have ay : ¬ a ≤ y := fun h => inc (xa.trans h)
+  have ne : a ≠ y := fun h => ay h.le
+  have pred' (b : P) (h : b < y) : b < a := lt_of_lt_of_le (pred b h) xa
+  have part : count [(a, y)] + count [(y, a)] = count [] := split [] a y ne
+  by_cases above : ∃ b, a < b ∧ ¬ y < b
+  · obtain ⟨b, hb, miss⟩ := above
+    let upper := Finset.univ.filter (fun z : P => a < z ∧ ¬ y < z)
+    have up (z : P) : z ∈ upper ↔ a < z ∧ ¬ y < z := by simp [upper]
+    obtain ⟨z, hz, first⟩ := upper.exists_min_image rank ⟨b, (up b).2 ⟨hb,miss⟩⟩
+    obtain ⟨az,zy⟩ := (up z).1 hz
+    have least (v : P) (av : a < v) (vy : ¬ y < v) : z ≤ v := by
+      rcases chain z v (xa.trans_lt az) zy (xa.trans_lt av) vy with h | h
+      · exact h
+      · by_contra bad
+        exact (not_lt_of_ge (first v ((up v).2 ⟨av,vy⟩))) (mono (lt_of_le_of_ne h (fun eq => bad eq.ge)))
+    have minority : 2 * count [(z, y)] < count [] := by
+      by_contra! large
+      exact (not_lt_of_ge (last z ((mem z).2 ⟨xa.trans az.le, zy, large⟩))) (mono az)
+    have cell : count [(a, y), (y, z)] ≤ count [(y, a)] := by
+      apply OMA.R_wp_1_3_2_3_conjecture_R1.exchange_count_le P a y _ ay pred'
+      intro r hr extra
+      exact ⟨extra (a, y) (by simp), fun v av => by
+        by_cases h : y < v
+        · exact hr h
+        · exact lt_of_lt_of_le (extra (y, z) (by simp)) (hr.monotone (least v av h))⟩
+    have yz : y ≠ z := fun h => ay (h ▸ az.le)
+    have bound : 2 * max (count [(y, a)]) (count [(z, y)]) ≤ count [] := by omega
+    exact OMA.R_wp_1_3_2_3_conjecture_R1.balanced_triple_gold P a y z ne yz az.ne (cell.trans (le_max_left _ _)) bound
+  · have bound : count [(a, y)] ≤ count [(y, a)] := by
+      apply OMA.R_wp_1_3_2_3_conjecture_R1.exchange_count_le P a y _ ay pred'
+      intro r mono extra
+      exact ⟨extra (a, y) (by simp), fun b h => mono (by_contra (fun miss => above ⟨b,h,miss⟩))⟩
+    have tie : 2 * count [(a, y)] = count [] := by omega
+    exact OMA.R_wp_1_3_2_3_conjecture_R1.tied_comparison_gold P a y ne tie
+
+-- Zaguia, Definition 5. Either majority orientation gives a good pair.
+lemma very_good_pair_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    let veryGood (r : P → P → Prop) := ∃ x y : P, x ≠ y ∧ (∀ k, r k x ↔ r k y) ∧
+      ∀ p ∈ [(x,y),(y,x)], ∀ a b, r p.1 a → ¬ r p.2 a → r p.1 b → ¬ r p.2 b →
+        r a b ∨ a = b ∨ r b a
+    veryGood (· < ·) → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  intro C veryGood cert
+  obtain ⟨x,y,ne,same,chain⟩ := cert
+  have inc : ¬ x ≤ y := fun le => lt_irrefl x ((same x).mpr (lt_of_le_of_ne le ne))
+  have rev : ¬ y ≤ x := fun le => lt_irrefl y ((same y).mp (lt_of_le_of_ne le ne.symm))
+  have lin (p : P × P) (hp : p ∈ [(x,y),(y,x)]) (a b : P)
+      (ha : p.1 < a) (ma : ¬ p.2 < a) (hb : p.1 < b) (mb : ¬ p.2 < b) : a ≤ b ∨ b ≤ a := by
+    rcases chain p hp a b ha ma hb mb with h | h | h
+    · exact Or.inl h.le
+    · exact Or.inl h.le
+    · exact Or.inr h.le
+  have split : C [(x,y)] + C [(y,x)] = C [] :=
+    (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P).2.2.1 [] x y ne
+  by_cases h : C [] ≤ 2 * C [(x,y)]
+  · exact good_pair_gold P x y inc rev (fun a => (same a).mpr) (lin (x,y) (by simp)) h
+  · exact good_pair_gold P y x rev inc (fun a => (same a).mp) (lin (y,x) (by simp)) (show C [] ≤ 2 * C [(y,x)] by omega)
+
 theorem main : H1 → H2 → H3 → OMA.R_wp_1_3_2_3_conjecture_R1.H1 := by
   classical
   intro w3 w4 w5 P _ _ nonchain indecomp rigid three thin upper lower noGold
+  have noVeryGood :
+    let veryGood (r : P → P → Prop) := ∃ x y : P, x ≠ y ∧ (∀ k, r k x ↔ r k y) ∧
+      ∀ p ∈ [(x,y),(y,x)], ∀ a b, r p.1 a → ¬ r p.2 a → r p.1 b → ¬ r p.2 b →
+        r a b ∨ a = b ∨ r b a
+    ¬ veryGood (· < ·) ∧ ¬ veryGood (· > ·) := by
+    constructor
+    · exact fun cert => noGold (very_good_pair_gold P cert)
+    · exact fun cert => noGold (OMA.R_wp_1_3_2_3_conjecture_R1.gold_of_dual P (very_good_pair_gold Pᵒᵈ cert))
   let candidates := Finset.univ.filter (fun s : Finset P => (s : Set P).Pairwise (fun a b => ¬ a ≤ b))
   have mem (s : Finset P) : s ∈ candidates ↔ (s : Set P).Pairwise (fun a b => ¬ a ≤ b) := by
     simp [candidates]
@@ -884,8 +967,8 @@ theorem main : H1 → H2 → H3 → OMA.R_wp_1_3_2_3_conjecture_R1.H1 := by
     ⟨s, ant, rfl, fun u hu => greatest u ((mem u).2 hu)⟩
   have cases : s.card = 3 ∨ s.card = 4 ∨ s.card = 5 ∨ s.card = 6 := by omega
   rcases cases with h | h | h | h <;> rw [h] at width
-  · exact w3 P nonchain indecomp rigid width thin upper lower noGold
-  · exact w4 P nonchain indecomp rigid width thin upper lower noGold
+  · exact w3 P nonchain indecomp rigid width thin noVeryGood noGold
+  · exact w4 P nonchain indecomp rigid width thin noVeryGood noGold
   · obtain ⟨t, at', five, maxT⟩ := width
     have ex (a : P) (ha : a ∈ t) : ({k : P | k ∉ t ∧ ¬ a ≤ k ∧ ¬ k ≤ a} : Set P).ncard ≤ 2 := by
       have bound := outside_degree_bound P t 6 at' thin ha
@@ -902,7 +985,7 @@ theorem main : H1 → H2 → H3 → OMA.R_wp_1_3_2_3_conjecture_R1.H1 := by
       by_contra! small
       exact noGold (eight_gold P t at' five (by omega) ex)
     apply w5 P nonchain indecomp rigid ⟨t,at',five,ex,?_,?_,?_,maxT⟩ nine
-      (trace_obstructions P noGold) thin upper lower noGold
+      (trace_obstructions P noGold) thin noVeryGood noGold
     · rintro ⟨r, outside, profiles⟩
       exact noGold (three_profile_gold P t at' five r outside profiles ex)
     · exact fun h => noGold (common_successors_gold P t at' five h ex)
