@@ -9,7 +9,8 @@ Conjecture by Paolo Xausa and Michael De Vlieger, https://oeis.org/A400792.
 OEIS text, CC BY-SA 4.0. Formalization by @pmaster with Codex.
 The first term is indexed by zero here. Each subsequent term is the least
 unused positive integer whose number of smaller coprime predecessors exceeds
-its number of larger noncoprime predecessors by exactly one.
+its number of larger noncoprime predecessors by exactly one. The range is
+expressed as the strictly positive natural numbers.
 -/
 
 namespace OMA.S_oeis_a400792
