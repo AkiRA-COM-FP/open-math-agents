@@ -70,9 +70,7 @@ private theorem interval_of_connected (J : Finset ℕ) (hJ : (J : Set ℕ).OrdCo
     · intro hi
       obtain ⟨hli, him⟩ := Finset.mem_Ico.mp hi
       rcases hJ with ⟨hconv⟩
-      first
-      | exact hconv hl hm ⟨hli, by omega⟩
-      | exact @hconv l hl m hm i ⟨hli, by omega⟩
+      exact hconv hl hm ⟨hli, by omega⟩
   · exact ⟨0, 0, le_rfl, by simp [Finset.not_nonempty_iff_eq_empty.mp hne]⟩
 
 theorem hasDistinctSums_blockSum {a : ℕ → α} (ha : Erdos357.HasDistinctSums a)
@@ -95,7 +93,7 @@ end Erdos357ReductionLemmas
 
 namespace OMA.R_Erdos357_erdos_357_variants_infinite_set_sum_R1
 
-/-!
+/-
 Source: https://www.erdosproblems.com/357
 Credit: @dwilfand-sys
 
@@ -110,11 +108,22 @@ private theorem positive_terms {A : ℕ → ℕ} (h : Erdos357.HasDistinctSums A
     0 < A i := by
   by_contra! hzero
   have hz : A i = 0 := by omega
-  have hempty : (((∅ : Finset ℕ) : Set ℕ)).OrdConnected := by simp
-  have hsingle : ((({i} : Finset ℕ) : Set ℕ)).OrdConnected := by simp
+  have hempty : (((∅ : Finset ℕ) : Set ℕ)).OrdConnected := by
+    constructor
+    intro x hx
+    change x ∈ (∅ : Finset ℕ) at hx
+    simp at hx
+  have hsingle : ((({i} : Finset ℕ) : Set ℕ)).OrdConnected := by
+    constructor
+    intro x hx z hz y hy
+    have hx' : x = i := Finset.mem_singleton.mp hx
+    have hz' : z = i := Finset.mem_singleton.mp hz
+    apply Finset.mem_singleton.mpr
+    obtain ⟨hxy, hyz⟩ := hy
+    omega
   have hclash : (∅ : Finset ℕ) = {i} := h hempty hsingle (by simp [hz])
   have hi : i ∈ (∅ : Finset ℕ) := by rw [hclash]; simp
-  simpa using hi
+  simp at hi
 
 def H1 : Prop := ∀ A : ℕ → ℕ, StrictMono A → (∀ j, 0 < A j) →
   ¬ Summable (fun j => (1 : ℝ) / A j) →
