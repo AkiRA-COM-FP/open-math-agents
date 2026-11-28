@@ -1,6 +1,6 @@
 import OMAStatements.S_oeis_a024399
 
--- Problem: OEIS A024399, Mathar's recurrence and g.f. for floor(e_3(S(n)) / e_1(S(n))), where S(n) is
+-- Problem: OEIS A024399 (statement with S(n) in ℤ and the floor taken in ℚ), Mathar's recurrence and g.f. for floor(e_3(S(n)) / e_1(S(n))), where S(n) is
 -- the first N = n + 2 numbers 3i + 2. By induction on N (e_k(c :: s) = e_k(s) + c e_(k-1)(s)):
 -- 2 e_1 = N (3N + 1), 8 e_2 = N (N - 1)(3N - 1)(3N + 2), 48 e_3 = N (N - 1)(N - 2)(3N + 1)(9N^2 - 3N - 8).
 -- Hence 24 e_3 = e_1 T with T = n (n + 1)(9N^2 - 3N - 8), and T = 8 [n = 1 mod 3] (mod 24), so
@@ -14,9 +14,9 @@ lemma esymm_cons {R : Type*} [CommSemiring R] (c : R) (s : Multiset R) (k : ℕ)
     (c ::ₘ s).esymm (k + 1) = s.esymm (k + 1) + c * s.esymm k := by
   simp [Multiset.esymm, Multiset.powersetCard_cons, Multiset.sum_map_mul_left]
 
-def s (N : ℕ) : Multiset ℕ := (Multiset.range N).map (fun i => 3 * i + 2)
+def s (N : ℕ) : Multiset ℤ := (Multiset.range N).map (fun i : ℕ => 3 * (i : ℤ) + 2)
 
-lemma s_succ (N : ℕ) : s (N + 1) = (3 * N + 2) ::ₘ s N := by
+lemma s_succ (N : ℕ) : s (N + 1) = (3 * (N : ℤ) + 2) ::ₘ s N := by
   simp [s, Multiset.range_succ]
 
 lemma closed (N : ℕ) :
@@ -52,6 +52,16 @@ lemma T_mod (n : ℕ) : (24 : ℤ) ∣ T n - 8 * ind n := by
     split_ifs at h ⊢ <;> push_cast at h ⊢ <;> exact h)
   exact_mod_cast h'
 
+lemma floor_lemma_q (E1 E3 Tn k r : ℤ) (hE : 0 < E1) (h : 24 * E3 = E1 * Tn) (hk : Tn = 24 * k + r)
+    (hr0 : 0 ≤ r) (hr1 : r < 24) : ⌊(E3 : ℚ) / (E1 : ℚ)⌋ = k := by
+  have hEq : (0 : ℚ) < E1 := by exact_mod_cast hE
+  rw [Int.floor_eq_iff, le_div_iff₀ hEq, div_lt_iff₀ hEq]
+  constructor
+  · have : k * E1 ≤ E3 := by nlinarith [mul_nonneg hr0 hE.le]
+    exact_mod_cast this
+  · have : E3 < (k + 1) * E1 := by nlinarith [mul_lt_mul_of_pos_right hr1 hE]
+    exact_mod_cast this
+
 lemma floor_lemma (E1 E3 Tn k r : ℤ) (hE : 0 < E1) (h : 24 * E3 = E1 * Tn) (hk : Tn = 24 * k + r)
     (hr0 : 0 ≤ r) (hr1 : r < 24) : E3 / E1 = k := by
   have h1 : k ≤ E3 / E1 := by
@@ -64,11 +74,10 @@ lemma a_closed (n : ℕ) : 24 * (a n : ℤ) = T n - 8 * ind n := by
   obtain ⟨h1, -, h3⟩ := closed (n + 2)
   obtain ⟨k, hk⟩ := T_mod n
   have hS : S n = s (n + 2) := rfl
-  have ha : (a n : ℤ) = ((s (n + 2)).esymm 3 : ℤ) / ((s (n + 2)).esymm 1 : ℤ) := by
-    simp only [a, hS]; push_cast; rfl
   have hE : (0 : ℤ) < ((s (n + 2)).esymm 1 : ℤ) := by push_cast at h1; nlinarith
   have hind : 0 ≤ ind n ∧ ind n ≤ 1 := by unfold ind; split_ifs <;> norm_num
-  rw [ha, floor_lemma _ _ (T n) k (8 * ind n) hE ?_ (by linarith) (by linarith) (by linarith)]
+  rw [show a n = ⌊(((s (n + 2)).esymm 3 : ℤ) : ℚ) / (((s (n + 2)).esymm 1 : ℤ) : ℚ)⌋ from rfl,
+    floor_lemma_q _ _ (T n) k (8 * ind n) hE ?_ (by linarith) (by linarith) (by linarith)]
   · linarith
   · simp only [T]; push_cast at h1 h3 ⊢
     have h48 : 48 * ((s (n + 2)).esymm 3 : ℤ) = 2 * ((s (n + 2)).esymm 1 : ℤ) *
@@ -106,7 +115,7 @@ end OMA.A024399
 
 open PowerSeries in
 theorem OMA.solution : type_of% @OMA.S_oeis_a024399.main := by
-  have hrec : ∀ n : ℕ, 8 ≤ n → (OMA.S_oeis_a024399.a n : ℤ) = 4 * OMA.S_oeis_a024399.a (n - 1) -
+  have hrec : ∀ n : ℕ, 7 < n → (OMA.S_oeis_a024399.a n : ℤ) = 4 * OMA.S_oeis_a024399.a (n - 1) -
       6 * OMA.S_oeis_a024399.a (n - 2) + 5 * OMA.S_oeis_a024399.a (n - 3) -
       5 * OMA.S_oeis_a024399.a (n - 4) + 6 * OMA.S_oeis_a024399.a (n - 5) -
       4 * OMA.S_oeis_a024399.a (n - 6) + OMA.S_oeis_a024399.a (n - 7) := by
@@ -141,7 +150,7 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a024399.main := by
     intro k; split_ifs with hk
     · subst hk; simp [v, OMA.A024399.T, OMA.A024399.ind]
     · rfl
-  simp only [hz]
+  try simp only [hz]
   simp only [show 7 ≤ m + 7 by omega, show 6 ≤ m + 7 by omega, show 5 ≤ m + 7 by omega,
     show 4 ≤ m + 7 by omega, show 3 ≤ m + 7 by omega, show 2 ≤ m + 7 by omega, show 1 ≤ m + 7 by omega,
     show 0 ≤ m + 7 by omega, if_true, show m + 7 - 7 = m by omega, show m + 7 - 6 = m + 1 by omega,
