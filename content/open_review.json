@@ -16071,6 +16071,50 @@
     "https://mathoverflow.net/questions/311259"
    ],
    "reason": "The question concerns the 2d x 2d matrix [[A,B],[-B,0]] with A = diag(-a,0,...,0,-a) and the specific tridiagonal B (2,3,...,3,2 / -1), i.e. d >= 2. The formal claim quantifies over every real B and every d >= 1. The disproof takes d=1 (both 'endpoints' coincide), a=2, B=[1], giving the defective [[-2,1],[-1,0]]. That counterexample lies outside the posed family, so the weakened formalisation is exploited and the actual question is not answered."
+  },
+  "mo-365019": {
+   "date": "2026-11-28",
+   "pr": 17115,
+   "evidence": [
+    "https://mathoverflow.net/questions/365019",
+    "https://mathoverflow.net/a/389854"
+   ],
+   "reason": "The disproof uses only n = 1, P_1 = 1: then h(1) = top, and min{h(1), h(1)} = top > 2. The asker's conjecture is a generalisation of their n = 2 ABC-type question (min{h(P1),h(P2),h(P1+P2)} <= 3). With n = 1 the 'sum' is P_1 itself, so the statement is false for any P_1 = 2^100 and says nothing about the real conjecture. The formalization's 1 <= n lets the proof exploit this degenerate case. Elkies's answer gives near-counterexamples for n = 4 and says the n = 2 case is open."
+  },
+  "opg-decomposition-of-completions-of-reloids": {
+   "date": "2026-11-28",
+   "pr": 29103,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/decomposition_of_completions_of_reloids",
+    "https://ipfs.desci.com/ipfs/bafybeihljh5umfclsb2b2hctvhlr6zsincutdkc23emm6atba5btzhnxlm"
+   ],
+   "reason": "The definitions match Porton's book (Compl f = join of the row restrictions f|{alpha}, Prop. 1047; the composition and order conventions agree), and the statement copies clauses 1-5 of his Conjecture 1056. The disproof refutes only clause 1, Compl(g o f) = (Compl g) o f for co-complete f, with a trivial example: f = top from a point to N, g = cofinite x {pt}, so Compl g = bottom but g o f = top. That clause looks like a duality slip in the conjecture. The funcoid theorem it is modelled on (book, just before) reads CoCompl(g o f) = (CoCompl g) o f for co-complete f, and the same trivial example also breaks the literal Compl version for funcoids. The proof exploits this apparent typo and says nothing about clauses 3-5 or the intended dual form."
+  },
+  "wp-woodin": {
+   "date": "2026-11-28",
+   "pr": 14782,
+   "evidence": [
+    "https://en.wikipedia.org/wiki/W._Hugh_Woodin"
+   ],
+   "reason": "The statement is vacuous. StronglyCompact requires every kappa-complete filter to extend to a kappa-complete ultrafilter, but the improper filter bot (which contains the empty set) is kappa-complete and no ultrafilter lies below it, so the hypothesis is never satisfied. The 14-line proof derives False from exactly this. Woodin's question (does GCH below a strongly compact imply GCH everywhere) is untouched."
+  },
+  "wpc-schur-number-6": {
+   "date": "2026-11-28",
+   "pr": 25337,
+   "evidence": [
+    "https://en.wikipedia.org/wiki/Schur%27s_theorem"
+   ],
+   "reason": "The open problem on the source page is the value of the Schur number S(6), for which only bounds are known. The formal statement only asserts that some S works for 6 colours, which is Schur's 1916 theorem specialised to c = 6. The proof is the classical induction. It is a trivial weakening that does not touch the open question."
+  },
+  "oeis-a002285": {
+   "date": "2026-11-28",
+   "pr": 14774,
+   "evidence": [
+    "https://oeis.org/A002285",
+    "https://oeis.org/A114467",
+    "https://oeis.org/A114468"
+   ],
+   "reason": "The disproof exploits a mistranslation. A002285 is a decimal-expansion entry, and Weisstein's remark 'Equals lim b(n)/10^(n-1)' means the limit has the same digits as log10(e) = 0.4342..., i.e. 10*log10(e) = 4.3429... (A114467 gives 4, 40, 433, 4345, ...). The statement instead asks the limit to equal log10(e) itself (and log_k e in the general clause), which is off by a factor 10 (k). The proof just shows the denominator's digit count divided by 10^(n-1) is eventually >= 1/2 > log10 e. The intended conjecture is untouched (it amounts to log den H(m) ~ m along powers)."
   }
  },
  "known": {
@@ -30407,6 +30451,251 @@
     "https://mathoverflow.net/questions/319691"
    ],
    "reason": "MO answer 320268 already answers it: take q a prime in (n^3,2n^3) (Bertrand) and the nearest p/q, giving C1=1/2, i=3, C2=1, C3=1. The formal statement is the existence claim."
+  },
+  "mo-370038": {
+   "date": "2026-11-28",
+   "pr": 28783,
+   "evidence": [
+    "https://mathoverflow.net/questions/370038"
+   ],
+   "reason": "The statement is faithful (i.i.d., absolutely continuous law, X_0 in the convex hull of X_1..X_n, probability tends to 1). But fedja's comment on the question (2020) gives the proof: for a.e. X_0 (a Lebesgue point with positive density), each block of d+1 later points traps X_0 with fixed positive probability, so the miss probability tends to 0, and dominated convergence finishes. The asker replied that this settles it. The Lean proof formalizes that argument."
+  },
+  "mo-383745": {
+   "date": "2026-11-28",
+   "pr": 13767,
+   "evidence": [
+    "https://mathoverflow.net/questions/383745"
+   ],
+   "reason": "The statement asks whether for every correlation matrix X there is a > 0 with aX - arcsin(X) PSD. The disproof uses the 3x3 matrix with unit diagonal and off-diagonal -1/2, which is singular while arcsin(X) is positive definite. That is exactly fedja's 'trivial 3x3 counterexample' in the question's comments (2021), and the asker confirmed it there."
+  },
+  "mo-393199": {
+   "date": "2026-11-28",
+   "pr": 27942,
+   "evidence": [
+    "https://mathoverflow.net/questions/393199",
+    "https://mathoverflow.net/a/438783"
+   ],
+   "reason": "The statement asks whether X = [[A - eI, I], [-eC, B]] is stable for all small e > 0 when A has a simple eigenvalue 1 and the rest in the open disk, B is stable, and C is PSD and commutes with B. The disproof uses A = [[-2,3],[-2,3]], B = 0, C = diag(1,0). But Federico Poloni's answer (Jan 2023) already answered no. His first-order perturbation formula gives d(lambda)/de = -1 - z*(I-B)^{-1}Cv/(z*v), and his explicit example with C = I (which commutes with every B) has eigenvalues above 1 for small e. The asker accepted it as the counterexample they wanted."
+  },
+  "mo-39866": {
+   "date": "2026-11-28",
+   "pr": 9876,
+   "evidence": [
+    "https://mathoverflow.net/questions/39866",
+    "https://mathoverflow.net/a/319228"
+   ],
+   "reason": "The statement (a commutative Noetherian local ring with principal maximal ideal is a PIR) is faithful. It was settled on the question itself: a 2010 comment gives the Krull-intersection proof (I = (pi^k) for the least k with I not inside (pi^(k+1))), and the 2018 answer gives the same argument in the noncommutative setting. The Lean proof is exactly this argument."
+  },
+  "mo-400902": {
+   "date": "2026-11-28",
+   "pr": 28554,
+   "evidence": [
+    "https://mathoverflow.net/questions/400902",
+    "https://en.wikipedia.org/wiki/Circular_section"
+   ],
+   "reason": "The statement says the largest disk in the solid ellipsoid with a >= b >= c has radius b, characterises the optimal disks, and realises b by a central circular section. The comments already answer the question: Pietro Majer reduces it to 'every plane section is an ellipse with minor semi-axis <= b' (Cauchy interlacing), the circular sections of radius b are classical (Wikipedia, linked by the asker), and the asker wrote that the comments answer the question. The extra characterisation of all maximisers is a routine add-on. The statement header itself credits Majer."
+  },
+  "mo-415174": {
+   "date": "2026-11-28",
+   "pr": 28613,
+   "evidence": [
+    "https://mathoverflow.net/questions/415174"
+   ],
+   "reason": "The question asks for a direct, character-free proof that the coprime power map g -> g^n induces a ring automorphism of Z[G]^G, a fact the asker states and proves via the Galois action on characters. The formal statement only asserts that fact plus its corollary (gh)^n = a g^n a^-1 b h^n b^-1, which the asker also states as known. Lean cannot certify that the proof is 'direct', so the formal content was settled before the PR. For interest: the Lean proof avoids characters. It shows z^p = psi_p(z) mod p for central z (cyclic-shift argument) for primes p > |G| with p = n mod |G| (Dirichlet), then lifts. This plausibly answers the question informally, but that is outside what the statement certifies."
+  },
+  "mo-424348": {
+   "date": "2026-11-28",
+   "pr": 10059,
+   "evidence": [
+    "https://mathoverflow.net/questions/424348",
+    "https://mathoverflow.net/a/426451"
+   ],
+   "reason": "The statement is faithful: s = (n-1)d vectors with every d of them independent, constraints v_i.x_{a_i} = v_i.x_{b_i}, and the claim that two x's coincide. The disproof uses n = d = 3 with moment vectors (1,t,t^2), t = +-1,+-2,+-3, which I checked by hand. But the 2022 answer 426451 already refuted the claim: with d = 2 each v_i only has to be perpendicular to some difference x_a - x_b, so 6 distinct points with 10 distinct difference directions give a counterexample. Points in general position give this at once, though the answerer only said it 'seems unlikely' to fail."
+  },
+  "mo-430974": {
+   "date": "2026-11-28",
+   "pr": 28258,
+   "evidence": [
+    "https://mathoverflow.net/questions/430974"
+   ],
+   "reason": "The statement gives the sharp bound lambda_min >= max(0, 1-(n-1)eps) with attainment. Both halves were in the comments before the PR. The lower bound is Gershgorin, which the asker states, and Nathaniel Johnston's comment gives the extremal matrix with off-diagonal entries -eps (an orthogonal-projection multiple at eps = 1/(n-1)) and notes that Gershgorin is sharp. The Lean proof uses exactly these two facts. It is routine and was settled in the comments."
+  },
+  "mo-441173": {
+   "date": "2026-11-28",
+   "pr": 28292,
+   "evidence": [
+    "https://mathoverflow.net/questions/441173"
+   ],
+   "reason": "The statement asks for f with f o f computable and f o f o f not computable. The proof uses the involution that swaps 2m and 2m+1 exactly when program m halts. That is the comment construction (Kevin Casto / the linked Dowek slides: swap 2n, 2n+1 iff n is in an undecidable set U), and the asker replied 'Thank you, that settles it.'"
+  },
+  "mo-450204": {
+   "date": "2026-11-28",
+   "pr": 28662,
+   "evidence": [
+    "https://mathoverflow.net/questions/450204"
+   ],
+   "reason": "The statement (for every number field K, unit b and maximal ideal P there is n in N with 1 + bn in P) is faithful. The disproof takes b = i in Q(i) and a prime above 3. That is exactly the counterexample in the question's comments ('In the field Q(i) take the unit i and the prime 3, which is inert'), and Emil Jerabek's comment notes the general failure at primes of inertia degree > 1."
+  },
+  "mo-451340": {
+   "date": "2026-11-28",
+   "pr": 28295,
+   "evidence": [
+    "https://mathoverflow.net/questions/451340"
+   ],
+   "reason": "The statement only formalises existence: for every k >= 1 some integer combination of k-th powers of integer translates of X equals AX + B with A != 0. The proof takes the (k-1)-th forward difference of x^k, which is k! x + const. This is classical finite-difference calculus, and Fedor Petrov's comments on the question give existence (by Vandermonde linear independence, any ax + b is a combination of (x + c_i)^n). The open part (characterising or minimising such identities) is not formalised."
+  },
+  "mo-457007": {
+   "date": "2026-11-28",
+   "pr": 28818,
+   "evidence": [
+    "https://mathoverflow.net/questions/457007",
+    "https://oeis.org/A014080"
+   ],
+   "reason": "The statement says the positive factorions are exactly 1, 2, 145 and 40585 (Nat.digits, positive x). That is a classical fact (OEIS A014080, Project Euler 34), and the question itself states it together with the 7-digit cutoff. The question really asks for a fixed-point-theorem proof instead of brute force, which is not formalisable. The Lean proof is the bound plus a finite check, so the formal content was known before the PR."
+  },
+  "mo-460893": {
+   "date": "2026-11-28",
+   "pr": 28299,
+   "evidence": [
+    "https://mathoverflow.net/questions/460893"
+   ],
+   "reason": "The statement formalises the refined question (E = Q(zeta_{p^a}), F = Q(zeta_n), gcd(n,p) = 1: is every subfield A of EF generated by A cap E and A cap F?) and disproves it with A = Q(sqrt 3) inside Q(zeta_12) = Q(i, sqrt(-3)). That is exactly the comment 'No to the refinement ... Set A = Q(sqrt 3)' posted on the question, so it was settled before the PR."
+  },
+  "mo-469329": {
+   "date": "2026-11-28",
+   "pr": 28814,
+   "evidence": [
+    "https://mathoverflow.net/questions/469329"
+   ],
+   "reason": "The statement (a_0 = 1/T, a_{r+1} = a_r + a_r^2, sum_{r<T} a_r >= c log T for T >= T0) is faithful. mathworker21's comment on the question (communicated by fedja) gives a complete proof via a_r = 1/(T-r+lambda_r) with lambda_r <= H_T, and the asker thanked them for the solution. The Lean proof uses a different, also elementary, log/inverse telescoping, but the question was settled in the comments before the PR."
+  },
+  "mo-471098": {
+   "date": "2026-11-28",
+   "pr": 28513,
+   "evidence": [
+    "https://mathoverflow.net/questions/471098",
+    "https://mathoverflow.net/a/471143"
+   ],
+   "reason": "The statement is faithful: A and B are the vectors with more than k/2 + k0 zeros or ones, and f is injective on A into B and may only flip coordinates where a agrees with x. The disproof (k = 12, k0 = 4, x = e0: e1 and e2 are both forced to the complement of x) is the argument of the 2024 answer 471143: for many a agreeing with x only on a few zero positions, f(a) must equal 1 - x, so f is not injective."
+  },
+  "mo-471586": {
+   "date": "2026-11-28",
+   "pr": 28532,
+   "evidence": [
+    "https://mathoverflow.net/questions/471586",
+    "https://mathoverflow.net/a/471664",
+    "https://mathoverflow.net/a/471595"
+   ],
+   "reason": "The statement (all sufficiently large a are sum_{k=0}^c (k+2)^{s_k} with s_k >= 1) is a faithful reading of 'eventually'. The 2024 answer 471664 proves it for every a >= 122 with s_k in {1,2}, writing a - f(c) as a sum of distinct pronic numbers (every integer > 33 is a sum of distinct triangular numbers). John Omielan's answer outlines the same. The Lean proof follows exactly this construction (rep_all for m >= 34, Fsum, parity choice of c)."
+  },
+  "mo-474394": {
+   "date": "2026-11-28",
+   "pr": 28585,
+   "evidence": [
+    "https://mathoverflow.net/questions/474394",
+    "https://mathoverflow.net/a/474465"
+   ],
+   "reason": "The statement (every balanced frequency square of order ab on a symbols has an a x a Latin subsquare) is faithful. The disproof uses the 6 x 6 square on 3 symbols from Ian Wanless's 2024 answer 474465, which the proof file itself credits ('Ian Wanless's balanced frequency square'). The answer had already posted it as a counterexample, so this is a formal check of a published example."
+  },
+  "mo-478343": {
+   "date": "2026-11-28",
+   "pr": 28346,
+   "evidence": [
+    "https://mathoverflow.net/questions/478343"
+   ],
+   "reason": "The statement (for each a > 0 there is b > 0 such that every A in [1,n] with |A| >= an has a b-good subset) is faithful. The disproof uses blocks of length m separated by gaps of length m. That is the construction in mathworker21's comment, and Sam Hopkins's comment explains why it kills every b for every a < 1. The asker acknowledged that it settles the question ('Indeed it shows such a general statement cannot hold')."
+  },
+  "mo-481667": {
+   "date": "2026-11-28",
+   "pr": 28842,
+   "evidence": [
+    "https://mathoverflow.net/questions/481667",
+    "https://mathoverflow.net/a/481692"
+   ],
+   "reason": "The statement (for symmetric bounded A(t), the solution of Y' = A(t)Y, Y(0) = I has u^T Y_t u >= 0) is faithful, with an entrywise bound and a classical derivative within [0,1]. The 2024 answer 481692 (Christian Remling) already disproved it with piecewise-constant A(t) giving Y = CD for two positive definite C, D with e1^T CD e1 = -99. The PR's smooth rotating example is a different counterexample to an already settled question."
+  },
+  "mo-98927": {
+   "date": "2026-11-28",
+   "pr": 25501,
+   "evidence": [
+    "https://mathoverflow.net/questions/98927"
+   ],
+   "reason": "The statement (in finite G, normal closures of <x> and <y> meeting trivially implies |<x>^G:<x>| |<y>^G:<y>| = |<xy>^G:<xy>|) is faithful. The 2012 comments already refute it. Will Sawin's comment describes x, y with Klein-four normal closures acted on separately, where the index for xy is 8 rather than 4, and the asker replied 'Thank you for the counterexample'. jp also gave (Z2^2 x Z2^2) x| Z3. The PR's D3 x D3 example is another instance of the same phenomenon."
+  },
+  "mse-3117996": {
+   "date": "2026-11-28",
+   "pr": 27825,
+   "evidence": [
+    "https://math.stackexchange.com/questions/3117996",
+    "https://doi.org/10.1016/0167-6377(84)90061-0"
+   ],
+   "reason": "The question asks whether minimum-spread perfect matching reduces to a known problem. The formal statement only records the threshold reduction: the minimum spread equals the least width w(hi) - w(lo) over edge pairs whose interval subgraph has a perfect matching, with |E|^2 candidate pairs. That is the standard reduction for balanced optimisation problems (Martello, Pulleyblank, Toth and de Werra, 'Balanced optimization problems', Oper. Res. Lett. 3 (1984) 275-278), and given finiteness it is close to an unwinding of definitions. The statement certifies no algorithmic or complexity claim."
+  },
+  "opg-3-accessibility-of-fibonacci-numbers": {
+   "date": "2026-11-28",
+   "pr": 28927,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/3_accessibility_of_fibonacci_numbers",
+    "https://aixiv.online/search?q=Fibonacci%203-accessible",
+    "https://arxiv.org/abs/2211.05167"
+   ],
+   "reason": "The statement is a faithful encoding of 'is F = {1,2,3,5,8,...} 3-accessible' (3-colourings of the positive integers, arbitrarily long monochromatic F-diffsequences). The disproof uses a 3-colouring built from alpha = 184 + 8*phi. That is the colouring of William J. Wesley, 'The Fibonacci numbers are not 3-accessible', aiXiv:2609.03373 (2026-09-27): floor((184+8 phi) n) mod 232, with no monochromatic 19-term F-diffsequence. aiXiv marks the Landman-Robertson problem as claimed resolved by that paper, and Wesley's earlier arXiv:2211.05167 had shown F is not 4-accessible."
+  },
+  "opg-forcing-a-2-regular-minor": {
+   "date": "2026-11-28",
+   "pr": 28823,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/forcing_a_2_regular_minor",
+    "https://arxiv.org/abs/1509.01185"
+   ],
+   "reason": "The statement encodes the Reed-Wood conjecture: average degree >= 4t/3 - 2 forces every 2-regular graph on t vertices as a minor, with minors given by disjoint connected branch sets. It was proved by Csoka, Lo, Norin, Wu and Yepremyan, 'The extremal function for disconnected minors' (JCTB 2017, arXiv:1509.01185): c(H) <= (|V(H)| + comp(H))/2 - 1 for unions of cycles, 'verifying conjectures of Reed and Wood'. The proof file states that it follows their Theorems 1 and 7. The OPG page is out of date."
+  },
+  "opg-infinite-distributivity-of-meet-over-join-for-a-principal-funcoid": {
+   "date": "2026-11-28",
+   "pr": 13931,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/infinite_distributivity_of_meet_over_join_for_a_principal_funcoid",
+    "https://ipfs.desci.com/ipfs/bafybeihljh5umfclsb2b2hctvhlr6zsincutdkc23emm6atba5btzhnxlm"
+   ],
+   "reason": "The statement (f meet join S = join of f meet g over g in S, for principal f, with funcoids as binary-additive relations on sets) is faithful. The disproof takes f = id_N and S = the off-diagonal point funcoids {a} x {b}. Each meet with id is bottom, but the join is the principal funcoid of N x N minus the diagonal, whose meet with id_N is id_Omega(N) != bottom. That is exactly Porton's own Example 1350 / Proposition 1348 in his book, which the proof file cites (Prop. 14.12, Ex. 14.14 of the TeXmacs edition). Porton never drew the conclusion, but the counterexample was published."
+  },
+  "wp-conjecture": {
+   "date": "2026-11-28",
+   "pr": 13600,
+   "evidence": [
+    "https://en.wikipedia.org/wiki/Eternal_dominating_set#Open_questions",
+    "https://arxiv.org/abs/2609.11500"
+   ],
+   "reason": "The statement (a finite graph with gamma = gamma_infinity < theta, with eternal domination encoded as a safety-game winning family) is faithful to the Wikipedia question. The proof file says its graph is the complement of the 243-vertex ternary Golay graph from Adamczewski and Klostermeyer, 'A Counterexample to an Eternal Domination Conjecture', arXiv:2609.11500 (Sept 2026), with the strategy taken from github.com/tadamcz/gamma-theta. So it formalizes a published resolution."
+  },
+  "oeis-a000073": {
+   "date": "2026-11-28",
+   "pr": 28558,
+   "evidence": [
+    "https://oeis.org/A000073",
+    "https://oeis.org/A106282",
+    "https://zenodo.org/records/23410164"
+   ],
+   "reason": "The statement is a faithful encoding of Bala's Dec 2022 conjecture T(n p^(k+1)) + T(n p^k) + T(n p^(k-1)) = 0 (mod p^k) for n, k >= 1 and the primes of A106282 (cubic x^3-x^2-x-1 with no root mod p, i.e. irreducible). But R. Blanco Gomez, 'Towers of congruences for linear recurrences at unramified primes, with a proof of P. Bala's conjecture on the tribonacci numbers' (Zenodo 23410164, 2026-10-16), proves exactly this, with the stronger modulus p^(k+v_p(n)). It predates the PR."
+  },
+  "oeis-a001652": {
+   "date": "2026-11-28",
+   "pr": 16427,
+   "evidence": [
+    "https://oeis.org/A001652",
+    "https://oeis.org/A123737",
+    "https://arxiv.org/abs/2503.11734"
+   ],
+   "reason": "The statement is faithful to Kotesovec's 2015 conjecture: for n > 1, A001652(n) is the first m >= 1 with sum_{k<=m} (-1)^floor(k sqrt2) = n. I checked it numerically to n = 8 (803760). But Bruin and Fokkink, 'On the records and zeros of a deterministic random walk' (arXiv:2503.11734, 2025, linked from A123737), Corollary 4, derives exactly that the first occurrences A_n of n satisfy A_{n+1} = 6A_n - A_{n-1} + 2 with A_0 = 0, A_1 = 3, from Van de Lune's record recurrence (Theorem 3, confirmed in their ref. [10]). So it was settled before the PR, though the A001652 entry was never updated."
+  },
+  "oeis-a002467": {
+   "date": "2026-11-28",
+   "pr": 28112,
+   "evidence": [
+    "https://oeis.org/A002467",
+    "https://oeis.org/A000166"
+   ],
+   "reason": "The statement (for n > 0, n! - D(n) equals round((1 - 1/e) n!), with Mathlib's round) is faithful to Plouffe's 1993 formula. It is an immediate consequence of the classical fact D(n) = round(n!/e) for n >= 1 (A000166; |n!/e - D(n)| < 1/(n+1) <= 1/2), since n! is an integer. The Lean proof is this standard alternating-series bound. It was known long before the PR, just never recorded as proved in the entry."
   }
  },
  "reviewed": "2026-11-28"
