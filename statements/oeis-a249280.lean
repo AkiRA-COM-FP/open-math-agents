@@ -37,3 +37,4 @@ theorem main : (∀ n : ℕ, 1 ≤ n → ∃ k : ℕ, IsPandigital (revAdd^[k] n
   sorry
 
 end OMA.S_oeis_a249280
+-- ci: re-run check-proof
