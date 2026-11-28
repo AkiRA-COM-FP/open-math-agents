@@ -1,4 +1,6 @@
 import OMAReductions.R_arxiv_2604_17847_R1
+import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
+import Mathlib.NumberTheory.LegendreSymbol.Basic
 
 -- Reduction of the finite-cover step from PR 20911 and board note 93655.
 -- Credit: @wispiANt
@@ -11,6 +13,7 @@ open OMA.R_arxiv_2604_17847_R1 (finite_prime_cover_iff fixed_rank_family totient
 -- When the common factor is prime to q, exclude multiples of the normalized square rank.
 def H1 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
+    (Odd r → 4 * q < Nat.fib r) →
     let g := r.gcd (pisano q)
     ¬ q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
       ¬ rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t ∧
@@ -19,6 +22,7 @@ def H1 : Prop :=
 -- When the common factor supplies one copy of q, the multiplier must avoid q.
 def H2 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
+    (Odd r → 4 * q < Nat.fib r) →
     let g := r.gcd (pisano q)
     q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
       ¬ q ∣ t ∧
@@ -287,6 +291,140 @@ lemma prime_progression_coverage {q r l : ℕ} (hq : q.Prime) (hr : r ∈ S q)
     have eq := (quotient_at_prime_multiplier hp hg hl).mp ((hp.dvd_mul.mp prod).resolve_left ha)
     exact Or.inr ⟨p, hp, hmod, by simpa only [if_neg ha] using eq⟩
 
+-- Cassini's expression changes sign at each Fibonacci step.
+lemma signed_cassini (p n : ℕ) :
+    let a : ZMod p := Nat.fib n
+    let b : ZMod p := Nat.fib (n + 1)
+    b ^ 2 - a * b - a ^ 2 = (-1) ^ n := by
+  dsimp
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Nat.fib_add_two, Nat.cast_add, pow_succ]
+    linear_combination -ih
+
+lemma four_dvd_of_odd_zero {p n : ℕ} (hp : p.Prime) (h2 : p ≠ 2) (hn : Odd n)
+    (hd : p ∣ Nat.fib n) : 4 ∣ p - 1 := by
+  let : Fact p.Prime := ⟨hp⟩
+  have hz := (ZMod.natCast_eq_zero_iff ..).mpr hd
+  have sq : (Nat.fib (n + 1) : ZMod p) ^ 2 = -1 := by
+    simpa [hz, hn.neg_one_pow] using signed_cassini p n
+  have := ZMod.mod_four_ne_three_of_sq_eq_neg_one sq
+  have := hp.eq_two_or_odd.resolve_left h2
+  omega
+
+-- This form of Binet's identity avoids division by the difference of the two roots.
+lemma fib_root_difference {K : Type*} [Field K] {a b : K}
+    (ha : a ^ 2 = a + 1) (hb : b ^ 2 = b + 1) (n : ℕ) :
+    (Nat.fib n : K) * (a - b) = a ^ n - b ^ n := by
+  induction n using Nat.twoStepInduction with
+  | zero => simp
+  | one => simp
+  | more n h0 h1 =>
+    rw [Nat.fib_add_two, Nat.cast_add, add_mul, h0, h1, pow_add a n 2, pow_add b n 2, ha, hb, pow_succ, pow_succ]
+    ring
+
+-- Frobenius permutes the two distinct roots of X²-X-1 in characteristic p.
+lemma rank_dvd_neighbor {p : ℕ} (hp : p.Prime) (h2 : p ≠ 2) (h5 : p ≠ 5) :
+    rankOfApparition p ∣ p - 1 ∨ rankOfApparition p ∣ p + 1 := by
+  let : Fact p.Prime := ⟨hp⟩
+  let K := AlgebraicClosure (ZMod p)
+  have two : (2 : K) ≠ 0 := CharP.cast_ne_zero_of_ne_of_prime K Nat.prime_two h2
+  have five : (5 : K) ≠ 0 := CharP.cast_ne_zero_of_ne_of_prime K (by decide : Nat.Prime 5) h5
+  obtain ⟨s, hs⟩ := IsAlgClosed.exists_pow_nat_eq (5 : K) (by decide : 0 < 2)
+  let a := (1 + s) / 2
+  let b := 1 - a
+  have twice : a * 2 = 1 + s := div_mul_cancel₀ _ two
+  have ha : a ^ 2 = a + 1 := by
+    have h : (2 : K)^2 * (a ^ 2 - (a + 1)) = 0 := by
+      linear_combination (2 * a - 1 + s) * twice + hs
+    exact sub_eq_zero.mp ((mul_eq_zero.mp h).resolve_left (pow_ne_zero _ two))
+  have hb : b ^ 2 = b + 1 := by dsimp [b]; linear_combination ha
+  have diff : a - b ≠ 0 := by
+    intro h
+    have ab : a - b = s := by dsimp only [b]; linear_combination twice
+    rw [ab] at h
+    exact five (by simpa [h] using hs.symm)
+  have zero_of_equal (n : ℕ) (h : a ^ n = b ^ n) : rankOfApparition p ∣ n := by
+    apply rank_dvd_iff_fib.mpr
+    apply (CharP.cast_eq_zero_iff K p _).mp
+    apply (mul_eq_zero.mp ?_).resolve_right diff
+    rw [fib_root_difference ha hb, h, sub_self]
+  have hroot : (a ^ p) ^ 2 = a ^ p + 1 := by
+    rw [← pow_mul, Nat.mul_comm, pow_mul, ha, add_pow_char _ _ p, one_pow]
+  have poly : (a ^ p - a) * (a ^ p - b) = 0 := by
+    dsimp [b]
+    linear_combination hroot - ha
+  have conj : b ^ p = 1 - a ^ p := by simp [b, sub_pow_char]
+  rcases mul_eq_zero.mp poly with h | h
+  · have fix := sub_eq_zero.mp h
+    have fixb : b ^ p = b := by rw [conj, fix]
+    have unit (x : K) (hx : x ^ 2 = x + 1) (hf : x ^ p = x) : x ^ (p - 1) = 1 := by
+      have hn : x ≠ 0 := by rintro rfl; simp at hx
+      apply mul_right_cancel₀ hn
+      rw [one_mul, ← pow_succ, Nat.sub_add_cancel hp.one_lt.le, hf]
+    exact Or.inl (zero_of_equal _ ((unit a ha fix).trans (unit b hb fixb).symm))
+  · have swap := sub_eq_zero.mp h
+    have swapb : b ^ p = a := by rw [conj, swap]; dsimp [b]; ring
+    exact Or.inr (zero_of_equal _ (by rw [pow_succ, pow_succ, swap, swapb, mul_comm]))
+
+lemma aligned_odd_factor {q p n : ℕ} (hq : q.Prime) (hq5 : 5 < q) (hp : p.Prime)
+    (hc : p ≡ 1 [MOD q]) (hn : Odd n) (hd : p ∣ Nat.fib n) : 4 * q ∣ p - 1 := by
+  have hqdiv : q ∣ p - 1 := hc.symm.dvd'
+  have pos : 0 < p - 1 := by have := hp.one_lt; omega
+  have lower := Nat.le_of_dvd pos hqdiv
+  have four := four_dvd_of_odd_zero hp (by omega) hn hd
+  have cop : Nat.Coprime 4 q := by
+    apply Nat.Coprime.symm
+    apply hq.coprime_iff_not_dvd.mpr
+    exact fun h => (Nat.not_le_of_lt (by omega : 4 < q)) (Nat.le_of_dvd (by decide) h)
+  exact cop.mul_dvd_of_dvd_of_dvd four hqdiv
+
+lemma odd_totient_lower_bound {q n : ℕ} (hq : q.Prime) (hq5 : 5 < q) (hn : Odd n)
+    (ht : q ∣ (Nat.fib n).totient) : 4 * q < Nat.fib n := by
+  have pos : 0 < n := by obtain ⟨k, hk⟩ := hn; omega
+  have hf := Nat.fib_pos.mpr pos
+  rcases (totient_witness_iff hq pos).mp ht with hs | ⟨p, hp, hc, hd⟩
+  · have bound := Nat.le_of_dvd hf hs
+    exact lt_of_lt_of_le (by rw [pow_two]; exact Nat.mul_lt_mul_of_pos_right (by omega) hq.pos) bound
+  · have h := Nat.le_of_dvd (show 0 < p - 1 by have := hp.one_lt; omega)
+        (aligned_odd_factor hq hq5 hp hc hn hd)
+    have := Nat.le_of_dvd hf hd
+    omega
+
+-- F₁₃ = 233, so the residue represented by 13 is excluded uniformly from q = 59 onward.
+lemma thirteen_not_good {q : ℕ} (hq : q.Prime) (h : 59 ≤ q) : 13 ∉ S q := by
+  intro hr
+  have bound := odd_totient_lower_bound hq (by omega) (n := 13) (by decide) (hr.2 13 rfl)
+  have fib : Nat.fib 13 = 233 := by decide
+  omega
+
+-- The congruences alone admit arbitrarily large candidate primes for every positive index.
+lemma congruence_candidates_unbounded {q l : ℕ} (hq : 0 < q) (hl : 0 < l) (B : ℕ) :
+    ∃ p > B, p.Prime ∧ 4 * q ∣ p - 1 ∧ l ∣ p - 1 := by
+  let m := 4 * q * l
+  have hm : m ≠ 0 := by dsimp [m]; positivity
+  obtain ⟨p, hB, hp, hc⟩ := Nat.forall_exists_prime_gt_and_modEq B hm (Nat.coprime_one_left m)
+  have hd : m ∣ p - 1 := hc.symm.dvd'
+  exact ⟨p, hB, hp, (dvd_mul_right (4*q) l).trans hd, (dvd_mul_left l (4*q)).trans hd⟩
+
+lemma coprime_progression_witness {q r l : ℕ} (hq : q.Prime) (hq5 : 5 < q) (hr : r ∈ S q)
+    (hg : r.Coprime (pisano q)) (hbad : ¬ q ∣ (Nat.fib (pisano q)).totient)
+    (hl : l.Prime) (hodd : Odd l) (hc : l ≡ r [MOD pisano q])
+    (hex : rankOfApparition (q ^ 2) ≠ l) :
+    ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p = l ∧
+      4 * q ∣ p - 1 ∧ (l ∣ p - 1 ∨ l ∣ p + 1) := by
+  have hc' : r.gcd (pisano q) * l ≡ r [MOD pisano q] := by simpa [hg.gcd_eq_one] using hc
+  have cover := prime_progression_coverage hq hr hbad hl hc'
+  simp only [hg.gcd_eq_one, Nat.gcd_one_right, Nat.div_one] at cover
+  obtain ⟨p, hp, hmod, he⟩ := cover.resolve_left hex
+  have hd : q ∣ p - 1 := hmod.symm.dvd'
+  have ple := Nat.le_of_dvd (show 0 < p - 1 by have := hp.one_lt; omega) hd
+  have p2 : p ≠ 2 := by omega
+  have p5 : p ≠ 5 := by omega
+  have four := aligned_odd_factor hq hq5 hp hmod hodd (rank_dvd_iff_fib.mp (he ▸ dvd_refl l))
+  exact ⟨p, hp, hmod, he, four, he ▸ rank_dvd_neighbor hp p2 p5⟩
+
 lemma square_quotient_test {q g t : ℕ} (hq : q.Prime) (hg : 0 < g) (hd : ¬ q ∣ Nat.fib g) :
     q ^ 2 ∣ Nat.fib (g * t) / Nat.fib g ↔
       rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t := by
@@ -338,13 +476,14 @@ theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H1 := by
   have fail (t : ℕ) (ht : 0 < t) (hc : g * t ≡ r [MOD pisano q]) :=
     mt (quotient_exception_iff hq hP (Nat.gcd_dvd_right r _) ht hbad).mpr
       (not_not_intro (hr.2 _ hc))
+  have large (h : Odd r) := odd_totient_lower_bound hq (by omega) h (hr.2 r rfl)
   have sieve (t : ℕ) := witness_sieve_iff (t := t) hq hP (Nat.gcd_dvd_right r _) hbad
   by_cases hd : q ∣ Nat.fib (r.gcd (pisano q))
-  · obtain ⟨t, ht, hc, hs, hp⟩ := second q r hq hlarge hr.1 hbad hd
+  · obtain ⟨t, ht, hc, hs, hp⟩ := second q r hq hlarge hr.1 hbad large hd
     have hg := Nat.gcd_pos_of_pos_right r hP
     have no := mt (prime_dvd_quotient_iff hq hg hd t).mp hs
     exact fail t ht hc ⟨by simpa only [if_pos hd] using no, (sieve t).mpr hp⟩
-  · obtain ⟨t, ht, hc, hs, hp⟩ := first q r hq hlarge hr.1 hbad hd
+  · obtain ⟨t, ht, hc, hs, hp⟩ := first q r hq hlarge hr.1 hbad large hd
     have no := mt (square_quotient_test (t := t) hq (Nat.gcd_pos_of_pos_right r hP) hd).mp hs
     exact fail t ht hc ⟨by simpa only [if_neg hd] using no, (sieve t).mpr hp⟩
 
@@ -364,13 +503,13 @@ lemma quotient_problems_of_cover (cover : OMA.R_arxiv_2604_17847_R1.H1) : H1 ∧
     obtain ⟨t, ht, hc, he⟩ := exception_multiplier missing
     exact ⟨t, ht, hc, (quotient_exception_iff hq hP (Nat.gcd_dvd_right r _) ht hbad).mp he⟩
   constructor
-  · intro q r hq hl hr hbad
+  · intro q r hq hl hr hbad _
     dsimp only
     intro hd
     obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
     rw [if_neg hd, square_quotient_test hq (Nat.gcd_pos_of_pos_right r (Nat.zero_lt_of_lt hr)) hd] at hs
     exact ⟨t, ht, hc, hs, (witness_sieve_iff hq (Nat.zero_lt_of_lt hr) (Nat.gcd_dvd_right r _) hbad).mp hp⟩
-  · intro q r hq hl hr hbad
+  · intro q r hq hl hr hbad _
     dsimp only
     intro hd
     obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
