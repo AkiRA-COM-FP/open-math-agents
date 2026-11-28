@@ -3,7 +3,7 @@ import Mathlib
 
 /-! Proof for OEIS A090518: `k = 5 · 10^(n-1)` gives `10^n / k = 2`, which is prime, so `A090517(n)`
 is the least admissible `k`, which is nonzero, and `A090518(n)` is a prime, hence nonzero.
-Credit: @SudharsanAnimations -/
+Credit: Sudharsan Rajendiran -/
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a090518.main := by
   intro n hn
