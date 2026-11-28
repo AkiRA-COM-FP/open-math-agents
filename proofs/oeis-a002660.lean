@@ -12,27 +12,10 @@ open PowerSeries OMA.S_oeis_a002660
 def b (m : ℕ) : ℚ := if m = 0 then 0 else if m ≤ 3 then (m : ℚ) ^ 2 else 3 * m
 
 theorem key : mk b * (1 - X) ^ 2 = (X + 2 * X ^ 2 + 2 * X ^ 3 - 2 * X ^ 4 : PowerSeries ℚ) := by
-  have e1 : mk b * (1 - X : PowerSeries ℚ) ^ 2 = mk b - mk b * X ^ 1 - mk b * X ^ 1 + mk b * X ^ 2 := by
-    ring
-  have e2 : (X + 2 * X ^ 2 + 2 * X ^ 3 - 2 * X ^ 4 : PowerSeries ℚ) =
-      X ^ 1 + X ^ 2 + X ^ 2 + X ^ 3 + X ^ 3 - X ^ 4 - X ^ 4 := by ring
-  rw [e1, e2]
+  ring_nf
   ext n
-  simp only [map_add, map_sub, coeff_mk, coeff_mul_X_pow', coeff_X_pow]
-  rcases n with _ | _ | _ | _ | _ | _ | n
-  · simp [b]
-  · simp [b]
-  · simp [b]; norm_num
-  · simp [b]; norm_num
-  · simp [b]; norm_num
-  · simp [b]; norm_num
-  · simp only [show n + 6 - 1 = n + 5 by omega, show n + 6 - 2 = n + 4 by omega, b]
-    simp only [show ¬ (n + 6 = 0) by omega, show ¬ (n + 5 = 0) by omega, show ¬ (n + 4 = 0) by omega,
-      show ¬ (n + 6 ≤ 3) by omega, show ¬ (n + 5 ≤ 3) by omega, show ¬ (n + 4 ≤ 3) by omega,
-      show (1 ≤ n + 6) by omega, show (2 ≤ n + 6) by omega,
-      show ¬ (n + 6 = 1) by omega, show ¬ (n + 6 = 2) by omega, show ¬ (n + 6 = 3) by omega,
-      show ¬ (n + 6 = 4) by omega, if_true, if_false]
-    push_cast; ring
+  rcases n with _ | _ | _ | _ | _ | _ | n <;> simp +arith [coeff_mul_X_pow', coeff_X_pow, coeff_X,
+    ← map_ofNat C, coeff_mul_C, b] <;> ring
 
 theorem G_eq : G = mk b := by
   have h : constantCoeff ((1 - X : PowerSeries ℚ) ^ 2) ≠ 0 := by simp
