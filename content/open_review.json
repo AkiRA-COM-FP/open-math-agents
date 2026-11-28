@@ -5272,17 +5272,6 @@
    ],
    "note": "Barker's g.f., cubic closed form (n>0) and recurrence for the number of 2x2 matrices over {0..n} with entry sum n+2. Statement faithful (offset 0, closed form only for n>0 as written); verified numerically n<40. A routine bounded stars-and-bars count; no prior proof found, but it is an exercise-level computation. Second review: Faithful and verified. Elementary inclusion-exclusion count; no prior proof located. Routine."
   },
-  "oeis-a176954": {
-   "date": "2026-11-28",
-   "pr": 22466,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A176954",
-    "https://oeis.org/A176954",
-    "https://oeis.org/A176954/b176954.txt"
-   ],
-   "note": "Mathar's order-5 D-finite recurrence for Choulet's convolution sequence. The statement uses the recurrence of the entry's Maple program, example and data (the printed name drops parentheses and the l term; read literally it contradicts a(2)), which is the right reading; recurrence verified for n<200. Routine: the entry already gives an algebraic g.f., from which the recurrence follows; no prior proof found. Second review: Mathar's D-finite recurrence for a Choulet convolution sequence. The formalization follows the program and data rather than the garbled name, which is correct. No prior proof. Routine (algebraic g.f. to recurrence)."
-  },
   "oeis-a223291": {
    "date": "2026-11-28",
    "pr": 22237,
@@ -5407,17 +5396,6 @@
     "https://oeis.org/A028359/b028359.txt"
    ],
    "note": "Wu's recurrence (n>6) and g.f. are faithful. The digit-group definition follows Manyama's comment, with a(0)=0 matching the offset-1 g.f. It reproduces the 1500-term b-file, and the recurrence holds numerically. The proof uses c(n) = floor((n(n+1)+1)/3) and periodicity; it is elementary. Second review: Wu's recurrence/g.f. for the two-bell Orloj analogue. Faithful, verified to n=1499; no prior proof. Routine."
-  },
-  "oeis-a177126": {
-   "date": "2026-11-28",
-   "pr": 22435,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A177126",
-    "https://oeis.org/A177126",
-    "https://oeis.org/A177126/b177126.txt"
-   ],
-   "note": "Mathar's D-finite recurrence is stated for n >= 5, where all indices are valid. The defining convolution with k=l=1 reproduces the b-file, and the recurrence holds numerically to n=300. It follows from the algebraic g.f. (a standard holonomic-recurrence derivation). Second review: Same family as A176954. Faithful, verified, no prior proof. Routine."
   },
   "oeis-a223249": {
    "date": "2026-11-28",
@@ -5564,17 +5542,6 @@
     "https://arxiv.org/abs/1707.04654"
    ],
    "note": "Mathar's P-recurrence (5-n)a(n) + 5n a(n-1) + n(n-1)^2 a(n-2) = 0 is stated for n >= 7 (all indices >= offset 5), with a(n) given by the entry's explicit binomial-sum formula (Lang), over Q. I verified the definition against the data and the recurrence for n = 7..79. This is a routine holonomic derivation from the explicit sum / e.g.f. Second review: Faithful and true. The e.g.f. is D-finite and the recurrence follows mechanically (holonomic closure); a routine identity, but not previously recorded as proved."
-  },
-  "oeis-a177198": {
-   "date": "2026-11-28",
-   "pr": 22427,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A177198",
-    "https://oeis.org/A177198",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "The definition transcribes Choulet's recurrence with k = -1, l = 1 (a(2) = 13, a(3) = 73 as in the example) and matches all 21 b-file terms. Mathar's order-5 P-recurrence is stated for n >= 5 with coefficients as printed, and I checked it to n = 59. This is the standard D-finite derivation from the algebraic g.f., and no prior proof was found. Second review: Faithful and true. The g.f. given in the entry is algebraic (a square root), so the P-recurrence is a mechanical consequence; routine."
   },
   "oeis-a027483": {
    "date": "2026-11-28",
@@ -5893,18 +5860,6 @@
    ],
    "note": "Barker's g.f. for 2D Rule 597 (diagonal, origin to corner, base-10 digits) is stated faithfully, following the name and the data rather than the middle-row program. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. The g.f. identity holds to n = 34. Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A289763 (Rule 597) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
   },
-  "oeis-a177200": {
-   "date": "2026-11-28",
-   "pr": 22251,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A177200",
-    "https://oeis.org/A177200",
-    "https://oeis.org/A177200/b177200.txt",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's order-5 P-recurrence is stated for n >= 5, with k = -1 and l = 1. The definition matches the data, and the recurrence holds for n = 5..59 (it fails at n = 4, so the range is right). The quadratic g.f. makes this a routine holonomic derivation. Second review: Faithful and true. Ekhad-Yang-Zeilberger (arXiv:1707.04654) call such algebraic-g.f. recurrences 'provable conjectures', but their output proves 33 other entries, not this one. Routine."
-  },
   "oeis-a266460": {
    "date": "2026-11-28",
    "pr": 22049,
@@ -6093,30 +6048,6 @@
     "https://oeis.org/A269760/b269760.txt"
    ],
    "note": "The empirical recurrence and Barker's g.f. and closed form 6*5^(n-2)*(n-1) are stated faithfully (n X 1 columns with exactly one adjacent pair summing to 5). I checked them by brute force for n <= 7. The proof is an elementary count, and no prior proof was found. Second review: Faithful and true, with a short combinatorial argument, so routine."
-  },
-  "oeis-a177203": {
-   "date": "2026-11-28",
-   "pr": 22385,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A177203",
-    "https://oeis.org/A177203",
-    "https://oeis.org/A177203/b177203.txt",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's D-finite recurrence is stated faithfully for the sequence with a(1)=10, k=-1, l=1. The file is identical to oeis-a177199 apart from the parameters and coefficients, so it is a different sequence, not a duplicate. I checked it numerically for n < 60. Routine, and no prior proof was found. Second review: Faithful and true. The 1707.04654 output does not cover A177203. Routine."
-  },
-  "oeis-a177169": {
-   "date": "2026-11-28",
-   "pr": 22226,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A177169",
-    "https://oeis.org/A177169",
-    "https://oeis.org/A177169/b177169.txt",
-    "https://arxiv.org/abs/1707.04654"
-   ],
-   "note": "Mathar's order-4 D-finite recurrence is stated faithfully for Choulet's sequence (a(0)=1, a(1)=7, k=0, l=-2), with the data reproduced. I checked it numerically for n < 60. Routine, and no prior proof was found. Second review: Faithful and true. It is not in the 1707.04654 output. Routine."
   },
   "oeis-a159807": {
    "date": "2026-11-28",
@@ -6392,17 +6323,6 @@
    ],
    "note": "Barker's g.f. and order-9 recurrence for the sum of the middle sides b over isosceles triangles with perimeter n are stated faithfully (equilateral counted once). Lean controls reproduce 26 data terms. A quasi-polynomial count, so routine; no prior proof found. Second review: Faithful and true; quasi-polynomial count of lattice points, routine."
   },
-  "oeis-a177170": {
-   "date": "2026-11-28",
-   "pr": 22288,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A177170",
-    "https://oeis.org/A177170",
-    "https://oeis.org/A177170/b177170.txt"
-   ],
-   "note": "Mathar's P-recurrence is stated for n >= 4, with Choulet's convolution recursion (k = 0, l = -2). My recursion reproduces the data, and the recurrence holds for n = 4..59. The g.f. is algebraic (quadratic), so this is the routine holonomic derivation. Second review: Faithful and true. The g.f. is algebraic (quadratic), so the D-finite recurrence follows by a routine annihilator/creative-telescoping or explicit g.f. computation (Ekhad-Yang-Zeilberger's 'provable conjecture' class)."
-  },
   "oeis-a268164": {
    "date": "2026-11-28",
    "pr": 22173,
@@ -6446,17 +6366,6 @@
     "https://oeis.org/A267139/b267139.txt"
    ],
    "note": "Rule 103 elementary CA rows over [-n,n] read in binary, with the background evolving on Z. Barker's recurrence (n>10) and degree-10 g.f. are stated faithfully; my simulation matches 29 listed terms and the claims to n=80. No prior proof found; routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a177180": {
-   "date": "2026-11-28",
-   "pr": 22244,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A177180",
-    "https://oeis.org/A177180",
-    "https://oeis.org/A177180/b177180.txt"
-   ],
-   "note": "Choulet's recurrence with k=1, l=-1 (index shifted correctly; it reproduces 1,10,21,144,711,...) and Mathar's order-5 polynomial recurrence for n>=5 are stated faithfully. The g.f. is algebraic (given in the entry), so this is a routine holonomic recurrence, which I checked numerically to n=70. No prior proof found. Second review: Faithful and true. The g.f. is algebraic (quadratic), so the D-finite recurrence follows by a routine annihilator/creative-telescoping or explicit g.f. computation (Ekhad-Yang-Zeilberger's 'provable conjecture' class)."
   },
   "oeis-a266718": {
    "date": "2026-11-28",
@@ -6597,17 +6506,6 @@
     "https://oeis.org/A284237/b284237.txt"
    ],
    "note": "Wu's recurrence and g.f. for 2D Rule 833 (cells (-n..0), left edge most significant, base 2, evolving background) are stated faithfully, and I checked them numerically for n <= 40 by simulation. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a177199": {
-   "date": "2026-11-28",
-   "pr": 22419,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A177199",
-    "https://oeis.org/A177199",
-    "https://oeis.org/A177199/b177199.txt"
-   ],
-   "note": "Mathar's D-finite recurrence is stated faithfully for Choulet's convolution sequence (a(0)=1, a(1)=8, k=-1, l=1), and the data is reproduced. I checked it numerically for n < 60. Routine (algebraic g.f. to recurrence), and no prior proof was found. Second review: Faithful and true. The g.f. is algebraic (quadratic), so the D-finite recurrence follows by a routine annihilator/creative-telescoping or explicit g.f. computation (Ekhad-Yang-Zeilberger's 'provable conjecture' class)."
   },
   "oeis-a227877": {
    "date": "2026-11-28",
@@ -20397,6 +20295,238 @@
     "https://github.com/the-omega-institute/trureturing/blob/main/Library/ArithUnits/dement2005a113249.md"
    ],
    "reason": "Known twice over. First, formal-conjectures marks OEIS/113255.lean 'research solved' at the pinned upstream commit 9097e2f (set 2026-11-25), linking a Lean proof for the whole family in KitaKen1/oeis-a113249-family-square-terms-lean. Second, the identical whole-family statement (same definition, checked by diff) was solved on this site as oeis-a113249 (PR #7849, committed 2026-11-27 17:16 UTC), about an hour before this proof (18:15 UTC). The math (Z[sqrt(4-m^2)] norm argument) is fine. trureturing also has a library page on the same Dement family (Library/ArithUnits/dement2005a113249.md)."
+  },
+  "oeis-a176606": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A176606"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 4 at (a0,a1,k,l)=(1,3,0,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a176607": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A176607"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 4 at (a0,a1,k,l)=(1,4,0,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a176609": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A176609"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 4 at (a0,a1,k,l)=(1,5,0,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a176610": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A176610"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,0,1,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a176675": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A176675"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 4 at (a0,a1,k,l)=(1,0,0,-1); site also starts below the theorem range, but the paper explicitly notes the shorter range for this entry (q2 of lower degree) and the extra cases check numerically; published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a176858": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A176858"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,4,-1,0); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a176954": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A176954"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,2,-1,-1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a176962": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A176962"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,2,-1,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177126": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177126"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,10,1,1) multiplied by n; published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177166": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177166"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 4 at (a0,a1,k,l)=(1,9,0,-1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177167": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177167"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 4 at (a0,a1,k,l)=(1,10,0,-1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177169": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177169"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 4 at (a0,a1,k,l)=(1,7,0,-2); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177170": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177170"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 4 at (a0,a1,k,l)=(1,8,0,-2); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177180": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177180"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,10,1,-1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177198": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177198"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,7,-1,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177199": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177199"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,8,-1,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177200": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177200"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,9,-1,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a177203": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf",
+    "https://oeis.org/A177203"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Site recurrence is exactly Dubickas Theorem 3 at (a0,a1,k,l)=(1,10,-1,1); published 17 Jun 2026, before the site proof."
+  },
+  "oeis-a128740": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A128740"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Mathar's recurrence is recorded in the entry as 'Conjecture verified using the differential equation ... satisfied by the G.f.' by Robert Israel (Dec 25 2017); the site's coefficients equal Mathar's expanded."
+  },
+  "oeis-a183625": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A183632",
+    "https://oeis.org/A183625"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Parent A183632: Daniel Veljjanoski (Nov 18 2026, entry rev. Nov 24 2026) proves T(n,k)=3^(n+1)+3^(k+1)+2^(n+k+2)-2^(n+2)-2^(k+2)+1 and says it proves the column conjectures A183624-A183626, A183629-A183631; at k=2 it gives the closed form, hence the recurrence and g.f."
+  },
+  "oeis-a183629": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A183632",
+    "https://oeis.org/A183629"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Parent A183632 proof by Daniel Veljjanoski (Nov 18 2026, rev. Nov 24 2026) gives T(n,6)=3*(644+21*2^(n+2)+3^n) and the g.f.; explicitly named as covered."
+  },
+  "oeis-a183630": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A183632",
+    "https://oeis.org/A183630"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Parent A183632 proof by Daniel Veljjanoski (Nov 18 2026, rev. Nov 24 2026) gives T(n,7)=6050+127*2^(n+2)+3^(n+1) and the g.f.; explicitly named as covered."
+  },
+  "oeis-a183631": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A183632",
+    "https://oeis.org/A183631"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Parent A183632 proof by Daniel Veljjanoski (Nov 18 2026, rev. Nov 24 2026) gives T(n,8)=3*(6220+85*2^(n+2)+3^n) and the g.f.; explicitly named as covered."
+  },
+  "oeis-a267632": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A267632",
+    "https://www.ias.ac.in/article/fulltext/seca/020/01/0062-0069"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): T(n,k) = (1/n) Sum_{s|gcd(n,k)} (-1)^(k-k/s) phi(s) C(n/s,k/s) is proved (Ramanathan 1944, Barnes 1959; recorded by Hadjicostas 2019). Since gcd(n,k)=gcd(n,n-k) and the sign is +1 for odd n (and agrees for k, n-k when n=2^m, k<n), T(n,k)=T(n,n-k) is an immediate corollary, though not stated verbatim."
+  },
+  "oeis-a268149": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://arxiv.org/abs/1411.1477",
+    "https://oeis.org/A268149"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): Brent-Ohtsuka-Osborn-Prodinger Theorem 1 (JIS 2016) gives a(n)=S_3(2n), and Tuenter's S_3(m)=m^2 C(2m,m) gives a(n)=4n^2 C(4n,2n); Mathar's 2023 recurrence is then a routine hypergeometric check (verified to n=200). Not stated verbatim."
+  },
+  "oeis-a278720": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A278720",
+    "https://doi.org/10.1007/978-1-4757-2103-4"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): For p = 3 mod 4, #{y^2=x^3+4x mod p} = p is classical: x^3+4x is odd and (-1/p)=-1, so the Legendre sum vanishes (Ireland-Rosen Ch. 18, curves y^2=x^3-Dx). It also follows from the CM newform (eta(4t)eta(8t))^2 of level 32 (Martin-Ono, cited in the flag); p=2 is a direct check."
+  },
+  "oeis-a384531": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A384531/a384531.pdf"
+   ],
+   "reason": "Proved before this site's proof (found by the OEIS sweep): David Radcliffe's 'Notes on two arithmetical functions' (Jun 1 2025) proves b(n)=Sum gcd(k,n)gcd(k+1,n) is multiplicative with b(p^e)=2a(p^e)-p^e = p^(e-1)((2e+1)p-2e), which is exactly the site's product formula."
   }
  },
  "reviewed": "2026-11-28"
