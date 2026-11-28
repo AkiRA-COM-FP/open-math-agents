@@ -11,6 +11,9 @@ already gives two primes at the offsets required in Melfi's construction.
 
 H1 is an open estimate for these particular Goldbach representations. H2,
 the bound on higher prime powers in a short interval, is proved below.
+At every scale `j = 4y` with `y ≥ 3`, the required count is attained
+when primality testing is replaced by trial division through `y`
+(`dyadicRough`). This leaves factors larger than the sieve cutoff uncontrolled.
 -/
 
 -- Reduction Erdos470.erdos_470.parts.ii.R1.H2.R2 of step Erdos470.erdos_470.parts.ii.R1.H2
@@ -149,6 +152,95 @@ theorem main : H1 → H2 → OMA.R_Erdos470_erdos_470_parts_ii_R1.H2 := by
 /-- The only outstanding assumption in this route concerns the count of representations. -/
 theorem ofPrimePowerRepresentations (h : H1) : OMA.R_Erdos470_erdos_470_parts_ii_R1.H2 :=
   main h higherPowerBound
+
+open scoped Classical in
+/-- An explicit residue class modulo the primorial supplies simultaneous rough pairs. -/
+theorem roughPairs {C y : ℕ} (room : (4 ^ y) ^ 2 ≤ C) :
+    4 ^ y - 2 ≤ ((Icc 3 ((4 ^ y) ^ 2)).filter fun t =>
+      ∀ p ∈ Nat.primesLE y, ¬ p ∣ C - t ∧ ¬ p ∣ C + t).card := by
+  classical
+  let W := 4 ^ y
+  let P := primorial y
+  let S := (Nat.primesLE y).filter fun p => ¬ p ∣ C
+  let r := ∏ p ∈ S, p
+  let t (i : ℕ) := r + i * P
+  have Ppos : 0 < P := primorial_pos y
+  have PW : P ≤ W := primorial_le_four_pow y
+  have rpos : 0 < r :=
+    prod_pos fun p hp => (Nat.prime_of_mem_primesLE (mem_filter.mp hp).1).pos
+  have rP : r ≤ P := Nat.le_of_dvd Ppos (by
+    change (∏ p ∈ S, p) ∣ primorial y
+    rw [primorial_eq_prod_primesLE]
+    exact prod_dvd_prod_of_subset _ _ _ (filter_subset _ _))
+  have maps : Set.MapsTo t (Ico 2 W) ((Icc 3 (W ^ 2)).filter fun b =>
+      ∀ p ∈ Nat.primesLE y, ¬ p ∣ C-b ∧ ¬ p ∣ C+b) := by
+    intro i hi
+    obtain ⟨hi₂, hiW⟩ := mem_Ico.mp hi
+    have low : 3 ≤ t i := by
+      have h := Nat.mul_le_mul hi₂ (show 1 ≤ P from Ppos)
+      dsimp [t]
+      omega
+    have high : t i ≤ W ^ 2 := calc
+      r + i * P ≤ P + i * P := Nat.add_le_add_right rP _
+      _ = (i+1)*P := by ring
+      _ ≤ W*W := Nat.mul_le_mul hiW PW
+      _ = W^2 := (sq W).symm
+    have htC : t i ≤ C := high.trans room
+    refine mem_filter.mpr ⟨mem_Icc.mpr ⟨low, high⟩, ?_⟩
+    intro p hp
+    have prime := Nat.prime_of_mem_primesLE hp
+    have hP : p ∣ P := dvd_prod_of_mem id hp
+    have hmul : p ∣ i*P := dvd_mul_of_dvd_right hP i
+    have ht : p ∣ t i ↔ ¬ p ∣ C := by
+      change p ∣ r+i*P ↔ ¬p ∣ C
+      rw [Nat.dvd_add_left hmul]
+      constructor
+      · intro hd
+        obtain ⟨q, hq, hpq⟩ := (prime.prime.dvd_finsetProd_iff id).mp hd
+        have eq := (Nat.prime_dvd_prime_iff_eq prime (Nat.prime_of_mem_primesLE (mem_filter.mp hq).1)).mp hpq
+        exact eq ▸ (mem_filter.mp hq).2
+      · intro h
+        exact dvd_prod_of_mem id (mem_filter.mpr ⟨hp,h⟩)
+    by_cases divides : p ∣ C
+    · have avoids : ¬p ∣ t i := fun hd => ht.mp hd divides
+      refine ⟨fun h => avoids ((Nat.dvd_add_right h).mp ?_), fun h => avoids ((Nat.dvd_add_right divides).mp h)⟩
+      simpa only [Nat.sub_add_cancel htC] using divides
+    · have d := ht.mpr divides
+      refine ⟨fun h => divides ?_, fun h => divides ((Nat.dvd_add_left d).mp h)⟩
+      simpa only [Nat.sub_add_cancel htC] using Nat.dvd_add h d
+  have inj : Function.Injective t := by
+    intro a b hab
+    exact Nat.eq_of_mul_eq_mul_right Ppos (Nat.add_left_cancel hab)
+  simpa [Nat.card_Ico, W] using card_le_card_of_injOn t maps inj.injOn
+
+open scoped Classical in
+/-- At every j=4y, y≥3, enough pairs survive trial division by every prime
+up to y to exceed the count required in the prime-power reduction. -/
+theorem dyadicRough (y : ℕ) (hy : 3 ≤ y) :
+    let j := 4*y
+    let C := 2^(2*j+4)-2
+    2*j+5 < ((Icc 3 (2^j)).filter fun t =>
+      ∀ p ∈ Nat.primesLE y, ¬ p ∣ C-t ∧ ¬ p ∣ C+t).card := by
+  have threshold : 8*y+7 < 4^y := by
+    induction y, hy using Nat.le_induction with
+    | base => decide
+    | succ n hn ih => rw [pow_succ]; omega
+  let j := 4*y
+  have hs : 2^j = (4^y)^2 := by
+    change 2^(4*y) = (4^y)^2
+    rw [← pow_mul, Nat.mul_comm y 2, pow_mul 4 2 y, pow_mul 2 4 y]
+    rfl
+  have room : (4^y)^2 ≤ 2^(2*j+4)-2 := by
+    rw [← hs]
+    have hj : j+2 ≤ 2*j+4 := by omega
+    have h := Nat.pow_le_pow_right (by decide : 0 < 2) hj
+    rw [pow_add] at h
+    have pos : 0 < (2:ℕ)^j := by positivity
+    omega
+  have count := roughPairs room
+  change 2*j+5 < ((Icc 3 (2^j)).filter _).card
+  rw [hs]
+  exact lt_of_lt_of_le (by dsimp [j]; omega) count
 
 lemma intersect_majorities {L : ℕ} (P Q : ℕ → Prop) [DecidablePred P] [DecidablePred Q]
     (hp : L < 2 * ((Ico L (2 * L)).filter P).card)
