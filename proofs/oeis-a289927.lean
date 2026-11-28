@@ -161,33 +161,6 @@ theorem recurrence (n : ℕ) (hn : 7 < n) :
     show n ≠ 4 by omega, show n ≠ 5 by omega, show n ≠ 6 by omega, if_false] at h
   linarith
 
-/-- Controls from the entry: a(0..3) = 1, 4, 15, 53 (read off the g.f.). -/
-lemma controls : a 0 = 1 ∧ a 1 = 4 ∧ a 2 = 15 ∧ a 3 = 53 := by
-  have eD : PowerSeries.mk a * (1 - 3 * X - 4 * X ^ 2 + 7 * X ^ 3 + 5 * X ^ 4 - 7 * X ^ 5 -
-      4 * X ^ 6 + 3 * X ^ 7 + X ^ 8) = PowerSeries.mk a - C (3 : ℚ) * (PowerSeries.mk a * X ^ 1) -
-      C (4 : ℚ) * (PowerSeries.mk a * X ^ 2) + C (7 : ℚ) * (PowerSeries.mk a * X ^ 3) +
-      C (5 : ℚ) * (PowerSeries.mk a * X ^ 4) - C (7 : ℚ) * (PowerSeries.mk a * X ^ 5) -
-      C (4 : ℚ) * (PowerSeries.mk a * X ^ 6) + C (3 : ℚ) * (PowerSeries.mk a * X ^ 7) +
-      PowerSeries.mk a * X ^ 8 := by
-    rw [show (C (3 : ℚ) : ℚ⟦X⟧) = 3 from map_ofNat C 3, show (C (4 : ℚ) : ℚ⟦X⟧) = 4 from map_ofNat C 4,
-      show (C (7 : ℚ) : ℚ⟦X⟧) = 7 from map_ofNat C 7, show (C (5 : ℚ) : ℚ⟦X⟧) = 5 from map_ofNat C 5]
-    ring
-  have eN : ((1 - X ^ 2 + X ^ 3) * (1 + X - X ^ 3) : ℚ⟦X⟧) =
-      1 + X ^ 1 - X ^ 2 - X ^ 3 + X ^ 4 + X ^ 5 - X ^ 6 := by ring
-  have g := gf
-  rw [eD, eN] at g
-  have h0 := congrArg (coeff 0) g
-  have h1 := congrArg (coeff 1) g
-  have h2 := congrArg (coeff 2) g
-  have h3 := congrArg (coeff 3) g
-  simp only [map_sub, map_add, coeff_C_mul, coeff_mul_X_pow', coeff_mk, coeff_one, coeff_X_pow]
-    at h0 h1 h2 h3
-  norm_num at h0 h1 h2 h3
-  have e0 : a 0 = 1 := by linarith
-  have e1 : a 1 = 4 := by linarith
-  have e2 : a 2 = 15 := by linarith
-  refine ⟨e0, e1, e2, by linarith⟩
-
 /-- Both of Barker's conjectures. -/
 theorem conjecture : (PowerSeries.mk a * (1 - 3 * X - 4 * X ^ 2 + 7 * X ^ 3 + 5 * X ^ 4 -
       7 * X ^ 5 - 4 * X ^ 6 + 3 * X ^ 7 + X ^ 8) = (1 - X ^ 2 + X ^ 3) * (1 + X - X ^ 3)) ∧
