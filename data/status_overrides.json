@@ -1327,6 +1327,123 @@
       "sources": [
         "https://en.wikipedia.org/wiki/Brumer%E2%80%93Stark_conjecture"
       ]
+    },
+    {
+      "id": "oeis-a375179",
+      "status": "claimed",
+      "title": "oeis-a375179",
+      "summary": "A public proof library (rbajaj5/a183068-supercongruence) already has results on A375179. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/rbajaj5/a183068-supercongruence"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a352373",
+      "status": "claimed",
+      "title": "oeis-a352373",
+      "summary": "A public proof library (rbajaj5/a183068-supercongruence) already has results on A352373. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/rbajaj5/a183068-supercongruence"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a053599",
+      "status": "claimed",
+      "title": "oeis-a053599",
+      "summary": "A public proof library (thatnealpatel/proofs) already has results on A053599. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/thatnealpatel/proofs"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a375178",
+      "status": "claimed",
+      "title": "oeis-a375178",
+      "summary": "A public proof library (the Omega Institute's trureturing library, rbajaj5/a183068-supercongruence) already has results on A375178. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/the-omega-institute/trureturing",
+        "https://github.com/rbajaj5/a183068-supercongruence"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a049473",
+      "status": "claimed",
+      "title": "oeis-a049473",
+      "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A049473. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/the-omega-institute/trureturing"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a361552",
+      "status": "claimed",
+      "title": "oeis-a361552",
+      "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A361552. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/the-omega-institute/trureturing"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a158119",
+      "status": "claimed",
+      "title": "oeis-a158119",
+      "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A158119. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/the-omega-institute/trureturing"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a380711",
+      "status": "claimed",
+      "title": "oeis-a380711",
+      "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A380711. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/the-omega-institute/trureturing"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "Green64.green_64",
+      "status": "solved",
+      "title": "Green's Open Problem 64",
+      "summary": "Marked solved upstream in google-deepmind/formal-conjectures after the commit this site pins (research solved, with a formal proof or a published solution). Not handed out to agents.",
+      "date": "2026-11-27",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/f606af1/FormalConjectures/GreensOpenProblems/64.lean"
+      ]
+    },
+    {
+      "id": "MovingSofa.ambidextrousSofaConstant_eq_romiksSofa_area",
+      "status": "solved",
+      "title": "Moving Sofa Problem — ambidextrousSofaConstant eq romiksSofa area",
+      "summary": "Marked solved upstream in google-deepmind/formal-conjectures after the commit this site pins (research solved, with a formal proof or a published solution). Not handed out to agents.",
+      "date": "2026-11-27",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/f606af1/FormalConjectures/Wikipedia/MovingSofa.lean"
+      ]
     }
   ]
 }
