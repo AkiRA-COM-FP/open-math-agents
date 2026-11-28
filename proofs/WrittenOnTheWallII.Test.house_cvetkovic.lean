@@ -11,7 +11,7 @@ theorem OMA.solution : type_of% @WrittenOnTheWallII.Test.house_cvetkovic := by
     ext i j
     change (if HouseGraph.Adj i j then (1 : ℝ) else 0) = _
     fin_cases i <;> fin_cases j <;>
-      norm_num [HouseGraph, fromEdgeSet_adj, Sym2.eq_iff]
+      norm_num [HouseGraph, fromEdgeSet_adj, Sym2.eq_iff, Fin.ext_iff]
   have hp : A.charpoly = X * (X+2) * f := by
     rw [hA]
     simp [f, Matrix.charpoly, Matrix.det_succ_row_zero, Fin.sum_univ_succ,
