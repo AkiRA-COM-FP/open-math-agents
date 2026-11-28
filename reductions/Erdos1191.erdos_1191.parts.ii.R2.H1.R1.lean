@@ -237,4 +237,72 @@ theorem sparse_iff : H1 ↔ OMA.R_Erdos1191_erdos_1191_parts_ii_R2.H1 := by
       Nat.le_mul_of_pos_right _ (by positivity)
     omega
 
+/-- Charge the first length to its label and every further length to a
+pair in that label. This counts distinct lengths even when they have
+several possible witnesses. -/
+theorem lengths_le_labels_and_pairs {κ : Type*} [DecidableEq κ]
+    (D : Finset ℕ) (label : ℕ → κ) :
+    D.card ≤ (D.image label).card +
+      ∑ t ∈ D.image label, ((D.filter (fun x => label x = t)).card).choose 2 := by
+  have one_and_pairs (n : ℕ) : n ≤ 1 + n.choose 2 := by
+    induction n with
+    | zero => simp
+    | succ n ih =>
+      cases n with
+      | zero => decide
+      | succ n =>
+        rw [Nat.choose_succ_succ (n+1) 1, Nat.choose_one_right]
+        omega
+  calc
+    D.card = ∑ t ∈ D.image label, (D.filter (fun x => label x = t)).card :=
+      card_eq_sum_card_image label D
+    _ ≤ ∑ t ∈ D.image label, (1 + ((D.filter (fun x => label x = t)).card).choose 2) :=
+      sum_le_sum (fun _ _ => one_and_pairs _)
+    _ = _ := by simp [sum_add_distrib]
+
+/-- At a fixed upper stage, the union over all lower stages costs at most
+one factor of j. The labels may be chosen separately at every pair of
+stages, and the exceptional lists may overlap. -/
+theorem union_of_labeled_lengths {κ : Type*} [DecidableEq κ] (j R : ℕ)
+    (D : ℕ → Finset ℕ) (label : ℕ → ℕ → κ)
+    (cost : ∀ i < j, ((D i).image (label i)).card +
+      ∑ t ∈ (D i).image (label i), (((D i).filter (fun x => label i x = t)).card).choose 2 ≤ R) :
+    ((range j).biUnion D).card ≤ j * R := by
+  calc
+    _ ≤ ∑ i ∈ range j, (D i).card := card_biUnion_le
+    _ ≤ ∑ _i ∈ range j, R := sum_le_sum (fun i hi =>
+      (lengths_le_labels_and_pairs (D i) (label i)).trans (cost i (mem_range.mp hi)))
+    _ = _ := by simp
+
+/-- A uniform pair-count estimate of square-root size, up to a fixed
+power of the scale index, suffices for the exact finite-horizon
+sparse-overlap hypothesis. The two coordinates of the label can be the
+lower prime and its signed determinant carry. -/
+theorem sparse_of_same_label_counts (d A J : ℕ)
+    (blocks : ∀ N : ℕ, ∃ B : ℕ → Finset ℕ,
+      (∀ j, B j ⊆ Ico (2^j) (2^(j+1))) ∧ (∀ j, IsSidon (B j : Set ℕ)) ∧
+      ∀ j, J ≤ j → j ≤ N →
+        2^j ≤ (B j).card^2 * (j+1)^(2*(d+1)) ∧
+        ∃ (D : ℕ → Finset ℕ) (label : ℕ → ℕ → ℕ × ℤ),
+          (∀ i < j, ((D i).image (label i)).card +
+            ∑ t ∈ (D i).image (label i),
+              (((D i).filter (fun x => label i x = t)).card).choose 2 ≤
+              2^(j/2)*(j+1)^A) ∧
+          ∀ i, i < j → ∀ a ∈ B i, ∀ b ∈ B i, ∀ u ∈ B j, ∀ v ∈ B j,
+            b < a → v < u → a-b = u-v → 2^(j/2)*(j+1)^2 ≤ u-v → u-v ∈ D i) : H1 := by
+  classical
+  refine ⟨d, d+1+(A+1), J, fun N => ?_⟩
+  obtain ⟨B, hpos, hsid, hstage⟩ := blocks N
+  refine ⟨B, hpos, hsid, fun j hj hjN => ?_⟩
+  obtain ⟨hd, D, label, hcost, hcovers⟩ := hstage j hj hjN
+  refine ⟨hd, (range j).biUnion D, ?_, ?_⟩
+  · have half := half_scale_le hd
+    calc
+      _ ≤ j * (2^(j/2)*(j+1)^A) := union_of_labeled_lengths j _ D label hcost
+      _ ≤ (j+1) * (((B j).card*(j+1)^(d+1))*(j+1)^A) :=
+        Nat.mul_le_mul (Nat.le_succ j) (Nat.mul_le_mul_right _ half)
+      _ = _ := by rw [pow_add (j+1) (d+1), pow_succ (j+1) A]; ring
+  · intro i hij a ha b hb u hu v hv hba hvu he hl
+    exact mem_biUnion.mpr ⟨i, mem_range.mpr hij, hcovers i hij a ha b hb u hu v hv hba hvu he hl⟩
+
 end OMA.R_Erdos1191_erdos_1191_parts_ii_R2_H1_R1
