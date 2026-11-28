@@ -10219,6 +10219,40 @@
     "https://oeis.org/A266595/b266595.txt"
    ],
    "reason": "Barker's recurrence for Rule 37's OFF cells is printed 'for n>4' but fails at n = 5 (a(5) = 5, while 2a(3) - a(1) = 8). The disproof uses only that slip and the g.f.; it never touches the automaton. The definition reproduces the b-file (n = 0..1000), and the closed form for n > 1, the g.f. and the recurrence for n > 5 all hold, so the intended conjecture is untouched."
+  },
+  "mo-384388": {
+   "date": "2026-11-28",
+   "pr": 26389,
+   "evidence": [
+    "https://mathoverflow.net/questions/384388",
+    "https://oeis.org/A000699"
+   ],
+   "reason": "Open-ended question asking for upper bounds on the growth in terms of alpha. The formal statement uses a crude bound the formalizer chose, C_n <= Cat_n (n!)^alpha, plus a trivial lower bound. Both follow by a short induction from i!(n-i)! <= n!. For alpha=1 (A000699) the upper bound is off by an exponential factor, so this does not settle what was asked."
+  },
+  "mo-406611": {
+   "date": "2026-11-28",
+   "pr": 26107,
+   "evidence": [
+    "https://mathoverflow.net/questions/406611"
+   ],
+   "reason": "The formal statement asks for literal upper or lower triangularity, but in the comments the asker confirmed the intended claim is 'triangular up to permutations' (equivalently, X is the weight matrix of a DAG). The counterexample A=[0 1 0;0 0 0;0 1 0] is nilpotent, a DAG, and upper triangular after reordering, so it refutes only the reading the asker rejected. The statement header's claim that the proof also refutes the permuted version cannot hold for this matrix."
+  },
+  "mo-442285": {
+   "date": "2026-11-28",
+   "pr": 26715,
+   "evidence": [
+    "https://mathoverflow.net/questions/442285",
+    "https://arxiv.org/abs/2512.12603"
+   ],
+   "reason": "The formal statement joins Cigler's main q=1 conjecture with his printed Narayana remark and his printed Bernoulli leading coefficient, and the merged 'disproof' only refutes the printed side formulas. Those are typos: Han (arXiv:2512.12603) proves the Narayana version with [n+1]_{q^k}, and my computation shows the true leading coefficients are exactly twice the printed ones for every (k,m) tested. Meanwhile the main identity D(k,kn,m) = (-1)^{C(k,2)n}(n+1)^m is true (checked numerically; proved in the same file, with m<=2 already covered by Han's Theorems 5-7). The file also says it adapts TrureTuring code."
+  },
+  "mo-44817": {
+   "date": "2026-11-28",
+   "pr": 25249,
+   "evidence": [
+    "https://mathoverflow.net/questions/44817"
+   ],
+   "reason": "Shor asks for other natural 3-d arrays (ideally with polynomial coefficients, like the Ramanujan array) that satisfy recurrences on two families of planes but fall outside A=B theory. The formalization asks only for existence of some array. The proof uses the artificial A(i,j,k) = sq(i) + sq(j)*sq(k), with sq the perfect-square indicator: the constant mixed difference kills it on two families, and the square indicator has no recurrence. This trivial construction does not address the question's intent."
   }
  },
  "known": {
@@ -18220,6 +18254,256 @@
     "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a266614-rule41-barker.md"
    ],
    "reason": "Barker's recurrence/g.f. and Keller's closed forms for the decimal value of Rule 41 rows are stated faithfully and verified against the b-file. But trureturing's Rule41OnCellCount.lean (committed Oct 5 2026, before this Nov 28 PR) already proves the complete row invariant hrow: row n differs from the background (OFF for even n, ON for odd n) exactly at {n}, {n-2,n-1,n}, {n-2,n} or {n-4,n-3,n-1,n} by n mod 4. Reading that row as a binary number gives 1 or 5 for even n and 2*4^n+2-10(n mod 4) for odd n directly, so the formulas are an immediate consequence of a public proof."
+  },
+  "mo-375001": {
+   "date": "2026-11-28",
+   "pr": 27300,
+   "evidence": [
+    "https://mathoverflow.net/questions/375001",
+    "https://mathoverflow.net/questions/375001#comment950539_375001"
+   ],
+   "reason": "The question (is agreement at n followed by disagreement later guaranteed?) was answered negatively in the question's comments: Brogioli gave a 3x3 counterexample and Glueck the nilpotent-block-plus-identity example, which the asker accepted. The proof header says it follows those comments; extending J_n plus [1] to every n is routine."
+  },
+  "mo-377077": {
+   "date": "2026-11-28",
+   "pr": 26328,
+   "evidence": [
+    "https://mathoverflow.net/a/387525"
+   ],
+   "reason": "Answer 387525 gives the full argument: with the circumcenter at the origin the orthocenter of A_iA_jA_k is A_i+A_j+A_k, so the C(n-2,2) pairs of triangles sharing two vertices contribute |A_i-A_m| each, which already gives the inequality. The Lean proof formalizes exactly this."
+  },
+  "mo-381980": {
+   "date": "2026-11-28",
+   "pr": 25569,
+   "evidence": [
+    "https://mathoverflow.net/questions/381980",
+    "https://leanprover-community.github.io/mathlib4_docs/Mathlib/Algebra/MvPolynomial/Funext.html"
+   ],
+   "reason": "Standard fact: over an infinite domain a polynomial vanishing on R^n is zero. Zach Teitler's comment gives the induction proof and the asker agrees; Mathlib already has it as MvPolynomial.funext, which the 10-line proof applies directly."
+  },
+  "mo-383940": {
+   "date": "2026-11-28",
+   "pr": 26460,
+   "evidence": [
+    "https://mathoverflow.net/questions/383940"
+   ],
+   "reason": "fedja's comment gives a counterexample (equilateral triangle plus its center: all four circumradii equal, centers differ), which the asker accepted and added to the question. The Lean disproof uses another small planar configuration of 4 points; the general statement was already refuted in the source."
+  },
+  "mo-386285": {
+   "date": "2026-11-28",
+   "pr": 9975,
+   "evidence": [
+    "https://mathoverflow.net/questions/386285"
+   ],
+   "reason": "Tyrone's top comment (score 5) answers the question with the Sorgenfrey line, a standard paratopological group in which inversion is discontinuous. The Lean proof formalizes exactly the Sorgenfrey line."
+  },
+  "mo-389561": {
+   "date": "2026-11-28",
+   "pr": 10189,
+   "evidence": [
+    "https://mathoverflow.net/questions/389561"
+   ],
+   "reason": "Wojowu's comment (score 7) answers Q2: x^2+y^2+y+1 = x^2+(y-1)^2 in characteristic 3, and GF(3^(2n+1)) has no square root of -1, so the only point is (0,1). The Lean proof is exactly this argument."
+  },
+  "mo-397958": {
+   "date": "2026-11-28",
+   "pr": 27316,
+   "evidence": [
+    "https://mathoverflow.net/questions/397958"
+   ],
+   "reason": "Terry Tao's comment (score 6) gives a broad family of symmetric arithmetic sets with an arbitrary middle third, which already contains sets that are not unions of endpoint progressions (e.g. N=4, keeping only 0 in the middle). The statement header says no novelty is claimed. The proof's 7-element set is an equally easy variant."
+  },
+  "mo-403025": {
+   "date": "2026-11-28",
+   "pr": 25671,
+   "evidence": [
+    "https://mathoverflow.net/questions/403025",
+    "https://arxiv.org/abs/2206.02592"
+   ],
+   "reason": "Settled before this solve: Sun's comments say he proved (3) using the Calogero-Perelomov eigenvalue result, and that Xuejun Guo and three PhD students proved (1), (2) and (4) in arXiv:2206.02592. The Lean proof (skew-Cauchy permanent and eigenvalue products) formalizes these known identities."
+  },
+  "mo-408235": {
+   "date": "2026-11-28",
+   "pr": 27674,
+   "evidence": [
+    "https://oeis.org/A071984",
+    "https://mathoverflow.net/a/408383"
+   ],
+   "reason": "OEIS A071984 gives a(32)=1 and shows the unique square loop of length 32, the same arrangement as the proof's B. The MO answer by Timothy Chow points to A071983/A071984. The Lean proof is a kernel-checked exhaustive search reproducing this known count."
+  },
+  "mo-409678": {
+   "date": "2026-11-28",
+   "pr": 25551,
+   "evidence": [
+    "https://mathoverflow.net/a/410034",
+    "https://mathoverflow.net/questions/409678"
+   ],
+   "reason": "Dustin Mixon's answer (and the asker's own edit) already gives the n=3 counterexample: the convex hull of (1,1,1), (-1,1,1), (1,-1,1), (1,1,-1) meets every facet but misses 0. The proof uses the closely related set {x in cube : x0+x1+x2 >= 1}."
+  },
+  "mo-412446": {
+   "date": "2026-11-28",
+   "pr": 10423,
+   "evidence": [
+    "https://mathoverflow.net/a/412458"
+   ],
+   "reason": "Iosif Pinelis's answer proves the inequality (yes, by reducing to removing one point). The Lean proof is an equally elementary direct argument: Z_S < Z, factors in S increase, and factors outside S are at most 1."
+  },
+  "mo-412572": {
+   "date": "2026-11-28",
+   "pr": 27587,
+   "evidence": [
+    "https://mathoverflow.net/questions/412572"
+   ],
+   "reason": "Gjergji Zaimi's comment (score 4) gives the solution: {f<0} and {f>=0} are disjoint convex cones, so use hyperplane separation. The asker agreed, leaving only the boundary cases, which openness of {f<0} handles. The proof header says it follows Zaimi's separation; the ray lemma for positive homogeneity is a routine continuity argument."
+  },
+  "mo-413297": {
+   "date": "2026-11-28",
+   "pr": 26025,
+   "evidence": [
+    "https://mathoverflow.net/questions/413297",
+    "https://mathoverflow.net/a/413369"
+   ],
+   "reason": "Eventual periodicity modulo every m follows from reuns's finite-state comment, which the asker's final addition and Bill Bradley's answer accept. The periods 1, 1, 34 modulo 2, 3, 5 are stated in the question as checked by finite computation. I recomputed the minimal periods 1, 1, 34; Bradley's 37 for M=5 is a slip in his answer. The proof header credits reuns's idea."
+  },
+  "mo-419363": {
+   "date": "2026-11-28",
+   "pr": 25561,
+   "evidence": [
+    "https://mathoverflow.net/questions/419363"
+   ],
+   "reason": "Tomasz Kania's comment already answers the question with matrix algebras (and Banach algebras of topological stable rank 1, Rieffel Prop 3.1), and Steinberg names the property Dedekind/von Neumann finite. The proof uses M_2(C) as operators on C^2, which is textbook."
+  },
+  "mo-421887": {
+   "date": "2026-11-28",
+   "pr": 25203,
+   "evidence": [
+    "https://mathoverflow.net/a/425296",
+    "https://mathoverflow.net/questions/421887"
+   ],
+   "reason": "The asker says they had already proved the inequality by a tedious case analysis (the question asks for a conceptual proof or literature), and River Li's answer gives a case proof using multiple-angle formulas. The Lean proof says it follows River Li's reductions and finishes with a rational interval bisection, so it is a mechanized version of known proofs."
+  },
+  "mo-427947": {
+   "date": "2026-11-28",
+   "pr": 25611,
+   "evidence": [
+    "https://mathoverflow.net/questions/427947"
+   ],
+   "reason": "Toni Mhax's comment gives a counterexample, A=[[1.5,1],[-0.5,0]] with H=diag(1,-2). I checked that A is H-self-adjoint, invertible and not H-unitary, with eigenvector (2,-1) for eigenvalue 1, but A^T v = (3.5,2). The Lean disproof uses another 2x2 example (a Jordan block with H the swap matrix)."
+  },
+  "mo-427988": {
+   "date": "2026-11-28",
+   "pr": 16323,
+   "evidence": [
+    "https://mathoverflow.net/questions/427988"
+   ],
+   "reason": "Seva's comment (score 8) already answers no, with a 24-element counterexample by Jukka Kohonen (b=260), and the asker accepted it. The Lean disproof uses a smaller counterexample with b=28 (gap at 42), which is new but refutes an already-refuted claim."
+  },
+  "mo-429021": {
+   "date": "2026-11-28",
+   "pr": 25595,
+   "evidence": [
+    "https://mathoverflow.net/questions/429021"
+   ],
+   "reason": "Peter Taylor's comment gives exactly the formalized formula, the sum over g of the product of |g^-1(x)|^|h^-1(x)|, and the asker's edit accepts it. The proof is the immediate bijection argument."
+  },
+  "mo-434166": {
+   "date": "2026-11-28",
+   "pr": 26691,
+   "evidence": [
+    "https://mathoverflow.net/questions/434166"
+   ],
+   "reason": "Conrad's comment (score 3) gives the Bertrand-prime argument: a prime n/2 < p <= n must have p^k dividing 1^k+...+n^k, impossible for large n since p divides at most one factor; small n are checked directly. The Lean proof carries out exactly this argument for k=2,3 (an easy formalization of a known sketch)."
+  },
+  "mo-436630": {
+   "date": "2026-11-28",
+   "pr": 26422,
+   "evidence": [
+    "https://mathoverflow.net/questions/436630"
+   ],
+   "reason": "Ben Smith's comment already says (1) is straightforward and (2), (3) follow from g^((p-1)/2) = -1. The three congruences are one-line consequences of g having order p-1 = 4m+2, which is exactly the Lean proof; this is close to trivial."
+  },
+  "mo-436948": {
+   "date": "2026-11-28",
+   "pr": 25310,
+   "evidence": [
+    "https://mathoverflow.net/a/440444",
+    "https://math.stackexchange.com/questions/4227159/characterization-of-lipschitz-derivative"
+   ],
+   "reason": "gerw's answer says yes: the condition gives the two-sided monotonicity bound, and the linked MSE answer then gives Lipschitz continuity of the gradient. The statement header itself says 'Status: known result'. The Lean proof uses a four-point parallelogram argument."
+  },
+  "mo-440654": {
+   "date": "2026-11-28",
+   "pr": 26589,
+   "evidence": [
+    "https://mathoverflow.net/questions/440654",
+    "https://arxiv.org/abs/1109.0258"
+   ],
+   "reason": "Suvrit's comment points to Lemma 4 of arXiv:1109.0258, and the asker confirms it answers the question affirmatively, with the same argument carrying over to Hilbert spaces. The Lean proof is the standard comparison of the two minimality inequalities."
+  },
+  "mo-442547": {
+   "date": "2026-11-28",
+   "pr": 27099,
+   "evidence": [
+    "https://mathoverflow.net/questions/442547"
+   ],
+   "reason": "fedja's comment already says the claim as written is false and gives the counterexample r=2, f=0, F=1, g in L^1 but not L^2. Pinelis notes the missing hypothesis |g| <= F. The Lean disproof is a two-point version of the same idea."
+  },
+  "mo-448750": {
+   "date": "2026-11-28",
+   "pr": 25661,
+   "evidence": [
+    "https://mathoverflow.net/questions/448750"
+   ],
+   "reason": "Jochen Glueck's and Christian Remling's comments give the full proof: closure(span) = A^{perp perp} and (union A_j)^perp = intersection of A_j^perp, which the asker accepted. The 5-line Lean proof is exactly this argument, using Mathlib lemmas."
+  },
+  "mo-450195": {
+   "date": "2026-11-28",
+   "pr": 25781,
+   "evidence": [
+    "https://mathoverflow.net/questions/450195",
+    "https://mathoverflow.net/a/450207"
+   ],
+   "reason": "Settled in the thread: Oleg Eroshkin's comment gives the lower bound dist(b, Ran M) >= 1/det(M') for integer b outside the range, and Robert Israel's answer gives the projection argument. The statement header itself says 'Status: known result'. The Lean proof is this standard rational-subspace argument."
+  },
+  "mo-454212": {
+   "date": "2026-11-28",
+   "pr": 18907,
+   "evidence": [
+    "https://mathoverflow.net/a/454230"
+   ],
+   "reason": "MaoWao's answer gives the standard proof from Berg-Christensen-Ressel (positive-definite Gromov-product kernel plus Cauchy-Schwarz). The Lean proof is the same argument in quadratic-discriminant form, using three points."
+  },
+  "mo-454408": {
+   "date": "2026-11-28",
+   "pr": 26262,
+   "evidence": [
+    "https://mathoverflow.net/a/454579"
+   ],
+   "reason": "Toni Mhax's answer already shows the inequality fails, with an explicit 2x2 counterexample. The Lean disproof uses another small counterexample (A=(1,1)^T, P=[[16,-12],[-12,9]], 7 > 1)."
+  },
+  "mo-459015": {
+   "date": "2026-11-28",
+   "pr": 26123,
+   "evidence": [
+    "https://mathoverflow.net/questions/459015"
+   ],
+   "reason": "darij grinberg's comment gives exactly this deficiency form of Hall's theorem (Ore/Koenig), calls it well known, and suggests the proof by adding |X|-k dummy vertices. The Lean proof uses that dummy-vertex reduction to Mathlib's Hall theorem."
+  },
+  "mo-462279": {
+   "date": "2026-11-28",
+   "pr": 26815,
+   "evidence": [
+    "https://mathoverflow.net/a/462296"
+   ],
+   "reason": "Iosif Pinelis's answer already proves that strong concavity alone guarantees a unique global maximizer. The Lean proof is a variant (via the strongly concave partial maximum) of the same standard fact."
+  },
+  "mo-467005": {
+   "date": "2026-11-28",
+   "pr": 27574,
+   "evidence": [
+    "https://mathoverflow.net/questions/467005"
+   ],
+   "reason": "Fred Hucht's comment gives det = (1 - x_1...x_n)^(n-1), and Vladimir Dotsenko's comment gives the row-subtraction proof. The statement header credits both. The inverse formula C^{-1} = (1-P)^{-1}(1-S) is immediate from the same identity C(1-S) = (1-P)I."
   }
  },
  "reviewed": "2026-11-28"
