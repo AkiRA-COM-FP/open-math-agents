@@ -5167,6 +5167,16 @@
     "https://oeis.org/A382407/b382407.txt"
    ],
    "reason": "The disproof uses k=10. But a(10)=0 is in the entry's own data (0,0,0,0,0,1,1,0,0,0,...), so the printed conjecture contradicts the listed terms and evidently has a typo: it omits 10. The b-file zeros up to 10^4 are exactly {1,2,3,4,5,8,9,10,13,15,27,45,81,...} = {2,4,8,10,13} U 3^j U 5*3^j. The disproof only exploits this omission, and the evidently intended conjecture (with 10 included) remains unaddressed."
+  },
+  "oeis-a185943": {
+   "date": "2026-11-28",
+   "pr": 21522,
+   "evidence": [
+    "https://oeis.org/A185943",
+    "https://oeis.org/A014140",
+    "https://oeis.org/A014143"
+   ],
+   "reason": "Mathar's 'conjecture' follows almost from the definitions. Column 1 of the Riordan array is x*C(x)/(1-x)^2, which is the definition of A014140 (Catalan numbers partial-summed twice) shifted by one. Column 2 is x^2*C(x)^2/(1-x)^2, and with C = 1 + x*C^2 this is A014143 shifted by two. The statement is faithful, and the numerics agree with the data; the flag is for triviality only."
   }
  },
  "known": {
@@ -11462,6 +11472,14 @@
     "https://oeis.org/A021011"
    ],
    "reason": "Ekhad, Sloane and Zeilberger (2016) state Theorem 91 for the Pisot sequence (6,11) with parameter 1/2, with a proof: a(n) = 2a(n-1) - a(n-2) + a(n-3) + a(n-6) for all n. This is exactly Stephan's conjectured denominator. Their proof bounds c(n) by A*0.9728^n but leaves the constant A undetermined; the Lean proof supplies a rigorous version (a quadratic-form bound from n=30). The round-half-down rule of A021011 and the floor(x+1/2) rule give identical terms (checked to 3000), and the statement is faithful; this is not a new result."
+  },
+  "oeis-a158460": {
+   "date": "2026-11-28",
+   "pr": 21893,
+   "evidence": [
+    "https://oeis.org/A158460"
+   ],
+   "reason": "The entry itself proves the last-digit claim in the comment right after the conjecture ('This is so because ...': squares mod 10, then p+6 prime rules out a final digit 9). The remaining twin step is immediate (p+4 is a multiple of 5, so prime(k) = p+2). The formalization is faithful, but the claim is a trivial observation that the source already settles."
   }
  },
  "reviewed": "2026-11-28"
