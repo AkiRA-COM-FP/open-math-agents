@@ -32,16 +32,17 @@ private theorem xor_weight (a b : ℕ) : (Nat.digits 2 (a ^^^ b)).count 1 % 2 = 
 /-- Folding the two halves with xor preserves the parity and halves the bit width. -/
 private theorem fold_certificate (i n : ℕ) (h :
     (Nat.rec (motive := fun _ => ℕ → ℕ) (fun v => (Nat.digits 2 v).count 1 % 2)
-      (fun j f v => let base := 2^(8 * 2^j); f ((v / base) ^^^ (v % base))) i n) = 0) :
+      (fun j f v => let base := (1 : ℕ) <<< (8 * 2^j); f ((v / base) ^^^ (v % base))) i n) = 0) :
     (Nat.digits 2 n).count 1 % 2 = 0 := by
   let count := Nat.rec (motive := fun _ => ℕ → ℕ) (fun v => (Nat.digits 2 v).count 1 % 2)
-      (fun j f v => let base := 2^(8 * 2^j); f ((v / base) ^^^ (v % base)))
+      (fun j f v => let base := (1 : ℕ) <<< (8 * 2^j); f ((v / base) ^^^ (v % base)))
   have spec (j v : ℕ) : count j v = (Nat.digits 2 v).count 1 % 2 := by
     induction j generalizing v with
     | zero => rfl
     | succ j ih =>
       let w := 8*2^j
-      change count j ((v / 2^w) ^^^ (v % 2^w)) = _
+      change count j ((v / (1 <<< w)) ^^^ (v % (1 <<< w))) = _
+      rw [Nat.shiftLeft_eq, Nat.one_mul]
       rw [ih,xor_weight]
       have hh := count_ones_append (v / 2^w) w (v%2^w) (Nat.mod_lt _ (by positivity))
       rw [Nat.div_add_mod'] at hh
