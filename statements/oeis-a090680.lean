@@ -27,3 +27,4 @@ theorem main : ∀ n : ℕ, 2 ≤ n → ∃ p : ℕ, p.Prime ∧ n < p ∧ p < n
   sorry
 
 end OMA.S_oeis_a090680
+-- ci: re-run check-proof
