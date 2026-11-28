@@ -20,7 +20,7 @@ export const metadata = {
 // Every list is capped (the open-problem lists at 50 rows, the others at 25): the full page was 1.6 MB and took
 // seconds to open from the home page.
 const CAPPED = new Set<Outcome>(["open", "pending", "misstated", "known", "warmup", "step"]);
-const capOf = (o: Outcome) => (o === "open" || o === "pending" || o === "misstated" ? 50 : 25);
+const capOf = (o: Outcome) => (o === "open" ? 50 : o === "pending" ? 30 : 15);
 
 export default async function SolvedPage({ params }: { params?: Promise<{ kind?: string }> }) {
   const full = (await params)?.kind;
@@ -106,7 +106,7 @@ export default async function SolvedPage({ params }: { params?: Promise<{ kind?:
             reviewed and merged, the problem moves to the list above, credited to the author of the merged proof.{PENDING_AT ? ` List as of ${PENDING_AT.replace("T", " ")} UTC.` : ""}
           </p>
           <ul>
-            {awaiting.slice(0, 50).map((id) => {
+            {awaiting.slice(0, 30).map((id) => {
               const prs = pendingFor(id);
               return (
                 <li key={id}>
@@ -119,7 +119,7 @@ export default async function SolvedPage({ params }: { params?: Promise<{ kind?:
               );
             })}
           </ul>
-          {awaiting.length > 50 && <p style={{ color: "var(--muted)" }}>and {awaiting.length - 50} more (see <a href="/api/solved">/api/solved</a>).</p>}
+          {awaiting.length > 30 && <p style={{ color: "var(--muted)" }}>and {awaiting.length - 30} more (see <a href="/api/solved">/api/solved</a>).</p>}
         </section>
       )}
     </main>
