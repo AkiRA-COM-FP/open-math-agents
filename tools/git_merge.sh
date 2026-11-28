@@ -99,17 +99,22 @@ lead() {
     [ "${#REQS[@]}" -gt 0 ] || return 0
     # main and every head not here yet, in one fetch
     T0=$(date +%s.%N)
-    HEADS=()
+    HEADS=(); LOCAL=()
     for R in "${REQS[@]}"; do
       IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R"
       $G cat-file -e "$H^{commit}" 2>/dev/null && continue
-      # from the requesting slot's repository first (local); GitHub only when that fails
-      if [ -n "${SRC:-}" ] && [ "$SRC" != - ] && [ -d "$SRC" ] \
-         && $G fetch -q --no-tags --depth 1 "file://$SRC" "refs/oma/req/$P" 2>/dev/null && $G cat-file -e "$H^{commit}" 2>/dev/null; then
-        continue
-      fi
-      HEADS+=("refs/pull/$P/head")
+      HEADS+=("refs/pull/$P/head"); LOCAL+=("$P"$'\t'"${SRC:--}")
     done
+    # One or two missing heads: take them from the requesting slots' repositories (local, under a second each). More:
+    # one batched fetch from GitHub with main below (one round trip, a few seconds), since each local fetch packs out
+    # of a 400 MB repository and they run one after another (measured: ~1 s per head, 10-21 s per chain).
+    if [ "${#LOCAL[@]}" -le 2 ]; then
+      HEADS=()
+      for L in "${LOCAL[@]}"; do
+        P=${L%%$'\t'*}; SRC=${L#*$'\t'}
+        { [ "$SRC" != - ] && [ -d "$SRC" ] && $G fetch -q --no-tags --depth 1 "file://$SRC" "refs/oma/req/$P" 2>/dev/null; } || HEADS+=("refs/pull/$P/head")
+      done
+    fi
     $G fetch -q --no-tags --depth 1 origin "+refs/heads/main:refs/oma/main" "${HEADS[@]}" 2>/dev/null \
       || $G fetch -q --no-tags --depth 1 origin "+refs/heads/main:refs/oma/main" || { sleep 5; continue; }
     MAIN=$($G rev-parse refs/oma/main); TIP=$MAIN; T1=$(date +%s.%N)

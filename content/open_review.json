@@ -1110,15 +1110,6 @@
    ],
    "note": "Barker's recurrence and g.f. for a convolution recurrence with periodic weights (k mod 5). The definition matches the data. A rational g.f. identity. Routine."
   },
-  "oeis-a262826": {
-   "date": "2026-11-28",
-   "pr": 13108,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A262826"
-   ],
-   "note": "v2(a(n)) = n + v2(n), because the d=n term has 2-adic valuation n + v2(n) and every other divisor term has exponent n^2/d >= 2n > n + v2(n). Trivial."
-  },
   "oeis-a266251": {
    "date": "2026-11-28",
    "pr": 10277,
@@ -4294,16 +4285,6 @@
     "https://mathoverflow.net/questions/184507"
    ],
    "note": "Cheritat's 2014 question asks whether L(y) = int_0^1 sqrt(1+f_x(x,y)^2) dx is C^1 for every C^1 f on [0,1]^2. The statement encodes this with derivatives within the closed square, and the disproof builds an explicit C^1 f (sine bands accumulating at y = 1/2) with L not differentiable there. The MO question has 0 answers, its comments only discuss the title's surface version, and the asker says the earlier MSE post got no answer. A genuine answer by moderately elementary real analysis."
-  },
-  "mo-393843": {
-   "date": "2026-11-28",
-   "pr": 17739,
-   "routine": true,
-   "evidence": [
-    "https://mathoverflow.net/questions/393843",
-    "https://mathoverflow.net/questions/108726"
-   ],
-   "note": "The question asks whether S_{d,H} (degree-d integer divisors of some nonzero f with height <= H, deg f unrestricted) is finite and for a bound on H(g). The statement is that question with the explicit bound H(H+1)^d 2^d. This follows from the classical facts that lc(g) divides lc(f), so |lc(g)| <= H, and that every root of f has |z| < H+1 (Cauchy bound), then Vieta. The only MO answer points to a Gelfond bound that depends on deg f, so the question had no posted complete answer. The result is elementary."
   },
   "arxiv-2008.08020": {
    "date": "2026-11-28",
@@ -10427,6 +10408,25 @@
     "https://arxiv.org/abs/math/0211213"
    ],
    "reason": "Second review: The proof is valid, but the conjecture was already settled in substance by PermPAL's automatically generated and verified specification for Av(1342,13254) (Jan 2022), whose g.f. equals A098746's. It is new only as a human/Lean-readable proof. Also a near-duplicate of the Burstein half of oeis-a001764."
+  },
+  "oeis-a262826": {
+   "date": "2026-11-28",
+   "pr": 13108,
+   "evidence": [
+    "https://oeis.org/A262826",
+    "https://doi.org/10.5281/zenodo.23940707",
+    "https://www.researchgate.net/publication/417445146_Exact_p-Adic_Arithmetic_of_Weighted_Exponential_Series_and_Divisor-Sum_Euler_Products"
+   ],
+   "reason": "Second review: The conjecture was proved by Lien-Hung Su in a preprint of 4 Nov 2026 (Theorem 4.1: the term d=n is the unique minimal-valuation term), and the OEIS entry links that paper. The site's Lean proof formalizes a known result, so this is not a new solve, even though the entry still says 'Conjecture'."
+  },
+  "mo-393843": {
+   "date": "2026-11-28",
+   "pr": 17739,
+   "evidence": [
+    "https://mathoverflow.net/questions/393843",
+    "https://mathoverflow.net/questions/108726/getting-a-bound-on-the-coefficients-of-the-factor-polynomial"
+   ],
+   "reason": "Second review: Previously settled: the exact bound and finiteness appear in a 2012 MathOverflow answer (MO 108726), to which this question's own answer points. The Lean proof is a correct formalization of a known result, not a new solve."
   }
  },
  "reviewed": "2026-11-28"
