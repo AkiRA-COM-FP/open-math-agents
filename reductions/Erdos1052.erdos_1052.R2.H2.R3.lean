@@ -354,6 +354,12 @@ private theorem omega_mono {x y : ℕ} (hy : y ≠ 0) (hd : x ∣ y) :
   rw [cardFactors_mul (left_ne_zero_of_mul hy) (right_ne_zero_of_mul hy)]
   omega
 
+private theorem product_valuation (S : Finset ℕ) (hp : ∀ q ∈ S, q.Prime) (p : ℕ) :
+    (∏ q ∈ S, q).factorization p = if p∈S then 1 else 0 := by
+  rw [Nat.factorization_prod (fun q hq => (hp q hq).ne_zero), Finsupp.finsetSum_apply]
+  rw [Finset.sum_congr rfl (fun q hq => by rw [(hp q hq).factorization, Finsupp.single_apply])]
+  exact Finset.sum_ite_eq' S p _
+
 /-- The number of shifts divisible by a given prime is limited by its supply in c and S. -/
 theorem demand_budget {c : ℕ} {S : Finset ℕ} {d : ℕ → ℕ} (hc : c ≠ 0)
     (hp : ∀ q ∈ S, q.Prime) (hd : ∀ q ∈ S, d q ≠ 0)
@@ -364,7 +370,7 @@ theorem demand_budget {c : ℕ} {S : Finset ℕ} {d : ℕ → ℕ} (hc : c ≠ 0
   have hD := Finset.prod_ne_zero_iff.mpr hd
   have val := (Nat.factorization_le_iff_dvd hD (mul_ne_zero hc hS)).mpr balance p
   rw [Nat.factorization_mul hc hS, Finsupp.add_apply,
-    OMA.R_Erdos1052_erdos_1052_R2.CoreBounds.squarefree_product_valuation S hp,
+    product_valuation S hp,
     Nat.factorization_prod hd, Finsupp.finsetSum_apply] at val
   apply le_trans _ val
   rw [Finset.card_filter]
