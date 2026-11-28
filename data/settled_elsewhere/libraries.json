@@ -2310,6 +2310,81 @@
    "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A298002 (L = 3+sqrt5), sup = 3.868 < 4, so the conjecture holds. My brute force to 10^6 agrees.",
    "source": "https://doi.org/10.5281/zenodo.23125012",
    "date": "2026-11-28"
+  },
+  "oeis-a368628": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368628.lean `conjecture`: Odd a(n) iff n=(4^k-1)/3, same as Hanna's parity conjecture; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs), PROOF.md + A368628.lean.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368629": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368629.lean `conjecture`: Odd a(n) iff n=2^k-1, matching statements/oeis-a368629.lean; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368634": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368634.lean `conjecture`: Odd a(n) iff n=2^k-1 for A(x)=1+x(3A(x)^2-A(-x)^2)/2; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a185895": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 185895.lean solves all three Bala conjectures the site lists: sign changes at triangular n for a(n) (conjecture_1, epoch-research LeanOpenProblems-results run) and for A(x)^2 (conjecture_2, github kei825/oeis-a185895-conjecture2), plus the Gauss congruences (conjecture_3, github KitaKen1/oeis-a185895-conjecture3).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a102722": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 102722.lean `conjecture`: a(n) ~ (1-gamma)n, the same statement; Lean proof at github KitaKen1/oeis-102722-asymptotic. This is also a classical Dirichlet-type estimate.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a100434": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: Dement's conjectures (on OEIS: c+d = e+f = g+a and c+d = b) are FC 100434.lean conjecture1-3 (c+d=b, e+f=b, g+a=b); Lean proof at github chy4pro/formal-conjectures. FC fixed the sign of b(2n) (FC issue 5025), because the literal OEIS definition already fails at n=0.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a397588": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 397588.lean `conjecture_parity`: for n>=1, a(n) is odd iff n is a power of 2, matching statements/oeis-a397588.lean (FC also proves 3 | a(n)); Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a093456": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: Disproved. FC 93456.lean `conjecture` proves that the set of n with a(n-1) not dividing a(n) is infinite, the negation of the site's 'finitely many'; Lean proof in epoch-research/LeanOpenProblems-results (run oeis-full-50usd-ant).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368633": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368633.lean `conjecture_1`: Odd a(n) iff n+1=2^k. This is exactly the site statement, and statements/oeis-a368633.lean explicitly leaves out the D-finite recurrence. Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a103885": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 103885.lean `conjecture` proves Bala's general recurrence for b(n)=a(mn): P and Q of degree 2m, P(n)=P(1-n) with real zeros in [0,1], and the zeros of Q(n^2) real in [-1,1]. Only the heuristic 'approximated by ±k/(3m)' remark is left out. Lean proof in epoch-research/LeanOpenProblems-results (oeis-lite run).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368626": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368626.lean `conjecture`: Odd a(n) iff n=2^k-1, matching statements/oeis-a368626.lean; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a112970": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 112970.lean proves every part: a(2^n)=a(2^(n+1)+1), a(2^n)=floor(n^2/4)+1=A033638(n), a(2^n-1)=a(3*2^n-1) and a(2^n-1)=1. Lean proofs at github KitaKen1/oeis-a112970-formal-conjectures and anatoliiohorodnyk/lean-fc-proofs.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a381355": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 381355.lean `conjecture`: prime(n) | a(n) for n>1, same as statements/oeis-a381355.lean; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a112521": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 112521.lean `conjecture`: a(n)=T(n,n) for n>=1, the same diagonal-of-array conjecture; Lean proof at github KitaKen1/oeis-a112521-formal-conjectures.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368635": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368635.lean `conjecture`: Odd a(n) iff n=2^k-1, matching statements/oeis-a368635.lean; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
   }
  }
 }
