@@ -9,6 +9,8 @@ a step nonzero modulo five forces a multiple of five. Among the first two terms,
 a step odd modulo two forces an even term. The same obstructions apply when
 the first term is divisible by the respective prime. The two remaining cases
 are all-odd progressions and progressions that hit an even term but avoid five.
+In either case, an even number of decimal digits forces a multiple of eleven
+among the first eleven terms.
 
 Source: https://math.stackexchange.com/questions/3206134
 -/
@@ -73,22 +75,55 @@ theorem palindrome_residues {n a d : ℕ} (hn : 5 ≤ n) (ha : 0 < a)
     (by decide : Nat.Coprime 2 5).mul_dvd_of_dvd_of_dvd htwo hfiv
   exact not_palindrome_of_ten_dvd (Finset.prod_pos fun i _ => by omega) hten hpal
 
+private theorem prime_dvd_progression_factor {p a d n : ℕ} (hp : p.Prime)
+    (hprod : p ∣ ∏ j ∈ Finset.range n, (a + j * d)) :
+    ∃ i < n, p ∣ a + i * d := by
+  induction n with
+  | zero => exact (hp.not_dvd_one (by simpa using hprod)).elim
+  | succ n ih =>
+    rw [Finset.prod_range_succ] at hprod
+    rcases hp.dvd_mul.mp hprod with hbefore | hlast
+    · obtain ⟨i, hi, hdiv⟩ := ih hbefore
+      exact ⟨i, hi.trans (Nat.lt_succ_self n), hdiv⟩
+    · exact ⟨n, Nat.lt_succ_self n, hlast⟩
+
+/-- An even-digit palindromic product has a multiple of eleven among the first
+eleven terms of the progression, or earlier if the progression is shorter. -/
+theorem eleven_hit {n a d : ℕ}
+    (hpal : IsPalindrome (∏ j ∈ Finset.range n, (a + j * d)))
+    (hlen : Even (Nat.digits 10 (∏ j ∈ Finset.range n, (a + j * d))).length) :
+    ∃ i < min n 11, 11 ∣ a + i * d := by
+  have hprod := Nat.eleven_dvd_of_palindrome (List.Palindrome.of_reverse_eq hpal) hlen
+  obtain ⟨i, hi', hd⟩ := prime_dvd_progression_factor (by decide : Nat.Prime 11) hprod
+  have hmod : i % 11 < min n 11 :=
+    lt_min ((Nat.mod_le i 11).trans_lt hi') (Nat.mod_lt _ (by decide))
+  have hres : a + (i % 11) * d ≡ a + i * d [MOD 11] :=
+    ((Nat.mod_modEq i 11).mul_right d).add_left a
+  unfold Nat.ModEq at hres
+  exact ⟨i % 11, hmod, Nat.dvd_of_mod_eq_zero (hres.trans (Nat.mod_eq_zero_of_dvd hd))⟩
+
 /-- The remaining case in which every term of the progression is odd. -/
 def H1 : Prop :=
   ∀ n a d : ℕ, 6 ≤ n → 1 ≤ a → 1 ≤ d → a % 2 = 1 → d % 2 = 0 →
+    (Even (Nat.digits 10 (∏ i ∈ range n, (a + i * d))).length →
+      ∃ i < min n 11, 11 ∣ a + i * d) →
     ¬ IsPalindrome (∏ i ∈ range n, (a + i * d))
 
 /-- The remaining case in which an even term occurs and every term is coprime to five. -/
 def H2 : Prop :=
   ∀ n a d : ℕ, 6 ≤ n → 1 ≤ a → 1 ≤ d → (a % 2 = 0 ∨ d % 2 = 1) →
-    a % 5 ≠ 0 → d % 5 = 0 → ¬ IsPalindrome (∏ i ∈ range n, (a + i * d))
+    a % 5 ≠ 0 → d % 5 = 0 →
+    (Even (Nat.digits 10 (∏ i ∈ range n, (a + i * d))).length →
+      ∃ i < min n 11, 11 ∣ a + i * d) →
+    ¬ IsPalindrome (∏ i ∈ range n, (a + i * d))
 
 theorem main : H1 → H2 → type_of% @OMA.S_mse_3206134.main := by
   intro h₁ h₂ n a d hn ha hd hpal
+  have h11 := eleven_hit hpal
   by_cases ho : a % 2 = 1 ∧ d % 2 = 0
-  · exact h₁ n a d hn ha hd ho.1 ho.2 hpal
+  · exact h₁ n a d hn ha hd ho.1 ho.2 h11 hpal
   · rcases palindrome_residues (by omega) (by omega) hpal with h | ⟨ha5, hd5⟩
     · exact ho h
-    · exact h₂ n a d hn ha hd (by omega) ha5 hd5 hpal
+    · exact h₂ n a d hn ha hd (by omega) ha5 hd5 h11 hpal
 
 end OMA.R_mse_3206134_R1
