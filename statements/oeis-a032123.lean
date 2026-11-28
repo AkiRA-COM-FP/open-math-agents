@@ -6,7 +6,8 @@ import Mathlib
 Source: https://oeis.org/A032123
 Credit: @ivillar
 
-Status: recorded in the entry as a conjecture; no proof or verification is noted there.
+Status: known result. The links of the entry record a proof: Tong Niu, A short proof of Mathar's 2013
+recurrence conjecture for the reversible-binary-string sequence A032123, arXiv:2605.14213, 2026.
 
 A032123 (offset 0): number of 2n-bead black-white reversible strings with n black beads;
 data 1, 1, 4, 10, 38, 126, 472, 1716, 6470, 24310, 92504, 352716, ...
