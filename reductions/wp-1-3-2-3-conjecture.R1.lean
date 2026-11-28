@@ -9,6 +9,7 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (¬ ∀ x y : P, x ≤ y ∨ y ≤ x) →
     (¬ ∃ L : Set P, L.Nonempty ∧ (∃ y, y ∉ L) ∧
       ∀ x ∈ L, ∀ y ∉ L, x < y) →
+    (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ a b c : P, (¬ a ≤ b ∧ ¬ b ≤ a) ∧ (¬ a ≤ c ∧ ¬ c ≤ a) ∧ (¬ b ≤ c ∧ ¬ c ≤ b)) →
     (∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ 6) →
     let ext : Finset (P ≃ Fin (Fintype.card P)) := by
@@ -22,6 +23,7 @@ def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (¬ ∀ x y : P, x ≤ y ∨ y ≤ x) →
     (¬ ∃ L : Set P, L.Nonempty ∧ (∃ y, y ∉ L) ∧
       ∀ x ∈ L, ∀ y ∉ L, x < y) →
+    (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ a b c : P, (¬ a ≤ b ∧ ¬ b ≤ a) ∧ (¬ a ≤ c ∧ ¬ c ≤ a) ∧ (¬ b ≤ c ∧ ¬ c ≤ b)) →
     (∃ x : P, 7 ≤ ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard) →
     let ext : Finset (P ≃ Fin (Fintype.card P)) := by
@@ -779,6 +781,100 @@ lemma width_two (P : Type) [PartialOrder P] [Fintype P]
   have posq : (0 : ℚ) < ranks.card := by exact_mod_cast pos
   refine ⟨x, y, ne, (le_div_iff₀ posq).2 ?_, (div_le_iff₀ posq).2 ?_⟩ <;> linarith
 
+-- A finite strict total order is rigid: each element is determined by the
+-- number of elements preceding it. The order can differ from the input order.
+lemma fixed_of_preserves_total {P : Type} [Fintype P] (R : P → P → Prop)
+    (irrefl : ∀ x, ¬ R x x) (transitive : ∀ {x y z}, R x y → R y z → R x z)
+    (total : ∀ x y, x ≠ y → R x y ∨ R y x) (e : P ≃ P)
+    (preserves : ∀ x y, R x y ↔ R (e x) (e y)) : ∀ x, e x = x := by
+  classical
+  let pred (x : P) := Finset.univ.filter (fun z => R z x)
+  have increases {x y : P} (h : R x y) : (pred x).card < (pred y).card := by
+    have sub : pred x ⊆ pred y := by
+      intro z hz
+      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, transitive (Finset.mem_filter.mp hz).2 h⟩
+    apply Finset.card_lt_card ((Finset.ssubset_iff_of_subset sub).2 ?_)
+    exact ⟨x, Finset.mem_filter.mpr ⟨Finset.mem_univ _, h⟩,
+      fun hx => irrefl x (Finset.mem_filter.mp hx).2⟩
+  intro x
+  have same : (pred x).card = (pred (e x)).card := Finset.card_equiv e (by
+    intro z
+    simpa only [pred, Finset.mem_filter, Finset.mem_univ, true_and] using preserves z x)
+  by_contra ne
+  rcases total (e x) x ne with h | h
+  · exact (increases h).ne same.symm
+  · exact (increases h).ne same
+
+-- Pouzet's symmetry argument. Without a balanced pair, the more-than-two-thirds
+-- comparisons form a strict total order preserved by every poset automorphism.
+lemma automorphism_balanced (P : Type) [PartialOrder P] [Fintype P]
+    (moves : ∃ (e : P ≃o P) (x : P), e x ≠ x) :
+    let ext : Finset (P ≃ Fin (Fintype.card P)) := by
+      classical
+      exact Finset.univ.filter (fun r => StrictMono r)
+    ∃ x y : P, x ≠ y ∧
+      let p := ((ext.filter (fun r => r x < r y)).card : ℚ) / ext.card
+      1 / 3 ≤ p ∧ p ≤ 2 / 3 := by
+  classical
+  intro ext
+  let before (a b : P) := ext.filter (fun r => r a < r b)
+  let R (a b : P) := 2 * ext.card < 3 * (before a b).card
+  obtain ⟨r, hr⟩ := rank_exists P
+  have pos : 0 < ext.card := Finset.card_pos.mpr ⟨r, Finset.mem_filter.mpr ⟨Finset.mem_univ _, hr⟩⟩
+  have posq : (0 : ℚ) < ext.card := by exact_mod_cast pos
+  have partition (a b : P) (ne : a ≠ b) :
+      (before a b).card + (before b a).card = ext.card := by
+    have flip : before b a = ext.filter (fun r => ¬ r a < r b) := by
+      apply Finset.filter_congr
+      intro f _
+      exact ⟨fun h => not_lt_of_gt h, fun h => lt_of_le_of_ne (le_of_not_gt h) (f.injective.ne ne.symm)⟩
+    rw [flip]
+    exact Finset.card_filter_add_card_filter_not _
+  have triangle (a b c : P) : (before a b).card ≤ (before a c).card + (before c b).card := by
+    apply le_trans (Finset.card_le_card ?_) (Finset.card_union_le (before a c) (before c b))
+    intro f hf
+    obtain ⟨he, hab⟩ := Finset.mem_filter.mp hf
+    rcases lt_or_ge (f a) (f c) with hac | hca
+    · exact Finset.mem_union_left _ (Finset.mem_filter.mpr ⟨he, hac⟩)
+    · exact Finset.mem_union_right _ (Finset.mem_filter.mpr ⟨he, lt_of_le_of_lt hca hab⟩)
+  by_contra noPair
+  have dichotomy (a b : P) : 3 * (before a b).card < ext.card ∨ R a b := by
+    by_cases eq : a = b
+    · subst b
+      left
+      simpa [before] using pos
+    by_contra! both
+    apply noPair
+    have lo : (ext.card : ℚ) ≤ 3 * ((before a b).card : ℚ) := by exact_mod_cast both.1
+    have upper : 3 * (before a b).card ≤ 2 * ext.card := Nat.le_of_not_lt both.2
+    have hi : 3 * ((before a b).card : ℚ) ≤ 2 * (ext.card : ℚ) := by exact_mod_cast upper
+    refine ⟨a, b, eq, (le_div_iff₀ posq).2 ?_, (div_le_iff₀ posq).2 ?_⟩ <;> linarith
+  have irrefl (a : P) : ¬ R a a := by simp [R, before]
+  have total (a b : P) (ne : a ≠ b) : R a b ∨ R b a := by
+    rcases dichotomy a b with h | h
+    · right
+      have := partition a b ne
+      dsimp only [R]
+      omega
+    · exact Or.inl h
+  have transitive {a b c : P} (ab : R a b) (bc : R b c) : R a c := by
+    have ne : b ≠ c := fun eq => irrefl c (eq ▸ bc)
+    have sum := partition b c ne
+    have cover := triangle a b c
+    rcases dichotomy a c with small | large
+    · dsimp only [R] at ab bc
+      omega
+    · exact large
+  obtain ⟨e, x, moved⟩ := moves
+  have invariant (a b : P) : R a b ↔ R (e a) (e b) := by
+    have ratio := count_transport e a b
+    change ((before a b).card : ℚ) / ext.card = ((before (e a) (e b)).card : ℚ) / ext.card at ratio
+    have counts : (before a b).card = (before (e a) (e b)).card := by
+      exact_mod_cast (div_left_inj' posq.ne').mp ratio
+    dsimp only [R]
+    rw [counts]
+  exact moved (fixed_of_preserves_total R irrefl transitive total e.toEquiv invariant x)
+
 theorem main : H1 → H2 → type_of% @OMA.S_wp_1_3_2_3_conjecture.main := by
   classical
   intro thinCase remaining P _ _ nonchain
@@ -805,10 +901,13 @@ theorem main : H1 → H2 → type_of% @OMA.S_wp_1_3_2_3_conjecture.main := by
       have three : ∃ i j k : Q,
           (¬ i ≤ j ∧ ¬ j ≤ i) ∧ (¬ i ≤ k ∧ ¬ k ≤ i) ∧ (¬ j ≤ k ∧ ¬ k ≤ j) :=
         ⟨a, b, c, ⟨ab, ba⟩, ⟨ac, ca⟩, bc, cb⟩
-      by_cases thin : ∀ x : Q, ({y : Q | ¬ x ≤ y ∧ ¬ y ≤ x} : Set Q).ncard ≤ 6
-      · exact thinCase Q hn hi three thin
-      · obtain ⟨x, hx⟩ := not_forall.mp thin
-        exact remaining Q hn hi three ⟨x, by omega⟩
+      by_cases rigid : ∀ (e : Q ≃o Q) (x : Q), e x = x
+      · by_cases thin : ∀ x : Q, ({y : Q | ¬ x ≤ y ∧ ¬ y ≤ x} : Set Q).ncard ≤ 6
+        · exact thinCase Q hn hi rigid three thin
+        · obtain ⟨x, hx⟩ := not_forall.mp thin
+          exact remaining Q hn hi rigid three ⟨x, by omega⟩
+      · simp only [not_forall] at rigid
+        exact automorphism_balanced Q rigid
   obtain ⟨x, y, hxy, hbounds⟩ := core S hS hcut
   have eqProb := (hprob x y).trans (count_transport e x.val y.val)
   exact ⟨e x.val, e y.val, fun h => hxy (Subtype.ext (e.injective h)),
