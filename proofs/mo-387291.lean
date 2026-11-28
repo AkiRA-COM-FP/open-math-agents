@@ -254,12 +254,6 @@ variable [NormedAddCommGroup Y] [NormedSpace ℝ Y]
 omit [NormedSpace ℝ X] in
 @[simp] theorem UnitSphere.norm_coe (x : UnitSphere X) : ‖(x : X)‖ = 1 := x.property
 
-omit [NormedSpace ℝ X] in
-theorem UnitSphere.coe_ne_zero (x : UnitSphere X) : (x : X) ≠ 0 := by
-  intro h
-  have hx := x.property
-  simp [h] at hx
-
 @[simp] theorem normalize_coe (x : X) (hx : x ≠ 0) :
     (normalize x hx : X) = ‖x‖⁻¹ • x := rfl
 
@@ -371,12 +365,6 @@ theorem maxDefect_nonneg [Nonempty (UnitSphere X)]
     (f : UnitSphere X ≃ᵢ UnitSphere Y) : 0 ≤ maxDefect f :=
   le_csSup (absoluteDefects_bddAbove f) (zero_mem_absoluteDefects f)
 
-theorem maxDefect_le_one [Nonempty (UnitSphere X)]
-    (f : UnitSphere X ≃ᵢ UnitSphere Y) : maxDefect f ≤ 1 := by
-  apply csSup_le ⟨0, zero_mem_absoluteDefects f⟩
-  rintro d ⟨q, hq, x, y, rfl⟩
-  exact signedDefect_abs_le_one f hq x y
-
 theorem absoluteDefects_symm (f : UnitSphere X ≃ᵢ UnitSphere Y) :
     absoluteDefects f.symm = absoluteDefects f := by
   ext d
@@ -480,14 +468,6 @@ namespace RealSeqBounded
 
 variable {f g : ℕ → ℝ}
 
-theorem exists_nonneg_bound (hf : RealSeqBounded f) :
-    ∃ B : ℝ, 0 ≤ B ∧ ∀ n, |f n| ≤ B := by
-  obtain ⟨B, hB⟩ := hf
-  exact ⟨B, (abs_nonneg (f 0)).trans (hB 0), hB⟩
-
-theorem const (c : ℝ) : RealSeqBounded (fun _ : ℕ => c) :=
-  ⟨|c|, fun _ => le_rfl⟩
-
 theorem add (hf : RealSeqBounded f) (hg : RealSeqBounded g) :
     RealSeqBounded (fun n => f n + g n) := by
   obtain ⟨B, hB⟩ := hf
@@ -551,10 +531,6 @@ theorem realULim_add (U : Ultrafilter ℕ) (hf : RealSeqBounded f)
     realULim U (fun n => f n + g n) = realULim U f + realULim U g :=
   realULim_eq_of_tendsto U ((tendsto_realULim U hf).add (tendsto_realULim U hg))
 
-theorem realULim_neg (U : Ultrafilter ℕ) (hf : RealSeqBounded f) :
-    realULim U (fun n => -f n) = -realULim U f :=
-  realULim_eq_of_tendsto U (tendsto_realULim U hf).neg
-
 theorem realULim_sub (U : Ultrafilter ℕ) (hf : RealSeqBounded f)
     (hg : RealSeqBounded g) :
     realULim U (fun n => f n - g n) = realULim U f - realULim U g :=
@@ -578,34 +554,17 @@ theorem realULim_le_of_eventually_le (U : Ultrafilter ℕ) (hf : RealSeqBounded 
     {c : ℝ} (h : ∀ᶠ n in (U : Filter ℕ), f n ≤ c) : realULim U f ≤ c :=
   le_of_tendsto (tendsto_realULim U hf) h
 
-theorem le_realULim_of_eventually_le (U : Ultrafilter ℕ) (hf : RealSeqBounded f)
-    {c : ℝ} (h : ∀ᶠ n in (U : Filter ℕ), c ≤ f n) : c ≤ realULim U f := by
-  have hlim := realULim_le_realULim U (RealSeqBounded.const c) hf h
-  simpa only [realULim_const] using hlim
-
 /-- The actual free ultrafilter used for the bounded-sequence quotient. -/
 def freeUltrafilter : Ultrafilter ℕ := Filter.hyperfilter ℕ
 
-theorem freeUltrafilter_le_cofinite :
-    (freeUltrafilter : Filter ℕ) ≤ Filter.cofinite :=
-  Filter.hyperfilter_le_cofinite
-
 theorem freeUltrafilter_le_atTop : (freeUltrafilter : Filter ℕ) ≤ Filter.atTop :=
   Nat.hyperfilter_le_atTop
-
-theorem not_mem_freeUltrafilter_of_finite {s : Set ℕ} (hs : s.Finite) :
-    s ∉ freeUltrafilter :=
-  Filter.notMem_hyperfilter_of_finite hs
 
 /-- Ordinary sequential convergence also holds along the fixed free ultrafilter. -/
 theorem tendsto_freeUltrafilter_of_tendsto_atTop {α : Type*} [TopologicalSpace α]
     {a : ℕ → α} {x : α} (h : Tendsto a atTop (𝓝 x)) :
     Tendsto a (freeUltrafilter : Filter ℕ) (𝓝 x) :=
   h.mono_left freeUltrafilter_le_atTop
-
-theorem realULim_freeUltrafilter_eq_of_tendsto_atTop {a : ℝ}
-    (h : Tendsto f atTop (𝓝 a)) : realULim freeUltrafilter f = a :=
-  realULim_eq_of_tendsto freeUltrafilter (tendsto_freeUltrafilter_of_tendsto_atTop h)
 
 end Tingley
 
@@ -740,9 +699,6 @@ instance instNormedSpace : NormedSpace ℝ (UltraSequence U X) where
   norm_smul_le r a := (ultranorm_smul r a).le
 
 variable {X U}
-
-theorem norm_eq_realULim (a : UltraSequence U X) :
-    ‖a‖ = realULim U (fun n => ‖a n‖) := rfl
 
 /-- Constant bounded sequences. -/
 def constant (U : Ultrafilter ℕ) (x : X) : UltraSequence U X :=
@@ -1329,13 +1285,6 @@ theorem HasDefectBound.completedSphereEquiv {f : UnitSphere E ≃ᵢ UnitSphere 
     (sphereCoe_denseRange E) hclosed
     (fun a b => by simpa only [signedDefect_completedSphereEquiv_coe] using h q hq a b) x y
 
-/-- An attained signed defect remains attained at the same embedded points and scalar. -/
-theorem attainedDefect_completedSphereEquiv (f : UnitSphere E ≃ᵢ UnitSphere F)
-    {q M : ℝ} {x y : UnitSphere E} (h : signedDefect f q x y = M) :
-    signedDefect (completedSphereEquiv f) q (sphereCoe E x) (sphereCoe E y) = M := by
-  rw [signedDefect_completedSphereEquiv_coe]
-  exact h
-
 end Tingley
 
 end
@@ -1766,12 +1715,6 @@ theorem rRadius_bounds (v : UnitSphere X) :
 theorem rRadius_pos (v : UnitSphere X) : 0 < rRadius f y t ht v :=
   (sub_pos.mpr ht.2).trans_le (rRadius_bounds f y t ht v).1
 
-theorem radii_pos (v : UnitSphere X) :
-    0 < pRadius f y t ht v ∧ 0 < sRadius f y t ht v ∧
-      0 < uRadius f y t ht v ∧ 0 < rRadius f y t ht v :=
-  ⟨pRadius_pos f y t ht v, sRadius_pos f y t ht v,
-    uRadius_pos f y t ht v, rRadius_pos f y t ht v⟩
-
 theorem radii_bounds (v : UnitSphere X) :
     pRadius f y t ht v ∈ Set.Icc (1 - t) (1 + t) ∧
       sRadius f y t ht v ∈ Set.Icc (1 - t) (1 + t) ∧
@@ -1815,9 +1758,6 @@ theorem norm_xPoint_sub_center (v : UnitSphere X) :
     ‖(xPoint f y t ht v : X) - t • (y : X)‖ = pRadius f y t ht v := by
   rw [xPoint_eq, add_sub_cancel_left, norm_smul,
     Real.norm_of_nonneg (pRadius_pos f y t ht v).le, v.property, mul_one]
-
-theorem norm_fxPoint_sub_center (v : UnitSphere X) :
-    ‖(f (xPoint f y t ht v) : Y) - t • (f y : Y)‖ = sRadius f y t ht v := rfl
 
 theorem norm_zPoint_sub_center (v : UnitSphere X) :
     ‖(zPoint f y t ht v : X) - t • (y : X)‖ = rRadius f y t ht v := rfl
@@ -1872,17 +1812,10 @@ theorem continuous_wDirection : Continuous (wDirection f y t ht) :=
       continuous_const)
     (fun v => unit_sub_center_ne_zero (f (xPoint f y t ht v)) (f y) t ht)
 
-theorem continuous_uRadius : Continuous (uRadius f y t ht) :=
-  (continuous_radialRadius (t • (f y : Y)) (returnCenter_lt_one (f y) t ht)).comp
-    (continuous_sphereNeg.comp (continuous_wDirection f y t ht))
-
 theorem continuous_zPoint : Continuous (zPoint f y t ht) :=
   f.symm.continuous.comp
     ((continuous_radialContact (t • (f y : Y)) (returnCenter_lt_one (f y) t ht)).comp
       (continuous_sphereNeg.comp (continuous_wDirection f y t ht)))
-
-theorem continuous_rRadius : Continuous (rRadius f y t ht) :=
-  ((continuous_subtype_val.comp (continuous_zPoint f y t ht)).sub continuous_const).norm
 
 theorem continuous_returnSphere : Continuous (returnSphere f y t ht) :=
   continuous_normalize_map _
@@ -1925,43 +1858,6 @@ omit [NormedSpace ℝ Y] in
 @[simp] theorem returnAmbient_coe (v : UnitSphere X) :
     returnAmbient f y t ht (v : X) = (returnSphere f y t ht v : X) := by
   simp only [returnAmbient, v.property, dif_pos]
-
-omit [NormedSpace ℝ Y] in
-theorem continuousOn_pAmbient :
-    ContinuousOn (pAmbient f y t ht) {v : X | ‖v‖ = 1} := by
-  apply continuousOn_iff_continuous_domRestrict.mpr
-  have he : ({v : X | ‖v‖ = 1}).domRestrict (pAmbient f y t ht) = pRadius f y t ht := by
-    funext v
-    exact pAmbient_coe f y t ht v
-  rw [he]
-  exact continuous_pRadius f y t ht
-
-theorem continuousOn_sAmbient :
-    ContinuousOn (sAmbient f y t ht) {v : X | ‖v‖ = 1} := by
-  apply continuousOn_iff_continuous_domRestrict.mpr
-  have he : ({v : X | ‖v‖ = 1}).domRestrict (sAmbient f y t ht) = sRadius f y t ht := by
-    funext v
-    exact sAmbient_coe f y t ht v
-  rw [he]
-  exact continuous_sRadius f y t ht
-
-theorem continuousOn_uAmbient :
-    ContinuousOn (uAmbient f y t ht) {v : X | ‖v‖ = 1} := by
-  apply continuousOn_iff_continuous_domRestrict.mpr
-  have he : ({v : X | ‖v‖ = 1}).domRestrict (uAmbient f y t ht) = uRadius f y t ht := by
-    funext v
-    exact uAmbient_coe f y t ht v
-  rw [he]
-  exact continuous_uRadius f y t ht
-
-theorem continuousOn_rAmbient :
-    ContinuousOn (rAmbient f y t ht) {v : X | ‖v‖ = 1} := by
-  apply continuousOn_iff_continuous_domRestrict.mpr
-  have he : ({v : X | ‖v‖ = 1}).domRestrict (rAmbient f y t ht) = rRadius f y t ht := by
-    funext v
-    exact rAmbient_coe f y t ht v
-  rw [he]
-  exact continuous_rRadius f y t ht
 
 theorem continuousOn_returnAmbient :
     ContinuousOn (returnAmbient f y t ht) {v : X | ‖v‖ = 1} := by
@@ -2069,31 +1965,6 @@ theorem SupportAt.restrict (U : Submodule ℝ X)
     {φ : X →L[ℝ] ℝ} (a : U) (h : SupportAt φ (a : X)) :
     SupportAt (φ.comp U.subtypeL) a :=
   ⟨(norm_restrict_le U φ).trans h.1, h.2⟩
-
-/-- Extending to an enlargement retains even the exact operator norm. -/
-theorem exists_extension_norm_eq_of_le {U V : Submodule ℝ X}
-    (hUV : U ≤ V) (φ : U →L[ℝ] ℝ) :
-    ∃ ψ : V →L[ℝ] ℝ,
-      (∀ u : U, ψ ⟨(u : X), hUV u.property⟩ = φ u) ∧ ‖ψ‖ = ‖φ‖ := by
-  obtain ⟨Φ, hΦ, hnorm⟩ := extension_norm_eq U φ
-  let ψ : V →L[ℝ] ℝ := Φ.comp V.subtypeL
-  have hagree (u : U) : ψ ⟨(u : X), hUV u.property⟩ = φ u := hΦ u
-  refine ⟨ψ, hagree, le_antisymm ?_ ?_⟩
-  · exact (norm_restrict_le V Φ).trans_eq hnorm
-  · apply φ.opNorm_le_bound (norm_nonneg ψ)
-    intro u
-    rw [← hagree u]
-    exact ψ.le_opNorm ⟨(u : X), hUV u.property⟩
-
-/-- In particular, a support extends to every specified finite enlargement.
-The stronger statement does not need either subspace to be finite-dimensional. -/
-theorem supportAt_finite_enlargement (U V : Submodule ℝ X) (hUV : U ≤ V)
-    (a : U) (φ : U →L[ℝ] ℝ) (h : SupportAt φ a) :
-    ∃ ψ : V →L[ℝ] ℝ,
-      (∀ u : U, ψ ⟨(u : X), hUV u.property⟩ = φ u) ∧
-      SupportAt ψ ⟨(a : X), hUV a.property⟩ := by
-  obtain ⟨ψ, hψ, hnorm⟩ := exists_extension_norm_eq_of_le hUV φ
-  exact ⟨ψ, hψ, ⟨hnorm.trans_le h.1, (hψ a).trans h.2⟩⟩
 
 /-- Universal assertions about support evaluations can be made on any subspace
 containing the two vectors. This permits using the dual of their finite span. -/
@@ -2209,14 +2080,6 @@ theorem support_eq_one_of_positive_sum (φ : X →L[ℝ] ℝ) (hφ : ‖φ‖ �
   · exact fun i => (apply_le_norm hφ (v i)).trans (hv i)
   · simpa only [map_sum, map_smul, smul_eq_mul] using ha
 
-theorem SupportAt.eq_one_of_positive_sum {φ : X →L[ℝ] ℝ}
-    (weights : ι → ℝ) (v : ι → X)
-    (hφ : SupportAt φ (∑ i, weights i • v i))
-    (hpos : ∀ i, 0 < weights i) (hsum : ∑ i, weights i = 1)
-    (hv : ∀ i, ‖v i‖ ≤ 1) (ha : ‖∑ i, weights i • v i‖ = 1) :
-    ∀ i, φ (v i) = 1 :=
-  support_eq_one_of_positive_sum φ hφ.1 weights v hpos hsum hv (hφ.2.trans ha)
-
 end FiniteCombination
 
 /-- The closed unit ball cut by the level-one hyperplane of one functional. -/
@@ -2235,10 +2098,6 @@ theorem convex_supportFace (φ : X →L[ℝ] ℝ) : Convex ℝ (supportFace φ) 
       _ = 1 := by simpa only [mul_one] using hab
   · simpa only [map_add, map_smul, smul_eq_mul, hφx, hφy, mul_one] using hab
 
-theorem isClosed_supportFace (φ : X →L[ℝ] ℝ) : IsClosed (supportFace φ) :=
-  (isClosed_le continuous_norm continuous_const).inter
-    (isClosed_eq φ.continuous continuous_const)
-
 theorem supportFace_subset_sphere (φ : X →L[ℝ] ℝ) (hφ : ‖φ‖ ≤ 1) :
     supportFace φ ⊆ {x : X | ‖x‖ = 1} := by
   intro x hx
@@ -2248,11 +2107,6 @@ theorem convexHull_subset_supportFace (φ : X →L[ℝ] ℝ)
     {S : Set X} (hS : S ⊆ supportFace φ) :
     convexHull ℝ S ⊆ supportFace φ :=
   convexHull_min hS (convex_supportFace φ)
-
-theorem closure_convexHull_subset_supportFace (φ : X →L[ℝ] ℝ)
-    {S : Set X} (hS : S ⊆ supportFace φ) :
-    closure (convexHull ℝ S) ⊆ supportFace φ :=
-  closure_minimal (convexHull_subset_supportFace φ hS) (isClosed_supportFace φ)
 
 section Enlargement
 
@@ -2288,68 +2142,6 @@ theorem convexHull_insert_subset_of_common_support (φ : X →L[ℝ] ℝ) (hφ :
   exact hprop x h.1 h.2
 
 end Enlargement
-
-/-- The actual values at indices zero through n; repeated values are allowed. -/
-def prefixVertices (v : ℕ → X) (n : ℕ) : Set X := v '' {i : ℕ | i ≤ n}
-
-omit [NormedAddCommGroup X] [NormedSpace ℝ X] in
-theorem prefixVertices_mono (v : ℕ → X) : Monotone (prefixVertices v) := by
-  intro n m hnm x hx
-  obtain ⟨i, hi, rfl⟩ := hx
-  exact ⟨i, hi.trans hnm, rfl⟩
-
-omit [NormedAddCommGroup X] [NormedSpace ℝ X] in
-theorem prefixVertices_subset_range (v : ℕ → X) (n : ℕ) :
-    prefixVertices v n ⊆ Set.range v := by
-  rintro x ⟨i, _, rfl⟩
-  exact ⟨i, rfl⟩
-
-omit [NormedAddCommGroup X] [NormedSpace ℝ X] in
-theorem prefixVertices_eq_range_fin (v : ℕ → X) (n : ℕ) :
-    prefixVertices v n = Set.range (fun i : Fin (n + 1) => v i.val) := by
-  ext x
-  constructor
-  · rintro ⟨i, hi, rfl⟩
-    exact ⟨⟨i, Nat.lt_succ_iff.mpr hi⟩, rfl⟩
-  · rintro ⟨i, rfl⟩
-    exact ⟨i.val, Nat.lt_succ_iff.mp i.isLt, rfl⟩
-
-theorem convexHull_range_eq_iUnion_prefix (v : ℕ → X) :
-    convexHull ℝ (Set.range v) = ⋃ n, convexHull ℝ (prefixVertices v n) := by
-  have hmono : Monotone (fun n => convexHull ℝ (prefixVertices v n)) :=
-    fun _ _ hnm => convexHull_mono (prefixVertices_mono v hnm)
-  have hdir : Directed (· ⊆ ·) (fun n => convexHull ℝ (prefixVertices v n)) :=
-    fun n m => ⟨max n m, hmono (le_max_left n m), hmono (le_max_right n m)⟩
-  apply Set.Subset.antisymm
-  · apply convexHull_min
-    · rintro x ⟨i, rfl⟩
-      exact Set.mem_iUnion.mpr ⟨i,
-        subset_convexHull ℝ (prefixVertices v i) ⟨i, (by change i ≤ i; exact le_rfl), rfl⟩⟩
-    · exact hdir.convex_iUnion (fun {n} => convex_convexHull ℝ (prefixVertices v n))
-  · intro x hx
-    obtain ⟨n, hn⟩ := Set.mem_iUnion.mp hx
-    exact convexHull_mono (prefixVertices_subset_range v n) hn
-
-theorem closure_convexHull_range_subset_of_prefix (v : ℕ → X)
-    {E : Set X} (hE : IsClosed E)
-    (hprefix : ∀ n, convexHull ℝ (prefixVertices v n) ⊆ E) :
-    closure (convexHull ℝ (Set.range v)) ⊆ E := by
-  apply closure_minimal _ hE
-  rw [convexHull_range_eq_iUnion_prefix]
-  exact Set.iUnion_subset hprefix
-
-theorem closed_convex_extremal_hull (v : ℕ → X)
-    {E : Set X} (hE : IsClosed E) (hEsphere : E ⊆ {x : X | ‖x‖ = 1})
-    (hprefix : ∀ n, convexHull ℝ (prefixVertices v n) ⊆ E) :
-    (closure (convexHull ℝ (Set.range v))).Nonempty ∧
-    IsClosed (closure (convexHull ℝ (Set.range v))) ∧
-    Convex ℝ (closure (convexHull ℝ (Set.range v))) ∧
-    Bornology.IsBounded (closure (convexHull ℝ (Set.range v))) ∧
-    closure (convexHull ℝ (Set.range v)) ⊆ E := by
-  have hsub := closure_convexHull_range_subset_of_prefix v hE hprefix
-  refine ⟨⟨v 0, subset_closure (subset_convexHull ℝ (Set.range v) ⟨0, rfl⟩)⟩,
-    isClosed_closure, (convex_convexHull ℝ (Set.range v)).closure, ?_, hsub⟩
-  exact isBounded_iff_forall_norm_le.mpr ⟨1, fun x hx => (hEsphere (hsub hx)).le⟩
 
 end Tingley
 
@@ -2551,13 +2343,6 @@ theorem mem_extremal_of_common_support_return (hb : HasDefectBound f M)
   have hr := (extremal_radius_identities f y t ht M hb hv).1
   change sRadius f y t ht l - pRadius f y t ht l = M
   linarith
-
-theorem returnSphere_mem_extremal (hb : HasDefectBound f M) {v : UnitSphere X}
-    (hv : v ∈ extremalSphere f y t ht M) :
-    returnSphere f y t ht v ∈ extremalSphere f y t ht M := by
-  obtain ⟨φ, hφ, _, hg⟩ := extremal_common_support f y t ht M hb hv
-  exact mem_extremal_of_common_support_return f y t ht M hb hv
-    (returnSphere f y t ht v) φ hφ hg hg
 
 theorem positive_prefix_extension (hb : HasDefectBound f M)
     (n : ℕ) (V : Fin (n + 1) → X) (weights : Fin (n + 1) → ℝ)
@@ -3066,15 +2851,6 @@ theorem recursiveVector_mem (G : X → X) (E : Set X) (v₀ : X)
   recursivePrefix_hull_subset G E v₀ hv₀ hstep n
     (subset_convexHull ℝ _ ⟨Fin.last n, rfl⟩)
 
-theorem recursiveStageMean_mem (G : X → X) (E : Set X) (v₀ : X)
-    (hv₀ : v₀ ∈ E) (hstep : PositivePrefixGrowth G E) (n : ℕ) :
-    stageMean (recursiveVector G v₀) n ∈ E := by
-  apply recursiveVector_prefix_hull_subset G E v₀ hv₀ hstep n
-  exact mem_convexHull_of_exists_fintype (positiveStageWeights n)
-    (fun i : Fin (n+1) => recursiveVector G v₀ i.val)
-    (fun i => (positiveStageWeights_pos n i).le) (positiveStageWeights_sum n)
-    (fun i => ⟨i, rfl⟩) rfl
-
 /-- The closed convex hull of the one actual recursively constructed sequence. -/
 def recursiveConvexSet (G : X → X) (v₀ : X) : Set X :=
   closure (convexHull ℝ (Set.range (recursiveVector G v₀)))
@@ -3457,13 +3233,6 @@ theorem of_fintype {ι : Type*} [Fintype ι] (U : ι → Set E)
   intro x hx
   obtain ⟨i, hi⟩ := Set.mem_iUnion.mp (hc hx)
   exact Set.mem_iUnion.mpr ⟨e i, by simpa only [Equiv.symm_apply_apply] using hi⟩
-
-theorem of_finite {ι : Type*} [Finite ι] (U : ι → Set E)
-    (hc : H ⊆ ⋃ i, U i) (hd : ∀ i, DiameterLE (U i) δ) :
-    FiniteDiameterCover H δ := by
-  classical
-  let := Fintype.ofFinite ι
-  exact of_fintype U hc hd
 
 theorem empty (δ : ℝ) : FiniteDiameterCover (∅ : Set E) δ := by
   refine ⟨0, fun _ => ∅, Set.empty_subset _, ?_⟩
@@ -3923,18 +3692,6 @@ theorem exists_positive_coordinate (a : ProbabilitySimplex ι) :
   have hs := a.sum_coordinates
   simp [hz] at hs
 
-theorem eq_of_coordinate_le (a b : ProbabilitySimplex ι)
-    (hab : ∀ i, a.val i ≤ b.val i) : a = b := by
-  classical
-  have hnonneg : ∀ i ∈ (Finset.univ : Finset ι), 0 ≤ b.val i - a.val i :=
-    fun i _ => sub_nonneg.mpr (hab i)
-  have hsum : ∑ i, (b.val i - a.val i) = 0 := by
-    rw [Finset.sum_sub_distrib, b.sum_coordinates, a.sum_coordinates, sub_self]
-  have hz := (Finset.sum_eq_zero_iff_of_nonneg hnonneg).mp hsum
-  apply Subtype.ext
-  funext i
-  exact (sub_eq_zero.mp (hz i (Finset.mem_univ i))).symm
-
 end ProbabilitySimplex
 
 theorem exists_positive_dominating_coordinate {ι : Type*} [Fintype ι]
@@ -4149,15 +3906,6 @@ def incidentTop (K : FiniteComplex V) (m : ℕ) (s : Finset V) : Finset (Finset 
 def CardBound (K : FiniteComplex V) (m : ℕ) : Prop :=
   ∀ s ∈ K.faces, s.card ≤ m + 1
 
-def Pure (K : FiniteComplex V) (m : ℕ) : Prop :=
-  ∀ s ∈ K.faces, ∃ t ∈ K.topCells m, s ⊆ t
-
-theorem Pure.cardBound {K : FiniteComplex V} {m : ℕ} (h : K.Pure m) :
-    K.CardBound m := by
-  intro s hs
-  obtain ⟨t, ht, hst⟩ := h s hs
-  exact (Finset.card_le_card hst).trans_eq (mem_topCells.mp ht).2
-
 variable {I : Type v} [DecidableEq I]
 
 def faceCarrier (carrier : V → Finset I) (s : Finset V) : Finset I :=
@@ -4184,13 +3932,6 @@ omit [Fintype V] [DecidableEq V] in
 
 def sdCarrier (K : FiniteComplex V) (carrier : V → Finset I) :
     FaceVertex K → Finset I := fun s => faceCarrier carrier s.val
-
-theorem sdCarrier_nonempty {K : FiniteComplex V} {carrier : V → Finset I}
-    (h : ∀ v, (carrier v).Nonempty) (s : FaceVertex K) :
-    (K.sdCarrier carrier s).Nonempty := by
-  obtain ⟨v, hv⟩ := s.property.2
-  obtain ⟨i, hi⟩ := h v
-  exact ⟨i, mem_faceCarrier.mpr ⟨v, hv, hi⟩⟩
 
 end FiniteComplex
 
@@ -4250,19 +3991,6 @@ theorem ranks_subset {m : ℕ} (hK : K.CardBound m) (c : Finset (FaceVertex K)) 
   obtain ⟨a, _, rfl⟩ := mem_ranks.mp hr
   exact Finset.mem_Icc.mpr
     ⟨Finset.card_pos.mpr a.property.2, hK a.val a.property.1⟩
-
-theorem sd_cardBound {m : ℕ} (hK : K.CardBound m) : K.sd.CardBound m := by
-  intro c hc
-  have h := Finset.card_le_card (ranks_subset hK c)
-  rw [card_ranks (mem_sd_iff.mp hc)] at h
-  simpa using h
-
-theorem top_ranks {m : ℕ} (hK : K.CardBound m) {c : Finset (FaceVertex K)}
-    (hc : c ∈ K.sd.topCells m) : K.ranks c = Finset.Icc 1 (m + 1) := by
-  obtain ⟨hc, hcard⟩ := mem_topCells.mp hc
-  apply Finset.eq_of_subset_of_card_le (ranks_subset hK c)
-  rw [card_ranks (mem_sd_iff.mp hc), hcard]
-  simp
 
 theorem missing_rank {m : ℕ} (hK : K.CardBound m) {c : Finset (FaceVertex K)}
     (hc : c ∈ K.sd.codimFaces m) :
@@ -4410,19 +4138,6 @@ def incidentTop (m k : ℕ) (s : Finset (IterVertex m k)) :
       t ∈ iterComplex m k ∧ t.card = m + 1 ∧ s ⊆ t :=
   FiniteComplex.mem_incidentTop
 
-theorem iterComplex_empty_mem (m k : ℕ) : ∅ ∈ iterComplex m k :=
-  (iterData (Fin (m + 1)) k).complex.empty_mem
-
-theorem iterComplex_down_closed {m k : ℕ} {s t : Finset (IterVertex m k)}
-    (hs : s ∈ iterComplex m k) (ht : t ⊆ s) : t ∈ iterComplex m k :=
-  (iterData (Fin (m + 1)) k).complex.down_closed hs ht
-
-theorem iterData_carrier_nonempty (I : Type) [Fintype I] [DecidableEq I] (k : ℕ) :
-    ∀ v : (iterData I k).Vertex, ((iterData I k).carrier v).Nonempty := by
-  induction k with
-  | zero => intro v; exact Finset.singleton_nonempty v
-  | succ k ih => exact FiniteComplex.sdCarrier_nonempty ih
-
 theorem iterData_card_le_carrier (I : Type) [Fintype I] [DecidableEq I] (k : ℕ) :
     ∀ s ∈ (iterData I k).complex.faces,
       s.card ≤ (FiniteComplex.faceCarrier (iterData I k).carrier s).card := by
@@ -4450,15 +4165,6 @@ theorem top_faceCarrier {m k : ℕ} {s : Finset (IterVertex m k)}
   obtain ⟨hs, hcard⟩ := mem_topCells.mp hs
   apply Finset.eq_of_subset_of_card_le (Finset.subset_univ _)
   simpa [hcard] using iter_card_le_carrier hs
-
-theorem codim_faceCarrier_card {m k : ℕ} {s : Finset (IterVertex m k)}
-    (hs : s ∈ codimFaces m k) :
-    (faceCarrier m k s).card = m ∨ (faceCarrier m k s).card = m + 1 := by
-  obtain ⟨hs, hcard⟩ := mem_codimFaces.mp hs
-  have hlo := iter_card_le_carrier hs
-  have hhi : (faceCarrier m k s).card ≤ m + 1 := by
-    simpa using Finset.card_le_univ (faceCarrier m k s)
-  omega
 
 end Tingley
 
@@ -4502,13 +4208,6 @@ theorem finiteBarycenter_eq_centerMass (p : V → E) (S : Finset V) :
     finiteBarycenter p {v} = p v := by
   simp [finiteBarycenter]
 
-theorem finiteBarycenter_congr {p q : V → E} {S : Finset V}
-    (h : ∀ v ∈ S, p v = q v) :
-    finiteBarycenter p S = finiteBarycenter q S := by
-  unfold finiteBarycenter
-  congr 1
-  exact Finset.sum_congr rfl h
-
 theorem finiteBarycenter_mem_convex {K : Set E} (hK : Convex ℝ K)
     {p : V → E} {S : Finset V} (hs : S.Nonempty)
     (hp : ∀ v ∈ S, p v ∈ K) : finiteBarycenter p S ∈ K := by
@@ -4525,20 +4224,6 @@ theorem finiteBarycenter_mem_convexHull {p : V → E} {S T : Finset V}
   apply finiteBarycenter_mem_convex (convex_convexHull ℝ _) hs
   intro v hv
   exact subset_convexHull ℝ _ ⟨v, hst hv, rfl⟩
-
-theorem map_finiteBarycenter (L : E →ₗ[ℝ] F) (p : V → E) (S : Finset V) :
-    L (finiteBarycenter p S) = finiteBarycenter (L ∘ p) S := by
-  simp [finiteBarycenter]
-
-theorem finiteBarycenter_map (e : V ↪ W) (p : W → E) (S : Finset V) :
-    finiteBarycenter p (S.map e) = finiteBarycenter (p ∘ e) S := by
-  simp [finiteBarycenter]
-
-theorem finiteBarycenter_map_of_eq (e : V ↪ W) (p : V → E) (q : W → E)
-    (S : Finset V) (h : ∀ v ∈ S, q (e v) = p v) :
-    finiteBarycenter q (S.map e) = finiteBarycenter p S := by
-  rw [finiteBarycenter_map]
-  exact finiteBarycenter_congr h
 
 theorem finiteBarycenter_apply {ι : Type*} [Fintype ι]
     (p : V → ι → ℝ) (S : Finset V) (i : ι) :
@@ -4580,36 +4265,6 @@ def positiveCarrier (x : ι → ℝ) : Finset ι :=
     i ∈ positiveCarrier x ↔ 0 < x i := by
   simp [positiveCarrier]
 
-/-- Outside the positive carrier, a nonnegative vector has zero coordinates. -/
-theorem not_mem_positiveCarrier_iff {x : ι → ℝ} (hx : ∀ i, 0 ≤ x i) (i : ι) :
-    i ∉ positiveCarrier x ↔ x i = 0 := by
-  rw [mem_positiveCarrier, not_lt]
-  exact ⟨fun h => le_antisymm h (hx i), fun h => h.le⟩
-
-/-- Containment in a coordinate face is exactly vanishing outside that face. -/
-theorem positiveCarrier_subset_iff {x : ι → ℝ} (hx : ∀ i, 0 ≤ x i)
-    (I : Finset ι) :
-    positiveCarrier x ⊆ I ↔ ∀ i, i ∉ I → x i = 0 := by
-  constructor
-  · intro h i hi
-    apply (not_mem_positiveCarrier_iff hx i).mp
-    intro hix
-    exact hi (h hix)
-  · intro h i hi
-    by_contra hn
-    have hzero := h i hn
-    have hpos := mem_positiveCarrier.mp hi
-    rw [hzero] at hpos
-    exact (lt_irrefl (0 : ℝ)) hpos
-
-/-- Finite averaging preserves nonnegative coordinates, including for the empty set. -/
-theorem finiteBarycenter_apply_nonneg (p : V → ι → ℝ) (S : Finset V)
-    (hp : ∀ v ∈ S, ∀ i, 0 ≤ p v i) (i : ι) :
-    0 ≤ finiteBarycenter p S i := by
-  rw [finiteBarycenter_apply]
-  exact mul_nonneg (inv_nonneg.mpr (Nat.cast_nonneg S.card))
-    (Finset.sum_nonneg (fun v hv => hp v hv i))
-
 /-- A nonempty finite average stays in the standard simplex. -/
 theorem finiteBarycenter_mem_stdSimplex (p : V → ι → ℝ) {S : Finset V}
     (hs : S.Nonempty) (hp : ∀ v ∈ S, p v ∈ probabilitySimplexSet ι) :
@@ -4646,27 +4301,6 @@ theorem positiveCarrier_finiteBarycenter (p : V → ι → ℝ) {S : Finset V}
   ext i
   simp only [mem_positiveCarrier, Finset.mem_biUnion]
   exact finiteBarycenter_pos_iff p hs hp i
-
-/-- The new vertex belongs to an original coordinate face exactly when every
-averaged vertex belongs to that face. -/
-theorem positiveCarrier_finiteBarycenter_subset_iff (p : V → ι → ℝ)
-    {S : Finset V} (hs : S.Nonempty) (hp : ∀ v ∈ S, ∀ i, 0 ≤ p v i)
-    (I : Finset ι) :
-    positiveCarrier (finiteBarycenter p S) ⊆ I ↔
-      ∀ v ∈ S, positiveCarrier (p v) ⊆ I := by
-  rw [positiveCarrier_finiteBarycenter p hs hp]
-  exact Finset.biUnion_subset
-
-/-- A simplex vector has a positive coordinate because its total mass is one. -/
-theorem positiveCarrier_nonempty_of_mem_stdSimplex {x : ι → ℝ}
-    (hx : x ∈ probabilitySimplexSet ι) : (positiveCarrier x).Nonempty := by
-  by_contra hn
-  have hzero : ∀ i, x i = 0 := by
-    intro i
-    apply le_antisymm _ (hx.1 i)
-    exact le_of_not_gt (fun hpos => hn ⟨i, mem_positiveCarrier.mpr hpos⟩)
-  have hsum : ∑ i, x i = 0 := Finset.sum_eq_zero (fun i _ => hzero i)
-  exact one_ne_zero (hx.2.symm.trans hsum)
 
 end Tingley
 
@@ -4841,22 +4475,6 @@ theorem norm_finiteBarycenter_sub_le_mesh {p : V → E}
     linarith
   exact (norm_finiteBarycenter_sub_le_card hs hst hpair).trans
     (mul_le_mul_of_nonneg_right hfactor hD)
-
-theorem norm_finiteBarycenter_sub_le_of_comparable {p : V → E}
-    {S T U : Finset V} {D : ℝ} (m : ℕ) (hD : 0 ≤ D)
-    (hs : S.Nonempty) (ht : T.Nonempty) (hsu : S ⊆ U) (htu : T ⊆ U)
-    (hcmp : S ⊆ T ∨ T ⊆ S) (hcard : U.card ≤ m + 1)
-    (hpair : ∀ u ∈ U, ∀ v ∈ U, ‖p u - p v‖ ≤ D) :
-    ‖finiteBarycenter p S - finiteBarycenter p T‖ ≤
-      ((m : ℝ) / (m + 1 : ℝ)) * D := by
-  rcases hcmp with hst | hts
-  · exact norm_finiteBarycenter_sub_le_mesh m hD hs hst
-      ((Finset.card_le_card htu).trans hcard)
-      (fun u hu v hv => hpair u (htu hu) v (htu hv))
-  · simpa only [norm_sub_rev] using
-      norm_finiteBarycenter_sub_le_mesh m hD ht hts
-        ((Finset.card_le_card hsu).trans hcard)
-        (fun u hu v hv => hpair u (hsu hu) v (hsu hv))
 
 end Tingley
 
@@ -5525,38 +5143,6 @@ theorem mapped_good_family_card_of_map {n : ℕ} (e : W ↪ V)
     higherFamily = lowerFamily.map (Finset.mapEmbedding e).toEmbedding := hfamily
     _ = lowerFamily.image (fun σ => σ.map e) := Finset.map_eq_image _ _
 
-omit [DecidableEq W] in
-/-- The same count transport with a membership characterization of the raw
-boundary family, rather than an equality already assembled by the caller. -/
-theorem mapped_good_family_card_of_mem_iff {n : ℕ} (e : W ↪ V)
-    (label : V → Fin (n + 1)) (lowerLabel : W → Fin n)
-    (hlabel : ∀ w, label (e w) = (lowerLabel w).castSucc)
-    (lowerFamily : Finset (Finset W)) (higherFamily : Finset (Finset V))
-    (hfamily : ∀ τ, τ ∈ higherFamily ↔ ∃ σ ∈ lowerFamily, σ.map e = τ) :
-    (higherFamily.filter (fun τ => τ.image label = spernerSmallLabels n)).card =
-      (lowerFamily.filter (fun σ => σ.image lowerLabel = Finset.univ)).card := by
-  classical
-  apply mapped_good_family_card e label lowerLabel hlabel lowerFamily higherFamily
-  ext τ
-  exact (hfamily τ).trans Finset.mem_image.symm
-
-omit [DecidableEq W] in
-/-- The exact good-boundary expression used in the incidence count becomes the
-fully labelled lower-dimensional expression. -/
-theorem good_boundary_family_card {n : ℕ} (e : W ↪ V)
-    (label : V → Fin (n + 1)) (lowerLabel : W → Fin n)
-    (hlabel : ∀ w, label (e w) = (lowerLabel w).castSucc)
-    (lowerFamily : Finset (Finset W)) (higherFamily : Finset (Finset V))
-    (boundary : Finset V → Prop) [DecidablePred boundary]
-    (hfamily : higherFamily.filter boundary = lowerFamily.image (fun σ => σ.map e)) :
-    (higherFamily.filter
-      (fun τ => τ.image label = spernerSmallLabels n ∧ boundary τ)).card =
-      (lowerFamily.filter (fun σ => σ.image lowerLabel = Finset.univ)).card := by
-  classical
-  simpa only [Finset.filter_filter, and_comm] using
-    mapped_good_family_card e label lowerLabel hlabel lowerFamily
-      (higherFamily.filter boundary) hfamily
-
 end Tingley
 
 end OAI
@@ -5926,17 +5512,6 @@ theorem rank_ne_of_missing {m r : ℕ} {c : Finset (FaceVertex K)}
   rw [hr] at h
   exact (Finset.mem_erase.mp h).1
 
-theorem missing_rank_unique {m r s : ℕ} {c : Finset (FaceVertex K)}
-    (hr₁ : 1 ≤ r) (hr₂ : r ≤ m + 1)
-    (hr : K.ranks c = (Finset.Icc 1 (m + 1)).erase r)
-    (hs : K.ranks c = (Finset.Icc 1 (m + 1)).erase s) : r = s := by
-  by_contra hrs
-  have hmem : r ∈ K.ranks c := by
-    rw [hs]
-    exact Finset.mem_erase.mpr ⟨hrs, Finset.mem_Icc.mpr ⟨hr₁, hr₂⟩⟩
-  rw [hr] at hmem
-  exact (Finset.mem_erase.mp hmem).1 rfl
-
 theorem insertionVertices_card_eq_missing {m r : ℕ} (hK : K.CardBound m)
     {c : Finset (FaceVertex K)}
     (hr : K.ranks c = (Finset.Icc 1 (m + 1)).erase r)
@@ -6297,21 +5872,6 @@ theorem sd_topCells_zero_card (hK : K.CardBound 0) :
     congr 1
   exact (Finset.card_bij f hf hinj hsurj).symm
 
-theorem sd_pure_zero (hK : K.Pure 0) : K.sd.Pure 0 := by
-  classical
-  intro c hc
-  rcases c.eq_empty_or_nonempty with rfl | hne
-  · obtain ⟨s, hs, _⟩ := hK ∅ K.empty_mem
-    let a : FaceVertex K := ⟨s, (mem_topCells.mp hs).1,
-      Finset.card_pos.mp (by have h := (mem_topCells.mp hs).2; omega)⟩
-    refine ⟨{a}, mem_topCells.mpr ⟨mem_sd_iff.mpr ?_, by simp⟩,
-      Finset.empty_subset _⟩
-    simp [chain]
-  · refine ⟨c, mem_topCells.mpr ⟨hc, ?_⟩, Finset.Subset.refl _⟩
-    have hlo := Finset.card_pos.mpr hne
-    have hhi := sd_cardBound hK.cardBound c hc
-    omega
-
 end Tingley.FiniteComplex
 
 namespace Tingley
@@ -6341,14 +5901,6 @@ theorem iter_topCells_zero_card (k : ℕ) : (topCells 0 k).card = 1 := by
         exact iter_card_le (m := 0) (k := k) hs
       rw [FiniteComplex.sd_topCells_zero_card hK]
       exact ih
-
-theorem iter_incidentTop_zero_card (k : ℕ) {c : Finset (IterVertex 0 k)}
-    (hc : c ∈ codimFaces 0 k) : (incidentTop 0 k c).card = 1 := by
-  have hczero : c = ∅ := Finset.card_eq_zero.mp (mem_codimFaces.mp hc).2
-  subst c
-  change ((iterData (Fin 1) k).complex.incidentTop 0 ∅).card = 1
-  rw [FiniteComplex.incidentTop_empty]
-  exact iter_topCells_zero_card k
 
 end Tingley
 
@@ -6810,30 +6362,6 @@ omit [NormedAddCommGroup E] [NormedSpace ℝ E] in
 @[simp] theorem extendSelfMap_coe {K : Set E} (g : K → K) (x : K) :
     extendSelfMap g (x : E) = (g x : E) :=
   extendSelfMap_of_mem g x.property
-
-omit [NormedAddCommGroup E] [NormedSpace ℝ E] in
-theorem extendSelfMap_mapsTo {K : Set E} (g : K → K) :
-    MapsTo (extendSelfMap g) K K := by
-  intro x hx
-  rw [extendSelfMap_of_mem g hx]
-  exact (g ⟨x, hx⟩).property
-
-omit [NormedSpace ℝ E] in
-theorem continuousOn_extendSelfMap {K : Set E} {g : K → K} (hg : Continuous g) :
-    ContinuousOn (extendSelfMap g) K := by
-  apply continuousOn_iff_continuous_domRestrict.mpr
-  have h : Continuous (fun x : K => (g x : E)) := continuous_subtype_val.comp hg
-  exact h.congr (fun x => (extendSelfMap_coe g x).symm)
-
-/-- Subtype formulation of the compact-convex fixed-point theorem. -/
-theorem continuous_compactConvex_fixedPoint
-    {K : Set E} (hK : IsCompact K) (hne : K.Nonempty) (hconv : Convex ℝ K)
-    (g : K → K) (hg : Continuous g) : ∃ x, g x = x := by
-  obtain ⟨x, hx, heq⟩ := exists_fixedPoint_of_isCompact_convex hK hne hconv
-    (continuousOn_extendSelfMap hg) (extendSelfMap_mapsTo g)
-  refine ⟨⟨x, hx⟩, Subtype.ext ?_⟩
-  rw [extendSelfMap_of_mem g hx] at heq
-  exact heq
 
 end Tingley
 
@@ -7410,30 +6938,6 @@ theorem totallyBounded_iff_finiteDiameterCover {H : Set E} :
     exact (hdiam (label x) (x : E) (hlabel x) (y : E) hy).trans_lt
       (half_lt_self hε)
 
-/-- On bounded sets, vanishing Kuratowski measure is exactly total boundedness.
-The boundedness premise ensures that the real infimum defining `chi` has
-genuine admissible cover radii. -/
-theorem chi_eq_zero_iff_totallyBounded {H : Set E}
-    (hH : Bornology.IsBounded H) : chi H = 0 ↔ TotallyBounded H := by
-  constructor
-  · intro hzero
-    apply totallyBounded_iff_finiteDiameterCover.mpr
-    intro ε hε
-    have hχε : chi H < ε := by
-      rw [hzero]
-      exact hε
-    obtain ⟨δ, _hδ, hδε, hc⟩ := exists_cover_of_chi_lt hH hχε
-    exact hc.mono_radius hδε.le
-  · intro htb
-    have hle : chi H ≤ 0 := by
-      by_contra h
-      have hpos : 0 < chi H := lt_of_not_ge h
-      have hhalf : 0 < chi H / 2 := half_pos hpos
-      have hcover := totallyBounded_iff_finiteDiameterCover.mp htb (chi H / 2) hhalf
-      have hbound := chi_le_of_cover hhalf.le hcover
-      exact (not_le_of_gt (half_lt_self hpos)) hbound
-    exact le_antisymm hle (chi_nonneg hH)
-
 /-- Cover the entire selected range by finitely many prefix singletons and a
 small cover of a sufficiently late member. The cutoff may depend on the scale;
 no fixed member of the original family is assumed totally bounded. -/
@@ -7623,40 +7127,6 @@ theorem exists_fixedPoint_of_kuratowski_contraction
     (hg.mono hKC) hKmap
   exact ⟨x, hKC hx, hfix⟩
 
-/-- The subtype formulation measures the actual ambient images of subsets
-of the carrier, and transports them through the explicit ambient map. -/
-theorem continuous_condensing_fixedPoint
-    {C : Set E} (hne : C.Nonempty) (hclosed : IsClosed C)
-    (hbounded : Bornology.IsBounded C) (hconv : Convex ℝ C)
-    (g : C → C) (hg : Continuous g) {γ : ℝ} (hγ0 : 0 ≤ γ) (hγ1 : γ < 1)
-    (hχ : ∀ H : Set C,
-      chi ((fun x : C => (g x : E)) '' H) ≤ γ * chi (Subtype.val '' H)) :
-    ∃ x, g x = x := by
-  have hext : ∀ H : Set E, H ⊆ C →
-      chi (extendSelfMap g '' H) ≤ γ * chi H := by
-    intro H hHC
-    let H' : Set C := {x | (x : E) ∈ H}
-    have hdomain : (Subtype.val : C → E) '' H' = H := by
-      ext x
-      constructor
-      · rintro ⟨y, hy, rfl⟩
-        exact hy
-      · intro hx
-        exact ⟨⟨x, hHC hx⟩, hx, rfl⟩
-    have himage : (fun x : C => (g x : E)) '' H' = extendSelfMap g '' H := by
-      ext y
-      constructor
-      · rintro ⟨x, hx, rfl⟩
-        exact ⟨(x : E), hx, extendSelfMap_coe g x⟩
-      · rintro ⟨x, hx, rfl⟩
-        exact ⟨⟨x, hHC hx⟩, hx, (extendSelfMap_of_mem g (hHC hx)).symm⟩
-    simpa only [hdomain, himage] using hχ H'
-  obtain ⟨x, hx, hfix⟩ := exists_fixedPoint_of_kuratowski_contraction hne hclosed
-    hbounded hconv (continuousOn_extendSelfMap hg) (extendSelfMap_mapsTo g) hγ0 hγ1 hext
-  refine ⟨⟨x, hx⟩, Subtype.ext ?_⟩
-  rw [extendSelfMap_of_mem g hx] at hfix
-  exact hfix
-
 end Tingley
 
 end
@@ -7759,45 +7229,6 @@ structure AlignedConfiguration
   chord_sum : p + r = s + u
   chord_le_two : p + r ≤ 2
 
-theorem unit_radius_bounds_of_norm_sub
-    (x y : UnitSphere X) {t p : ℝ} (ht : 0 ≤ t)
-    (hd : ‖(x : X) - t • (y : X)‖ = p) :
-    1 - t ≤ p ∧ p ≤ 1 + t := by
-  have hty : ‖t • (y : X)‖ = t := by
-    simp only [norm_smul, Real.norm_eq_abs, abs_of_nonneg ht,
-      UnitSphere.norm_coe, mul_one]
-  constructor
-  · simpa only [UnitSphere.norm_coe, hty, hd] using
-      norm_sub_norm_le (x : X) (t • (y : X))
-  · simpa only [UnitSphere.norm_coe, hty, hd] using
-      norm_sub_le (x : X) (t • (y : X))
-
-theorem unit_radius_bounds_of_eq_add
-    (x y v : UnitSphere X) {t p : ℝ} (ht : 0 ≤ t) (hp : 0 ≤ p)
-    (hx : (x : X) = t • (y : X) + p • (v : X)) :
-    1 - t ≤ p ∧ p ≤ 1 + t := by
-  have hv : (x : X) - t • (y : X) = p • (v : X) := by
-    rw [hx]
-    abel
-  have hd : ‖(x : X) - t • (y : X)‖ = p := by
-    rw [hv]
-    simp only [norm_smul, Real.norm_eq_abs, abs_of_nonneg hp,
-      UnitSphere.norm_coe, mul_one]
-  exact unit_radius_bounds_of_norm_sub x y ht hd
-
-theorem unit_radius_bounds_of_eq_sub
-    (x y v : UnitSphere X) {t p : ℝ} (ht : 0 ≤ t) (hp : 0 ≤ p)
-    (hx : (x : X) = t • (y : X) - p • (v : X)) :
-    1 - t ≤ p ∧ p ≤ 1 + t := by
-  have hv : (x : X) - t • (y : X) = -(p • (v : X)) := by
-    rw [hx]
-    abel
-  have hd : ‖(x : X) - t • (y : X)‖ = p := by
-    rw [hv, norm_neg]
-    simp only [norm_smul, Real.norm_eq_abs, abs_of_nonneg hp,
-      UnitSphere.norm_coe, mul_one]
-  exact unit_radius_bounds_of_norm_sub x y ht hd
-
 namespace AlignedConfiguration
 
 variable {f : UnitSphere X ≃ᵢ UnitSphere Y} {y : UnitSphere X} {t M : ℝ}
@@ -7813,18 +7244,9 @@ theorem d_pos : 0 < C.d := add_pos C.p_pos C.r_pos
 
 theorem d_ne_zero : C.d ≠ 0 := ne_of_gt C.d_pos
 
-theorem d_le_two : C.d ≤ 2 := C.chord_le_two
-
 theorem d_eq_s_add_u : C.d = C.s + C.u := C.chord_sum
 
 theorem A_pos : 0 < C.A := div_pos C.p_pos C.d_pos
-
-theorem B_pos : 0 < C.B := div_pos C.u_pos C.d_pos
-
-theorem A_lt_one : C.A < 1 := by
-  apply (div_lt_one C.d_pos).2
-  dsimp only [d]
-  linarith [C.r_pos]
 
 theorem B_lt_one : C.B < 1 := by
   apply (div_lt_one C.d_pos).2
@@ -7850,45 +7272,14 @@ theorem one_sub_B : 1 - C.B = C.s / C.d := by
   rw [sub_mul, one_mul, div_mul_cancel₀ _ C.d_ne_zero, C.d_eq_s_add_u]
   ring
 
-theorem one_sub_A : 1 - C.A = C.r / C.d := by
-  apply (eq_div_iff C.d_ne_zero).2
-  dsimp only [A]
-  rw [sub_mul, one_mul, div_mul_cancel₀ _ C.d_ne_zero]
-  dsimp only [d]
-  ring
-
 theorem p_eq_d_mul_A : C.p = C.d * C.A := by
   simpa only [A, mul_comm] using (div_mul_cancel₀ C.p C.d_ne_zero).symm
-
-theorem u_eq_d_mul_B : C.u = C.d * C.B := by
-  simpa only [B, mul_comm] using (div_mul_cancel₀ C.u C.d_ne_zero).symm
 
 theorem chord_identity : C.s * C.r - C.u * C.p = M * C.d := by
   calc
     C.s * C.r - C.u * C.p = (C.s - C.p) * C.r + C.p * (C.r - C.u) := by ring
     _ = M * C.r + C.p * M := by rw [C.s_sub_p, C.r_sub_u]
     _ = M * C.d := by dsimp only [d]; ring
-
-theorem norm_x_sub_z : ‖(C.x : X) - (C.z : X)‖ = C.d := by
-  have he : (C.x : X) - (C.z : X) = C.d • (C.v : X) := by
-    rw [C.x_eq, C.z_eq]
-    dsimp only [d]
-    rw [add_smul]
-    abel
-  rw [he, norm_smul, Real.norm_eq_abs, abs_of_pos C.d_pos,
-    UnitSphere.norm_coe, mul_one]
-
-theorem p_bounds (ht : 0 ≤ t) : 1 - t ≤ C.p ∧ C.p ≤ 1 + t :=
-  unit_radius_bounds_of_eq_add C.x y C.v ht C.p_pos.le C.x_eq
-
-theorem r_bounds (ht : 0 ≤ t) : 1 - t ≤ C.r ∧ C.r ≤ 1 + t :=
-  unit_radius_bounds_of_eq_sub C.z y C.v ht C.r_pos.le C.z_eq
-
-theorem s_bounds (ht : 0 ≤ t) : 1 - t ≤ C.s ∧ C.s ≤ 1 + t :=
-  unit_radius_bounds_of_eq_add (f C.x) (f y) C.w ht C.s_pos.le C.fx_eq
-
-theorem u_bounds (ht : 0 ≤ t) : 1 - t ≤ C.u ∧ C.u ≤ 1 + t :=
-  unit_radius_bounds_of_eq_sub (f C.z) (f y) C.w ht C.u_pos.le C.fz_eq
 
 /-- Exchange the endpoints and literally negate both chord directions. -/
 def inverse : AlignedConfiguration f.symm (f y) t M where
@@ -9019,27 +8410,6 @@ theorem linear_extension_eq_radial (f : UnitSphere X ≃ᵢ UnitSphere Y)
       _ = ‖x‖ • (f (normalize x hx) : Y) := by rw [hL]
       _ = radialExtension f x := (radialExtension_of_ne_zero f x hx).symm
 
-theorem linear_extension_unique (f : UnitSphere X ≃ᵢ UnitSphere Y)
-    (L K : X →ₗ[ℝ] Y)
-    (hL : ∀ u : UnitSphere X, L (u : X) = (f u : Y))
-    (hK : ∀ u : UnitSphere X, K (u : X) = (f u : Y)) : L = K := by
-  apply LinearMap.ext
-  intro x
-  exact (linear_extension_eq_radial f L hL x).trans
-    (linear_extension_eq_radial f K hK x).symm
-
-/-- The conditional extension endpoint; the main theorem supplies the proved zero bound. -/
-theorem existsUnique_linearIsometryEquiv_of_zero_defect
-    (f : UnitSphere X ≃ᵢ UnitSphere Y) (h0 : HasDefectBound f 0) :
-    ∃! L : X ≃ₗᵢ[ℝ] Y, ∀ u : UnitSphere X, L (u : X) = (f u : Y) := by
-  refine ⟨radialLinearIsometryEquiv f h0, ?_, ?_⟩
-  · exact radialLinearIsometryEquiv_unit f h0
-  · intro L hL
-    apply LinearIsometryEquiv.ext
-    intro x
-    change L x = radialExtension f x
-    exact linear_extension_eq_radial f L.toLinearEquiv.toLinearMap hL x
-
 end Tingley
 
 end
@@ -9098,11 +8468,6 @@ theorem maxDefect_eq_zero
 theorem hasDefectBound_zero (f : UnitSphere X ≃ᵢ UnitSphere Y) : HasDefectBound f 0 := by
   simpa only [maxDefect_eq_zero] using hasDefectBound_maxDefect f
 
-theorem existsUnique_linearIsometryEquiv
-    (f : UnitSphere X ≃ᵢ UnitSphere Y) :
-    ∃! T : X ≃ₗᵢ[ℝ] Y, ∀ x : UnitSphere X, T (x : X) = (f x : Y) := by
-  exact existsUnique_linearIsometryEquiv_of_zero_defect f (hasDefectBound_zero f)
-
 /-- The actual unconditional extension, with the original radial function. -/
 def extension (f : UnitSphere X ≃ᵢ UnitSphere Y) : X ≃ₗᵢ[ℝ] Y :=
   radialLinearIsometryEquiv f (hasDefectBound_zero f)
@@ -9135,12 +8500,6 @@ def sphereIsometryEquiv (f : UnitSphere X → UnitSphere Y)
     (hf : Isometry f) (hs : Function.Surjective f) : UnitSphere X ≃ᵢ UnitSphere Y where
   toEquiv := Equiv.ofBijective f ⟨hf.injective, hs⟩
   isometry_toFun := hf
-
-/-- Every onto isometry of unit spheres extends uniquely to a real-linear isometry. -/
-theorem tingley_sphere_isometry
-    (f : UnitSphere X → UnitSphere Y) (hf : Isometry f) (hs : Function.Surjective f) :
-    ∃! T : X ≃ₗᵢ[ℝ] Y, ∀ x : UnitSphere X, T (x : X) = (f x : Y) := by
-  exact existsUnique_linearIsometryEquiv (sphereIsometryEquiv f hf hs)
 
 /-- Radial formula, surjectivity, and uniqueness among all real-linear extensions. -/
 theorem tingley_sphere_isometry_full
