@@ -4,7 +4,7 @@ import OMAReductions.R_mo_514705_R1
 # A pair criterion and a reflection criterion for the weighted union-closed sets conjecture
 
 The excess of coordinate `k` is the left side minus the right side in MathOverflow
-514705. We prove two sufficient conditions for some coordinate to have nonnegative excess.
+514705. We prove sufficient conditions for some coordinate to have nonnegative excess.
 
 * If adjoining a pair `{a,b}` preserves the family, the excesses of `a` and `b`
   sum to a nonnegative number for every nonnegative increasing set weight. Group
@@ -22,9 +22,17 @@ The bound two at `t = 0` is sharp for the total excess. In degree zero the
 union-closed family consisting of the empty set, {a}, {b}, {a,b}, {a,b,c} has
 total excess -1; it still has abundant elements.
 
+For a union-closed family the coordinate inequality always holds up to codimension
+three. If a one-point deletion of the top is missing, we find one coordinate
+which works for every nonnegative coefficient vector simultaneously. Members
+omitting the chosen coordinate have a greatest member at least two ranks below
+the top. Only two of those members can extend a fixed `m`-set in the critical
+case. Closure under unions furnishes a second containing member whenever needed.
+If every one-point deletion is present, the reflection criterion applies.
+
 The reduction separates degree zero and positive degree after excluding
-two-element members. The positive-degree case also requires an explicitly
-described missing set near the top. The general conjecture remains open.
+two-element members. The positive-degree case requires a top at least four
+ranks above the degree and an explicitly described missing set near that top. The general conjecture remains open.
 -/
 
 namespace OMA.R_mo_514705_R1_H2_R1
@@ -244,6 +252,194 @@ theorem top_layers_excess_nonneg {α : Type*} [DecidableEq α] {U : Finset α}
   have := Finset.card_le_card hAU
   omega
 
+/-- Compare the numbers of extensions of each rank-`m` subset separately.
+A uniform coordinate comparison then holds for all nonnegative layer coefficients. -/
+theorem coordinate_of_extension_counts {α : Type*} [DecidableEq α] {U : Finset α}
+    (F : Finset (Finset α)) (hsub : ∀ A ∈ F, A ⊆ U) (m : ℕ) (k : α)
+    (h : ∀ B ∈ U.powersetCard m, k ∉ B →
+      (F.filter (fun A => B ⊆ A ∧ k ∉ A)).card ≤
+        (F.filter (fun A => B ⊆ A ∧ k ∈ A)).card)
+    (c : Finset α → ℝ) (hc : ∀ B, 0 ≤ c B) :
+    (∑ A ∈ F.filter (k ∉ ·), ∑ B ∈ A.powersetCard m, c B) ≤
+      ∑ A ∈ F.filter (k ∈ ·), ∑ B ∈ (A.erase k).powersetCard m, c B := by
+  classical
+  have expand (S : Finset (Finset α)) (f : Finset α → Finset α) (hf : ∀ A ∈ S, f A ⊆ U) :
+      (∑ A ∈ S, ∑ B ∈ (f A).powersetCard m, c B) =
+        ∑ B ∈ U.powersetCard m, ((S.filter (fun A => B ⊆ f A)).card : ℝ) * c B := by
+    calc
+      _ = ∑ A ∈ S, ∑ B ∈ U.powersetCard m, if B ⊆ f A then c B else 0 := by
+        apply Finset.sum_congr rfl
+        intro A hA
+        rw [← Finset.sum_filter]
+        congr 1
+        ext B
+        simp only [Finset.mem_filter, Finset.mem_powersetCard]
+        exact ⟨fun ⟨hB, hm⟩ => ⟨⟨hB.trans (hf A hA), hm⟩, hB⟩,
+          fun ⟨⟨_, hm⟩, hB⟩ => ⟨hB, hm⟩⟩
+      _ = _ := by
+        rw [Finset.sum_comm]
+        apply Finset.sum_congr rfl
+        intro B _
+        rw [← Finset.sum_filter]
+        simp
+  rw [expand (F.filter (k ∉ ·)) (fun A => A) (fun A hA => hsub A (Finset.mem_filter.mp hA).1),
+    expand (F.filter (k ∈ ·)) (fun A => A.erase k)
+      (fun A hA => (Finset.erase_subset _ _).trans (hsub A (Finset.mem_filter.mp hA).1))]
+  apply Finset.sum_le_sum
+  intro B hB
+  apply mul_le_mul_of_nonneg_right _ (hc B)
+  apply Nat.cast_le.mpr
+  by_cases hk : k ∈ B
+  · have hz : ((F.filter (k ∉ ·)).filter (fun A => B ⊆ A)) = ∅ := by
+      apply Finset.eq_empty_iff_forall_notMem.mpr
+      intro A hA
+      obtain ⟨h₁, h₂⟩ := Finset.mem_filter.mp hA
+      exact (Finset.mem_filter.mp h₁).2 (h₂ hk)
+    simp [hz]
+  · simpa only [Finset.filter_filter, Finset.subset_erase, hk, not_false_eq_true,
+      and_true, true_and, and_comm] using h B hB hk
+
+/-- All members omitting `k` lie in `V`. If `V` is at most one rank above `m`,
+at most two such members extend an `m`-subset `B`: `B` and `V`. The top pays
+for one. A second member need only be supplied when both distinct sets occur. -/
+private lemma count_in_envelope {α : Type*} [DecidableEq α] {U V : Finset α}
+    (F : Finset (Finset α)) (hU : U ∈ F) (k : α) (hk : k ∈ U)
+    (hV : ∀ A ∈ F, k ∉ A → A ⊆ V) (m : ℕ) (hr : V.card ≤ m + 1)
+    (second : ∀ B ∈ F, B ⊂ V → B.card = m →
+      ∃ A ∈ F, B ⊆ A ∧ k ∈ A ∧ A ≠ U) :
+    ∀ B ∈ U.powersetCard m, k ∉ B →
+      (F.filter (fun A => B ⊆ A ∧ k ∉ A)).card ≤
+        (F.filter (fun A => B ⊆ A ∧ k ∈ A)).card := by
+  classical
+  intro B hB _
+  obtain ⟨hBU, hm⟩ := Finset.mem_powersetCard.mp hB
+  let N := F.filter (fun A => B ⊆ A ∧ k ∉ A)
+  let P := F.filter (fun A => B ⊆ A ∧ k ∈ A)
+  change N.card ≤ P.card
+  have top : U ∈ P := Finset.mem_filter.mpr ⟨hU, hBU, hk⟩
+  have hN : N ⊆ {B, V} := by
+    intro A hA
+    obtain ⟨hAF, hBA, hkA⟩ := Finset.mem_filter.mp hA
+    by_cases heq : B = A
+    · simp [heq]
+    · have ht := Finset.card_lt_card (Finset.ssubset_iff_subset_ne.mpr ⟨hBA, heq⟩)
+      have e := Finset.eq_of_subset_of_card_le (hV A hAF hkA) (by omega)
+      simp [e]
+  by_cases one : N.card ≤ 1
+  · exact one.trans (Finset.card_pos.mpr ⟨U, top⟩)
+  have h2 : N = {B, V} := Finset.eq_of_subset_of_card_le hN (by
+    have := Finset.card_le_two (a := B) (b := V)
+    omega)
+  have hBN : B ∈ N := h2 ▸ Finset.mem_insert_self _ _
+  have hVN : V ∈ N := h2 ▸ (by simp)
+  have hne : B ≠ V := by
+    rintro rfl
+    simp [h2] at one
+  obtain ⟨A, hAF, hBA, hkA, hAU⟩ := second B (Finset.mem_filter.mp hBN).1
+    (Finset.ssubset_iff_subset_ne.mpr ⟨(Finset.mem_filter.mp hVN).2.1, hne⟩) hm
+  have hp : 1 < P.card := Finset.one_lt_card.mpr
+    ⟨A, Finset.mem_filter.mpr ⟨hAF, hBA, hkA⟩, U, top, hAU⟩
+  exact (Finset.card_le_card hN).trans (Finset.card_le_two.trans (by omega))
+
+/-- A nonempty union-closed finite family has a greatest member. -/
+private lemma family_greatest {α : Type*} [DecidableEq α] (G : Finset (Finset α))
+    (hne : G.Nonempty) (huc : ∀ A ∈ G, ∀ B ∈ G, A ∪ B ∈ G) :
+    ∃ V ∈ G, ∀ A ∈ G, A ⊆ V := by
+  obtain ⟨V, hV, hm⟩ := G.exists_max_image Finset.card hne
+  refine ⟨V, hV, fun A hA => ?_⟩
+  have h := Finset.eq_of_subset_of_card_le (Finset.subset_union_right (s₁ := A) (s₂ := V))
+    (hm _ (huc A hA V hV))
+  exact h.symm ▸ Finset.subset_union_left
+
+/-- If the top has a missing one-point deletion, some coordinate works on every
+`m`-subset simultaneously. Prefer a coordinate `k` for which `U.erase k` is
+missing although both `D` and `D.erase k` occur lower in the family. If there
+is no such coordinate, every one-point deletion that occurs lifts to the top. -/
+theorem exists_uniform_coordinate_of_missing_coatom {α : Type*} [DecidableEq α] {U : Finset α}
+    (F : Finset (Finset α)) (hU : U ∈ F) (hsub : ∀ A ∈ F, A ⊆ U)
+    (huc : ∀ A ∈ F, ∀ B ∈ F, A ∪ B ∈ F)
+    (m : ℕ) (hd : U.card ≤ m + 3) (hole : ∃ k ∈ U, U.erase k ∉ F) :
+    ∃ k ∈ U, ∀ B ∈ U.powersetCard m, k ∉ B →
+      (F.filter (fun A => B ⊆ A ∧ k ∉ A)).card ≤
+        (F.filter (fun A => B ⊆ A ∧ k ∈ A)).card := by
+  classical
+  let lifts := ∀ A ∈ F, ∀ i ∈ A, A.erase i ∈ F → U.erase i ∈ F
+  have pick : ∃ k ∈ U, U.erase k ∉ F ∧
+      (lifts ∨ ∃ D ∈ F, k ∈ D ∧ D.erase k ∈ F) := by
+    by_cases hl : lifts
+    · obtain ⟨k, hk, h⟩ := hole
+      exact ⟨k, hk, h, Or.inl hl⟩
+    · simp only [lifts, Classical.not_forall, exists_prop] at hl
+      obtain ⟨D, hDF, k, hkD, he, h⟩ := hl
+      exact ⟨k, hsub D hDF hkD, h, Or.inr ⟨D, hDF, hkD, he⟩⟩
+  obtain ⟨k, hk, hhole, reason⟩ := pick
+  refine ⟨k, hk, ?_⟩
+  let G := F.filter (k ∉ ·)
+  by_cases hg : G.Nonempty
+  · have gclosed (A) (hA : A ∈ G) (B) (hB : B ∈ G) : A ∪ B ∈ G := by
+      obtain ⟨a, ha⟩ := Finset.mem_filter.mp hA
+      obtain ⟨b, hb⟩ := Finset.mem_filter.mp hB
+      exact Finset.mem_filter.mpr ⟨huc A a B b, by simpa only [Finset.mem_union, not_or] using And.intro ha hb⟩
+    obtain ⟨V, hVG, hmax⟩ := family_greatest G hg gclosed
+    obtain ⟨hVF, hkV⟩ := Finset.mem_filter.mp hVG
+    have hVU := hsub V hVF
+    have proper : V ⊂ U.erase k := Finset.ssubset_iff_subset_ne.mpr
+      ⟨Finset.subset_erase.mpr ⟨hVU, hkV⟩, fun e => hhole (e ▸ hVF)⟩
+    have hcard := Finset.card_lt_card proper
+    rw [Finset.card_erase_of_mem hk] at hcard
+    apply count_in_envelope F hU k hk (fun A hA hkA => hmax A (Finset.mem_filter.mpr ⟨hA, hkA⟩)) m
+      (by omega)
+    intro B hBF hBV hm
+    have hv := Finset.card_lt_card hBV
+    obtain ⟨lo, hne⟩ := Finset.ssubset_iff_subset_ne.mp hBV
+    rcases reason with hl | ⟨D, hDF, hkD, hDel⟩
+    · obtain ⟨j, hjV, hjB⟩ := Finset.not_subset.mp (fun h => hne (Finset.Subset.antisymm lo h))
+      have er : B = V.erase j := Finset.eq_of_subset_of_card_le (Finset.subset_erase.mpr ⟨lo, hjB⟩)
+        (by rw [Finset.card_erase_of_mem hjV]; omega)
+      have hjk : k ≠ j := fun e => hkV (e ▸ hjV)
+      have htopdel := hl V hVF j hjV (er ▸ hBF)
+      exact ⟨U.erase j, htopdel, Finset.subset_erase.mpr ⟨lo.trans hVU, hjB⟩,
+        Finset.mem_erase.mpr ⟨hjk, hk⟩, fun e => Finset.notMem_erase j U (e.symm ▸ hVU hjV)⟩
+    · obtain ⟨j, hjE, hjV⟩ := Finset.not_subset.mp (fun h => (Finset.ssubset_iff_subset_ne.mp proper).2
+        (Finset.Subset.antisymm (Finset.ssubset_iff_subset_ne.mp proper).1 h))
+      obtain ⟨hjk, hjU⟩ := Finset.mem_erase.mp hjE
+      have hjD : j ∉ D := fun h => hjV (hmax (D.erase k)
+        (Finset.mem_filter.mpr ⟨hDel, Finset.notMem_erase k D⟩) (Finset.mem_erase.mpr ⟨hjk, h⟩))
+      have hjJoin : j ∉ V ∪ D := by simp [hjV, hjD]
+      exact ⟨V ∪ D, huc V hVF D hDF, lo.trans Finset.subset_union_left,
+        Finset.mem_union_right V hkD, fun e => hjJoin (e.symm ▸ hjU)⟩
+  · intro B _ _
+    have no : (F.filter (fun A => B ⊆ A ∧ k ∉ A)) = ∅ :=
+      Finset.eq_empty_iff_forall_notMem.mpr fun A hA => hg ⟨A, Finset.mem_filter.mpr
+        ⟨(Finset.mem_filter.mp hA).1, (Finset.mem_filter.mp hA).2.2⟩⟩
+    simp [no]
+
+/-- In every union-closed family with a greatest nonempty member, all degrees
+of codimension at most three satisfy the weighted inequality for arbitrary
+nonnegative coefficients on the layer. -/
+theorem high_degree_three {α : Type*} [DecidableEq α] {U : Finset α}
+    (F : Finset (Finset α)) (hU : U ∈ F) (hne : U.Nonempty) (hsub : ∀ A ∈ F, A ⊆ U)
+    (huc : ∀ A ∈ F, ∀ B ∈ F, A ∪ B ∈ F) (m : ℕ) (hd : U.card ≤ m + 3)
+    (c : Finset α → ℝ) (hc : ∀ B, 0 ≤ c B) :
+    ∃ k ∈ U, (∑ A ∈ F.filter (k ∉ ·), ∑ B ∈ A.powersetCard m, c B) ≤
+      ∑ A ∈ F.filter (k ∈ ·), ∑ B ∈ (A.erase k).powersetCard m, c B := by
+  classical
+  by_cases hole : ∃ k ∈ U, U.erase k ∉ F
+  · obtain ⟨k, hk, h⟩ := exists_uniform_coordinate_of_missing_coatom F hU hsub huc m hd hole
+    exact ⟨k, hk, coordinate_of_extension_counts F hsub m k h c hc⟩
+  · have full (C : Finset α) (hCU : C ⊆ U) (hs : (U \ C).card ≤ 1) : C ∈ F := by
+      by_cases e : C = U
+      · exact e ▸ hU
+      obtain ⟨j, hj, hjC⟩ := Finset.not_subset.mp (fun hu => e (Finset.Subset.antisymm hCU hu))
+      have e' : C = U.erase j := Finset.eq_of_subset_of_card_le (Finset.subset_erase.mpr ⟨hCU, hjC⟩) (by
+        rw [Finset.card_erase_of_mem hj]
+        rw [Finset.card_sdiff_of_subset hCU] at hs
+        omega)
+      rw [e']
+      exact Classical.byContradiction (fun hn => hole ⟨j, hj, hn⟩)
+    have total := top_layers_excess_nonneg F hsub m 1 (by omega) full c hc
+    exact Finset.exists_le_of_sum_le hne total
+
 /-- The degree-zero case is the usual abundance question, restricted to families
 whose nonempty members have size at least three. -/
 def H1 : Prop :=
@@ -254,11 +450,11 @@ def H1 : Prop :=
 
 /-- A positive-degree counterexample would have a missing set near the top.
 Here `U` is the greatest member and the missing set `C` satisfies
-`2 * |U ∖ C| < |U| - m`. In particular, the top must have size at least `m + 3`. -/
+`2 * |U ∖ C| < |U| - m`. The top is at least four ranks above the degree. -/
 def H2 : Prop :=
   ∀ (n m : ℕ) (F : Finset (Finset (Fin n))) (x : Fin n → ℝ),
     0 < m →
-    (∃ U ∈ F, (∀ A ∈ F, A ⊆ U) ∧
+    (∃ U ∈ F, m + 4 ≤ U.card ∧ (∀ A ∈ F, A ⊆ U) ∧
       ∃ C ⊆ U, C ∉ F ∧ m + 2 * (U \ C).card < U.card) →
     (∀ A ∈ F, ∀ B ∈ F, A ∪ B ∈ F) →
     (∀ A ∈ F, A.Nonempty → 3 ≤ A.card) → (∀ i, 0 ≤ x i) →
@@ -302,8 +498,11 @@ theorem main : H1 → H2 → OMA.R_mo_514705_R1.H2 := by
     have eq := Finset.eq_of_subset_of_card_le (Finset.subset_union_right (s₁ := B) (s₂ := U))
       (hmax (B ∪ U) (huc B hB U hU))
     exact eq.symm ▸ Finset.subset_union_left
+  by_cases low : U.card ≤ m + 3
+  · obtain ⟨k, _, h⟩ := high_degree_three F hU (hAne.mono (covers A hA)) covers huc m low c hc
+    exact ⟨k, h⟩
   by_cases hole : ∃ C ⊆ U, C ∉ F ∧ m + 2 * (U \ C).card < U.card
-  · exact hposCase n m F x (by omega) ⟨U, hU, covers, hole⟩ huc hlarge hx
+  · exact hposCase n m F x (by omega) ⟨U, hU, by omega, covers, hole⟩ huc hlarge hx
   let t := (U.card - (m + 1)) / 2
   have hd : U.card ≤ m + 2 * t + 2 := by dsimp [t]; omega
   have full (C) (hCU : C ⊆ U) (hsmall : (U \ C).card ≤ t) : C ∈ F := by
