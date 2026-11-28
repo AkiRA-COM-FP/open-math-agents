@@ -15,13 +15,14 @@ This file states both parts: the recurrence for n > 6 as written (offset 0, so e
 term), and the g.f. as an identity of formal power series over ℚ,
 (∑ a(n) X^n) * ((1 - X)^3 (1 + X + X^2)^2) = (1 + 3X + X^2)(1 - X + 4X^2 - X^3 + X^4).
 (The entry also lists, from Robert Israel, Apr 03 2019, a closed form of a(n) by n mod 3, without
-proof.) The triples are taken in ℤ × ℤ × ℤ, each entry in Finset.Icc (-n) n.
+proof.) The triples are taken in ℤ × ℤ × ℤ, each entry in Finset.Icc (-n) n. The definition is
+marked noncomputable because Finset.Icc on ℤ is elaborated through a noncomputable order instance.
 -/
 
 namespace OMA.S_oeis_a211440
 
 /-- A211440(n): the number of triples (w, x, y) in {-n, ..., n}^3 with 2w + 3x + 3y = 0. -/
-def a (n : ℕ) : ℕ :=
+noncomputable def a (n : ℕ) : ℕ :=
   ((Finset.Icc (-(n : ℤ)) n ×ˢ Finset.Icc (-(n : ℤ)) n ×ˢ Finset.Icc (-(n : ℤ)) n).filter
     (fun t : ℤ × ℤ × ℤ => 2 * t.1 + 3 * t.2.1 + 3 * t.2.2 = 0)).card
 
