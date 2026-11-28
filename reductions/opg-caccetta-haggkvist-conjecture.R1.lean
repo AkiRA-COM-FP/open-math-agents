@@ -1,26 +1,33 @@
 import OMAStatements.S_opg_caccetta_haggkvist_conjecture
 
 /-!
-# Caccetta–Häggkvist: all finite Cayley subdigraphs
+# Short directed cycles in vertex-transitive digraphs and after vertex deletion
 
-This reduction proves the conjectured cycle bound for every loopless digraph
-containing a Cayley subdigraph of an arbitrary finite group, with at least `r`
-connection elements. The connection set need not generate the group, and the
-subdigraph need not be spanning. The unrestricted conjecture is not proved:
-H1 and H2 retain the remaining cases with degree bounds two and at least three.
+For a finite vertex-transitive digraph of order n and positive outdegree at
+least r, let K = ceil(n/r). Each prescribed vertex lies on a simple cycle
+of length at most K. The through-vertex result holds even in a loopless
+homomorphic image; the target need not be finite or the map injective.
 
-The proof gives reusable results in increasing order of specialization:
-* Scherk–Kemperman for finite subsets of any group, including infinite groups;
-* a short nonempty identity-product word in any finite group;
-* extraction of a simple directed cycle from a nonempty closed walk;
-* the sharp ceiling bound for embedded Cayley subdigraphs.
+After deleting any set F with |F| K < n, there is still a simple cycle of
+length at most K, measured using the original order and degree. This strict
+threshold cannot in general be improved to equality: in a cyclic arrangement
+of q layers of d vertices, deleting one layer destroys all cycles.
 
-Mathematical sources: Hamidoune's Cayley-graph case, as presented in
-M. B. Nathanson, The Caccetta–Häggkvist conjecture and additive number theory,
-arXiv:math/0603469 (2006), Theorems 5–7.
-https://arxiv.org/abs/math/0603469
-The two noncommutative e-transforms use Mathlib's existing ETransform API.
-This is a formalization of classical mathematics, not a new resolution of CH.
+The proof lifts an orbit neighborhood to a subset of a finite group. Every
+fiber has the size of a stabilizer, so the ratio of the two cardinalities is
+unchanged. The noncommutative Scherk–Kemperman inequality gives a short
+identity-product word; erasing repeated segments retains the chosen base
+vertex. Double counting translates of the resulting cycle gives the deletion
+bound. Neither connectivity nor regularity of the group action is required.
+
+H1 and H2 leave the unrestricted degree-two and higher-degree cases after
+excluding hosts containing the surviving arcs of a qualifying transitive
+subgraph. The unrestricted Caccetta–Häggkvist conjecture remains open.
+
+Hamidoune's Cayley and vertex-transitive results and the product-set argument
+are presented by M. B. Nathanson in The Caccetta–Häggkvist conjecture and
+additive number theory (2006), Theorems 5–8: https://arxiv.org/abs/math/0603469.
+The two noncommutative e-transforms use Mathlib's ETransform API.
 -/
 
 -- Credit: @qtyan0721
@@ -302,13 +309,14 @@ theorem finite_group_one_product {G : Type*} [Group G] [Fintype G]
 
 open OMA.S_opg_caccetta_haggkvist_conjecture
 
-
-/-- Every nonempty closed walk in a loopless digraph contains a simple directed cycle. -/
-theorem cycle_of_closed_walk {V : Type} (G : Digraph V)
+/-- A nonempty closed walk in a loopless digraph contains a simple cycle through
+its starting vertex. Delete excursions between repeated vertices, keeping the base. -/
+theorem cycle_through_of_closed_walk {V : Type} (G : Digraph V)
     (hloop : ∀ v, ¬ G.Adj v v) (N : ℕ) (f : ℕ → V)
     (hN : 0 < N) (hclose : f N = f 0)
     (hstep : ∀ i < N, G.Adj (f i) (f (i + 1))) :
-    ∃ k, k ≤ N ∧ HasDirectedCycleOfLength G k := by
+    ∃ k, k ≤ N ∧ 2 ≤ k ∧ ∃ c : Fin k → V, Function.Injective c ∧
+      (∀ i, G.Adj (c i) (c (finRotate k i))) ∧ f 0 ∈ Set.range c := by
   classical
   induction N using Nat.strong_induction_on generalizing f with
   | h N ih =>
@@ -317,9 +325,8 @@ theorem cycle_of_closed_walk {V : Type} (G : Digraph V)
         by_contra hn
         have heq : N = 1 := by omega
         subst N
-        have hs := hstep 0 (by omega)
-        exact hloop (f 0) (by simpa only [Nat.zero_add, hclose] using hs)
-      refine ⟨N, le_rfl, htwo, (fun i => f i.val), hi, ?_⟩
+        exact hloop (f 0) (by simpa only [Nat.zero_add, hclose] using hstep 0 (by omega))
+      refine ⟨N, le_rfl, htwo, (fun i => f i.val), hi, ?_, ⟨⟨0, hN⟩, rfl⟩⟩
       intro i
       have : NeZero N := ⟨by omega⟩
       rw [finRotate_apply]
@@ -331,17 +338,62 @@ theorem cycle_of_closed_walk {V : Type} (G : Digraph V)
       · rw [Nat.mod_eq_of_lt (by omega)]
         exact hstep i.val i.isLt
     · obtain ⟨i, j, heq, hne⟩ := Function.not_injective_iff.mp hi
-      have produce (a b : Fin N) (hab : a.val < b.val) (he : f a.val = f b.val) :
-          ∃ k, k ≤ N ∧ HasDirectedCycleOfLength G k := by
-        have hp : 0 < b.val - a.val := by omega
-        have hlt : b.val - a.val < N := by omega
-        obtain ⟨k, hk, hc⟩ := ih (b.val - a.val) hlt
-          (fun t => f (a.val + t)) hp (by simpa [Nat.add_sub_of_le hab.le] using he.symm)
-          (by intro t ht; simpa [Nat.add_assoc] using hstep (a.val + t) (by omega))
-        exact ⟨k, hk.trans hlt.le, hc⟩
-      rcases lt_or_gt_of_ne (fun h => hne (Fin.ext h)) with hij | hji
-      · exact produce i j hij heq
-      · exact produce j i hji heq.symm
+      have splice (a b : Fin N) (hab : a.val < b.val) (he : f a.val = f b.val) :
+          ∃ k, k ≤ N ∧ 2 ≤ k ∧ ∃ c : Fin k → V, Function.Injective c ∧
+            (∀ i, G.Adj (c i) (c (finRotate k i))) ∧ f 0 ∈ Set.range c := by
+        let gap := b.val - a.val
+        let M := N - gap
+        have hgap : a.val + gap = b.val := by dsimp [gap]; omega
+        have hM : M + gap = N := by dsimp [M, gap]; omega
+        have haM : a.val < M := by omega
+        have hlt : M < N := by omega
+        let walk (t : ℕ) := if t ≤ a.val then f t else f (t + gap)
+        have hstart : walk 0 = f 0 := by simp [walk]
+        have hfinish : walk M = walk 0 := by
+          simpa [walk, Nat.not_le.mpr haM, hM] using hclose
+        have hwalk : ∀ t < M, G.Adj (walk t) (walk (t + 1)) := by
+          intro t ht
+          by_cases hpre : t + 1 ≤ a.val
+          · simpa [walk, hpre, show t ≤ a.val by omega] using hstep t (by omega)
+          · by_cases hat : t = a.val
+            · subst t
+              have hnext : a.val + 1 + gap = b.val + 1 := by omega
+              simpa [walk, hnext, he] using hstep b.val b.isLt
+            · have hpost : ¬ t ≤ a.val := by omega
+              have hadd : t + 1 + gap = t + gap + 1 := by omega
+              simpa [walk, hpre, hpost, hadd] using hstep (t + gap) (by omega)
+        obtain ⟨k, hk, htwo, c, hi', hs, hv⟩ :=
+          ih M hlt walk (by omega) hfinish hwalk
+        exact ⟨k, hk.trans hlt.le, htwo, c, hi', hs, hstart ▸ hv⟩
+      rcases lt_or_gt_of_ne (fun e => hne (Fin.ext e)) with hij | hji
+      · exact splice i j hij heq
+      · exact splice j i hji heq.symm
+
+/-- Every nonempty closed walk in a loopless digraph contains a simple directed cycle. -/
+theorem cycle_of_closed_walk {V : Type} (G : Digraph V)
+    (hloop : ∀ v, ¬ G.Adj v v) (N : ℕ) (f : ℕ → V)
+    (hN : 0 < N) (hclose : f N = f 0)
+    (hstep : ∀ i < N, G.Adj (f i) (f (i + 1))) :
+    ∃ k, k ≤ N ∧ HasDirectedCycleOfLength G k := by
+  obtain ⟨k, hk, ht, c, hi, hs, _⟩ := cycle_through_of_closed_walk G hloop N f hN hclose hstep
+  exact ⟨k, hk, ht, c, hi, hs⟩
+
+/-- A short identity-product word yields a simple cycle through the image of
+the identity, even when distinct group elements have the same image. -/
+theorem cycle_through_of_one_product {A : Type*} [Monoid A] {V : Type}
+    (G : Digraph V) (hloop : ∀ v, ¬ G.Adj v v) (e : A → V)
+    (S : Finset A) (hedge : ∀ x s, s ∈ S → G.Adj (e x) (e (x * s)))
+    (l : List A) (hne : l ≠ []) (hmem : ∀ a ∈ l, a ∈ S) (hprod : l.prod = 1) :
+    ∃ k, k ≤ l.length ∧ 2 ≤ k ∧ ∃ c : Fin k → V, Function.Injective c ∧
+      (∀ i, G.Adj (c i) (c (finRotate k i))) ∧ e 1 ∈ Set.range c := by
+  have hclose : e (l.take l.length).prod = e (l.take 0).prod := by
+    simpa using congrArg e hprod
+  have hstep (i : ℕ) (hi : i < l.length) :
+      G.Adj (e (l.take i).prod) (e (l.take (i + 1)).prod) := by
+    simpa only [List.prod_take_succ l i hi] using
+      hedge (l.take i).prod l[i] (hmem l[i] (List.getElem_mem hi))
+  simpa using cycle_through_of_closed_walk G hloop l.length
+    (fun i => e (l.take i).prod) (List.length_pos_iff.mpr hne) hclose hstep
 
 /-- A nonempty identity-product word gives a short simple cycle in every loopless
 digraph containing the corresponding right-multiplication edges. -/
@@ -350,15 +402,8 @@ theorem cycle_of_one_product {A : Type*} [Monoid A] {V : Type}
     (S : Finset A) (hedge : ∀ x s, s ∈ S → G.Adj (e x) (e (x * s)))
     (l : List A) (hne : l ≠ []) (hmem : ∀ a ∈ l, a ∈ S) (hprod : l.prod = 1) :
     ∃ k, k ≤ l.length ∧ HasDirectedCycleOfLength G k := by
-  apply cycle_of_closed_walk G hloop l.length (fun i => e (l.take i).prod)
-  · exact List.length_pos_iff.mpr hne
-  · simpa using congrArg e hprod
-  · intro i hi
-    simpa only [List.prod_take_succ l i hi] using
-      hedge (l.take i).prod l[i] (hmem l[i] (List.getElem_mem hi))
-
-open OMA.S_opg_caccetta_haggkvist_conjecture
-
+  obtain ⟨k, hk, ht, c, hi, hs, _⟩ := cycle_through_of_one_product G hloop e S hedge l hne hmem hprod
+  exact ⟨k, hk, ht, c, hi, hs⟩
 
 /-- In a loopless finite digraph, every outdegree is smaller than the order. -/
 theorem outdegree_lt_card {V : Type} [Fintype V] (G : Digraph V) [DecidableRel G.Adj]
@@ -439,20 +484,252 @@ theorem cycle_of_cayley_subgraph {A : Type*} [Group A] [Fintype A]
 open OMA.S_opg_caccetta_haggkvist_conjecture
 
 
-/-- The remaining outdegree-two case after excluding all embedded finite Cayley subdigraphs. -/
+/-- The inverse image of a finite part of one orbit consists of one stabilizer
+coset per point. Left translation identifies each fiber with the identity fiber. -/
+theorem card_orbit_preimage (A : Type*) [Group A] [Fintype A] {W : Type*}
+    [MulAction A W] [DecidableEq W] (v : W) (T : Finset W)
+    (hT : ∀ w ∈ T, ∃ a : A, a • v = w) :
+    (Finset.univ.filter (fun a : A => a • v ∈ T)).card =
+      T.card * (Finset.univ.filter (fun a : A => a • v = v)).card := by
+  rw [← Finset.sum_card_fiberwise_eq_card_filter Finset.univ T (fun a : A => a • v)]
+  apply Finset.sum_const_nat
+  intro w hw
+  obtain ⟨b, rfl⟩ := hT w hw
+  apply Finset.card_equiv (Equiv.mulLeft b⁻¹)
+  intro g
+  simp [mul_smul, inv_smul_eq_iff]
+
+/-- All translates of a prescribed set of edges at one point of a group orbit
+suffice. The graph can be infinite, and the map into it can identify vertices. -/
+theorem cycle_through_of_orbit_edges {A : Type*} [Group A] [Fintype A]
+    {W : Type*} [MulAction A W] [DecidableEq W] {V : Type}
+    (G : Digraph V) (hloop : ∀ v, ¬ G.Adj v v) (e : W → V) (v : W)
+    (T : Finset W) (hT : ∀ w ∈ T, ∃ a : A, a • v = w)
+    (hedge : ∀ (a : A) (w : W), w ∈ T → G.Adj (e (a • v)) (e (a • w)))
+    (k : ℕ) (hsize : (Finset.univ.image (fun a : A => a • v)).card ≤ k * T.card) :
+    ∃ t, t ≤ k ∧ 2 ≤ t ∧ ∃ c : Fin t → V, Function.Injective c ∧
+      (∀ i, G.Adj (c i) (c (finRotate t i))) ∧ e v ∈ Set.range c := by
+  classical
+  let O := Finset.univ.image (fun a : A => a • v)
+  let S := Finset.univ.filter (fun a : A => a • v ∈ T)
+  let h := (Finset.univ.filter (fun a : A => a • v = v)).card
+  have hmem (a : A) : a • v ∈ O := Finset.mem_image_of_mem _ (Finset.mem_univ a)
+  have hO : Fintype.card A = O.card * h := by
+    have hfull := card_orbit_preimage A v O (by
+      intro w hw
+      obtain ⟨a, _, ha⟩ := Finset.mem_image.mp hw
+      exact ⟨a, ha⟩)
+    simpa [hmem, h] using hfull
+  have hS : S.card = T.card * h := card_orbit_preimage A v T hT
+  have hbound : Fintype.card A ≤ k * S.card := by
+    rw [hO, hS, ← Nat.mul_assoc]
+    exact Nat.mul_le_mul_right h hsize
+  obtain ⟨l, hne, hl, hlist, hprod⟩ := finite_group_one_product S k hbound
+  obtain ⟨t, ht, htwo, c, hi, hs, hv⟩ := cycle_through_of_one_product G hloop
+    (fun a : A => e (a • v)) S (by
+      intro a s hsm
+      simpa only [mul_smul] using hedge a (s • v) (Finset.mem_filter.mp hsm).2)
+    l hne hlist hprod
+  exact ⟨t, ht.trans hl, htwo, c, hi, hs, by simpa using hv⟩
+
+private theorem finite_digraph_aut {W : Type} [Fintype W] (D : Digraph W) : Finite (D.Adj ≃r D.Adj) :=
+  Finite.of_injective (fun f : D.Adj ≃r D.Adj => (f : W → W))
+    (fun _ _ hf => RelIso.ext (congrFun hf))
+
+/-- Hamidoune's bound through any prescribed image vertex. The source is
+vertex-transitive; the target need only be loopless and contain the mapped arcs. -/
+theorem cycle_through_of_vertex_transitive_image {W V : Type} [Fintype W]
+    (D : Digraph W) [DecidableRel D.Adj] (G : Digraph V) (hloop : ∀ v, ¬ G.Adj v v)
+    (e : W → V) (hmap : ∀ x y, D.Adj x y → G.Adj (e x) (e y))
+    (v : W) (htrans : ∀ w, ∃ σ : D.Adj ≃r D.Adj, σ v = w)
+    (r : ℕ) (hr : 1 ≤ r) (hdegree : r ≤ outdegree D v) (u : W) :
+    ∃ t, t ≤ ⌈(Fintype.card W : ℚ) / r⌉₊ ∧ 2 ≤ t ∧ ∃ c : Fin t → V,
+      Function.Injective c ∧ (∀ i, G.Adj (c i) (c (finRotate t i))) ∧ e u ∈ Set.range c := by
+  classical
+  let A := D.Adj ≃r D.Adj
+  let : Finite A := finite_digraph_aut D
+  let : Fintype A := Fintype.ofFinite A
+  let T := Finset.univ.filter (D.Adj v)
+  obtain ⟨τ, hτ⟩ := htrans u
+  have hrq : (0 : ℚ) < r := by exact_mod_cast (show 0 < r by omega)
+  have hceil : Fintype.card W ≤ ⌈(Fintype.card W : ℚ) / r⌉₊ * r := by
+    exact_mod_cast (div_le_iff₀ hrq).mp (Nat.le_ceil ((Fintype.card W : ℚ) / r))
+  have h := cycle_through_of_orbit_edges (A := A) G hloop (fun x => e (τ x)) v T
+    (fun w _ => htrans w) (by
+      intro a w hw
+      apply hmap
+      exact τ.map_rel_iff.mpr (a.map_rel_iff.mpr (Finset.mem_filter.mp hw).2))
+    ⌈(Fintype.card W : ℚ) / r⌉₊
+    ((Finset.card_le_univ _).trans (hceil.trans (Nat.mul_le_mul_left _ hdegree)))
+  simpa only [hτ] using h
+
+/-- In a transitive finite action a translate of B misses F when their sizes
+multiply to less than the number of points. Count bad automorphisms by fibers. -/
+theorem exists_translate_avoiding (A : Type*) [Group A] [Fintype A]
+    {W : Type*} [Fintype W] [MulAction A W] (B F : Finset W)
+    (htrans : ∀ x y : W, ∃ a : A, a • x = y)
+    (hsmall : B.card * F.card < Fintype.card W) :
+    ∃ a : A, ∀ x ∈ B, a • x ∉ F := by
+  classical
+  let bad (x : W) := Finset.univ.filter (fun a : A => a • x ∈ F)
+  have count (x : W) : (bad x).card * Fintype.card W = F.card * Fintype.card A := by
+    let h := (Finset.univ.filter (fun a : A => a • x = x)).card
+    have hf : (bad x).card = F.card * h := card_orbit_preimage A x F (fun y _ => htrans x y)
+    have hall : Fintype.card A = Fintype.card W * h := by
+      simpa [h] using card_orbit_preimage A x Finset.univ (fun y _ => htrans x y)
+    rw [hf, hall]
+    ac_rfl
+  by_contra! hhit
+  have hcover : (Finset.univ : Finset A) ⊆ B.biUnion bad := by
+    intro a _
+    obtain ⟨x, hx, ha⟩ := hhit a
+    exact Finset.mem_biUnion.mpr ⟨x, hx, Finset.mem_filter.mpr ⟨Finset.mem_univ _, ha⟩⟩
+  have hle : Fintype.card A ≤ ∑ x ∈ B, (bad x).card :=
+    (Finset.card_le_card hcover).trans Finset.card_biUnion_le
+  have hmul := Nat.mul_le_mul_right (Fintype.card W) hle
+  rw [Finset.sum_mul] at hmul
+  simp only [count, Finset.sum_const, nsmul_eq_mul] at hmul
+  apply (not_lt_of_ge hmul)
+  calc B.card * (F.card * Fintype.card A) = (B.card * F.card) * Fintype.card A :=
+         (Nat.mul_assoc ..).symm
+       _ < Fintype.card W * Fintype.card A := Nat.mul_lt_mul_of_pos_right hsmall Fintype.card_pos
+       _ = _ := Nat.mul_comm ..
+
+/-- Deleting F from a vertex-transitive digraph leaves a cycle of length at
+most K = ceil(n/r) whenever |F| K < n. The bound uses the original degree. -/
+theorem short_cycle_avoiding_of_vertex_transitive {W : Type} [Fintype W]
+    (D : Digraph W) [DecidableRel D.Adj] (hloop : ∀ w, ¬ D.Adj w w)
+    (v : W) (htrans : ∀ w, ∃ σ : D.Adj ≃r D.Adj, σ v = w)
+    (r : ℕ) (hr : 1 ≤ r) (hdegree : r ≤ outdegree D v) (F : Finset W)
+    (hsmall : F.card * ⌈(Fintype.card W : ℚ) / r⌉₊ < Fintype.card W) :
+    ∃ t, t ≤ ⌈(Fintype.card W : ℚ) / r⌉₊ ∧ 2 ≤ t ∧ ∃ c : Fin t → W,
+      Function.Injective c ∧ (∀ i, D.Adj (c i) (c (finRotate t i))) ∧ ∀ i, c i ∉ F := by
+  classical
+  obtain ⟨t, ht, ht2, c, hi, hs, _⟩ :=
+    cycle_through_of_vertex_transitive_image D D hloop id (fun _ _ h => h) v htrans r hr hdegree v
+  let A := D.Adj ≃r D.Adj
+  let : Finite A := finite_digraph_aut D
+  let : Fintype A := Fintype.ofFinite A
+  have move (x y : W) : ∃ σ : A, σ • x = y := by
+    obtain ⟨f, hf⟩ := htrans x
+    obtain ⟨g, hg⟩ := htrans y
+    refine ⟨f.symm.trans g, ?_⟩
+    change g (f.symm x) = y
+    rw [← hf, f.symm_apply_apply, hg]
+  let C := Finset.univ.image c
+  have hC : C.card = t := by simp [C, Finset.card_image_of_injective _ hi]
+  have hCF : C.card * F.card < Fintype.card W := by
+    rw [hC, Nat.mul_comm]
+    exact lt_of_le_of_lt (Nat.mul_le_mul_left F.card ht) hsmall
+  obtain ⟨σ, hσ⟩ := exists_translate_avoiding A C F move hCF
+  exact ⟨t, ht, ht2, σ ∘ c, σ.injective.comp hi, fun i => σ.map_rel_iff.mpr (hs i),
+    fun i => hσ _ (Finset.mem_image_of_mem c (Finset.mem_univ i))⟩
+
+/-- A host containing the surviving arcs inherits the cycle. The remaining
+vertices may have arbitrary extra or missing arcs. -/
+theorem cycle_of_punctured_transitive_subgraph {W V : Type} [Fintype W] [Fintype V]
+    (D : Digraph W) [DecidableRel D.Adj] (hloop : ∀ w, ¬ D.Adj w w)
+    (v : W) (htrans : ∀ w, ∃ σ : D.Adj ≃r D.Adj, σ v = w)
+    (r : ℕ) (hr : 1 ≤ r) (hdegree : r ≤ outdegree D v) (F : Finset W)
+    (hsmall : F.card * ⌈(Fintype.card W : ℚ) / r⌉₊ < Fintype.card W)
+    (G : Digraph V) (e : W ↪ V)
+    (hmap : ∀ x ∉ F, ∀ y ∉ F, D.Adj x y → G.Adj (e x) (e y)) :
+    ∃ k, k ≤ ⌈(Fintype.card V : ℚ) / r⌉₊ ∧ HasDirectedCycleOfLength G k := by
+  obtain ⟨k, hk, hk2, c, hi, hs, hf⟩ :=
+    short_cycle_avoiding_of_vertex_transitive D hloop v htrans r hr hdegree F hsmall
+  have hcard : (Fintype.card W : ℚ) ≤ Fintype.card V := by
+    exact_mod_cast Fintype.card_le_of_injective e e.injective
+  exact ⟨k, hk.trans (Nat.ceil_le_ceil (div_le_div_of_nonneg_right hcard (by positivity))),
+    hk2, e ∘ c, e.injective.comp hi, fun i => hmap _ (hf i) _ (hf _) (hs i)⟩
+
+open scoped Classical in
+/-- Sharpness at every layer count q ≥ 2 and layer size d ≥ 1. In the cyclic
+blow-up all arcs go to the next layer. Removing one entire layer meets every
+nonempty directed closed walk, while the original graph is transitive of degree d. -/
+theorem cyclic_layers_sharp (k s : ℕ) :
+    ∃ (D : Digraph (ZMod (k + 2) × ZMod (s + 1))) (F : Finset (ZMod (k + 2) × ZMod (s + 1))),
+      (∀ v, ¬ D.Adj v v) ∧ (∀ x y, ∃ σ : D.Adj ≃r D.Adj, σ x = y) ∧
+      (∀ v, outdegree D v = s + 1) ∧ F.card = s + 1 ∧
+      ∀ t, 0 < t → ∀ c : Fin t → ZMod (k + 2) × ZMod (s + 1),
+        (∀ i, D.Adj (c i) (c (finRotate t i))) → ∃ i, c i ∈ F := by
+  classical
+  let V := ZMod (k + 2) × ZMod (s + 1)
+  let D : Digraph V := ⟨fun x y => y.1 = x.1 + 1⟩
+  let layer (a : ZMod (k + 2)) := Finset.univ.image (fun b : ZMod (s + 1) => (a, b))
+  have hmem (a) (w : V) : w ∈ layer a ↔ w.1 = a := by
+    rcases w with ⟨x, y⟩
+    constructor
+    · intro h
+      obtain ⟨b, _, hb⟩ := Finset.mem_image.mp h
+      exact (congrArg Prod.fst hb).symm
+    · rintro rfl
+      exact Finset.mem_image_of_mem _ (Finset.mem_univ y)
+  have hcard (a) : (layer a).card = s + 1 := by
+    have hinj : Function.Injective (fun b : ZMod (s + 1) => (a, b)) :=
+      fun _ _ h => congrArg Prod.snd h
+    simp [layer, Finset.card_image_of_injective _ hinj]
+  have trans (x y : V) : ∃ σ : D.Adj ≃r D.Adj, σ x = y := by
+    let shift : D.Adj ≃r D.Adj :=
+      { toEquiv := Equiv.addLeft (y - x)
+        map_rel_iff' := by
+          intro u v
+          change (y - x).1 + v.1 = (y - x).1 + u.1 + 1 ↔ v.1 = u.1 + 1
+          rw [add_assoc, add_left_cancel_iff] }
+    exact ⟨shift, show y - x + x = y from sub_add_cancel y x⟩
+  have hq : Fact (1 < k + 2) := ⟨by omega⟩
+  refine ⟨D, layer 0, ?_, trans, ?_, hcard 0, ?_⟩
+  · intro v hv
+    change v.1 = v.1 + 1 at hv
+    exact one_ne_zero ((add_left_cancel (show v.1 + 1 = v.1 + 0 by simpa using hv.symm)))
+  · intro v
+    refine Eq.trans ?_ (hcard (v.1 + 1))
+    unfold outdegree
+    congr 1
+    ext w
+    have mem := @Finset.mem_filter V (D.Adj v)
+      (fun w => Classical.propDecidable (D.Adj v w)) Finset.univ w
+    exact ⟨fun hw => (hmem _ w).2 (mem.mp hw).2,
+      fun hw => mem.mpr ⟨Finset.mem_univ w, (hmem _ w).1 hw⟩⟩
+  · intro t ht c edges
+    by_contra! hmiss
+    have : NeZero t := ⟨by omega⟩
+    obtain ⟨i, _, hmax⟩ := Finset.exists_max_image Finset.univ (fun j => (c j).1.val)
+      (Finset.univ_nonempty : (Finset.univ : Finset (Fin t)).Nonempty)
+    let j := finRotate t i
+    have hj : (c j).1 = (c i).1 + 1 := edges i
+    have hn : (c j).1.val ≠ 0 := fun heq => hmiss j ((hmem 0 _).mpr ((ZMod.val_eq_zero _).mp heq))
+    have hv : (c j).1.val = ((c i).1.val + 1) % (k + 2) := by
+      rw [hj, ZMod.val_add, ZMod.val_one]
+    have hi := ZMod.val_lt (c i).1
+    have hnext : (c i).1.val + 1 < k + 2 := by
+      by_contra! hnxt
+      have heq : (c i).1.val + 1 = k + 2 := by omega
+      rw [heq, Nat.mod_self] at hv
+      exact hn hv
+    rw [Nat.mod_eq_of_lt hnext] at hv
+    have := hmax j (Finset.mem_univ j)
+    omega
+
+/-- The remaining degree-two hosts after excluding punctured transitive subgraphs. -/
 def H1 : Prop :=
   ∀ (V : Type) [Fintype V] [Nonempty V] (G : Digraph V) [DecidableRel G.Adj],
     (∀ v, ¬ G.Adj v v) → (∀ v, 2 ≤ outdegree G v) →
-    (∀ (A : Type) [Group A] [Fintype A] (e : A ↪ V) (S : Finset A),
-      2 ≤ S.card → ¬ (∀ x s, s ∈ S → G.Adj (e x) (e (x * s)))) →
+    (∀ (W : Type) [Fintype W] (D : Digraph W) [DecidableRel D.Adj]
+      (v : W) (F : Finset W) (e : W ↪ V),
+      (∀ w, ¬ D.Adj w w) → (∀ w, ∃ σ : D.Adj ≃r D.Adj, σ v = w) →
+      2 ≤ outdegree D v → F.card * ⌈(Fintype.card W : ℚ) / 2⌉₊ < Fintype.card W →
+      ¬ (∀ x ∉ F, ∀ y ∉ F, D.Adj x y → G.Adj (e x) (e y))) →
     ∃ k, k ≤ ⌈(Fintype.card V : ℚ) / 2⌉₊ ∧ HasDirectedCycleOfLength G k
 
-/-- The remaining cases of outdegree at least three after the same Cayley exclusion. -/
+/-- The corresponding residual for degree parameters at least three. -/
 def H2 : Prop :=
   ∀ (V : Type) [Fintype V] [Nonempty V] (G : Digraph V) [DecidableRel G.Adj] (r : ℕ),
     3 ≤ r → (∀ v, ¬ G.Adj v v) → (∀ v, r ≤ outdegree G v) →
-    (∀ (A : Type) [Group A] [Fintype A] (e : A ↪ V) (S : Finset A),
-      r ≤ S.card → ¬ (∀ x s, s ∈ S → G.Adj (e x) (e (x * s)))) →
+    (∀ (W : Type) [Fintype W] (D : Digraph W) [DecidableRel D.Adj]
+      (v : W) (F : Finset W) (e : W ↪ V),
+      (∀ w, ¬ D.Adj w w) → (∀ w, ∃ σ : D.Adj ≃r D.Adj, σ v = w) →
+      r ≤ outdegree D v → F.card * ⌈(Fintype.card W : ℚ) / r⌉₊ < Fintype.card W →
+      ¬ (∀ x ∉ F, ∀ y ∉ F, D.Adj x y → G.Adj (e x) (e y))) →
     ∃ k, k ≤ ⌈(Fintype.card V : ℚ) / r⌉₊ ∧ HasDirectedCycleOfLength G k
 
 theorem main : H1 → H2 → type_of% @OMA.S_opg_caccetta_haggkvist_conjecture.main := by
@@ -462,16 +739,19 @@ theorem main : H1 → H2 → type_of% @OMA.S_opg_caccetta_haggkvist_conjecture.m
   · subst r
     simpa using cycle_of_min_outdegree_pos G hloop hdegree
   by_cases hnone :
-      ∀ (A : Type) [Group A] [Fintype A] (e : A ↪ V) (S : Finset A),
-        r ≤ S.card → ¬ (∀ x s, s ∈ S → G.Adj (e x) (e (x * s)))
+      ∀ (W : Type) [Fintype W] (D : Digraph W) [DecidableRel D.Adj]
+        (v : W) (F : Finset W) (e : W ↪ V),
+        (∀ w, ¬ D.Adj w w) → (∀ w, ∃ σ : D.Adj ≃r D.Adj, σ v = w) →
+        r ≤ outdegree D v → F.card * ⌈(Fintype.card W : ℚ) / r⌉₊ < Fintype.card W →
+        ¬ (∀ x ∉ F, ∀ y ∉ F, D.Adj x y → G.Adj (e x) (e y))
   · by_cases hrtwo : r = 2
     · subst r
       exact htwo V G hloop hdegree hnone
     · exact hlarge V G r (by omega) hloop hdegree hnone
   · push Not at hnone
-    obtain ⟨A, hgroup, hfinite, e, S, hS, hedge⟩ := hnone
-    let : Group A := hgroup
-    let : Fintype A := hfinite
-    exact cycle_of_cayley_subgraph G hloop e S r hr hS hedge
+    obtain ⟨W, hW, D, hD, v, F, e, hl, htrans, hd, hsmall, hm⟩ := hnone
+    let : Fintype W := hW
+    let : DecidableRel D.Adj := hD
+    exact cycle_of_punctured_transitive_subgraph D hl v htrans r hr hd F hsmall G e hm
 
 end OMA.R_opg_caccetta_haggkvist_conjecture_R1
