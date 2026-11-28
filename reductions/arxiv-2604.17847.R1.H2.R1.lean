@@ -19,21 +19,24 @@ def H1 : Prop :=
         q ∣ (ordCompl[q] (ordCompl[2*q+1] (2*Nat.fib (h+1) - Nat.fib h))).totient)) → q % 15 ≠ 8 →
     ¬ q ^ 2 ∣ Nat.fib (if q % 5 = 1 ∨ q % 5 = 4 then q-1 else q+1)
 
--- On the remaining class, the square test uses the Fibonacci half-period factor.
+-- On the remaining class, the square test uses a single quarter-period factor.
 def H2 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
     let h := pisano q / 2
     (¬ (q ∣ (ordCompl[q] (Nat.fib h)).totient ∨
         q ∣ (ordCompl[q] (ordCompl[2*q+1] (2*Nat.fib (h+1) - Nat.fib h))).totient)) → q % 15 = 8 →
-    q ^ 2 ∣ Nat.fib h → (2*q+1).Prime
+    let t := pisano q/4
+    q ^ 2 ∣ (if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t) → (2*q+1).Prime
 
 def H3 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
     let h := pisano q / 2
     (¬ (q ∣ (ordCompl[q] (Nat.fib h)).totient ∨
         q ∣ (ordCompl[q] (ordCompl[2*q+1] (2*Nat.fib (h+1) - Nat.fib h))).totient)) → q % 15 = 8 →
-    q ^ 2 ∣ Nat.fib h → (2*q+1).Prime →
-    ((2*Nat.fib (h+1) - Nat.fib h) + 2)/q^4 ≡ 32 [MOD (2*q+1)]
+    let t := pisano q/4
+    q ^ 2 ∣ (if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t) → (2*q+1).Prime →
+    ¬ (rankOfApparition (2*q+1)).Coprime (2*(q+1)/pisano q) →
+    (if Even t then 1 else 5) * ((if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t)/q^2)^2 ≡ 32 [MOD (2*q+1)]
 
 -- Consecutive values form a finite reversible orbit for every positive modulus.
 lemma fib_pair_iterate (q n : ℕ) :
@@ -1290,6 +1293,98 @@ lemma stable_companion_quotient_iff {q : ℕ} (hq : q.Prime) (hl : 53 < q) (resi
     (companion_quotient_test (by omega) prime
       (lucas_half_lift hq (by omega) (even_half_in_companion_class hq (by omega) residue) square))
 
+lemma integer_cassini (n : ℕ) :
+    (Nat.fib (n+1) : ℤ)^2 - (Nat.fib n : ℤ)*Nat.fib (n+1) - (Nat.fib n : ℤ)^2 = (-1)^n := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Nat.fib_add_two, Nat.cast_add, pow_succ]
+    linear_combination -ih
+
+-- Lucas doubling selects a single square at the quarter-period.
+lemma quarter_factorization (t : ℕ) :
+    (2*Nat.fib (2*t+1)-Nat.fib (2*t))+2 =
+      (if Even t then 1 else 5) * (if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t)^2 := by
+  have bound (n : ℕ) : Nat.fib n ≤ 2*Nat.fib (n+1) := by
+    have := Nat.fib_le_fib_succ (n := n)
+    omega
+  have det := integer_cassini t
+  by_cases even : Even t
+  · simp only [if_pos even, one_mul]
+    rw [even.neg_one_pow] at det
+    zify [bound (2*t), bound t]
+    rw [Nat.fib_two_mul_add_one, Nat.fib_two_mul]
+    push_cast [Nat.cast_sub (bound t)]
+    linear_combination -2*det
+  · simp only [if_neg even]
+    rw [(Nat.not_even_iff_odd.mp even).neg_one_pow] at det
+    zify [bound (2*t)]
+    rw [Nat.fib_two_mul_add_one, Nat.fib_two_mul]
+    push_cast [Nat.cast_sub (bound t)]
+    linear_combination 2*det
+
+lemma quarter_square_of_lift {q t : ℕ} (hq : q.Prime) (hl : 5 < q)
+    (lift : q^4 ∣ (2*Nat.fib (2*t+1)-Nat.fib (2*t))+2) :
+    q^2 ∣ (if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t) := by
+  rw [quarter_factorization] at lift
+  have bound : (if Even t then 1 else 5) < q := by split <;> omega
+  have pos : 0 < (if Even t then 1 else 5) := by split <;> decide
+  have cop := hq.coprime_iff_not_dvd.mpr (Nat.not_dvd_of_pos_of_lt pos bound)
+  apply (Nat.pow_dvd_pow_iff (by decide : 2 ≠ 0)).mp
+  simpa only [← pow_mul] using (cop.pow_left 4).dvd_of_dvd_mul_left lift
+
+lemma half_square_of_quarter {q t : ℕ}
+    (square : q^2 ∣ (if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t)) :
+    q^2 ∣ Nat.fib (2*t) := by
+  rw [Nat.fib_two_mul]
+  split at square
+  · exact dvd_mul_of_dvd_right square _
+  · exact dvd_mul_of_dvd_left square _
+
+lemma quarter_quotient {q t : ℕ} (pos : 0 < q)
+    (square : q^2 ∣ (if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t)) :
+    ((2*Nat.fib (2*t+1)-Nat.fib (2*t))+2)/q^4 =
+      (if Even t then 1 else 5) * ((if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t)/q^2)^2 := by
+  rw [quarter_factorization]
+  apply Nat.div_eq_of_eq_mul_left (pow_pos pos 4)
+  let B := if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t
+  let w := if Even t then 1 else 5
+  change w*B^2 = w*(B/q^2)^2*q^4
+  calc w*B^2 = w*(q^2*(B/q^2))^2 := by rw [Nat.mul_div_cancel' square]
+       _ = _ := by ring
+
+
+lemma half_eq_twice_quarter {q : ℕ} (hq : q.Prime) (hl : 5 < q) (residue : q%15 = 8) :
+    pisano q/2 = 2*(pisano q/4) := by
+  obtain ⟨k,hk⟩ := even_half_in_companion_class hq hl residue
+  omega
+
+lemma half_quarter_square_iff {q : ℕ} (hq : q.Prime) (hl : 5 < q) (residue : q%15 = 8) :
+    let t := pisano q/4
+    q^2 ∣ Nat.fib (pisano q/2) ↔ q^2 ∣ (if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t) := by
+  dsimp only
+  have twice := half_eq_twice_quarter hq hl residue
+  constructor
+  · intro square
+    have lift := lucas_half_lift hq (by omega) (even_half_in_companion_class hq hl residue) square
+    dsimp only at lift
+    rw [twice] at lift
+    exact quarter_square_of_lift hq hl lift
+  · intro square
+    rw [twice]
+    exact half_square_of_quarter square
+
+lemma companion_quarter_iff {q : ℕ} (hq : q.Prime) (hl : 53 < q) (residue : q%15 = 8)
+    (square : q^2 ∣ Nat.fib (pisano q/2)) (hp : (2*q+1).Prime) :
+    let t := pisano q/4
+    2*q+1 ∣ Nat.fib (pisano q) ↔
+      (if Even t then 1 else 5) * ((if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t)/q^2)^2 ≡ 32 [MOD (2*q+1)] := by
+  have test := stable_companion_quotient_iff hq hl residue square hp
+  dsimp only at test ⊢
+  rw [half_eq_twice_quarter hq (by omega) residue,
+      quarter_quotient hq.pos ((half_quarter_square_iff hq (by omega) residue).mp square)] at test
+  exact test
+
 -- When the reduced totient is prime to q, only the canonical witness can work.
 lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
     ∀ q : ℕ, q.Prime → 53 < q → pisano (q^2) = pisano q →
@@ -1305,8 +1400,13 @@ lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
       by_contra h
       exact exclude q hq large long halves h square
     have halfSquare := (stable_residue_half_iff hq (by omega) residue).mp stable
-    have hp := prime q hq large long halves residue halfSquare
-    exact ⟨hp, (stable_companion_quotient_iff hq (by omega) residue halfSquare hp).mpr (align q hq large long halves residue halfSquare hp)⟩
+    have quarter := (half_quarter_square_iff hq (by omega) residue).mp halfSquare
+    have hp := prime q hq large long halves residue quarter
+    refine ⟨hp, ?_⟩
+    by_cases cop : (rankOfApparition (2*q+1)).Coprime (2*(q+1)/pisano q)
+    · exact alignment_of_coprime_cofactor hq (by omega) residue hp cop
+    · exact (companion_quarter_iff hq hl residue halfSquare hp).mpr
+        (align q hq large long halves residue quarter hp cop)
   · intro canonical
     refine ⟨?_, ?_, ?_⟩
     · intro q hq large _ h noLarge outside square
@@ -1314,13 +1414,15 @@ lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
       have stable := (stable_selected_iff hq (by omega)).mpr square
       obtain ⟨hp, aligned⟩ := canonical q hq (by omega) stable noFull
       exact outside (aligned_companion_residue hq (by omega) hp aligned)
-    · intro q hq large _ h noLarge residue square
+    · intro q hq large _ h noLarge residue t quarter
       have noFull := mt (other_witness_half_tests hq (by omega)).mp noLarge
+      have square := (half_quarter_square_iff hq (by omega) residue).mpr quarter
       exact (canonical q hq (by omega) ((stable_residue_half_iff hq (by omega) residue).mpr square) noFull).1
-    · intro q hq large _ h noLarge residue square hp
+    · intro q hq large _ h noLarge residue t quarter hp _
       have noFull := mt (other_witness_half_tests hq (by omega)).mp noLarge
+      have square := (half_quarter_square_iff hq (by omega) residue).mpr quarter
       have stable := (stable_residue_half_iff hq (by omega) residue).mpr square
-      exact (stable_companion_quotient_iff hq (by omega) residue square hp).mp (canonical q hq (by omega) stable noFull).2
+      exact (companion_quarter_iff hq (by omega) residue square hp).mp (canonical q hq (by omega) stable noFull).2
 
 lemma parent_iff : (H1 ∧ H2 ∧ H3) ↔ OMA.R_arxiv_2604_17847_R1.H2 := by
   rw [canonical_companion_iff]
