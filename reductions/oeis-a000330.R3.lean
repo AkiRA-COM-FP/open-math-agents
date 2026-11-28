@@ -827,11 +827,11 @@ theorem witness_128 : (128 : ℤ) = generalizedPolygonalPyramidal 4 258003 + gen
 
 end PyramidWitnesses
 
-namespace OMA.R_oeis_a000330_R2
+namespace OMA.R_oeis_a000330_R3
 open OMA.S_oeis_a000330
 
 /-- The remaining targets for the square pyramidal conjecture. -/
-def H1 : Prop := ∀ z : ℤ, 2048 < |z| → ∃ a b c : ℤ,
+def H1 : Prop := ∀ z : ℤ, 2048 < z → ∃ a b c : ℤ,
   z = generalizedPolygonalPyramidal 4 a + generalizedPolygonalPyramidal 4 b +
     generalizedPolygonalPyramidal 4 c
 
@@ -844,10 +844,14 @@ theorem main : H1 → H2 → type_of% @OMA.S_oeis_a000330.main := by
   intro square other r hr z
   by_cases h : r = 4
   · subst r
-    by_cases large : 2048 < |z|
-    · exact square z large
-    · obtain ⟨lo,hi⟩ := abs_le.mp (le_of_not_gt large)
-      exact PyramidWitnesses.interval_witness z lo hi
+    by_cases pos : 2048 < z
+    · exact square z pos
+    by_cases neg : z < -2048
+    · obtain ⟨a,b,c,e⟩ := square (-z) (by omega)
+      refine ⟨-a-1,-b-1,-c-1,?_⟩
+      rw [PyramidWitnesses.reflected, PyramidWitnesses.reflected, PyramidWitnesses.reflected]
+      omega
+    · exact PyramidWitnesses.interval_witness z (by omega) (by omega)
   · exact other r hr h z
 
-end OMA.R_oeis_a000330_R2
+end OMA.R_oeis_a000330_R3
