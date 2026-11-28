@@ -108,6 +108,16 @@ budget() {  # never let the repository run dry: other jobs (checks, deploys) nee
   if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; touch "$ROOT/budget_low"; nap $(( reset - $(date -u +%s) + 5 )); fi
   if [ "${grem:-999}" -lt 60 ]; then echo "GraphQL budget low ($grem left), waiting for the reset"; touch "$ROOT/budget_low"; nap $(( greset - $(date -u +%s) + 5 )); fi
   rm -f "$ROOT/budget_low"
+  # Spread the budget over the hour: from the burn since the last look, the slots the dispatcher may use until the
+  # reset (all of them while the budget lasts at the current pace; fewer, down to 2, when it would run out first).
+  local NOWB=$(date -u +%s) CAP=$SLOTS
+  if [ -n "${PREV_REM:-}" ] && [ "$NOWB" -gt "${PREV_T:-0}" ] && [ "${rem:-0}" -lt "$PREV_REM" ] && [ "${reset:-0}" -gt "$NOWB" ]; then
+    local BURN=$(( (PREV_REM - rem) * 60 / (NOWB - PREV_T) )) MINS=$(( (reset - NOWB) / 60 + 1 ))
+    [ "$BURN" -gt 0 ] && CAP=$(( SLOTS * (rem - 500) / (BURN * MINS) ))
+    [ "$CAP" -gt "$SLOTS" ] && CAP=$SLOTS; [ "$CAP" -lt 2 ] && CAP=2
+    echo "$(date -u +%H:%M:%S) budget pace: $BURN calls/min, $MINS min to reset, slots allowed $CAP" >> "$ROOT/merger_out.txt"
+  fi
+  echo "$CAP" > "$ROOT/slots_cap"; PREV_REM=$rem; PREV_T=$NOWB
 }
 refresh() {  # main moved on (merges): pull it; each verdict slot's copy is synced when the slot next starts (sync_slot)
   ( flock -w 300 7
@@ -196,7 +206,7 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   [ -e "$ROOT/done/pr.$PR.$SHA" ] && return 0   # this head already has its verdict (from check-proof or the batch checker)
   local RM; RM=$(cat "$ROOT/remerge/$PR" 2>/dev/null || echo 0)
   [ "$MODE" = remerge ] && [ "$RM" = 0 ] && RM=1               # requeued: accepted and reported before, merge again
-  if [ "$OLD" = 1 ] && gh api "repos/$REPO/issues/$PR/comments?per_page=100" --jq '.[].body' 2>/dev/null | grep -qF "$URL"; then
+  if [ "$OLD" = 1 ] && [ "$CONC" != success ] && gh api "repos/$REPO/issues/$PR/comments?per_page=100" --jq '.[].body' 2>/dev/null | grep -qF "$URL"; then
     # already reported (by an earlier merger): a rejection stays reported; an accepted proof still open was not merged
     # (a refused merge whose retries were lost in a restart): merge it now without repeating the verdict
     [ "$CONC" = success ] || return 0
@@ -341,7 +351,7 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
   for i in $(seq 1 "$SLOTS"); do
     if [ -n "${SPID[$i]:-}" ] && kill -0 "${SPID[$i]}" 2>/dev/null; then BUSY=$((BUSY + 1)); continue; fi
     [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""
-    [ "$QI" -lt "${#QL[@]}" ] && [ ! -e "$ROOT/budget_low" ] || continue
+    [ "$QI" -lt "${#QL[@]}" ] && [ ! -e "$ROOT/budget_low" ] && [ "$BUSY" -lt "$(cat "$ROOT/slots_cap" 2>/dev/null || echo "$SLOTS")" ] || continue
     IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE <<< "${QL[$QI]}"; QI=$((QI + 1))
     [ -e "done/$ID.$ATT" ] && continue
     touch "done/$ID.$ATT"
