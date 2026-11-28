@@ -10334,6 +10334,46 @@
     "https://oeis.org/A002618"
    ],
    "reason": "The statement's IsAPPermutation places the coprimality hypotheses as implications inside the existential. Taking c=d=0 makes every function qualify, so the count becomes n! and the disproof checks n=4 (24 vs 8). The proof file admits this. A typo exploit; the conjecture itself is recorded in OEIS as confirmed by Adams-Watters (2009)."
+  },
+  "mo-202502": {
+   "date": "2026-11-28",
+   "pr": 26414,
+   "evidence": [
+    "https://mathoverflow.net/questions/202502"
+   ],
+   "reason": "The source asks vaguely whether MGF order M_X(t) <= M_Y(t) for t > 0 yields 'a direct inequality for the tails'. The formalization fixes the strongest reading (first-order stochastic dominance P(X > x) <= P(Y > x) for all x) and refutes it with X = 1, Y uniform on {0,2}, a textbook convex-order example (Jensen). That disposes of a strawman reading, not of the asker's question about some usable tail bound."
+  },
+  "mo-218860": {
+   "date": "2026-11-28",
+   "pr": 27730,
+   "evidence": [
+    "https://mathoverflow.net/questions/218860"
+   ],
+   "reason": "The asker wants 'nice' conditions on A for x -> A Psi(x) to be injective. The statement's characterization says exactly that ker A meets no nonzero difference Psi(x) - Psi(y), with the difference set written out (the cubic relation for p = 2, explicit reconstructed points in general), plus the trivial linear case. That is injectivity of a map restated, not a structural condition, so there is no open content."
+  },
+  "mo-220054": {
+   "date": "2026-11-28",
+   "pr": 27473,
+   "evidence": [
+    "https://mathoverflow.net/questions/220054"
+   ],
+   "reason": "The asker wants a 'simple characterization' of joint cumulants of Z_2^n characters. Two of the statement's three parts are immediate from the definitions: the cumulant equals the signed count of partitions into zero-XOR blocks (the moment-cumulant formula with 0/1 moments), and that count vanishes when the total XOR is nonzero. The third part is a self-chosen parity fact (odd iff minimal zero-sum family), not a characterization of the value. No answers on MO."
+  },
+  "mo-245620": {
+   "date": "2026-11-28",
+   "pr": 26197,
+   "evidence": [
+    "https://mathoverflow.net/questions/245620"
+   ],
+   "reason": "The disproof exploits a degenerate case of the strict '>': for a constant variable X = a (one sample) the event E X > mean - 0 is empty, so its probability 0 < 1 - delta. The asker's actual question is whether the (empirically true, Anderson-1969-derived) Hoeffding variant is known. That reading, with a non-strict inequality or non-degenerate X, is untouched, so the result says nothing about the question."
+  },
+  "mo-266237": {
+   "date": "2026-11-28",
+   "pr": 26254,
+   "evidence": [
+    "https://mathoverflow.net/questions/266237"
+   ],
+   "reason": "For 'what is the distribution of d(sigma, tau)?' the statement offers P(d = j) as a weighted count of K x K contingency tables with margins m (weights = products of row multinomials, distance = min off-diagonal mass over column permutations). That is the definition regrouped by the overlap table, a standard double counting, with no closed form, asymptotics or structure. It goes no further than Ben Barber's comment, so it is a placeholder rather than an answer."
   }
  },
  "known": {
@@ -18816,6 +18856,264 @@
     "https://oeis.org/A002843"
    ],
    "reason": "The OEIS entry already states that the g.f. conjectured by Simon Plouffe in his 1992 dissertation is wrong. The disproof was known."
+  },
+  "mo-199635": {
+   "date": "2026-11-28",
+   "pr": 25882,
+   "evidence": [
+    "https://mathoverflow.net/questions/199635"
+   ],
+   "reason": "The formalized 'actual problem' (G in SO(2n,C), every element has eigenvalue +-1, must there be a common +-1 eigenvector?) was already answered negatively in the thread: Elkies's comment gives Sym^2 of SO_m (traceless part, e.g. the irreducible SO(5) -> SO(14)), which the asker acknowledges in the second edit, then moves on to the still-open irreducible n<7 question that is not formalized. The proof's witness (a finite subgroup of SO(3) x SO(3) block-diagonal in SO(6)) is an equally elementary counterexample."
+  },
+  "mo-201980": {
+   "date": "2026-11-28",
+   "pr": 25158,
+   "evidence": [
+    "https://mathoverflow.net/questions/201980"
+   ],
+   "reason": "Faithful (no solutions for n >= 4, k in {4,7,8}), but settled in the question's comments: Elkies's AM-GM remark reduces it to a finite search, Silverman spells out the bounds (n <= 7, small xyz), and the asker replies that the question is answered. The proof is exactly that bound plus a decide check."
+  },
+  "mo-202224": {
+   "date": "2026-11-28",
+   "pr": 14374,
+   "evidence": [
+    "https://mathoverflow.net/questions/202224",
+    "https://mathoverflow.net/questions/38680"
+   ],
+   "reason": "This is Kronecker's theorem (1857), cited in the comments (Andreas Thom, GH from MO, link to MO 38680). The proof just applies Mathlib's NumberField.Embeddings.pow_eq_one_of_norm_eq_one to Q(alpha)."
+  },
+  "mo-219012": {
+   "date": "2026-11-28",
+   "pr": 25965,
+   "evidence": [
+    "https://mathoverflow.net/questions/219012"
+   ],
+   "reason": "Equality of the numerical radius of an entrywise positive matrix with the max of u^T A u over positive unit u. A comment gives Theorem 3.1 of Maroulas-Psarrakos-Tsatsomeros (LAA 2002) as the answer, and the proof is the elementary triangle-inequality argument."
+  },
+  "mo-220167": {
+   "date": "2026-11-28",
+   "pr": 26059,
+   "evidence": [
+    "https://mathoverflow.net/questions/220167"
+   ],
+   "reason": "Question 1 (g(int f) = int g o f for every diffeomorphism g) is formalized and refuted with g = sinh on a two-point counting measure. The asker's own edit already says Q1 'was shown to be false', and their answer and its comments say only linear maps work. Elementary and known."
+  },
+  "mo-221428": {
+   "date": "2026-11-28",
+   "pr": 25207,
+   "evidence": [
+    "https://mathoverflow.net/questions/221428"
+   ],
+   "reason": "The statement (same exponential rate for P[S_k < nu k for all k <= n] as for P[S_n < nu n]) is faithful, but it follows from Serguei Popov's comment: the cyclic-shift argument gives (1/n) P[S_n < nu n] <= P[stay below] <= P[S_n < nu n]. The proof formalizes exactly that and credits Popov in its docstring."
+  },
+  "mo-231913": {
+   "date": "2026-11-28",
+   "pr": 25719,
+   "evidence": [
+    "https://mathoverflow.net/questions/231913"
+   ],
+   "reason": "Faithful (finite-dimensional H, so all operators are Hilbert-Schmidt), but Sebastian Goette's comments already give a counterexample: the 3x3 Toeplitz matrix with diagonal 2 and all off-diagonal entries -a, 1 < a <= 2, has eigenvalue 2 - 2a < 0 on (1,1,1). He explains it again when the asker objects. The proof uses the same kind of scalar 3x3 Toeplitz counterexample."
+  },
+  "mo-233204": {
+   "date": "2026-11-28",
+   "pr": 25461,
+   "evidence": [
+    "https://mathoverflow.net/questions/233204"
+   ],
+   "reason": "The inequality B(t)C(t) <= 2 BC was proved on MO by the asker Lierre in answer 233314, via cos B(t)C(t) >= sin AC + cos a - 1 >= cos 2BC (with a separate trivial case BC >= pi/2). The Lean proof follows the same cosine-law estimate."
+  },
+  "mo-233336": {
+   "date": "2026-11-28",
+   "pr": 26207,
+   "evidence": [
+    "https://mathoverflow.net/questions/233336"
+   ],
+   "reason": "The statement asks whether x_j is always bounded given the earlier denominators, and refutes that with n = 2, B = 1, A = 2, x_1 = 1 (x_2 unbounded). Max Alekseyev's answer and its comment thread already point out exactly this: no upper bound exists when the prefix sum is >= B, and otherwise x_i <= (n-i+1)/(B - prefix) is sharp. Known and trivial."
+  },
+  "mo-238897": {
+   "date": "2026-11-28",
+   "pr": 26071,
+   "evidence": [
+    "https://mathoverflow.net/questions/238897"
+   ],
+   "reason": "Refutes the existence of a representation with trace k^(#cycles) for all real k > 0 via the dimension (trace of the identity is k^N, not a natural number for k = 1/2). Paul Gustafson's answer already says no because characters of S_N are integer-valued. Known and trivial."
+  },
+  "mo-239951": {
+   "date": "2026-11-28",
+   "pr": 27480,
+   "evidence": [
+    "https://mathoverflow.net/questions/239951"
+   ],
+   "reason": "The conjectured bound lambda_min >= -1/2 for Metropolis-Hastings matrices is refuted with K_{4,4} (eigenvalue -3/5). The asker's own answer 241706 gives exactly the complete bipartite K_{d,d} counterexample with eigenvalue -(d-1)/(d+1)."
+  },
+  "mo-240260": {
+   "date": "2026-11-28",
+   "pr": 25538,
+   "evidence": [
+    "https://mathoverflow.net/questions/240260"
+   ],
+   "reason": "Chromatic number 2 of the permutahedron graph for n >= 2, by sign colouring. David E Speyer's comment ('It is bipartite; color a permutation with its sign') answers it, and the proof is that argument."
+  },
+  "mo-243833": {
+   "date": "2026-11-28",
+   "pr": 26359,
+   "evidence": [
+    "https://mathoverflow.net/questions/243833"
+   ],
+   "reason": "The sharp bound (size - 1)*d on adjugate entry degrees, attained by diag(x_1^d), is exactly user35593's comment; the statement header says so too. Standard Leibniz-expansion argument."
+  },
+  "mo-243978": {
+   "date": "2026-11-28",
+   "pr": 25640,
+   "evidence": [
+    "https://mathoverflow.net/questions/243978"
+   ],
+   "reason": "Non-existence of gamma, g, f was shown in Christian Remling's answer 243979 (f = x - G/g, then gf = xg - G is O(x^2) near 0). The Lean proof uses a monotonicity variant of the same idea; faithful but already answered."
+  },
+  "mo-249291": {
+   "date": "2026-11-28",
+   "pr": 26154,
+   "evidence": [
+    "https://mathoverflow.net/questions/249291"
+   ],
+   "reason": "B cap S is a spherical cap {x : <x,c> >= t}, and inside an open hemisphere such caps are geodesically convex. Willie Wong's comment answers 'Yes' with this symmetry argument. The proof is the same elementary inner-product computation."
+  },
+  "mo-249619": {
+   "date": "2026-11-28",
+   "pr": 10430,
+   "evidence": [
+    "https://mathoverflow.net/questions/249619"
+   ],
+   "reason": "Formalized as: for every enumeration r there are a strictly increasing integer sequence k and a point y with g_n(y) -> 0. Christian Remling's comment ('Sure. Pick a y ... choose the k_n's accordingly') and Max's answer 324408 already settle that reading. The proof's choice (irrational y, k_n so large that |k_n(y - r_n)| >= 1) is trivial."
+  },
+  "mo-250663": {
+   "date": "2026-11-28",
+   "pr": 25542,
+   "evidence": [
+    "https://mathoverflow.net/questions/250663"
+   ],
+   "reason": "Refuted by A = 2I, B = diag(1,3): the transformed matrix is diag(3/2, 5/4), with condition number 1.2 > 1 = kappa(A). fedja's comment points the asker to exactly this family (2x2 diagonal A and B), where counterexamples are immediate for any A = aI with a != 1. Elementary and essentially given in the thread."
+  },
+  "mo-252065": {
+   "date": "2026-11-28",
+   "pr": 25654,
+   "evidence": [
+    "https://mathoverflow.net/questions/252065"
+   ],
+   "reason": "The specific k = 3 example (all eight subspaces must be one-dimensional) was settled in the thread. VorKir's comment argument (a 2-dim S_i forces two T's to coincide), which the asker accepts as solving it, and Fedor Petrov's answer 257143 both give it. The Lean proof is the same argument."
+  },
+  "mo-254323": {
+   "date": "2026-11-28",
+   "pr": 27420,
+   "evidence": [
+    "https://mathoverflow.net/questions/254323"
+   ],
+   "reason": "The divisibility tau(2^n - 1) | phi(2^n - 1) fails at n = 253, which user41593 reported in a comment on the question. The proof verifies that witness with Lucas primality certificates and credits the comment."
+  },
+  "mo-254840": {
+   "date": "2026-11-28",
+   "pr": 25504,
+   "evidence": [
+    "https://mathoverflow.net/questions/254840"
+   ],
+   "reason": "'More than n mutually orthogonal +-1 sequences of length n' is impossible by linear independence, as Fedor Petrov's comment notes ('There are at most n mutually orthogonal vectors in R^n'). The proof is that argument. Trivial and known."
+  },
+  "mo-254890": {
+   "date": "2026-11-28",
+   "pr": 26609,
+   "evidence": [
+    "https://mathoverflow.net/questions/254890"
+   ],
+   "reason": "With ||I - L||_op < 1, L is invertible (Fedor Petrov's comment), so L^+ = L^{-1} and the asker's own Neumann-series bound applies. The statement header says it formalizes Petrov's known answer. Trivial."
+  },
+  "mo-256729": {
+   "date": "2026-11-28",
+   "pr": 27146,
+   "evidence": [
+    "https://mathoverflow.net/questions/256729"
+   ],
+   "reason": "The 'method' is a finite search with coordinates bounded by sum b_i, packaged as a Bool decision procedure. The comments already give decidability (Presburger arithmetic; a bounded search, NP-complete), and the bound is immediate from nonnegativity. Known and routine."
+  },
+  "mo-258111": {
+   "date": "2026-11-28",
+   "pr": 25574,
+   "evidence": [
+    "https://mathoverflow.net/questions/258111"
+   ],
+   "reason": "No positive definite solution exists, by taking traces (the commutator has trace 0, the other two terms have positive trace). This is exactly Andreas Thom's comment on the question."
+  },
+  "mo-258600": {
+   "date": "2026-11-28",
+   "pr": 25486,
+   "evidence": [
+    "https://mathoverflow.net/questions/258600"
+   ],
+   "reason": "Refutes surjectivity of GL_n(Z) -> GL_n(Z/5) via the determinant (diag(2,1) has det 2, not +-1 mod 5). The comments already give the obstruction: Andrei Smolensky notes the map must be surjective on determinants, abx on units, and Jibladze notes the reduction to n = 1. Standard textbook fact."
+  },
+  "mo-263833": {
+   "date": "2026-11-28",
+   "pr": 25885,
+   "evidence": [
+    "https://mathoverflow.net/questions/263833",
+    "https://arxiv.org/abs/2608.29595"
+   ],
+   "reason": "Faithful encoding of Sra's quantum coupon-collector conjecture; the 3x3, n = 6 counterexample checks numerically (Q_6 has eigenvalue -4.82, v^T Q v = -95.1 for v = (4,1,3)). The witness (X_i = w_i u_i u_i^T + I/100 with the same u_i, w_i and test vector) is identical to Theorem 8.4 of Suvrit Sra, 'GPT, the Counterexample Machine', arXiv:2608.29595 (Aug 30 2026, before the Nov 28 2026 proof commit). The proof does not cite it."
+  },
+  "mo-273275": {
+   "date": "2026-11-28",
+   "pr": 27788,
+   "evidence": [
+    "https://mathoverflow.net/questions/273275"
+   ],
+   "reason": "Question 2 (is phi an isomorphism?) was answered No in the comments by darij grinberg (x -> x + x^2 on Q[x]), confirmed by the asker. Answers 406885 and 421024 add more. The proof's phi = 1 - x on polynomials (finitely supported sequences) is the same kind of example."
+  },
+  "mo-282089": {
+   "date": "2026-11-28",
+   "pr": 26612,
+   "evidence": [
+    "https://mathoverflow.net/questions/282089"
+   ],
+   "reason": "The theorem (count = coefficient of x^{n(n+1)/4} in prod (1 + x^i), or 0 when n(n+1)/2 is odd) is exactly Fedor Petrov's comment, and the statement credits him. It is also the OEIS A063865 description. A definitional generating-function identity."
+  },
+  "mo-286541": {
+   "date": "2026-11-28",
+   "pr": 26087,
+   "evidence": [
+    "https://mathoverflow.net/questions/286541"
+   ],
+   "reason": "The identity det Hankel(binom(kn,n)) = k^n det Hankel(Fuss-Catalan) was already proved by the asker, Johann Cigler, via J-fractions, as his edit says. Only a 'direct' row/column proof was still requested, which the formal statement cannot express. The new triangular-Toeplitz proof is nice but does not settle an open statement."
+  },
+  "mo-288399": {
+   "date": "2026-11-28",
+   "pr": 26122,
+   "evidence": [
+    "https://mathoverflow.net/questions/288399"
+   ],
+   "reason": "The refuted claim is Observation 2 (Delta <= ||C_j||/(n-1) for every column j). The counterexample, the 3x3 equicorrelation matrix with off-diagonal -1/2, has Delta = 1/2 > sqrt(1/2)/2. It is exactly case (i) of the asker's own Observation 3 edit, which states Delta = 1/(k-1) for the negative clique, already inconsistent with Observation 2. Trivially derivable from the question itself."
+  },
+  "mo-289554": {
+   "date": "2026-11-28",
+   "pr": 14387,
+   "evidence": [
+    "https://mathoverflow.net/questions/289554"
+   ],
+   "reason": "The conjecture follows from classical results: a sum of three cubes is not +-4 mod 9, and every such integer is a sum of four cubes in infinitely many ways by Schinzel-Sierpinski (Acta Arith. 4, 1958) plus Dem'yanenko's 1966 four-cube theorem (Pell families). The proof file states that it follows Schinzel-Sierpinski's Pell argument and corollaries, Dem'yanenko's residue classes, and Watkins's identity with auxiliary prime 83. A substantial formalization, but not new mathematics."
+  },
+  "mo-292809": {
+   "date": "2026-11-28",
+   "pr": 26139,
+   "evidence": [
+    "https://mathoverflow.net/questions/292809"
+   ],
+   "reason": "D_k/D_{k-1} > 0 is refuted by the 1x1 matrix [-1]. Abdelmalek Abdesselam's comment ('no. just take a diagonal matrix') and Federico Poloni's answer (the corollary needs > 0, not != 0) settle it. Trivial."
+  },
+  "mo-295663": {
+   "date": "2026-11-28",
+   "pr": 25555,
+   "evidence": [
+    "https://mathoverflow.net/questions/295663"
+   ],
+   "reason": "Equal totals suffice for integer row and column sums. Sean Clark's comment gives the explicit triangular matrix, and the proof uses an equivalent one-row/one-column construction. Trivial and known."
   }
  },
  "reviewed": "2026-11-28"
