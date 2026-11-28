@@ -16022,6 +16022,55 @@
     "https://oeis.org/A333905"
    ],
    "reason": "The disproof only exploits Barker's misprinted range. The statement conjoins Barker's g.f. (correct for the data 1,2,3,4,5,6,10,8,20,16,...) with 'a(n)=2a(n-2) for n>6', but a(8)=8 is not 2*a(6)=12, and the g.f. itself has a nonzero x^8 term, so the recurrence only holds for n>8. The Lean proof just plays the g.f. at n=8 against the recurrence at n=8. The substantive conjectures (g.f., and the recurrence on its correct range n>8) are not refuted."
+  },
+  "Erdos552.erdos_552.parts.i": {
+   "date": "2026-11-28",
+   "pr": 29175,
+   "evidence": [
+    "https://www.erdosproblems.com/552",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/ErdosProblems/552.lean"
+   ],
+   "reason": "The FC statement leaves `answer(sorry)`-style placeholder `erdos_552.parts.i.answer n`, and the proof sets OMA.answer n to an exhaustive search over all edge sets on N <= 2n+2 vertices for the least N forcing C4 or an n-anti-star, which is just the definition of graphRamsey run by brute force. That gives no closed form or new information about R(C4,S_n), which is the open part (known only as n+sqrt n-6n^{11/40} <= R <= n+ceil(sqrt n)+1). Placeholder/tautological answer."
+  },
+  "mo-100099": {
+   "date": "2026-11-28",
+   "pr": 28689,
+   "evidence": [
+    "https://mathoverflow.net/questions/100099"
+   ],
+   "reason": "The question asks for a model of how Erdős-number counts E(n,t) evolve. The formal statement is only the first item the asker lists under 'Some obvious facts': E(n,t) is eventually constant. That holds for any collaboration history, because people at distance <= n must start within nL years of Erdős, so only finitely many edges matter. This is a near-trivial restatement of the asker's own remark, not the open question."
+  },
+  "mo-124631": {
+   "date": "2026-11-28",
+   "pr": 28349,
+   "evidence": [
+    "https://mathoverflow.net/questions/124631"
+   ],
+   "reason": "The asker wants literature, a reduction to a standard problem, or a fast algorithm for multi-session multiprocessor scheduling. The formal statement only proves that an exponential exhaustive dynamic program over all subsets (and all sub-partitions in oneSession) returns the optimum. That is a brute-force restatement of the definition and says nothing about the question."
+  },
+  "mo-251914": {
+   "date": "2026-11-28",
+   "pr": 28870,
+   "evidence": [
+    "https://mathoverflow.net/questions/251914"
+   ],
+   "reason": "Fong asks under what conditions the comparison map N -> P lies in E. The formal 'criterion' is: N -> P is in E iff for some cospan X -> T <- Y the map N -> X x_T Y is in E. The forward direction takes T as the pushout itself, and the converse is a 30-line base-change argument. It is a tautological reformulation, not a substantive condition, and gives no examples."
+  },
+  "mo-309993": {
+   "date": "2026-11-28",
+   "pr": 28382,
+   "evidence": [
+    "https://mathoverflow.net/questions/309993"
+   ],
+   "reason": "The disproof uses G = units of C(X) (uncountable abelian, so virtually abelian) and its simple module C(X), which is infinite-dimensional over C. Aurélien Djament's MO comments already point this out (abelian groups of rank above the continuum fail). The asker says 'I am primarily interested in the case of a countable group' and 'I guess I probably want the group to be countable'. The statement drops countability, and the proof exploits exactly that loophole. The real (countable) question stays open."
+  },
+  "mo-311259": {
+   "date": "2026-11-28",
+   "pr": 28296,
+   "evidence": [
+    "https://mathoverflow.net/questions/311259"
+   ],
+   "reason": "The question concerns the 2d x 2d matrix [[A,B],[-B,0]] with A = diag(-a,0,...,0,-a) and the specific tridiagonal B (2,3,...,3,2 / -1), i.e. d >= 2. The formal claim quantifies over every real B and every d >= 1. The disproof takes d=1 (both 'endpoints' coincide), a=2, B=[1], giving the defective [[-2,1],[-1,0]]. That counterexample lies outside the posed family, so the weakened formalisation is exploited and the actual question is not answered."
   }
  },
  "known": {
@@ -30129,6 +30178,235 @@
     "https://github.com/Asakitan/oeis-a247727"
    ],
    "reason": "Public result (2026-11-26 (README date)) before this site's proof. Same statement: the quartic, recurrence, g.f. and e.g.f. Public repo is dated 2026-11-26. The site proof (2026-11-28T03:37Z) is site-confirmed and came later."
+  },
+  "Erdos573.erdos_573": {
+   "date": "2026-11-28",
+   "pr": 10173,
+   "evidence": [
+    "https://hexagonmath.org/2611.00749v1",
+    "https://github.com/Ghuffy1/erdos-573/tree/75b87c642d5800f5ce45564236ecf065820c9eb1",
+    "https://www.erdosproblems.com/573"
+   ],
+   "reason": "Disproof via a C3,C4-free family with edge ratio 1.0000452 to (n/2)^{3/2}. The proof file states the construction is due to Howe, Huffman, Kohlmeyer and Kruer and cites their Hexagon preprint 2611.00749v1 (20 Nov 2026, with a pinned Lean proof, Justin Sun Prize submission JSP-000463), posted before this site's proof commit (27 Nov 2026). Adapted from an earlier public solution, so it is known."
+  },
+  "Erdos727.erdos_727.variants.k_2": {
+   "date": "2026-11-28",
+   "pr": 7051,
+   "evidence": [
+    "https://www.erdosproblems.com/forum/thread/727/proof-claims",
+    "https://www.erdosproblems.com/727"
+   ],
+   "reason": "Closed through reduction R1 (H1 cancellation, H2 Kummer carry test, H3 infinitude of carry-passing n). The H3 proof says its quadratic family is 'due to Rexyysilent's candidate for Erdős 727, k = 2'. The erdosproblems.com proof-claims thread also has Johan Land's Lean-formalised claim (7 Sep 2026) for k=3, which gives k=2, using a quadratic progression, carry counting and uniform quadratic exponential sums, the same method. A prior public solution exists."
+  },
+  "Erdos768.erdos_768": {
+   "date": "2026-11-28",
+   "pr": 4207,
+   "evidence": [
+    "https://www.erdosproblems.com/forum/thread/768/proof-claims",
+    "https://arxiv.org/abs/2606.24872",
+    "https://github.com/ericlisg/erdos768-lean"
+   ],
+   "reason": "The reduction header says its hypotheses are the three inputs of Eric Li, 'The Sylow Divisor Condition' (arXiv:2606.24872, with a Lean source on GitHub), which proves the density is exp(-(c+o(1)) sqrt(log N) log log N) with c=1/(2 sqrt(log 2)). This is listed as a proof claim on erdosproblems.com/768 (submitted 17 Jul 2026). The site's proof ports that earlier argument, so it is known."
+  },
+  "Erdos944.erdos_944": {
+   "date": "2026-11-28",
+   "pr": 16263,
+   "evidence": [
+    "https://conjectures.io/results/e7afff2c-bb07-4fa8-92b6-67a530aaad70",
+    "https://www.erdosproblems.com/944",
+    "https://github.com/KitaKen1/erdos-944-dirac-k4-lean"
+   ],
+   "reason": "The proof header says it is adapted from the Lean proof of Erdős 944 by Liam Kruer and Jensen Kohlmeyer, verified on conjectures.io, with the higher-colour case formalising Skottová–Steiner. The pinned FC file already marks k=4, r=1 as solved (KitaKen1 Lean), and erdosproblems lists a k=4 proof claim. Prior public solution."
+  },
+  "arxiv-1902.03207": {
+   "date": "2026-11-28",
+   "pr": 12320,
+   "evidence": [
+    "https://github.com/openai/math",
+    "https://arxiv.org/abs/1902.03207"
+   ],
+   "reason": "theta(p_c)=0 for nearest-neighbour bond percolation on Z^d, d>=2 (Duminil-Copin–Kozma–Tassion Conjecture 1). Closed via reduction R1, and every file says it is adapted from openai/math's CriticalPercolation formalization (rev 3344da5). openai/math CONTENTS item 213 claims the Benjamini–Schramm criticality conjecture for every quasi-transitive graph with p_c<1, with Lean. Prior public solution."
+  },
+  "arxiv-2012.00808": {
+   "date": "2026-11-28",
+   "pr": 27954,
+   "evidence": [
+    "https://arxiv.org/abs/2412.21021",
+    "https://arxiv.org/abs/2309.09041",
+    "https://arxiv.org/abs/2012.00808"
+   ],
+   "reason": "Conjecture: algebraic connectivity of the k-token graph F_k(G) equals that of G. This was already established through the interchange process (Caputo–Liggett–Richthammer's proof of Aldous' spectral gap conjecture). Later papers say so: arXiv:2309.09041 calls it 'a known result', and 2412.21021 says it 'was proved' using random walks and the interchange process. The Lean proof uses the same permutation/transposition approach."
+  },
+  "arxiv-2111.11820": {
+   "date": "2026-11-28",
+   "pr": 27993,
+   "evidence": [
+    "https://arxiv.org/abs/2209.13776",
+    "https://arxiv.org/abs/2111.11820"
+   ],
+   "reason": "Disproof of the Gotshall–O'Brien–Tait conjecture that K1 v P_{n-1} maximises spread among outerplanar graphs. Li, Linz, Lu and Wang (arXiv:2209.13776, 2022) already disproved it and showed the extremal graph is K1 joined to a path on about 2n/3 vertices plus isolated vertices. The proof's counterexample is the same shape, K1 v (P_{6k^2} + (3k^2-1)K1). I confirmed numerically that it beats the fan for k=1..7."
+  },
+  "arxiv-2311.12318": {
+   "date": "2026-11-28",
+   "pr": 15717,
+   "evidence": [
+    "https://arxiv.org/abs/2311.12318"
+   ],
+   "reason": "The statement is Meng's own Theorem 3.1 with tightness: every 3-cube-free subset of Z_N has at most 2N/3 elements, with equality for {a = 1,2 mod 3} when 3|N. The header says so ('main is the result that the abstract announces as proved'). This formalises a published theorem, not an open problem."
+  },
+  "arxiv-2507.08483": {
+   "date": "2026-11-28",
+   "pr": 28067,
+   "evidence": [
+    "https://arxiv.org/abs/2507.08483"
+   ],
+   "reason": "The statement is Roy–Hariharasubramanian Theorem 3.1 (arXiv:2507.08483): split graphs with an independent set of size 4 are word-representable iff they avoid T1..T8 and D1. The paper itself solves the Kitaev–Pyatkin open problem. This formalises a published result."
+  },
+  "arxiv-2512.20878": {
+   "date": "2026-11-28",
+   "pr": 28018,
+   "evidence": [
+    "https://arxiv.org/abs/2512.20878"
+   ],
+   "reason": "The statement is the main result of arXiv:2512.20878: the total chromatic number of C_n(1,3) is 6 for n in {7,8,12,13,17} and 5 otherwise. The paper already determines it, so the Lean proof formalises a published theorem."
+  },
+  "arxiv-2603.17029": {
+   "date": "2026-11-28",
+   "pr": 28039,
+   "evidence": [
+    "https://arxiv.org/abs/2603.17029"
+   ],
+   "reason": "This asks for a Neumaier graph with exactly five distinct eigenvalues. The source paper (De Bruyn–Evans–Goryainov–Koolen, arXiv:2603.17029) already constructs 25 such graphs with parameters (48,14,2;1,4), and the proof's 48-vertex graph is from that family. Known from the source."
+  },
+  "erdos-415": {
+   "date": "2026-11-28",
+   "pr": 28657,
+   "evidence": [
+    "https://www.erdosproblems.com/415",
+    "https://www.pollack-math.net/MonotonePhi.pdf"
+   ],
+   "reason": "The statement's own header says the problem page notes that the Pollack–Pomerance–Treviño asymptotic for monotone totient runs gives F(n)=o(log log log n), so the first question has a negative answer. The proof cites PPT Theorem 1.5 and uses the reverse permutation. Known."
+  },
+  "mo-100387": {
+   "date": "2026-11-28",
+   "pr": 28205,
+   "evidence": [
+    "https://mathoverflow.net/questions/100387"
+   ],
+   "reason": "Faithful (P = first r columns of an orthogonal matrix, 1<r<n, symmetric solution S). Answer 330894 on the MO page already gives the same argument: write S = I + P^T(I∘PSP^T)P and compare smallest eigenvalues, so a non-positive eigenvalue gives a contradiction. The Lean proof follows the same route."
+  },
+  "mo-134513": {
+   "date": "2026-11-28",
+   "pr": 25608,
+   "evidence": [
+    "https://mathoverflow.net/questions/134513"
+   ],
+   "reason": "Disproof by the star K_{1,3}. MO answer 148919 and the comments already note that stars and biregular graphs are counterexamples."
+  },
+  "mo-138934": {
+   "date": "2026-11-28",
+   "pr": 27961,
+   "evidence": [
+    "https://mathoverflow.net/questions/138934"
+   ],
+   "reason": "Disproof. The MO comment (score 8) already notes the counterexample: if 1+A+B=0 then x-1 divides x^n+Ax+B for every n. The formal statement matches the posted question (A,B nonzero in O_K)."
+  },
+  "mo-161728": {
+   "date": "2026-11-28",
+   "pr": 15115,
+   "evidence": [
+    "https://mathoverflow.net/questions/161728"
+   ],
+   "reason": "Faithful. MO answer 168530 already proves it: M_n^n - M^n = sum M_n^k (M_n - M) M^{n-1-k}, so ||M_n^n - M^n|| <= C n alpha^n -> 0 (stochastic matrices have l1/l_inf operator norm 1, and norms are equivalent)."
+  },
+  "mo-185536": {
+   "date": "2026-11-28",
+   "pr": 28935,
+   "evidence": [
+    "https://mathoverflow.net/questions/185536"
+   ],
+   "reason": "Yes. A MO comment (score 10) already answers it: x = lim n(e^{x/n}-1) and e^{x/n} is the unique positive n-th root of e^x. Another comment notes log inverts exp on self-adjoint elements. The Lean proof is three lines using Mathlib's CFC.log_exp."
+  },
+  "mo-209697": {
+   "date": "2026-11-28",
+   "pr": 29069,
+   "evidence": [
+    "https://mathoverflow.net/questions/209697",
+    "https://github.com/connoranderson/open-math-agents/blob/3e4a4780f254c98d0a5fc286f95304f47fee0d90/proofs/mo-209697.lean"
+   ],
+   "reason": "The proof header says it is a 'credited port of @connoranderson's complete public proof', unchanged, and 'not a claim of a new result'. It credits Igor Khavkine's MO answer (det = det(I-B*B), eigenvalues 1±sigma_i) and the Schur-complement approach on the math.SE cross-post. The real-case bound det >= (2n)^{-n} is the integrality observation. Known."
+  },
+  "mo-211338": {
+   "date": "2026-11-28",
+   "pr": 28131,
+   "evidence": [
+    "https://mathoverflow.net/questions/211338"
+   ],
+   "reason": "Darij Grinberg's MO comment (score 5) already gives the answer: the Sylvester matrix of the two node polynomials. Its determinant is the resultant, prod (x_j - x_i). The Lean proof uses Mathlib's resultant_prod lemmas."
+  },
+  "mo-243037": {
+   "date": "2026-11-28",
+   "pr": 28761,
+   "evidence": [
+    "https://mathoverflow.net/questions/243037"
+   ],
+   "reason": "Nate Eldredge's MO comments already give both parts: counting measure is invariant, and any nonzero invariant Borel measure gives every open set infinite measure (rotate a small ball about infinitely many orthogonal axes to get disjoint copies). The antipodal 'line law' part is trivial."
+  },
+  "mo-275030": {
+   "date": "2026-11-28",
+   "pr": 15775,
+   "evidence": [
+    "https://mathoverflow.net/questions/275030"
+   ],
+   "reason": "The main affirmative part (every poset embeds in R^P) is bof's comment (x -> down-set gives an embedding into {0,1}^P), which the asker offered to accept. The rest is standard: countable posets have injective monotone maps to R, and locally finite posets need not have finite dimension (standard examples). The 'no injective monotone map into R^d' part uses an antichain larger than the continuum, a cardinality triviality."
+  },
+  "mo-285463": {
+   "date": "2026-11-28",
+   "pr": 28312,
+   "evidence": [
+    "https://mathoverflow.net/questions/285463"
+   ],
+   "reason": "For complex inner-product spaces, MO comments (Johannes Hahn and others) already answer it: polarisation twice shows the sesquilinear form is determined by the values <h⊗k,h⊗k>. The added real counterexample on R^2⊗R^2 is an easy observation (perturb by a multiple of x0y0x1y1 - x0y1x1y0 = 0). Main content known."
+  },
+  "mo-293821": {
+   "date": "2026-11-28",
+   "pr": 16252,
+   "evidence": [
+    "https://mathoverflow.net/questions/293821"
+   ],
+   "reason": "Darij Grinberg's MO comments already prove the recursion for A000788 by complementing the k low bits (the 1s in n+1..2^k-1 biject with the 0s in 1..2^k-n). The Lean proof uses the same argument."
+  },
+  "mo-302974": {
+   "date": "2026-11-28",
+   "pr": 25529,
+   "evidence": [
+    "https://mathoverflow.net/questions/302974"
+   ],
+   "reason": "MO comments already give examples: R = Z/p^2 with a = (p,p,...), and R = F_p[x]/(x^p) via 1+tx (Darij Grinberg). The Lean proof uses the dual numbers over Z/p and the Teichmüller lift of eps, the same kind of example."
+  },
+  "mo-315341": {
+   "date": "2026-11-28",
+   "pr": 28019,
+   "evidence": [
+    "https://mathoverflow.net/questions/315341"
+   ],
+   "reason": "Part (iii) of Sun's conjecture (number of permutations with k^2+pi(k)^2 prime is a square). Fedor Petrov's MO comment says the argument from his answer to MO 315351 confirms (iii) (a parity/bipartite matching argument making the count a square). Known."
+  },
+  "mo-315869": {
+   "date": "2026-11-28",
+   "pr": 15803,
+   "evidence": [
+    "https://mathoverflow.net/questions/315869"
+   ],
+   "reason": "Disproof. MO answer 315905 and a comment by the asker already give counterexamples (Z-modules M = 2Z x Z/2 in N = Z x Z/2, or R -> R⊕R/b). Known."
+  },
+  "mo-319691": {
+   "date": "2026-11-28",
+   "pr": 13803,
+   "evidence": [
+    "https://mathoverflow.net/questions/319691"
+   ],
+   "reason": "MO answer 320268 already answers it: take q a prime in (n^3,2n^3) (Bertrand) and the nearest p/q, giving C1=1/2, i=3, C2=1, C3=1. The formal statement is the existence claim."
   }
  },
  "reviewed": "2026-11-28"
