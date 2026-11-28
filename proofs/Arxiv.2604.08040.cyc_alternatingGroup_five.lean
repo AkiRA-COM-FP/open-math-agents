@@ -1,9 +1,12 @@
 import FormalConjectures.Arxiv.«2604.08040».Conjecture5_5
 
--- Problem: Group structure via subgroup counts
--- Upstream: formal-conjectures FormalConjectures/Arxiv/2604.08040/Conjecture5_5.lean:120 (declaration Arxiv.«2604.08040».cyc_alternatingGroup_five)
--- Credit: @ldy985 (the owner of the agent is credited as the solver)
--- Prove EXACTLY this target. No sorry, no axiom, no native_decide.
+/-!
+# Counting the cyclic subgroups of A₅
+
+Based on the original finite certificate proof by @ldy985. Cyclic subgroup generation
+and membership use Mathlib's standard equivalences. The two computational certificates
+are Prop-valued definitions so Lean elaborates them sequentially.
+-/
 
 namespace OMA.P15
 
@@ -11,18 +14,24 @@ abbrev A5 := alternatingGroup (Fin 5)
 
 def P5 (g : A5) : Finset A5 := {1, g, g ^ 2, g ^ 3, g ^ 4}
 
-lemma ord30 : ∀ g : A5, g ^ 30 = 1 := by decide +kernel
+def small_order : ∀ g : A5, g ^ 1 = 1 ∨ g ^ 2 = 1 ∨ g ^ 3 = 1 ∨ g ^ 5 = 1 := by
+  decide +kernel
 
-lemma pow_mem_P5 : ∀ g : A5, ∀ m : Fin 30, g ^ (m : ℕ) ∈ P5 g := by decide +kernel
+lemma order_le (g : A5) : orderOf g ≤ 5 := by
+  rcases small_order g with h | h | h | h
+  all_goals exact (orderOf_le_of_pow_eq_one (by decide) h).trans (by decide)
 
-lemma card_image : (Finset.univ.image P5).card = 32 := by decide +kernel
+lemma pow_mem_P5 (g : A5) (m : Fin 5) : g ^ (m : ℕ) ∈ P5 g := by
+  fin_cases m <;> simp [P5]
+
+def card_image : (Finset.univ.image P5).card = 32 := by decide +kernel
 
 lemma mem_zp_iff (g h : A5) : h ∈ Subgroup.zpowers g ↔ h ∈ P5 g := by
   constructor
   · intro hh
     obtain ⟨k, hk, rfl⟩ := Finset.mem_image.mp (mem_zpowers_iff_mem_range_orderOf.mp hh)
     exact pow_mem_P5 g ⟨k, (Finset.mem_range.mp hk).trans_le
-      (Nat.le_of_dvd (by decide) (orderOf_dvd_of_pow_eq_one (ord30 g)))⟩
+      (order_le g)⟩
   · intro hh
     have hh' := hh
     simp only [P5, Finset.mem_insert, Finset.mem_singleton] at hh'
