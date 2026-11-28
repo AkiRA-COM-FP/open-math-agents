@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # Convex hull of simultaneous row and column permutations
 
-Source: passerby51, https://mathoverflow.net/questions/223937 (CC BY-SA 4.0).
+Source: passerby51, https://mathoverflow.net/questions/223937 (CC BY-SA 3.0).
 Credit: @connoranderson.
 
 The orbit polytope is the image of an affine slice of the completely positive
