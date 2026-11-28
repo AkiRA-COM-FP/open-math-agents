@@ -1,6 +1,131 @@
 {
  "about": "Open Problem Garden, MathOverflow, Mathematics Stack Exchange and arXiv-abstract problems in the catalogue that are already settled elsewhere, so scripts/build_data.mjs stops listing them as open (formalized ones become known results, unformalized ones are dropped). MathOverflow and Math.SE: status checked through the Stack Exchange API on 2026-11-28; a question counts as settled when it has an accepted answer, an upvoted answer (score >= 3, or citing a published resolution) that settles it, or when it was closed as a duplicate of a settled question; partial, hedged or conditional answers were not counted. Open Problem Garden and arXiv: settled only with an explicit public source (paper, OPG comment citing one, or follow-up paper). Problems proved in this repository (proofs/<id>.lean) are excluded.",
  "entries": {
+  "arxiv-1803.02550": {
+   "reason": "Proved: broadcast domination number is at most twice the multipacking number for every graph.",
+   "source": "https://arxiv.org/abs/2608.20036",
+   "date": "2026-08"
+  },
+  "arxiv-1804.03752": {
+   "reason": "Proved: omega >= n/(n - sqrt(s+)), strengthening Wilf's bound and resolving the Elphick-Wocjan conjecture.",
+   "source": "https://arxiv.org/abs/2607.18044",
+   "date": "2026-07"
+  },
+  "arxiv-1903.11484": {
+   "reason": "Proved: Chudnovsky, Norin, Seymour and Turcotte showed every connected P5-free graph has cop number at most 2, and 2K2-free graphs are P5-free.",
+   "source": "https://doi.org/10.1137/23m1549912",
+   "date": "2024"
+  },
+  "arxiv-1905.06208": {
+   "reason": "Proved: Vlassis and Thomas proved Gaffke's conjecture that the Dirichlet statistic K(X) is a valid p-value; inverting these tests gives exactly this interval, so its coverage is guaranteed.",
+   "source": "https://arxiv.org/abs/2607.08415",
+   "date": "2026-07"
+  },
+  "arxiv-1905.06692": {
+   "reason": "Settled: Chen, Dong and Tang prove the gamma-positivity conjecture for [k] x P and give connected Peck posets whose antichain polynomials are not unimodal, disproving the log-concavity conjecture.",
+   "source": "https://arxiv.org/abs/2609.28983",
+   "date": "2026-09"
+  },
+  "arxiv-1907.11668": {
+   "reason": "Proved by Wang, Wang and Jin: under the degree condition, every partition |W| = n_1+...+n_k with n_i >= 3 is realized by k disjoint directed cycles (SIAM J. Discrete Math. 2023).",
+   "source": "https://doi.org/10.1137/21m1460594",
+   "date": "2023"
+  },
+  "arxiv-1911.02332": {
+   "reason": "Proved: every graph with minimum degree at least 2 has an induced linear forest of order at least sum 2/(d_i+1) (SIAM J. Discrete Math. 2025).",
+   "source": "https://doi.org/10.1137/24m1650740",
+   "date": "2025"
+  },
+  "arxiv-2001.06839": {
+   "reason": "Solved in the paper itself: Ekhad and Zeilberger find the explicit probability generating function that Henze and Last had left open.",
+   "source": "https://arxiv.org/abs/2001.06839",
+   "date": "2020-01"
+  },
+  "arxiv-2112.10140": {
+   "reason": "Proved by Gao: Hodge-Tate prismatic crystals are determined by the Sen operator, via Sen theory over the Kummer tower.",
+   "source": "https://arxiv.org/abs/2201.10136",
+   "date": "2022-01"
+  },
+  "arxiv-2309.16252": {
+   "reason": "Proved: Pagano and Shusterman construct the universal d-generated perfect profinite group (finite quotients exactly the finite d-generated perfect groups), with a balanced d-generator presentation, settling Nikolov's conjecture.",
+   "source": "https://arxiv.org/abs/2609.30200",
+   "date": "2026-09"
+  },
+  "arxiv-2311.10069": {
+   "reason": "Disproved: there is a finite planar unit-distance graph with independence ratio strictly below 1/4.",
+   "source": "https://arxiv.org/abs/2606.28157",
+   "date": "2026-06"
+  },
+  "arxiv-2311.18050": {
+   "reason": "Proved: in finite dimensions the asymptotics of the moment-map (Kempf-Ness) flow are determined by the iterated balancing filtration.",
+   "source": "https://arxiv.org/abs/2606.09235",
+   "date": "2026-06"
+  },
+  "arxiv-2401.12397": {
+   "reason": "Proved: the Kozma-Nitzan correlation inequality was proved (OpenAI), giving theta(p_c) = 0; this note presents a human-readable proof.",
+   "source": "https://arxiv.org/abs/2610.10502",
+   "date": "2026-10"
+  },
+  "arxiv-2401.13143": {
+   "reason": "Answered: the low-degree Fourier threshold for random Boolean functions was determined, resolving Vershynin's question (Electron. Commun. Probab. 2026).",
+   "source": "https://doi.org/10.1214/26-ecp808",
+   "date": "2026"
+  },
+  "arxiv-2403.04101": {
+   "reason": "Proved: Schur log-concavity of derivative sequences of Schur polynomials follows from the theory of Hodge-Riemann polynomials, confirming the Ross-Wu conjecture.",
+   "source": "https://arxiv.org/abs/2506.16992",
+   "date": "2025-06"
+  },
+  "arxiv-2406.01778": {
+   "reason": "Proved: the planar case of the van den Berg-Buttazzo-Pratelli conjecture on the Polya functional (Conjecture 1.1 of Banuelos-Mariano).",
+   "source": "https://arxiv.org/abs/2609.13221",
+   "date": "2026-08"
+  },
+  "arxiv-2409.06655": {
+   "reason": "Settled: Yang determined the structure of monotone Hurwitz numbers with varying genus, proving one and disproving the other conjecture of Do, He and Robertson.",
+   "source": "https://arxiv.org/abs/2503.01920",
+   "date": "2025-03"
+  },
+  "arxiv-2411.17604": {
+   "reason": "Disproved: the hyperkahler period-index conjecture ind | per^(dim X/2) is false.",
+   "source": "https://arxiv.org/abs/2608.09436",
+   "date": "2026-08"
+  },
+  "arxiv-2510.01110": {
+   "reason": "Proved: a necessary and sufficient condition for H-realizable degree sequences for every h, confirming the Briggs-McDonald-Shan conjecture.",
+   "source": "https://arxiv.org/abs/2604.11939",
+   "date": "2026-04"
+  },
+  "arxiv-2511.14526": {
+   "reason": "Disproved in general (and confirmed for graphic and Lawrence oriented matroids): the minimum-length conjecture of Berczi and Nador on embracing exchange sequences is false.",
+   "source": "https://arxiv.org/abs/2606.19573",
+   "date": "2026-06"
+  },
+  "arxiv-2511.15920": {
+   "reason": "Proved: Han, Ma and Sun prove Makhija's conjecture on Schubert polynomials that are products of elementary symmetric polynomials in initial alphabets.",
+   "source": "https://arxiv.org/abs/2610.36993",
+   "date": "2026-10"
+  },
+  "arxiv-2606.18654": {
+   "reason": "Proved: joint Gaussianity of one pair forces an infinite exchangeable sequence to be Gaussian, settling Newman's conjecture (Electron. Commun. Probab. 2026).",
+   "source": "https://doi.org/10.1214/26-ecp830",
+   "date": "2026"
+  },
+  "arxiv-2607.14837": {
+   "reason": "Proved: Wang's planar D-colouring conjecture holds for all maximum degrees, including the remaining cases 6 <= Delta <= 32.",
+   "source": "https://arxiv.org/abs/2610.33322",
+   "date": "2026-10"
+  },
+  "arxiv-2607.19412": {
+   "reason": "Proved: Z(P(n,3)) = 8 for all n >= 13 (Krishnan's Conjecture 5).",
+   "source": "https://arxiv.org/abs/2610.24059",
+   "date": "2026-10"
+  },
+  "arxiv-2609.31489": {
+   "reason": "Proved: Hu showed that the Welch function is not third-order sum-free, confirming the Hou-Zhao conjecture.",
+   "source": "https://arxiv.org/abs/2610.15694",
+   "date": "2026-10"
+  },
   "mo-10356": {
    "reason": "Answered negatively: W. B. Johnson builds, from the Mazur map between the unit balls of l2 and l1, a map that is norm and weak*-continuous but not weakly continuous.",
    "source": "https://mathoverflow.net/a/11649",
@@ -480,6 +605,126 @@
    "reason": "Answered: an argument using a fixed finite set of congruence conditions cannot work, since twin primes have density zero among the primes.",
    "source": "https://math.stackexchange.com/a/721740",
    "date": "2014-03-22"
+  },
+  "opg-a-game-on-an-n-x-n-grid": {
+   "reason": "Solved: the first player wins the square achievement game if and only if n >= 5 (Reid, with Lean-formalized proofs).",
+   "source": "https://arxiv.org/abs/2610.22410",
+   "date": "2026-10"
+  },
+  "opg-are-critical-k-forests-tight": {
+   "reason": "Disproved: Gebauer, Gundert, Moser and Okamoto give a saturated (critical) 3-forest that is not tight, resolving Strausz's problem.",
+   "source": "https://arxiv.org/abs/1109.3390",
+   "date": "2011"
+  },
+  "opg-book-thickness-of-subdivisions": {
+   "reason": "Disproved: Dujmovic, Eppstein, Hickingbotham, Morin and Wood construct graphs of queue-number at most 4 and unbounded stack-number, resolving the Blankenship-Oporowski problem (Combinatorica 2022).",
+   "source": "https://arxiv.org/abs/2011.04195",
+   "date": "2020"
+  },
+  "opg-chromatic-number-of-common-graphs": {
+   "reason": "Answered negatively: Kral, Volec and Wei construct common graphs of arbitrarily large chromatic number.",
+   "source": "https://arxiv.org/abs/2206.05800",
+   "date": "2022"
+  },
+  "opg-complete-bipartite-subgraphs-of-perfect-graphs": {
+   "reason": "Proved by Scott, Seymour and Spirkl (Pure pairs V, Combinatorica 2023): every perfect graph has a pure pair of sizes at least eps n^(1-c), i.e. a large complete bipartite subgraph in G or its complement.",
+   "source": "https://arxiv.org/abs/2105.03956",
+   "date": "2021"
+  },
+  "opg-cores-of-strongly-regular-graphs": {
+   "reason": "Proved by Roberson: every endomorphism of a primitive strongly regular graph is an automorphism or a colouring, so its core is itself or complete (confirming Cameron-Kazanidis).",
+   "source": "https://arxiv.org/abs/1601.00969",
+   "date": "2016"
+  },
+  "opg-covering-systems-with-big-moduli": {
+   "reason": "Answered negatively: Hough proved that the least modulus of a covering system with distinct moduli is at most 10^18 (Annals 2015).",
+   "source": "https://arxiv.org/abs/1307.0874",
+   "date": "2013"
+  },
+  "opg-every-prism-over-a-3-connected-planar-graph-is-hamiltonian": {
+   "reason": "Disproved: Spacapan constructed a 3-connected planar graph whose prism is not Hamiltonian (J. Combin. Theory Ser. B 2021).",
+   "source": "https://arxiv.org/abs/1906.06683",
+   "date": "2019"
+  },
+  "opg-extremal-problem-on-the-number-of-tree-endomorphism": {
+   "reason": "Proved by Csikvari and Lin: among trees on m vertices the path has the fewest and the star the most endomorphisms.",
+   "source": "https://arxiv.org/abs/1307.6721",
+   "date": "2013"
+  },
+  "opg-finite-satisfiability-of-positive-horn-logic-entailment": {
+   "reason": "Solved by Bova and Mogavero (LICS 2017): via finite quasi-Herbrand models, entailment and finite entailment for positive Horn (quantified conjunctive) sentences coincide, answering Chen-Madelaine-Martin.",
+   "source": "https://doi.org/10.1109/LICS.2017.8005073",
+   "date": "2017"
+  },
+  "opg-goldbergs-conjecture": {
+   "reason": "Proved by Chen, Jing and Zang (Proof of the Goldberg-Seymour conjecture, J. Comb. Optim. 50 (2025)).",
+   "source": "https://arxiv.org/abs/1901.10316",
+   "date": "2019"
+  },
+  "opg-grunbaums-conjecture": {
+   "reason": "Disproved: Kochol constructed snarks with polyhedral embeddings in every orientable surface of genus at least 5, whose duals are triangulations that are not 3-edge-colourable (as the OPG comments record).",
+   "source": "https://www.ams.org/journals/proc/2009-137-05/S0002-9939-08-09698-6",
+   "date": "2009"
+  },
+  "opg-highly-arc-transitive-two-ended-digraphs": {
+   "reason": "Disproved: DeVos, Mohar and Samal construct two-ended highly arc-transitive digraphs whose tiles are not disjoint unions of complete bipartite graphs.",
+   "source": "https://arxiv.org/abs/1110.2945",
+   "date": "2011"
+  },
+  "opg-laplacian-degrees-of-a-graph": {
+   "reason": "Proved by Brouwer and Haemers: the j-th largest Laplacian eigenvalue of a connected graph is at least d_j - j + 2 (Linear Algebra Appl. 429 (2008) 2131-2135).",
+   "source": "https://doi.org/10.1016/j.laa.2008.06.008",
+   "date": "2008"
+  },
+  "opg-number-of-cliques-in-minor-closed-classes": {
+   "reason": "Answered positively by Lee and Oum: graphs with no K_t subdivision (hence no K_t minor) have at most 2^(50t) n cliques; Fox and Wei later found the sharp constant.",
+   "source": "https://arxiv.org/abs/1407.7707",
+   "date": "2014"
+  },
+  "opg-ptas-for-feedback-arc-set-in-tournaments": {
+   "reason": "Answered: Kenyon-Mathieu and Schudy gave a PTAS for (weighted) feedback arc set in tournaments (STOC 2007).",
+   "source": "https://eccc.weizmann.ac.il/report/2006/144/",
+   "date": "2006"
+  },
+  "opg-rank-vs-genus": {
+   "reason": "Answered: Tao Li constructed closed hyperbolic 3-manifolds whose rank is smaller than their Heegaard genus, with arbitrarily large discrepancy (J. Amer. Math. Soc. 2013).",
+   "source": "https://arxiv.org/abs/1106.6302",
+   "date": "2011"
+  },
+  "opg-real-roots-of-the-flow-polynomial": {
+   "reason": "False: there are flow polynomials with real roots above 4 (Royle 2009), and Jacobsen and Salas found graphs whose flow roots exceed 5.",
+   "source": "https://arxiv.org/abs/1009.4062",
+   "date": "2010"
+  },
+  "opg-seymours-self-minor-conjecture": {
+   "reason": "Disproved as stated (every infinite graph): Oporowski gave an uncountable graph that is not a proper minor of itself (J. Graph Theory 14 (1990) 521-524); the countable case is a different, still open question.",
+   "source": "https://doi.org/10.1002/jgt.3190140502",
+   "date": "1990"
+  },
+  "opg-snevilys-conjecture": {
+   "reason": "Proved by Arsovski (Israel J. Math. 182 (2011), 505-508); Harcos, Karolyi and Kos give a shortened proof.",
+   "source": "https://arxiv.org/abs/1004.0253",
+   "date": "2009"
+  },
+  "opg-subgroup-formed-by-elements-of-order-dividing-n": {
+   "reason": "Frobenius' conjecture was proved by Iiyori and Yamaki using the classification of finite simple groups (Bull. Amer. Math. Soc. 25 (1991)), as the OPG comments cite.",
+   "source": "https://doi.org/10.1090/S0273-0979-1991-16084-2",
+   "date": "1991"
+  },
+  "opg-textbf-convex-fair-partitions-of-convex-polygons": {
+   "reason": "Proved by Akopyan, Avvakumov and Karasev: every planar convex body can be partitioned into m convex pieces of equal area and perimeter for every m >= 2.",
+   "source": "https://arxiv.org/abs/1804.03057",
+   "date": "2018"
+  },
+  "opg-universal-highly-arc-transitive-digraphs": {
+   "reason": "Answered positively: DeVos, Mohar and Samal construct a locally finite highly arc-transitive digraph with universal reachability relation.",
+   "source": "https://arxiv.org/abs/1110.2945",
+   "date": "2011"
+  },
+  "opg-what-is-the-largest-graph-of-positive-curvature": {
+   "reason": "Answered by Ghidelli: every planar PCC graph has at most 208 vertices, and 208 is attained (Nicholson-Sneddon).",
+   "source": "https://arxiv.org/abs/1708.08502",
+   "date": "2017"
   }
  }
 }
