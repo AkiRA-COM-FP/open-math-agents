@@ -15188,6 +15188,157 @@
     "https://mathoverflow.net/questions/173510"
    ],
    "note": "Disproof of the quoted conjecture: a1=4, d=13, term 2344 = 8*293 > phi(13)*13^2 = 2028 is composite, and none of the 361 splits 4+13i, 4+13(360-i) is a pair of primes. I rechecked this with sympy, and (4,13) is the first counterexample my search found. The MO question has no answers, and the math.SE cross-post (858764) is deleted. A finite computation, so routine. Second review: Valid finite counterexample, and no earlier refutation was found."
+  },
+  "oeis-a362861": {
+   "date": "2026-11-28",
+   "pr": 27022,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A362861",
+    "https://oeis.org/A362861",
+    "https://oeis.org/A362743"
+   ],
+   "note": "The statement encodes both sentences of Sun's Conjecture 1(i): the 14 listed n are exactly those for which 2n is not a sum of distinct 5^a+5^b (a Finset of values, so the summands are distinct), and every even number is a sum of distinct 3^a+3^b. I checked numerically up to 2n = 40000 that the exceptions are exactly the listed terms for base 5 and that there are none for base 3. The proof is a verified finite range plus an unbounded extension along geometric rows. I found no prior proof in the entry, the Lean libraries, Zenodo, aiXiv or Palomar. Second review: Faithful to Conjecture 1(i). No prior proof found. Proof uses a standard interval-extension (completeness) argument plus a finite check."
+  },
+  "oeis-a362946": {
+   "date": "2026-11-28",
+   "pr": 24648,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A362946",
+    "https://oeis.org/A362946"
+   ],
+   "note": "Lyons's conjecture that only finitely many positive integers are not of the form sum_{i<=k} i^(e_i) with every e_i >= 1 is stated faithfully as Set.Finite. The proof uses exponents 1 and 2 only: raising i's exponent from 1 to 2 adds i(i-1), and subset sums of these steps cover long intervals of each parity. This is elementary. I found no prior proof in the entry (which has no links), the libraries or the proof collections. Second review: Faithful; no prior proof found. Proof: exponents 1 or 2, raising the i-th exponent adds i(i-1), subset sums cover intervals of each parity."
+  },
+  "oeis-a363196": {
+   "date": "2026-11-28",
+   "pr": 24692,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A363196",
+    "https://oeis.org/A363196"
+   ],
+   "note": "The statement is faithful: the rightmost 7 is read from Nat.digits, and the claim is a(n) = -1 iff n = 1. n = 1 is ruled out by the period of 3^k mod 100. n = 0, 2, 3 are witnessed by k = 3, 6, 37. For n >= 4 the witness is 3^(3500*10^(n-4)) = 1 + 7*10^n (mod 10^(n+1)), obtained by lifting the exponent. This is elementary, and I found no prior proof. Second review: Faithful. Proof: n=1 via 3^k mod 100; general n via 81^(125*10^k) == 1+10^(k+4) lifting, then 3^(3500*10^k) == 1+7*10^(k+4). No prior proof found."
+  },
+  "oeis-a364470": {
+   "date": "2026-11-28",
+   "pr": 23387,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A364470",
+    "https://oeis.org/A364470"
+   ],
+   "note": "The statement matches the entry: a(1) = 1, and a(n) is the least k > a(n-1) with Omega(k(a(n-1)+k)) = n, via sInf. The claim is Israel's a(n+4) = 4a(n) for n >= 7. The proof certifies a(7..11) by decide and then shows that doubling preserves minimality, since odd candidates are too large (3^Omega(k) <= k). This gives a(4t+7) = 32*4^t and the period-4 scaling. The data agree (32, 56, 80, 120, 128, 224, ...). I found no prior proof. Second review: Faithful, no prior proof found; proof bounds Omega via 3^Omega(k)<=k for odd parts."
+  },
+  "oeis-a371739": {
+   "date": "2026-11-28",
+   "pr": 25372,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A371739",
+    "https://oeis.org/A371739"
+   ],
+   "note": "I checked the five coefficient polynomials in the Lean statement against R. J. Mathar's OEIS recurrence (Oct 29 2026) as polynomial identities; they agree after expansion. The recurrence holds numerically for n = 4..59. Proving a D-finite recurrence for a binomial partial sum is a routine creative-telescoping exercise. I found no prior proof. Second review: Faithful expansion of Mathar's D-finite recurrence; a creative-telescoping style identity. No prior proof found."
+  },
+  "oeis-a373162": {
+   "date": "2026-11-28",
+   "pr": 25867,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A373162",
+    "https://oeis.org/A373162",
+    "https://oeis.org/A373163"
+   ],
+   "note": "This is a disproof of Kimberling's complete-monotonicity conjecture, under both readings. The fractions are increasing (x(2) = 5/7 < x(3) = 21/26), so x is not CM. 1 - x(n) = (n+2)/(2(n^2+n+1)) is not CM either. I checked exactly with rationals that (-1)^j Delta^j (1-x)(2) is nonnegative for j < 40 and first fails at j = 40 (about -6.0e-7). This matches the Lean proof, and it is consistent with the complex poles of the rational function. The tsum definition and the CM predicate are faithful, and the j >= 1 alternating reading of 'increasing CM' is the second disjunct. Second review: Disproof is correct under every sensible reading of 'completely monotonic'. Note the duplicate oeis-a373163 (same statement)."
+  },
+  "oeis-a374105": {
+   "date": "2026-11-28",
+   "pr": 25683,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A374105",
+    "https://oeis.org/A374105"
+   ],
+   "note": "The statement is faithful: if (9^k+3^k+1)/13 is a prime p then k is prime. The proof is the standard cyclotomic argument. 13 | 9^k+3^k+1 iff 3 does not divide k. If k = ab with 1 < a < k and 3 not dividing b, then 9^a+3^a+1 is a proper divisor larger than 13, so the quotient is not prime. This is elementary, like the repunit-prime exponent argument, and I found no specific prior proof for this entry. Second review: Faithful; a standard cyclotomic-factorization argument, not found written for this entry."
+  },
+  "oeis-a375852": {
+   "date": "2026-11-28",
+   "pr": 27398,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A375852",
+    "https://oeis.org/A061641",
+    "https://oeis.org/A309180",
+    "https://www.fq.math.ca/Papers1/44-3/quartshaw03_2006.pdf",
+    "https://oeis.org/A375852",
+    "https://oeis.org/A061641",
+    "https://oeis.org/A309180",
+    "https://www.fq.math.ca/Papers1/44-3/quartshaw03_2006.pdf"
+   ],
+   "note": "The statement encodes the A309180 coloring as a recursive predicate: i colors n red if n = T^j(i) along a path staying above i. This agrees with the described process, and a simulation to 2*10^5 gives blue = pure numbers. The proof shows that pure numbers have residues in S (impure preimages for 2 mod 3, 4 mod 6, 13 mod 18, essentially Shaw 2006 Thm 2.1) and that blue = positive pure, which gives the union identity. This is elementary, and I found no prior proof of the union claim. Second review: Faithful; the comment follows from Shaw's 2006 theorem (cited in A061641) and the observation that the A309180 coloring's blue numbers are exactly the pure numbers. Routine."
+  },
+  "oeis-a376114": {
+   "date": "2026-11-28",
+   "pr": 26065,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A376114",
+    "https://oeis.org/A181795",
+    "https://oeis.org/A376114",
+    "https://oeis.org/A181795",
+    "https://github.com/the-omega-institute/trureturing-experiments/blob/main/docs/reports/oeis-a376114-refactorable-twice-squares/README.md"
+   ],
+   "note": "The statement is faithful: Nat.nth on the two membership predicates, 1-indexed, with A181795 defined by the odd and even divisor counts. The proof shows that m -> 2m is an order-preserving bijection from A376114 onto A181795: for 2^s*u with u odd, the odd divisor count is d(u) and the even count is s*d(u). This is an elementary divisor-count argument, and I found no prior proof. Second review: Faithful, short divisor-count argument. The only related public artifact is an undated trureturing-experiments numerical report without a proof; if a trureturing Lean proof predating 2026-11-28 04:08 UTC appears, re-check."
+  },
+  "oeis-a376354": {
+   "date": "2026-11-28",
+   "pr": 20132,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A376354",
+    "https://oeis.org/A000462",
+    "https://oeis.org/A376354"
+   ],
+   "note": "The last digit in the greedy triangular-number base is encoded as successive remainders mod T(k) down to T(2) = 3. This reproduces the data (3, 6, 9, 10, 13, ...). The claim is that the set of gaps between consecutive zero-ending positive numbers is exactly {1,2,3}, which I checked numerically to 2*10^5. The proof is elementary (the terminal digit either resets to zero or rises by one, and it is at most 2). I found no prior proof. Second review: Faithful; elementary argument (each step resets the terminal digit to 0 or adds 1, digit <=2)."
+  },
+  "oeis-a376357": {
+   "date": "2026-11-28",
+   "pr": 24986,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A376357",
+    "https://oeis.org/A007961",
+    "https://oeis.org/A376357",
+    "https://oeis.org/A007961"
+   ],
+   "note": "The greedy squares-base representation (A007961) is encoded faithfully, and its last digit is the remainder mod 2^2 after the greedy steps. a is Nat.nth of the positions m >= 1 whose last digit is 0. The claim is that the gap set is exactly {1,2,3,4}, which I checked numerically to 3*10^5; the data match (4, 8, 9, 13, ...). The proof is elementary (the last digit is at most 3 and either resets or increments). I found no prior proof. Second review: Faithful; elementary."
+  },
+  "oeis-a376639": {
+   "date": "2026-11-28",
+   "pr": 24625,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A376639",
+    "https://oeis.org/A151999",
+    "https://oeis.org/A293928",
+    "https://oeis.org/A376639",
+    "https://oeis.org/A293928",
+    "https://oeis.org/A151999"
+   ],
+   "note": "The statement encodes both of Rush's conjectures faithfully, using A151999 (rad phi(k) | k) and A293928 (totients phi(m) with phi(m)^2 = phi(phi(m)m)). The key is the elementary identity phi(t*m) = t*phi(m) when every prime of t divides m. It shows that the m solving phi(m)^2 = phi(phi(m)m) are exactly A151999 (Mathar's 'apparently' remark in A293928). From it, phi of any A151999 term lies in A293928, which gives conjecture 1, and A293928 is contained in A151999. This is routine, and I found no earlier written proof. Second review: Faithful; both conjectures follow from the elementary characterization phi(t m)=t phi(m) iff rad(t)|m. Routine."
+  },
+  "oeis-a385970": {
+   "date": "2026-11-28",
+   "pr": 7188,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A385970",
+    "https://oeis.org/A385969",
+    "https://oeis.org/A385970",
+    "https://oeis.org/A385969",
+    "https://www.anstuocmath.ro/mathematics/anale2026v2/10_ZanoniAlberto_et_all.pdf"
+   ],
+   "note": "The statement is faithful: representations use distinct bases > 1 whose exponent multiset is a permutation of the bases, and the claim is that the minimal number of powers is unbounded. The proof counts: the 2^m self-power subset sums sum_{s in S} s^s are distinct and below 2^((m+3)^2), while sums of at most k powers below that bound number only polynomially many. This is a clean pigeonhole argument, and I found no prior proof. Second review: Faithful; short counting argument (self-power subset sums are distinct, short representations are polylogarithmically few). No prior proof found."
   }
  },
  "flagged": {
@@ -18518,6 +18669,15 @@
     "https://oeis.org/A091338"
    ],
    "reason": "The disproof exploits an evident typo. Smeets's last clause a(24n+16) = -a(12n+4) fails already at n=0 (a(16)=1, a(4)=1); the intended clause is a(24n+16) = -a(12n+8) = -(3/(3n+2)), which is true. The statement header itself says all other clauses hold. The 'disproof' is a one-line check of a misprint, not a settlement of the conjecture."
+  },
+  "oeis-a382074": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A382074",
+    "https://oeis.org/A382074/b382074.txt",
+    "https://oeis.org/A065381"
+   ],
+   "reason": "Second review: The statement keeps a false typo conjunct (a(2*3)=1) so its negation is trivial. The proof does in fact exhibit the genuine counterexample 3697 (x=959), so restating the target as 'not forall n>1, a(2*A065381(n))=0' would make it a correct routine disproof, one already visible in the entry's b-file."
   }
  },
  "known": {
@@ -34623,6 +34783,33 @@
     "https://oeis.org/A060681"
    ],
    "reason": "Orr's conjecture a(2n)=n is stated faithfully (k ranges over positive integers, k != n). The entry now carries the formula a(n) = n - A032742(n) for n>1 (Alper Ferudun, Oct 06 2026), which gives a(2n)=2n-n=n directly. The argument is elementary: n-k | n!-n, and no d in (n,2n) divides (2n)!-2n. Already settled in the entry before the site proof."
+  },
+  "oeis-a365429": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A365429",
+    "https://oeis.org/A174973",
+    "https://arxiv.org/abs/1206.4355",
+    "https://arxiv.org/abs/1111.5401"
+   ],
+   "reason": "Second review: The inclusion of 2-dense numbers (A174973) in the practical numbers is stated in the literature (Thompson 2014; Saias as cited by Pomerance-Thompson-Weingartner), and follows from a two-line argument. Not new."
+  },
+  "oeis-a370381": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A370381",
+    "https://oeis.org/A003319",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Recurrence/Algebraic/IndecomposablePermutationDoubleArray.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Blueprint/D5/S1/Recurrence/Algebraic/IndecomposablePermutationDoubleArray.md"
+   ],
+   "reason": "Second review: Kurkov's conjecture for both arrays (A370380 and A370381) was machine-checked in Lean in trureturing two months before the site proof. Also related: site id oeis-a003319 (A370380 form) is covered by the same trureturing theorem."
+  },
+  "oeis-a003319": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing"
+   ],
+   "reason": "Second review (zbatch38): Kurkov's double-array conjecture is proved in trureturing, D5/S1/Recurrence/Algebraic/IndecomposablePermutationDoubleArray.lean (commit ff316027188, 2026-09-23), filed under A003319."
   }
  },
  "reviewed": "2026-11-28"
