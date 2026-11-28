@@ -7,8 +7,9 @@ open SimpleGraph
 
 theorem OMA.solution : type_of% @Erdos554.multicolourGraphRamsey_one_cycleGraph_five := by
 
+  unfold multicolourGraphRamsey
   refine IsLeast.csInf_eq ⟨fun C ↦ ⟨0, .of_le fun _ _ h ↦ ?_⟩, ?_⟩
-  · grind [TopEdgeLabeling.labelGraph_adj]
+  · simp [h.ne, Fin.eq_zero]
   · intro n hn
     obtain ⟨_, ⟨f⟩⟩ := hn (fun _ ↦ 0)
     simpa using Fintype.card_le_of_embedding f.toEmbedding
