@@ -1447,6 +1447,17 @@
       ],
       "check": "library-match",
       "silent": true
+    },
+    {
+      "id": "oeis-a052274",
+      "status": "claimed",
+      "summary": "Seraj, 'Resolution of Mathar's conjectures on counting power residues' (INTEGERS 23, 2023, #A62) proves Mathar's conjectures for the companion sequence A052275 and likely this one. Until we have checked, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "http://math.colgate.edu/~integers/x62/x62.pdf"
+      ],
+      "check": "library-match",
+      "silent": true
     }
   ]
 }
