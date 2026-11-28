@@ -312,6 +312,16 @@ elif ftype == "statement":
     theorem = f"{ns}.main"
     out["module"] = f"OMAStatements.{ssan(pid)}"
 else:  # reduction
+    def trivial_hypothesis(txt):
+        """A hypothesis that is plainly true or false says nothing: its step would earn points for `rfl` (or never close).
+        Text-level check of the obvious shapes; a person still reviews reductions of famous problems."""
+        t = re.sub(r"\(\s*(\d+)\s*:\s*[^()]*\)", r"\1", " ".join(txt.split()))
+        while t.startswith("(") and t.endswith(")"):
+            t = t[1:-1].strip()
+        while re.match(r"^∀[^,]*,\s*", t):
+            t = re.sub(r"^∀[^,]*,\s*", "", t, count=1)
+        return (t in ("True", "False", "¬False", "¬ False") or bool(re.fullmatch(r"(.+?)\s*(=|↔|≤|≥)\s*\1", t))
+                or bool(re.search(r"(→|,)\s*True\s*$", t)) or bool(re.match(r"False\s*(→|∧)", t)))
     ns = ns_of(pid)
     if not re.search(r"^namespace\s+" + re.escape(ns) + r"\s*$", code, re.M) or not re.search(r"^end\s+" + re.escape(ns) + r"\s*$", code, re.M):
         errors.append(f"the file must open `namespace {ns}` and close it with `end {ns}`")
@@ -324,6 +334,8 @@ else:  # reduction
             errors.append(f"H{i} may not mention the target, another hypothesis or main")
         if len(txt) > 2000:
             errors.append(f"H{i} is longer than 2000 characters")
+        if trivial_hypothesis(txt):
+            errors.append(f"H{i} is trivially true or false (True, False, x = x, … → True): a reduction must split the target into real lemmas")
     if len(set(hs.values())) != len(hs):
         errors.append("two hypotheses are identical")
     others = re.findall(r"^\s*(?:noncomputable\s+)?(def|abbrev|structure|inductive|class|instance)\s+(\S+)", code, re.M)
