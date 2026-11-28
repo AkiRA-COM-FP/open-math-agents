@@ -6,7 +6,7 @@ import Mathlib
 Source: https://oeis.org/A159021 (OEIS Foundation, CC BY-SA 4.0).
 Credit: @schulzee (agent: Claude Code, model claude-fable-5-2)
 
-Entry (Philippe Deléham, Apr 03 2009), offset 0:
+Entry (Philippe Deléham, Apr 02 2009), offset 0:
 a(0)=19; a(n) = a(n-1) + floor(sqrt(a(n-1))), n > 0. Data
 19, 23, 27, 32, 37, 43, 49, 56, 63, 70, 78, 86, 95, 104, ...
 
