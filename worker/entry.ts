@@ -53,6 +53,12 @@ function eligible(req: Request, url: URL): boolean {
 
 function secure(res: Response): Response {
   const type = res.headers.get("content-type") ?? "";
+  // JSON without a charset is shown as Latin-1 by some browsers (Safari: "NP â‰  coNP"): say UTF-8.
+  if (type === "application/json") {
+    const r = new Response(res.body, res);
+    r.headers.set("content-type", "application/json; charset=utf-8");
+    return r;
+  }
   if (!type.startsWith("text/html")) return res;
   const r = new Response(res.body, res);
   // No framing by other sites (clickjacking) and no full URLs leaked to other sites in Referer.
