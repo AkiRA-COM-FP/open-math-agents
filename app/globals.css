@@ -73,6 +73,8 @@ a { color: inherit; }
 .prose .prompt { margin: 24px 0 10px; border: 1.5px solid var(--accent); border-radius: 14px; box-shadow: 0 6px 22px rgba(15, 60, 160, 0.10); background: var(--bg); }
 .prose .prompt code { background: transparent; border-radius: 0; padding: 18px 20px; font-size: 1.02rem; line-height: 1.4; white-space: nowrap; overflow-wrap: normal; word-break: normal; }
 .prose .prompt button { padding: 0 28px; font-size: 1rem; letter-spacing: 0.01em; }
+/* Copy boxes on phones: the whole command on its own lines above a full-width button (it was cut to "Read https://lef"). */
+@media (max-width: 560px) { .prompt { flex-direction: column; } .prompt code { white-space: normal; overflow-wrap: anywhere; } .prompt button { padding: 12px; } }
 @media (max-width: 560px) { .prose .prompt { flex-direction: column; } .prose .prompt code { white-space: normal; overflow-wrap: anywhere; padding: 16px; font-size: 0.95rem; } .prose .prompt button { padding: 14px; } }
 
 /* stats */
@@ -101,8 +103,12 @@ section.block { padding: 36px 0; }
 .rec .empty { color: var(--faint); font-size: 0.9rem; }
 
 /* search */
-.searchbar { display: grid; grid-template-columns: 1fr auto auto auto; gap: 10px; margin-bottom: 12px; }
-@media (max-width: 860px) { .searchbar { grid-template-columns: 1fr 1fr; } .searchbar .q { grid-column: 1 / -1; } }
+/* Search on its own full-width row (it is the main way into 60,000 problems); the three filters share the row below.
+   Before, the source list's longest option widened its column until the search box was 75 px wide at 1024 px. */
+.searchbar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+.searchbar .q { grid-column: 1 / -1; font-size: 1.05rem; padding: 14px 16px; }
+.searchbar .select { min-width: 0; text-overflow: ellipsis; }
+@media (max-width: 560px) { .searchbar { grid-template-columns: 1fr 1fr; } .searchbar .select:last-child { grid-column: 1 / -1; } }
 .input, .select { background: var(--bg-2); border: 1px solid var(--line-2); color: var(--text); border-radius: 10px; padding: 12px 14px; font-size: 0.97rem; font-family: var(--sans); width: 100%; }
 .input:focus, .select:focus { outline: none; border-color: var(--text); }
 .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -143,6 +149,10 @@ section.block { padding: 36px 0; }
 .ptitle { font-family: var(--serif); font-weight: 500; font-size: clamp(1.9rem, 4.5vw, 3rem); line-height: 1.1; letter-spacing: -0.02em; margin: 14px 0 14px; }
 .pgrid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 28px; padding: 18px 0 60px; }
 @media (max-width: 920px) { .pgrid { grid-template-columns: 1fr; } }
+/* Problem page: the copy line under the title on narrow screens; on wide screens the right column holds it and stays in view. */
+.cta-top { display: none; }
+@media (max-width: 920px) { .cta-top { display: grid; gap: 8px; margin: 14px 0 4px; padding: 12px 14px; border: 1px solid var(--line-2); border-radius: 12px; background: var(--bg-2); } }
+@media (min-width: 921px) { .pgrid > aside { position: sticky; top: 16px; align-self: start; } }
 .panel { border: 1px solid var(--line); background: var(--card); border-radius: var(--radius); padding: 20px; }
 .panel + .panel { margin-top: 16px; }
 .panel h4 { margin: 0 0 10px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
@@ -265,7 +275,14 @@ html, body { overflow-x: clip; }
 }
 @media (max-width: 440px) {
   .nav a.support { padding: 6px 10px; font-size: 0.82rem; }
-  .nav a.cta2 { display: none; }
+  .nav a.cta2 { padding: 6px 7px; font-size: 0.85rem; }
+}
+/* Header on phones: the three menus fold into one "Menu" that also holds Problems, Prizes and Join. */
+.drop.mobile-menu { display: none; }
+@media (max-width: 640px) {
+  .drop.desk-menu { display: none; }
+  .drop.mobile-menu { display: block; }
+  .drop.mobile-menu .menu { max-height: 70vh; overflow-y: auto; }
 }
 
 /* profile */

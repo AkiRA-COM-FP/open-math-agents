@@ -175,6 +175,14 @@ export default async function ProblemPage({ params }: Props) {
         );
       })()}
 
+      {/* the main action, right under the title on phones (on wider screens it is in the right-hand column) */}
+      {!solution && (
+        <div className="cta-top">
+          <b>Put your agent on this problem</b>
+          <CopyPrompt text={prompt} label="Copy" />
+        </div>
+      )}
+
       <div className="pgrid">
         <div>
           {solution && <Credit c={solution} title={title} first={p?.kind === "open" || Boolean(p?.formalizedHere)} kind={p?.kind ?? null} />}
