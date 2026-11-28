@@ -1715,9 +1715,885 @@ theorem square_witness {p : ℕ} (pp : p.Prime) (big : 121<p^2)
 
 end Erdos889.SquareSeven
 
+
+
+
+/- Third and ninth offsets for a prime square with eleven missing. -/
+namespace Erdos889.ElevenSmall
+open OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2
+
+private def unit : Pell.Solution₁ (3:ℤ) := Pell.Solution₁.mk 2 1 (by decide)
+
+private theorem fundamental : Pell.IsFundamental unit := by
+  refine ⟨by decide,by decide,?_⟩
+  intro b hb
+  change 2≤b.x
+  omega
+
+private theorem unit_growth (i : ℕ) : (2:ℤ)^i≤(unit^i).x := by
+  induction i with
+  | zero => simp
+  | succ i ih =>
+    have nonneg : 0≤(unit^i).y := by
+      cases i with
+      | zero => simp
+      | succ i => exact (Pell.Solution₁.y_pow_succ_pos fundamental.x_pos fundamental.2.1 i).le
+    rw [pow_succ (2:ℤ),pow_succ unit,Pell.Solution₁.x_mul]
+    change _≤(unit^i).x*2+3*((unit^i).y*1)
+    omega
+
+private theorem exp_large (i : ℕ) (hi : 40 ≤ i) : 3*(i*3135)^2 < 2^i := by
+  induction i,hi using Nat.le_induction with
+  | base => decide
+  | succ i hi ih =>
+    rw [pow_succ 2 i]
+    nlinarith [Nat.mul_le_mul_left i hi]
+
+/-- For norm -2 and support {3,11}, the original coordinate is small with no height assumption. -/
+theorem third_pell {x y : ℕ} (hx : 0<x) (hy : 0<y) (eqn : x^2+2=3*y^2)
+    (sup : ∀ q : ℕ, q.Prime → q∣y → q=3 ∨ q=11) : x≤250800 := by
+  have e : (x:ℤ)^2+2=3*(y:ℤ)^2 := by exact_mod_cast eqn
+  let z : Pell.Solution₁ (3:ℤ) := Pell.Solution₁.mk ((x:ℤ)^2+1) ((x:ℤ)*y)
+    (by linear_combination (x:ℤ)^2*e)
+  have sx : z.x=(x:ℤ)^2+1 := rfl
+  have sy : z.y=(x:ℤ)*y := rfl
+  obtain ⟨i, powz⟩ := fundamental.eq_pow_of_nonneg (a:=z) (by rw [sx]; positivity) (by rw [sy]; positivity)
+  have imag : (unit^i).y.natAbs=x*y := by rw [←powz,sy,Int.natAbs_mul]; rfl
+  have ip : 0 < i := by
+    by_contra! low
+    have zero : i=0 := by omega
+    rw [zero,pow_zero,Pell.Solution₁.y_one] at imag
+    simp [hx.ne',hy.ne'] at imag
+  have h3 : (unit^3).y.natAbs=15 := by decide +kernel
+  have h5 : (unit^5).y.natAbs=209 := by decide +kernel
+  have divy : y∣i*3135 := by
+    apply (Nat.factorization_le_iff_dvd hy.ne' (Nat.mul_pos ip (by decide)).ne').mp
+    intro q
+    by_cases pq : q.Prime
+    · by_cases dy : q∣y
+      · have dv : y∣(unit^i).y.natAbs := by rw [imag]; exact dvd_mul_left _ _
+        have nz : (unit^i).y.natAbs≠0 := by rw [imag]; positivity
+        have sub := (Nat.factorization_le_iff_dvd hy.ne' nz).mpr dv q
+        obtain ⟨h,hh,hd,hm⟩ : ∃ h : ℕ, 0<h ∧ q∣(unit^h).y.natAbs ∧ (unit^h).y.natAbs∣3135 := by
+          rcases sup q pq dy with rfl|rfl
+          · exact ⟨3,by decide,by rw [h3]; decide,by rw [h3]; decide⟩
+          · exact ⟨5,by decide,by rw [h5]; decide,by rw [h5]; decide⟩
+        have le := Erdos889.PellValuation.pell_factorization_y_le (D:=3) unit pq ip hh fundamental.x_pos fundamental.2.1 hd
+        have nh : (unit^h).y.natAbs≠0 := by intro z; rw [z] at hm; norm_num at hm
+        have lifted := Nat.mul_dvd_mul_left i hm
+        exact sub.trans (le.trans ((Nat.factorization_le_iff_dvd (Nat.mul_ne_zero ip.ne' nh)
+          (Nat.mul_pos ip (by decide)).ne').mpr lifted q))
+      · simp [Nat.factorization_eq_zero_of_not_dvd dy]
+    · simp [Nat.factorization_eq_zero_of_not_prime _ pq]
+  have small := Nat.le_of_dvd (Nat.mul_pos ip (by decide)) divy
+  have growth := unit_growth i
+  rw [←powz,sx] at growth
+  have g : 2^i≤x^2+1 := by exact_mod_cast growth
+  have il : i<40 := by
+    by_contra! bad
+    have := exp_large i bad
+    nlinarith [Nat.pow_le_pow_left small 2]
+  have small2 : y≤125400 := by omega
+  nlinarith [Nat.pow_le_pow_left small2 2]
+
+/-- The norm-minus-two equation at the third offset has exactly three possible positive first coordinates. -/
+theorem third_shape_exact {x u v : ℕ} (hx : 0<x) (e : x^2+2=3*(3^u*11^v)^2) :
+    x=1 ∨ x=5 ∨ x=19 := by
+  have small := third_pell hx (by positivity) e (by
+    intro q pq d
+    rcases pq.dvd_mul.mp d with dv|dv
+    · exact Or.inl ((Nat.prime_dvd_prime_iff_eq pq Nat.prime_three).mp (pq.dvd_of_dvd_pow dv))
+    · exact Or.inr ((Nat.prime_dvd_prime_iff_eq pq (by decide : Nat.Prime 11)).mp (pq.dvd_of_dvd_pow dv)))
+  have yb : 3^u*11^v≤250800 := by
+    nlinarith [Nat.pow_le_pow_left small 2]
+  have au : u<12 := by
+    by_contra! hi
+    have := Nat.pow_le_pow_right (by decide : 0<3) hi
+    have := Nat.le_mul_of_pos_right (3^u) (by positivity : 0<11^v)
+    omega
+  have bv : v<6 := by
+    by_contra! hi
+    have := Nat.pow_le_pow_right (by decide : 0<11) hi
+    have := Nat.le_mul_of_pos_left (11^v) (by positivity : 0<3^u)
+    omega
+  have table : ∀ a : Fin 12, ∀ b : Fin 6,
+      let t := 3*(3^a.val*11^b.val)^2-2
+      t.sqrt^2=t → t.sqrt=1 ∨ t.sqrt=5 ∨ t.sqrt=19 := by decide +kernel
+  have t := table ⟨u,au⟩ ⟨v,bv⟩
+  dsimp only at t
+  rw [show 3*(3^u*11^v)^2-2=x^2 by omega,Nat.sqrt_eq'] at t
+  exact t rfl
+
+private theorem bare {n k : ℕ} (sol : v_l 1 n=1) (div : 210∣n)
+    (kh : k=3 ∨ k=9) (hit : 11∣n+k) : ∃ a b : ℕ, n+k=3^a*11^b := by
+  have pos : 0<n+k := by rcases kh with rfl|rfl <;> omega
+  let z := n+k
+  let a := z.factorization 3
+  let m := z/3^a
+  have mp : 0 < m := Nat.ordCompl_pos 3 pos.ne'
+  have fac : 3^a*m=z := Nat.ordProj_mul_ordCompl_eq_self _ _
+  have pure : m=11^m.primeFactorsList.length := Nat.eq_prime_pow_of_unique_prime_dvd mp.ne' (by
+    intro q pq dv
+    have d : q∣z := fac ▸ dvd_mul_of_dvd_right dv _
+    change q∣n+k at d
+    by_contra ne
+    have nd3 : q≠3 := by rintro rfl; exact Nat.not_dvd_ordCompl Nat.prime_three pos.ne' dv
+    have high : k<q := by
+      by_contra! low
+      have bound : q≤9 := by rcases kh with rfl|rfl <;> omega
+      have opts : q=2 ∨ q=3 ∨ q=5 ∨ q=7 := by interval_cases q <;> tauto
+      rcases kh with rfl|rfl <;> rcases opts with rfl|rfl|rfl|rfl <;> omega
+    exact two_primes (by omega : 0<k) pq (by decide : Nat.Prime 11) ne high (by omega) d hit sol)
+  exact ⟨a,_,by change z=_; rw [←pure,fac]⟩
+
+private theorem peel (p e : ℕ) : p^e=p^(e%2)*(p^(e/2))^2 := by
+  rw [←pow_mul,←pow_add]
+  congr 1
+  omega
+
+private theorem cycle {m x t : ℕ} (h : Nat.ModEq m (x^t) 1) (e : ℕ) :
+    Nat.ModEq m (x^e) (x^(e%t)) := by
+  calc
+    x^e=x^(e%t)*(x^t)^(e/t) := by rw [←pow_mul,←pow_add,Nat.mod_add_div]
+    _ ≡ x^(e%t)*1^(e/t) [MOD m] := (h.pow _).mul_left _
+    _ = _ := by simp
+
+set_option maxHeartbeats 1200000 in
+private theorem shape_at {n k p : ℕ} (sol : v_l 1 n=1) (div : 210∣n)
+    (kh : k=3 ∨ k=9) (hit : 11∣n+k) (shape : n+1=p^2) :
+    ∃ u v : ℕ, (k=3 ∧ p^2+2=3*(3^u*11^v)^2) ∨ (k=9 ∧ p^2+8=(3^u*11^v)^2) := by
+  obtain ⟨a,b,ab⟩ := bare sol div kh hit
+  let y := 3^(a/2)*11^(b/2)
+  have f : n+k=3^(a%2)*11^(b%2)*y^2 := by
+    rw [ab,peel 3 a,peel 11 b]; dsimp only [y]; ring
+  have m5 := (cycle (by decide : Nat.ModEq 5 (3^4) 1) a).mul (cycle (by decide : Nat.ModEq 5 (11^1) 1) b)
+  change (3^a*11^b)%5=(3^(a%4)*11^(b%1))%5 at m5
+  rw [←ab,Nat.mod_one,pow_zero,mul_one] at m5
+  have smod : p^2%8=1 := by
+    have sq := Nat.pow_mod p 2 8
+    have s := Nat.mod_lt p (by decide : 0<8)
+    interval_cases t : p%8 <;> norm_num at sq <;> omega
+  have m8 := (cycle (by decide : Nat.ModEq 8 (3^2) 1) a).mul (cycle (by decide : Nat.ModEq 8 (11^2) 1) b)
+  change (3^a*11^b)%8=(3^(a%2)*11^(b%2))%8 at m8
+  rw [←ab] at m8
+  have al := Nat.mod_lt a (by decide : 0<4)
+  have bl := Nat.mod_lt b (by decide : 0<2)
+  have ar : a%2=a%4%2 := by omega
+  rw [ar] at m8 f
+  refine ⟨a/2,b/2,?_⟩
+  change (k=3 ∧ p^2+2=3*y^2) ∨ (k=9 ∧ p^2+8=y^2)
+  rcases kh with rfl|rfl <;> interval_cases s : a%4 <;> interval_cases t : b%2 <;>
+    norm_num at m5 m8 f <;> omega
+
+/-- Neither the third nor the ninth offset can contain eleven for a remaining large square. -/
+theorem no_three_nine {n p : ℕ} (huge : 1000000000000000000<n) (div : 210∣n)
+    (shape : n+1=p^2) (sol : v_l 1 n=1) (k : ℕ) (kh : k=3 ∨ k=9) : ¬11∣n+k := by
+  intro hit
+  obtain ⟨u,v,⟨_,e⟩|⟨_,e⟩⟩ := shape_at sol div kh hit shape
+  · have xp : 0<p := by
+      by_contra! z
+      have h : p=0 := by omega
+      rw [h] at shape
+      omega
+    have b := third_pell xp (by positivity) e (by
+      intro q pq d
+      rcases pq.dvd_mul.mp d with dv|dv
+      · exact Or.inl ((Nat.prime_dvd_prime_iff_eq pq Nat.prime_three).mp (pq.dvd_of_dvd_pow dv))
+      · exact Or.inr ((Nat.prime_dvd_prime_iff_eq pq (by decide : Nat.Prime 11)).mp (pq.dvd_of_dvd_pow dv)))
+    have := Nat.pow_le_pow_left b 2
+    omega
+  · let y := 3^u*11^v
+    change p^2+8=y^2 at e
+    have lt : p<y := by by_contra! low; have := Nat.pow_le_pow_left low 2; omega
+    have next := Nat.pow_le_pow_left (show p+1≤y by omega) 2
+    have pb : p≤4 := by nlinarith
+    have := Nat.pow_le_pow_left pb 2
+    omega
+end Erdos889.ElevenSmall
+
+namespace Erdos889.PellSixSieve
+theorem seven_1_7 {n : ℕ} (hn : n<2097152) :
+    ¬7^8∣(orbit 7 (8,3) (1,1) n).2 := by
+  have h0 : Good 7 7 7 (8,3) (1,1) [2] :=
+    lift (t:=1) (s:=7) (good_one 7 (8,3) (1,1)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 7 49 49 (8,3) (1,1) [9] :=
+    lift (t:=7) (s:=7) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 7 343 343 (8,3) (1,1) [156] :=
+    lift (t:=49) (s:=7) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 7 2401 2401 (8,3) (1,1) [499] :=
+    lift (t:=343) (s:=7) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 7 16807 16807 (8,3) (1,1) [499] :=
+    lift (t:=2401) (s:=7) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 7 117649 117649 (8,3) (1,1) [67727] :=
+    lift (t:=16807) (s:=7) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 7 823543 823543 (8,3) (1,1) [538323] :=
+    lift (t:=117649) (s:=7) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h7 : Good 7 5764801 5764801 (8,3) (1,1) [4656038] :=
+    lift (t:=823543) (s:=7) (h6) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h7 n dvd
+  rw [Nat.mod_eq_of_lt (by omega)] at mem
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+  omega
+
+theorem seven_1_11 {n : ℕ} (hn : n<2097152) :
+    ¬11^7∣(orbit 7 (8,3) (1,1) n).2 := by
+  have h0 : Good 7 11 12 (8,3) (1,1) [1, 7] :=
+    lift (t:=1) (s:=12) (good_one 7 (8,3) (1,1)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 7 121 132 (8,3) (1,1) [7, 73] :=
+    lift (t:=12) (s:=11) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 7 1331 1452 (8,3) (1,1) [205, 931] :=
+    lift (t:=132) (s:=11) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 7 14641 15972 (8,3) (1,1) [3109, 11095] :=
+    lift (t:=1452) (s:=11) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 7 161051 175692 (8,3) (1,1) [82969, 170815] :=
+    lift (t:=15972) (s:=11) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 7 1771561 1932612 (8,3) (1,1) [170815, 1137121] :=
+    lift (t:=175692) (s:=11) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 7 19487171 21258732 (8,3) (1,1) [4036039, 14665405] :=
+    lift (t:=1932612) (s:=11) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h6 n dvd
+  rw [Nat.mod_eq_of_lt (by omega)] at mem
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+  omega
+
+theorem seven_13_7 {n : ℕ} (hn : n<2097152) :
+    ¬7^9∣(orbit 7 (8,3) (13,5) n).2 := by
+  have h0 : Good 7 7 7 (8,3) (13,5) [4] :=
+    lift (t:=1) (s:=7) (good_one 7 (8,3) (13,5)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 7 49 49 (8,3) (13,5) [39] :=
+    lift (t:=7) (s:=7) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 7 343 343 (8,3) (13,5) [186] :=
+    lift (t:=49) (s:=7) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 7 2401 2401 (8,3) (13,5) [1901] :=
+    lift (t:=343) (s:=7) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 7 16807 16807 (8,3) (13,5) [16307] :=
+    lift (t:=2401) (s:=7) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 7 117649 117649 (8,3) (13,5) [49921] :=
+    lift (t:=16807) (s:=7) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 7 823543 823543 (8,3) (13,5) [285219] :=
+    lift (t:=117649) (s:=7) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h7 : Good 7 5764801 5764801 (8,3) (13,5) [1108762] :=
+    lift (t:=823543) (s:=7) (h6) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h8 : Good 7 40353607 40353607 (8,3) (13,5) [6873563] :=
+    lift (t:=5764801) (s:=7) (h7) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h8 n dvd
+  rw [Nat.mod_eq_of_lt (by omega)] at mem
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+  omega
+
+theorem seven_13_11 {n : ℕ} (hn : n<2097152) :
+    ¬11^7∣(orbit 7 (8,3) (13,5) n).2 := by
+  have h0 : Good 7 11 12 (8,3) (13,5) [4, 10] :=
+    lift (t:=1) (s:=12) (good_one 7 (8,3) (13,5)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 7 121 132 (8,3) (13,5) [58, 124] :=
+    lift (t:=12) (s:=11) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 7 1331 1452 (8,3) (13,5) [520, 1246] :=
+    lift (t:=132) (s:=11) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 7 14641 15972 (8,3) (13,5) [4876, 12862] :=
+    lift (t:=1452) (s:=11) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 7 161051 175692 (8,3) (13,5) [4876, 92722] :=
+    lift (t:=15972) (s:=11) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 7 1771561 1932612 (8,3) (13,5) [795490, 1761796] :=
+    lift (t:=175692) (s:=11) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 7 19487171 21258732 (8,3) (13,5) [6593326, 17222692] :=
+    lift (t:=1932612) (s:=11) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h6 n dvd
+  rw [Nat.mod_eq_of_lt (by omega)] at mem
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+  omega
+
+end Erdos889.PellSixSieve
+namespace Erdos889.ElevenSeven
+
+
+def term (s : ℕ × ℕ) : ℕ → ℕ × ℕ
+  | 0 => s
+  | k+1 => let z := term s k; (8*z.1+21*z.2,3*z.1+8*z.2)
+
+theorem descent {x y : ℕ} (eqn : x^2+6=7*y^2) :
+    ∃ s : ℕ × ℕ, (s=(1,1) ∨ s=(13,5)) ∧
+      ∃ k : ℕ, term s k=(x,y) ∧ 8^k≤y := by
+  induction y using Nat.strong_induction_on generalizing x with
+  | h y ih =>
+    by_cases small : y<8
+    · have hx : x<30 := by
+        by_contra! ge
+        have := Nat.pow_le_pow_left ge 2
+        have := Nat.pow_le_pow_left (show y≤7 by omega) 2
+        nlinarith
+      have cases' : ∀ i : Fin 30, ∀ j : Fin 8, i.val^2+6=7*j.val^2 →
+          (i.val=1 ∧ j.val=1) ∨ (i.val=13 ∧ j.val=5) := by decide +kernel
+      rcases cases' ⟨x,hx⟩ ⟨y,small⟩ eqn with ⟨rfl,rfl⟩|⟨rfl,rfl⟩
+      · exact ⟨(1,1),Or.inl rfl,0,rfl,by decide⟩
+      · exact ⟨(13,5),Or.inr rfl,0,rfl,by decide⟩
+    have low : 8^2≤y^2 := Nat.pow_le_pow_left (by omega) 2
+    have ax : 21*y≤8*x := by
+      apply (Nat.pow_le_pow_iff_left (by decide : 2≠0)).mp
+      nlinarith only [low,eqn]
+    have ay : 3*x≤8*y := by
+      apply (Nat.pow_le_pow_iff_left (by decide : 2≠0)).mp
+      nlinarith only [low,eqn]
+    have gy : 7*y<3*x := by
+      by_contra! bad
+      have := Nat.pow_le_pow_left bad 2
+      nlinarith only [this,low,eqn]
+    let u := 8*x-21*y
+    let v := 8*y-3*x
+    have hu : u+21*y=8*x := Nat.sub_add_cancel ax
+    have hv : v+3*x=8*y := Nat.sub_add_cancel ay
+    have ev : u^2+6=7*v^2 := by
+      dsimp only [u,v]
+      zify [ax,ay] at eqn ⊢
+      nlinarith only [eqn]
+    have smaller : v<y := by omega
+    obtain ⟨s,hs,k,hk,lim⟩ := ih v smaller ev
+    refine ⟨s,hs,k+1,?_,?_⟩
+    · simp only [term,hk]
+      exact Prod.ext (by dsimp; omega) (by dsimp; omega)
+    · rw [pow_succ]
+      omega
+
+
+open Erdos889.PellSixSieve
+
+private theorem coords (s : ℕ × ℕ) (k : ℕ) : term s k = orbit 7 (8,3) s k := by
+  induction k with
+  | zero => exact (orbit_zero 7 (8,3) s).symm
+  | succ k ih =>
+    rw [term,ih,orbit_succ]
+    apply Prod.ext
+    · rfl
+    · exact Nat.add_comm _ _
+
+/-- All solutions in the effective range to the norm equation arising at the seventh offset. -/
+theorem smooth {p u v : ℕ} (eq : p^2+6=7*(7^u*11^v)^2) (size : 7^u*11^v<2^2097152) :
+    p=1 ∨ p=29 := by
+  obtain ⟨s,hs,k,hk,lim⟩ := descent eq
+  have low : k<2097152 := by
+    by_contra! ge
+    have := Nat.pow_le_pow_right (by decide : 0<2) ge
+    have := Nat.pow_le_pow_left (by decide : 2≤8) k
+    omega
+  have avoid : ¬7^9∣(term s k).2 ∧ ¬11^7∣(term s k).2 := by
+    rw [coords]
+    rcases hs with rfl|rfl
+    · exact ⟨fun d => seven_1_7 low ((pow_dvd_pow 7 (by decide : 8≤9)).trans d),seven_1_11 low⟩
+    · exact ⟨seven_13_7 low,seven_13_11 low⟩
+  rw [hk] at avoid
+  have uu : u≤9 := by
+    by_contra! hi
+    exact avoid.1 (dvd_mul_of_dvd_left (pow_dvd_pow 7 hi.le) _)
+  have vv : v≤9 := by
+    by_contra! hi
+    exact avoid.2 (dvd_mul_of_dvd_right (pow_dvd_pow 11 (by omega : 7≤v)) _)
+  have dv : 7^u*11^v ∣ 77^9 := by
+    rw [show (77:ℕ)=7*11 by decide,mul_pow]
+    exact Nat.mul_dvd_mul (pow_dvd_pow 7 uu) (pow_dvd_pow 11 vv)
+  have k32 : k<32 := by
+    by_contra! hi
+    have := Nat.pow_le_pow_right (by decide : 0<8) hi
+    have := Nat.le_of_dvd (by decide : 0<77^9) dv
+    have : 77^9<8^32 := by decide
+    omega
+  have table : ∀ e : Bool, ∀ i : Fin 32,
+      let z := term (if e then (1,1) else (13,5)) i.val
+      z.2∣77^9 → z.1=1 ∨ z.1=29 := by decide +kernel
+  rcases hs with rfl|rfl
+  · have t := table true ⟨k,k32⟩
+    simp only [if_true,hk] at t
+    exact t dv
+  · have t := table false ⟨k,k32⟩
+    simp only [Bool.false_eq_true,if_false,hk] at t
+    exact t dv
+end Erdos889.ElevenSeven
+
+namespace Erdos889.ElevenSeven
+open OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2
+
+private theorem peel (p e : ℕ) : p^e=p^(e%2)*(p^(e/2))^2 := by
+  rw [←pow_mul,←pow_add]
+  congr 1
+  omega
+
+private theorem coefficient {x y a b : ℕ} (sx : x%8=1) (sy : y%8=1)
+    (eq : x+6=(7^(a%2)*11^(b%2))*y) : x+6=7*y := by
+  have ar := Nat.mod_lt a (by decide : 0<2)
+  have br := Nat.mod_lt b (by decide : 0<2)
+  interval_cases i : a%2 <;> interval_cases j : b%2 <;> norm_num at eq <;> omega
+
+set_option maxHeartbeats 2000000 in
+theorem reject_seven {n p : ℕ} (huge : 1000000000000000000<n) (div : 210∣n)
+    (shape : n+1=p^2) (sol : Erdos889.v_l 1 n=1) (eleven : 11∣n+7) : False := by
+  have two : ¬2∣n+7 := by omega
+  have three : ¬3∣n+7 := by omega
+  have five : ¬5∣n+7 := by omega
+  have sup (q : ℕ) (pq : q.Prime) (dq : q∣n+7) : q=7 ∨ q=11 := by
+    by_cases small : q≤7
+    · interval_cases q <;> tauto
+    · by_contra ne
+      exact two_primes (by decide : 0<7) pq (by decide : Nat.Prime 11) (by tauto)
+        (by omega) (by decide) dq eleven sol
+  have pos : n+7≠0 := by omega
+  let a := (n+7).factorization 7
+  let m := (n+7)/7^a
+  have pp : Nat.Prime 7 := by decide
+  have fac : 7^a*m=n+7 := Nat.ordProj_mul_ordCompl_eq_self _ _
+  have pure : m=11^m.primeFactorsList.length := Nat.eq_prime_pow_of_unique_prime_dvd
+    (Nat.ordCompl_pos 7 pos).ne' (by
+      intro q pq dq
+      exact (sup q pq (fac ▸ dvd_mul_of_dvd_right dq _)).resolve_left
+        (by rintro rfl; exact Nat.not_dvd_ordCompl pp pos dq))
+  let b := m.primeFactorsList.length
+  have eq : p^2+6=7^a*11^b := by change p^2+6=7^a*11^m.primeFactorsList.length; rw [←pure,fac]; omega
+  let y := 7^(a/2)*11^(b/2)
+  have split : p^2+6=(7^(a%2)*11^(b%2))*y^2 := by
+    rw [eq,peel 7 a,peel 11 b]; dsimp only [y]; ring
+  have oddP : ¬2∣p := by
+    intro d
+    have d2 : 2∣p^2 := dvd_pow d (by decide)
+    omega
+  have modP : p^2%8=1 := by
+    have sq := Nat.pow_mod p 2 8
+    have lt := Nat.mod_lt p (by decide : 0<8)
+    interval_cases t : p%8 <;> norm_num at sq <;> omega
+  have oddY : Odd y := (Odd.pow (by decide : Odd 7)).mul (Odd.pow (by decide : Odd 11))
+  obtain ⟨z,hz⟩ := oddY
+  have modY : y^2%8=1 := by
+    have sq := Nat.pow_mod y 2 8
+    have lt := Nat.mod_lt y (by decide : 0<8)
+    interval_cases t : y%8 <;> norm_num at sq <;> omega
+  have normEq : p^2+6=7*y^2 := coefficient modP modY split
+  have ysmall : y≤p := by
+    by_contra! hi
+    have := Nat.pow_le_pow_left hi.le 2
+    nlinarith
+  have hp : 30<p := by
+    by_contra! low
+    have := Nat.pow_le_pow_left low 2
+    omega
+  have ppow : p<p^2 := by nlinarith
+  have cap := Erdos889.effective_binary_cutoff sol
+  rw [show (2:ℕ)^21=2097152 by decide] at cap
+  have bound : p^2≤2^2097152 := by
+    rw [← shape]
+    exact Nat.succ_le_of_lt cap
+  have size : y<2^2097152 := (lt_of_le_of_lt ysmall ppow).trans_le bound
+  rcases smooth normEq size with h|h <;> omega
+end Erdos889.ElevenSeven
+
+namespace Erdos889.PellSixSieve
+theorem eight_avoid_1_2 {k : ℕ} (small : k<2097152) :
+    ¬2^24∣(orbit 2 (3,2) (1,2) k).2 := by
+  have h0 : Good 2 2 1 (3,2) (1,2) [0] :=
+    lift (t:=1) (s:=1) (good_one 2 (3,2) (1,2)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 2 4 2 (3,2) (1,2) [1] :=
+    lift (t:=1) (s:=2) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 2 8 4 (3,2) (1,2) [1] :=
+    lift (t:=2) (s:=2) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 2 16 8 (3,2) (1,2) [5] :=
+    lift (t:=4) (s:=2) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 2 32 16 (3,2) (1,2) [13] :=
+    lift (t:=8) (s:=2) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 2 64 32 (3,2) (1,2) [29] :=
+    lift (t:=16) (s:=2) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 2 128 64 (3,2) (1,2) [61] :=
+    lift (t:=32) (s:=2) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h7 : Good 2 256 128 (3,2) (1,2) [61] :=
+    lift (t:=64) (s:=2) (h6) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h8 : Good 2 512 256 (3,2) (1,2) [189] :=
+    lift (t:=128) (s:=2) (h7) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h9 : Good 2 1024 512 (3,2) (1,2) [445] :=
+    lift (t:=256) (s:=2) (h8) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h10 : Good 2 2048 1024 (3,2) (1,2) [957] :=
+    lift (t:=512) (s:=2) (h9) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h11 : Good 2 4096 2048 (3,2) (1,2) [957] :=
+    lift (t:=1024) (s:=2) (h10) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h12 : Good 2 8192 4096 (3,2) (1,2) [3005] :=
+    lift (t:=2048) (s:=2) (h11) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h13 : Good 2 16384 8192 (3,2) (1,2) [3005] :=
+    lift (t:=4096) (s:=2) (h12) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h14 : Good 2 32768 16384 (3,2) (1,2) [3005] :=
+    lift (t:=8192) (s:=2) (h13) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h15 : Good 2 65536 32768 (3,2) (1,2) [3005] :=
+    lift (t:=16384) (s:=2) (h14) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h16 : Good 2 131072 65536 (3,2) (1,2) [35773] :=
+    lift (t:=32768) (s:=2) (h15) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h17 : Good 2 262144 131072 (3,2) (1,2) [101309] :=
+    lift (t:=65536) (s:=2) (h16) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h18 : Good 2 524288 262144 (3,2) (1,2) [232381] :=
+    lift (t:=131072) (s:=2) (h17) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h19 : Good 2 1048576 524288 (3,2) (1,2) [232381] :=
+    lift (t:=262144) (s:=2) (h18) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h20 : Good 2 2097152 1048576 (3,2) (1,2) [232381] :=
+    lift (t:=524288) (s:=2) (h19) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h21 : Good 2 4194304 2097152 (3,2) (1,2) [1280957] :=
+    lift (t:=1048576) (s:=2) (h20) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h22 : Good 2 8388608 4194304 (3,2) (1,2) [1280957] :=
+    lift (t:=2097152) (s:=2) (h21) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h23 : Good 2 16777216 8388608 (3,2) (1,2) [5475261] :=
+    lift (t:=4194304) (s:=2) (h22) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro d
+  have h := h23 k d
+  rw [Nat.mod_eq_of_lt (by omega)] at h
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at h
+  omega
+
+theorem eight_avoid_1_11 {k : ℕ} (small : k<2097152) :
+    ¬11^7∣(orbit 2 (3,2) (1,2) k).2 := by
+  have h0 : Good 2 11 12 (3,2) (1,2) [4, 10] :=
+    lift (t:=1) (s:=12) (good_one 2 (3,2) (1,2)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 2 121 132 (3,2) (1,2) [10, 76] :=
+    lift (t:=12) (s:=11) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 2 1331 1452 (3,2) (1,2) [472, 1198] :=
+    lift (t:=132) (s:=11) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 2 14641 15972 (3,2) (1,2) [472, 8458] :=
+    lift (t:=1452) (s:=11) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 2 161051 175692 (3,2) (1,2) [80332, 168178] :=
+    lift (t:=15972) (s:=11) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 2 1771561 1932612 (3,2) (1,2) [783100, 1749406] :=
+    lift (t:=175692) (s:=11) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 2 19487171 21258732 (3,2) (1,2) [3682018, 14311384] :=
+    lift (t:=1932612) (s:=11) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro d
+  have h := h6 k d
+  rw [Nat.mod_eq_of_lt (by omega)] at h
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at h
+  omega
+
+theorem eight_avoid_5_2 {k : ℕ} (small : k<2097152) :
+    ¬2^23∣(orbit 2 (3,2) (5,4) k).2 := by
+  have h0 : Good 2 2 1 (3,2) (5,4) [0] :=
+    lift (t:=1) (s:=1) (good_one 2 (3,2) (5,4)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 2 4 2 (3,2) (5,4) [0] :=
+    lift (t:=1) (s:=2) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 2 8 4 (3,2) (5,4) [2] :=
+    lift (t:=2) (s:=2) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 2 16 8 (3,2) (5,4) [2] :=
+    lift (t:=4) (s:=2) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 2 32 16 (3,2) (5,4) [2] :=
+    lift (t:=8) (s:=2) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 2 64 32 (3,2) (5,4) [2] :=
+    lift (t:=16) (s:=2) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 2 128 64 (3,2) (5,4) [2] :=
+    lift (t:=32) (s:=2) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h7 : Good 2 256 128 (3,2) (5,4) [66] :=
+    lift (t:=64) (s:=2) (h6) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h8 : Good 2 512 256 (3,2) (5,4) [66] :=
+    lift (t:=128) (s:=2) (h7) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h9 : Good 2 1024 512 (3,2) (5,4) [66] :=
+    lift (t:=256) (s:=2) (h8) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h10 : Good 2 2048 1024 (3,2) (5,4) [66] :=
+    lift (t:=512) (s:=2) (h9) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h11 : Good 2 4096 2048 (3,2) (5,4) [1090] :=
+    lift (t:=1024) (s:=2) (h10) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h12 : Good 2 8192 4096 (3,2) (5,4) [1090] :=
+    lift (t:=2048) (s:=2) (h11) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h13 : Good 2 16384 8192 (3,2) (5,4) [5186] :=
+    lift (t:=4096) (s:=2) (h12) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h14 : Good 2 32768 16384 (3,2) (5,4) [13378] :=
+    lift (t:=8192) (s:=2) (h13) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h15 : Good 2 65536 32768 (3,2) (5,4) [29762] :=
+    lift (t:=16384) (s:=2) (h14) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h16 : Good 2 131072 65536 (3,2) (5,4) [29762] :=
+    lift (t:=32768) (s:=2) (h15) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h17 : Good 2 262144 131072 (3,2) (5,4) [29762] :=
+    lift (t:=65536) (s:=2) (h16) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h18 : Good 2 524288 262144 (3,2) (5,4) [29762] :=
+    lift (t:=131072) (s:=2) (h17) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h19 : Good 2 1048576 524288 (3,2) (5,4) [291906] :=
+    lift (t:=262144) (s:=2) (h18) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h20 : Good 2 2097152 1048576 (3,2) (5,4) [816194] :=
+    lift (t:=524288) (s:=2) (h19) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h21 : Good 2 4194304 2097152 (3,2) (5,4) [816194] :=
+    lift (t:=1048576) (s:=2) (h20) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h22 : Good 2 8388608 4194304 (3,2) (5,4) [2913346] :=
+    lift (t:=2097152) (s:=2) (h21) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro d
+  have h := h22 k d
+  rw [Nat.mod_eq_of_lt (by omega)] at h
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at h
+  omega
+
+theorem eight_avoid_5_11 {k : ℕ} (small : k<2097152) :
+    ¬11^7∣(orbit 2 (3,2) (5,4) k).2 := by
+  have h0 : Good 2 11 12 (3,2) (5,4) [1, 7] :=
+    lift (t:=1) (s:=12) (good_one 2 (3,2) (5,4)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 2 121 132 (3,2) (5,4) [55, 121] :=
+    lift (t:=12) (s:=11) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 2 1331 1452 (3,2) (5,4) [253, 979] :=
+    lift (t:=132) (s:=11) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 2 14641 15972 (3,2) (5,4) [7513, 15499] :=
+    lift (t:=1452) (s:=11) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 2 161051 175692 (3,2) (5,4) [7513, 95359] :=
+    lift (t:=15972) (s:=11) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 2 1771561 1932612 (3,2) (5,4) [183205, 1149511] :=
+    lift (t:=175692) (s:=11) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 2 19487171 21258732 (3,2) (5,4) [6947347, 17576713] :=
+    lift (t:=1932612) (s:=11) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro d
+  have h := h6 k d
+  rw [Nat.mod_eq_of_lt (by omega)] at h
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at h
+  omega
+
+end Erdos889.PellSixSieve
+
+namespace Erdos889.ElevenEight
+open Erdos889.PellSixSieve
+private def term (s : ℕ × ℕ) : ℕ → ℕ × ℕ
+  | 0 => s
+  | k+1 => let z := term s k; (3*z.1+4*z.2,2*z.1+3*z.2)
+
+private theorem term_eq_orbit (s : ℕ × ℕ) (k : ℕ) :
+    term s k=orbit 2 (3,2) s k := by
+  induction k with
+  | zero => exact (orbit_zero 2 (3,2) s).symm
+  | succ k ih =>
+    rw [term,ih,orbit_succ]
+    apply Prod.ext
+    · rfl
+    · exact Nat.add_comm _ _
+
+private theorem descent {x y : ℕ} (eqn : x^2+7=2*y^2) :
+    ∃ s : ℕ × ℕ, (s=(1,2) ∨ s=(5,4)) ∧ ∃ k : ℕ, term s k=(x,y) ∧ 3^k≤y := by
+  induction y using Nat.strong_induction_on generalizing x with
+  | h y ih =>
+    by_cases small : y<6
+    · have hx : x<9 := by
+        by_contra! ge
+        have := Nat.pow_le_pow_left ge 2
+        have := Nat.pow_le_pow_left (show y≤5 by omega) 2
+        nlinarith
+      have tab : ∀ i : Fin 9, ∀ j : Fin 6, i.val^2+7=2*j.val^2 →
+          (i.val=1 ∧ j.val=2) ∨ (i.val=5 ∧ j.val=4) := by decide +kernel
+      rcases tab ⟨x,hx⟩ ⟨y,small⟩ eqn with ⟨rfl,rfl⟩|⟨rfl,rfl⟩
+      · exact ⟨(1,2),Or.inl rfl,0,rfl,by decide⟩
+      · exact ⟨(5,4),Or.inr rfl,0,rfl,by decide⟩
+    have low : 6^2≤y^2 := Nat.pow_le_pow_left (by omega) 2
+    have ax : 4*y≤3*x := by
+      apply (Nat.pow_le_pow_iff_left (by decide : 2≠0)).mp
+      nlinarith only [low,eqn]
+    have ay : 2*x≤3*y := by
+      apply (Nat.pow_le_pow_iff_left (by decide : 2≠0)).mp
+      nlinarith only [low,eqn]
+    have gy : y<x := by
+      by_contra! h
+      have := Nat.pow_le_pow_left h 2
+      nlinarith only [low,eqn,this]
+    let u := 3*x-4*y
+    let v := 3*y-2*x
+    have hu : u+4*y=3*x := Nat.sub_add_cancel ax
+    have hv : v+2*x=3*y := Nat.sub_add_cancel ay
+    have ev : u^2+7=2*v^2 := by
+      dsimp only [u,v]
+      zify [ax,ay] at eqn ⊢
+      nlinarith only [eqn]
+    obtain ⟨s,hs,k,hk,hlim⟩ := ih v (by omega) ev
+    refine ⟨s,hs,k+1,?_,?_⟩
+    · simp only [term,hk]
+      exact Prod.ext (by dsimp; omega) (by dsimp; omega)
+    · rw [pow_succ]
+      omega
+
+/-- Smooth coordinates in the two Pell orbits within the effective interval. -/
+theorem eight_smooth_coordinates {x y a b : ℕ} (eqn : x^2+7=2*y^2)
+    (size : y<2^2097152) (form : y=2^a*11^b) :
+    (x=1 ∧ y=2) ∨ (x=5 ∧ y=4) ∨ (x=11 ∧ y=8) ∨ (x=31 ∧ y=22) ∨ (x=181 ∧ y=128) := by
+  obtain ⟨s,hs,k,hk,lim⟩ := descent eqn
+  have small : k<2097152 := by
+    by_contra! ge
+    have h₁ := Nat.pow_le_pow_right (by decide : 0<2) ge
+    have h₂ := Nat.pow_le_pow_left (by decide : 2≤3) k
+    omega
+  have noTwo : ¬2^24∣y := by
+    have h := congrArg Prod.snd hk
+    simp only [term_eq_orbit] at h
+    rcases hs with rfl|rfl
+    · exact h ▸ eight_avoid_1_2 small
+    · exact h ▸ (fun dv => eight_avoid_5_2 small ((pow_dvd_pow 2 (by decide : 23≤24)).trans dv))
+  have noEleven : ¬11^7∣y := by
+    have h := congrArg Prod.snd hk
+    simp only [term_eq_orbit] at h
+    rcases hs with rfl|rfl
+    · exact h ▸ eight_avoid_1_11 small
+    · exact h ▸ eight_avoid_5_11 small
+  have ha : a≤24 := by
+    by_contra! ge
+    exact noTwo (form ▸ dvd_mul_of_dvd_left (pow_dvd_pow 2 ge.le) _)
+  have hb : b≤7 := by
+    by_contra! ge
+    exact noEleven (form ▸ dvd_mul_of_dvd_right (pow_dvd_pow 11 ge.le) _)
+  have bound : y∣2^24*11^7 := form ▸ Nat.mul_dvd_mul (pow_dvd_pow 2 ha) (pow_dvd_pow 11 hb)
+  have lk : k<40 := by
+    by_contra! ge
+    have := Nat.pow_le_pow_right (by decide : 0<3) ge
+    have := Nat.le_of_dvd (by decide : 0<2^24*11^7) bound
+    have : 2^24*11^7<3^40 := by decide
+    omega
+  have tab : ∀ e : Bool, ∀ i : Fin 40,
+      let z := term (if e then (1,2) else (5,4)) i.val
+      z.2∣2^24*11^7 → (z.1=1 ∧ z.2=2) ∨ (z.1=5 ∧ z.2=4) ∨ (z.1=11 ∧ z.2=8) ∨
+        (z.1=31 ∧ z.2=22) ∨ (z.1=181 ∧ z.2=128) := by decide +kernel
+  rcases hs with rfl|rfl
+  · have t := tab true ⟨k,lk⟩
+    simp only [if_true,hk] at t
+    exact t bound
+  · have t := tab false ⟨k,lk⟩
+    simp only [Bool.false_eq_true,if_false,hk] at t
+    exact t bound
+
+private theorem two_eleven_shape {z : ℕ} (pos : 0<z)
+    (sup : ∀ q : ℕ, q.Prime → q∣z → q=2 ∨ q=11) : ∃ a b : ℕ, z=2^a*11^b := by
+  let a := z.factorization 2
+  let m := z/2^a
+  have mp : 0 < m := Nat.ordCompl_pos 2 pos.ne'
+  have fac : 2^a*m=z := Nat.ordProj_mul_ordCompl_eq_self _ _
+  have pure : m=11^m.primeFactorsList.length := Nat.eq_prime_pow_of_unique_prime_dvd mp.ne' (by
+    intro q pq dv
+    rcases sup q pq (fac ▸ dvd_mul_of_dvd_right dv _) with rfl|h
+    · exact (Nat.not_dvd_ordCompl Nat.prime_two pos.ne' dv).elim
+    · exact h)
+  exact ⟨a,_,by rw [←pure,fac]⟩
+
+private theorem split_pow (p e : ℕ) : p^e=p^(e%2)*(p^(e/2))^2 := by
+  rw [←pow_mul,←pow_add]
+  congr 1
+  omega
+
+open OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2
+
+/-- The smooth eighth offset cannot coexist with a square successor in the effective range. -/
+theorem reject_eight_shape {n p a b : ℕ} (large : 1000000000000000000<n)
+    (cap : n<2^2097152) (div : 210∣n) (shape : n+1=p^2) (f : n+8=2^a*11^b) : False := by
+  let y := 2^(a/2)*11^(b/2)
+  have fac : n+8=(2^(a%2)*11^(b%2))*y^2 := by
+    calc
+      n+8=2^a*11^b := f
+      _=_ := by rw [split_pow 2 a,split_pow 11 b]; dsimp only [y]; ring
+  have r3 : y^2%3=0 ∨ y^2%3=1 := by
+    have sq := Nat.pow_mod y 2 3
+    have lt := Nat.mod_lt y (by decide : 0<3)
+    interval_cases t : y%3 <;> norm_num at sq <;> omega
+  have r5 : y^2%5=0 ∨ y^2%5=1 ∨ y^2%5=4 := by
+    have sq := Nat.pow_mod y 2 5
+    have lt := Nat.mod_lt y (by decide : 0<5)
+    interval_cases t : y%5 <;> norm_num at sq <;> omega
+  have eq : p^2+7=2*y^2 := by
+    have ar := Nat.mod_lt a (by decide : 0<2)
+    have br := Nat.mod_lt b (by decide : 0<2)
+    interval_cases i : a%2 <;> interval_cases j : b%2 <;> norm_num at fac <;> omega
+  have size : y<2^2097152 := by
+    have yp : y≤p := by
+      by_contra! bad
+      have := Nat.pow_le_pow_left bad.le 2
+      nlinarith only [eq,this,shape,large]
+    have pn : p≤n := by
+      by_contra! bad
+      have := Nat.pow_le_pow_left bad.le 2
+      nlinarith only [shape,this,large]
+    exact lt_of_le_of_lt (yp.trans pn) cap
+  have coords := eight_smooth_coordinates eq size (a:=a/2) (b:=b/2) rfl
+  rcases coords with ⟨h,_⟩|⟨h,_⟩|⟨h,_⟩|⟨h,_⟩|⟨h,_⟩ <;> rw [h] at shape <;> norm_num at shape <;> omega
+
+/-- The eighth offset cannot be divisible by eleven in a further exceptional square predecessor. -/
+theorem reject_eight {n p : ℕ} (large : 1000000000000000000<n) (div : 210∣n)
+    (shape : n+1=p^2) (sol : v_l 1 n=1) (eleven : 11∣n+8) : False := by
+  have sup (q : ℕ) (pq : q.Prime) (dv : q∣n+8) : q=2 ∨ q=11 := by
+    by_cases big : 8<q
+    · by_contra ne
+      exact two_primes (by decide : 0<8) pq (by decide : Nat.Prime 11) (by tauto) big (by decide) dv eleven sol
+    · have n3 : ¬3∣n+8 := by omega
+      have n5 : ¬5∣n+8 := by omega
+      have n7 : ¬7∣n+8 := by omega
+      interval_cases q <;> tauto
+  obtain ⟨a,b,f⟩ := two_eleven_shape (by omega : 0<n+8) sup
+  have cap := Erdos889.effective_binary_cutoff sol
+  rw [show (2:ℕ)^21=2097152 by decide] at cap
+  exact reject_eight_shape large cap div shape f
+
+end Erdos889.ElevenEight
+
+namespace Erdos889.SquareEleven
+open OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2
+
+set_option maxHeartbeats 4000000 in
+/-- Beyond 330, a prime-square successor forces divisibility by every prime through
+eleven. The odd square also supplies the factor of eight. -/
+theorem square_multiple_of_9240 {n p : ℕ} (big : 330<n) (pp : p.Prime)
+    (shape : n+1=p^2) (sol : v_l 1 n=1) : 9240∣n := by
+  have div := Erdos889.SquareSeven.square_multiple_of_210 big pp shape sol
+  have huge := (Erdos889.MissingPrimeSieve.further_solution_bounds_thirty big sol).1
+  have gt : 11<p := by
+    by_contra! low
+    have := Nat.pow_le_pow_left low 2
+    omega
+  have not11 : ¬11∣p := by
+    intro d
+    have := (Nat.prime_dvd_prime_iff_eq (by decide : Nat.Prime 11) pp).mp d
+    omega
+  have eleven : 11∣n := by
+    by_contra missing
+    have alts : 11∣n+3 ∨ 11∣n+7 ∨ 11∣n+8 ∨ 11∣n+9 := by
+      have sq := Nat.pow_mod p 2 11
+      have sm := Nat.mod_lt p (by decide : 0<11)
+      interval_cases t : p%11 <;> norm_num at sq <;> omega
+    rcases alts with h|h|h|h
+    · exact Erdos889.ElevenSmall.no_three_nine huge div shape sol 3 (Or.inl rfl) h
+    · exact Erdos889.ElevenSeven.reject_seven huge div shape sol h
+    · exact Erdos889.ElevenEight.reject_eight huge div shape sol h
+    · exact Erdos889.ElevenSmall.no_three_nine huge div shape sol 9 (Or.inr rfl) h
+  have eight : 8∣n := by
+    obtain ⟨j,hj⟩ := pp.odd_of_ne_two (by omega)
+    have sq := Nat.pow_mod p 2 8
+    have sm := Nat.mod_lt p (by decide : 0<8)
+    interval_cases t : p%8 <;> norm_num at sq <;> omega
+  omega
+
+/-- All solutions with a prime-square successor outside the multiples of 9240. -/
+theorem prime_square_outside_9240 {n p : ℕ} (pp : p.Prime)
+    (shape : n+1=p^2) (miss : ¬9240∣n) : v_l 1 n=1 ↔ n ∈ [3,8,24,48,120] := by
+  by_cases large : 330<n
+  · constructor
+    · intro sol
+      exact (miss (square_multiple_of_9240 large pp shape sol)).elim
+    · intro mem
+      simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+      omega
+  · have old : ¬210∣n := by
+      intro d
+      have l : p<19 := by
+        by_contra! ge
+        have := Nat.pow_le_pow_left ge 2
+        omega
+      have pos := Nat.pow_le_pow_left pp.two_le 2
+      have h : n=210 := by omega
+      interval_cases p <;> norm_num at shape <;> omega
+    exact Erdos889.SquareSeven.prime_square_outside_210 pp shape old
+
+private theorem round_square {N cap : ℕ} (hi : N-1<cap) (dv : 9240∣N-1) :
+    N≤1+9240*((cap-1)/9240) := by omega
+
+theorem square_witness {p : ℕ} (pp : p.Prime) (big : 121<p^2)
+    (bound : 1+9240*((2^(2^21)-1)/9240)<p^2 ∨ ¬9240∣p^2-1) :
+    ∃ d q s : ℕ, q.Prime ∧ s.Prime ∧ q≠s ∧ d+1<q ∧ d+1<s ∧ q∣p^2+d ∧ s∣p^2+d := by
+  by_contra none
+  have sol := Erdos889.Missing.predecessor_solution_of_missing (by omega : 1<p^2) none
+  by_cases div : 9240∣p^2-1
+  · have lim := round_square (Erdos889.effective_binary_cutoff sol) div
+    exact bound.elim (Nat.not_lt_of_ge lim) (fun missing => missing div)
+  · have eq : p^2-1+1=p^2 := by omega
+    have mem := (prime_square_outside_9240 pp eq div).mp sol
+    simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+    omega
+end Erdos889.SquareEleven
+
 theorem OMA.solution : OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2_H2_R1.H1 := by
-  refine ⟨0,max 121 (1+210*((2^(2^21)-1)/210)),?_⟩
+  refine ⟨0,max 121 (1+9240*((2^(2^21)-1)/9240)),?_⟩
   intro p pp _ high _ _ _ _
-  exact Erdos889.SquareSeven.square_witness pp
+  exact Erdos889.SquareEleven.square_witness pp
     (lt_of_le_of_lt (Nat.le_max_left _ _) high)
     (Or.inl (lt_of_le_of_lt (Nat.le_max_right _ _) high))
