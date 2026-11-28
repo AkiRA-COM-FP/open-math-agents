@@ -6,6 +6,10 @@ import Mathlib
 Source: https://oeis.org/A183246
 Credit: @bmendonca3
 
+[Full Lean proof by @jiyongparkphysics](https://github.com/jiyongparkphysics/open-math-agents/blob/1b3d3fddf7c7a3c9c5eb87187189ead490736001/proofs/oeis-a183246.lean)
+
+[Independent Lean proofs of a(2) = 206](https://github.com/bmendonca3/open-math-agents/blob/2f6956a9b734510c92ed8899086f3ba37e088c72/research/displaced-permutations/FiniteValues.lean)
+
 Entry A183246 (R. H. Hardin, Jan 03 2011), offset 1, data 44, 206, 1168, 6984, 41808, 250464, ...
 Formula section:
 Conjectures from Colin Barker, Mar 27 2018:
