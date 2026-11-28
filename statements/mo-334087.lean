@@ -12,8 +12,11 @@ such eigenvalues. Christian Remling suggested the projection reformulation in
 the source comments. We prove it by two Cauchy–Schwarz inequalities and use
 a spectral projection to recover the eigenvalue inequality.
 
-For the follow-up about shorter interior sums, we also establish the full
-range of nonempty intervals when the diagonal of A is constant.
+For the proposed generalization, the sum from the m-th to the
+(n−m(k−1))-th largest eigenvalue is also nonpositive for every positive m.
+The proof maximizes a regularized determinant on positive contractions,
+counts the contracted directions, and passes to a compact limit. This gives
+the required trace estimate on the span of the leading eigenvectors.
 -/
 namespace OMA.S_mo_334087
 open Matrix Finset
@@ -25,8 +28,8 @@ theorem main :
       (((n:ℝ)+1-P.trace) • diagPart P - P).PosSemidef) ∧
     (∀ n (A : Mat n), A.PosSemidef → ∀ k, ∃ h : (shifted A k).IsHermitian,
       ∀ S : Finset (Fin n), S.card+k=n+1 → ∑ i ∈ S,h.eigenvalues i ≤ 0) ∧
-    (∀ n (A : Mat n), A.PosSemidef → ∀ k m : ℕ, 1 ≤ k → 1 ≤ m → k * m ≤ n →
-      ∀ a : ℝ, (∀ i,A i i=a) → ∃ h : (shifted A k).IsHermitian,
+    (∀ n (A : Mat n), A.PosSemidef → ∀ k m : ℕ, 1 ≤ k → 1 ≤ m →
+      ∃ h : (shifted A k).IsHermitian,
         ∑ i ∈ (univ.filter (fun i : Fin (Fintype.card (Fin n)) =>
           m-1 ≤ i.val ∧ i.val < n-m*(k-1))), h.eigenvalues₀ i ≤ 0) := by
   sorry
