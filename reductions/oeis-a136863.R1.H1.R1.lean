@@ -25,6 +25,12 @@ lemma forbidden_at_two {n a : ℕ} (h : UsesDigits n) (ha : (n / 10 ^ 2) % 10 = 
   have hl := OMA.R_oeis_a136863_R1.last_ok (OMA.R_oeis_a136863_R1.div_ok h 2)
   omega
 
+/-- A digit outside `0,1,4,7` in the thousands position is impossible. -/
+lemma forbidden_at_three {n a : ℕ} (h : UsesDigits n) (ha : (n / 10 ^ 3) % 10 = a)
+    (hb : a ≠ 0 ∧ a ≠ 1 ∧ a ≠ 4 ∧ a ≠ 7) : False := by
+  have hl := OMA.R_oeis_a136863_R1.last_ok (OMA.R_oeis_a136863_R1.div_ok h 3)
+  omega
+
 /-- Modular evaluation of the displayed quadratic window. -/
 lemma window_mod {u M A B : ℕ} (hu : u ≡ A [MOD M])
     (hB : (2 * A + 10 * A ^ 2) % M = B % M) :
@@ -89,13 +95,91 @@ lemma terminal_seven_hundreds_eliminated {v : ℕ} (hv : v % 10 = 7) :
   have hdigit : ((2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) / 10 ^ 2) % 10 = 9 := by omega
   exact forbidden_at_two hdig hdigit (by decide)
 
+/-- In the surviving tens branch, tens digit `1` of `v` forces digit `6`. -/
+lemma tens_branch_second_one_eliminated {v : ℕ}
+    (hv : v % 10 = 7) (ha : (v / 10) % 10 = 1) :
+    ¬ UsesDigits (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) := by
+  intro hdig
+  have hu : (7 + 10 * v) ≡ 177 [MOD 1000] := by
+    change (7 + 10 * v) % 1000 = 177 % 1000
+    omega
+  have hmod : (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) % 1000 = 644 := by
+    simpa using window_mod (u := 7 + 10 * v) (M := 1000) (A := 177) (B := 644) hu (by decide)
+  have hdigit : ((2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) / 10 ^ 2) % 10 = 6 := by omega
+  exact forbidden_at_two hdig hdigit (by decide)
+
+/-- In the surviving tens branch, tens digit `4` of `v` forces digit `2`. -/
+lemma tens_branch_second_four_eliminated {v : ℕ}
+    (hv : v % 10 = 7) (ha : (v / 10) % 10 = 4) :
+    ¬ UsesDigits (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) := by
+  intro hdig
+  have hu : (7 + 10 * v) ≡ 477 [MOD 1000] := by
+    change (7 + 10 * v) % 1000 = 477 % 1000
+    omega
+  have hmod : (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) % 1000 = 244 := by
+    simpa using window_mod (u := 7 + 10 * v) (M := 1000) (A := 477) (B := 244) hu (by decide)
+  have hdigit : ((2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) / 10 ^ 2) % 10 = 2 := by omega
+  exact forbidden_at_two hdig hdigit (by decide)
+
+/-- In the surviving tens branch, tens digit `7` of `v` forces digit `8`. -/
+lemma tens_branch_second_seven_eliminated {v : ℕ}
+    (hv : v % 10 = 7) (ha : (v / 10) % 10 = 7) :
+    ¬ UsesDigits (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) := by
+  intro hdig
+  have hu : (7 + 10 * v) ≡ 777 [MOD 1000] := by
+    change (7 + 10 * v) % 1000 = 777 % 1000
+    omega
+  have hmod : (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) % 1000 = 844 := by
+    simpa using window_mod (u := 7 + 10 * v) (M := 1000) (A := 777) (B := 844) hu (by decide)
+  have hdigit : ((2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2) / 10 ^ 2) % 10 = 8 := by omega
+  exact forbidden_at_two hdig hdigit (by decide)
+
+/-- In the surviving hundreds branch, tens digit `1` of `v` forces digit `6`. -/
+lemma hundreds_branch_second_one_eliminated {v : ℕ}
+    (hv : v % 10 = 1) (ha : (v / 10) % 10 = 1) :
+    ¬ UsesDigits (2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) := by
+  intro hdig
+  have hu : (7 + 100 * v) ≡ 1107 [MOD 10000] := by
+    change (7 + 100 * v) % 10000 = 1107 % 10000
+    omega
+  have hmod : (2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) % 10000 = 6704 := by
+    simpa using window_mod (u := 7 + 100 * v) (M := 10000) (A := 1107) (B := 6704) hu (by decide)
+  have hdigit : ((2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) / 10 ^ 3) % 10 = 6 := by omega
+  exact forbidden_at_three hdig hdigit (by decide)
+
+/-- In the surviving hundreds branch, tens digit `4` of `v` forces digit `2`. -/
+lemma hundreds_branch_second_four_eliminated {v : ℕ}
+    (hv : v % 10 = 1) (ha : (v / 10) % 10 = 4) :
+    ¬ UsesDigits (2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) := by
+  intro hdig
+  have hu : (7 + 100 * v) ≡ 4107 [MOD 10000] := by
+    change (7 + 100 * v) % 10000 = 4107 % 10000
+    omega
+  have hmod : (2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) % 10000 = 2704 := by
+    simpa using window_mod (u := 7 + 100 * v) (M := 10000) (A := 4107) (B := 2704) hu (by decide)
+  have hdigit : ((2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) / 10 ^ 3) % 10 = 2 := by omega
+  exact forbidden_at_three hdig hdigit (by decide)
+
+/-- In the surviving hundreds branch, tens digit `7` of `v` forces digit `8`. -/
+lemma hundreds_branch_second_seven_eliminated {v : ℕ}
+    (hv : v % 10 = 1) (ha : (v / 10) % 10 = 7) :
+    ¬ UsesDigits (2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) := by
+  intro hdig
+  have hu : (7 + 100 * v) ≡ 7107 [MOD 10000] := by
+    change (7 + 100 * v) % 10000 = 7107 % 10000
+    omega
+  have hmod : (2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) % 10000 = 8704 := by
+    simpa using window_mod (u := 7 + 100 * v) (M := 10000) (A := 7107) (B := 8704) hu (by decide)
+  have hdigit : ((2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2) / 10 ^ 3) % 10 = 8 := by omega
+  exact forbidden_at_three hdig hdigit (by decide)
+
 /-- The surviving tens-position carry core: terminal digit `7`. -/
-def H1 : Prop := ∀ v : ℕ, 10 ≤ v → v % 10 = 7 → UsesDigits v →
+def H1 : Prop := ∀ v : ℕ, 10 ≤ v → v % 100 = 7 → UsesDigits v →
     let u := 7 + 10 * v
     ¬ UsesDigits (2 * u + 10 * u ^ 2)
 
 /-- The surviving hundreds-position carry core: terminal digit `1`. -/
-def H2 : Prop := ∀ v : ℕ, 10 ≤ v → v % 10 = 1 → UsesDigits v →
+def H2 : Prop := ∀ v : ℕ, 10 ≤ v → v % 100 = 1 → UsesDigits v →
     let u := 7 + 10 ^ 2 * v
     ¬ UsesDigits (2 * u + 10 * u ^ 2)
 
@@ -109,7 +193,12 @@ theorem main : H1 → H2 → OMA.R_oeis_a136863_R1.H1 := by
     · change ¬ UsesDigits (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2)
       exact terminal_one_tens_eliminated h1'
     · change ¬ UsesDigits (2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2)
-      exact h21 v hv h1' hdig
+      have ha := OMA.R_oeis_a136863_R1.last_ok (OMA.R_oeis_a136863_R1.div_one_ok hdig)
+      rcases ha with ha0 | ha1 | ha4 | ha7
+      · exact h21 v hv (by omega) hdig
+      · exact hundreds_branch_second_one_eliminated h1' ha1
+      · exact hundreds_branch_second_four_eliminated h1' ha4
+      · exact hundreds_branch_second_seven_eliminated h1' ha7
   · have hd : d = 1 ∨ d = 2 := by omega
     rcases hd with rfl | rfl
     · change ¬ UsesDigits (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2)
@@ -119,7 +208,12 @@ theorem main : H1 → H2 → OMA.R_oeis_a136863_R1.H1 := by
   · have hd : d = 1 ∨ d = 2 := by omega
     rcases hd with rfl | rfl
     · change ¬ UsesDigits (2 * (7 + 10 * v) + 10 * (7 + 10 * v) ^ 2)
-      exact h17 v hv h7' hdig
+      have ha := OMA.R_oeis_a136863_R1.last_ok (OMA.R_oeis_a136863_R1.div_one_ok hdig)
+      rcases ha with ha0 | ha1 | ha4 | ha7
+      · exact h17 v hv (by omega) hdig
+      · exact tens_branch_second_one_eliminated h7' ha1
+      · exact tens_branch_second_four_eliminated h7' ha4
+      · exact tens_branch_second_seven_eliminated h7' ha7
     · change ¬ UsesDigits (2 * (7 + 100 * v) + 10 * (7 + 100 * v) ^ 2)
       exact terminal_seven_hundreds_eliminated h7'
 
