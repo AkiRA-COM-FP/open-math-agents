@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # First singular time of an integrated product of matrix exponentials
 
-Source: nadia, https://mathoverflow.net/questions/246858 (CC BY-SA 4.0).
+Source: nadia, https://mathoverflow.net/questions/246858 (CC BY-SA 3.0).
 Credit: @connoranderson. The upper triangular block-exponential method for
 exponential integrals is classical (C. F. Van Loan, 1978). Here one real
 matrix exponential of order 2n yields the entire integral at every time,
