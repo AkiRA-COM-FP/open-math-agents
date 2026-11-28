@@ -16,7 +16,7 @@ def ConsecutiveRatios (N : ℕ) : Prop :=
     ∃ g t : ℕ, a = g * t ∧ b = g * (t + 1)
 
 /-- Every number 4·5ⁿ belongs to A309263. -/
-theorem main (n : ℕ) : ¬6 ∣ 4 * 5 ^ n ∧ ConsecutiveRatios (4 * 5 ^ n) := by
+theorem main : ∀ n : ℕ, ¬6 ∣ 4 * 5 ^ n ∧ ConsecutiveRatios (4 * 5 ^ n) := by
   sorry
 
 end OMA.S_oeis_a309263
