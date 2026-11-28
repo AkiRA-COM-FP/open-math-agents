@@ -11336,6 +11336,39 @@
     "https://oeis.org/A190041"
    ],
    "reason": "The disproof only uses h.2 1, i.e. Barker's order-3 recurrence at n=6. His own g.f. x(7-9x+3x^2+2x^3-x^5)/(1-x)^3 has an x^6 term, so the recurrence holds only for n>6, not 'n>4'. That is an off-by-one in the source, exploited by the disproof. My enumeration confirms that the g.f. and Hardin's n^2+3n-1 (n>3) are true; the substantive conjecture is not refuted."
+  },
+  "oeis-a115047": {
+   "date": "2026-11-28",
+   "pr": 26910,
+   "evidence": [
+    "https://oeis.org/A115047"
+   ],
+   "reason": "The formal claim includes p=3, where a(3)=1 is the entry's own first term. The 'disproof' just evaluates b(0)=1 and notes that 3 does not divide it. Somos plainly means primes for which a(p) is a real recurrence value. The same proof file also proves the substantive version (p | a(p) for every prime p>3, theorem classification), and my recurrence check agrees with the data (p=5..23 divide). The verdict rests on that edge case, so it is a technicality."
+  },
+  "oeis-a122957": {
+   "date": "2026-11-28",
+   "pr": 24991,
+   "evidence": [
+    "https://oeis.org/A122957",
+    "https://oeis.org/A066362"
+   ],
+   "reason": "The disproof is trivial and comes from the companion entry's own data. A066362(21)=22 (phi(22)=10<12), so 22 is a nonzero value of A066362. But phi(30)=8<10, so 22 is not in A122957 (its data skip from 20 to 24). The conjecture as literally formalized therefore fails at its first opportunity. Adams-Watters (who commented on A066362 the same day) must have meant something else, so the 'disproof' refutes a misreading rather than a real conjecture."
+  },
+  "oeis-a129366": {
+   "date": "2026-11-28",
+   "pr": 25245,
+   "evidence": [
+    "https://oeis.org/A129366"
+   ],
+   "reason": "a(n)=Sum_{k<=n/2} Catalan(n-k) is faithful. But the printed order-6 recurrence fails at every n>=6, not just at the start (L(6)=-73968, L(7)=-271952, ...). Shifting the index or using A129367 does not help. The space of order-6, degree-3 recurrences annihilating a(n) contains no member with Mathar's leading coefficient n(12n+35)(n-1). The formula as printed is a garbled transcription, so the disproof refutes a typo, not a real conjecture."
+  },
+  "oeis-a133058": {
+   "date": "2026-11-28",
+   "pr": 26231,
+   "evidence": [
+    "https://oeis.org/A133058"
+   ],
+   "reason": "The formal statement covers only Sloane's observation that this specific sequence enters the loop (1,x,2x,2) at n=638. That is a kernel computation of a(638)=1 plus a trivial 4-step induction, which Sloane's own comment already spells out ('if at some point a(2k)=1 ... from that point on'). The open parts are Zizka's claims (every starting value reaches a loop; quasi-periodicity only for R<=3), and the docstring explicitly excludes them. So nothing open was proved."
   }
  },
  "known": {
@@ -21278,6 +21311,87 @@
     "https://oeis.org/A203474"
    ],
    "reason": "The conjecture is that superfactorial(n-1) = A000178(n-1) divides Product_{3<=i<j<=n+2}(i+j). The statement uses the indexing of A203474, and it is faithful. But Greubel's 2023 formulas already settle it: A203472(n) = Prod_{j=3..n+2} (2j-1)!/(j+2)!, and A203474(n) = A203472(n)/A000178(n-1) = Prod_{j=1..n} C(2j+3,j+4). These are exact identities (the j-th factor is (2j+3)!/((j+4)!(j-1)!)), so the quotient is a product of binomials. The 37-line proof (each new factor is a product of n consecutive integers) is the same observation."
+  },
+  "oeis-a113547": {
+   "date": "2026-11-28",
+   "pr": 26393,
+   "evidence": [
+    "https://oeis.org/A113547",
+    "https://oeis.org/A362924"
+   ],
+   "reason": "T(n,3)=2^(n-3)+3^(n-3) and T(n,4)=2^(n-4)+3^(n-3)+4^(n-4) are the m=3,4 cases of the formula T(n,m)=Sum_{k=1..m} S2(m-1,k-1)*k^(n-m), which the entry already gives as a plain formula. That formula has a one-line combinatorial proof (partition {1..m-1}, open block m, place the rest). The RGF/maximin encoding is faithful (my brute force agrees for n<=10), but the claims follow at once from the source."
+  },
+  "oeis-a120737": {
+   "date": "2026-11-28",
+   "pr": 22981,
+   "evidence": [
+    "https://oeis.org/A120737",
+    "https://oeis.org/A070226"
+   ],
+   "reason": "Zizka's conjecture (d(k) | rad(k) implies rad(k)=d(k)) is stated faithfully. But the same conjecture is recorded in A070226, and Amiram Eldar proved it there on Aug 06 2026 with an Omega/omega argument. This site also already solved the identical statement oeis-a070226 (proof merged 2026-11-27, before this PR)."
+  },
+  "oeis-a125189": {
+   "date": "2026-11-28",
+   "pr": 10661,
+   "evidence": [
+    "https://oeis.org/A125189"
+   ],
+   "reason": "The statement is the g.f. ODE plus Mathar's order-8 recurrence. The entry already records Robert Israel (Nov 21 2017): 'The conjecture follows from the differential equation ... satisfied by the g.f.', the same ODE (odeConstant/odeValue/odeDerivative) as in the statement."
+  },
+  "oeis-a130770": {
+   "date": "2026-11-28",
+   "pr": 27718,
+   "evidence": [
+    "https://oeis.org/A130770",
+    "https://oeis.org/A046163"
+   ],
+   "reason": "lcm(3,n^2+n+1)/3 vs the reduced denominator of (n-1)^2/(n^2+n+1) is faithful. But A046163 already carries Amiram Eldar's formula (Aug 11 2022) a(n) = numerator((n^2+n+1)/3), which is exactly lcm(3,n^2+n+1)/3. So Mathar's identity is stated in the sister entry, and it is elementary (gcd((n-1)^2, n^2+n+1) = gcd(3,...))."
+  },
+  "oeis-a131498": {
+   "date": "2026-11-28",
+   "pr": 14389,
+   "evidence": [
+    "https://oeis.org/A131498"
+   ],
+   "reason": "Barker's g.f. for this explicitly periodic-quadratic sequence (denominator (1-x^4)^3) follows directly from Luce Etienne's formulas in the same entry (Dec 31 2019): a(n)=3a(n-4)-3a(n-8)+a(n-12) and an explicit closed form. These, with the 12 initial terms, give the g.f. The formal a(n) matches the definition and data. Essentially immediate from the definition."
+  },
+  "oeis-a132364": {
+   "date": "2026-11-28",
+   "pr": 26281,
+   "evidence": [
+    "https://oeis.org/A132364",
+    "https://oeis.org/A030238"
+   ],
+   "reason": "Mathar's D-finite recurrence for an algebraic g.f.; Heinz notes a(n)=A030238(n-2) (n>=2), which is immediate since x^2*c/(1-x^2c) = G-1. A030238 lists Mathar's recurrence as a plain 'D-finite with recurrence' (Nov 30 2012). Shifted by 2, that is exactly this conjecture (negated), and the cases n=4,5 are direct checks. My series check also confirms it."
+  },
+  "oeis-a133910": {
+   "date": "2026-11-28",
+   "pr": 27427,
+   "evidence": [
+    "https://oeis.org/A133910",
+    "https://oeis.org/A051283",
+    "https://oeis.org/A133900"
+   ],
+   "reason": "Oudra's criterion (n | a(n) iff n=1 or n in A051283) is stated faithfully. A133900 is the least period of C(m+n,n) mod n, and A051283 means P^2<n for every exact prime-power factor P. But the entry already has Hari Rajesh's formula (Oct 12 2025) a(n)=Prod p^(floor(log_p n)-s_p), the classical period formula for binomial coefficients mod prime powers (Zabek). The criterion follows at once: n | a(n) iff p^(2s_p) <= n for all p. I checked the formula against the data."
+  },
+  "oeis-a134558": {
+   "date": "2026-11-28",
+   "pr": 25269,
+   "evidence": [
+    "https://oeis.org/A134558",
+    "https://oeis.org/A089258",
+    "https://oeis.org/A000522",
+    "https://oeis.org/A010842"
+   ],
+   "reason": "per(J+kI) = Sum m!C(n,m)k^(n-m) is a classical identity (expand over fixed points; rencontres numbers). The cross-referenced 'other version' A089258 states as fact that T(n,k) is the permanent of the n X n matrix with k+1 on the diagonal and 1 elsewhere. Columns k=1,2,3 (A000522, A010842, A053486) record the same with proofs via A008290."
+  },
+  "oeis-a135499": {
+   "date": "2026-11-28",
+   "pr": 10637,
+   "evidence": [
+    "https://oeis.org/A135499"
+   ],
+   "reason": "The statement that alternating-digit-sum-balanced numbers are multiples of 11 is faithful. The entry itself already settles it: Zak Seidov (Feb 11 2008) 'Subsequence of A008593', and Jens Kruse Andersen (Jul 13 2014) 'That follows trivially from the divisibility rule for 11.'"
   }
  },
  "reviewed": "2026-11-28"
