@@ -10432,6 +10432,66 @@
     "https://mathoverflow.net/questions/151192"
    ],
    "reason": "The question asks for the minimum final candidate-set size s for each k. The contributor's 'answer k' is defined as scan k (2^k), a brute-force game-tree search (table over (k+2)^(s+1) rounds on s+1 candidates), and the statement docstring concedes it is 'not a closed-form expression'. Proving that this search computes the optimum is a correctness proof of an exhaustive algorithm and gives no formula or insight, so this is a restatement, not a solution."
+  },
+  "oeis-a057192": {
+   "date": "2026-11-28",
+   "pr": 13362,
+   "evidence": [
+    "https://oeis.org/A057192",
+    "https://oeis.org/A206001"
+   ],
+   "reason": "The disproof exploits the -1 placeholder. For prime(n)=271129 (a prime Sierpinski number, which the entry itself names: 'The smallest confirmed instance of a(n) = -1 ... primepi(271129) = 23738', Jianing Song), a(n) = -1 is odd while 271129 = 1 mod 3. Aguirre's actual parity claim (when some m exists) is a one-line mod-3 argument. So the refutation turns only on the convention for the no-solution value, and the counterexample is already in the entry."
+  },
+  "oeis-a057194": {
+   "date": "2026-11-28",
+   "pr": 23171,
+   "evidence": [
+    "https://oeis.org/A057194",
+    "https://oeis.org/A216151"
+   ],
+   "reason": "Trivial. A216151 satisfies the same recurrence, a(n+1) = (prod a(k))*(sum a(k)), with seed 1,2 instead of 1. Since a(1)=b(1) and a(2)=1<2=b(2), and the recurrence is strictly increasing in each earlier term, a(n)<b(n) for n>1 follows by immediate induction. The proof does exactly this strong induction. The formalization is faithful and checked to n=9."
+  },
+  "oeis-a063520": {
+   "date": "2026-11-28",
+   "pr": 14079,
+   "evidence": [
+    "https://oeis.org/A063520"
+   ],
+   "reason": "Misformalization. Wilson's remark 'Conjecturally, includes all positive integers except 2, 4, 7 and 11' is about the values of a(n) (the data 1,3,6,5,8,... never shows 2, 4, 7 or 11). The statement instead claims that the n with a(n)>0 are all n except 2, 4, 7 and 11. That is false for every n by the family (n^2+2n, n+1, 1), and the disproof just plugs in (8,3,1) for n=2. The actual conjecture is untouched."
+  },
+  "oeis-a065919": {
+   "date": "2026-11-28",
+   "pr": 25247,
+   "evidence": [
+    "https://oeis.org/A065919",
+    "https://oeis.org/A059304"
+   ],
+   "reason": "The disproof exploits a typo in Bala's formula line. As printed, the right side is Sum A059304(n) x^n/n!. I computed the quotient P/Q of the two e.g.f.s exactly: it is 1 + 4x + 24x^2 + 160x^3 + ..., i.e. the ordinary g.f. Sum A059304(n) x^n, not the e.g.f. So the intended identity appears true, and the proof only refutes the stray /n! by comparing x^2 coefficients (61/2 vs 37/2)."
+  },
+  "oeis-a069972": {
+   "date": "2026-11-28",
+   "pr": 24845,
+   "evidence": [
+    "https://oeis.org/A069972"
+   ],
+   "reason": "Trivial. d and d+1 are coprime, so (d | 2n and d+1 | 2n) iff d(d+1) | 2n iff T(d) | n. The coefficient of x^n in Sum d x^T(d)/(1-x^T(d)) is the sum of d with T(d) | n, which is the definition of a(n). Arndt's '(conjectured)' g.f. follows directly from the definition, and the proof is exactly this observation plus range bookkeeping."
+  },
+  "oeis-a078703": {
+   "date": "2026-11-28",
+   "pr": 24846,
+   "evidence": [
+    "https://oeis.org/A078703"
+   ],
+   "reason": "Trivial. Writing x = k + j turns x^2 - k(k+1) = n into n = j^2 + k(2j-1) with j >= 1 and k >= 0, so the representations correspond one-to-one to the j with j^2 <= n and (2j-1) | n - j^2. That count is the coefficient of x^n in Arndt's Sum x^(j^2)/(1-x^(2j-1)). The 'conjecture' is a one-line substitution, which is what the proof formalizes. The statement is faithful (the bounds x<=n, k<n are harmless)."
+  },
+  "oeis-a085430": {
+   "date": "2026-11-28",
+   "pr": 26911,
+   "evidence": [
+    "https://oeis.org/A085430",
+    "https://oeis.org/A014664"
+   ],
+   "reason": "Trivial given the entry. Schmidt's 2013 comment in the entry states a(prime(n)) = A014664(n), the multiplicative order of 2 mod p, and that order divides p-1 by Fermat's little theorem. The proof re-derives a(p) = ord_p(2) via Cauchy and |GL(m,2)| = prod (2^m-2^i), then applies Fermat. The formalization (IsLeast over k with an element of order p in GL(k,ZMod 2)) is faithful."
   }
  },
  "known": {
@@ -19433,6 +19493,132 @@
     "https://mathoverflow.net/questions/193596"
    ],
    "reason": "A 2015 comment already proved it: the chain is invariant under cyclic rotation of Z/5 (its transition matrix is circulant, hence doubly stochastic), so the unique stationary distribution is uniform once some price is not ≡ 0 mod 5. The merged maximum-principle proof is equally elementary."
+  },
+  "oeis-a056761": {
+   "date": "2026-11-28",
+   "pr": 13828,
+   "evidence": [
+    "https://oeis.org/A056761"
+   ],
+   "reason": "The claim (883575 is the last term and there are 267 terms) is exactly what the entry records as already settled: 'Last term is a(267) = 883575, confirming the author's conjecture' (Charles R Greathouse IV, Apr 27 2011). The formalization is faithful, but the result was already confirmed in the source."
+  },
+  "oeis-a057032": {
+   "date": "2026-11-28",
+   "pr": 14683,
+   "evidence": [
+    "https://oeis.org/A057032",
+    "https://oeis.org/A057064",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A057032LimitSequenceForward.lean"
+   ],
+   "reason": "Kurkov's two conjectures. The first ((a(n)-1) prime iff a(n)=n+1) was proved in thatnealpatel/proofs (A057032_sub_one_prime_iff in Proofs/Enumerative/A057032LimitSequenceForward.lean, repository dated 2026-10-25, before the 2026-11-27 site merge). The second (a(n)=A057064(n+1)-1) is the formula line already in the sister entry A057064, a(n)=A057032(n-1)+1 for n>1 (Sean A. Irvine, May 19 2022). Both parts were settled before."
+  },
+  "oeis-a059133": {
+   "date": "2026-11-28",
+   "pr": 14901,
+   "evidence": [
+    "https://oeis.org/A059133"
+   ],
+   "reason": "Barker's three conjectures (closed form, order-3 recurrence, g.f.) are stated faithfully, and the definitions reproduce the data. But the entry already gives the derivation (Charlie Neder, Sep 15 2018): W(n)=W(n-1)+(2n-1,2n,2n-1)+W(n-1) 'implies a(n) = 2*a(n-1) + 6n - 2, from which the formulas follow'. Settled in the source."
+  },
+  "oeis-a059324": {
+   "date": "2026-11-28",
+   "pr": 26172,
+   "evidence": [
+    "https://oeis.org/A059324",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/NumberComplexity/A059324CompositeTherePrimes.lean"
+   ],
+   "reason": "Lallouet's conjecture is already proved, with the same statement (6n+5 composite, primes p,q with q>p^2 and q-p^2=6n-4 in Z), in thatnealpatel/proofs, Proofs/NumberComplexity/A059324CompositeTherePrimes.lean. That repository is dated 2026-10-25, before the 2026-11-28 site merge. The argument is also elementary: p=2 makes q even, p=3 makes q=6n+5 composite, and p>=5 makes 3 divide q."
+  },
+  "oeis-a063043": {
+   "date": "2026-11-28",
+   "pr": 25447,
+   "evidence": [
+    "https://oeis.org/A063043",
+    "https://oeis.org/A063041",
+    "https://oeis.org/A063044"
+   ],
+   "reason": "Everything in the statement is either a finite orbit computation recorded in the entry (a(23)=a(28)=9, distinct values below index 28, the 3-cycle) or the refutation of uniqueness of the cycle. The entry already states that refutation: 'the conjecture that this is the only cycle for all starting values is not true: see A063044' (Zumkeller). The map definition matches A063041. Already settled in the source."
+  },
+  "oeis-a066534": {
+   "date": "2026-11-28",
+   "pr": 10669,
+   "evidence": [
+    "https://oeis.org/A066534"
+   ],
+   "reason": "Mathar's third-order recurrence is stated faithfully for n>=3. But the entry already records its proof: 'Mathar's conjectural third-order recurrence above is an easy consequence of Jovovic's first-order recurrence a(n) = n*(a(n-1) + 2^(n-1))' (Peter Bala, Sep 23 2013). Settled in the source."
+  },
+  "oeis-a067281": {
+   "date": "2026-11-28",
+   "pr": 10214,
+   "evidence": [
+    "https://oeis.org/A067281"
+   ],
+   "reason": "a(2n+1) = (2n+1)a(2n) is faithfully formalized (odd-part classes, multiset permutations). But the entry itself settles it: 'The conjecture a(2n+1)=(2n+1)a(2n) is obviously true from the definition of the sequence and the fact that 2n+1 is the smallest element of its equivalence class' (Rothbach, Sep 15 2004), and the statement header says so. Not open."
+  },
+  "oeis-a068132": {
+   "date": "2026-11-28",
+   "pr": 27704,
+   "evidence": [
+    "https://oeis.org/A068132",
+    "https://oeis.org/A068133"
+   ],
+   "reason": "Murthy's 'every triangular target' conjecture is stated for all t, including T(0)=0 and T(1)=1. The disproof uses T(1)=1, where only 1 and 10 have digit sum 1. Both exceptions are recorded in the sister entry A068133 (Jon E. Schoenfield, Jun 29 2010), which the proof header cites. The proof also proves the corrected statement for all t>=2, which may be new, but the stated (false) claim was already known to be false."
+  },
+  "oeis-a068779": {
+   "date": "2026-11-28",
+   "pr": 27681,
+   "evidence": [
+    "https://oeis.org/A068779",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Sorry/Enumerative/A068779LeastFloorRev.lean"
+   ],
+   "reason": "Dale's conjecture (every a(n), n>=5, is a multiple of 10) is already proved, with the same IsLeast formulation, in thatnealpatel/proofs: dvd_ten_of_isLeast in Proofs/Sorry/Enumerative/A068779LeastFloorRev.lean, which has no sorry despite the folder name. The repository is dated 2026-10-25, before the 2026-11-28 site merge. The argument is elementary: k not divisible by 10 gives k/rev(k) < 10, and n=5..9 is a finite check."
+  },
+  "oeis-a071069": {
+   "date": "2026-11-28",
+   "pr": 25344,
+   "evidence": [
+    "https://oeis.org/A071069"
+   ],
+   "reason": "The 'strong conjecture' n^2/2 < a(n) < n^2 for n>12 is stated faithfully, and the disproof uses n=23: 568^3 - 13537^2 = 63 < 264.5. But the entry already records the refutation: 'The strong conjecture does not hold for n = 23, 26, 28, 30, ...' (Lambert Klasen, Dec 17 2004), as the statement header acknowledges."
+  },
+  "oeis-a079047": {
+   "date": "2026-11-28",
+   "pr": 27720,
+   "evidence": [
+    "https://oeis.org/A079047"
+   ],
+   "reason": "The statement faithfully says that the only square terms are 25 and 64. The disproof uses a(1)=1, which is a square. The entry itself already refutes the claim twice: a(1)=1 is its own example, and T. D. Noe (Sep 11 2013) lists the further squares 564001 and 774400 at n=419 and 481. The statement header acknowledges both."
+  },
+  "oeis-a080239": {
+   "date": "2026-11-28",
+   "pr": 25944,
+   "evidence": [
+    "https://oeis.org/A080239",
+    "https://oeis.org/A058038",
+    "https://oeis.org/A081016",
+    "https://oeis.org/A049682",
+    "https://oeis.org/A081018"
+   ],
+   "reason": "Detlefs's formula a(n) = F(p)F(p-q) - [n=3 mod 4], with p = 2(floor((n+3)/2)-floor((n+3)/4)), is a repackaging of the entry's own formula lines a(4n)=F(2n+2)F(2n), a(4n+1)=F(2n+2)F(2n+1), a(4n+2)=F(2n+2)^2, a(4n+3)=F(2n+2)F(2n+3)-1 (via A058038, A081016, A049682, A081018). For each residue p and q reduce exactly to these. Already stated in the source."
+  },
+  "oeis-a084611": {
+   "date": "2026-11-28",
+   "pr": 17134,
+   "evidence": [
+    "https://oeis.org/A084611",
+    "http://www.kotesovec.cz/math_articles/kotesovec_asymptotic_of_sequence_A084611.pdf"
+   ],
+   "reason": "lim a(n)^(1/n) = sqrt(5) is stated faithfully. But the entry links Vaclav Kotesovec's note 'Asymptotic of sequence A084611' (Jul 26 2013), which says it 'contains proof of this formula' (the asymptotic, via a Legendre-polynomial representation). The limit is also elementary: max over |z|=1 of |1+z-z^2| is sqrt(1+4 sin^2) <= sqrt 5. Settled in the source's links."
+  },
+  "oeis-a085265": {
+   "date": "2026-11-28",
+   "pr": 12811,
+   "evidence": [
+    "https://oeis.org/A085265",
+    "https://arxiv.org/abs/2010.15580",
+    "https://doi.org/10.1016/j.exmath.2021.12.002"
+   ],
+   "reason": "The formal statement is faithful: n = s + k^2 with s >= 1 squarefree and k >= 1, and only 1 and 13 fail. Jimenez Urroz (Expo. Math. 40 (2022) 665-678, arXiv:2010.15580), cited in the proof header, proves r*(n) > 0 for n >= 1375077. r*(n) counts x coprime to n, so x >= 1 for n >= 2, which is the positive-square version. Below that bound the rest is a finite check (his paper checks the zero-allowed r(n) there). So the conjecture was essentially settled before; the new proof follows the same prime-square sieve."
   }
  },
  "reviewed": "2026-11-28"
