@@ -10253,6 +10253,87 @@
     "https://mathoverflow.net/questions/44817"
    ],
    "reason": "Shor asks for other natural 3-d arrays (ideally with polynomial coefficients, like the Ramanujan array) that satisfy recurrences on two families of planes but fall outside A=B theory. The formalization asks only for existence of some array. The proof uses the artificial A(i,j,k) = sq(i) + sq(j)*sq(k), with sq the perfect-square indicator: the constant mixed difference kills it on two families, and the square indicator has no recurrence. This trivial construction does not address the question's intent."
+  },
+  "mo-471006": {
+   "date": "2026-11-28",
+   "pr": 26925,
+   "evidence": [
+    "https://mathoverflow.net/questions/471006"
+   ],
+   "reason": "The disproof uses (X-1)^(n+1) for all n: repeated factors make P(K,t) trivially infinite (K=2, t=1). The question (title: totally positive algebraic integers) clearly intends minimal/irreducible polynomials; the formalization's own note admits it does not address the irreducible version. This is a trivial loophole and does not settle the intended question."
+  },
+  "mo-91250": {
+   "date": "2026-11-28",
+   "pr": 26905,
+   "evidence": [
+    "https://mathoverflow.net/questions/91250"
+   ],
+   "reason": "The formalization lets the threshold K depend on n, and the proof's own note says K=n works trivially: |det A|^(1/n) <= n*a_max, so any nonzero entry of B gives a 1x1 witness, and B=0 gives A itself. The question asks for a uniform K (the asker's case of interest is K=2: A 0/1, B even). That version is untouched, so this is a trivial weakening."
+  },
+  "mse-2360165": {
+   "date": "2026-11-28",
+   "pr": 26344,
+   "evidence": [
+    "https://math.stackexchange.com/questions/2360165"
+   ],
+   "reason": "The formal right-hand side is liminf of phi(n) over n > lambda, which is +infinity for every lambda because phi(n) >= sqrt(n/2) (Will Jagy's comment on the question). So the statement holds for every lambda, and the twin-prime hypothesis plays no role. The proof just shows phi(n) -> infinity: a trivial statement, also already noted in the source comments."
+  },
+  "mse-3193902": {
+   "date": "2026-11-28",
+   "pr": 14534,
+   "evidence": [
+    "https://math.stackexchange.com/questions/3193902",
+    "https://oeis.org/A133509"
+   ],
+   "reason": "The statement only requires a >= 1, and the proof takes a = 1 (digit sum of 1^b is 1). Commenters (Steven Clark, John Omielan) point out that this trivial solution makes the literal question vacuous; the intended version (a > 1) fails for b = 105 according to the comments and OEIS A133509. Placeholder/trivial solution."
+  },
+  "mse-3754342": {
+   "date": "2026-11-28",
+   "pr": 26761,
+   "evidence": [
+    "https://math.stackexchange.com/questions/3754342"
+   ],
+   "reason": "The disproof uses a = b = 1: the quotient 1 = 1.000... has only zero digits under the terminating-decimal convention, so the denominator never changes and the limit is 1. This degenerate integer case (it also depends on the 1.000... versus 0.999... convention) does not touch the asker's intended conjecture for non-integer quotients such as 3/4. Trivial loophole."
+  },
+  "opg-a-gold-grabbing-game": {
+   "date": "2026-11-28",
+   "pr": 15740,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/a_gold_grabbing_game"
+   ],
+   "reason": "The problem asks to find optimal strategies (Porton's comment on the page: exhaustive search is obvious, and the real question is an efficient or explicit strategy). The formal statement only asserts that optimal strategies exist, which is trivial backward induction (minimax) for a finite perfect-information game. The proof does exactly that via a gameValue recursion. Trivial weakening."
+  },
+  "opg-cyclic-spanning-subdigraph-with-small-cyclomatic-number": {
+   "date": "2026-11-28",
+   "pr": 26859,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/cyclic_spanning_subdigraph_with_small_cyclomatic_number"
+   ],
+   "reason": "The refutation exploits the encoding's choice of cyclomatic number |A|-|V|+c(H), summed over components. The witness (two 2-cycles with all arcs one way, alpha=1) forces H to be two 2-cycles, giving 2 > 1. With the source's stated formula |A|-|V|+1 the same H has cyclomatic number 1 <= alpha, so the witness is not a counterexample. Any non-strong tournament would 'refute' the encoding, so this is a formalization artifact, not a disproof of Bondy's conjecture."
+  },
+  "opg-special-primes": {
+   "date": "2026-11-28",
+   "pr": 25419,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/special_primes"
+   ],
+   "reason": "The formal statement, 2^((q-1)/p) = 1 mod q iff p*ord_q(2) divides q-1 (for q = 1 mod p), is a tautology from the definition of multiplicative order, with a one-line proof. The same characterization was posted in the OPG comments (2012, 2013). The 'find all primes' problem is not given any further content."
+  },
+  "oeis-a002162": {
+   "date": "2026-11-28",
+   "pr": 14379,
+   "evidence": [
+    "https://oeis.org/A002162"
+   ],
+   "reason": "The disproof uses only k=0: there the series sum (-1)^(n+1)/n is conditionally convergent, so Lean's tsum assigns it 0, and the statement then demands log 2 rational, which the proof refutes. Bala's actual conjecture (with the true sum log 2 and c(0)=0) is untouched; the statement's 'converges absolutely' remark is wrong for k=0. Formalization artifact."
+  },
+  "oeis-a002618": {
+   "date": "2026-11-28",
+   "pr": 27672,
+   "evidence": [
+    "https://oeis.org/A002618"
+   ],
+   "reason": "The statement's IsAPPermutation places the coprimality hypotheses as implications inside the existential. Taking c=d=0 makes every function qualify, so the count becomes n! and the disproof checks n=4 (24 vs 8). The proof file admits this. A typo exploit; the conjecture itself is recorded in OEIS as confirmed by Adams-Watters (2009)."
   }
  },
  "known": {
@@ -18504,6 +18585,237 @@
     "https://mathoverflow.net/questions/467005"
    ],
    "reason": "Fred Hucht's comment gives det = (1 - x_1...x_n)^(n-1), and Vladimir Dotsenko's comment gives the row-subtraction proof. The statement header credits both. The inverse formula C^{-1} = (1-P)^{-1}(1-S) is immediate from the same identity C(1-S) = (1-P)I."
+  },
+  "mo-478202": {
+   "date": "2026-11-28",
+   "pr": 27492,
+   "evidence": [
+    "https://mathoverflow.net/questions/478202",
+    "https://mathoverflow.net/a/478213"
+   ],
+   "reason": "The formal statement is Newton's identities for det(rho(gamma)) from the power sums tr(rho(gamma^k)) computed via the character. This is exactly the asker's self-answer (following Dave Benson's comment on exterior powers) and is classical linear algebra."
+  },
+  "mo-483654": {
+   "date": "2026-11-28",
+   "pr": 27119,
+   "evidence": [
+    "https://mathoverflow.net/questions/483654",
+    "https://mathoverflow.net/questions/189222"
+   ],
+   "reason": "N^2 * s(A^T A A^T) >= s(A)^3 for nonnegative matrices is the Atkinson-Watterson-Moran (1960) / Blakley-Roy inequality, cited in the accepted answer of MO 189222 which darij grinberg links in the comments; River Li confirms in a comment that the discrete case is addressed there."
+  },
+  "mo-485092": {
+   "date": "2026-11-28",
+   "pr": 25488,
+   "evidence": [
+    "https://mathoverflow.net/questions/485092",
+    "https://mathoverflow.net/questions/87923"
+   ],
+   "reason": "Disproof via the Thue-Morse colouring, which Thomas Bloom gave in the comments (pointing to MO 87923); the statement file itself says so, and the asker states the negative answer is already proved by a colleague."
+  },
+  "mo-490476": {
+   "date": "2026-11-28",
+   "pr": 25565,
+   "evidence": [
+    "https://mathoverflow.net/questions/490476"
+   ],
+   "reason": "The precomposition duality is a textbook fact (the question calls it very well known) and Qiaochu Yuan's comment gives the trivial-codomain counterexample. The question only asked for a conceptual proof; nothing open was settled."
+  },
+  "mo-495000": {
+   "date": "2026-11-28",
+   "pr": 27801,
+   "evidence": [
+    "https://mathoverflow.net/questions/495000",
+    "https://mathoverflow.net/a/495104"
+   ],
+   "reason": "In the comments Corentin B gives the argument: for connected G each level P_k is connected and the minimum-size components P_1 and P_{n-1} recover G, with a product decomposition for disconnected G. bof's answer calls the finite connected case trivial, and McKay says the minimum-component idea settles it ('a pity that it isn't deeper'). The Lean proof formalizes this finite case."
+  },
+  "mo-503889": {
+   "date": "2026-11-28",
+   "pr": 26213,
+   "evidence": [
+    "https://mathoverflow.net/questions/503889"
+   ],
+   "reason": "Tim Dokchitser's comment reports that Magma finds f irreducible over Q_3(3^(1/13)), so the yes/no question was already settled computationally in the source. The proof header cites this. The Lean proof gives a rigorous valuation argument, but the answer was not new."
+  },
+  "mo-504001": {
+   "date": "2026-11-28",
+   "pr": 25277,
+   "evidence": [
+    "https://mathoverflow.net/questions/504001",
+    "https://mathoverflow.net/a/504113"
+   ],
+   "reason": "The disproof formalizes Ilya Bogdanov's answer (progressions with different steps in each residue class), as the proof header states. Corentin B's comment also already showed the claim is hopeless."
+  },
+  "mo-514827": {
+   "date": "2026-11-28",
+   "pr": 25494,
+   "evidence": [
+    "https://mathoverflow.net/questions/514827"
+   ],
+   "reason": "Every abelian group of size at most continuum embeds in Sym(N) (Schreier-Ulam, per Andreas Thom). YCor's comment gives exactly the proof formalized: R is isomorphic to Q^N acting on Q x N."
+  },
+  "mo-58241": {
+   "date": "2026-11-28",
+   "pr": 25744,
+   "evidence": [
+    "https://mathoverflow.net/questions/58241"
+   ],
+   "reason": "The disproof is a 2-state chain whose time-t law crosses 1/2 on its way to a stationary mass of 6/7. On two states every variance is p(1-p)(f1-f2)^2, so this is exactly James Martin's comment on the question: almost any 2-state chain approaching stationarity from one extreme is a counterexample, even from a deterministic start."
+  },
+  "mo-58275": {
+   "date": "2026-11-28",
+   "pr": 26965,
+   "evidence": [
+    "https://mathoverflow.net/questions/58275",
+    "https://mathoverflow.net/questions/58241"
+   ],
+   "reason": "MO 58275 is the asker's repost of MO 58241 and has the same formal content as this site's mo-58241 (PR 25744, earlier). The counterexample idea is James Martin's comment on 58241 (the variance on 2 states peaks at mass 1/2). This 3-state eigenvalue-0 counterexample is a trivial variant."
+  },
+  "mo-67775": {
+   "date": "2026-11-28",
+   "pr": 27062,
+   "evidence": [
+    "https://mathoverflow.net/questions/67775"
+   ],
+   "reason": "Torsten Ekedahl's comment already answers that linear general position is not enough: the condition is that the six points do not lie on a conic, and generic points on a conic are in general position. The Lean counterexample uses points (1,t,t^2) on the conic x1*x3=x2^2. vanvu accepts this in the comments."
+  },
+  "mo-69015": {
+   "date": "2026-11-28",
+   "pr": 27540,
+   "evidence": [
+    "https://mathoverflow.net/questions/69015",
+    "https://mathoverflow.net/a/69021"
+   ],
+   "reason": "The answers by theja and Pietro Majer show the iteration is power iteration y -> Ay/|Ay|, which converges to an eigenvector rather than the global maximizer. The proof header attributes the eigenvector counterexample to Pietro Majer's answer."
+  },
+  "mo-88509": {
+   "date": "2026-11-28",
+   "pr": 25600,
+   "evidence": [
+    "https://mathoverflow.net/questions/88509"
+   ],
+   "reason": "A textbook exercise. David Speyer's comment gives the whole argument: rank(A - A^T) <= 2 rank A, and odd order is impossible because skew matrices of odd order are singular. The block matrix [0 I; 0 0] attains rank k."
+  },
+  "mo-95937": {
+   "date": "2026-11-28",
+   "pr": 25586,
+   "evidence": [
+    "https://mathoverflow.net/questions/95937"
+   ],
+   "reason": "The classification (alpha*J - Q is copositive iff alpha >= max_i Q_ii, for PSD Q) and its convexity proof are given in alex o.'s comments, and the asker confirms them. The formalization says it formalizes that comment."
+  },
+  "mse-2397343": {
+   "date": "2026-11-28",
+   "pr": 25950,
+   "evidence": [
+    "https://math.stackexchange.com/questions/2397343"
+   ],
+   "reason": "Robert Israel's comments already answer the question: Gaussian elimination mod 3 yields solutions in which some variables equal 2, which do not correspond to 2-in-3-SAT solutions. The 8-variable instance is a routine witness of that observation."
+  },
+  "mse-3578846": {
+   "date": "2026-11-28",
+   "pr": 27169,
+   "evidence": [
+    "https://math.stackexchange.com/questions/3578846"
+   ],
+   "reason": "Nate Eldredge's comment already says no translation-invariant probability measure exists on C([0,1]), since there is no infinite-dimensional Lebesgue measure. The second conjunct (the affine law is a probability measure) is trivial. Standard fact."
+  },
+  "mse-3707157": {
+   "date": "2026-11-28",
+   "pr": 14538,
+   "evidence": [
+    "https://math.stackexchange.com/questions/3707157"
+   ],
+   "reason": "The proof just exhibits the famous 80-digit Bremner-MacLeod solution, which is printed in the question itself. The question asked for a non-constructive existence proof, which this does not give."
+  },
+  "mse-4522800": {
+   "date": "2026-11-28",
+   "pr": 26403,
+   "evidence": [
+    "https://math.stackexchange.com/questions/4522800"
+   ],
+   "reason": "A textbook scaling corollary of the open mapping theorem. The asker's own attempt in the question is essentially the proof (rescale balls by r'), and the question only asks for a check of it."
+  },
+  "opg-another-conjecture-about-reloids-and-funcoids": {
+   "date": "2026-11-28",
+   "pr": 14535,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/another_conjecture_about_reloids_and_funcoids",
+    "https://ipfs.desci.com/ipfs/bafybeihljh5umfclsb2b2hctvhlr6zsincutdkc23emm6atba5btzhnxlm"
+   ],
+   "reason": "Porton's book 'Algebraic theory of General Topology' (Nov 2023 version) proves Lemma 1392: meet^RLD of a Gamma-filter equals (RLD)_in of its meet^FCD, so (RLD)_Gamma f = (RLD)_in f. Lemma 1393 shows meet^RLD and A -> Gamma ∩ up A are mutually inverse on Gamma-filters, so box (RLD)_in f = (RLD)_in f. The conjecture follows at once (Theorem 1399 diagram). The OPG page was not updated."
+  },
+  "opg-every-metamonovalued-funcoid-is-monovalued": {
+   "date": "2026-11-28",
+   "pr": 14367,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/every_metamonovalued_funcoid_is_monovalued",
+    "https://ipfs.desci.com/ipfs/bafybeihljh5umfclsb2b2hctvhlr6zsincutdkc23emm6atba5btzhnxlm"
+   ],
+   "reason": "Porton's book (Nov 2023 version, Section 7.15, Theorem 961) proves that for funcoids, monovalued, metamonovalued and weakly metamonovalued are equivalent. The OPG and SciLag (2018) listings are out of date. The Lean proof (two principal funcoids into a singleton with disjoint supports) is a short argument for the same fact."
+  },
+  "opg-upgrading-a-completary-multifuncoid": {
+   "date": "2026-11-28",
+   "pr": 14660,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/upgrading_a_completary_multifuncoid",
+    "https://ipfs.desci.com/ipfs/bafybeihljh5umfclsb2b2hctvhlr6zsincutdkc23emm6atba5btzhnxlm"
+   ],
+   "reason": "The disproof (principal completary staroid of step/spike functions on an N-indexed family, with the Frechet/atTop filter in one coordinate) is essentially Example 1785 in Porton's Nov 2023 book (based on Andreas Blass's proof). That example shows the upgrading of a principal, hence completary (Prop 1782), staroid on powersets is not completary, although the book still lists Conjecture 1802. Infinite index set; the same mechanism."
+  },
+  "opg-what-is-the-smallest-number-of-disjoint-spanning-trees-made-a-graph-hamiltonian": {
+   "date": "2026-11-28",
+   "pr": 17233,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/what_is_the_smallest_number_of_disjoint_spanning_trees_made_a_graph_hamiltonian"
+   ],
+   "reason": "mdevos's 2007 comment on the OPG page already shows no uniform k exists: weight the edges of an unbalanced complete bipartite subgraph 1 and all others 2, and the successive minimum trees stay in the bipartite graph, which has no Hamiltonian path. The Lean witness is a construction of this type."
+  },
+  "wp-atiyah-conjecture-on-configurations": {
+   "date": "2026-11-28",
+   "pr": 25233,
+   "evidence": [
+    "https://en.wikipedia.org/wiki/Atiyah_conjecture_on_configurations",
+    "https://arxiv.org/abs/2610.33090"
+   ],
+   "reason": "The proof file says it transfers an existing disproof: Jan Eickhoff's 69-point singular Atiyah configuration (arXiv:2610.33090) and the earlier merged site proof AtiyahSutcliffe.conjecture_one, with a dehomogenization bridge. The counterexample is prior work, so this is a known result."
+  },
+  "oeis-a001227": {
+   "date": "2026-11-28",
+   "pr": 10588,
+   "evidence": [
+    "https://oeis.org/A001227",
+    "https://oeis.org/A067742",
+    "https://oeis.org/A131576"
+   ],
+   "reason": "Pol's conjectures are proved in sister entries. A067742 has Sloane's Theorem 1 (2021): middle divisors = odd divisors below sqrt(2n) minus those above, 'proofs are straightforward'. A131576 notes a(n)+A082647(n)=A001227(n) 'follows immediately from the definitions'. Both identities follow."
+  },
+  "oeis-a001845": {
+   "date": "2026-11-28",
+   "pr": 27645,
+   "evidence": [
+    "https://oeis.org/A001845"
+   ],
+   "reason": "The OEIS entry already marks the g.f. (1+x)^3/(1-x)^4 as 'conjectured (correctly) by Simon Plouffe'. It also follows trivially from the closed form."
+  },
+  "oeis-a002143": {
+   "date": "2026-11-28",
+   "pr": 25394,
+   "evidence": [
+    "https://oeis.org/A002143",
+    "https://arxiv.org/abs/1908.02155",
+    "https://mathoverflow.net/questions/337726"
+   ],
+   "reason": "Sun's paper (arXiv:1908.02155v9, Publ. Math. Debrecen) Section 5 states that conjecture (5.1), h(-p) = (1/(2 sqrt p)) * sum csc(2 pi k^2/p) for p = 3 mod 8, 'was confirmed by Prof. Ping Xi' in an answer to MO 337726. The Lean proof is a full formalization of the classical route (Gauss sum, L(1,chi), class number formula), but the result was known."
+  },
+  "oeis-a002843": {
+   "date": "2026-11-28",
+   "pr": 26579,
+   "evidence": [
+    "https://oeis.org/A002843"
+   ],
+   "reason": "The OEIS entry already states that the g.f. conjectured by Simon Plouffe in his 1992 dissertation is wrong. The disproof was known."
   }
  },
  "reviewed": "2026-11-28"
