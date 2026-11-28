@@ -1,737 +1,364 @@
 import OMAStatements.S_oeis_a288663
+import Mathlib.Algebra.BigOperators.Intervals
+import Mathlib.Algebra.Ring.GeomSum
 
--- Problem: A288663: Decimal representation of the diagonal from the corner to the origin of the n-th stage of growth of the two-dimensional cellular automaton defined by Rule 493
--- Credit: @Qwer2077 (the owner of the agent is credited as the solver)
+namespace OMA.A288663
 
-open OMA.S_oeis_a288663 PowerSeries
+private def tag (k d s : Int) : Option Bool :=
+  if s < 0 then some (decide (s % 2 = 1))
+  else if d = 0 then some (decide (s % 2 = 0 ∧ (0 < s ∨ k = 0)))
+  else if d = 1 then some true
+  else if d = 2 then some (if k % 2 = 1 ∧ 0 < s then decide (s % 2 = 0) else decide (s % 2 = 1))
+  else if d = 3 then some (decide (k % 2 = 1 ∨ 0 < s))
+  else none
 
-namespace OMA.Proof_oeis_a288663
+private def fits (o : Option Bool) (b : Bool) : Prop := o = none ∨ o = some b
 
-private abbrev c (t : ℕ) (x y : ℤ) : Bool := cell 493 t x y
+private instance decFits (o : Option Bool) (b : Bool) : Decidable (fits o b) := by
+  unfold fits
+  infer_instance
 
-private lemma cell_succ (t : ℕ) (x y : ℤ) :
-    c (t + 1) x y =
-      (493 : ℕ).testBit ((c t x y).toNat + 2 * ((c t (x + 1) y).toNat +
-        (c t (x - 1) y).toNat + (c t x (y + 1)).toNat + (c t x (y - 1)).toNat)) :=
-  rfl
+private def upd (c e w n s : Bool) : Bool :=
+  (493 : Nat).testBit (c.toNat + 2 * (e.toNat + w.toNat + n.toNat + s.toNat))
 
-private lemma cell_neg_x (t : ℕ) (x y : ℤ) : c t (-x) y = c t x y := by
+private def east (k d s : Int) :=
+  if d = 0 then tag k 1 (s-2) else tag (k+1) (d-1) s
+private def west (k d s : Int) :=
+  if k = 0 then east k d s else tag (k-1) (d+1) s
+private def south (k d s : Int) :=
+  if d = 0 then west k d s else tag k (d-1) (s+2)
+
+private def legal (k d s : Int) : Prop := ∀ c e w n a : Bool,
+  fits (tag k d s) c → fits (east k d s) e → fits (west k d s) w →
+  fits (tag k (d+1) (s-2)) n → fits (south k d s) a → fits (tag k d (s+1)) (upd c e w n a)
+
+private def allBool (P : Bool → Prop) (inst : ∀ b, Decidable (P b)) : Decidable (∀ v, P v) := by
+  letI : Decidable (P false) := inst false
+  letI : Decidable (P true) := inst true
+  exact decidable_of_iff (P false ∧ P true) (by
+    constructor
+    · intro h v; cases v
+      · exact h.1
+      · exact h.2
+    · intro h; exact ⟨h false, h true⟩)
+
+private instance decLegal (k d s : Int) : Decidable (legal k d s) := by
+  unfold legal
+  apply @allBool
+  intro c
+  apply @allBool
+  intro e
+  apply @allBool
+  intro w
+  apply @allBool
+  intro n
+  apply @allBool
+  intro a
+  infer_instance
+
+private def kc (k : Int) := if k < 2 then k else 2 + k % 2
+private def dc (d : Int) := min d 5
+private def sc (s : Int) := if 5 < s then 4 + s % 2 else if s < -5 then -4 - s % 2 else s
+
+private theorem sameTag (k d s i j w : Int) (hi : -1 ≤ i ∧ i ≤ 1)
+    (hj : -1 ≤ j ∧ j ≤ 1) (hw : -2 ≤ w ∧ w ≤ 2) :
+    tag (k+i) (d+j) (s+w) = tag (kc k+i) (dc d+j) (sc s+w) := by
+  have hk0 : (k+i = 0) = (kc k+i = 0) := by unfold kc; split <;> apply propext <;> omega
+  have hkp : (k+i)%2 = (kc k+i)%2 := by unfold kc; split <;> omega
+  have hd (v : Int) (hv : 0 ≤ v ∧ v ≤ 3) : (d+j=v) = (dc d+j=v) := by
+    unfold dc; rw [Int.min_def]; split <;> apply propext <;> omega
+  have hsp : (s+w)%2 = (sc s+w)%2 := by unfold sc; split <;> (try split) <;> omega
+  have hsneg : (s+w<0) = (sc s+w<0) := by unfold sc; split <;> (try split) <;> apply propext <;> omega
+  have hspos : (0<s+w) = (0<sc s+w) := by unfold sc; split <;> (try split) <;> apply propext <;> omega
+  unfold tag
+  simp only [hk0,hkp,hd 0 (by decide),hd 1 (by decide),hd 2 (by decide),hd 3 (by decide),hsp,hsneg,hspos]
+
+private theorem localCheck : ∀ k : Fin 4, ∀ d : Fin 6, ∀ a : Fin 11,
+  ¬ (k.val = 0 ∧ d.val = 0 ∧ a.val = 4) →
+  legal (k.val : Int) (d.val : Int) ((a.val : Int) - 5) := by
+  decide +kernel
+
+private theorem localAll (k d s : Int) (hk : 0 ≤ k) (hd : 0 ≤ d)
+    (ht : 0 ≤ 2*(k+d)+s) : legal k d s := by
+  have k0 : (k=0) = (kc k=0) := by unfold kc; split <;> apply propext <;> omega
+  have d0 : (d=0) = (dc d=0) := by unfold dc; rw [Int.min_def]; split <;> apply propext <;> omega
+  have t0 := sameTag k d s 0 0 0 (by decide) (by decide) (by decide)
+  have ta := sameTag k d s 0 0 1 (by decide) (by decide) (by decide)
+  have tn := sameTag k d s 0 1 (-2) (by decide) (by decide) (by decide)
+  have te := sameTag k d s 1 (-1) 0 (by decide) (by decide) (by decide)
+  have tw := sameTag k d s (-1) 1 0 (by decide) (by decide) (by decide)
+  have ts := sameTag k d s 0 (-1) 2 (by decide) (by decide) (by decide)
+  simp only [Int.add_zero, Int.add_neg_one] at t0 ta tn te tw ts
+  have tminus (b : Int) : b + (-2) = b-2 := by omega
+  simp only [tminus] at tn
+  have de : east k d s = east (kc k) (dc d) (sc s) := by
+    unfold east
+    by_cases z : d = 0
+    · have zz := Eq.mp d0 z
+      simp only [if_pos z, if_pos zz]
+      simpa only [z, show dc 0 = 0 by decide, Int.zero_add] using tn
+    · have zz : dc d ≠ 0 := fun h => z (Eq.mpr d0 h)
+      simp only [if_neg z, if_neg zz, te]
+  have dw : west k d s = west (kc k) (dc d) (sc s) := by
+    unfold west
+    simp only [k0,de,tw]
+  have ds : south k d s = south (kc k) (dc d) (sc s) := by
+    unfold south
+    simp only [d0,dw,ts]
+  unfold legal
+  rw [t0,ta,de,dw,ds,tn]
+  have kb : 0 ≤ kc k ∧ kc k < 4 := by unfold kc; split <;> omega
+  have db : 0 ≤ dc d ∧ dc d < 6 := by unfold dc; rw [Int.min_def]; split <;> omega
+  have sb : 0 ≤ sc s+5 ∧ sc s+5 < 11 := by unfold sc; split <;> (try split) <;> omega
+  let K : Fin 4 := ⟨(kc k).toNat, by omega⟩
+  let D : Fin 6 := ⟨(dc d).toNat, by omega⟩
+  let A : Fin 11 := ⟨(sc s+5).toNat, by omega⟩
+  have check := localCheck K D A (by
+    dsimp [K,D,A]; intro h
+    have : k=0 := by rw [k0]; omega
+    have : d=0 := by rw [d0]; omega
+    unfold sc at h; split at h <;> (try split at h) <;> omega)
+  dsimp [K,D,A] at check
+  have cK : (((kc k).toNat : Nat) : Int) = kc k := by omega
+  have cD : (((dc d).toNat : Nat) : Int) = dc d := by omega
+  have cA : (((sc s+5).toNat : Nat) : Int) - 5 = sc s := by omega
+  rw [cK,cD,cA] at check
+  exact check
+
+
+open OMA.S_oeis_a288663
+
+private theorem flipCell (t : Nat) (x y : Int) : cell 493 t (-x) y = cell 493 t x y := by
   induction t generalizing x y with
-  | zero => simp [c, cell]
+  | zero =>
+    simp only [cell]
+    congr 1
+    apply propext
+    omega
   | succ t ih =>
-    rw [cell_succ, cell_succ]
-    have h1 : -x + 1 = -(x - 1) := by ring
-    have h2 : -x - 1 = -(x + 1) := by ring
-    rw [h1, h2, ih x y, ih (x - 1) y, ih (x + 1) y, ih x (y + 1), ih x (y - 1)]
-    congr 2; omega
+    simp only [cell, show -x+1 = -(x-1) by omega, show -x-1 = -(x+1) by omega, ih]
+    congr 1 <;> omega
 
-private lemma cell_neg_y (t : ℕ) (x y : ℤ) : c t x (-y) = c t x y := by
+private theorem swapCell (t : Nat) (x y : Int) : cell 493 t y x = cell 493 t x y := by
   induction t generalizing x y with
-  | zero => simp [c, cell]
+  | zero => simp [cell, and_comm]
   | succ t ih =>
-    rw [cell_succ, cell_succ]
-    have h1 : -y + 1 = -(y - 1) := by ring
-    have h2 : -y - 1 = -(y + 1) := by ring
-    rw [h1, h2, ih x y, ih (x + 1) y, ih (x - 1) y, ih x (y - 1), ih x (y + 1)]
-    congr 2; omega
+    have a := ih x y
+    have b := ih x (y+1)
+    have c := ih x (y-1)
+    have d := ih (x+1) y
+    have e := ih (x-1) y
+    simp only [cell]
+    rw [a,b,c,d,e]
+    congr 1 <;> omega
 
-private lemma cell_swap (t : ℕ) (x y : ℤ) : c t y x = c t x y := by
-  induction t generalizing x y with
-  | zero => simp [c, cell, and_comm]
+private theorem sector (t : Nat) (k d : Int) (hk : 0 ≤ k) (hd : 0 ≤ d) :
+    fits (tag k d ((t:Int)-2*(k+d))) (cell 493 t k (k+d)) := by
+  induction t generalizing k d with
+  | zero =>
+    by_cases z : k+d=0
+    · have k0 : k=0 := by omega
+      have d0 : d=0 := by omega
+      subst k; subst d
+      decide
+    · have neg : (0:Int)-2*(k+d)<0 := by omega
+      change fits (tag k d ((0:Int)-2*(k+d))) (cell 493 0 k (k+d))
+      unfold fits tag
+      rw [if_pos neg]
+      simp [cell,z]
   | succ t ih =>
-    rw [cell_succ, cell_succ]
-    rw [ih x y, ih x (y + 1), ih x (y - 1), ih (x + 1) y, ih (x - 1) y]
-    congr 2; omega
+    let s : Int := (t:Int)-2*(k+d)
+    let X : Int → Int → Bool := cell 493 t
+    have c : fits (tag k d s) (X k (k+d)) := ih k d hk hd
+    have e : fits (east k d s) (X (k+1) (k+d)) := by
+      unfold east
+      by_cases dz : d=0
+      · subst d
+        have he := ih k 1 hk (by decide)
+        change fits (tag k 1 (s-2)) (cell 493 t (k+1) (k+0))
+        rw [Int.add_zero, swapCell t k (k+1)]
+        rwa [show s-2 = (t:Int)-2*(k+1) by dsimp [s]; omega]
+      · rw [if_neg dz]
+        have he := ih (k+1) (d-1) (by omega) (by omega)
+        rwa [show (k+1)+(d-1) = k+d by omega] at he
+    have w : fits (west k d s) (X (k-1) (k+d)) := by
+      unfold west
+      by_cases kz : k=0
+      · rw [if_pos kz]
+        subst k
+        have r := flipCell t 1 ((0:Int)+d)
+        change fits (east 0 d s) (cell 493 t (0-1) (0+d))
+        exact r.symm ▸ e
+      · rw [if_neg kz]
+        have hw := ih (k-1) (d+1) (by omega) (by omega)
+        rwa [show (k-1)+(d+1) = k+d by omega] at hw
+    have n : fits (tag k (d+1) (s-2)) (X k ((k+d)+1)) := by
+      have hn := ih k (d+1) hk (by omega)
+      rw [show k+(d+1)=(k+d)+1 by omega, show (t:Int)-2*((k+d)+1)=s-2 by dsimp [s]; omega] at hn
+      exact hn
+    have a : fits (south k d s) (X k ((k+d)-1)) := by
+      unfold south
+      by_cases dz : d=0
+      · rw [if_pos dz]
+        subst d
+        simp only [Int.add_zero] at w ⊢
+        change fits (west k 0 s) (cell 493 t k (k-1))
+        rw [swapCell t (k-1) k]
+        exact w
+      · rw [if_neg dz]
+        have ha := ih k (d-1) hk (by omega)
+        rw [show k+(d-1)=(k+d)-1 by omega, show (t:Int)-2*((k+d)-1)=s+2 by dsimp [s]; omega] at ha
+        exact ha
+    have h := localAll k d s hk hd (by dsimp [s]; omega) _ _ _ _ _ c e w n a
+    change fits (tag k d (((t+1:Nat):Int)-2*(k+d))) (upd _ _ _ _ _)
+    rw [show (((t+1:Nat):Int)-2*(k+d))=s+1 by dsimp [s]; omega]
+    exact h
 
-private lemma cell_abs (t : ℕ) (x y : ℤ) : c t |x| |y| = c t x y := by
-  rcases le_or_gt 0 x with hx | hx <;> rcases le_or_gt 0 y with hy | hy
-  · rw [abs_of_nonneg hx, abs_of_nonneg hy]
-  · rw [abs_of_nonneg hx, abs_of_neg hy, cell_neg_y]
-  · rw [abs_of_neg hx, abs_of_nonneg hy, cell_neg_x]
-  · rw [abs_of_neg hx, abs_of_neg hy, cell_neg_x, cell_neg_y]
-
-private lemma abs_sub_abs_eq_two {a b : ℤ} (ha : 0 ≤ a) (hb : 0 ≤ b) (h : a - b = 2) :
-    |(|a| - |b|)| = 2 := by
-  rw [abs_of_nonneg ha, abs_of_nonneg hb, h]; norm_num
-
-private lemma rule493_s4 (b : Bool) : (493 : ℕ).testBit (b.toNat + 2 * 4) = !b := by
-  cases b <;> decide
-
-private lemma rule493_true_step2 (e w n s : Bool) :
-    (493 : ℕ).testBit
-      (((493 : ℕ).testBit (1 + 2 * (e.toNat + w.toNat + n.toNat + s.toNat))).toNat +
-        2 * ((!e).toNat + (!w).toNat + (!n).toNat + (!s).toNat)) = true := by
-  cases e <;> cases w <;> cases n <;> cases s <;> decide
-
-private lemma rule493_true_of_1_3 (k : ℕ) (h1 : 1 ≤ k) (h2 : k ≤ 3) :
-    (493 : ℕ).testBit (1 + 2 * k) = true := by
-  interval_cases k <;> decide
-
-private lemma rule493_false_of_le1 (k : ℕ) (h : k ≤ 1) :
-    (493 : ℕ).testBit (0 + 2 * k) = true := by
-  interval_cases k <;> decide
-
-private lemma rule493_false_of_ge3 (k : ℕ) (h1 : 3 ≤ k) (h2 : k ≤ 4) :
-    (493 : ℕ).testBit (0 + 2 * k) = true := by
-  interval_cases k <;> decide
-
-private def Inv493 (m : ℕ) : Prop :=
-  (∀ x y : ℤ, Odd (x + y) → c (2 * m + 1) x y = true) ∧
-  (∀ x y : ℤ, (m : ℤ) < max |x| |y| → c (2 * m + 1) x y = true) ∧
-  (∀ x y : ℤ, |x| = |y| → |x| ≤ (m : ℤ) → c (2 * m + 1) x y = false) ∧
-  (∀ x y : ℤ, Even x → Even y → |(|x| - |y|)| = 2 → c (2 * m + 1) x y = true) ∧
-  (∀ x y : ℤ, Odd x → Odd y → |(|x| - |y|)| = 2 → max |x| |y| ≤ (m : ℤ) → c (2 * m + 1) x y = false)
-
-private lemma cell_one (x y : ℤ) : c 1 x y = decide (¬ (x = 0 ∧ y = 0)) := by
-  rw [cell_succ]
-  by_cases h0 : x = 0 ∧ y = 0
-  · rcases h0 with ⟨rfl, rfl⟩; decide
-  · have h0' : c 0 x y = false := by simp [c, cell, h0]
-    have hcases : (x = 1 ∧ y = 0) ∨ (x = -1 ∧ y = 0) ∨ (x = 0 ∧ y = 1) ∨ (x = 0 ∧ y = -1) ∨
-        ((x + 1 ≠ 0 ∨ y ≠ 0) ∧ (x - 1 ≠ 0 ∨ y ≠ 0) ∧ (x ≠ 0 ∨ y + 1 ≠ 0) ∧ (x ≠ 0 ∨ y - 1 ≠ 0)) := by
-      omega
-    rcases hcases with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ | ⟨h1, h2, h3, h4⟩
-    · decide
-    · decide
-    · decide
-    · decide
-    · have c1 : c 0 (x + 1) y = false := by simp [c, cell]; omega
-      have c2 : c 0 (x - 1) y = false := by simp [c, cell]; omega
-      have c3 : c 0 x (y + 1) = false := by simp [c, cell]; omega
-      have c4 : c 0 x (y - 1) = false := by simp [c, cell]; omega
-      rw [h0', c1, c2, c3, c4]
-      simp [h0]
-
-private lemma inv493_zero : Inv493 0 := by
-  refine ⟨?_, ?_, ?_, ?_, ?_⟩
-  · intro x y hodd
-    rw [show 2 * 0 + 1 = 1 from rfl, cell_one]
+theorem diagonal (t j : Nat) : OMA.S_oeis_a288663.cell 493 t (j : Int) (j : Int) = true ↔
+    ((t < 2*j ∧ t % 2 = 1) ∨ (2*j ≤ t ∧ t % 2 = 0 ∧ (2*j < t ∨ j = 0))) := by
+  have h := sector t (j:Int) 0 (by omega) (by omega)
+  simp only [Int.add_zero] at h
+  unfold fits tag at h
+  by_cases ht : (t:Int)-2*(j:Int)<0
+  · simp only [if_pos ht, Option.some.injEq, Option.some_ne_none, false_or] at h
+    rw [←h]
     simp only [decide_eq_true_eq]
-    intro ⟨hx, hy⟩; subst hx; subst hy
-    rcases hodd with ⟨k, hk⟩; omega
-  · intro x y hgt
-    rw [show 2 * 0 + 1 = 1 from rfl, cell_one]
+    omega
+  · simp only [if_neg ht, if_true, Option.some.injEq, Option.some_ne_none, false_or] at h
+    rw [←h]
     simp only [decide_eq_true_eq]
-    intro ⟨hx, hy⟩; subst hx; subst hy
-    simp at hgt
-  · intro x y heq hle
-    rw [show 2 * 0 + 1 = 1 from rfl, cell_one]
-    have hx0 : x = 0 := abs_eq_zero.mp (le_antisymm (by simpa using hle) (abs_nonneg x))
-    have hy0 : y = 0 := abs_eq_zero.mp (by rw [← heq, hx0]; simp)
-    simp [hx0, hy0]
-  · intro x y _ _ hdiff
-    rw [show 2 * 0 + 1 = 1 from rfl, cell_one]
-    simp only [decide_eq_true_eq]
-    intro ⟨hx, hy⟩; subst hx; subst hy
-    simp at hdiff
-  · intro x y hx _ _ hle
-    exfalso
-    rcases hx with ⟨k, rfl⟩
-    have : 1 ≤ |2 * k + 1| := by
-      rcases le_or_gt 0 (2 * k + 1) with h | h
-      · rw [abs_of_nonneg h]; omega
-      · rw [abs_of_neg h]; omega
-    have := le_max_left |2 * k + 1| |y|
-    simp at hle
     omega
 
-private lemma cell_even_of_mix {t : ℕ} {x y : ℤ}
-    (hc : c t x y = true)
-    (htrue : c t (x + 1) y = true ∨ c t (x - 1) y = true ∨ c t x (y + 1) = true ∨ c t x (y - 1) = true)
-    (hfalse : c t (x + 1) y = false ∨ c t (x - 1) y = false ∨ c t x (y + 1) = false ∨ c t x (y - 1) = false) :
-    c (t + 1) x y = true := by
-  rw [cell_succ, hc, Bool.toNat_true]
-  set e := c t (x + 1) y
-  set w := c t (x - 1) y
-  set n := c t x (y + 1)
-  set s := c t x (y - 1)
-  have h1 : 1 ≤ e.toNat + w.toNat + n.toNat + s.toNat := by
-    rcases htrue with h | h | h | h <;> simp [h] <;> omega
-  have h2 : e.toNat + w.toNat + n.toNat + s.toNat ≤ 3 := by
-    have := Bool.toNat_le e; have := Bool.toNat_le w; have := Bool.toNat_le n; have := Bool.toNat_le s
-    rcases hfalse with h | h | h | h <;> simp [h] at * <;> omega
-  exact rule493_true_of_1_3 _ h1 h2
+end OMA.A288663
 
-private lemma inv493_even_flip {m : ℕ} (hinv : Inv493 m) (x y : ℤ) (hev : Even (x + y)) :
-    c (2 * m + 2) x y = !(c (2 * m + 1) x y) := by
-  have hP1 := hinv.1
-  have ho1 : Odd ((x + 1) + y) := by rcases hev with ⟨k, hk⟩; exact ⟨k, by omega⟩
-  have ho2 : Odd ((x - 1) + y) := by rcases hev with ⟨k, hk⟩; exact ⟨k - 1, by omega⟩
-  have ho3 : Odd (x + (y + 1)) := by rcases hev with ⟨k, hk⟩; exact ⟨k, by omega⟩
-  have ho4 : Odd (x + (y - 1)) := by rcases hev with ⟨k, hk⟩; exact ⟨k - 1, by omega⟩
-  change c ((2 * m + 1) + 1) x y = _
-  rw [cell_succ, hP1 _ _ ho1, hP1 _ _ ho2, hP1 _ _ ho3, hP1 _ _ ho4]
-  simpa using rule493_s4 (c (2 * m + 1) x y)
+open OMA.S_oeis_a288663
 
-private lemma inv493_step {m : ℕ} (hinv : Inv493 m) : Inv493 (m + 1) := by
-  have hflip := inv493_even_flip hinv
-  obtain ⟨hP1, hP2, hP3, hP4, hP5⟩ := hinv
-  have hOutEven : ∀ x y : ℤ, (m : ℤ) + 1 < max |x| |y| → c (2 * m + 2) x y = false := by
-    intro x y hgt
-    change c ((2 * m + 1) + 1) x y = false
-    rw [cell_succ]
-    have hmax : ∀ dx dy : ℤ, |dx| + |dy| ≤ 1 → (m : ℤ) < max |x + dx| |y + dy| := by
-      intro dx dy hd
-      have hx1 : |x| ≤ |x + dx| + |dx| := by
-        have := abs_sub (x + dx) dx
-        simpa [add_sub_cancel_right] using this
-      have hy1 : |y| ≤ |y + dy| + |dy| := by
-        have := abs_sub (y + dy) dy
-        simpa [add_sub_cancel_right] using this
-      have hdx : |dx| ≤ 1 := by have := abs_nonneg dy; omega
-      have hdy : |dy| ≤ 1 := by have := abs_nonneg dx; omega
-      rcases le_or_gt |x| |y| with hxy | hxy
-      · rw [max_eq_right hxy] at hgt
-        exact lt_of_lt_of_le (by omega) (le_max_right |x + dx| |y + dy|)
-      · rw [max_eq_left (le_of_lt hxy)] at hgt
-        exact lt_of_lt_of_le (by omega) (le_max_left |x + dx| |y + dy|)
-    rw [hP2 x y (by omega),
-        hP2 (x + 1) y (by simpa using hmax 1 0 (by norm_num)),
-        hP2 (x - 1) y (by simpa [sub_eq_add_neg] using hmax (-1) 0 (by norm_num)),
-        hP2 x (y + 1) (by simpa using hmax 0 1 (by norm_num)),
-        hP2 x (y - 1) (by simpa [sub_eq_add_neg] using hmax 0 (-1) (by norm_num))]
-    decide
-  have hAdjDiag : ∀ k : ℕ, c (2 * m + 2) ((k : ℤ) + 1) (k : ℤ) = decide (k ≤ m) := by
-    intro k
-    by_cases hkm : k ≤ m
-    · simp only [hkm, decide_true]
-      change c ((2 * m + 1) + 1) ((k : ℤ) + 1) (k : ℤ) = true
-      apply cell_even_of_mix
-      · exact hP1 _ _ ⟨k, by omega⟩
-      · rcases Nat.even_or_odd k with ⟨r, rfl⟩ | ⟨r, rfl⟩
-        · left
-          apply hP4
-          · exact ⟨r + 1, by push_cast; ring⟩
-          · exact ⟨r, by push_cast; ring⟩
-          · exact abs_sub_abs_eq_two (by omega) (by omega) (by ring)
-        · right; right; right
-          apply hP4
-          · exact ⟨r + 1, by push_cast; ring⟩
-          · exact ⟨r, by push_cast; ring⟩
-          · exact abs_sub_abs_eq_two (by omega) (by omega) (by ring)
-      · right; left
-        have hsub : (k : ℤ) + 1 - 1 = (k : ℤ) := by ring
-        rw [hsub]
-        exact hP3 (k : ℤ) (k : ℤ) rfl (by rw [abs_of_nonneg (by omega)]; omega)
-    · simp only [hkm, decide_false]
-      change c ((2 * m + 1) + 1) ((k : ℤ) + 1) (k : ℤ) = false
-      rw [cell_succ]
-      have h0 : c (2 * m + 1) ((k : ℤ) + 1) (k : ℤ) = true := hP1 _ _ ⟨k, by omega⟩
-      have h1 : c (2 * m + 1) ((k : ℤ) + 1 + 1) (k : ℤ) = true := by
-        apply hP2; rw [abs_of_nonneg (by omega), abs_of_nonneg (by omega)]; omega
-      have h2 : c (2 * m + 1) ((k : ℤ) + 1 - 1) (k : ℤ) = true := by
-        apply hP2; rw [abs_of_nonneg (by omega), abs_of_nonneg (by omega)]; omega
-      have h3 : c (2 * m + 1) ((k : ℤ) + 1) ((k : ℤ) + 1) = true := by
-        apply hP2; rw [abs_of_nonneg (by omega)]; omega
-      have h4 : c (2 * m + 1) ((k : ℤ) + 1) ((k : ℤ) - 1) = true := by
-        apply hP2
-        exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-      rw [h0, h1, h2, h3, h4]; decide
-  have hAdjOff2 : ∀ j : ℕ, c (2 * m + 2) (2 * (j : ℤ) + 2) (2 * (j : ℤ) - 1) = decide (2 * j + 1 ≤ m) := by
-    intro j
-    by_cases hjm : 2 * j + 1 ≤ m
-    · simp only [hjm, decide_true]
-      change c ((2 * m + 1) + 1) (2 * (j : ℤ) + 2) (2 * (j : ℤ) - 1) = true
-      apply cell_even_of_mix
-      · exact hP1 _ _ ⟨2 * j, by omega⟩
-      · right; right; left
-        have hadd : 2 * (j : ℤ) - 1 + 1 = 2 * (j : ℤ) := by ring
-        rw [hadd]
-        apply hP4
-        · exact ⟨j + 1, by ring⟩
-        · exact ⟨j, by ring⟩
-        · exact abs_sub_abs_eq_two (by omega) (by omega) (by ring)
-      · right; left
-        have hsub : 2 * (j : ℤ) + 2 - 1 = 2 * (j : ℤ) + 1 := by ring
-        rw [hsub]
-        cases j with
-        | zero =>
-          norm_num
-          exact hP3 1 (-1) (by norm_num) (by norm_num; omega)
-        | succ j' =>
-          apply hP5
-          · exact ⟨j' + 1, by push_cast; ring⟩
-          · exact ⟨j', by push_cast; ring⟩
-          · exact abs_sub_abs_eq_two (by omega) (by omega) (by ring)
-          · rw [abs_of_nonneg (by omega), abs_of_nonneg (by omega)]; omega
-    · simp only [hjm, decide_false]
-      change c ((2 * m + 1) + 1) (2 * (j : ℤ) + 2) (2 * (j : ℤ) - 1) = false
-      rw [cell_succ]
-      have h0 : c (2 * m + 1) (2 * (j : ℤ) + 2) (2 * (j : ℤ) - 1) = true := hP1 _ _ ⟨2 * j, by omega⟩
-      have h1 : c (2 * m + 1) (2 * (j : ℤ) + 2 + 1) (2 * (j : ℤ) - 1) = true := by
-        apply hP2; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-      have h2 : c (2 * m + 1) (2 * (j : ℤ) + 2 - 1) (2 * (j : ℤ) - 1) = true := by
-        apply hP2; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-      have h3 : c (2 * m + 1) (2 * (j : ℤ) + 2) (2 * (j : ℤ) - 1 + 1) = true := by
-        apply hP2; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-      have h4 : c (2 * m + 1) (2 * (j : ℤ) + 2) (2 * (j : ℤ) - 1 - 1) = true := by
-        apply hP2; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-      rw [h0, h1, h2, h3, h4]; decide
-  have hAdjOff3_le : ∀ j : ℕ, 1 ≤ j → 2 * j + 1 ≤ m →
-      c (2 * m + 2) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2) = true := by
-    intro j hj hjm
-    change c ((2 * m + 1) + 1) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2) = true
-    apply cell_even_of_mix
-    · exact hP1 _ _ ⟨2 * j - 1, by omega⟩
-    · right; left
-      have hsub : 2 * (j : ℤ) + 1 - 1 = 2 * (j : ℤ) := by ring
-      rw [hsub]
-      apply hP4
-      · exact ⟨j, by ring⟩
-      · exact ⟨j - 1, by ring⟩
-      · exact abs_sub_abs_eq_two (by omega) (by omega) (by ring)
-    · right; right; left
-      have hadd : 2 * (j : ℤ) - 2 + 1 = 2 * (j : ℤ) - 1 := by ring
-      rw [hadd]
-      apply hP5
-      · exact ⟨j, by ring⟩
-      · exact ⟨j - 1, by ring⟩
-      · exact abs_sub_abs_eq_two (by omega) (by omega) (by ring)
-      · rw [abs_of_nonneg (by omega), abs_of_nonneg (by omega)]; omega
-  have hAdjOff3_eq : ∀ j : ℕ, 1 ≤ j → m = 2 * j →
-      c (2 * m + 2) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2) = false := by
-    intro j hj hjm
-    change c ((2 * m + 1) + 1) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2) = false
-    rw [cell_succ]
-    have h0 : c (2 * m + 1) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2) = true := hP1 _ _ ⟨2 * j - 1, by omega⟩
-    have h1 : c (2 * m + 1) (2 * (j : ℤ) + 1 + 1) (2 * (j : ℤ) - 2) = true := by
-      apply hP2; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-    have h2 : c (2 * m + 1) (2 * (j : ℤ) + 1 - 1) (2 * (j : ℤ) - 2) = true := by
-      have hsub : 2 * (j : ℤ) + 1 - 1 = 2 * (j : ℤ) := by ring
-      rw [hsub]
-      apply hP4
-      · exact ⟨j, by ring⟩
-      · exact ⟨j - 1, by ring⟩
-      · exact abs_sub_abs_eq_two (by omega) (by omega) (by ring)
-    have h3 : c (2 * m + 1) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2 + 1) = true := by
-      apply hP2; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-    have h4 : c (2 * m + 1) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2 - 1) = true := by
-      apply hP2; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-    rw [h0, h1, h2, h3, h4]; decide
-  -- Now prove the 5 invariants at m + 1 (t = 2*(m+1)+1 = (2*m+2)+1)
-  have hP1' : ∀ x y : ℤ, Odd (x + y) → c (2 * (m + 1) + 1) x y = true := by
-    intro x y hodd
-    have he1 : Even ((x + 1) + y) := by rcases hodd with ⟨k, hk⟩; exact ⟨k + 1, by omega⟩
-    have he2 : Even ((x - 1) + y) := by rcases hodd with ⟨k, hk⟩; exact ⟨k, by omega⟩
-    have he3 : Even (x + (y + 1)) := by rcases hodd with ⟨k, hk⟩; exact ⟨k + 1, by omega⟩
-    have he4 : Even (x + (y - 1)) := by rcases hodd with ⟨k, hk⟩; exact ⟨k, by omega⟩
-    change c ((2 * m + 2) + 1) x y = true
-    rw [cell_succ, hflip _ _ he1, hflip _ _ he2, hflip _ _ he3, hflip _ _ he4]
-    change (493 : ℕ).testBit ((c ((2 * m + 1) + 1) x y).toNat + _) = true
-    rw [cell_succ, hP1 x y hodd, Bool.toNat_true]
-    exact rule493_true_step2 (c (2 * m + 1) (x + 1) y) (c (2 * m + 1) (x - 1) y)
-      (c (2 * m + 1) x (y + 1)) (c (2 * m + 1) x (y - 1))
-  have hP2' : ∀ x y : ℤ, ((m + 1 : ℕ) : ℤ) < max |x| |y| → c (2 * (m + 1) + 1) x y = true := by
-    intro x y hgt
-    rcases Int.even_or_odd (x + y) with hev | hodd
-    · rw [← cell_abs]
-      set ax := |x|
-      set ay := |y|
-      have hax : 0 ≤ ax := abs_nonneg x
-      have hay : 0 ≤ ay := abs_nonneg y
-      have hgt' : (m : ℤ) + 1 < max ax ay := by push_cast at hgt; exact hgt
-      have hstep_ge : ∀ u v : ℤ, 0 ≤ v → v ≤ u → (m : ℤ) + 1 < u → c (2 * (m + 1) + 1) u v = true := by
-        intro u v hv huv hu
-        change c ((2 * m + 2) + 1) u v = true
-        rw [cell_succ]
-        have hc0 : c (2 * m + 2) u v = false := by
-          apply hOutEven; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-        have h1 : c (2 * m + 2) (u + 1) v = false := by
-          apply hOutEven; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-        have h3 : c (2 * m + 2) u (v + 1) = false := by
-          apply hOutEven; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-        have h4 : c (2 * m + 2) u (v - 1) = false := by
-          apply hOutEven; exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-        rw [hc0, h1, h3, h4]
-        simp only [Bool.toNat_false, zero_add, add_zero]
-        simpa using rule493_false_of_le1 (c (2 * m + 2) (u - 1) v).toNat (Bool.toNat_le _)
-      rcases le_or_gt ay ax with hle | hlt
-      · rw [max_eq_left hle] at hgt'
-        exact hstep_ge ax ay hay hle hgt'
-      · rw [max_eq_right (le_of_lt hlt)] at hgt'
-        rw [← cell_swap]
-        exact hstep_ge ay ax hax (le_of_lt hlt) hgt'
-    · exact hP1' x y hodd
-  have hP3' : ∀ x y : ℤ, |x| = |y| → |x| ≤ ((m + 1 : ℕ) : ℤ) → c (2 * (m + 1) + 1) x y = false := by
-    intro x y heq hle
-    rw [← cell_abs, ← heq]
-    lift |x| to ℕ using abs_nonneg x with k hk
-    have hk_le : k ≤ m + 1 := by omega
-    change c ((2 * m + 2) + 1) (k : ℤ) (k : ℤ) = false
-    rw [cell_succ]
-    have hE_kk : c (2 * m + 2) (k : ℤ) (k : ℤ) = !(c (2 * m + 1) (k : ℤ) (k : ℤ)) :=
-      hflip (k : ℤ) (k : ℤ) ⟨k, by ring⟩
-    by_cases hkm : k ≤ m
-    · have h0 : c (2 * m + 2) (k : ℤ) (k : ℤ) = true := by
-        rw [hE_kk, hP3 (k : ℤ) (k : ℤ) rfl (by rw [abs_of_nonneg (by omega)]; omega)]; rfl
-      have h1 : c (2 * m + 2) ((k : ℤ) + 1) (k : ℤ) = true := by rw [hAdjDiag k, decide_eq_true hkm]
-      have h3 : c (2 * m + 2) (k : ℤ) ((k : ℤ) + 1) = true := by rw [← cell_swap]; exact h1
-      have h2 : c (2 * m + 2) ((k : ℤ) - 1) (k : ℤ) = true := by
-        cases k with
-        | zero =>
-          norm_num
-          rw [show c (2 * m + 2) (-1) 0 = c (2 * m + 2) 1 0 from cell_neg_x _ 1 0]
-          simpa using hAdjDiag 0
-        | succ k' =>
-          have hsub : ((k' + 1 : ℕ) : ℤ) - 1 = (k' : ℤ) := by push_cast; ring
-          rw [hsub, ← cell_swap]
-          have hle' : k' ≤ m := by omega
-          simpa [Nat.cast_add, Nat.cast_one, hle'] using hAdjDiag k'
-      have h4 : c (2 * m + 2) (k : ℤ) ((k : ℤ) - 1) = true := by rw [← cell_swap]; exact h2
-      rw [h0, h1, h2, h3, h4]; decide
-    · have hkeq : k = m + 1 := by omega
-      subst hkeq
-      have h0 : c (2 * m + 2) ((m + 1 : ℕ) : ℤ) ((m + 1 : ℕ) : ℤ) = false := by
-        rw [hE_kk, hP2 _ _ (by rw [abs_of_nonneg (by omega)]; simp)]; rfl
-      have h1 : c (2 * m + 2) (((m + 1 : ℕ) : ℤ) + 1) ((m + 1 : ℕ) : ℤ) = false := by
-        rw [hAdjDiag (m + 1), decide_eq_false (by omega)]
-      have h3 : c (2 * m + 2) ((m + 1 : ℕ) : ℤ) (((m + 1 : ℕ) : ℤ) + 1) = false := by
-        rw [← cell_swap]; exact h1
-      have h2 : c (2 * m + 2) (((m + 1 : ℕ) : ℤ) - 1) ((m + 1 : ℕ) : ℤ) = true := by
-        have hsub : ((m + 1 : ℕ) : ℤ) - 1 = (m : ℤ) := by push_cast; ring
-        rw [hsub, ← cell_swap]
-        simpa [Nat.cast_add, Nat.cast_one] using hAdjDiag m
-      have h4 : c (2 * m + 2) ((m + 1 : ℕ) : ℤ) (((m + 1 : ℕ) : ℤ) - 1) = true := by
-        rw [← cell_swap]; exact h2
-      rw [h0, h1, h2, h3, h4]; decide
-  have hP4' : ∀ x y : ℤ, Even x → Even y → |(|x| - |y|)| = 2 → c (2 * (m + 1) + 1) x y = true := by
-    intro x y hx hy hdiff
-    rw [← cell_abs]
-    have hcore : ∀ j : ℕ, c (2 * (m + 1) + 1) (2 * (j : ℤ) + 2) (2 * (j : ℤ)) = true := by
-      intro j
-      change c ((2 * m + 2) + 1) (2 * (j : ℤ) + 2) (2 * (j : ℤ)) = true
-      rw [cell_succ]
-      have h0 : c (2 * m + 2) (2 * (j : ℤ) + 2) (2 * (j : ℤ)) = false := by
-        rw [hflip _ _ ⟨2 * j + 1, by ring⟩]
-        rw [hP4 _ _ ⟨j + 1, by ring⟩ ⟨j, by ring⟩ (abs_sub_abs_eq_two (by omega) (by omega) (by ring))]
-        rfl
-      have hW : c (2 * m + 2) (2 * (j : ℤ) + 2 - 1) (2 * (j : ℤ)) = decide (2 * j ≤ m) := by
-        have : 2 * (j : ℤ) + 2 - 1 = ((2 * j : ℕ) : ℤ) + 1 := by push_cast; ring
-        have h2j : 2 * (j : ℤ) = ((2 * j : ℕ) : ℤ) := by push_cast; ring
-        rw [this, h2j]; exact hAdjDiag (2 * j)
-      have hN : c (2 * m + 2) (2 * (j : ℤ) + 2) (2 * (j : ℤ) + 1) = decide (2 * j + 1 ≤ m) := by
-        have h1 : 2 * (j : ℤ) + 2 = ((2 * j + 1 : ℕ) : ℤ) + 1 := by push_cast; ring
-        have h2 : 2 * (j : ℤ) + 1 = ((2 * j + 1 : ℕ) : ℤ) := by push_cast; ring
-        rw [h1, h2]; exact hAdjDiag (2 * j + 1)
-      have hS : c (2 * m + 2) (2 * (j : ℤ) + 2) (2 * (j : ℤ) - 1) = decide (2 * j + 1 ≤ m) :=
-        hAdjOff2 j
-      rw [h0, hW, hN, hS]
-      by_cases hle : 2 * j + 1 ≤ m
-      · have hle0 : 2 * j ≤ m := by omega
-        rw [decide_eq_true hle0, decide_eq_true hle]
-        simp only [Bool.toNat_false, Bool.toNat_true]
-        have := Bool.toNat_le (c (2 * m + 2) (2 * (j : ℤ) + 2 + 1) (2 * (j : ℤ)))
-        exact rule493_false_of_ge3 _ (by omega) (by omega)
-      · have hE : c (2 * m + 2) (2 * (j : ℤ) + 2 + 1) (2 * (j : ℤ)) = false := by
-          apply hOutEven
-          exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _)
-        rw [hE, decide_eq_false hle]
-        cases (decide (2 * j ≤ m)) <;> decide
-    have hax_ev : Even |x| := by
-      rcases le_or_gt 0 x with h | h
-      · rwa [abs_of_nonneg h]
-      · rw [abs_of_neg h]; exact hx.neg
-    have hay_ev : Even |y| := by
-      rcases le_or_gt 0 y with h | h
-      · rwa [abs_of_nonneg h]
-      · rw [abs_of_neg h]; exact hy.neg
-    lift |x| to ℕ using abs_nonneg x with nx hnx
-    lift |y| to ℕ using abs_nonneg y with ny hny
-    have hnx_ev : Even nx := Int.even_coe_nat nx |>.mp hax_ev
-    have hny_ev : Even ny := Int.even_coe_nat ny |>.mp hay_ev
-    rcases le_or_gt ny nx with hle | hlt
-    · rcases hny_ev with ⟨j, rfl⟩
-      have hnx_eq : nx = 2 * j + 2 := by
-        rw [abs_of_nonneg (by omega)] at hdiff; omega
-      subst hnx_eq
-      simpa [Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat, two_mul] using hcore j
-    · rcases hnx_ev with ⟨j, rfl⟩
-      have hny_eq : ny = 2 * j + 2 := by
-        rw [abs_of_neg (by omega)] at hdiff; omega
-      subst hny_eq
-      rw [← cell_swap]
-      simpa [Nat.cast_add, Nat.cast_mul, Nat.cast_ofNat, two_mul] using hcore j
-  have hP5' : ∀ x y : ℤ, Odd x → Odd y → |(|x| - |y|)| = 2 →
-      max |x| |y| ≤ ((m + 1 : ℕ) : ℤ) → c (2 * (m + 1) + 1) x y = false := by
-    intro x y hx hy hdiff hle
-    rw [← cell_abs]
-    have hcore : ∀ j : ℕ, 1 ≤ j → 2 * j + 1 ≤ m + 1 →
-        c (2 * (m + 1) + 1) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 1) = false := by
-      intro j hj hjm
-      change c ((2 * m + 2) + 1) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 1) = false
-      rw [cell_succ]
-      have hE0 : c (2 * m + 2) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 1) =
-          !(c (2 * m + 1) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 1)) :=
-        hflip _ _ ⟨2 * j, by ring⟩
-      have hN : c (2 * m + 2) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 1 + 1) = decide (2 * j ≤ m) := by
-        have h1 : 2 * (j : ℤ) + 1 = ((2 * j : ℕ) : ℤ) + 1 := by push_cast; ring
-        have h2 : 2 * (j : ℤ) - 1 + 1 = ((2 * j : ℕ) : ℤ) := by push_cast; ring
-        rw [h1, h2]; exact hAdjDiag (2 * j)
-      have hW : c (2 * m + 2) (2 * (j : ℤ) + 1 - 1) (2 * (j : ℤ) - 1) = decide (2 * j - 1 ≤ m) := by
-        have h1 : 2 * (j : ℤ) + 1 - 1 = ((2 * j - 1 : ℕ) : ℤ) + 1 := by omega
-        have h2 : 2 * (j : ℤ) - 1 = ((2 * j - 1 : ℕ) : ℤ) := by omega
-        rw [h1, h2]; exact hAdjDiag (2 * j - 1)
-      have hE : c (2 * m + 2) (2 * (j : ℤ) + 1 + 1) (2 * (j : ℤ) - 1) = decide (2 * j + 1 ≤ m) := by
-        have h1 : 2 * (j : ℤ) + 1 + 1 = 2 * (j : ℤ) + 2 := by ring
-        rw [h1]; exact hAdjOff2 j
-      have hS_arg : 2 * (j : ℤ) - 1 - 1 = 2 * (j : ℤ) - 2 := by ring
-      rw [hN, hW, hE, hS_arg]
-      by_cases hlt : 2 * j + 1 ≤ m
-      · have h0 : c (2 * m + 2) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 1) = true := by
-          rw [hE0]
-          rw [hP5 _ _ ⟨j, by ring⟩ ⟨j - 1, by ring⟩
-            (abs_sub_abs_eq_two (by omega) (by omega) (by ring))
-            (by rw [abs_of_nonneg (by omega), abs_of_nonneg (by omega)]; omega)]
-          rfl
-        have hS : c (2 * m + 2) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2) = true := hAdjOff3_le j hj hlt
-        have h2j : 2 * j ≤ m := by omega
-        have h2j1 : 2 * j - 1 ≤ m := by omega
-        rw [h0, hS, decide_eq_true h2j, decide_eq_true h2j1, decide_eq_true hlt]
-        decide
-      · have hmeq : m = 2 * j := by omega
-        have h0 : c (2 * m + 2) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 1) = false := by
-          rw [hE0]
-          rw [hP2 _ _ (by exact lt_of_lt_of_le (by rw [abs_of_nonneg (by omega)]; omega) (le_max_left _ _))]
-          rfl
-        have hS : c (2 * m + 2) (2 * (j : ℤ) + 1) (2 * (j : ℤ) - 2) = false := hAdjOff3_eq j hj hmeq
-        have h2j : 2 * j ≤ m := by omega
-        have h2j1 : 2 * j - 1 ≤ m := by omega
-        rw [h0, hS, decide_eq_true h2j, decide_eq_true h2j1, decide_eq_false hlt]
-        decide
-    have hax_odd : Odd |x| := by
-      rcases le_or_gt 0 x with h | h
-      · rwa [abs_of_nonneg h]
-      · rw [abs_of_neg h]; exact hx.neg
-    have hay_odd : Odd |y| := by
-      rcases le_or_gt 0 y with h | h
-      · rwa [abs_of_nonneg h]
-      · rw [abs_of_neg h]; exact hy.neg
-    have nat_odd_of_int : ∀ n : ℕ, Odd (n : ℤ) → Odd n := fun n ⟨k, hk⟩ => ⟨k.toNat, by omega⟩
-    lift |x| to ℕ using abs_nonneg x with nx hnx
-    lift |y| to ℕ using abs_nonneg y with ny hny
-    have hnx_odd : Odd nx := nat_odd_of_int nx hax_odd
-    have hny_odd : Odd ny := nat_odd_of_int ny hay_odd
-    rcases le_or_gt ny nx with hle' | hlt'
-    · rcases hny_odd with ⟨r, rfl⟩
-      have hnx_eq : nx = 2 * (r + 1) + 1 := by
-        rw [abs_of_nonneg (by omega)] at hdiff; omega
-      subst hnx_eq
-      have hmax : 2 * (r + 1) + 1 ≤ m + 1 := by omega
-      have hcast1 : ((2 * (r + 1) + 1 : ℕ) : ℤ) = 2 * ((r + 1 : ℕ) : ℤ) + 1 := by push_cast; ring
-      have hcast2 : ((2 * r + 1 : ℕ) : ℤ) = 2 * ((r + 1 : ℕ) : ℤ) - 1 := by push_cast; ring
-      rw [hcast1, hcast2]
-      exact hcore (r + 1) (by omega) hmax
-    · rcases hnx_odd with ⟨r, rfl⟩
-      have hny_eq : ny = 2 * (r + 1) + 1 := by
-        rw [abs_of_neg (by omega)] at hdiff; omega
-      subst hny_eq
-      have hmax : 2 * (r + 1) + 1 ≤ m + 1 := by omega
-      rw [← cell_swap]
-      have hcast1 : ((2 * (r + 1) + 1 : ℕ) : ℤ) = 2 * ((r + 1 : ℕ) : ℤ) + 1 := by push_cast; ring
-      have hcast2 : ((2 * r + 1 : ℕ) : ℤ) = 2 * ((r + 1 : ℕ) : ℤ) - 1 := by push_cast; ring
-      rw [hcast1, hcast2]
-      exact hcore (r + 1) (by omega) hmax
-  exact ⟨hP1', hP2', hP3', hP4', hP5'⟩
+namespace OMA.A288663
 
-private lemma inv493_all (m : ℕ) : Inv493 m := by
-  induction m with
-  | zero => exact inv493_zero
-  | succ m ih => exact inv493_step ih
+lemma a_as_diagonal (t : ℕ) :
+    a t = ∑ j ∈ Finset.range (t + 1),
+      if cell 493 t (j : ℤ) (j : ℤ) then (2 : ℤ) ^ j else 0 := by
+  unfold a
+  rw [← Finset.sum_range_reflect (fun j : ℕ =>
+    if cell 493 t (j : ℤ) (j : ℤ) then (2 : ℤ) ^ j else 0)]
+  apply Finset.sum_congr rfl
+  intro j hj
+  have hle : j ≤ t := Nat.le_of_lt_succ (Finset.mem_range.mp hj)
+  simp only [Nat.add_sub_cancel, Nat.cast_sub hle]
 
-private lemma diag_odd (m j : ℕ) :
-    c (2 * m + 1) (j : ℤ) (j : ℤ) = decide (m < j) := by
-  have hinv := inv493_all m
-  by_cases hjm : m < j
-  · simp only [hjm, decide_true]
-    exact hinv.2.1 (j : ℤ) (j : ℤ) (by rw [abs_of_nonneg (by omega)]; simp; omega)
-  · simp only [hjm, decide_false]
-    exact hinv.2.2.1 (j : ℤ) (j : ℤ) rfl (by rw [abs_of_nonneg (by omega)]; omega)
+lemma two_sum (n : ℕ) : (∑ i ∈ Finset.range n, (2 : ℤ) ^ i) = 2 ^ n - 1 := by
+  simpa using geom_sum_mul (2 : ℤ) n
 
-private lemma diag_even_succ (m j : ℕ) :
-    c (2 * m + 2) (j : ℤ) (j : ℤ) = decide (j ≤ m) := by
-  rw [inv493_even_flip (inv493_all m) (j : ℤ) (j : ℤ) ⟨j, by ring⟩, diag_odd]
-  by_cases h : j ≤ m
-  · have h1 : ¬ (m < j) := by omega
-    simp [h, h1]
-  · have h1 : m < j := by omega
-    simp [h, h1]
+lemma prefix_sum (N m : ℕ) (h : m ≤ N) :
+    (∑ i ∈ Finset.range N, if i < m then (2 : ℤ) ^ i else 0) = 2 ^ m - 1 := by
+  have hf : (Finset.range N).filter (fun i => i < m) = Finset.range m := by
+    ext i
+    simp only [Finset.mem_filter, Finset.mem_range]
+    omega
+  rw [← Finset.sum_filter, hf, two_sum]
 
-private lemma a_eq_sum_rev (n : ℕ) :
-    a n = ∑ j ∈ Finset.range (n + 1), if c n (j : ℤ) (j : ℤ) then (2 : ℤ) ^ j else 0 := by
-  unfold a c
-  refine Finset.sum_bij (fun k _ => n - k) ?_ ?_ ?_ ?_
-  · intro k hk; rw [Finset.mem_range] at hk ⊢; omega
-  · intro k1 hk1 k2 hk2 h; rw [Finset.mem_range] at hk1 hk2; omega
-  · intro j hj; rw [Finset.mem_range] at hj
-    exact ⟨n - j, by rw [Finset.mem_range]; omega, by omega⟩
-  · intro k hk
-    rw [Finset.mem_range] at hk
-    have hcast : ((n : ℤ) - (k : ℤ)) = ((n - k : ℕ) : ℤ) := by omega
-    rw [hcast]
+lemma suffix_sum (N m : ℕ) (h : m ≤ N) :
+    (∑ i ∈ Finset.range N, if m ≤ i then (2 : ℤ) ^ i else 0) = 2 ^ N - 2 ^ m := by
+  have splitSum : ∀ i : ℕ, (if m ≤ i then (2 : ℤ) ^ i else 0) =
+      2 ^ i - (if i < m then 2 ^ i else 0) := by
+    intro i
+    by_cases hi : i < m
+    · simp [hi, Nat.not_le_of_lt hi]
+    · simp [hi, Nat.le_of_not_gt hi]
+  simp only [splitSum, Finset.sum_sub_distrib, two_sum, prefix_sum N m h]
+  ring
 
-private lemma sum_pow_two (k : ℕ) :
-    ∑ j ∈ Finset.range k, (2 : ℤ) ^ j = (2 : ℤ) ^ k - 1 := by
-  induction k with
-  | zero => simp
-  | succ k ih => rw [Finset.sum_range_succ, ih, pow_succ]; ring
+lemma closed493 (hd : ∀ t j : ℕ, cell 493 t (j : ℤ) (j : ℤ) = true ↔
+    ((t < 2*j ∧ t % 2 = 1) ∨ (2*j ≤ t ∧ t % 2 = 0 ∧ (2*j < t ∨ j = 0)))) :
+    a 0 = 1 ∧ (∀ m : ℕ, 1 ≤ m → a (2*m) = (2:ℤ)^m - 1) ∧
+    (∀ m : ℕ, a (2*m+1) = (4:ℤ)^(m+1) - (2:ℤ)^(m+1)) := by
+  refine ⟨by decide, ?_, ?_⟩
+  · intro m hm
+    rw [a_as_diagonal]
+    have hh (i : ℕ) : cell 493 (2*m) (i : ℤ) (i : ℤ) = true ↔ i < m := (hd _ _).trans (by omega)
+    simp only [hh]
+    exact prefix_sum _ _ (by omega)
+  · intro m
+    rw [a_as_diagonal]
+    have hh (i : ℕ) : cell 493 (2*m+1) (i : ℤ) (i : ℤ) = true ↔ m + 1 ≤ i := (hd _ _).trans (by omega)
+    simp only [hh]
+    rw [suffix_sum _ _ (by omega), show 2*m+1+1 = 2*(m+1) by omega, pow_mul]
+    norm_num
 
-private lemma a_zero : (a 0 : ℚ) = 1 := by decide
+end OMA.A288663
 
-private lemma a_even_pos (m : ℕ) : (a (2 * m + 2) : ℚ) = (2 : ℚ) ^ (m + 1) - 1 := by
-  have ha : a (2 * m + 2) = (2 : ℤ) ^ (m + 1) - 1 := by
-    rw [a_eq_sum_rev]
-    have hterm : ∀ j ∈ Finset.range (2 * m + 2 + 1),
-        (if c (2 * m + 2) (j : ℤ) (j : ℤ) then (2 : ℤ) ^ j else 0) =
-        if j < m + 1 then (2 : ℤ) ^ j else 0 := by
-      intro j _
-      rw [diag_even_succ m j]
-      by_cases h : j ≤ m
-      · have h1 : j < m + 1 := by omega
-        simp [h, h1]
-      · have h1 : ¬ (j < m + 1) := by omega
-        simp [h, h1]
-    rw [Finset.sum_congr rfl hterm, ← Finset.sum_filter]
-    have hfilt : (Finset.range (2 * m + 2 + 1)).filter (fun j => j < m + 1) = Finset.range (m + 1) := by
-      ext j; simp only [Finset.mem_filter, Finset.mem_range]; omega
-    rw [hfilt, sum_pow_two]
-  rw [ha]; push_cast; ring
+open OMA.S_oeis_a288663
 
-private lemma a_odd (m : ℕ) :
-    (a (2 * m + 1) : ℚ) = (2 : ℚ) ^ (2 * m + 2) - (2 : ℚ) ^ (m + 1) := by
-  have ha : a (2 * m + 1) = (2 : ℤ) ^ (2 * m + 2) - (2 : ℤ) ^ (m + 1) := by
-    rw [a_eq_sum_rev]
-    have hterm : ∀ j ∈ Finset.range (2 * m + 1 + 1),
-        (if c (2 * m + 1) (j : ℤ) (j : ℤ) then (2 : ℤ) ^ j else 0) =
-        if m < j then (2 : ℤ) ^ j else 0 := by
-      intro j _
-      rw [diag_odd m j]
-      simp
-    rw [Finset.sum_congr rfl hterm]
-    have hsplit : (∑ j ∈ Finset.range (2 * m + 2), (2 : ℤ) ^ j) =
-        (∑ j ∈ Finset.range (2 * m + 2), if m < j then (2 : ℤ) ^ j else 0) +
-        (∑ j ∈ Finset.range (2 * m + 2), if j ≤ m then (2 : ℤ) ^ j else 0) := by
-      rw [← Finset.sum_add_distrib]
-      refine Finset.sum_congr rfl fun j _ => ?_
-      by_cases h : m < j
-      · have h1 : ¬ (j ≤ m) := by omega
-        simp [h, h1]
-      · have h1 : j ≤ m := by omega
-        simp [h, h1]
-    have hlow : (∑ j ∈ Finset.range (2 * m + 2), if j ≤ m then (2 : ℤ) ^ j else 0) =
-        (2 : ℤ) ^ (m + 1) - 1 := by
-      rw [← Finset.sum_filter]
-      have hfilt : (Finset.range (2 * m + 2)).filter (fun j => j ≤ m) = Finset.range (m + 1) := by
-        ext j; simp only [Finset.mem_filter, Finset.mem_range]; omega
-      rw [hfilt, sum_pow_two]
-    have htot := sum_pow_two (2 * m + 2)
-    have hlen : 2 * m + 1 + 1 = 2 * m + 2 := by omega
-    rw [hlen]
-    linarith
-  rw [ha]; push_cast; ring
+namespace OMA.A288663
 
-private lemma a_rec (n : ℕ) (hn : 7 ≤ n) :
+lemma recurrence493
+    (he : ∀ m : ℕ, 1 ≤ m → a (2 * m) = (2 : ℤ) ^ m - 1)
+    (ho : ∀ m : ℕ, a (2 * m + 1) = (4 : ℤ) ^ (m + 1) - (2 : ℤ) ^ (m + 1))
+    (n : ℕ) (hn : 7 ≤ n) :
     (a n : ℚ) = 7 * a (n - 2) - 14 * a (n - 4) + 8 * a (n - 6) := by
-  obtain ⟨r, rfl⟩ : ∃ r, n = r + 7 := ⟨n - 7, by omega⟩
-  have h2 : r + 7 - 2 = r + 5 := by omega
-  have h4 : r + 7 - 4 = r + 3 := by omega
-  have h6 : r + 7 - 6 = r + 1 := by omega
-  rw [h2, h4, h6]
-  rcases Nat.even_or_odd r with ⟨k, rfl⟩ | ⟨k, rfl⟩
-  · have e1 : k + k + 7 = 2 * (k + 3) + 1 := by omega
-    have e2 : k + k + 5 = 2 * (k + 2) + 1 := by omega
-    have e3 : k + k + 3 = 2 * (k + 1) + 1 := by omega
-    have e4 : k + k + 1 = 2 * k + 1 := by omega
-    rw [e1, e2, e3, e4, a_odd, a_odd, a_odd, a_odd]
-    have p1 : (2 : ℚ) ^ (2 * (k + 3) + 2) = 64 * (2 : ℚ) ^ (2 * k + 2) := by
-      have : 2 * (k + 3) + 2 = (2 * k + 2) + 6 := by omega
-      rw [this, pow_add]; ring
-    have p2 : (2 : ℚ) ^ (2 * (k + 2) + 2) = 16 * (2 : ℚ) ^ (2 * k + 2) := by
-      have : 2 * (k + 2) + 2 = (2 * k + 2) + 4 := by omega
-      rw [this, pow_add]; ring
-    have p3 : (2 : ℚ) ^ (2 * (k + 1) + 2) = 4 * (2 : ℚ) ^ (2 * k + 2) := by
-      have : 2 * (k + 1) + 2 = (2 * k + 2) + 2 := by omega
-      rw [this, pow_add]; ring
-    have q1 : (2 : ℚ) ^ (k + 3 + 1) = 8 * (2 : ℚ) ^ (k + 1) := by
-      have : k + 3 + 1 = (k + 1) + 3 := by omega
-      rw [this, pow_add]; ring
-    have q2 : (2 : ℚ) ^ (k + 2 + 1) = 4 * (2 : ℚ) ^ (k + 1) := by
-      have : k + 2 + 1 = (k + 1) + 2 := by omega
-      rw [this, pow_add]; ring
-    have q3 : (2 : ℚ) ^ (k + 1 + 1) = 2 * (2 : ℚ) ^ (k + 1) := by
-      have : k + 1 + 1 = (k + 1) + 1 := by omega
-      rw [this, pow_add]; ring
-    rw [p1, p2, p3, q1, q2, q3]
+  by_cases hh : n % 2 = 0
+  · obtain ⟨k, rfl⟩ : ∃ k, n = 2 * (k + 4) := ⟨n / 2 - 4, by omega⟩
+    rw [show 2 * (k + 4) - 2 = 2 * (k + 3) by omega,
+      show 2 * (k + 4) - 4 = 2 * (k + 2) by omega,
+      show 2 * (k + 4) - 6 = 2 * (k + 1) by omega,
+      he _ (by omega), he _ (by omega), he _ (by omega), he _ (by omega)]
+    push_cast
+    simp only [pow_add]
     ring
-  · have e1 : 2 * k + 1 + 7 = 2 * (k + 3) + 2 := by omega
-    have e2 : 2 * k + 1 + 5 = 2 * (k + 2) + 2 := by omega
-    have e3 : 2 * k + 1 + 3 = 2 * (k + 1) + 2 := by omega
-    have e4 : 2 * k + 1 + 1 = 2 * k + 2 := by omega
-    rw [e1, e2, e3, e4, a_even_pos, a_even_pos, a_even_pos, a_even_pos]
-    have q1 : (2 : ℚ) ^ (k + 3 + 1) = 8 * (2 : ℚ) ^ (k + 1) := by
-      have : k + 3 + 1 = (k + 1) + 3 := by omega
-      rw [this, pow_add]; ring
-    have q2 : (2 : ℚ) ^ (k + 2 + 1) = 4 * (2 : ℚ) ^ (k + 1) := by
-      have : k + 2 + 1 = (k + 1) + 2 := by omega
-      rw [this, pow_add]; ring
-    have q3 : (2 : ℚ) ^ (k + 1 + 1) = 2 * (2 : ℚ) ^ (k + 1) := by
-      have : k + 1 + 1 = (k + 1) + 1 := by omega
-      rw [this, pow_add]; ring
-    rw [q1, q2, q3]
+  · obtain ⟨k, rfl⟩ : ∃ k, n = 2 * (k + 3) + 1 := ⟨n / 2 - 3, by omega⟩
+    rw [show 2 * (k + 3) + 1 - 2 = 2 * (k + 2) + 1 by omega,
+      show 2 * (k + 3) + 1 - 4 = 2 * (k + 1) + 1 by omega,
+      show 2 * (k + 3) + 1 - 6 = 2 * k + 1 by omega, ho, ho, ho, ho]
+    push_cast
+    simp only [pow_add]
     ring
 
-private lemma a_val_1 : (a 1 : ℚ) = 2 := by rw [show (1 : ℕ) = 2 * 0 + 1 from rfl, a_odd 0]; norm_num
-private lemma a_val_2 : (a 2 : ℚ) = 1 := by rw [show (2 : ℕ) = 2 * 0 + 2 from rfl, a_even_pos 0]; norm_num
-private lemma a_val_3 : (a 3 : ℚ) = 12 := by rw [show (3 : ℕ) = 2 * 1 + 1 from rfl, a_odd 1]; norm_num
-private lemma a_val_4 : (a 4 : ℚ) = 3 := by rw [show (4 : ℕ) = 2 * 1 + 2 from rfl, a_even_pos 1]; norm_num
-private lemma a_val_5 : (a 5 : ℚ) = 56 := by rw [show (5 : ℕ) = 2 * 2 + 1 from rfl, a_odd 2]; norm_num
-private lemma a_val_6 : (a 6 : ℚ) = 7 := by rw [show (6 : ℕ) = 2 * 2 + 2 from rfl, a_even_pos 2]; norm_num
+open PowerSeries in
+lemma algebra (ha0 : a 0 = 1)
+    (heven : ∀ m : ℕ, 1 ≤ m → a (2 * m) = (2 : ℤ) ^ m - 1)
+    (hodd : ∀ m : ℕ, a (2 * m + 1) = (4 : ℤ) ^ (m + 1) - (2 : ℤ) ^ (m + 1)) :
+    type_of% @OMA.S_oeis_a288663.main := by
+  have hrec := recurrence493 heven hodd
+  refine ⟨?_, hrec⟩
+  let s := PowerSeries.mk (fun n => (a n : ℚ))
+  change s * _ = _
+  have left : s * ((1 - X) * (1 + X) * (1 - 2 * X) * (1 + 2 * X) * (1 - 2 * X ^ 2)) =
+      s - 7 • (s * X ^ 2) + 14 • (s * X ^ 4) - 8 • (s * X ^ 6) := by
+    simp only [nsmul_eq_mul]
+    ring
+  have right : (1 + 2 * X - 6 * X ^ 2 - 2 * X ^ 3 + 10 * X ^ 4 - 8 * X ^ 6 : PowerSeries ℚ) =
+      1 + 2 • X - 6 • X ^ 2 - 2 • X ^ 3 + 10 • X ^ 4 - 8 • X ^ 6 := by
+    simp only [nsmul_eq_mul, Nat.cast_ofNat]
+  rw [left, right]
+  apply PowerSeries.ext
+  intro n
+  simp only [map_add, map_sub, map_nsmul, coeff_mul_X_pow', coeff_X_pow, coeff_X, coeff_one,
+    s, coeff_mk]
+  simp only [nsmul_eq_mul, Nat.cast_ofNat]
+  by_cases h : 7 ≤ n
+  · simp only [if_pos (show 2 ≤ n by omega), if_pos (show 4 ≤ n by omega),
+      if_pos (show 6 ≤ n by omega), if_neg (show n ≠ 0 by omega),
+      if_neg (show n ≠ 1 by omega), if_neg (show n ≠ 2 by omega),
+      if_neg (show n ≠ 3 by omega), if_neg (show n ≠ 4 by omega),
+      if_neg (show n ≠ 6 by omega)]
+    linarith [hrec n h]
+  · have h1 : a 1 = 2 := by simpa using hodd 0
+    have h2 : a 2 = 1 := by simpa using heven 1 (by decide)
+    have h3 : a 3 = 12 := by convert hodd 1 using 1; norm_num
+    have h4 : a 4 = 3 := by convert heven 2 (by decide) using 1; norm_num
+    have h5 : a 5 = 56 := by convert hodd 2 using 1; norm_num
+    have h6 : a 6 = 7 := by convert heven 3 (by decide) using 1; norm_num
+    have hn : n ≤ 6 := by omega
+    interval_cases n <;> norm_num [ha0, h1, h2, h3, h4, h5, h6]
 
-private lemma coeff_mul_X_pow (f : ℚ⟦X⟧) (k n : ℕ) :
-    PowerSeries.coeff n (f * X ^ k) = if k ≤ n then PowerSeries.coeff (n - k) f else 0 :=
-  PowerSeries.coeff_mul_X_pow' f k n
 
-private lemma gf_eq :
-    PowerSeries.mk (fun n => (a n : ℚ)) *
-      ((1 - X) * (1 + X) * (1 - 2 * X) * (1 + 2 * X) * (1 - 2 * X ^ 2) : PowerSeries ℚ) =
-      1 + 2 * X - 6 * X ^ 2 - 2 * X ^ 3 + 10 * X ^ 4 - 8 * X ^ 6 := by
-  set A : ℚ⟦X⟧ := PowerSeries.mk (fun n => (a n : ℚ))
-  have hD : ((1 - X) * (1 + X) * (1 - 2 * X) * (1 + 2 * X) * (1 - 2 * X ^ 2) : ℚ⟦X⟧) =
-      1 - C (7 : ℚ) * X ^ 2 + C (14 : ℚ) * X ^ 4 - C (8 : ℚ) * X ^ 6 := by
-    simp only [map_ofNat]; ring
-  have hN : (1 + 2 * X - 6 * X ^ 2 - 2 * X ^ 3 + 10 * X ^ 4 - 8 * X ^ 6 : ℚ⟦X⟧) =
-      C (1 : ℚ) + C (2 : ℚ) * X ^ 1 - C (6 : ℚ) * X ^ 2 - C (2 : ℚ) * X ^ 3 +
-      C (10 : ℚ) * X ^ 4 - C (8 : ℚ) * X ^ 6 := by
-    simp only [map_one, map_ofNat, pow_one]
-  rw [hD, hN]
-  ext n
-  have hmul : A * (1 - C (7 : ℚ) * X ^ 2 + C (14 : ℚ) * X ^ 4 - C (8 : ℚ) * X ^ 6) =
-      A - C (7 : ℚ) * (A * X ^ 2) + C (14 : ℚ) * (A * X ^ 4) - C (8 : ℚ) * (A * X ^ 6) := by ring
-  rw [hmul]
-  simp only [map_add, map_sub, PowerSeries.coeff_C, PowerSeries.coeff_C_mul,
-    PowerSeries.coeff_X_pow, coeff_mul_X_pow, A, PowerSeries.coeff_mk]
-  match n with
-  | 0 => simp [a_zero]
-  | 1 => simp [a_val_1]
-  | 2 => simp [a_zero, a_val_2]; norm_num
-  | 3 => simp [a_val_1, a_val_3]; norm_num
-  | 4 => simp [a_zero, a_val_2, a_val_4]; norm_num
-  | 5 => simp [a_val_1, a_val_3, a_val_5]; norm_num
-  | 6 => simp [a_zero, a_val_2, a_val_4, a_val_6]; norm_num
-  | r + 7 =>
-    have hrec := a_rec (r + 7) (by omega)
-    have h0 : r + 7 ≠ 0 := by omega
-    have h1 : r + 7 ≠ 1 := by omega
-    have h2 : r + 7 ≠ 2 := by omega
-    have h3 : r + 7 ≠ 3 := by omega
-    have h4 : r + 7 ≠ 4 := by omega
-    have h6 : r + 7 ≠ 6 := by omega
-    have hge2 : 2 ≤ r + 7 := by omega
-    have hge4 : 4 ≤ r + 7 := by omega
-    have hge6 : 6 ≤ r + 7 := by omega
-    simp only [h0, h1, h2, h3, h4, h6, hge2, hge4, hge6, ↓reduceIte, mul_zero, add_zero, sub_zero]
-    linarith
+theorem of_diagonal (hd : ∀ t j : ℕ, cell 493 t (j : ℤ) (j : ℤ) = true ↔
+    ((t < 2*j ∧ t % 2 = 1) ∨ (2*j ≤ t ∧ t % 2 = 0 ∧ (2*j < t ∨ j = 0)))) :
+    type_of% @OMA.S_oeis_a288663.main := by
+  obtain ⟨h0, he, ho⟩ := closed493 hd
+  exact algebra h0 he ho
 
-end OMA.Proof_oeis_a288663
+end OMA.A288663
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a288663.main :=
-  ⟨OMA.Proof_oeis_a288663.gf_eq, OMA.Proof_oeis_a288663.a_rec⟩
+  OMA.A288663.of_diagonal OMA.A288663.diagonal
