@@ -1130,10 +1130,7 @@ private lemma not_integrableOn_of_prime_intervals {f : ℝ → ℝ}
           (by
             filter_upwards [ae_restrict_mem measurableSet_Ioi] with t ht
             exact hf_nn t ht)
-          (Eventually.of_forall fun t ht => by
-            simp only [Set.mem_iUnion] at ht
-            obtain ⟨p, hp, htp⟩ := ht
-            exact hsub p hp htp)
+          (Eventually.of_forall (Set.iUnion₂_subset hsub))
   have hdiff_fin : (Function.support fun p : Nat.Primes =>
       (1 / ((p : ℕ) : ℝ)) - c⁻¹ * g p).Finite := by
     have hsub : Function.support (fun p : Nat.Primes => (1 / ((p : ℕ) : ℝ)) - c⁻¹ * g p) ⊆
