@@ -377,7 +377,7 @@ theorem unbounded_on_one_pair {I : Type} [LinearOrder I]
 binary labels at an odd coordinate colour. In any monochromatic triangle the
 labels coincide and the two incoming within-label colours agree. -/
 private theorem binary_label_palette :
-    ∃ edge : (ℕ → Bool) → (ℕ → Bool) → ℕ → ℕ, ∀ A B C i j k,
+    ∃ edge : (ℕ → Bool) → (ℕ → Bool) → ℕ → ℕ, (∀ A i, edge A A i = 2*i) ∧ ∀ A B C i j k,
       edge A B i = edge A C j → edge A B i = edge B C k →
       A = C ∧ B = C ∧ j = k := by
   classical
@@ -385,7 +385,7 @@ private theorem binary_label_palette :
     by_contra! same
     exact h (funext same)
   let edge (A B : ℕ → Bool) (i : ℕ) := if h : A = B then 2*i else 2*(diff h).choose+1
-  refine ⟨edge,?_⟩
+  refine ⟨edge,fun A i => by simp [edge],?_⟩
   intro A B C i j k ab ac
   by_cases h : A = B
   · subst B
@@ -412,6 +412,69 @@ private theorem binary_label_palette :
       cases a <;> cases b <;> cases c <;> decide
     exact False.elim (impossible _ _ _ (diff h).choose_spec hg hf)
 
+/-- Within a label fibre, compare candidate spoke colours with the actual
+old edge colour. The even coding is shared by all within-fibre edges. -/
+theorem greedy_edge_painter {I : Type} [LinearOrder I] [WellFoundedLT I] :
+    ∃ paint : I → Set (I × I) → I → ℕ, ∀ (G : SimpleGraph I) (j : I),
+      let past := fun i => {p : I × I | p.1 ≤ i ∧ p.2 ≤ i ∧ G.Adj p.1 p.2}
+      (∀ lab : I → (ℕ → Bool), ∃ (k : ℕ → Bool) (d : I → ℕ), ∀ a b,
+        a < b → b < j → G.Adj a j → G.Adj b j → G.Adj a b →
+        lab a = k → lab b = k → d a = d b → paint b (past b) a ≠ 2*d a) →
+      ∀ a b, a < b → b < j → G.Adj a b → G.Adj a j → G.Adj b j →
+        paint b (past b) a = paint j (past j) a → paint b (past b) a ≠ paint j (past j) b := by
+  classical
+  obtain ⟨edge,diag,palette⟩ := binary_label_palette
+  let Prefix := Set (I × I)
+  let State := (ℕ → Bool) × (I → ℕ)
+  let cut (s : Prefix) (i : I) := {p : I × I | p.1 ≤ i ∧ p.2 ≤ i ∧ p ∈ s}
+  let labels (j : I) (rec : ∀ i : I, i < j → Prefix → State) (s : Prefix) (i : I) :=
+    if h : i < j then (rec i h (cut s i)).1 else fun _ => false
+  let oldIndex (j : I) (rec : ∀ i : I, i < j → Prefix → State) (s : Prefix) (a b : I) :=
+    if h : b < j then (rec b h (cut s b)).2 a else 0
+  let good (j : I) (s : Prefix) (lab : I → ℕ → Bool) (old : I → I → ℕ) (v : State) :=
+    ∀ a b : I, a < b → b < j → (a,j) ∈ s → (b,j) ∈ s → (a,b) ∈ s →
+      lab a = v.1 → lab b = v.1 → v.2 a = v.2 b → old a b ≠ v.2 a
+  let chooseState (j : I) (rec : ∀ i : I, i < j → Prefix → State) (s : Prefix) : State :=
+    if h : ∃ v, good j s (labels j rec s) (oldIndex j rec s) v then h.choose
+    else (fun _ => false,fun _ => 0)
+  let state : I → Prefix → State := wellFounded_lt.fix chooseState
+  have law (j : I) (s : Prefix) : state j s = chooseState j (fun i _ => state i) s :=
+    congrFun (WellFounded.fix_eq _ _ j) s
+  let paint (j : I) (s : Prefix) (a : I) :=
+    edge (state a (cut s a)).1 (state j s).1 ((state j s).2 a)
+  refine ⟨paint,?_⟩
+  intro G j past localOK a b ab bj gab gaj gbj mono clash
+  have trunc {u v : I} (le : u ≤ v) : cut (past v) u = past u := by
+    ext p
+    exact ⟨fun h => ⟨h.1,h.2.1,h.2.2.2.2⟩,fun h =>
+      ⟨h.1,h.2.1,h.1.trans le,h.2.1.trans le,h.2.2⟩⟩
+  let lab := labels j (fun i _ => state i) (past j)
+  have earlier {i : I} (h : i < j) : lab i = (state i (past i)).1 := by
+    simp [lab,labels,h,trunc h.le]
+  let old := oldIndex j (fun i _ => state i) (past j)
+  have stored {u v : I} (vj : v < j) : old u v = (state v (past v)).2 u := by
+    simp [old,oldIndex,vj,trunc vj.le]
+  obtain ⟨k,d,possible⟩ := localOK lab
+  have existsGood : ∃ v, good j (past j) lab old v := by
+    refine ⟨(k,d),?_⟩
+    intro u v uv vj hu hv he lu lv same collision
+    apply possible u v uv vj hu.2.2 hv.2.2 he.2.2 lu lv same
+    have labs := (earlier (uv.trans vj)).symm.trans ((lu.trans lv.symm).trans (earlier vj))
+    change old u v = d u at collision
+    simp only [paint,trunc uv.le,labs,diag,← stored vj,collision]
+  have usable : good j (past j) lab old (state j (past j)) := by
+    rw [law j (past j)]
+    change good j (past j) lab old (if h : ∃ v, good j (past j) lab old v then h.choose else _)
+    rw [dif_pos existsGood]
+    exact existsGood.choose_spec
+  have aj := ab.trans bj
+  simp only [paint,trunc ab.le,trunc bj.le,trunc aj.le] at mono clash
+  obtain ⟨ha,hb,same⟩ := palette _ _ _ _ _ _ mono clash
+  have forbid := usable a b ab bj ⟨aj.le,le_rfl,gaj⟩ ⟨bj.le,le_rfl,gbj⟩ ⟨aj.le,bj.le,gab⟩
+    ((earlier aj).trans ha) ((earlier bj).trans hb) same
+  rw [ha,hb,diag,diag] at mono
+  exact forbid ((stored bj).trans (by omega))
+
 /-- A single Painter localizes any defeat to a large family of disjoint
 obstructions in the earlier neighbourhood of the LAST vertex of a bad
 triangle. If every assignment of real labels has some countably colourable
@@ -424,45 +487,59 @@ theorem greedy_rim_painter {I : Type} [LinearOrder I] [WellFoundedLT I] :
       ∀ a b, a < b → b < j → G.Adj a b → G.Adj a j → G.Adj b j →
         let past := fun i => {p : I × I | p.1 ≤ i ∧ p.2 ≤ i ∧ G.Adj p.1 p.2}
         paint b (past b) a = paint j (past j) a → paint b (past b) a ≠ paint j (past j) b := by
-  classical
-  obtain ⟨edge,palette⟩ := binary_label_palette
-  let Prefix := Set (I × I)
-  let State := (ℕ → Bool) × (I → ℕ)
-  let cut (s : Prefix) (i : I) := {p : I × I | p.1 ≤ i ∧ p.2 ≤ i ∧ p ∈ s}
-  let labels (j : I) (rec : ∀ i : I, i < j → Prefix → State) (s : Prefix) (i : I) :=
-    if h : i < j then (rec i h (cut s i)).1 else fun _ => false
-  let good (j : I) (s : Prefix) (lab : I → ℕ → Bool) (v : State) := ∀ a b : I,
-    a < j → b < j → (a,j) ∈ s → (b,j) ∈ s → (a,b) ∈ s →
-    lab a = v.1 → lab b = v.1 → v.2 a ≠ v.2 b
-  let chooseState (j : I) (rec : ∀ i : I, i < j → Prefix → State) (s : Prefix) : State :=
-    if h : ∃ v, good j s (labels j rec s) v then h.choose else (fun _ => false,fun _ => 0)
-  let state : I → Prefix → State := wellFounded_lt.fix chooseState
-  have law (j : I) (s : Prefix) : state j s = chooseState j (fun i _ => state i) s :=
-    congrFun (WellFounded.fix_eq _ _ j) s
-  let paint (j : I) (s : Prefix) (a : I) :=
-    edge (state a (cut s a)).1 (state j s).1 ((state j s).2 a)
-  refine ⟨paint,?_⟩
-  intro G j localOK a b ab bj gab gaj gbj past mono clash
-  have trunc {u v : I} (le : u ≤ v) : cut (past v) u = past u := by
-    ext p
-    exact ⟨fun h => ⟨h.1,h.2.1,h.2.2.2.2⟩,fun h =>
-      ⟨h.1,h.2.1,h.1.trans le,h.2.1.trans le,h.2.2⟩⟩
-  let lab := labels j (fun i _ => state i) (past j)
-  have earlier {i : I} (h : i < j) : lab i = (state i (past i)).1 := by
-    simp [lab,labels,h,trunc h.le]
+  obtain ⟨p,works⟩ := greedy_edge_painter (I := I)
+  refine ⟨p,?_⟩
+  intro G j localOK
+  apply works G j
+  intro lab
   obtain ⟨k,d,proper⟩ := localOK lab
-  have existsGood : ∃ v, good j (past j) lab v :=
-    ⟨(k,d),fun u v uj vj hu hv uv => proper u v uj vj hu.2.2 hv.2.2 uv.2.2⟩
-  have usable : good j (past j) lab (state j (past j)) := by
-    rw [law j (past j)]
-    change good j (past j) lab (if h : ∃ v, good j (past j) lab v then h.choose else _)
-    rw [dif_pos existsGood]
-    exact existsGood.choose_spec
-  have aj := ab.trans bj
-  simp only [paint,trunc ab.le,trunc bj.le,trunc aj.le] at mono clash
-  obtain ⟨ha,hb,same⟩ := palette _ _ _ _ _ _ mono clash
-  exact usable a b aj bj ⟨aj.le,le_rfl,gaj⟩ ⟨bj.le,le_rfl,gbj⟩ ⟨aj.le,bj.le,gab⟩
-    ((earlier aj).trans ha) ((earlier bj).trans hb) same
+  exact ⟨k,d,fun a b ab bj ha hb he la lb eq =>
+    False.elim (proper a b (ab.trans bj) bj ha hb he la lb eq)⟩
+
+/-- The same Painter works on every play. For a fixed witness take its first
+monochromatic triangle stage. A single earlier colouring then obstructs every
+even spoke assignment in every fibre of one real labelling of the rim. -/
+theorem first_blocked_rim {I : Type} [LinearOrder I] [WellFoundedLT I] :
+    ∃ paint : I → Set (I × I) → I → ℕ, ∀ (G : SimpleGraph I),
+      ¬ Erdos595.IsCountableUnionOfTriangleFree G →
+      let old := fun a b => paint b {p : I × I | p.1 ≤ b ∧ p.2 ≤ b ∧ G.Adj p.1 p.2} a
+      let fails := fun t => ∃ a b, a < b ∧ b < t ∧ G.Adj a b ∧ G.Adj a t ∧ G.Adj b t ∧
+        old a b = old a t ∧ old a b = old b t
+      ∃ j, fails j ∧ (∀ t < j, ¬fails t) ∧ ∃ lab : I → ℕ → Bool,
+        ∀ (k : ℕ → Bool) (d : I → ℕ), ∃ a b, a < b ∧ b < j ∧
+          G.Adj a j ∧ G.Adj b j ∧ G.Adj a b ∧ lab a = k ∧ lab b = k ∧
+          d a = d b ∧ old a b = 2*d a := by
+  classical
+  obtain ⟨paint,works⟩ := greedy_edge_painter (I := I)
+  refine ⟨paint,?_⟩
+  intro G bad old fails
+  obtain ⟨a,b,c,ab,bc,gab,gac,gbc,mono⟩ := fixed_play G bad paint
+  have someFail : {t | fails t}.Nonempty := ⟨c,a,b,ab,bc,gab,gac,gbc,mono⟩
+  obtain ⟨j,hj,first⟩ := wellFounded_lt.has_min {t | fails t} someFail
+  refine ⟨j,hj,fun t lt ht => first t ht lt,?_⟩
+  by_contra! possible
+  obtain ⟨u,v,uv,vj,guv,guj,gvj,x,y⟩ := hj
+  exact works G j possible u v uv vj guv guj gvj x y
+
+/-- Apply to the ordered rim edges within one fibre of first_blocked_rim.
+Deleting any countably vertex-colourable set still leaves an edge of each
+even colour. In particular no countable vertex cover hits a whole such layer. -/
+theorem blocked_colour_survives {I : Type} (R : I → I → Prop) (old : I → I → ℕ)
+    (blocked : ∀ d : I → ℕ, ∃ a b, R a b ∧ d a = d b ∧ old a b = 2*d a)
+    (S : Set I) (proper : ∃ f : I → ℕ, ∀ a b, R a b → a ∈ S → b ∈ S → f a ≠ f b)
+    (m : ℕ) : ∃ a b, R a b ∧ a ∉ S ∧ b ∉ S ∧ old a b = 2*m := by
+  classical
+  obtain ⟨f,hf⟩ := proper
+  let d (a : I) := if a ∈ S then m+1+f a else m
+  obtain ⟨a,b,edge,same,hit⟩ := blocked d
+  by_cases ha : a ∈ S <;> by_cases hb : b ∈ S
+  · simp only [d,if_pos ha,if_pos hb] at same
+    exact False.elim (hf a b edge ha hb (by omega))
+  · simp only [d,if_pos ha,if_neg hb] at same
+    omega
+  · simp only [d,if_neg ha,if_pos hb] at same
+    omega
+  · exact ⟨a,b,edge,ha,hb,by simpa [d,ha] using hit⟩
 
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
