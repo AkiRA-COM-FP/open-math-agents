@@ -357,9 +357,16 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
       if [ "$OMAX" -gt 0 ] && [ "$N" -le "$OMAX" ] && [ -z "${OPEN[$N]:-}" ] && [ -z "${MODE:-}" ]; then
         touch "done/$ID.$ATT"; DROPPED=$((DROPPED + 1)); continue   # merged or closed since: nothing to report
       fi
-      printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$N" "$ID" "$SHA" "$ATT" "$URL" "$UPD" "$CONC" "$TITLE" "${MODE:-}" >> next.tsv
+      # rejections and faults first: they merge nothing, so the filing order does not apply to them, and their authors
+      # should hear at once; accepted runs stay oldest pull request first
+      P=1; [ "$CONC" = success ] || [ -n "${MODE:-}" ] || P=0
+      printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$P" "$N" "$ID" "$SHA" "$ATT" "$URL" "$UPD" "$CONC" "$TITLE" "${MODE:-}" >> next.tsv
     done < all.tsv
-    mapfile -t QL < <(sort -t$'\t' -k1,1n -k2,2n next.tsv | cut -f2-); QI=0
+    # one check-proof run per pull request: the newest (an older run is of an older head, which verdict_one.sh would
+    # only find stale after an API call); runs of the batch checker and requeued runs are kept
+    sort -t$'\t' -k2,2n -k3,3nr next.tsv | awk -F'\t' -v D="$ROOT/done" '$10 != "" || $2 == 999999 || !seen[$2]++ {print; next} {print D "/" $3 "." $5 > "dupes.txt"}' > next_u.tsv
+    [ -s dupes.txt ] && { xargs -r touch < dupes.txt; DROPPED=$((DROPPED + $(wc -l < dupes.txt))); rm -f dupes.txt; }
+    mapfile -t QL < <(sort -t$'\t' -k1,1n -k2,2n -k3,3n next_u.tsv | cut -f3-); QI=0
     [ "$DROPPED" -gt 0 ] && echo "$(date -u +%H:%M:%S) queue: dropped $DROPPED runs of closed pull requests, ${#QL[@]} left" >> "$ROOT/merger_out.txt"
   fi
   # every free slot takes the next item at once
