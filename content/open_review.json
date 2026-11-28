@@ -8107,6 +8107,58 @@
     "https://en.wikipedia.org/wiki/Lehmer%27s_totient_problem"
    ],
    "reason": "Second review: The formal statement is faithful to the comment but the comment is not an open problem: it is an asserted, definitional observation (uphi = phi on squarefree numbers) plus Lehmer's 1932 squarefreeness lemma. Proving it does not resolve anything open, so it should not be announced as a solved conjecture."
+  },
+  "Erdos357.erdos_357.variants.monotone.parts.ii.littleO_version_symm": {
+   "date": "2026-11-28",
+   "pr": 10206,
+   "evidence": [
+    "https://www.erdosproblems.com/357",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/ErdosProblems/357.lean"
+   ],
+   "reason": "The answer function is a `sorry` placeholder and the solver supplies g(n) = n log n. Since the one-term sums must be distinct, a weakly increasing sequence is strictly increasing, so h(n) <= n follows from the definition and h = o(n log n) is immediate. This is a weak placeholder answer to 'find a good explicit g', not progress on the open question (whether h = o(n)); the proof header says so itself."
+  },
+  "mo-196613": {
+   "date": "2026-11-28",
+   "pr": 10376,
+   "evidence": [
+    "https://mathoverflow.net/questions/196613"
+   ],
+   "reason": "The disproof takes a = 1 and the minus sign: by the functional equation, xi(s) - xi(1-s) vanishes identically, so s = 2 is a 'zero' off the critical line. That degenerate case follows directly from xi(s) = xi(1-s) and plainly is not what the asker meant (for a = 1 with the plus sign the conjecture is RH). The question's real content is untouched."
+  },
+  "mo-445970": {
+   "date": "2026-11-28",
+   "pr": 24185,
+   "evidence": [
+    "https://mathoverflow.net/questions/445970"
+   ],
+   "reason": "The disproof (n = 1, A = E12, B = E11) exploits which side the unitary is on. XX* = YY* only forces X = YU with U acting on the right. In the comments the asker answers 'A_i = B_i U_i' with 'I would like to get the same Sigma (U in your notation) for all i', so the intended question is A_i = B_i Sigma with one common right unitary. The formalization takes the literal left-multiplication typo, which already fails for n = 1, and leaves the intended question open."
+  },
+  "oeis-a000382": {
+   "date": "2026-11-28",
+   "pr": 23817,
+   "evidence": [
+    "https://oeis.org/A000382",
+    "https://oeis.org/A008305"
+   ],
+   "reason": "The sequence is defined by Heinz's Maple matrix program, which encodes Plouffe's conjectured g.f. 1/((z-1)(z^3+z^2+z-1)), so the recurrence a(n) = a(n-1)+a(n-2)+a(n-3)-2 follows from the definition through a linear invariant. The real conjecture concerns the combinatorial sequence (column 4 of A008305 divided by 4), and the statement file itself notes that this column gives 66 at n = 8 where the listed term is 65. The formalization is tautological and says nothing about the restricted-permutation count."
+  },
+  "oeis-a005319": {
+   "date": "2026-11-28",
+   "pr": 24157,
+   "evidence": [
+    "https://oeis.org/A005319",
+    "https://oeis.org/A090390",
+    "https://oeis.org/A046729"
+   ],
+   "reason": "The disproof uses n = 0, where the literal identity reads -1 = 3. With the OEIS offsets the literal identity fails at every n (I computed n = 0..7), so the comment as printed has an index slip. The corrected version (-1)^(n+1) = A090390(n+1) + A001542(n+1) + A046729(n) - A005319(n+1) holds for all n I checked. The disproof exploits the off-by-one rather than settling Dement's intended identity."
+  },
+  "oeis-a008934": {
+   "date": "2026-11-28",
+   "pr": 16618,
+   "evidence": [
+    "https://oeis.org/A008934"
+   ],
+   "reason": "Irwin's nested-sum 'conjecture' just unrolls the definition: a tournament sequence continues from a_i to a_i + j with j in 1..a_i, and nest m s sums over these choices with the new limit s + j. The proof is the direct induction seqsFrom m s = nest m s. It is faithful, but it follows from the definition and is not an open problem."
   }
  },
  "known": {
@@ -14659,6 +14711,193 @@
     "https://oeis.org/A111967/a111967.pdf"
    ],
    "reason": "Second review: Effectively settled in 2021: Mathar proved the A111967 row-sum conjecture and recorded in A127749 that the A127750 parity conjecture is equivalent; the equivalence is immediate since A^-1 = B^-1 diag(2k+1). The A127750 entry itself was never updated, which is why it looked open."
+  },
+  "Erdos394.erdos_394.variants.hall_conjecture": {
+   "date": "2026-11-28",
+   "pr": 7277,
+   "evidence": [
+    "https://www.erdosproblems.com/forum/thread/394/proof-claims",
+    "https://paratelligent.com/research/papers/erdos-problem-394-and-the-average-order-of-t-2-a-counterexample-6CWZNbA5"
+   ],
+   "reason": "Disproof of the Erdos-Hall strong conjecture (o(x^2/(log x)^c) for all c < log 2). The proof header says the prime-times-squarefree construction is from Pickhardt and the Paratelligent agent; their proof claim on erdosproblems.com (2026-07-23) gives sum >> x^2/((log x)^{1/2} log log x) and states that the strong conjecture is false. This predates the 2026-11-27 merge, and the formalization follows that public solution."
+  },
+  "Erdos569.erdos_569": {
+   "date": "2026-11-28",
+   "pr": 7045,
+   "evidence": [
+    "https://www.erdosproblems.com/forum/thread/569/proof-claims",
+    "https://www.erdosproblems.com/569"
+   ],
+   "reason": "The answer is c_k = 2k+1, attained by H = K_2 (R(C_{2k+1},K_2) = 2k+1), with R(C_{2k+1},H) <= (2k+1)m proved by induction. Stijn Cambie and Andrea Freschi posted exactly this claim (c_k = 2k+1, extremal H = K_2) on erdosproblems.com on 2026-07-25, before the merge. Note also that the formal sInf ranges over all m including m = 1, so K_2 fixes the lower bound; that matches the problem as worded."
+  },
+  "Erdos597.erdos_597": {
+   "date": "2026-11-28",
+   "pr": 5032,
+   "evidence": [
+    "https://hexagonmath.org/pdf/2611.00783v1",
+    "https://www.erdosproblems.com/forum/thread/597/proof-claims"
+   ],
+   "reason": "A ZFC counterexample to the unrestricted (aleph_1-vertex) statement. The proof header says it formalizes Sections 2-3 of the 2026 preprint by Howe, Huffman, Kohlmeyer and Kruer. Alex Chengyu Li also posted a negative answer to the unrestricted part (via Baumgartner and Shelah) on erdosproblems.com on 2026-09-09. The finite-target variant is untouched."
+  },
+  "Erdos820.erdos_820.variants.two_pow_upper": {
+   "date": "2026-11-28",
+   "pr": 10466,
+   "evidence": [
+    "https://www.erdosproblems.com/forum/thread/820/proof-claims",
+    "https://www.erdosproblems.com/forum/discuss/820"
+   ],
+   "reason": "Upper bound K(n) < exp(n^{(c+eps)/loglog n}) via a sieve and the divisor bound. Liam Price posted on 2026-07-16 a proof claim, with a Lean formalisation, that K(n) < exp(n^{(log 2+eps)/loglog n}). That claim answers this variant and predates the merge; van Doorn's forum comment refers to it. The formal statement matches the source question."
+  },
+  "Green84.green_84.variants.ultraflat_mod": {
+   "date": "2026-11-28",
+   "pr": 5158,
+   "evidence": [
+    "https://math.ucr.edu/~mcc/paper/132%20DL.pdf",
+    "https://people.maths.ox.ac.uk/greenbj/papers/open-problems.pdf#problem.84"
+   ],
+   "reason": "Construction: q = p^3 - 1, A = {log_g(theta + a) : a in F_p}, |A| = p ~ q^{1/3}. Each nontrivial Fourier coefficient of A is a multiplicative character sum sum_a chi(theta+a), which Katz's theorem (J. AMS 2 (1989) 197-200) bounds by (n-1)sqrt(p) = 2 sqrt(p) <= 3 q^{1/6}. So the answer is an immediate consequence of a classical 1989 theorem; Green only said he was 'not sure if it is known'. The formalization re-proves Katz's degree-3 bound (Stepanov method), which is real work. The formal statement itself is faithful."
+  },
+  "mo-127368": {
+   "date": "2026-11-28",
+   "pr": 23952,
+   "evidence": [
+    "https://mathoverflow.net/questions/127368/two-products-over-primes#comment328396_127368"
+   ],
+   "reason": "f(2) = 21/(2 pi^2) and g(1) = 315 zeta(3)/(2 pi^4). Emerton's 2013 comment on the question gives f(k) = zeta(2k)/zeta(3k) and g(k) = zeta(2k)zeta(3k)/zeta(6k), which settle both values. The proof header says it formalizes that comment."
+  },
+  "mo-266649": {
+   "date": "2026-11-28",
+   "pr": 24080,
+   "evidence": [
+    "https://mathoverflow.net/questions/266649"
+   ],
+   "reason": "Disproof by C_6: every automorphism of a cyclic group fixes every subgroup. This counterexample (and C_pq in general) is given in the question's comments by Derek Holt and others, and the statement file itself says so. The follow-up 'non-cyclic' version is not formalized."
+  },
+  "mo-342399": {
+   "date": "2026-11-28",
+   "pr": 10525,
+   "evidence": [
+    "https://mathoverflow.net/questions/342399"
+   ],
+   "reason": "The right adjoint of an R-linear functor is R-linear. A comment on the question already gives the argument (the hom-bijection's inverse is F followed by postcomposition with the counit, both R-linear), and the Lean proof is exactly that one-liner. Standard and already answered in the comments."
+  },
+  "mo-351446": {
+   "date": "2026-11-28",
+   "pr": 23988,
+   "evidence": [
+    "https://mathoverflow.net/questions/351446"
+   ],
+   "reason": "Yes, by simultaneous approximation or Poincare recurrence: make all m*alpha_i nearly integers, then n = m+1 works. The question's comments (fedja and others) give exactly this argument, and the statement file itself labels the problem as known."
+  },
+  "mo-440995": {
+   "date": "2026-11-28",
+   "pr": 22625,
+   "evidence": [
+    "https://math.stackexchange.com/questions/4639883",
+    "https://mathoverflow.net/questions/440995"
+   ],
+   "reason": "Sum of A_p = 7(p^2-1)/24 for p = 1 mod 4. This was proved in the accepted answer (Feb 2023) to the MSE crosspost 4639883, which the MO asker acknowledges in a comment ('I received a proof in the other thread'). The formal statement is faithful, but the result is already proved."
+  },
+  "mo-93323": {
+   "date": "2026-11-28",
+   "pr": 24174,
+   "evidence": [
+    "https://mathoverflow.net/questions/93323"
+   ],
+   "reason": "The disproof certifies a zero of zeta^(8)(s) - zeta^(8)(1-s) near 0.76267016 + 5.79824402i, off the critical line inside the strip. joro's 2012 answer already gives exactly this zero (rho_8 = 0.762670158543... + 5.798244021544...i, plus one for k = 11) as a counterexample in the critical strip, and the asker accepts it in the comments. The Lean work rigorously certifies a numerically known counterexample."
+  },
+  "mse-4553718": {
+   "date": "2026-11-28",
+   "pr": 24460,
+   "evidence": [
+    "https://math.stackexchange.com/a/3759624",
+    "https://math.stackexchange.com/questions/4553718"
+   ],
+   "reason": "The colours return after exactly ord_{2n-1}(2) out-shuffles. The statement file itself says the full colour-period result was proved by Angina Seng in 2020 (MSE answer 3759624) and that this contribution formalizes a known result. Qiaochu Yuan's answer on the question also discusses it."
+  },
+  "mse-948616": {
+   "date": "2026-11-28",
+   "pr": 22633,
+   "evidence": [
+    "https://math.stackexchange.com/questions/948616"
+   ],
+   "reason": "Both parts follow from the asker's generalized Korselt criterion. If d+1 is not squarefree, its proper multiples are not squarefree. If d+1 is squarefree, p(d+1) with p = 1 mod phi(d+1) works, and Dirichlet gives infinitely many such p. Answer 1335913 (2015) on the question gives exactly this argument, and the Lean proof follows the same route."
+  },
+  "opg-rotas-unimodal-conjecture": {
+   "date": "2026-11-28",
+   "pr": 7186,
+   "evidence": [
+    "https://arxiv.org/abs/2607.22515",
+    "https://arxiv.org/abs/2608.07342"
+   ],
+   "reason": "A counterexample to Rota's unimodality conjecture for Whitney numbers of the second kind: a linear matroid built by a lifting/apex construction, failing unimodality near rank 895. The conjecture was already disproved by Divoux, Lowen and Wang, 'Matroid flat counts are not unimodal' (arXiv 2607.22515, July 2026), and Divoux, Larson, Lowen and Wang (arXiv 2608.07342) give many-peak examples. This predates the merge. The formal statement of the conjecture is faithful."
+  },
+  "wp-kung-traub-conjecture": {
+   "date": "2026-11-28",
+   "pr": 7620,
+   "evidence": [
+    "https://palomar-registry.org/entry.html?id=PALOMAR-2026-09-20-000006&version=1",
+    "https://arxiv.org/abs/2610.40660"
+   ],
+   "reason": "The Kung-Traub bound 2^(n-1) for memoryless multipoint iterations was already proved by M. J. Colbrook ('Adversarial Wronskians: A proof of the Kung-Traub conjecture', arXiv 2610.40660), with a Lean formalization registered on Palomar on 2026-09-20. The statement file itself cites Colbrook for the precise model, and the proof uses the same Wronskian approach."
+  },
+  "oeis-a001581": {
+   "date": "2026-11-28",
+   "pr": 24720,
+   "evidence": [
+    "https://oeis.org/A001581"
+   ],
+   "reason": "Disproof of Plouffe's conjectured rational g.f. for the zero-Grundy positions of Fibonacci nim. The entry already records (Boon Suan Ho, Oct 07 2023) that the g.f. agrees up to z^26 but gives 150 instead of 144 at z^27. The Lean proof certifies that same known discrepancy."
+  },
+  "oeis-a001792": {
+   "date": "2026-11-28",
+   "pr": 24153,
+   "evidence": [
+    "https://oeis.org/A001792",
+    "https://oeis.org/A098156"
+   ],
+   "reason": "Dement's identity a(n-1) + A098156(n+1) = 2a(n) (with a(-1) = 0) is a one-line consequence of the closed forms. A098156 already lists the g.f. (1-2x+x^2+x^3)/(1-2x)^2 and a(n) = 2^(n-3)(3n+4) (Zhang 2016), and a(n) = (n+2)2^(n-1). The formalization (interleaving and binomial transform) is faithful and I checked it numerically, but the statement is settled by formulas already in the OEIS."
+  },
+  "oeis-a002716": {
+   "date": "2026-11-28",
+   "pr": 9893,
+   "evidence": [
+    "https://oeis.org/A002716"
+   ],
+   "reason": "Mathar's 2007 conjecture a(2n+1) = 2^(2^(n+1)) + 1. The same entry has Somos's 2012 formula a(2n+1) = A000215(n+1) (the Fermat numbers), stated as fact, which is exactly this claim. It is also a two-line induction on the recursion, which the proof does."
+  },
+  "oeis-a002822": {
+   "date": "2026-11-28",
+   "pr": 13811,
+   "evidence": [
+    "https://oeis.org/A002822",
+    "https://oeis.org/A263282"
+   ],
+   "reason": "Selcoe's claim (6j in the sequence implies j in it) was already refuted in the entry by Jason Kimberley (Oct 13 2015) with the same counterexample j = 63 (2267 and 2269 are prime, 377 = 13*29); the counterexamples form A263282. The proof header cites this."
+  },
+  "oeis-a006231": {
+   "date": "2026-11-28",
+   "pr": 13569,
+   "evidence": [
+    "https://github.com/thatnealpatel/proofs/blob/39d62b2756138ba92e60b82067aac771d7624ff5/Proofs/Enumerative/A006231SumMathar.lean"
+   ],
+   "reason": "Mathar's 2013 recurrence for A006231. It is already proved in Lean in thatnealpatel/proofs (Proofs/Enumerative/A006231SumMathar.lean, in the 2026-10-25 snapshot), by the same route: auxiliary sums c(n) = a(n)+n, e(n) = A000522 and first-order recurrences. The formal statement here is faithful."
+  },
+  "oeis-a006451": {
+   "date": "2026-11-28",
+   "pr": 24326,
+   "evidence": [
+    "https://oeis.org/A006451"
+   ],
+   "reason": "Plouffe's g.f. for the k with k(k+1)/2 + 1 a square. The entry itself labels it 'Conjectured (correctly)', and the result is classical: k(k+1)+2 = 2m^2 is a Pell-type equation whose solutions form two orbits under (k,m) -> (3k+4m+1, 2k+3m+1), which is exactly what the proof formalizes. The formal statement (Nat.nth with offset 0, g.f. times its denominator) is faithful."
+  },
+  "oeis-a007808": {
+   "date": "2026-11-28",
+   "pr": 24437,
+   "evidence": [
+    "https://oeis.org/A007808"
+   ],
+   "reason": "Plouffe's (corrected) e.g.f. 1 + (1 - (x^2+1)e^{-x})e^x/(x-1)^2 simplifies to (e^x - 2x)/(1-x)^2, which is exactly Somos's 2011 e.g.f. already in the entry. The rounding formula a(n) = round(n! n (e-2)) follows in a few lines from the closed forms already listed (Deutsch 2006, Freedman 2014), giving a(n) = n n!(sum_{k<=n} 1/k! - 2) + 1. Faithful formalization, but no new content."
   }
  },
  "reviewed": "2026-11-28"
