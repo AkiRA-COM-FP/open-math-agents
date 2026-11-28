@@ -10,21 +10,11 @@ theorem lucas_add_two (n : ℕ) : lucas (n + 2) = lucas (n + 1) + lucas n := rfl
 theorem fib2 (n : ℕ) : (Nat.fib (n + 2) : ℤ) = Nat.fib n + Nat.fib (n + 1) := by
   exact_mod_cast Nat.fib_add_two
 
-theorem lucas_pair (n : ℕ) : ((lucas n : ℤ) = 2 * Nat.fib (n + 1) - Nat.fib n) ∧
-    ((lucas (n + 1) : ℤ) = 2 * Nat.fib (n + 2) - Nat.fib (n + 1)) := by
-  induction n with
-  | zero => simp [lucas, Nat.fib_two]
-  | succ n ih =>
-    refine ⟨ih.2, ?_⟩
-    show ((lucas (n + 2) : ℕ) : ℤ) = 2 * (Nat.fib (n + 3) : ℤ) - Nat.fib (n + 2)
-    have f0 := fib2 n
-    have f1 := fib2 (n + 1)
-    rw [lucas_add_two]
-    push_cast
-    rw [show n + 1 + 2 = n + 3 from rfl, show n + 1 + 1 = n + 2 from rfl] at f1
-    linear_combination ih.1 + ih.2 + f0 - 2 * f1
-
-theorem lucas_int (n : ℕ) : (lucas n : ℤ) = 2 * Nat.fib (n + 1) - Nat.fib n := (lucas_pair n).1
+theorem lucas_int : ∀ n, (lucas n : ℤ) = 2 * Nat.fib (n + 1) - Nat.fib n
+  | 0 => by simp [lucas]
+  | 1 => by simp [lucas, Nat.fib_two]
+  | n + 2 => by
+    rw [lucas_add_two]; push_cast [lucas_int n, lucas_int (n + 1), Nat.fib_add_two]; ring
 
 theorem cassini (n : ℕ) :
     (Nat.fib (n + 1) : ℤ) ^ 2 - Nat.fib n * Nat.fib (n + 2) = (-1) ^ n := by
@@ -51,13 +41,8 @@ theorem dbl2 (n : ℕ) : (Nat.fib (2 * n + 2) : ℤ) =
   ring
 
 theorem dbl0 (n : ℕ) : (Nat.fib (2 * n) : ℤ) = Nat.fib n * lucas n := by
-  have h1 := dbl1 n
-  have h2 := dbl2 n
-  have h3 := fib2 (2 * n)
-  have h4 := fib2 n
-  rw [show 2 * n + 2 = 2 * n + 2 from rfl] at h3
-  rw [lucas_int]
-  linear_combination h2 - h1 - h3 + (Nat.fib (n + 1) : ℤ) * h4
+  rw [Nat.fib_two_mul, lucas_int, Nat.cast_mul, Nat.cast_sub (by linarith [@Nat.fib_le_fib_succ n])]
+  push_cast; ring
 
 theorem dbl0_nat (n : ℕ) : Nat.fib (2 * n) = Nat.fib n * lucas n := by
   exact_mod_cast dbl0 n
@@ -143,17 +128,9 @@ theorem geom (q : ℕ) : ∀ t : ℕ,
 
 theorem forberg : Forberg := by
   intro p hp hp2 he m i hm
-  have hne : {k : ℕ | p ∣ lucas k}.Nonempty := by
-    by_contra h
-    rw [Set.not_nonempty_iff_eq_empty] at h
-    rw [lucasEntry, h, Nat.sInf_empty] at he
-    exact lt_irrefl 0 he
-  have hpe : p ∣ lucas (lucasEntry p) := Nat.sInf_mem hne
+  have hpe : p ∣ lucas (lucasEntry p) := Nat.sInf_mem (Nat.nonempty_of_pos_sInf he)
   set e := lucasEntry p with he_def
-  obtain ⟨J, hJ⟩ : ∃ J, p = 2 * J + 1 := by
-    rcases (hp.eq_two_or_odd') with h | ⟨J, hJ⟩
-    · omega
-    · exact ⟨J, hJ⟩
+  obtain ⟨J, hJ⟩ : ∃ J, p = 2 * J + 1 := ⟨p / 2, by have := hp.eq_two_or_odd; omega⟩
   have hpJ : (2 * (J : ℤ) + 1) = p := by rw [hJ]; push_cast; ring
   have key : ∀ t : ℕ, (p : ℤ) ^ (t + 1) ∣ lucas (e * p ^ t) := by
     intro t
@@ -176,13 +153,9 @@ theorem forberg : Forberg := by
   obtain ⟨q, rfl⟩ : ∃ q, p = q + 1 := ⟨p - 1, by omega⟩
   have hidx : e + e * (q + 1 - 1) * (∑ j ∈ Finset.Icc 1 (t + 1 - 1), (q + 1) ^ (j - 1))
       + 2 * i * e * (q + 1) ^ (t + 1 - 1) = (2 * i + 1) * (e * (q + 1) ^ t) := by
-    simp only [Nat.add_sub_cancel]
     have hg := geom q t
-    simp only [Nat.add_sub_cancel] at hg
-    calc e + e * q * (∑ j ∈ Finset.Icc 1 t, (q + 1) ^ (j - 1)) + 2 * i * e * (q + 1) ^ t
-        = e * (1 + q * ∑ j ∈ Finset.Icc 1 t, (q + 1) ^ (j - 1)) + 2 * i * e * (q + 1) ^ t := by
-          ring
-      _ = (2 * i + 1) * (e * (q + 1) ^ t) := by rw [hg]; ring
+    simp only [Nat.add_sub_cancel] at *
+    rw [← hg]; ring
   rw [hidx]
   obtain ⟨v, hv⟩ := (dick (e * (q + 1) ^ t) i).2
   have hs : (lucas (e * (q + 1) ^ t) : ℤ) ∣ lucas ((2 * i + 1) * (e * (q + 1) ^ t)) := by
@@ -235,9 +208,7 @@ theorem fib_dvd_iff (n : ℕ) : p ∣ Nat.fib n ↔ alpha p ∣ n := by
       rw [g]; exact Nat.dvd_gcd (dvd_fib_alpha p) h
     have h2 : alpha p ≤ Nat.gcd (alpha p) n :=
       Nat.find_min' (exists_fib_dvd p) ⟨Nat.gcd_pos_of_pos_left _ (alpha_pos p), h1⟩
-    have h3 : Nat.gcd (alpha p) n ≤ alpha p := Nat.gcd_le_left _ (alpha_pos p)
-    have h4 : Nat.gcd (alpha p) n = alpha p := le_antisymm h3 h2
-    rw [← h4]; exact Nat.gcd_dvd_right _ _
+    rw [← le_antisymm (Nat.gcd_le_left _ (alpha_pos p)) h2]; exact Nat.gcd_dvd_right _ _
   · intro h
     exact (dvd_fib_alpha p).trans (Nat.fib_dvd _ _ h)
 
@@ -336,11 +307,8 @@ theorem pisano_eq :
   have := orderOf_dvd_of_pow_eq_one e1
   exact Nat.le_of_dvd hk (Nat.mul_dvd_mul_left _ this)
 
-theorem two_ne (h2 : p ≠ 2) : (2 : ZMod p) ≠ 0 := by
-  intro h
-  have : ((2 : ℕ) : ZMod p) = 0 := by exact_mod_cast h
-  rw [ZMod.natCast_eq_zero_iff] at this
-  exact h2 ((Nat.prime_dvd_prime_iff_eq hp.out Nat.prime_two).mp this)
+theorem two_ne (h2 : p ≠ 2) : (2 : ZMod p) ≠ 0 := fun h => h2
+  ((Nat.prime_dvd_prime_iff_eq hp.out Nat.prime_two).mp ((ZMod.natCast_eq_zero_iff _ _).mp (by exact_mod_cast h)))
 
 theorem neg_one_ne (h2 : p ≠ 2) : (-1 : ZMod p) ≠ 1 := by
   intro h
@@ -377,10 +345,7 @@ theorem frob (h2 : p ≠ 2) :
     rw [QuadraticAlgebra.ext_iff, QuadraticAlgebra.re_natCast, QuadraticAlgebra.im_natCast,
       QuadraticAlgebra.re_zero, QuadraticAlgebra.im_zero]
     simp [ZMod.natCast_eq_zero_iff]
-  have hodd : p = 2 * (p / 2) + 1 := by
-    rcases hpr.eq_two_or_odd' with h | h
-    · exact absurd h h2
-    · obtain ⟨k, hk⟩ := h; omega
+  have hodd : p = 2 * (p / 2) + 1 := by have := hpr.eq_two_or_odd; omega
   set s : QuadraticAlgebra (ZMod p) 1 1 := ⟨-1, 2⟩ with hs
   have hss : s * s = ⟨5, 0⟩ := by ext <;> simp [hs] <;> norm_num
   have hsp : s ^ p = ⟨-(5 : ZMod p) ^ (p / 2), 2 * 5 ^ (p / 2)⟩ := by
@@ -388,7 +353,7 @@ theorem frob (h2 : p ≠ 2) :
       qa_pow]
     ext <;> simp [hs] <;> ring
   have h1s : (1 + s) = (⟨2, 0⟩ : QuadraticAlgebra (ZMod p) 1 1) * ⟨0, 1⟩ := by
-    ext <;> simp [hs, QuadraticAlgebra.re_one, QuadraticAlgebra.im_one] <;> norm_num
+    ext <;> simp [hs, QuadraticAlgebra.re_one, QuadraticAlgebra.im_one]
   have hfr := add_pow_char (1 : QuadraticAlgebra (ZMod p) 1 1) s p
   have hw := w_pow p (p - 1)
   rw [Nat.sub_add_cancel hpr.one_le] at hw
@@ -401,11 +366,8 @@ theorem frob (h2 : p ≠ 2) :
   · linear_combination 2 * h
   · exact absurd h (two_ne p h2)
 
-theorem five_ne (h5 : p ≠ 5) : (5 : ZMod p) ≠ 0 := by
-  intro h
-  have : ((5 : ℕ) : ZMod p) = 0 := by exact_mod_cast h
-  rw [ZMod.natCast_eq_zero_iff] at this
-  exact h5 ((Nat.prime_dvd_prime_iff_eq hp.out (by norm_num)).mp this)
+theorem five_ne (h5 : p ≠ 5) : (5 : ZMod p) ≠ 0 := fun h => h5
+  ((Nat.prime_dvd_prime_iff_eq hp.out (by norm_num)).mp ((ZMod.natCast_eq_zero_iff _ _).mp (by exact_mod_cast h)))
 
 theorem sq5_1 : IsSquare ((1 : ℕ) : ZMod 5) := ⟨1, by decide⟩
 theorem sq5_4 : IsSquare ((4 : ℕ) : ZMod 5) := ⟨2, by decide⟩
@@ -442,10 +404,8 @@ theorem chi (h2 : p ≠ 2) (h5 : p ≠ 5) :
       · exact nsq5_3 ⟨r, hr⟩
     · exact h'
 
-theorem alpha_odd (h : DividesNoLucas p) : ¬ 2 ∣ alpha p := by
-  intro h2a
-  obtain ⟨n, hn⟩ := (exists_lucas_iff p (ne2_of_noLucas p h)).mpr h2a
-  exact h.2 n hn
+theorem alpha_odd (h : DividesNoLucas p) : ¬ 2 ∣ alpha p := fun h2a =>
+  ((exists_lucas_iff p (ne2_of_noLucas p h)).mpr h2a).elim h.2
 
 theorem c_sq_noLucas (h : DividesNoLucas p) : (Nat.fib (alpha p - 1) : ZMod p) ^ 2 = -1 := by
   have hao := alpha_odd p h
@@ -466,10 +426,7 @@ theorem purathSecond : PurathSecond := by
   have h2 := ne2_of_noLucas p h
   have hao := alpha_odd p h
   have hc2 := c_sq_noLucas p h
-  have hpo : p % 2 = 1 := by
-    rcases h.1.eq_two_or_odd with h' | h'
-    · exact absurd h' h2
-    · exact h'
+  have hpo : p % 2 = 1 := h.1.eq_two_or_odd.resolve_left h2
   have h4 : p % 4 = 1 := by
     have : IsSquare (-1 : ZMod p) := ⟨_, by rw [← hc2, sq]⟩
     have := ZMod.exists_sq_eq_neg_one_iff.mp this
@@ -478,10 +435,8 @@ theorem purathSecond : PurathSecond := by
     Nat.coprime_comm.mp ((Nat.Prime.coprime_iff_not_dvd Nat.prime_two).mpr hao)
   have hcop4 : Nat.Coprime (alpha p) 4 := by
     simpa using Nat.Coprime.pow_right 2 hcop2
-  have hm5 : p % 5 ≠ 0 := by
-    intro h0
-    have : 5 ∣ p := Nat.dvd_of_mod_eq_zero h0
-    exact h5 ((Nat.prime_dvd_prime_iff_eq (by norm_num) h.1).mp this).symm
+  have hm5 : p % 5 ≠ 0 := fun h0 =>
+    h5 ((Nat.prime_dvd_prime_iff_eq (by norm_num) h.1).mp (Nat.dvd_of_mod_eq_zero h0)).symm
   obtain ⟨hA, hB⟩ := frob p h2
   obtain ⟨cA, cB⟩ := chi p h2 h5
   have hp1 : 1 ≤ p := h.1.one_le
@@ -543,9 +498,7 @@ theorem purathThird : PurathThird := by
     have hc : (Nat.fib (alpha p - 1) : ZMod p) = -(-1) ^ m := by
       have hL : p ∣ lucas m := (lucas_dvd_iff p h2 m).mpr ⟨by rw [hm], fun hd => by
         have := Nat.le_of_dvd (by omega) hd; omega⟩
-      have hL' : (((lucas m : ℤ)) : ZMod p) = 0 := by
-        have : ((lucas m : ℕ) : ZMod p) = 0 := (ZMod.natCast_eq_zero_iff _ _).mpr hL
-        exact_mod_cast this
+      have hL' : (((lucas m : ℤ)) : ZMod p) = 0 := by exact_mod_cast (ZMod.natCast_eq_zero_iff _ _).mpr hL
       rw [lucas_int] at hL'
       push_cast at hL'
       have hcas := congrArg (Int.cast : ℤ → ZMod p) (cassini m)
