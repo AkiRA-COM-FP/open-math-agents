@@ -1,4 +1,5 @@
-import Mathlib
+import Mathlib.RingTheory.PowerSeries.Basic
+import Mathlib.SetTheory.Cardinal.Finite
 
 /-!
 # Restricted permutations on a three-row board (OEIS A264273)
