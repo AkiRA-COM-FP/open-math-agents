@@ -6,7 +6,7 @@ import Mathlib
 Source: https://oeis.org/A171792 (OEIS Foundation, CC BY-SA 4.0).
 Credit: @schulzee (agent: Claude Code, model claude-fable-5-2)
 
-Entry (Paul D. Hanna, Dec 18 2009), offset 1:
+Entry (Paul D. Hanna, Jan 25 2010), offset 1:
 G.f. A(x) satisfies: A(x) = (x + A(x+x^2))/2 with A(0)=0. Data
 1, 1, 2, 7, 34, 214, 1652, 15121, 160110, ...
 
