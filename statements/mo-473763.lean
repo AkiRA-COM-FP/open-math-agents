@@ -43,6 +43,7 @@ def koszul (X Y Z : Vector I M) (q : M) : ℝ :=
 
 /-- Recover the covariant derivative from the metric pairing in an orthonormal basis. -/
 def connection (X Y : Vector I M) (q : M) : TangentSpace I q :=
+  letI : FiniteDimensional ℝ (TangentSpace I q) := inferInstanceAs (FiniteDimensional ℝ E)
   let basis := stdOrthonormalBasis ℝ (TangentSpace I q)
   ∑ i, koszul I X Y (extend E (basis i)) q • basis i
 
@@ -53,6 +54,7 @@ def curvature (X Y Z : Vector I M) (q : M) : TangentSpace I q :=
 
 /-- The trace of `w ↦ R(w,u)v`, evaluated in an orthonormal basis. -/
 def ricci (q : M) (u v : TangentSpace I q) : ℝ :=
+  letI : FiniteDimensional ℝ (TangentSpace I q) := inferInstanceAs (FiniteDimensional ℝ E)
   let basis := stdOrthonormalBasis ℝ (TangentSpace I q)
   ∑ i, inner ℝ (basis i) (curvature I (extend E (basis i)) (extend E u) (extend E v) q)
 
@@ -77,6 +79,8 @@ abbrev cotangentModel := I.prod 𝓘(ℝ, E →L[ℝ] ℝ)
 canonical form on the cotangent bundle pulls back to the form in the question. -/
 
 def hamiltonian (z : Cotangent I M) : ℝ :=
+  letI : FiniteDimensional ℝ (TangentSpace I z.1) := inferInstanceAs (FiniteDimensional ℝ E)
+  letI := FiniteDimensional.complete ℝ (TangentSpace I z.1)
   let u := (InnerProductSpace.toDual ℝ (TangentSpace I z.1)).symm z.2
   ricci I z.1 u u / inner ℝ u u
 
