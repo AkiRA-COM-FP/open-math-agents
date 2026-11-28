@@ -25,3 +25,4 @@ theorem main : ∀ n : ℕ, 1 ≤ n → n ∉ ({1, 16, 292} : Finset ℕ) →
   sorry
 
 end OMA.S_oeis_a227908
+-- ci: re-run check-proof
