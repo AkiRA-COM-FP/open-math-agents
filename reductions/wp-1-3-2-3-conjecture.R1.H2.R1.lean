@@ -17,7 +17,7 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
       7 ≤ N.ncard ∧ (∀ a b : Q, a ≠ b → 2 * C P [] <
         3 * ((N.ncard+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ∧
         3 * min (C Q [(a,b)]) (C Q [(b,a)]) < C P []) ∧
-      (∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d ∧
+      (∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a ⋖ b ∧ b ⋖ c ∧ c ⋖ d ∧
       let blocked (l : List (P × P)) (i j : P) := ∃ (r : P ≃ Fin (Fintype.card P)) (z : P),
         StrictMono r ∧ (∀ p ∈ l, r p.1 < r p.2) ∧ r i < r z ∧ r z < r j ∧ (i < z ∨ z < j);
       let jump (u v : P) := let l := [(u,x),(x,v)];
@@ -330,6 +330,116 @@ lemma four_chain_obstructions (P : Type) [PartialOrder P] [Fintype P] :
   · exact Or.inr (Or.inr (Or.inl (middle a b (by simp) (by simp) lo hi mass)))
   · exact Or.inr (Or.inr (Or.inr (Or.inl (middle b c (by simp) (by simp) lo hi mass))))
   · exact Or.inr (Or.inr (Or.inr (Or.inr (middle c d (by simp) (by simp) lo hi mass))))
+
+-- The interval between two neighbors of x stays in the incomparable neighborhood.
+-- Choose the next cover by minimizing an extension rank in the finite interval.
+lemma neighborhood_cover_chain (P : Type) [PartialOrder P] [Fintype P] (x a b c d : P)
+    (ax : ¬ a ≤ x) (xd : ¬ x ≤ d) (ab : a < b) (bc : b < c) (cd : c < d) :
+    ∃ i j k : P, (¬ x ≤ i ∧ ¬ i ≤ x) ∧ (¬ x ≤ j ∧ ¬ j ≤ x) ∧
+      (¬ x ≤ k ∧ ¬ k ≤ x) ∧ a ⋖ i ∧ i ⋖ j ∧ j ⋖ k := by
+  classical
+  obtain ⟨rank, mono⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.rank_exists P
+  have step (s t : P) (st : s < t) : ∃ y, s ⋖ y ∧ y ≤ t := by
+    let candidates := Finset.univ.filter (fun z : P => s < z ∧ z ≤ t)
+    have mem (z : P) : z ∈ candidates ↔ s < z ∧ z ≤ t := by simp [candidates]
+    obtain ⟨y,hy,least⟩ := candidates.exists_min_image rank ⟨t,(mem t).2 ⟨st,le_rfl⟩⟩
+    obtain ⟨sy,yt⟩ := (mem y).1 hy
+    exact ⟨y,⟨sy,fun z sz zy => (mono zy).not_ge (least z ((mem z).2 ⟨sz,zy.le.trans yt⟩))⟩,yt⟩
+  have inside (z : P) (az : a ≤ z) (zd : z ≤ d) : ¬ x ≤ z ∧ ¬ z ≤ x :=
+    ⟨fun h => xd (h.trans zd),fun h => ax (az.trans h)⟩
+  obtain ⟨i,ai,ib⟩ := step a b ab
+  obtain ⟨j,ij,jc⟩ := step i c (lt_of_le_of_lt ib bc)
+  obtain ⟨k,jk,kd⟩ := step j d (lt_of_le_of_lt jc cd)
+  exact ⟨i,j,k,inside i ai.1.le (ib.trans (bc.trans cd).le),
+    inside j (ai.1.trans ij.1).le (jc.trans cd.le),
+    inside k ((ai.1.trans ij.1).trans jk.1).le kd,ai,ij,jk⟩
+
+-- The two blocked swaps may live in different ranks. The cover still forces
+-- different elements of the poset, and each supplies a surviving incomparable pair.
+lemma cover_blockers (P : Type) [PartialOrder P] [Fintype P] (u x v : P) (uv : u ⋖ v) (uin : ¬ u ≤ x) (vin : ¬ x ≤ v)
+    (r s : P ≃ Fin (Fintype.card P)) (mr : StrictMono r) (ms : StrictMono s) (z w : P)
+    (uz : r u < r z) (zx : r z < r x) (xv : r x < r v)
+    (ux : s u < s x) (xw : s x < s w) (wv : s w < s v)
+    (left : u < z ∨ z < x) (right : x < w ∨ w < v) :
+    let inc (a b : P) := ¬ a ≤ b ∧ ¬ b ≤ a
+    z ≠ w ∧ ((u < z ∧ inc z v) ∨ (z < x ∧ inc z u)) ∧
+      ((x < w ∧ inc w v) ∨ (w < v ∧ inc w u)) := by
+  intro inc
+  have zv := zx.trans xv
+  have uw := ux.trans xw
+  refine ⟨?_,?_,?_⟩
+  · rintro rfl
+    rcases left with h | h <;> rcases right with k | k
+    · exact zx.not_gt (mr k)
+    · exact uv.2 h k
+    · exact h.asymm k
+    · exact xw.not_gt (ms h)
+  · rcases left with h | h
+    · have ne : z ≠ v := fun e => zv.ne (congrArg r e)
+      exact Or.inl ⟨h,fun le => uv.2 h (lt_of_le_of_ne le ne),
+        fun le => zv.not_ge (mr.monotone le)⟩
+    · refine Or.inr ⟨h,fun le => uz.not_ge (mr.monotone le),?_⟩
+      intro le
+      exact uin (le.trans h.le)
+  · rcases right with h | h
+    · refine Or.inl ⟨h,?_,fun le => wv.not_ge (ms.monotone le)⟩
+      intro le
+      exact vin (h.le.trans le)
+    · have ne : u ≠ w := fun e => uw.ne (congrArg s e)
+      exact Or.inr ⟨h,fun le => uw.not_ge (ms.monotone le),
+        fun le => uv.2 (lt_of_le_of_ne le ne) h⟩
+
+-- An interior crossing of both thresholds on a cover forces two different
+-- surviving witnesses, even when the obstructions occur in different extensions.
+lemma cover_jump_survivors (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    let inc (a b : P) := ¬ a ≤ b ∧ ¬ b ≤ a
+    ∀ u x v : P, u ⋖ v → inc u x → inc x v →
+      3 * C [(x,u)] < C [] → 2 * C [] < 3 * C [(x,v)] →
+      ∃ z w : P, z ≠ x ∧ w ≠ x ∧ z ≠ w ∧
+        ((u < z ∧ inc z v) ∨ (z < x ∧ inc z u)) ∧
+        ((x < w ∧ inc w v) ∨ (w < v ∧ inc w u)) := by
+  intro C inc u x v uv ui vi lo hi
+  obtain ⟨_,_,split,_⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P
+  have sum : C [(x,v)] + C [(v,x)] = C [] := split [] x v (fun e => vi.1 e.le)
+  have gap : C [(x,u)] + C [(u,x),(x,v)] = C [(x,v)] := by
+    exact insertion_count P x u v (fun e => ui.2 e.le) uv.1
+  have l : C [(x,u)] < C [(u,x),(x,v)] := by omega
+  have h : C [(v,x)] < C [(u,x),(x,v)] := by omega
+  obtain ⟨r,z,mr,er,uz,zx,left⟩ := obstruction_of_count_excess P _ u x ui.1 (by simp) l
+  obtain ⟨s,w,ms,es,xw,wv,right⟩ := obstruction_of_count_excess P _ x v vi.1 (by simp) h
+  exact ⟨z,w,fun e => zx.ne (congrArg r e),fun e => xw.ne (congrArg s e.symm),
+    cover_blockers P u x v uv ui.1 vi.1 r s mr ms z w uz zx (er (x,v) (by simp))
+      (es (u,x) (by simp)) xw wv left right⟩
+
+-- When the boundary straddles one half, either endpoint gives a named
+-- candidate. A minimal x with all strict successors of u above v excludes
+-- the left witness. The order-dual condition excludes the right witness.
+lemma cover_crossing_balance (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    let inc (a b : P) := ¬ a ≤ b ∧ ¬ b ≤ a
+    ∀ u x v : P, u ⋖ v → inc u x → inc x v →
+      2 * C [(x,u)] ≤ C [] → C [] ≤ 2 * C [(x,v)] →
+      (((∀ z, u < z → v ≤ z) ∧ (∀ z, z < x → z ≤ u)) ∨
+       ((∀ z, z < v → z ≤ u) ∧ (∀ z, x < z → v ≤ z))) →
+      ∃ y ∈ [u,v], C [] ≤ 3 * C [(x,y)] ∧ 3 * C [(x,y)] ≤ 2 * C [] := by
+  intro C inc u x v uv ui vi lower upper confined
+  by_cases lo : C [] ≤ 3 * C [(x,u)]
+  · exact ⟨u,by simp,lo,by omega⟩
+  by_cases hi : 3 * C [(x,v)] ≤ 2 * C []
+  · exact ⟨v,by simp,by omega,hi⟩
+  obtain ⟨z,w,_,_,_,left,right⟩ :=
+    cover_jump_survivors P u x v uv ui vi (lt_of_not_ge lo) (lt_of_not_ge hi)
+  exfalso
+  rcases confined with ⟨up,down⟩ | ⟨down,up⟩
+  · rcases left with ⟨uz,_,vz⟩ | ⟨zx,zu,_⟩
+    · exact vz (up z uz)
+    · exact zu (down z zx)
+  · rcases right with ⟨xw,_,vw⟩ | ⟨wv,wu,_⟩
+    · exact vw (up w xw)
+    · exact wu (down w wv)
 
 -- Delete x and close the gap in the ranks. The inverse operation skips slot k.
 lemma insert_rank_bijection (P : Type) (x : P) (n : ℕ) :
@@ -814,12 +924,14 @@ theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
     · exact hi
   apply noPair
   by_cases chain : ∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d
-  · obtain ⟨a, ha, b, hb, c, hc, d, hd, ab, bc, cd⟩ := chain
+  · obtain ⟨a, ha, b₀, _, c₀, _, d₀, hd₀, ab₀, bc₀, cd₀⟩ := chain
+    obtain ⟨b,c,d,hb,hc,hd,ab,bc,cd⟩ :=
+      neighborhood_cover_chain P x a b₀ c₀ d₀ ha.2 hd₀.1 ab₀ bc₀ cd₀
     have ne (y : P) (hy : y ∈ N) : x ≠ y := fun h => hy.1 h.le
     have inc (y : P) (hy : y ∈ [a,b,c,d]) : ¬ x ≤ y ∧ ¬ y ≤ x := by
       simp only [List.mem_cons, List.not_mem_nil, or_false] at hy
       rcases hy with rfl | rfl | rfl | rfl <;> assumption
-    rcases four_chain_obstructions P x a b c d inc ab bc cd with ok | gap
+    rcases four_chain_obstructions P x a b c d inc ab.1 bc.1 cd.1 with ok | gap
     · obtain ⟨y, hy, lo, hi⟩ := ok
       have yn : y ∈ N := by
         simp only [List.mem_cons, List.not_mem_nil, or_false] at hy
