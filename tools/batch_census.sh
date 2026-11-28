@@ -6,6 +6,7 @@
 #   rej.tsv         heads check-proof.yml rejected (runs concluded "failure"): the previous census plus the runs created
 #                   since its cursor minus 6 hours (a run can finish hours after it was created); the first census
 #                   reads them all, in 6-hour slices (GitHub lists at most 1,000 runs per query)
+#                   Only rejections whose verdict can still reach the pull request count (see REJ_FROM below).
 #   verdicts.jsonl  the batch verdicts of the last 3 hours, which the shards publish again (so a merger that was away
 #                   finds them even though this run's artifacts replace the previous run's)
 #   cursor          the newest creation time seen
@@ -52,6 +53,18 @@ for (( A = FROM; A < NOW; A += 21600 )); do
   gh api --paginate "repos/$REPO/actions/workflows/check-proof.yml/runs?status=failure&per_page=100&created=$(date -u -d "@$A" +%FT%TZ)..$(date -u -d "@$B" +%FT%TZ)" \
     --jq '.workflow_runs[] | [.display_title, .head_sha, .created_at] | @tsv' >> "$T/runs.tsv" || { echo "cannot list check-proof runs" >&2; exit 1; }
 done
+# The repository moved to lefttosolve2 on 28 Nov 2026 at 08:22 UTC and the artifacts of earlier check-proof runs did
+# not come along: the merger cannot read those verdicts, so a rejection from before the move never reached its pull
+# request (956 open PRs from 02:00-03:30 alone had no comment). Rejections from runs created before REJ_FROM are not
+# skipped any more: the batch checker checks those heads again and its verdict goes out like any other. Pull requests
+# that already carry a comment (a verdict was reported) stay skipped. Search API: its own budget, ~1 call per 100.
+REJ_FROM="${REJ_FROM:-2026-11-28T08:30:00Z}"
+: > "$T/commented.txt"
+for PAGE in $(seq 1 10); do
+  gh api "search/issues?q=repo:$REPO+is:pr+is:open+comments:%3E0&per_page=100&page=$PAGE" --jq '.items[].number' >> "$T/commented.txt" 2>/dev/null || break
+  [ "$(wc -l < "$T/commented.txt")" -lt $(( PAGE * 100 )) ] && break
+done
+export REJ_FROM
 python3 -I - "$T" "$OUT" <<'PY'
 import json, os, re, sys, time
 t, out = sys.argv[1], sys.argv[2]
@@ -60,17 +73,22 @@ for line in open(os.path.join(t, "done.tsv")):
     p = line.rstrip("\n").split("\t")
     if len(p) >= 3 and p[0].isdigit() and re.fullmatch(r"[0-9a-f]{40}", p[1]):
         done[(p[0], p[1])] = p[2]
-rej, cursor = set(), ""
+rej_from = os.environ.get("REJ_FROM", "")
+commented = set(open(os.path.join(t, "commented.txt")).read().split()) if os.path.exists(os.path.join(t, "commented.txt")) else set()
+rej, cursor = {}, ""
 for line in open(os.path.join(t, "rej.tsv")):
     p = line.split()
-    if len(p) >= 2:
-        rej.add((p[0], p[1]))
+    # entries of censuses before REJ_FROM have no creation time: kept only when the PR already has a comment
+    if len(p) >= 3 and p[2] >= rej_from or len(p) >= 2 and p[0] in commented:
+        rej[(p[0], p[1])] = p[2] if len(p) >= 3 else ""
 if os.path.exists(os.path.join(t, "runs.tsv")):
     for line in open(os.path.join(t, "runs.tsv")):
         p = line.rstrip("\n").split("\t")
         m = re.fullmatch(r"check-proof #(\d+)", p[0]) if len(p) >= 3 else None
         if m and re.fullmatch(r"[0-9a-f]{40}", p[1]):
-            rej.add((m.group(1), p[1])); cursor = max(cursor, p[2])
+            cursor = max(cursor, p[2])
+            if p[2] >= rej_from or m.group(1) in commented:
+                rej[(m.group(1), p[1])] = p[2]
 seen, lines, now = set(), [], time.time()
 for line in open(os.path.join(t, "verdicts.jsonl"), encoding="utf-8"):
     try:
@@ -83,7 +101,7 @@ for line in open(os.path.join(t, "verdicts.jsonl"), encoding="utf-8"):
 with open(os.path.join(out, "done.tsv"), "w") as f:
     f.writelines("%s\t%s\t%s\n" % (a, b, c) for (a, b), c in done.items())
 with open(os.path.join(out, "rej.tsv"), "w") as f:
-    f.writelines("%s\t%s\n" % k for k in sorted(rej))
+    f.writelines("%s\t%s\t%s\n" % (a, b, c) for (a, b), c in sorted(rej.items()))
 open(os.path.join(out, "verdicts.jsonl"), "w", encoding="utf-8").writelines(lines)
 prev = open(os.path.join(t, "prev", "cursor")).read().strip() if os.path.exists(os.path.join(t, "prev", "cursor")) else ""
 open(os.path.join(out, "cursor"), "w").write(max(cursor, prev) or time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
