@@ -935,6 +935,90 @@ theorem blocked_finite_palette_packing {I K : Type} [LinearOrder K] [WellFounded
     rw [rule j]
     exact (stage j (fun z _ => S z)).choose_spec.2 i lt
 
+/-- Diagonalize against a single row of proposed spoke colours. At coordinate
+n choose true exactly when a word of colour n extends the current prefix
+with false. Applying this rule at the colour of the constructed word
+exhibits two words with that colour and first difference there. -/
+private theorem binary_row_collision (g : (ℕ → Bool) → ℕ) :
+    ∃ u v : ℕ → Bool, g u = g v ∧ u (g u) ≠ v (g u) ∧ ∀ i < g u, u i = v i := by
+  classical
+  let step (n : ℕ) (prev : (i : ℕ) → i < n → Bool) : Bool :=
+    decide (∃ u, g u = n ∧ u n = false ∧ ∀ i (h : i < n), u i = prev i h)
+  let v : ℕ → Bool := wellFounded_lt.fix step
+  have rule (n : ℕ) : v n = step n (fun i _ => v i) := WellFounded.fix_eq _ _ n
+  let n := g v
+  let P := ∃ u, g u = n ∧ u n = false ∧ ∀ i < n, u i = v i
+  have e : v n = decide P := rule n
+  by_cases hit : P
+  · have vt : v n = true := e.trans (decide_eq_true hit)
+    obtain ⟨u,hu,bit,earlier⟩ := hit
+    exact ⟨u,v,hu,hu ▸ (by rw [bit,vt]; decide : u n ≠ v n),hu ▸ earlier⟩
+  · have vf : v n = false := e.trans (decide_eq_false hit)
+    exact (hit ⟨v,rfl,vf,fun _ _ => rfl⟩).elim
+
+/-- A triangle-free graph can be precoloured with natural-number edge colours
+so that no assignment of natural-number colours to the spokes of a new
+universal apex avoids a monochromatic triangle. This prescribes the rim
+colouring before the spoke assignment is given. -/
+theorem precoloured_blocked_rim :
+    ∃ (V : Type) (G : SimpleGraph V) (old : V → V → ℕ), G.CliqueFree 3 ∧
+      (∀ x y, old x y = old y x) ∧
+      ∀ d : V → ℕ, ∃ a b, G.Adj a b ∧ d a = d b ∧ old a b = d a := by
+  classical
+  let W := ℕ → Bool
+  let Row := W → ℕ
+  suffices build : ∀ (X : Type) [LinearOrder X], (∀ f : X → Set Row, ¬Function.Injective f) →
+      ∃ (V : Type) (G : SimpleGraph V) (old : V → V → ℕ), G.CliqueFree 3 ∧
+        (∀ x y, old x y = old y x) ∧
+        ∀ d : V → ℕ, ∃ a b, G.Adj a b ∧ d a = d b ∧ old a b = d a by
+    exact @build (Set (Set Row)) (linearOrderOfSTO WellOrderingRel) Function.cantor_injective
+  intro X _ large
+  let V := (X × X) × W
+  let link (x y : V) := x.1.1 < x.1.2 ∧ x.1.2 = y.1.1 ∧ y.1.1 < y.1.2
+  let G : SimpleGraph V := {
+    Adj := fun x y => link x y ∨ link y x
+    symm := ⟨fun _ _ => Or.symm⟩
+    loopless := ⟨fun x e => by
+      rcases e with h | h <;> exact (ne_of_lt h.1) h.2.1.symm⟩ }
+  have free : G.CliqueFree 3 := by
+    intro s hs
+    obtain ⟨x,y,z,xy,xz,yz,_⟩ := is3Clique_iff.mp hs
+    change link x y ∨ link y x at xy
+    change link x z ∨ link z x at xz
+    change link y z ∨ link z y at yz
+    rcases xy with ⟨h₀,e₁,h₁⟩ | ⟨h₀,e₁,h₁⟩ <;>
+      rcases xz with ⟨h₄,e₂,h₂⟩ | ⟨h₄,e₂,h₂⟩ <;>
+      rcases yz with ⟨h₅,e₃,h₃⟩ | ⟨h₅,e₃,h₃⟩ <;> grind
+  let first (P : ℕ → Prop) := if h : ∃ i, P i then Nat.find h else 0
+  let diff (u v : W) := first (fun i => u i ≠ v i)
+  have sym (u v : W) : diff u v = diff v u := by
+    exact congrArg first (funext fun i => propext (ne_comm (a := u i) (b := v i)))
+  refine ⟨V,G,(fun x y => diff x.2 y.2),free,fun x y => sym x.2 y.2,?_⟩
+  intro d
+  let row (x y : X) (u : W) := d ((x,y),u)
+  let out (x : X) : Set Row := {r | ∃ y, x < y ∧ row x y = r}
+  have repeatRow : ∃ x y z : X, x < y ∧ y < z ∧ row x y = row y z := by
+    by_contra avoid
+    apply large out
+    intro x y eq
+    have clash (a b : X) (lt : a < b) (same : out a = out b) : False := by
+      have mem : row a b ∈ out a := ⟨b,lt,rfl⟩
+      rw [same] at mem
+      obtain ⟨c,bc,matchRow⟩ := mem
+      exact avoid ⟨a,b,c,lt,bc,matchRow.symm⟩
+    rcases lt_trichotomy x y with lt | e | gt
+    · exact (clash _ _ lt eq).elim
+    · exact e
+    · exact (clash _ _ gt eq.symm).elim
+  obtain ⟨x,y,z,xy,yz,same⟩ := repeatRow
+  obtain ⟨u,v,colour,bit,earlier⟩ := binary_row_collision (row x y)
+  have first_at (P : ℕ → Prop) (n : ℕ) (hn : P n) (min : ∀ i < n, ¬P i) : first P = n := by
+    have ex : ∃ i, P i := ⟨n,hn⟩
+    simp only [first,dif_pos ex]
+    exact le_antisymm (Nat.find_min' ex hn) (by by_contra! lt; exact min _ lt (Nat.find_spec ex))
+  exact ⟨((x,y),u),((y,z),v),Or.inl ⟨xy,rfl,yz⟩,colour.trans (congrFun same v),
+    first_at _ _ bit (fun i lt ne => ne (earlier i lt))⟩
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
