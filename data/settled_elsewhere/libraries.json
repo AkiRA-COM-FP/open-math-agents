@@ -940,6 +940,411 @@
    "reason": "Sorry-free theorem result: a solution exists, every coefficientwise solution of 2 = prod (1+x^n A)(1+x^(n-1)/A) (over Q) is the integral one, and for n>0 a(n) = 2 mod 4 iff n = 2k with p(k) odd, else 0 mod 4; the site's integer A maps to such a solution.",
    "source": "https://github.com/the-omega-institute/trureturing/blob/3fe303d426ff72bfc902c69963b1db4065659313/D5/S1/Recurrence/Invariants/HannaProductPartitionModFour.lean",
    "date": "2026-11-28"
+  },
+  "oeis-a067299": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.28: the listed recurrence is proved for n>=2 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a071684": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.22: the listed recurrence is proved for n>=5 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a071715": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.61: the listed recurrence is proved for n>=3, the range of the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a071717": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.30: the recurrence holds for all n>=4 and fails at n=3. The Lean statement is the corrected n>=4 version, which is exactly what the proposition proves (the proof is unconditional).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a071722": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.62: the listed recurrence is proved for n>=3, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a072100": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.31: the listed recurrence is proved for n>=4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a073155": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.63: the listed recurrence is proved for n>=4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a073591": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.33: the listed recurrence is proved for n>=3, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a080243": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.1: the listed recurrence is proved for n>=2 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a080244": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 6.5 (disproof): Mathar's recurrence as written fails at every n checkable with the entry's terms (offset 1); the version with n replaced by n-1 in the coefficients is proved for n>=6.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a080894": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.8: the listed recurrence is proved for n>=3 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a081181": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.39: the listed recurrence is proved for n>=3, as in the Lean statement; the proof starts from the binomial formula that the Lean statement uses as its definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a081204": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.40: the listed recurrence is proved, both of them (n>=2 and n>=3), which is exactly the conjunction in the Lean statement; the proof starts from the binomial formula that the Lean statement uses as its definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a081205": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.41: the listed recurrence is proved for n>=2, as in the Lean statement; the proof starts from the binomial formula that the Lean statement uses as its definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a081207": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.2: the listed recurrence is proved for n>=4, as in the Lean statement; the proof starts from Barry's g.f., which the Lean statement uses as its definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a081669": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.38: the recurrence holds for all n>=5 and fails at n=4 (L(4)=12). The proof is conditional on the entry's e.g.f. e^{2x}-1+e^x I0(2x).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a081672": {
+   "reason": "Settled at once by Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Not proved in the paper: Section 3 lists A081672 among the exclusions because the entry already records a proof (R. Israel, 2016: the e.g.f. ODE implies Mathar's recurrence). It is likely settled by that, not by this paper. Note that the Lean statement uses n>=4 because the recurrence fails at n=3.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a081673": {
+   "reason": "Settled at once by Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Not proved in the paper: Section 3 lists A081673 among the exclusions because the entry already records a proof (R. Israel, Jun 03 2016, an e.g.f. ODE that implies the recursion). It is likely settled by that, not by this paper.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a085387": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.35: the listed recurrence is proved for n>=5, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a089324": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.32: the listed recurrence is proved for n>=6 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a091699": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.33: the listed recurrence is proved for n>=3, as in the Lean statement. The proof is conditional on P. D. Hanna's g.f. in the entry, while the Lean statement defines a(n) by row sums of the inverse triangle.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a091916": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.23: Stephan's 'for n>5, a(n+3)=3a(n)' is true, in fact for all n>=3. The proof is conditional on R. Knott's g.f. (1+x+x^2+2x^5)/(1-3x^3) in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a095981": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.24: the listed recurrence is proved for n>=7 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a097188": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.20: the listed recurrence is proved for n>=1 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a097192": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.21: the listed recurrence is proved for n>=1 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a097204": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.37: the listed recurrence is proved for n>=4, as in the Lean statement; the proof starts from the e.g.f. e^x/(1-x)-e^{2x}, which is equivalent to the binomial-transform definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a097331": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.3: the listed recurrence is proved for n>=3, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a098519": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.35: the listed recurrence is proved for n>=2 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a098520": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.36: the listed recurrence is proved for n>=2 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a098521": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.4: the listed recurrence is proved for n>=4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a098557": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.7: the recurrence holds for all n>=3 and fails at n=2 (the proof is unconditional, from the e.g.f. in the name).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a098664": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.5: the listed recurrence is proved for n>=3 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a100095": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.6: the listed recurrence is proved for n>=5 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a100096": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.7: the listed recurrence is proved for n>=4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a100097": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.8: the listed recurrence is proved for n>=5 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a100099": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.9: the listed recurrence is proved for n>=4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a101601": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.38: the listed recurrence is proved for n>=2, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a102882": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.12: the listed recurrence is proved for n>=4, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a103138": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.40: the listed recurrence is proved for n>=3, as in the Lean statement; the proof starts from the entry's closed-form g.f., which is equivalent to the Schroeder-number g.f. used in Lean.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a103769": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 6.7 (disproof): the recurrence as printed, which is what the Lean statement formalizes, is false for every n>=4 (the leading coefficient must be 4n(2n+1)); the corrected recurrence is proved for n>=4. The Lean file itself notes LHS = -81756 at n=4.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a103821": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.41: the listed recurrence is proved for n>=3 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a104624": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.14: the listed recurrence is proved for n>=3.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a104625": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.42: the listed recurrence is proved for n>=6, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a105864": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.64: the listed recurrence is proved for n>=4, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a105865": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.16: the listed recurrence is proved for n>=4, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a114190": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.10: the listed recurrence is proved for n>=5, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a117186": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.65: the listed recurrence is proved for n>=4. This is the recurrence the Lean statement formalizes; the other conjecture in the entry, a(n)=A058622(n)+A058622(n+1), is not treated.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a124753": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.42: the listed recurrence is proved for n>=6, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a132900": {
+   "reason": "Settled at once by Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Not proved in the paper: it is excluded in Sections 3 and 11 as a consequence of facts in the entry. The recurrence follows from a(n)=3^n A001006(n) and the Motzkin recurrence (n+2)M(n)=(2n+1)M(n-1)+3(n-1)M(n-2). It is effectively settled, but not by a proposition of this paper.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a135334": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.14: the recurrence holds for all n>=4 and fails at n=3. The proof is conditional on E. Deutsch's g.f. in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a141342": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.15: the listed recurrence is proved for n>=4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a176006": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.23: the listed recurrence is proved for n>=3, as in the Lean statement; the proof starts from the entry's g.f., which the Lean statement uses as its definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a160823": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.17: the listed recurrence is proved for n>=5, as in the Lean statement; the proof starts from the entry's g.f., which the Lean statement uses as its definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a162533": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.19: the listed recurrence is proved for n>=5.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a165201": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.20: the recurrence holds for all n>=4 and fails at n=3. The Lean statement is the corrected n>=4 version, which is exactly what is proved (the proof is unconditional).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a174107": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.22: the listed recurrence is proved for n>=4, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a184120": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.25: the listed recurrence is proved for n>=4, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a186239": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.26: the listed recurrence is proved for n>=4.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a188314": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.26: the listed recurrence is proved for n>=5, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a188464": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.27: the listed recurrence is proved for n>=4, as in the Lean statement; the proof starts from the entry's g.f., which the Lean statement uses as its definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a202020": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 10.8 (disproof): the conjecture as written (two a(n-4) terms) is false for every n>=4; the corrected recurrence, with -4(14n-11)a(n-3), is proved for n>=4.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a215973": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.18: the listed recurrence is proved for n>=4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a254314": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.19: the listed recurrence is proved for n>=5 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a276310": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.32: the listed recurrence is proved for n>=3.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a276314": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.33: the listed recurrence is proved for n>=4.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a001724": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.39: the listed recurrence is proved for n>=5 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a027175": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.19: the listed recurrence is proved (with the inhomogeneous term -12(3n-1)) for n>=3 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a045739": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Theorem 5.4: the listed recurrence is proved for n>=7, by a Zeilberger certificate of order 4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a047618": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 7.71: a(n)+a(n+1)+a(n+2)=8n-1 for n>=1, and equivalently the stated recurrence for n>=3 (the proof is unconditional).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a053532": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.5: the listed recurrence is proved for n>=4, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a063140": {
+   "reason": "Settled at once by Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.65/Table 3 proves Barker's a(n)=24n-20 (n>=2) and a(n)=2a(n-1)-a(n-2) (n>=4). It does not write out the listed conjecture, Spezia's e.g.f. 20+x+4e^x(6x-5). Section 9.4 says such extra e.g.f. conjectures 'follow from Theorem 9.2 in the same way, but we do not write them out'. The e.g.f. is immediate from the closed form with a(1)=g=5 (and a(0)=0).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a063168": {
+   "reason": "Settled at once by Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.65/Table 3 proves McEachen's a(n)=a(n-1)+30 for n>=3. The listed conjecture is Chai Wah Wu's a(n)=2a(n-1)-a(n-2) for n>3 and g.f. x(x^2+22x+7)/(x-1)^2. It is an immediate corollary (with a(1)=7, a(2)=36), but the paper does not state it explicitly.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a075045": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Theorem 5.1(ii): J.-F. Alcover's recurrence holds for all n>=2; part (i) also proves van Hoeij's g.f. The proof is conditional on S. Manyama's formula in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a096471": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.36: the listed recurrence is proved for n>=7 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a097332": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.34: the listed recurrence is proved for n>=3, as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a219692": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.3: the recurrence holds for all n>=3 and fails at n=2, matching the Lean range n>=3. The proof is conditional on M. van Hoeij's hypergeometric g.f. in the entry, while the Lean statement uses the sum definition. Remark 9.4 says a proof very probably exists in the literature already.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a242566": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.28: the listed recurrence is proved for n>=4 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a243255": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 9.12: the listed recurrence is proved for n>=4.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a243760": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.29: the listed recurrence is proved for n>=6 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a243814": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.30: the listed recurrence is proved for n>=6 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a261196": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.31: the listed recurrence is proved for n>=3 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
   }
  }
 }
