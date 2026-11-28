@@ -10160,6 +10160,30 @@
     "https://oeis.org/A210377"
    ],
    "reason": "Second review: The 'disproof' refutes only Barker's range 'n>5' for the recurrence, which fails at the single index n=7; the g.f. and closed form, and the recurrence for n>7, are all true. This is an off-by-two typo in the range that the proof exploits, not a refutation of the conjecture's content; it should be presented as a range correction, not as a disproof."
+  },
+  "mo-334112": {
+   "date": "2026-11-28",
+   "pr": 26173,
+   "evidence": [
+    "https://mathoverflow.net/questions/334112"
+   ],
+   "reason": "The statement drops independence and disproves by X in {0,N} with probability 1/2 each (k=1, alpha=1). But fedja's comment reads the question as assuming independence ('otherwise there is nothing to say') and gives the positive bound 1-alpha^{k/(k+1)}. The disproof is trivial, exploits the missing independence, and that dependent case was already dismissed in the comment."
+  },
+  "mo-345716": {
+   "date": "2026-11-28",
+   "pr": 27688,
+   "evidence": [
+    "https://mathoverflow.net/questions/345716"
+   ],
+   "reason": "The question presumes the answer is negative for d>=3 (Remark 2), and Fedor Petrov's comment says No for p>3. The formal 'possible' answer uses only the degenerate case d=2, c=0, p=3 mod 4, where x1^2+x2^2=0 has just the origin as zero. That is a corner case where Fedor's argument (a root with x_i nonzero) has no root to use, not the question's intended content. The statement also hard-codes d=2."
+  },
+  "mo-360945": {
+   "date": "2026-11-28",
+   "pr": 26726,
+   "evidence": [
+    "https://mathoverflow.net/questions/360945"
+   ],
+   "reason": "The disproof is valid only because a1=1. Then the recurrence a_{k+2}=a_{k+1}+a_k is 3-periodic (1, a, 1+a), which is the degenerate behaviour user44191 flagged as a typo. My check over F_{2^m}, m<=7, found counterexamples only with a1=1 (10 pairs for m=5, 28 for m=7), none with a1!=1. That matches the asker's computer evidence. Literally allowed by the statement, but it exploits a degenerate case of the intended problem."
   }
  },
  "known": {
@@ -17827,6 +17851,301 @@
     "https://oeis.org/A183632"
    ],
    "reason": "Second review: The statement is faithful, but it was settled in OEIS before the site's proof: Veljjanoski's Nov 18 2026 proof in the parent entry A183632 explicitly covers the column formulas of A183626. Not new."
+  },
+  "mo-298012": {
+   "date": "2026-11-28",
+   "pr": 26963,
+   "evidence": [
+    "https://mathoverflow.net/questions/298012",
+    "https://mathoverflow.net/a/298124"
+   ],
+   "reason": "The statement formalizes Iosif Pinelis's 2018 MO answer verbatim: a_{n,m}=1+sqrt((m-n)(1-1/n)) and the capped majorizer y. The asker objected in comments that the majorizer should have 2-norm sqrt(m); the formalization follows the answer, not that objection."
+  },
+  "mo-301954": {
+   "date": "2026-11-28",
+   "pr": 27797,
+   "evidence": [
+    "https://mathoverflow.net/questions/301954",
+    "https://math.stackexchange.com/questions/2805235"
+   ],
+   "reason": "darij grinberg's 2018 comments give the proof: sort the columns lexicographically, then the diagonal monomial c_{nu_1+e_1}...c_{nu_n+e_n} is the unique lex-largest term, so the determinant is nonzero (char 0). The Lean proof uses the same unique-largest-term argument. The MSE cross-post is unanswered."
+  },
+  "mo-302653": {
+   "date": "2026-11-28",
+   "pr": 10389,
+   "evidence": [
+    "https://mathoverflow.net/questions/302653"
+   ],
+   "reason": "The question's own edit gives a counterexample (N with the upset topology plus a top point). Negative answer known from the source; the disproof uses a similar Option N topology."
+  },
+  "mo-308231": {
+   "date": "2026-11-28",
+   "pr": 27205,
+   "evidence": [
+    "https://mathoverflow.net/questions/308231",
+    "https://mathoverflow.net/a/513222"
+   ],
+   "reason": "An MO answer (2026) settles this affirmatively via Theorem 2 of 'Ultra log-concavity of discrete order statistics'. The statement docstring cites that answer. The proof is a new elementary argument, but the result was already known."
+  },
+  "mo-317189": {
+   "date": "2026-11-28",
+   "pr": 27444,
+   "evidence": [
+    "https://mathoverflow.net/questions/317189"
+   ],
+   "reason": "Seva's comment already refutes the d=1 inequality of Question 2 (take A in [0,l] with 2A=[0,2l] and |A|<l+1). The disproof's {0,1,3,4} is an instance of exactly that construction."
+  },
+  "mo-323234": {
+   "date": "2026-11-28",
+   "pr": 27034,
+   "evidence": [
+    "https://mathoverflow.net/questions/323234"
+   ],
+   "reason": "Mikael de la Salle's comment gives the equality criterion: Tr(X^2)=Tr(XX*) iff X self-adjoint, with X=B^2A, so equality iff A,B commute. The asker acknowledged it, and the statement docstring credits that comment."
+  },
+  "mo-330018": {
+   "date": "2026-11-28",
+   "pr": 25490,
+   "evidence": [
+    "https://mathoverflow.net/questions/330018",
+    "https://mathoverflow.net/a/330048"
+   ],
+   "reason": "Taras Banakh's comment (every map to [0,1] is bounded) and Ramiro de la Vega's answer (characterization of continuous maps) already cover this. The formal content (boundedness, and continuity iff finitely many x are eps-far from f(b)) is also near-definitional."
+  },
+  "mo-335144": {
+   "date": "2026-11-28",
+   "pr": 26217,
+   "evidence": [
+    "https://mathoverflow.net/questions/335144"
+   ],
+   "reason": "James Martin's comment gives the counterexample class: the product of V_i is 0 a.s. while the centered product is positive. The statement docstring acknowledges this, and the n=3 disproof is an instance."
+  },
+  "mo-336099": {
+   "date": "2026-11-28",
+   "pr": 26666,
+   "evidence": [
+    "https://mathoverflow.net/questions/336099"
+   ],
+   "reason": "fedja's comment gives exactly the counterexample formalized: the forms (x1+x2)^2+(x3+x4)^2 and (x1+x3)^2+(x2+x4)^2 with test vector (1,-1,-1,1). The statement says 'No novelty is claimed'."
+  },
+  "mo-336842": {
+   "date": "2026-11-28",
+   "pr": 14396,
+   "evidence": [
+    "https://mathoverflow.net/questions/336842"
+   ],
+   "reason": "S. Zhang's comment answers No (cospectral graphs), and the asker agreed. The disproof (all-ones J conjugated by a rotation about (1,1,1)) is another trivial instance."
+  },
+  "mo-341448": {
+   "date": "2026-11-28",
+   "pr": 26740,
+   "evidence": [
+    "https://mathoverflow.net/questions/341448",
+    "https://doi.org/10.4064/aa99-1-8"
+   ],
+   "reason": "Felipe Voloch's comment points to Theorem 1 of Rodriguez Villegas-Voloch-Zagier, 'Constructions of plane curves with many points', Acta Arith. 99 (2001). The proof header cites it."
+  },
+  "mo-341790": {
+   "date": "2026-11-28",
+   "pr": 27588,
+   "evidence": [
+    "https://mathoverflow.net/questions/341790",
+    "https://mathoverflow.net/a/341800",
+    "https://mathoverflow.net/a/341801"
+   ],
+   "reason": "Both MO answers (Kjos-Hanssen, Kwasnicki) state and sketch that the bound sum (mu(x)+nu(x)-1)_+ is optimal. The proof header cites their condition."
+  },
+  "mo-343927": {
+   "date": "2026-11-28",
+   "pr": 27334,
+   "evidence": [
+    "https://mathoverflow.net/questions/343927",
+    "https://arxiv.org/abs/2004.05873"
+   ],
+   "reason": "The asker's own paper (Xu-Narayan-Tran-Webster, ACHA 2021) proves this inside Theorem 4.1 (q=1). If ||h||_1/||h||_2 > 3 sqrt(s), the l1/l2 ratio of x0+h strictly exceeds that of x0. The contrapositive is the MO claim with c=3, which is exactly the Lean argument (triangle inequality on the support)."
+  },
+  "mo-344923": {
+   "date": "2026-11-28",
+   "pr": 27222,
+   "evidence": [
+    "https://mathoverflow.net/questions/344923",
+    "https://mathoverflow.net/a/344926"
+   ],
+   "reason": "e.lipnowski's answer gives the constant-map counterexample. The statement (no injectivity, per the asker's clarification) is refuted by exactly that kind of example."
+  },
+  "mo-349784": {
+   "date": "2026-11-28",
+   "pr": 25579,
+   "evidence": [
+    "https://mathoverflow.net/questions/349784"
+   ],
+   "reason": "Gjergji Zaimi's comment already says the matrix is only positive semidefinite and can fail to be invertible. The disproof ({0},{1},{0,1}) is a trivial instance."
+  },
+  "mo-350545": {
+   "date": "2026-11-28",
+   "pr": 25546,
+   "evidence": [
+    "https://mathoverflow.net/questions/350545"
+   ],
+   "reason": "The proof header states that the sector analogue of Gauss-Lucas for nonnegative coefficients was proved by Blagovest and Hristo Sendov, and that the proof follows Totik's 'Critical points of polynomials' (Theorems 21, 23). Formalizing a known theorem."
+  },
+  "mo-350931": {
+   "date": "2026-11-28",
+   "pr": 25707,
+   "evidence": [
+    "https://mathoverflow.net/questions/350931",
+    "https://www.ams.org/journals/tran/2000-352-12/S0002-9947-00-02666-0/"
+   ],
+   "reason": "Pak's ribbon tile invariants (Trans. AMS 2000, Thm 1.4) give this: David Speyer's comment notes '#NW L - #SE L' is Pak's invariant f_1. The proof header cites Pak and Moore-Pak, and the asker said he already had a proof."
+  },
+  "mo-351449": {
+   "date": "2026-11-28",
+   "pr": 26180,
+   "evidence": [
+    "https://mathoverflow.net/questions/351449"
+   ],
+   "reason": "David Handelman's comment already notes the claim fails for reducible B (all but one block can be zeroed without changing the spectral radius). The disproof diag(1,0) vs I is exactly that."
+  },
+  "mo-351790": {
+   "date": "2026-11-28",
+   "pr": 26314,
+   "evidence": [
+    "https://mathoverflow.net/questions/351790",
+    "https://mathoverflow.net/a/351796"
+   ],
+   "reason": "Francois Ziegler's answer gives the doubling construction proving size 8 (all powers of 2) works, so the formal n=8 case is known. The asker later revised the question in comments to n not divisible by 4, which the statement ignores."
+  },
+  "mo-353531": {
+   "date": "2026-11-28",
+   "pr": 26558,
+   "evidence": [
+    "https://mathoverflow.net/questions/353531"
+   ],
+   "reason": "Mateusz Kwasnicki's comment gives the counterexample f_n=sin(nt), f=0 with Laplace difference n/(lambda^2+n^2)=O(1/n). The disproof formalizes exactly it."
+  },
+  "mo-356664": {
+   "date": "2026-11-28",
+   "pr": 26433,
+   "evidence": [
+    "https://mathoverflow.net/questions/356664"
+   ],
+   "reason": "The asker's own comment gives the counterexample a=(1,1,1,2,3,5) with |aC_na|=3 and |N(C_3)|=2. The disproof uses the same map (0-indexed)."
+  },
+  "mo-358353": {
+   "date": "2026-11-28",
+   "pr": 26327,
+   "evidence": [
+    "https://mathoverflow.net/questions/358353",
+    "https://mathoverflow.net/a/358535"
+   ],
+   "reason": "The asker's own MO answer (Clement Canonne) proves the bound via chi-square: chi^2 = cosh(lambda alpha^2)-1. The proof header states that it follows that answer."
+  },
+  "mo-362974": {
+   "date": "2026-11-28",
+   "pr": 27506,
+   "evidence": [
+    "https://mathoverflow.net/questions/362974"
+   ],
+   "reason": "Gordon Royle's comment settles it: smallest eigenvalue >= -1 forces a disjoint union of cliques. Moreover any graph with an edge has smallest eigenvalue <= -1, so the formal statement is immediate (the proof takes c=-1/2 via a 2x2 principal minor)."
+  },
+  "mo-363564": {
+   "date": "2026-11-28",
+   "pr": 25583,
+   "evidence": [
+    "https://mathoverflow.net/questions/363564"
+   ],
+   "reason": "Ville Salo's comment gives exactly this counterexample: index omega_1, U_i=i, V_i=omega. The disproof formalizes it."
+  },
+  "mo-364520": {
+   "date": "2026-11-28",
+   "pr": 27465,
+   "evidence": [
+    "https://mathoverflow.net/questions/364520"
+   ],
+   "reason": "Gjergji Zaimi's comment refutes it with uniform matroids (binom(m,r+1) shortest circuits). The disproof uses U_{2,4}."
+  },
+  "mo-365623": {
+   "date": "2026-11-28",
+   "pr": 24909,
+   "evidence": [
+    "https://mathoverflow.net/questions/365623",
+    "https://mathoverflow.net/a/365628"
+   ],
+   "reason": "The negative answer is already in the thread: Robert Israel says 35 is the least odd i that works, and Paseman notes primes fail. The disproof is the trivial edge case i=1 (empty index range), so it is also degenerate."
+  },
+  "mo-366028": {
+   "date": "2026-11-28",
+   "pr": 22615,
+   "evidence": [
+    "https://mathoverflow.net/questions/366028"
+   ],
+   "reason": "Lucia's comment gives the inductive construction (add the lcm), which handles 9 horses and any n. The asker also reports finding solutions by computer."
+  },
+  "mo-366772": {
+   "date": "2026-11-28",
+   "pr": 27722,
+   "evidence": [
+    "https://mathoverflow.net/questions/366772",
+    "https://mathoverflow.net/a/516095"
+   ],
+   "reason": "jvvk's MO answer (2026) proves the conjecture n-c(n) <= c*(n) <= c(n) by Dyck-word doubling operators. The proof header says it follows that answer."
+  },
+  "mo-369021": {
+   "date": "2026-11-28",
+   "pr": 26939,
+   "evidence": [
+    "https://mathoverflow.net/questions/369021",
+    "https://mathoverflow.net/a/394345"
+   ],
+   "reason": "Peter Taylor's answer gives an explicit (4,3) MOLH. The formal statement is exactly d=3, so it is known. The proof uses a GF(4) linear construction instead."
+  },
+  "mo-369067": {
+   "date": "2026-11-28",
+   "pr": 26819,
+   "evidence": [
+    "https://mathoverflow.net/questions/369067"
+   ],
+   "reason": "Derek Holt's comment refutes it: when q=1 mod 3, PSL_3(q) has index 3 in PGL_3(q), so PGL_3(q) is not generated by involutions. The disproof uses q=7 and det^2 as the character."
+  },
+  "mo-370909": {
+   "date": "2026-11-28",
+   "pr": 26753,
+   "evidence": [
+    "https://mathoverflow.net/questions/370909"
+   ],
+   "reason": "Giorgio Metafune's comment gives the proof: the pointwise inequality (1+x)log(1+x) <= 2x + 2/(p-1) x^p, then integrate and use ||g||_1 <= ||g||_p. The Lean proof follows that route."
+  },
+  "mo-371077": {
+   "date": "2026-11-28",
+   "pr": 26861,
+   "evidence": [
+    "https://mathoverflow.net/questions/371077"
+   ],
+   "reason": "Alexandre Eremenko's comment gives the counterexample P(z)=(2/3)z-1/3 at z=1. The proof header credits that comment."
+  },
+  "mo-371412": {
+   "date": "2026-11-28",
+   "pr": 27541,
+   "evidence": [
+    "https://mathoverflow.net/questions/371412"
+   ],
+   "reason": "Jeremy Rickard's comment proves it: det M = +-1 and perm = det mod 2. The Lean proof is exactly that argument."
+  },
+  "mo-374153": {
+   "date": "2026-11-28",
+   "pr": 26498,
+   "evidence": [
+    "https://mathoverflow.net/questions/374153"
+   ],
+   "reason": "Benoit Kloeckner's comment gives the tripod counterexample (and the cone over the Hawaiian earring is mentioned). The disproof formalizes the tripod."
+  },
+  "mo-374711": {
+   "date": "2026-11-28",
+   "pr": 25591,
+   "evidence": [
+    "https://mathoverflow.net/questions/374711"
+   ],
+   "reason": "Federico Poloni's comment already says solutions come from rescaling an arbitrary vector. The formal solution set {0} together with sqrt(u^T B u) u for u^T A u = 1 is exactly that, and is near-trivial."
   }
  },
  "reviewed": "2026-11-28"
