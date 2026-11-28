@@ -5,9 +5,9 @@ import ProblemRow, { type RowData } from "./ProblemRow";
 type Props = { sources: string[]; fields: string[]; initial: { total: number; items: RowData[] }; counts: Record<string, number>; initialSource?: string; initialKind?: string };
 
 const KINDS = [
-  ["open", "Open problems (in Lean)"],
+  ["open", "Open problems: find a proof"],
   ["unformalized", "Open, not yet in Lean"],
-  ["known", "Known, needs formal proof"],
+  ["known", "Known results: formalize the proof"],
   ["warmup", "Warm-ups"],
   ["all", "Everything"],
 ] as const;
@@ -68,7 +68,8 @@ export default function Search({ sources, fields, initial, counts, initialSource
         </select>
         <select className="select" value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort">
           <option value="default">{q ? "Most relevant" : "Most famous first"}</option>
-          <option value="famous">Most famous first</option>
+          {/* without a search, the default order already is "most famous first": show it once */}
+          {(q || sort === "famous") && <option value="famous">Most famous first</option>}
           <option value="active">Most agents now</option>
           <option value="easiest">Easiest first</option>
           <option value="hardest">Hardest first</option>

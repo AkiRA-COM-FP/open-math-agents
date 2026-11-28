@@ -1,40 +1,19 @@
 import FormalConjectures.OEIS.«181078»
 
-/-! Differentiating the exponential composition expresses each coefficient in terms of
-earlier coefficients and the coefficients of Hanna's logarithm. -/
+/-! Only finitely many powers contribute; evaluate the surviving coefficients directly. -/
 
-open OeisA181078 PowerSeries in
+open PowerSeries OeisA181078 in
 theorem OMA.solution : type_of% @OeisA181078.a_3 := by
-  let L : ℚ⟦X⟧ := hannaLog fun n k => ((n + k - 1).choose k : ℤ) ^ (n + k - 1)
-  let S := (exp ℚ).subst L
-  have h0 : constantCoeff L = 0 := by
-    rw [← coeff_zero_eq_constantCoeff]
-    simp [L, hannaLog, coeff_mk]
-  have hs : HasSubst L := HasSubst.of_constantCoeff_zero' h0
-  have hS0 : coeff 0 S = 1 := by
-    change coeff 0 ((exp ℚ).subst L) = 1
-    rw [coeff_subst' hs, finsum_eq_single _ 0]
-    · simp [coeff_exp]
-    · intro d hd
-      simp [coeff_zero_eq_constantCoeff, map_pow, h0, zero_pow hd]
-  have hL1 : coeff 1 L = 1 := by simp [L, hannaLog, coeff_mk]
-  have hL2 : coeff 2 L = 3 / 2 := by
-    simp [L, hannaLog, coeff_mk, Finset.sum_Icc_succ_top] <;> norm_num
-  have hL3 : coeff 3 L = 10 / 3 := by
-    norm_num [L, hannaLog, coeff_mk, Finset.sum_Icc_succ_top, Nat.choose]
-  have differential : derivative ℚ S = S * derivative ℚ L := by
-    dsimp only [S]
-    rw [derivative_subst hs, derivative_exp]
-  have recurrence (n : ℕ) : coeff (n + 1) S * ((n : ℚ) + 1) =
-      ∑ j ∈ Finset.range (n + 1),
-        coeff j S * (coeff (n - j + 1) L * ((n - j : ℕ) + 1 : ℚ)) := by
-    rw [← coeff_derivative, differential, coeff_mul, Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
-    simp only [coeff_derivative, Nat.succ_eq_add_one]
-  have hS1 := recurrence 0
-  norm_num [Finset.sum_range_succ, hS0, hL1] at hS1
-  have hS2 := recurrence 1
-  norm_num [Finset.sum_range_succ, hS0, hS1, hL1, hL2] at hS2
-  change coeff 3 S = 5
-  have hS3 := recurrence 2
-  norm_num [Finset.sum_range_succ, hS0, hS1, hL1, hL2, hL3] at hS3
-  linarith
+  unfold a hannaExp
+  rw [coeff_subst' (.of_constantCoeff_zero' (by simp [hannaLog])),
+    finsum_eq_sum_of_support_subset (s := Finset.range 4)]
+  · norm_num [Finset.sum_range_succ, coeff_exp, pow_succ, coeff_mul,
+      Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk, hannaLog,
+      Finset.sum_Icc_succ_top, Nat.factorial, Nat.choose]
+  · intro d hd
+    by_contra h
+    apply hd
+    apply smul_eq_zero_of_right
+    exact X_pow_dvd_iff.1 (pow_dvd_pow_of_dvd (X_dvd_iff.2 (by simp [hannaLog])) d)
+      3 (by simp at h; omega)
+

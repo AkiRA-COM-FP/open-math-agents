@@ -1,54 +1,33 @@
 import FormalConjectures.ErdosProblems.«1136»
 
-/-! Multiples of three avoid sums that are powers of two and have density one third. -/
-
+/-! Count the multiples below `n` exactly and bound the rounding error in the density. -/
 open Filter Topology
 
 theorem OMA.solution : type_of% @Erdos1136.erdos_1136.variants.multiples_of_three := by
   constructor
   · intro a ha b hb k hsum
-    have hdiv : 3 ∣ a + b := dvd_add ha hb
-    rw [hsum] at hdiv
-    exact (show ¬ (3 : ℕ) ∣ 2 by decide)
-      ((show Nat.Prime 3 by decide).dvd_of_dvd_pow hdiv)
-  · have hcount (n : ℕ) :
-        ({m : ℕ | 3 ∣ m} ∩ Set.Iio n).ncard = (n + 2) / 3 := by
-      have hset :
-          {m : ℕ | 3 ∣ m} ∩ Set.Iio n =
-            (fun k : ℕ => 3 * k) '' Set.Iio ((n + 2) / 3) := by
+    exact (by decide : ¬ (3 : ℕ) ∣ 2)
+      (Nat.Prime.dvd_of_dvd_pow (by decide : Nat.Prime 3) (hsum ▸ dvd_add ha hb))
+  · have count (n : ℕ) : ({m : ℕ | 3 ∣ m} ∩ Set.Iio n).ncard = (n + 2) / 3 := by
+      have image : {m : ℕ | 3 ∣ m} ∩ Set.Iio n = (3 * ·) '' Set.Iio ((n+2)/3) := by
         ext m
+        simp only [Set.mem_inter_iff, Set.mem_ofPred_eq, Set.mem_Iio, Set.mem_image]
         constructor
         · rintro ⟨⟨k, rfl⟩, hk⟩
-          exact ⟨k, show k < (n + 2) / 3 by
-            have h : 3 * k < n := hk
-            omega, rfl⟩
+          exact ⟨k, by omega, rfl⟩
         · rintro ⟨k, hk, rfl⟩
-          exact ⟨⟨k, rfl⟩, show 3 * k < n by
-            have h : k < (n + 2) / 3 := hk
-            omega⟩
-      rw [hset, Set.ncard_image_of_injective _]
-      · simp
-      · intro a b hab
-        change 3 * a = 3 * b at hab
-        omega
+          exact ⟨dvd_mul_right _ _, by omega⟩
+      rw [image, Set.ncard_image_of_injective _ (by intro a b h; dsimp at h; omega)]
+      simp
     simp only [Set.HasDensity, Set.partialDensity, Set.inter_univ, Set.univ_inter,
-      hcount, Set.ncard_Iio_nat]
-    have hupper : Tendsto (fun n : ℕ => (1 / 3 : ℝ) + 1 / n) atTop (𝓝 (1 / 3)) := by
-      simpa only [add_zero] using
-        (tendsto_const_nhds.add
-          (tendsto_one_div_atTop_nhds_zero_nat :
-            Tendsto (fun n : ℕ => (1 : ℝ) / n) atTop (𝓝 0)))
-    refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hupper ?_ ?_
-    · filter_upwards [eventually_ge_atTop (1 : ℕ)] with n hn
-      have hn' : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
-      apply (le_div_iff₀ hn').mpr
-      have h : n ≤ ((n + 2) / 3) * 3 := by omega
-      have h' : (n : ℝ) ≤ (((n + 2) / 3 : ℕ) : ℝ) * 3 := by exact_mod_cast h
-      linarith
-    · filter_upwards [eventually_ge_atTop (1 : ℕ)] with n hn
-      have hn' : (0 : ℝ) < n := by exact_mod_cast (by omega : 0 < n)
-      apply (div_le_iff₀ hn').mpr
-      rw [add_mul, div_mul_cancel₀ (1 : ℝ) hn'.ne']
-      have h : ((n + 2) / 3) * 3 ≤ n + 2 := by omega
-      have h' : (((n + 2) / 3 : ℕ) : ℝ) * 3 ≤ (n : ℝ) + 2 := by exact_mod_cast h
-      linarith
+      count, Set.ncard_Iio_nat]
+    have err : Tendsto (fun n : ℕ => (↑((n+2)/3) : ℝ) / n - 1/3) atTop (𝓝 0) := by
+      apply squeeze_zero_norm' _ (tendsto_const_div_atTop_nhds_zero_nat (1 : ℝ))
+      filter_upwards [eventually_gt_atTop (0 : ℕ)] with n hn
+      have hn' : 0 < (n : ℝ) := by positivity
+      have lo : (n : ℝ) ≤ 3 * (↑((n+2)/3) : ℝ) := by exact_mod_cast (show n ≤ 3*((n+2)/3) by omega)
+      have hi : 3 * (↑((n+2)/3) : ℝ) ≤ (n : ℝ) + 2 := by exact_mod_cast (show 3*((n+2)/3) ≤ n+2 by omega)
+      rw [← mul_div_cancel_right₀ (1/3 : ℝ) hn'.ne', ← sub_div, Real.norm_eq_abs,
+        abs_div, abs_of_pos hn']
+      exact div_le_div_of_nonneg_right (abs_le.mpr ⟨by linarith, by linarith⟩) hn'.le
+    simpa using err.add_const (1/3 : ℝ)

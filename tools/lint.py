@@ -165,8 +165,20 @@ if errors:
     sys.exit(1)
 
 raw = open(path, "rb").read()
-if len(raw) > 512 * 1024:
-    errors.append("file larger than 512 KiB")
+# Proofs are capped at 512 KiB. A problem listed in tools/large_proofs.txt ("<id> <max KiB>", for a proof whose
+# smallest known form is larger, e.g. a long formal reduction) allows that much for its proof file only; the sandbox,
+# the time limit, the axiom audit and the statement guard are the same as for every other proof.
+cap_kib = 512
+if ftype == "proof":
+    try:
+        for line in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "large_proofs.txt"), encoding="utf-8"):
+            f = line.split("#", 1)[0].split()
+            if len(f) == 2 and f[0] == pid and f[1].isdigit():
+                cap_kib = max(cap_kib, min(int(f[1]), 4096))
+    except OSError:
+        pass
+if len(raw) > cap_kib * 1024:
+    errors.append(f"file larger than {cap_kib} KiB")
 try:
     src = raw.decode("utf-8")
 except UnicodeDecodeError:
@@ -233,7 +245,34 @@ if target.get("decl"):
 
 # ---- per kind ----------------------------------------------------------------------------------
 polarity, theorem = "proof", None
-if ftype == "proof":
+# Problems that ask for a value: the statement depends on a placeholder defined as `sorry` upstream
+# (data/placeholders.json). They are solved by supplying the value, OMA.answer, and proving the statement once the
+# placeholder is replaced by it: `theorem OMA.solution : <placeholder> = OMA.answer → type_of% @<decl> := ...`.
+# The axiom audit then skips the placeholder's value only (tools/check.sh); a person checks that the answer is a real
+# answer (explicit, not a restatement of the question).
+_PH_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "placeholders.json")
+PLACEHOLDERS = json.load(open(_PH_FILE, encoding="utf-8")) if os.path.exists(_PH_FILE) else {}
+ph = PLACEHOLDERS.get(pid, []) if ftype == "proof" else []
+if ph:
+    d = re.escape(target["decl"]); a = re.escape(ph[0])
+    sol = re.findall(r"\btheorem\s+OMA\.solution\s*:\s*" + a + r"\s*=\s*OMA\.answer\s*→\s*type_of%\s*@" + d + r"\s*:=", code)
+    if len(sol) != 1 or len(re.findall(r"\bOMA\.(solution|disproof)\b", code)) != 1:
+        errors.append(f"this problem asks for a value: the file must contain exactly one `theorem OMA.solution : {ph[0]} = OMA.answer → type_of% @{target['decl']} := ...` (and no OMA.disproof)")
+    defs = re.findall(r"^\s*(?:noncomputable\s+)?(?:def|abbrev)\s+OMA\.answer\b(.*?)(?=^\S|\Z)", code, re.M | re.S)
+    if len(defs) != 1:
+        errors.append("define the value exactly once: `def OMA.answer : <same type as the placeholder> := <explicit value>`")
+    else:
+        body = defs[0]
+        top = target["decl"].split(".")[0]
+        if re.search(r"(?<![\w.])" + re.escape(top) + r"\.", body) or re.search(r"^\s*(open|namespace)\s+[^\n]*\b" + re.escape(top) + r"\b", code, re.M):
+            errors.append(f"OMA.answer may not use the problem's own definitions ({top}.…): give the value itself, not a restatement of the question")
+        if re.search(re.escape(ph[0].split(".")[-2] + "." + ph[0].split(".")[-1]) if "." in ph[0] else re.escape(ph[0]), body):
+            errors.append("OMA.answer may not mention the placeholder")
+        if re.search(r"\b(Classical\.choose|Exists\.choose|Classical\.epsilon|Classical\.indefiniteDescription|Nat\.find|sInf|sSup|iInf|iSup|Function\.invFun|limUnder|choose)\b|[⨅⨆]", body):
+            errors.append("OMA.answer must be an explicit value: no choice, infimum/supremum or limit of the very quantity asked for")
+    polarity, theorem = "proof", "OMA.solution"
+    out["skipAxiomsOf"] = ph
+elif ftype == "proof":
     d = re.escape(target["decl"])
     proof = re.findall(r"\btheorem\s+OMA\.solution\s*:\s*type_of%\s*@" + d + r"\s*:=", code)
     disproof = re.findall(r"\btheorem\s+OMA\.disproof\s*:\s*¬\s*\(\s*type_of%\s*@" + d + r"\s*\)\s*:=", code)
@@ -291,6 +330,9 @@ else:  # reduction
 
 ok = not errors
 out.update(ok=ok, kind=target["kind"], polarity=polarity, theorem=theorem, imports=target["import"], errors=errors)
+# The statement the submitted theorem must have, exactly as written in the file (tools/check.sh re-checks it from the
+# root namespace: inside `theorem OMA.solution : ...` names resolve in namespace OMA first).
+out["target"] = target.get("statement") or ""
 if target.get("decl"):
     out["decl"] = target["decl"]
 if target.get("reduction"):

@@ -1,3 +1,6 @@
+import { avatarUrl } from "@/lib/avatar";
+import SupporterBadge from "@/components/SupporterBadge";
+import { getSupporters } from "@/lib/supporters";
 import { outcomeOf, outcomeText, outcomeCounts, outcomeSummary, outcomeBadge } from "@/lib/outcome";
 import type { Metadata } from "next";
 import Link from "@/components/Link";
@@ -8,6 +11,8 @@ import { getProfile, getLeaderboard2, type Profile } from "@/lib/db";
 import { getProblem } from "@/lib/catalog";
 import { SITE } from "@/lib/site";
 import { ago } from "@/lib/time";
+import { segment } from "@/lib/params";
+import { submissionsOf, STATE_TEXT, type Submission, type PrList } from "@/lib/submissions";
 
 export const revalidate = 120;
 type Props = { params: Promise<{ handle: string }> };
@@ -17,7 +22,8 @@ const VERB: Record<string, string> = { note: "Left notes on", claim: "Took", rel
 const STATUS: Record<string, [string, string]> = { accepted: ["Checked", "ok"], rejected: ["Rejected", "bad"], submit: ["Sent", ""], claim: ["Taken", ""], release: ["Handed back", ""], fault: ["Fault", "bad"], reduced: ["Split", ""], formalized: ["Stated", "ok"] };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const h = decodeURIComponent((await params).handle);
+  const h = segment((await params).handle);
+  if (!HANDLE.test(h)) return {};
   return { title: `@${h}`, description: `@${h} on Left to Solve: rank, points, every problem taken and every proof checked by Lean.` };
 }
 
@@ -55,10 +61,54 @@ function Timeline({ p }: { p: Profile }) {
   );
 }
 
+const SUB: Record<Submission["state"], [string, string]> = {
+  sent: ["Sent", ""], queued: ["Queued", ""], checking: ["Checking", "live"], verdict: ["Checked", ""], review: ["Accepted", "ok"],
+  accepted: ["Merged", "ok"], rejected: ["Rejected", "bad"], checked: ["Checked", ""], fault: ["Fault", "bad"],
+};
+const minutes = (m: number) => (m < 90 ? `${m} min` : `${Math.round(m / 60)} h`);
+function subDetail(s: Submission): string {
+  if (s.state === "queued") return `About ${s.ahead ?? 0} checks ahead of it: expected to start in about ${minutes(s.waitMin ?? 2)} (estimate).`;
+  if (s.state === "rejected") return `${s.reason ? `Reason: ${s.reason}.` : "The reason is in a comment on the pull request."} Push a fixed file to the same pull request, or move on.`;
+  return STATE_TEXT[s.state] + ".";
+}
+
+/** Each recent submission and where it stands (lib/submissions.ts): queued, being checked, accepted, rejected. */
+function Submissions({ h, items, list, now }: { h: string; items: Submission[]; list: PrList | null; now: { waiting: number; minutes: number } | null }) {
+  if (!items.length) return null;
+  const q = list?.queue;
+  return (
+    <section className="panel" style={{ marginTop: 18 }} id="submissions">
+      <h3 className="ph">Submissions and their status</h3>
+      <p className="sub">
+        {list ? <>Checker status as of {utc(list.at)} (refreshed every 15 minutes). </> : null}
+        {q && now ? <>About {now.waiting} submissions are waiting for their check{q.perHour ? <>, at {q.perHour} verdicts in the last hour</> : <>, {q.running} checked at a time</>}: one sent now is checked in roughly {minutes(now.minutes)} (estimate). </> : null}
+        Accepted proofs are merged and credited; a rejected one stays open on GitHub with the reason in a comment. As JSON for an agent: <a href={`/api/pending?handle=${encodeURIComponent(h)}`}>/api/pending?handle={h}</a>
+      </p>
+      <div className="plist">
+        {items.map((s) => {
+          const [label, cls] = SUB[s.state];
+          return (
+            <div key={`${s.pr ?? ""}:${s.id}:${s.at}`} className="pitem">
+              <span className={`chk ${cls}`}>{label}</span>
+              <code>{s.url ? <a href={s.url} target="_blank" rel="noreferrer">#{s.pr}</a> : "no pull request yet"}</code>
+              <span className="pt" style={{ whiteSpace: "normal" }}>
+                <Link href={`/p/${encodeURIComponent(s.id)}`}>{s.id.length > 60 ? s.id.slice(0, 59) + "…" : s.id}</Link>
+                <small style={{ display: "block", color: "var(--faint)" }}>{subDetail(s)}</small>
+              </span>
+              <time>{s.state === "accepted" ? "merged" : "since"} {ago(s.at)}</time>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default async function Person({ params }: Props) {
-  const h = decodeURIComponent((await params).handle);
+  const h = segment((await params).handle);
   if (!HANDLE.test(h)) notFound();
-  const [p, board] = await Promise.all([getProfile(h), getLeaderboard2()]);
+  const [p, board, supporters] = await Promise.all([getProfile(h), getLeaderboard2(), getSupporters()]);
+  const subs = await submissionsOf(h, p).catch(() => ({ items: [] as Submission[], list: null, now: null }));
   const prob = (id: string) => getProblem(id);
   const title = (id: string) => prob(id)?.title ?? id;
   const active = Boolean(p && (p.claims > 0 || p.solutions.length > 0 || p.events.length > 0));
@@ -87,13 +137,13 @@ export default async function Person({ params }: Props) {
       <section className="phead">
         <div className="pid">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={`https://github.com/${h}.png?size=192`} alt="" width={96} height={96} className="avatar" />
+          <img src={avatarUrl(h, 192)} alt="" width={96} height={96} className="avatar" />
           <div>
             <div className="eyebrow2">
               <a href={`https://github.com/${h}`} target="_blank" rel="noreferrer">github.com/{h}</a>
               {mainField ? <> · {mainField.toUpperCase()}</> : null}
             </div>
-            <h1>@{h}</h1>
+            <h1>@{h} <SupporterBadge s={supporters.get(h.toLowerCase())} /></h1>
             <p className="lead2">{summary}</p>
             <div className="pactions">
               <Link className="btn primary" href="/map">See the map</Link>
@@ -114,13 +164,15 @@ export default async function Person({ params }: Props) {
           )}
           <div className="rankkpis">
             <div><b>{p?.points ?? me?.points ?? 0}</b><span>points</span></div>
-            <div><b>{proofs.filter((s) => outcomeOf(prob(s.problem_id)?.kind) === "open").length}</b><span>open problems solved</span></div>
+            <div><b>{proofs.filter((s) => outcomeOf(prob(s.problem_id)?.kind, s.problem_id) === "open").length}</b><span>open problems solved</span></div>
             <div><b>{proofs.length}</b><span>Lean proofs</span></div>
             <div><b>{ev.length > 1 ? span(ev[0].created_at, ev[ev.length - 1].created_at) : "—"}</b><span>first to latest</span></div>
             <div><b>{firstProof ? day(firstProof) : "—"}</b><span>first proof</span></div>
           </div>
         </aside>
       </section>
+
+      <Submissions h={h} items={subs.items} list={subs.list} now={subs.now} />
 
       {active && p && (<>
         <div className="kpis">
@@ -200,7 +252,7 @@ export default async function Person({ params }: Props) {
                   <Link key={e.id} href={`/p/${encodeURIComponent(e.problem_id)}`} className="pitem">
                     <span className={`chk ${cls}`}>{label}</span>
                     <code>{e.problem_id.length > 28 ? e.problem_id.slice(0, 27) + "…" : e.problem_id}</code>
-                    <span className="pt">{e.kind === "accepted" ? `${outcomeOf(prob(e.problem_id)?.kind) === "open" ? "Solved the open problem" : outcomeOf(prob(e.problem_id)?.kind) === "known" ? "Formalized in Lean (known result)" : outcomeOf(prob(e.problem_id)?.kind) === "warmup" ? "Did the warm-up" : "Proved a step:"}` : VERB[e.kind] ?? e.kind} {title(e.problem_id)}{e.kind === "release" && e.detail ? ` (${e.detail.replace(/_/g, " ")})` : ""}</span>
+                    <span className="pt">{e.kind === "accepted" ? `${outcomeOf(prob(e.problem_id)?.kind, e.problem_id) === "open" ? "Solved the open problem" : outcomeOf(prob(e.problem_id)?.kind) === "known" ? "Formalized in Lean (known result)" : outcomeOf(prob(e.problem_id)?.kind) === "warmup" ? "Did the warm-up" : "Proved a step:"}` : VERB[e.kind] ?? e.kind} {title(e.problem_id)}{e.kind === "release" && e.detail ? ` (${e.detail.replace(/_/g, " ")})` : ""}</span>
                     <time>{day(e.created_at)} {new Date(e.created_at).toISOString().slice(11, 16)}</time>
                   </Link>
                 );
