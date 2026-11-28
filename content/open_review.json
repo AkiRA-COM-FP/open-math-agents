@@ -20816,6 +20816,23 @@
     "https://oeis.org/A055040"
    ],
    "reason": "The disproof exploits only a printed slip: the conjectured g.f. lacks the factor 3 (it starts 2,5,8,11, i.e. A055048 = A055040/3), so the x^1 coefficient is 2, not 6. The statement transcribes the line literally. The repaired conjecture 3*g.f. is in fact also false (first at n=61: a(61)=486 but the coefficient is 492, checked), but that is only remarked in the statement file and not proved. Index/factor-slip disproof."
+  },
+  "mo-26856": {
+   "date": "2026-11-28",
+   "pr": 25605,
+   "evidence": [
+    "https://mathoverflow.net/questions/26856"
+   ],
+   "reason": "The question asks whether q in Ass(M/xM) lies in Supp(M/xM). That is the general fact Ass(N) is contained in Supp(N), as the top comment (score 7) and the asker's follow-up comment of 2010-06-02/03 already say. The proof header confirms that none of the other hypotheses are used. Trivial and settled in the source comments."
+  },
+  "mo-450037": {
+   "date": "2026-11-28",
+   "pr": 29583,
+   "evidence": [
+    "https://mathoverflow.net/questions/450037",
+    "https://github.com/connoranderson/open-math-agents/blob/eb9153a9e3c88aca39758e8c206232e47a1c66d0/proofs/mo-450037.lean"
+   ],
+   "reason": "The question is open-ended ('under what condition will P_k be linearly independent?'). The statement answers it with near-tautological criteria: full rank of an evaluation table on a large enough grid, and nonvanishing of the Gram determinant of the symmetric tensors for squares of linear forms. These restate linear independence rather than giving a usable condition. The proof is also an unchanged port of @connoranderson's earlier public proof (statement PR #21676)."
   }
  },
  "known": {
@@ -38012,6 +38029,74 @@
     "https://github.com/the-omega-institute/trureturing-experiments/commit/a64b7ca"
    ],
    "reason": "Tebni's two congruences (a(p) == 5 mod p for p == 1 mod 4, a(p) == -1 mod p for p == 3 mod 4) are faithful, and I checked them for p < 60. trureturing-experiments (commit a64b7ca, 2026-10-17) treats A372239/A372420/A372611 together: a_c(n) = b(n) + c b(n-1), with 'the proof's two congruences' b(p) == 2((-1)^((p-1)/2)+1) and b(p-1) == (-1)^((p-1)/2) mod p. Those are checked numerically there, not proved. They follow at once from C(2k,k) == (-4)^k C((p-1)/2,k), so the argument was public before the site proof; at worst this is routine."
+  },
+  "mo-489778": {
+   "date": "2026-11-28",
+   "pr": 29658,
+   "evidence": [
+    "https://mathoverflow.net/questions/489778"
+   ],
+   "reason": "The statement is the joint claim for O(p,p) and O(p,p+1), and the site disproves it with a 3 X 3 element of O(1,2) similar to a full Jordan block. The statement docstring and the proof header both say this counterexample is the signed/permuted form of the one in Iosif Pinelis's (and LSpice's) existing answers on the source page. Not new."
+  },
+  "mo-211562": {
+   "date": "2026-11-28",
+   "pr": 16484,
+   "evidence": [
+    "https://mathoverflow.net/questions/211562"
+   ],
+   "reason": "Faithful: a subgroup definable without parameters in the pure group language is characteristic, hence normal. The source comments (score-10 comment of 2015-07-14) already say this is 'rather a triviality than a theorem', since automorphisms preserve parameter-free definable sets. The proof is exactly that observation. Settled and trivial."
+  },
+  "mo-353633": {
+   "date": "2026-11-28",
+   "pr": 16198,
+   "evidence": [
+    "https://mathoverflow.net/questions/353633"
+   ],
+   "reason": "Faithful (rank of the n X n Vandermonde matrix equals the number of distinct nodes). Settled in the source comments: Brunault's comment (2020-02-26) gives the argument, the asker accepts it (2020-03-03), and other comments point to Wikipedia and Lam (1986). Well known."
+  },
+  "mo-209949": {
+   "date": "2026-11-28",
+   "pr": 29622,
+   "evidence": [
+    "https://mathoverflow.net/questions/209949",
+    "https://github.com/connoranderson/open-math-agents/blob/bc13fddc9f1ad8880eef559c20b33cd94762a192/proofs/mo-209949.lean"
+   ],
+   "reason": "The endpoint derivative orders match the question (n=3..6 checked). Renardy's answer already shows non-uniform convergence in the case C=D. The proof file says it is a credited, unchanged port of @connoranderson's earlier public proof linked from statement PR #21291 ('not a claim of a new mathematical discovery'). The third conjunct is vacuous, since a differentiable limit forces c=d. An adapted earlier public solution: known."
+  },
+  "opg-three-chromatic-0-2-graphs": {
+   "date": "2026-11-28",
+   "pr": 29610,
+   "evidence": [
+    "http://www.openproblemgarden.org/op/three_chromatic_0_2_graphs",
+    "https://arxiv.org/abs/2607.10125"
+   ],
+   "reason": "Faithful (finite graphs; the question is answered negatively). C. Williamson, 'Finite Three-Colourable (0,2)-Graphs Are Bipartite', arXiv:2607.10125 (July 2026), proves exactly this, and the graph-conjectures mirror marks it solved. The site's Lean proof follows the same route: cyclic colour label, square-closed edge labels, divergence-free least-squares argument. Not new."
+  },
+  "arxiv-2001.00181": {
+   "date": "2026-11-28",
+   "pr": 29668,
+   "evidence": [
+    "https://arxiv.org/abs/2001.00181",
+    "https://arxiv.org/abs/2408.15074"
+   ],
+   "reason": "Faithful formalization of Wang-Wang Conjecture 3.4 (squid graph Sq(2n-1;1^n) is not Schur positive for n>=3). The statement docstring itself notes it was proved by Li-Li-Yang-Zhang, arXiv:2408.15074 (FPSAC 2025, Theorem 4.1), by comparing the monomial coefficients for (n,n,n-1) and (n+1,n-1,n-1). The site proof uses the same Kostka-dominance comparison of those two contents. Not new."
+  },
+  "arxiv-2107.09327": {
+   "date": "2026-11-28",
+   "pr": 29605,
+   "evidence": [
+    "https://arxiv.org/abs/2107.09327"
+   ],
+   "reason": "The statement is the Meagher-Razafimahatratra-Spiga conjecture (intersection density 1 for transitive groups of degree pq), and its docstring says it was disproved in the source paper itself. arXiv:2107.09327 constructs imprimitive groups of degree pq with p=(q^k-1)/(q-1). The site's counterexample is the degree-39 case (p=13, q=3) built from the [13,3]_3 simplex code. A formalization of the source's own disproof: known."
+  },
+  "opg-every-metamonovalued-reloid-is-monovalued": {
+   "date": "2026-11-28",
+   "pr": 14361,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/every_metamonovalued_reloid_is_monovalued",
+    "https://eulersolve.org/papers/opg-57403/paper.pdf"
+   ],
+   "reason": "Faithful to Porton's definitions (reloid = filter on A x B, composition via relational composition, monovalued f o f^-1 <= id). A. Ferudun, 'Two Problems of Porton on Reloids' (eulersolve.org, dated 2026-10-08), Theorem 1.1/Cor. 4.1, already proves every metamonovalued reloid is monovalued. It tests with id_B and the off-diagonal relation; the site proof uses the same kind of disjoint pair. Not new."
   }
  },
  "reviewed": "2026-11-28"
