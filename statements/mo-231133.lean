@@ -33,7 +33,7 @@ theorem main : ∀ {n : ℕ} (A : Mat n) (hA : A.IsHermitian),
         nuclear (A - (U : Mat n)*D*(U : Mat n)ᴴ) = lower hA hD) ∧
     (∀ (s : ℝ) (B : Mat n), mix A (s:ℂ) B = A - (-(s • (B+Bᴴ)))) ∧
     (∀ (b : ℂ), b.im≠0 → ∀ (H T : Mat n), H.IsHermitian → T.IsHermitian →
-      (∃ B : Mat n, B+Bᴴ = H ∧ mix A b B = T ∧ ¬ B.IsHermitian) ↔ T ≠ A+b.re • H) := by
+      ((∃ B : Mat n, B+Bᴴ = H ∧ mix A b B = T ∧ ¬ B.IsHermitian) ↔ T ≠ A+b.re • H)) := by
   sorry
 
 end OMA.S_mo_231133
