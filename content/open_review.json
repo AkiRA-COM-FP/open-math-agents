@@ -17616,6 +17616,22 @@
     "https://oeis.org/A008290"
    ],
    "reason": "Triviality. Keith's 'conjecture' a(n) = sum_k A008290(n,k)*A059841(k) just splits permutations by their number of fixed points and keeps the even counts. With T(n,k) and a(n) defined (as here) by the same fixed-point count over Perm(Fin n), the identity follows from the definitions (partition a finite set by a statistic). The formalization is faithful, but nothing open was settled."
+  },
+  "oeis-a350142": {
+   "date": "2026-11-28",
+   "pr": 23857,
+   "evidence": [
+    "https://oeis.org/A350142"
+   ],
+   "reason": "Trivial as formalized. For m = 2^k + 1, tau(m-1) = tau(2^k) = k + 1, so 'tau(m-2) = tau(m-1) - 1' and 'tau(m-2) = k' are the same equation. Krizek's Conjecture 1 is a tautology, and the proof is just tau(2^k) = k+1. The substantive Conjectures 2 and 3 are untouched."
+  },
+  "oeis-a358982": {
+   "date": "2026-11-28",
+   "pr": 26405,
+   "evidence": [
+    "https://oeis.org/A358982"
+   ],
+   "reason": "Trivial as formalized. The statement is literally 'infinitely many x with digitsum(x^3) < digitsum(x)', and the proof takes x = 587*10^N (digit sums 17 < 20); appending zeros changes no digit sum. Raab's example line says this 'can heuristically be conjectured', which only makes sense for x not divisible by 10 (or some similar restriction), so the formal statement misses the intended content."
   }
  },
  "known": {
@@ -33030,6 +33046,147 @@
     "https://isitsolved.com/journal/844f1dfae2e1"
    ],
    "reason": "Second review: Proved on isitsolved about 5h before the site commit."
+  },
+  "oeis-a338076": {
+   "date": "2026-11-28",
+   "pr": 22740,
+   "evidence": [
+    "https://oeis.org/A338076",
+    "https://oeis.org/A338076 (formula line by Vaclav Kotesovec, Oct 28 2020)"
+   ],
+   "reason": "The entry already records a(n) = 6^n*(3n)!/n!^3 (Kotesovec, Oct 28 2020, 3 days after Israel's conjectures), the obvious multinomial count of x^n y^n z^n in sum (x+2y+3z)^m. Both the ratio recurrence and the 2F1 g.f. follow at once from it, and the proof does exactly this (a_eq, then ratio). Statement is faithful."
+  },
+  "oeis-a340424": {
+   "date": "2026-11-28",
+   "pr": 25491,
+   "evidence": [
+    "https://oeis.org/A340424",
+    "https://oeis.org/A245099",
+    "https://oeis.org/A066186"
+   ],
+   "reason": "Row n of A340424 is the reversal of row n of A245099, whose entry already states 'Row sums give A066186'; A066186 likewise carries Pol's 2014 formula a(n) = Sum_{k=1..n} A024916(k)*A002865(n-k), which is the same identity. It is the classical n*p(n) = Sum sigma(k) p(n-k) after summation by parts, which the proof re-derives (euler, row_sum)."
+  },
+  "oeis-a340881": {
+   "date": "2026-11-28",
+   "pr": 25306,
+   "evidence": [
+    "https://oeis.org/A340881",
+    "https://raw.githubusercontent.com/umaia1234/agentic-conjectures/main/problems/oeis-a340881/README.md",
+    "https://data.palomar-registry.org/api/v1/results?q=A340881"
+   ],
+   "reason": "Bala's conjecture 1 (pure periodicity mod p, minimal period dividing 2(p-1)) was proved by umaia1234/agentic-conjectures (status 'proved', dated by 2026-08-11), which also gives the explicit period 2*ord_m(2) for odd m; the Palomar entry PALOMAR-2026-11-17-000003 cites this. The Lean proof is the same short recurrence-mod-p argument. Statement faithful."
+  },
+  "oeis-a344197": {
+   "date": "2026-11-28",
+   "pr": 24340,
+   "evidence": [
+    "https://oeis.org/A344197",
+    "https://github.com/lefttosolve2/open-math-agents/pull/24322"
+   ],
+   "reason": "Duplicate on this site: the main conjunct is word for word the same general Song conjecture as oeis-a344177 (PR #24322, merged 25 s earlier, same author). The r=5, k=1 specialization (20 | m) follows from it, since ord_5(2) = 4. Statement faithful."
+  },
+  "oeis-a344198": {
+   "date": "2026-11-28",
+   "pr": 24351,
+   "evidence": [
+    "https://oeis.org/A344198",
+    "https://github.com/lefttosolve2/open-math-agents/pull/24322"
+   ],
+   "reason": "Duplicate on this site: the main conjunct is word for word the same general Song conjecture as oeis-a344177 (PR #24322, merged seconds earlier, same author). The r=k=3 (6 | m, plus equivalence with the r=9, k=1 case) specialization follows from it by reading off conditions (a) and (b) with ord_3(2) = 2 and ord_5(2) = 4. Statement faithful."
+  },
+  "oeis-a344199": {
+   "date": "2026-11-28",
+   "pr": 24357,
+   "evidence": [
+    "https://oeis.org/A344199",
+    "https://github.com/lefttosolve2/open-math-agents/pull/24322"
+   ],
+   "reason": "Duplicate on this site: the main conjunct is word for word the same general Song conjecture as oeis-a344177 (PR #24322, merged seconds earlier, same author). The r=3, k=5 (6 | m, and 20 | m when 5 | m) specialization follows from it by reading off conditions (a) and (b) with ord_3(2) = 2 and ord_5(2) = 4. Statement faithful."
+  },
+  "oeis-a344200": {
+   "date": "2026-11-28",
+   "pr": 24366,
+   "evidence": [
+    "https://oeis.org/A344200",
+    "https://github.com/lefttosolve2/open-math-agents/pull/24322"
+   ],
+   "reason": "Duplicate on this site: the main conjunct is word for word the same general Song conjecture as oeis-a344177 (PR #24322, merged seconds earlier, same author). The r=5, k=3 (20 | m) specialization follows from it by reading off conditions (a) and (b) with ord_3(2) = 2 and ord_5(2) = 4. Statement faithful."
+  },
+  "oeis-a350383": {
+   "date": "2026-11-28",
+   "pr": 24111,
+   "evidence": [
+    "https://oeis.org/A350383",
+    "https://github.com/rbajaj5/a183068-supercongruence/blob/main/related-results/CyclotomicRationalFramingTower.md",
+    "https://github.com/rbajaj5/a183068-supercongruence/blob/main/related-results/CyclotomicCoefficientPairTheorem.md"
+   ],
+   "reason": "rbajaj5/a183068-supercongruence (related-results/CyclotomicCoefficientPairTheorem.md and CyclotomicRationalFramingTower.md, in the repo by Oct 15 2026) gives a complete elementary proof of both Bala conjectures: the A350383 tower mod p^(2r) for p >= 5, and the general cyclotomic-quotient principle with an explicit exceptional set (p | D_f or p = 2). That covers both conjuncts of the statement. The site proof merged on 2026-11-28."
+  },
+  "oeis-a350759": {
+   "date": "2026-11-28",
+   "pr": 24162,
+   "evidence": [
+    "https://oeis.org/A350759",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Congruence/TebniA350759PrimeCongruences.lean"
+   ],
+   "reason": "the-omega-institute/trureturing proves both of Tebni's prime congruences, a(p)+a(p+1)-2 == 0 (mod p) and a(p+1) == 1 (mod p(p+1)), in Lean, from the e.g.f. exp(-1+(1+x)(1-log(1+x))). The file is D5/S3/Arith/Congruence/TebniA350759PrimeCongruences.lean, first committed 2026-10-29; the site proof merged on 2026-11-28. The site statement (the Stirling-sum definition, first congruence only) is equivalent via the entry's formulas."
+  },
+  "oeis-a352425": {
+   "date": "2026-11-28",
+   "pr": 26776,
+   "evidence": [
+    "https://oeis.org/A352425",
+    "https://github.com/lefttosolve2/open-math-agents/pull/25462",
+    "https://oeis.org/A341309"
+   ],
+   "reason": "Duplicate on this site: it is the same conjecture (number of parts in partitions of n into an odd number of consecutive parts = A341309(n)) as Pol's Conjecture 1 in oeis-a341309, solved by PR #25462, merged 12:39 UTC on 2026-11-28, before this PR (#26776, 13:15 UTC). The statement is faithful and the result is elementary."
+  },
+  "oeis-a354139": {
+   "date": "2026-11-28",
+   "pr": 24902,
+   "evidence": [
+    "https://oeis.org/A354139",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Sorry/NumberComplexity/A354139LeastSumRad.lean"
+   ],
+   "reason": "thatnealpatel/proofs has a complete Lean proof (no sorry) of exactly this conjecture with the same definitions (rad n times Luschny's product form of A193267, as IsLeast of the same set): Proofs/Sorry/NumberComplexity/A354139LeastSumRad.lean, theorem a354139_conjecture, committed 2026-10-25. The site proof merged on 2026-11-28. I also checked the formula against brute force for n <= 24."
+  },
+  "oeis-a355448": {
+   "date": "2026-11-28",
+   "pr": 25844,
+   "evidence": [
+    "https://oeis.org/A355448",
+    "https://oeis.org/A355448/a355448.pdf"
+   ],
+   "reason": "The entry already contains the argument: Mathar's comment of Feb 07 2023, with his linked PDF, observes that a(p^e) = 1 iff e is not == 1 (mod 3), which matches |A307424(p^e)| (1, 0, 1 for e == 0, 1, 2 mod 3), 'an immediate consequence is that a(n) = |A307424(n)| is true'. The site proof header itself cites Mathar's argument. Statement faithful."
+  },
+  "oeis-a359506": {
+   "date": "2026-11-28",
+   "pr": 27363,
+   "evidence": [
+    "https://oeis.org/A359506",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Additive/GreathouseA359506XorBound.lean"
+   ],
+   "reason": "the-omega-institute/trureturing proves Greathouse's bound a(n) <= 5(n+1)/3 in Lean, with the exact least ender 2^s(2k+3) for n+1 = 2^s(2k+1), k >= 1, and 3*2^s for n+1 = 2^(s+1). The file is D5/S3/Arith/Additive/GreathouseA359506XorBound.lean, first committed 2026-10-29. The other two conjuncts (a(n) >= n+3, a(4n) = 4n+3) are Greathouse's stated facts and follow from the same closed form. The site statement is faithful."
+  },
+  "oeis-a359507": {
+   "date": "2026-11-28",
+   "pr": 24949,
+   "evidence": [
+    "https://oeis.org/A359507",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Additive/GreathouseA359506XorBound.lean",
+    "https://oeis.org/A359506"
+   ],
+   "reason": "A359507(n) = A359506(n) - n, and trureturing's A359506 file (2026-10-29) proves the exact least ender: 2^s(2k+3) when n+1 = 2^s(2k+1), k >= 1, and 3*2^s when n+1 = 2^(s+1). The difference is then 2^(s+1)+1 or 2^s+1, which is exactly Kagey's conjecture, and the site proof derives the same closed form. I recomputed a(0..19), and they match the data."
+  },
+  "oeis-a359508": {
+   "date": "2026-11-28",
+   "pr": 27353,
+   "evidence": [
+    "https://oeis.org/A359508",
+    "https://github.com/lefttosolve2/open-math-agents/pull/24949",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Additive/GreathouseA359506XorBound.lean"
+   ],
+   "reason": "Duplicate: the formal statement (A359507(n) is of the form 2^m + 1 for n >= 1) is the same claim as oeis-a359507, solved on this site by PR #24949 (merged 12:21 UTC on 2026-11-28, before this PR #27353 at 13:32 UTC, same author). It is also implied by the exact least-ender formula in trureturing's A359506 file (2026-10-29)."
   }
  },
  "reviewed": "2026-11-28"
