@@ -28,3 +28,4 @@ theorem main : ∀ n : ℕ, 3 < n →
   sorry
 
 end OMA.S_oeis_a255472
+-- ci: re-run check-proof
