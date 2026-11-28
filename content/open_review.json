@@ -8894,6 +8894,403 @@
     "https://oeis.org/A079269"
    ],
    "note": "Quet's numerator recurrence a(m+1) = a(m)^2 + a(m)^3/(2a(m-1)^2) - a(m)a(m-1)^2/2 (m>=2, rational divisions) is stated with a(n) = num(b(n)) and the source offset. I checked the data and the identity for m<12 with exact rationals. trureturing proves only the companion denominator recurrence (A079278) and explicitly says it does not claim the A079269 numerator one. No other prior proof found. Routine algebra from b -> b(b+2)/(b+1). Second review: A numerator recurrence from b' = b(2b+1)/(b+1) and coprimality. Routine."
+  },
+  "oeis-a004257": {
+   "date": "2026-11-28",
+   "pr": 27677,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A004257",
+    "https://oeis.org/A004257"
+   ],
+   "note": "Kurkov's identity round(log_2 n) = A000523(n^2) - A000523(n) is stated faithfully (Real.logb, Mathlib round = floor(x+1/2), Nat.log 2). It is Hermite's identity floor(2x) - floor(x) = floor(x + 1/2) at x = log_2 n, so it is routine. I checked it exactly for n < 200000. No prior written proof found in the entry, the libraries, the proof collections or Palomar. Second review: Faithful. Kurkov's conjecture is an immediate instance of Hermite's identity, so it is trivially true but not vacuous. No prior written proof located."
+  },
+  "oeis-a005121": {
+   "date": "2026-11-28",
+   "pr": 13799,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A005121",
+    "https://oeis.org/A005121",
+    "https://github.com/the-omega-institute/trureturing/issues/27085"
+   ],
+   "note": "Mohapatra's Oct 2026 triangle conjecture a(n) = R(n,n) is encoded faithfully: Lengyel's Stirling recurrence defines a, and R(n,n) is written as the sum of the row entries R(n,j), j < n. It holds for n <= 15. The proof introduces Stirling-weighted row moments and swaps the sums to recover Lengyel's recurrence on the diagonal; that is a genuine short argument. No prior proof found (the conjecture is a month old; no hit in the libraries, BG/Fried, Palomar or Epoch). Second review: Faithful and recent. The only other activity is a trureturing preregistration that states no Lean proof exists yet; I found no published settlement."
+  },
+  "oeis-a006134": {
+   "date": "2026-11-28",
+   "pr": 26479,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A006134",
+    "https://oeis.org/A013580",
+    "https://oeis.org/A231147",
+    "https://oeis.org/A006134",
+    "https://oeis.org/A013580",
+    "https://oeis.org/A231147"
+   ],
+   "note": "Wiseman's two marked identities a(n) = A013580(2n+1,n+1) and a(n) = A231147(2n+1,n+1) are encoded with the right coordinate shifts: one-based rows/medians and integer-median columns at even positions. Checked against the printed triangles. Both are one-line coefficient extractions: from Jovovic's g.f. 1/((1-(1+y)x)(1-yx^2)) for A013580, and from [x^j](1+x^2)^j for the numerator of p(N,x+1/x). So the 77-line proof is routine. No prior written proof found. Second review: Faithful; both identities are short g.f. consequences of formulas already in the entries. No prior proof located."
+  },
+  "oeis-a008366": {
+   "date": "2026-11-28",
+   "pr": 27275,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A008366",
+    "https://oeis.org/A008366"
+   ],
+   "note": "Detlefs' characterization (n > 1 divides both Sum k^10 and Sum k^12 iff minFac(n) >= 17) is stated faithfully, and it holds for n < 5000. The proof clears Faulhaber's formula (denominators 66 and 2730, with constant terms 5 and -691 coprime to them). That is the standard von Staudt-Clausen-type argument, so it is routine. No proof found in the entry, its sister rough-number entries (the analogous A008364 power-sum conjecture is still open there), the libraries or the proof collections. Second review: Faithful and true; short number-theoretic argument (p-1 | 10 or 12 for p<=13, plus prime-power lifting). No prior proof found."
+  },
+  "oeis-a023861": {
+   "date": "2026-11-28",
+   "pr": 24985,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A023861",
+    "https://oeis.org/A023861"
+   ],
+   "note": "Voznyy's 2009 rational g.f. for the weighted Lucas sums a(n) = Sum_{k<floor((n+1)/2)} (k+1) L(n-k) is encoded faithfully, with the sign normalized and the denominator cleared. I checked the definition against the data and the identity to 60 terms. The proof handles the even and odd cases of the cutoff with recurrences, so it is routine. No prior proof found. Second review: Faithful rational g.f. identity, routine. No prior proof found."
+  },
+  "oeis-a023871": {
+   "date": "2026-11-28",
+   "pr": 13674,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A023871",
+    "https://github.com/rbajaj5/a183068-supercongruence/blob/main/related-results/EulerProductCubicCartierMoments.md",
+    "https://oeis.org/A023871",
+    "https://oeis.org/A380290",
+    "https://github.com/rbajaj5/a183068-supercongruence/blob/main/RELATED_RESULTS.md"
+   ],
+   "note": "Bala's supercongruence u(np^r) = u(np^{r-1}) mod p^{3r} for p >= 7 (u(n) = [x^n] A(x)^n, A truncated at k <= n, which is harmless) is stated faithfully. I checked p = 7, 11, 13 with r = 1 and p = 7 with r = 2; it fails at p = 5 as expected. The prescreen hit is rbajaj5/a183068-supercongruence. Its campaign table (current main) lists A023871 only as 'partial': the p^{2r} baseline is proved, but the Cartier-square bound needed for p^{3r} remains open there. The 1993-line site proof establishes the full p^{3r} tower via the Cartier-square estimate, so it goes beyond the public partial result. Second review: Faithful statement of Bala's p>=7 cubic supercongruence; the strongest public prior work (rbajaj5) explicitly leaves it open. Deep result, not routine."
+  },
+  "oeis-a024385": {
+   "date": "2026-11-28",
+   "pr": 25142,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A024385",
+    "https://oeis.org/A024385"
+   ],
+   "note": "Mathar's recurrence (n >= 9, offset 1) and g.f. for floor(e2/e1) of the first n+1 numbers = 1 mod 4 are stated faithfully: a(0) = 0 is padding, and the sign of the g.f. is normalized. Both hold to n = 300, and the recurrence fails at n = 8 only through the padding, so the range is right. The proof writes e1 and e2 as polynomials and then evaluates the floor of their ratio, which is routine. No prior proof found. Second review: Faithful, routine quasi-polynomial/g.f. identity. No prior proof found."
+  },
+  "oeis-a024459": {
+   "date": "2026-11-28",
+   "pr": 27813,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A024459",
+    "https://oeis.org/A024459"
+   ],
+   "note": "Mathar's 2020 g.f. for Sum_{k<floor((n+1)/2)} F(k+1) L(n-k) is stated faithfully, with the sign normalized and the denominator cleared; it agrees with the data and holds to 80 terms. The proof is the same parity-split recurrence argument as A023861, so it is routine. No prior proof found. Second review: Faithful rational g.f., routine. No prior proof found."
+  },
+  "oeis-a025093": {
+   "date": "2026-11-28",
+   "pr": 25017,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A025093",
+    "https://oeis.org/A025093"
+   ],
+   "note": "Barker's 2019 g.f. and order-10 recurrence are stated for the data-consistent reading of the name: a(n) = Sum_{i<=floor((n+1)/2)} L(i)(2(n-i)+3), offset 1, a(0) = 0. The statement documents this reading, and it matches all listed terms; the literal name does not. The identity is a routine parity-split Lucas computation (168 lines). No prior proof found. Second review: Faithful to Barker's conjecture about the listed terms; the name/data offset discrepancy in OEIS is handled openly. Routine."
+  },
+  "oeis-a026021": {
+   "date": "2026-11-28",
+   "pr": 23187,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A026021",
+    "https://oeis.org/A026009",
+    "https://oeis.org/A026021",
+    "https://oeis.org/A026009"
+   ],
+   "note": "Mathar's recurrence is printed with a missing operator ('... a(n-3) 44*(n-3)*(7n-27)*a(n-4)'). I checked that +44, -44 and +4 all fail from n = 4, while -4 makes it hold for every n in 4..79, so the statement's reading is forced. Marinov's T(n,k) = C(n,k) - C(n,k-3) matches the recursive A026009 array. The proof reduces both parities to central binomials (the same method as the site's A026008 proof), which is routine. Second review: Faithful up to an unavoidable, disclosed repair of a garbled coefficient (-4 is the only value that makes the identity true). Routine P-recursive identity."
+  },
+  "oeis-a028355": {
+   "date": "2026-11-28",
+   "pr": 24952,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A028355",
+    "https://oeis.org/A028355",
+    "http://dml.cz/dmlcz/119666"
+   ],
+   "note": "Chai Wah Wu's 2024 recurrence a(n) = 1000001 a(n-15) - 1000000 a(n-30) and g.f. for the Orloj sequence are stated faithfully (digit stream 1,2,3,4,3,2 cut into groups of sum n). I checked them to n = 120. The proof uses the period-6 / 15-group structure of the stream, so it is routine. The site also solved the sister conjectures A028359 and A068962; no external prior proof found. Second review: Faithful and routine once the period-15/6-digit structure is shown. No prior proof found."
+  },
+  "oeis-a028884": {
+   "date": "2026-11-28",
+   "pr": 25834,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A028884",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A028884Refutation.lean",
+    "https://oeis.org/A028884",
+    "https://oeis.org/A079896",
+    "https://oeis.org/A265284",
+    "https://github.com/thatnealpatel/proofs/blob/39d62b2756138ba92e60b82067aac771d7624ff5/Proofs/Enumerative/A028884Refutation.lean"
+   ],
+   "note": "Purath's a(n) = A079896(A265284(n-1)) is stated with A079896 at offset 0, the offset in force when the conjecture was made (Jan 2023; Sloane changed it to 1 in Mar 2023). I checked it for n < 300. thatnealpatel/proofs only refutes the current-offset reading and checks the shifted identity for n <= 8 'not proved for all indices', so the site proof is the first full proof. It is a routine Rule 94 pattern plus discriminant counting. Second review: Faithful under the historically correct offset; the only public prior work refutes the anachronistic offset-1 reading. Elementary (CA shape plus discriminant counting) but not a pure finite check."
+  },
+  "oeis-a033627": {
+   "date": "2026-11-28",
+   "pr": 26106,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A033627",
+    "https://oeis.org/A033627",
+    "https://oeis.org/A348338"
+   ],
+   "note": "Ya-Ping Lu's conjecture is stated faithfully: for every n >= 1, the number of distinct tail-plus-cycle lengths of m -> m^2+1 on Z/10^n equals a(n+1) of the greedy 0-additive sequence, with distinct pairs as the data requires. I checked n <= 6 by brute force (2, 4, 7, 10, 13, 16). The proof shows f^[3n+3] = f^[3n-3] on Z/10^n using 2-adic contraction and a 5-adic valuation gain every three steps, and exhibits a point with maximal tail. That is a genuine argument. No prior proof found. Second review: Faithful and nontrivial; no prior proof found."
+  },
+  "oeis-a047968": {
+   "date": "2026-11-28",
+   "pr": 24762,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A047968",
+    "https://oeis.org/A047968"
+   ],
+   "note": "Adams-Watters' 2014 conjecture that Sum_{d|n} p(d) is strictly increasing for n > 6 is stated faithfully: a(m) < a(n) for 7 <= m < n, and a(6) = 17 > a(7) = 16 shows the threshold. I checked it to n = 3000. The proof builds an explicit injection, valid for n >= 7, from the partitions of divisors of n into those of divisors of n+1 (lift the parts, insert a marker) that misses at least one element. It is elementary but a real construction. No prior proof found. Second review: Faithful; requires a uniform bound on p(n+1)-p(n) versus sum of p(d), d<=n/2. No prior proof found."
+  },
+  "oeis-a052952": {
+   "date": "2026-11-28",
+   "pr": 26150,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A052952",
+    "https://oeis.org/A052952",
+    "https://github.com/the-omega-institute/trureturing/issues/23509"
+   ],
+   "note": "Lang's 2012 conjecture floor|F((1+i)(n+2))| = F(n+2) - (n mod 2) for the complex Fibonacci function is stated faithfully (2*phi - 1 = sqrt5 is the denominator). The proof bounds the modulus between (phi^m -+ e^{-pi m} phi^{-m})/sqrt5 and compares with Binet's formula, a short routine argument. No prior proof found. Second review: Faithful; a short exponential estimate proves it. Only a trureturing preregistration exists."
+  },
+  "oeis-a088039": {
+   "date": "2026-11-28",
+   "pr": 24881,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A088039",
+    "https://oeis.org/A088038",
+    "https://oeis.org/A088039"
+   ],
+   "note": "Barker's closed form a(n) = 2^n+1 (n>2), recurrence (n>4) and g.f. 2x-2x^2+x^3-2x^4 over (1-x)(1-2x), with a(0) = 0 and a(n) = least k>1 with b^n | k^3-1 for some b>1. My brute force gives 2,4,9,17,...,16385 for n = 1..14, matching the data. The proof is elementary: cubing is bijective on units mod 2^n, and other prime powers force k > 2^n. Nothing found in the entry, A088038, Palomar, the Lean libraries or the proof collections. Second review: Faithful and routine. No prior proof found."
+  },
+  "oeis-a089695": {
+   "date": "2026-11-28",
+   "pr": 25862,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A089695",
+    "https://oeis.org/A089392",
+    "https://oeis.org/A089695"
+   ],
+   "note": "Murthy's finiteness conjecture: numbers whose every split into consecutive digit blocks has a prime block-sum. The formalization is faithful (blocks of the ordinary decimal string, one-block split included, leading zeros allowed inside blocks). My brute force up to 10^6 reproduces all 38 data terms. The proof bounds the number of nonzero digits by a mod-11 merging argument, then checks a finite prefix certificate. No prior proof found: the entry only has Wasserman's search to 10^8, and Palomar, the Lean libraries and the proof collections have nothing. Second review: Faithful; the proof bounds digit multiplicities by modular choices and then certifies a finite search. No prior proof found."
+  },
+  "oeis-a089696": {
+   "date": "2026-11-28",
+   "pr": 25991,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A089696",
+    "https://oeis.org/A089696"
+   ],
+   "note": "Finiteness of the numbers for which every placement of '*' between digits gives (product of blocks)+1 prime. The formalization is faithful; the offset-0 detail does not matter for finiteness. My brute force up to 10^6 reproduces all 24 data terms (1,...,658). The proof is a full classification: a congruence certificate forces a long word to contain a forbidden configuration, plus a finite search tree. No prior proof found (entry: only Wasserman's search to 10^7; Palomar, the libraries and the collections have nothing). Second review: Faithful finiteness conjecture; no prior proof found."
+  },
+  "oeis-a090996": {
+   "date": "2026-11-28",
+   "pr": 14249,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A090996",
+    "https://oeis.org/A090996"
+   ],
+   "note": "Yanev's 2016 formula a(n) = w(n+1)(w(n+1)-w(n)+1) - w(2^(w(n+1)+1)-n-1) for n>0, with w = floor(log2), is stated faithfully (leading ones of the binary expansion; outer arithmetic in Z). I checked it for n < 200000. The proof is an elementary induction on the binary recursion. No prior proof found. Second review: Faithful and routine bit identity. No prior proof found."
+  },
+  "oeis-a091539": {
+   "date": "2026-11-28",
+   "pr": 10532,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A091539",
+    "https://oeis.org/A091539",
+    "https://oeis.org/A091534"
+   ],
+   "note": "Mathar's 2026 recurrence for the explicit triple-factorial closed form in the entry, (prod(3j+2)/10)*(3^n n! - 3 prod(3j+1))/6. The closed form reproduces all 14 data terms and the recurrence holds for 4 <= n < 80 in my check. Both product terms satisfy the recurrence identically, so this is routine. No prior proof found. Second review: Faithful and true; a recurrence identity for an explicit closed form (Mathar, Jul 2026). Nothing earlier found."
+  },
+  "oeis-a092843": {
+   "date": "2026-11-28",
+   "pr": 14641,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A092843",
+    "https://oeis.org/A092843"
+   ],
+   "note": "Kotesovec's Sum_{k<=n} a(k) ~ n^2/2 for a(n) = Sum_{k|n,k>1} phi(k-1), stated faithfully (IsEquivalent over R). The proof uses the exact identity summatory = n(n+1)/2 - Sum_j phi(floor(n/j)), which I checked for n <= 20000, and bounds the error by n*H_n. Elementary and routine. No prior proof found. Second review: True with a short elementary argument (sum_{d|n} phi(d) = n plus telescoping); marked routine because it is a few-line classical argument, though it uses no fact from the entry itself. No prior proof found."
+  },
+  "oeis-a093348": {
+   "date": "2026-11-28",
+   "pr": 25070,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A093348",
+    "https://oeis.org/A093348"
+   ],
+   "note": "Neder's 2019 formula a(n+1) = (n mod 2) + Sum_k 4*5^k*(floor(n/5^(k+1)) mod 2) is stated faithfully, with the castle recursion a(1) = 0, a(n) = w(n) - a(n-w(n)) and the infinite sum truncated correctly. My check reproduces the data and the identity for n < 5000. Routine base-5 digit induction. No prior proof found. Second review: Faithful and true; follows by digit induction in base 5 (the entry's formula a(n)=sum (-1)^(i-1)5^v_5(i) makes it a short argument). Nothing earlier found."
+  },
+  "oeis-a094187": {
+   "date": "2026-11-28",
+   "pr": 24975,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A094187",
+    "https://oeis.org/A094187"
+   ],
+   "note": "Mathar's 2021 recurrence a(n) = (196n-51)a(n-1) - 2754(n-1)(2n-3)a(n-2). Here a(n) = I(n)*8*9^(2n-1)*(2n-1)!!, with I(n) computed exactly by termwise integration (checked against mpmath quadrature). This reproduces all 13 data terms, so the 'numerator' reading is right, and the recurrence holds for 3 <= n < 40. Routine holonomic identity. No prior proof found. Second review: Faithful to the data and program (the name's 'numerator' is loose, but the Lean follows the actual sequence). True, routine."
+  },
+  "oeis-a097155": {
+   "date": "2026-11-28",
+   "pr": 22959,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A097155",
+    "https://oeis.org/A097154",
+    "https://oeis.org/A097155"
+   ],
+   "note": "The conjecture that 0 and 89 are the only fixed points of f(x) = reverse(x) - maxdigit(x) is formalized faithfully (reversal drops leading zeros, as in the Mathematica program). My search finds only 0 and 89 below 10^6. The proof is elementary: reverse(x) - x is a multiple of 9, so the maximal digit must be 9, and then digit comparisons finish. No prior proof in the sister entries A097153-A097158 or elsewhere. Second review: Faithful and true by a short elementary argument. Nothing earlier found."
+  },
+  "oeis-a099237": {
+   "date": "2026-11-28",
+   "pr": 15166,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A099237",
+    "https://oeis.org/A359842",
+    "https://oeis.org/A099237",
+    "https://oeis.org/A157114"
+   ],
+   "note": "Bala's 2023 congruences a(2^k) = 1 mod 2^k, a(3^k) = 1 mod 3^(k+1) and a(p^k) = 1 mod p^(k+1) (p >= 5), for a(n) = Sum_k C(n(n-k),k), are stated faithfully. I spot-checked small prime powers. The proof is a short Kummer/Pascal argument, C(n(n-k),k) = (-1)^k p^m mod p^(m+1), plus alternating cancellation for odd p. Routine; no prior proof found (entry, A359842, Palomar, libraries, collections). Second review: Faithful and true; a genuine (though one-page, elementary) proof of Bala's congruences, not a finite check, hence routine=false. No prior proof found on the web, GitHub or the proof collections."
+  },
+  "oeis-a100098": {
+   "date": "2026-11-28",
+   "pr": 19505,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A100098",
+    "https://oeis.org/A100098"
+   ],
+   "note": "Mathar's 2012 recurrence 2n a(n) + (4-5n) a(n-1) + 2(3-4n) a(n-2) + 20(n-2) a(n-3) = 0 (n >= 3), with a(n) defined by Barry's normalized g.f. (1+2x+3 sqrt(1-4x^2))/(4-2x-20x^2). That g.f. reproduces the data, and the recurrence holds for n < 60 using the entry's binomial-sum formula. Routine holonomic proof (first-order ODE for the algebraic g.f.). No prior proof found. Second review: Faithful and true; standard D-finite recurrence from an algebraic g.f."
+  },
+  "oeis-a104041": {
+   "date": "2026-11-28",
+   "pr": 24980,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A104041",
+    "https://oeis.org/A104040",
+    "https://oeis.org/A104041",
+    "https://oeis.org/A104040"
+   ],
+   "note": "Bala's 2023 closed forms: binomial(n,k-n)(-2)^(2n-k) for even rows and Sum_i S2(n,i) s1(i+2,k+1-n) for odd rows. The statement proves that balaT is unit lower-triangular, has inverse equal to its reversed absolute columns (the entry's defining duality, which matches the A104040 example), and is the unique such triangle under the sign and support conditions. I checked that the g.f. triangle (1-x+xy)/(1+2x^2y-x^2y^2) satisfies those conditions and equals balaT for 24 rows. Indirect but faithful; no prior proof found. Second review: True and faithful; trivially implied by the entry's own g.f., so routine. Minor point for the owner: the uniqueness clause carries an extra sign hypothesis not in the name."
+  },
+  "oeis-a104385": {
+   "date": "2026-11-28",
+   "pr": 14689,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A104385",
+    "https://oeis.org/A104385",
+    "https://oeis.org/A104382"
+   ],
+   "note": "Stephan's formula a(n) = round((3n^4+6n^3-33n^2-36n+110)/144) for partitions of n(n+1)/2 into 3 distinct positive parts is stated faithfully. My check agrees for n < 120, and the fractional parts are only 1/72, 7/72, 25/72 and 55/72, so the rounding is unambiguous. Quasi-polynomial counting; routine. No prior proof found. Second review: True and faithful; follows from the classical formula for partitions into 3 distinct parts plus a residue check, so routine."
+  },
+  "oeis-a104632": {
+   "date": "2026-11-28",
+   "pr": 25117,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A104632",
+    "https://oeis.org/A104632",
+    "https://oeis.org/A104631"
+   ],
+   "note": "Mathar's 2017 recurrence for a(n) = [x^(2n+1)](1+x+x^2+x^3+x^4)^n / n (n >= 4) is stated faithfully over Q. My check reproduces the data and the recurrence for 4 <= n < 40. The proof is a routine polynomial/creative-telescoping identity using the reciprocity of the pentanomial. No prior proof found (entry, Banderier et al. 2016 give explicit formulas but not this recurrence; Palomar, libraries, collections). Second review: Faithful, true, routine."
+  },
+  "oeis-a105524": {
+   "date": "2026-11-28",
+   "pr": 25720,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A105524",
+    "https://oeis.org/A105524",
+    "https://oeis.org/A105522"
+   ],
+   "note": "Mathar's 2012 order-4 recurrence, with a(n) defined by a rationalized form of the entry's g.f. ((1+2x)sqrt(1+4x^2)-4x^2-2x-1)/(x^2(sqrt(1+4x^2)-3)). With sympy I checked that this form equals the entry's g.f. through x^39 and reproduces the data, and that the recurrence (polynomial coefficients expanded correctly) holds for 4 <= n < 40. Routine algebraic-g.f. holonomic proof. No prior proof found. Second review: Faithful, true, routine g.f.-to-recurrence identity."
+  },
+  "oeis-a105794": {
+   "date": "2026-11-28",
+   "pr": 25541,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A105794",
+    "https://oeis.org/A105793",
+    "https://oeis.org/A105794",
+    "https://oeis.org/A105793"
+   ],
+   "note": "Schulte's two 2025 conjectures for T = inverse of A105793, with A105793 encoded as the coefficients of (x+1)x(x-1)...(x-n+2). Both are faithful: the inverse reproduces the data, and with B(1) = -1/2, Mathlib's convention and B(n,0), I checked both for n < 16, m < 8. Conjecture 1 is immediate from Bala's comment (x-1)^n = Sum T(n,k) x_(k) evaluated at x = -m-1. Conjecture 2 follows from the Stirling formula for Bernoulli numbers. Routine; no prior proof found. Second review: Faithful and true; both identities are short consequences of the connection-constant description in the entry, so routine."
+  },
+  "oeis-a106181": {
+   "date": "2026-11-28",
+   "pr": 25580,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A106181",
+    "https://oeis.org/A106181",
+    "https://oeis.org/A106180"
+   ],
+   "note": "Mathar's 2011 recurrence (n+2)a(n) + n a(n-1) + 4(n-1)a(n-2) + 4(n-3)a(n-3) = 0 (n >= 3). The g.f. c(-x^2)(1+2x-sqrt(1+4x^2))/2 is characterized correctly (S^2 = 1+4x^2, S(0) = 1, -2x^2 c = 1-S). It reproduces the data, and the recurrence holds for n < 40. Routine algebraic-g.f. holonomic identity (the terms are signed Catalan numbers). No prior proof found. Second review: Faithful, true, routine."
+  },
+  "oeis-a108308": {
+   "date": "2026-11-28",
+   "pr": 14317,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A108308",
+    "https://oeis.org/A108308",
+    "https://oeis.org/A110510"
+   ],
+   "note": "Mathar's 2011 order-4 recurrence for the g.f. 1/(1-x^2 c(2x)) is stated faithfully. The g.f. is characterized by S^2 = 1-8x, S(0) = 1, 4x c = 1-S, G(1-x^2 c) = 1, and the coefficient polynomials are expanded correctly. My check reproduces the data and the recurrence for 4 <= n < 45. Routine algebraic-g.f. holonomic identity. No prior proof found. Second review: Faithful, true, routine."
+  },
+  "oeis-a109263": {
+   "date": "2026-11-28",
+   "pr": 24913,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A109263",
+    "https://oeis.org/A109263",
+    "https://oeis.org/A109267"
+   ],
+   "note": "Mathar's 2012 recurrence for the Catalan transform x^2c^2/(1-xc-x^2c^2), encoded as G(x c(x)) with G = x^2/(1-x-x^2) via PowerSeries.subst. The formalizer correctly notes that the left side is -2 at n = 3 and states the recurrence for n >= 4, the usual 'for large n' reading; my check confirms LHS(3) = -2 and 0 for 4 <= n < 45. Routine holonomic identity. No prior proof found. Second review: True and routine. The only caveat is the n=3 exception, which is where the recurrence's leading coefficient vanishes; I regard n>=4 as the intended meaning of Mathar's D-finite conjecture, but the owner may want to mention it."
+  },
+  "oeis-a111097": {
+   "date": "2026-11-28",
+   "pr": 25222,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A111097",
+    "https://oeis.org/A111097",
+    "https://oeis.org/A368563",
+    "https://oeis.org/A083704"
+   ],
+   "note": "This proves together Alaa's 2026 empirical formula a(n) = n(n+1)/2 - 1 - floor((n-1)/3) (n >= 2), McKone's 2023 second-difference pattern and Spezia's 2026 g.f. The likelihood n*N^(n falling)/N^(n+1) (n distinct draws then a repeat) and the least maximizer are faithful. My exact argmax search reproduces the data and the formula for n < 40. The proof needs careful exact comparisons of neighbouring urn sizes via truncated binomial bounds. No prior proof found (entry, A083704, Palomar, libraries, collections). Second review: Faithful and true for all n; the proof is an elementary but genuine analytic argument, so routine=false. Web search found MLE-of-population-size literature but no exact closed form."
+  },
+  "oeis-a112001": {
+   "date": "2026-11-28",
+   "pr": 24936,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A112001",
+    "https://oeis.org/A111999",
+    "https://oeis.org/A112001",
+    "https://oeis.org/A111999"
+   ],
+   "note": "Mathar's 2017 first-order recurrence for a(n) = A111999(n+4,3)/4. The formal triangle uses A111999's recurrence, and the formalizer rightly reads the formula line's A112492 as a slip for A111999. It reproduces all 16 data terms, and the recurrence holds for 1 <= n < 40. The proof uses closed forms of the first four columns (hypergeometric); routine. No prior proof found. Second review: Faithful, true, routine."
   }
  },
  "flagged": {
@@ -23659,6 +24056,37 @@
     "https://doi.org/10.5281/zenodo.24384895"
    ],
    "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 985 = Rule 969 and 4*4^n-4*2^n+1 for n>=3, exactly the site statement."
+  },
+  "oeis-a014963": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A014963",
+    "https://oeis.org/A191898",
+    "https://math.stackexchange.com/questions/48946/"
+   ],
+   "reason": "Second review: Granvik's conjecture was proved in 2011 in the accepted answer to his own MSE question 48946, which is linked from A191898. The statement is faithful but the result is known."
+  },
+  "oeis-a106505": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A106505",
+    "https://github.com/Asakitan/oeis-a106505",
+    "https://github.com/Asakitan/oeis-a106505/blob/proof-v1.0.1/PROOF.md",
+    "https://github.com/Asakitan/oeis-a106505/releases/tag/proof-v1.0.1",
+    "https://www.fq.math.ca/Scanned/29-1/carroll.pdf"
+   ],
+   "reason": "Second review: PRIOR PUBLIC PROOF: GitHub repo Asakitan/oeis-a106505 (author 'Chain.Ren', Codex-assisted), release proof-v1.0.1 published 26 Nov 2026 16:24 (README dated 2026-11-27 Sydney), proves exactly this: the common-side set is {odd >=5} U {8j, j>=2}, hence a(n+5)=a(n)+8 for n>=3 and Barker's g.f. The site's statement/proof commits are 2026-11-28 (PR #25644), i.e. after it. The site's result is correct but not first."
+  },
+  "oeis-a108449": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A108449",
+    "https://oeis.org/A027307",
+    "https://github.com/kolinhuang0427/open-math-results",
+    "https://github.com/kolinhuang0427/open-math-results/blob/main/targets/oeis-A108449/PROOF.md",
+    "https://github.com/kolinhuang0427/open-math-results/commits/main"
+   ],
+   "reason": "Second review: PRIOR PUBLIC PROOF: kolinhuang0427/open-math-results (row 51, targets/oeis-A108449/PROOF.md, labelled 'Proved (audited)', AUDIT timestamp 2026-11-27T09:24Z, pushed in commit 5697c5a dated Nov 27 2026) proves exactly Mathar's recurrence for n>=8 via the cubic algebraic equation and an ODE. The site's statement/proof commits are 2026-11-28 04:20-04:30Z (PR #25520 merged 12:40Z), so the external proof is earlier by roughly a day (exact push time not visible to me)."
   }
  },
  "reviewed": "2026-11-28"
