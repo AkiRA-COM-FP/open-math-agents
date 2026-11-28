@@ -104,4 +104,127 @@ theorem bounded_palette {I : Type} {A : Finset I → Type}
   exact good t _ _ _ (tail _ (ht.trans (ext t)))
     (ha.trans (ab.trans hb.symm)) (ha.trans (ac.trans hc.symm))
 
+
+private theorem free_of_top_hom {V : Type} {G : SimpleGraph V} (free : G.CliqueFree 4)
+    (f : Fin 4 → V) (edges : ∀ i j, i ≠ j → G.Adj (f i) (f j)) : False := by
+  let hom : completeGraph (Fin 4) →g G := ⟨f,fun {i j} h => edges i j h⟩
+  have inj : Function.Injective f := fun i j eq => by
+    by_contra ne
+    exact (edges i j ne).ne eq
+  exact (cliqueFree_iff.mp free).false (hom.toCopy inj)
+
+/-- One finite universal host for each size: take the disjoint union of
+all four-clique-free graphs on the prescribed number of vertices. -/
+theorem universal_factors :
+    ∃ (u : ℕ → ℕ) (U : (m : ℕ) → SimpleGraph (Fin (u m))),
+      (∀ m, (U m).CliqueFree 4) ∧ ∀ m (K : SimpleGraph (Fin (2*(m+1)))),
+        K.CliqueFree 4 → Nonempty (K ↪g U m) := by
+  classical
+  suffices h : ∀ m : ℕ, ∃ (n : ℕ) (G : SimpleGraph (Fin n)), G.CliqueFree 4 ∧
+      ∀ K : SimpleGraph (Fin (2*(m+1))), K.CliqueFree 4 → Nonempty (K ↪g G) by
+    choose u U free inc using h
+    exact ⟨u,U,free,inc⟩
+  intro m
+  let B := Fin (2*(m+1))
+  let W := {K : SimpleGraph B // K.CliqueFree 4} × B
+  let num := Fintype.equivFin W
+  let G : SimpleGraph W := {
+    Adj := fun a b => a.1 = b.1 ∧ a.1.val.Adj a.2 b.2
+    symm := ⟨fun {a b} e => ⟨e.1.symm,e.1 ▸ e.2.symm⟩⟩
+    loopless := ⟨fun _ e => e.2.ne rfl⟩ }
+  refine ⟨_, G.comap num.symm,?_,?_⟩
+  · rw [cliqueFree_iff,isEmpty_iff]
+    intro copy
+    let v (i : Fin 4) : W := num.symm (copy i)
+    have adj (i j : Fin 4) (ne : i ≠ j) : G.Adj (v i) (v j) := copy.toHom.map_adj ne
+    have tag (i : Fin 4) : (v 0).1 = (v i).1 := by
+      by_cases eq : 0 = i
+      · rw [eq]
+      · exact (adj _ _ eq).1
+    apply free_of_top_hom (v 0).1.property (fun i => (v i).2)
+    intro i j ne
+    rw [tag i]
+    exact (adj i j ne).2
+  · intro K free
+    let add (i : B) : W := (⟨K,free⟩,i)
+    refine ⟨{ toFun := fun i => num (add i)
+              inj' := fun i j eq => congrArg Prod.snd (num.injective eq)
+              map_rel_iff' := ?_ }⟩
+    intro i j
+    change G.Adj (num.symm (num (add i))) (num.symm (num (add j))) ↔ K.Adj i j
+    simp [G,add]
+
+/-- Any such fixed family works if the finite-realization step holds.
+Only the index set varies. At a coordinate of size m at most m+1 labels
+(including a default edge) contribute endpoints. -/
+theorem fixed_factors_iff (u : ℕ → ℕ) (U : (m : ℕ) → SimpleGraph (Fin (u m)))
+    (free : ∀ m, (U m).CliqueFree 4)
+    (inc : ∀ m (K : SimpleGraph (Fin (2*(m+1)))), K.CliqueFree 4 → Nonempty (K ↪g U m)) :
+    OMA.R_Erdos595_erdos_595_R2.H1 ↔
+      ∃ I : Type, ∀ d : ((s : Finset I) → (U s.card).edgeSet) → ℕ,
+        ∃ a b c, d a = d b ∧ d a = d c ∧ ∀ᶠ s in (atTop : Filter (Finset I)),
+          ∃ x y z : Fin (u s.card), (a s : Sym2 _) = s(x,y) ∧
+            (b s : Sym2 _) = s(y,z) ∧ (c s : Sym2 _) = s(z,x) := by
+  classical
+  constructor
+  · rintro ⟨X,T,hard,localize⟩
+    obtain ⟨anchor,_,_,_⟩ := hard (fun _ => 0)
+    have atSize (s : Finset X) :
+        ∃ e : ↥(insert anchor s : Finset X) → (U s.card).edgeSet,
+          ∀ a b c, T a.val b.val c.val →
+            ∃ x y z : Fin (u s.card), (e a : Sym2 (Fin (u s.card))) = s(x,y) ∧ (e b : Sym2 (Fin (u s.card))) = s(y,z) ∧ (e c : Sym2 (Fin (u s.card))) = s(z,x) := by
+      let L := insert anchor s
+      obtain ⟨n,G,legal,e,test⟩ := localize L
+      let B := Fin (2*(s.card+1))
+      have size : Fintype.card (↥L × Bool) ≤ Fintype.card B := by
+        simp only [Fintype.card_prod,Fintype.card_bool,Fintype.card_coe,Fintype.card_fin,B]
+        have := Finset.card_insert_le anchor s
+        dsimp [L]
+        omega
+      obtain ⟨slot⟩ := Function.Embedding.nonempty_of_card_le size
+      let endpoint (p : ↥L × Bool) := if p.2 then (e p.1).val.out.2 else (e p.1).val.out.1
+      let : Nonempty (↥L × Bool) := ⟨⟨⟨anchor,Finset.mem_insert_self _ _⟩,false⟩⟩
+      let pt (b : B) := endpoint (Function.invFun slot b)
+      have hit (p : ↥L × Bool) : pt (slot p) = endpoint p :=
+        congrArg endpoint (Function.leftInverse_invFun slot.injective p)
+      let code (i : Fin n) : B := if h : ∃ b, pt b = i then h.choose else 0
+      have decode (p : ↥L × Bool) : pt (code (endpoint p)) = endpoint p := by
+        have h : ∃ b, pt b = endpoint p := ⟨_,hit p⟩
+        simpa only [code,dif_pos h] using h.choose_spec
+      let K := G.comap pt
+      have kfree : K.CliqueFree 4 := by
+        rw [cliqueFree_iff,isEmpty_iff]
+        intro f
+        exact free_of_top_hom legal (fun i => pt (f i)) (fun _ _ ne => f.toHom.map_adj ne)
+      let embed := (inc s.card K kfree).some
+      let v := fun i => embed (code i)
+      have edge (a : ↥L) : Sym2.map v (e a).val ∈ (U s.card).edgeSet := by
+        let r := (e a).val.out
+        have eq : s(r.1,r.2) = (e a).val := (e a).val.out_eq
+        rw [← eq]
+        apply embed.map_rel_iff.mpr
+        change G.Adj (pt (code r.1)) (pt (code r.2))
+        rw [show pt (code r.1) = r.1 from decode (a,false),
+            show pt (code r.2) = r.2 from decode (a,true), ← SimpleGraph.mem_edgeSet,eq]
+        exact (e a).property
+      refine ⟨fun a => ⟨_,edge a⟩,?_⟩
+      intro a b c h
+      obtain ⟨x,y,z,ab,bc,ca⟩ := test a b c h
+      exact ⟨v x,v y,v z,congrArg (Sym2.map v) ab,congrArg (Sym2.map v) bc,congrArg (Sym2.map v) ca⟩
+    choose e test using atSize
+    let label (a : X) (s : Finset X) := e s
+      (if h : a ∈ insert anchor s then ⟨a,h⟩ else ⟨anchor,Finset.mem_insert_self _ _⟩)
+    refine ⟨X,?_⟩
+    intro d
+    obtain ⟨a,b,c,h,ab,ac⟩ := hard fun x => d (label x)
+    refine ⟨label a,label b,label c,ab,ac,?_⟩
+    filter_upwards [Filter.eventually_finset_mem_atTop a, Filter.eventually_finset_mem_atTop b,
+      Filter.eventually_finset_mem_atTop c] with s ha hb hc
+    have ma := Finset.mem_insert_of_mem (b := anchor) ha
+    have mb := Finset.mem_insert_of_mem (b := anchor) hb
+    have mc := Finset.mem_insert_of_mem (b := anchor) hc
+    simpa only [label,dif_pos ma,dif_pos mb,dif_pos mc] using test s ⟨a,ma⟩ ⟨b,mb⟩ ⟨c,mc⟩ h
+  · rintro ⟨I,h⟩
+    exact main ⟨I,fun s => u s.card,fun s => U s.card,fun s => free s.card,h⟩ common_coordinate
+
 end OMA.R_Erdos595_erdos_595_R2_H1_R1
