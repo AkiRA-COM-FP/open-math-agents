@@ -72,14 +72,7 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a055278.main := by
     simp only [map_sub, map_add, PowerSeries.coeff_C_mul, PowerSeries.coeff_X_pow_mul',
       PowerSeries.coeff_X_pow, PowerSeries.coeff_one, PowerSeries.coeff_mk, F]
     rcases m with _ | _ | _ | _ | _ | _ | _ | _ | k
-    · norm_num [OMA.S_oeis_a055278.A055278]
-    · norm_num [OMA.S_oeis_a055278.A055278]
-    · norm_num [OMA.S_oeis_a055278.A055278]
-    · norm_num [OMA.S_oeis_a055278.A055278]
-    · norm_num [OMA.S_oeis_a055278.A055278]
-    · norm_num [OMA.S_oeis_a055278.A055278]
-    · norm_num [OMA.S_oeis_a055278.A055278]
-    · norm_num [OMA.S_oeis_a055278.A055278]
+    iterate 8 norm_num [OMA.S_oeis_a055278.A055278]
     · have h1 : 1 ≤ k + 8 := by omega
       have h2 : 2 ≤ k + 8 := by omega
       have h3 : 3 ≤ k + 8 := by omega
