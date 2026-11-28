@@ -16,6 +16,8 @@ We prove unconditionally in Lean 4:
 1. **Small `k` (`8 ≤ k ≤ 11`):** Every run of `k ≥ 8` composites satisfies `55 ≤ n`, and
    every interval `[n, n + k)` with `55 ≤ n ≤ lcm(1..k-1)` containing a divisor of
    `lcm(1..k-1) ∣ 2520` has at most `π(k)` elements that are `k`-smooth.
+   For `12 ≤ k ≤ 14`, a verified divisor enumeration checks the smooth counts against
+   divisibility in a suitable power of `lcm(1..k)`, or finds a prime in the window.
 2. **Chebyshev + binary-log threshold (`k ≥ 2 ^ 38`):** Using `Chebyshev.pi_ge` (where
    `Real.log 2` cancels identically via `m = Nat.log 2 k`), `k ^ 2 ≤ (Nat.log 2 n) ^ 5`
    implies `k ^ 12 < n` and `(k - 1)! ^ 4 < n ^ (π(k) / 4)`.
@@ -34,7 +36,7 @@ We prove unconditionally in Lean 4:
 This splits `OMA.R_Grimm_grimm_conjecture_weak_R1.H1` cleanly into:
 - `H1`: pure 3-logarithm Baker / ABC Diophantine separation for `k ≥ 2 ^ 38` (no mention
   of Grimm's conjecture, composites, smooth numbers, or `lcm`), and
-- `H2`: the explicit finite range `12 ≤ k < 2 ^ 38`.
+- `H2`: the explicit finite range `15 ≤ k < 2 ^ 38`.
 -/
 
 namespace OMA.R_Grimm_grimm_conjecture_weak_R1_H1_R1
@@ -57,10 +59,10 @@ def H1 : Prop :=
       n ≤ p₂ ^ e₂ * B₂ ∧ p₂ ^ e₂ * B₂ < n + k ∧
       p₁ ^ e₁ * B₁ ≠ p₂ ^ e₂ * B₂
 
-/-- Bounded-`k` regime (`12 ≤ k < 2 ^ 38`): smooth-number count bound for runs of `k`
-consecutive composites in the finite range `12 ≤ k < 2 ^ 38`. -/
+/-- Bounded-`k` regime (`15 ≤ k < 2 ^ 38`): smooth-number count bound for runs of `k`
+consecutive composites in the finite range `15 ≤ k < 2 ^ 38`. -/
 def H2 : Prop :=
-  ∀ n k : ℕ, 12 ≤ k → k < 2 ^ 38 → k < n → n ≤ (Finset.Ico 1 k).lcm id →
+  ∀ n k : ℕ, 15 ≤ k → k < 2 ^ 38 → k < n → n ≤ (Finset.Ico 1 k).lcm id →
     (∃ j : Fin k, (n + j) ∣ (Finset.Ico 1 k).lcm id) →
     k ^ 2 ≤ (Nat.log 2 n) ^ 5 →
     (∀ i : Fin k, (n + i).Composite) →
@@ -880,12 +882,171 @@ lemma small_k_8_to_11 (n k : ℕ) (hk8 : 8 ≤ k) (hk11 : k ≤ 11) (hkn : k < n
     rw [hn_eq] at hres
     exact (Finset.card_le_card hsub).trans hres
 
+/-- A divisor of a product of prime powers occurs in the list of products obtained by
+lowering the exponents. -/
+private theorem mem_divisor_products (pe : List (ℕ × ℕ)) (d : ℕ)
+    (hp : ∀ x ∈ pe, x.1.Prime)
+    (hd : d ∣ (pe.map fun x => x.1 ^ x.2).prod) :
+    d ∈ pe.foldr (fun x ds =>
+      (List.range (x.2 + 1)).flatMap fun e => ds.map (fun a => x.1 ^ e * a)) [1] := by
+  induction pe generalizing d with
+  | nil => simpa using hd
+  | cons x xs ih =>
+    simp only [List.map_cons, List.prod_cons] at hd
+    obtain ⟨a, b, ha, hb, rfl⟩ := exists_dvd_and_dvd_of_dvd_mul hd
+    obtain ⟨e, he, rfl⟩ := (Nat.dvd_prime_pow (hp x (by simp))).mp ha
+    refine List.mem_flatMap.mpr ⟨e, List.mem_range.mpr (by omega), ?_⟩
+    exact List.mem_map.mpr ⟨b, ih b (by
+      intro y hy
+      exact hp y (List.mem_cons_of_mem x hy)) hb, rfl⟩
+
+/-- Taking a sufficiently high power of the lcm accounts for every small-prime exponent
+that can occur in a smooth number below the given bound. -/
+private theorem smooth_dvd_lcm_pow (m k bound : ℕ) (hm : m ∈ Nat.smoothNumbers (k + 1))
+    (hb : m ≤ bound) :
+    m ∣ ((Finset.Ico 1 (k + 1)).lcm id) ^ Nat.log 2 bound := by
+  let L := (Finset.Ico 1 (k + 1)).lcm id
+  have hL : L ≠ 0 := by
+    simp [L, Finset.lcm_eq_zero_iff]
+  rw [← Nat.factorization_le_iff_dvd hm.1 (pow_ne_zero _ hL)]
+  intro p
+  rw [Nat.factorization_pow]
+  change m.factorization p ≤ Nat.log 2 bound * L.factorization p
+  by_cases hp0 : m.factorization p = 0
+  · simp [hp0]
+  have hpp : p.Prime := by
+    by_contra h
+    exact hp0 (Nat.factorization_eq_zero_of_not_prime m h)
+  have hpk : p < k + 1 := Nat.mem_smoothNumbers'.mp hm p hpp
+    (Nat.dvd_of_factorization_pos hp0)
+  have hpL : p ∣ L := Finset.dvd_lcm (f := id) (Finset.mem_Ico.mpr ⟨hpp.one_le, hpk⟩)
+  have hpLf : 1 ≤ L.factorization p := (hpp.pow_dvd_iff_le_factorization hL).mp (by
+    simpa using hpL)
+  have hp_pow : 2 ^ m.factorization p ≤ bound :=
+    (Nat.pow_le_pow_left hpp.two_le _).trans
+      ((Nat.le_of_dvd (Nat.pos_of_ne_zero hm.1) (Nat.ordProj_dvd m p)).trans hb)
+  have hexp := Nat.le_log_of_pow_le (by decide : 1 < 2) hp_pow
+  exact hexp.trans (by simpa using Nat.mul_le_mul_left (Nat.log 2 bound) hpLf)
+
+private theorem smooth_count_le_range_count (n k start width M : ℕ)
+    (hstart : start ≤ n) (hwidth : n + k ≤ start + width)
+    (hdiv : ∀ i : Fin k, n + i ∈ Nat.smoothNumbers (k + 1) → n + i ∣ M) :
+    (Finset.univ.filter (fun i : Fin k => n + i ∈ Nat.smoothNumbers (k + 1))).card ≤
+      (List.range width).countP (fun i => M % (start + i) == 0) := by
+  let pred := fun i => M % (start + i) == 0
+  change _ ≤ (List.range width).countP pred
+  have hr : (List.range width).toFinset = Finset.range width := by
+    ext i
+    simp
+  rw [List.countP_eq_length_filter,
+    ← List.toFinset_card_of_nodup (List.nodup_range.filter pred), List.toFinset_filter, hr]
+  apply Finset.card_le_card_of_injOn (fun i : Fin k => n + i.1 - start)
+  · intro i hi
+    have his := (Finset.mem_filter.mp hi).2
+    have hik := i.2
+    have heq : start + (n + i.1 - start) = n + i.1 := by omega
+    simp [pred, heq, Nat.mod_eq_zero_of_dvd (hdiv i his), show n + i.1 - start < width by omega]
+  · intro i _ j _ hij
+    change n + i.1 - start = n + j.1 - start at hij
+    exact Fin.ext (by omega)
+
+private theorem small_k_of_certificate (n k : ℕ) (hkn : k < n)
+    (hle : n ≤ (Finset.Ico 1 k).lcm id)
+    (hdvd : ∃ j : Fin k, (n + j) ∣ (Finset.Ico 1 k).lcm id)
+    (hcomp : ∀ i : Fin k, (n + i).Composite)
+    (M C : ℕ)
+    (hM : M = ((Finset.Ico 1 (k + 1)).lcm id) ^ Nat.log 2 ((Finset.Ico 1 k).lcm id + k))
+    (hC : C = Nat.primeCounting k)
+    (hcheck :
+      let pe := ((List.range k).filter fun p => decide (Nat.Prime p)).map
+        fun p => (p, Nat.log p (k - 1))
+      let ds := pe.foldr (fun x ds =>
+        (List.range (x.2 + 1)).flatMap fun e => ds.map (fun a => x.1 ^ e * a)) [1]
+      (pe.map fun x => x.1 ^ x.2).prod = (Finset.Ico 1 k).lcm id ∧
+      ds.all (fun d =>
+        let start := d - (k - 1)
+        if (List.range (2 * k - 1)).countP (fun i => M % (start + i) == 0) ≤ C then true
+        else (List.range k).all (fun j =>
+          let x := d - j
+          if k < x then
+            decide ((List.range k).countP (fun i => M % (x + i) == 0) ≤ C) ||
+              (List.range k).any (fun i => decide (Nat.Prime (x + i)))
+          else true)) = true) :
+    (Finset.univ.filter (fun i : Fin k => n + i ∈ Nat.smoothNumbers (k + 1))).card ≤
+      Nat.primeCounting k := by
+  let pe := ((List.range k).filter fun p => decide (Nat.Prime p)).map
+    fun p => (p, Nat.log p (k - 1))
+  let ds := pe.foldr (fun x ds =>
+    (List.range (x.2 + 1)).flatMap fun e => ds.map (fun a => x.1 ^ e * a)) [1]
+  let count := fun start width =>
+    (List.range width).countP (fun i => M % (start + i) == 0)
+  let covered := fun d =>
+    if count (d - (k - 1)) (2 * k - 1) ≤ C then true
+    else (List.range k).all (fun j =>
+      let x := d - j
+      if k < x then decide (count x k ≤ C) ||
+        (List.range k).any (fun i => decide (Nat.Prime (x + i))) else true)
+  change (pe.map fun x => x.1 ^ x.2).prod = (Finset.Ico 1 k).lcm id ∧
+    ds.all covered = true at hcheck
+  obtain ⟨j, hj⟩ := hdvd
+  have hmem : n + j.1 ∈ ds := mem_divisor_products pe _ (by
+    intro x hx
+    obtain ⟨p, hp, rfl⟩ := List.mem_map.mp hx
+    simpa using (List.mem_filter.mp hp).2) (by
+      rw [hcheck.1]
+      exact hj)
+  have hcovered := List.all_eq_true.mp hcheck.2 _ hmem
+  have hdiv : ∀ i : Fin k, n + i ∈ Nat.smoothNumbers (k + 1) → n + i ∣ M := by
+    intro i hi
+    rw [hM]
+    exact smooth_dvd_lcm_pow (n + i) k _ hi (by have := i.2; omega)
+  rw [← hC]
+  have hjlt := j.2
+  let start := n + j.1 - (k - 1)
+  -- Every window containing the chosen divisor lies in this wider interval.
+  by_cases hwide : count start (2 * k - 1) ≤ C
+  · exact (smooth_count_le_range_count n k start (2 * k - 1) M (by dsimp [start]; omega)
+      (by dsimp [start]; omega) hdiv).trans hwide
+  have hall : (List.range k).all (fun j' =>
+      let x := n + j.1 - j'
+      if k < x then decide (count x k ≤ C) ||
+        (List.range k).any (fun i => decide (Nat.Prime (x + i))) else true) = true := by
+    simpa only [covered, show ¬ count (n + j.1 - (k - 1)) (2 * k - 1) ≤ C from hwide,
+      if_false] using hcovered
+  have h := List.all_eq_true.mp hall _ (List.mem_range.mpr hjlt)
+  simp only [show n + j.1 - j.1 = n by omega, hkn, if_true, Bool.or_eq_true, decide_eq_true_eq] at h
+  rcases h with hcount | hprime
+  · exact (smooth_count_le_range_count n k n k M le_rfl le_rfl hdiv).trans hcount
+  · obtain ⟨i, hi, hpi⟩ := List.any_eq_true.mp hprime
+    exact False.elim ((hcomp ⟨i, List.mem_range.mp hi⟩).2 (of_decide_eq_true hpi))
+
+set_option maxHeartbeats 8000000 in
+set_option maxRecDepth 10000 in
+theorem small_k_12_to_14 (n k : ℕ) (hkLow : 12 ≤ k) (hkLimit : k ≤ 14) (hkn : k < n)
+    (hle : n ≤ (Finset.Ico 1 k).lcm id)
+    (hdvd : ∃ j : Fin k, (n + j) ∣ (Finset.Ico 1 k).lcm id)
+    (hcomp : ∀ i : Fin k, (n + i).Composite) :
+    (Finset.univ.filter (fun i : Fin k => n + i ∈ Nat.smoothNumbers (k + 1))).card ≤
+      Nat.primeCounting k := by
+  interval_cases k
+  · refine small_k_of_certificate n 12 hkn hle hdvd hcomp
+      158163098028668242656275643717608526012244977254400000000000000 5 (by decide +kernel) (by decide +kernel) ?_
+    decide +kernel
+  · refine small_k_of_certificate n 13 hkn hle hdvd hcomp
+      622747647267120106291638778363249757614914342822913475243252121600000000000000 6 (by decide +kernel) (by decide +kernel) ?_
+    decide +kernel
+  · refine small_k_of_certificate n 14 hkn hle hdvd hcomp
+      10501671000078875486953174308167535041101376011514170586047820502924464542822957056000000000000000000 6 (by decide +kernel) (by decide +kernel) ?_
+    decide +kernel
+
 theorem main : H1 → H2 → OMA.R_Grimm_grimm_conjecture_weak_R1.H1 := by
   intro h1 h2 n k hk8 hkn hle hdvd hgap hcomp
   by_cases hk12 : k < 12
   · exact small_k_8_to_11 n k hk8 (by omega) hkn hle hdvd hcomp
   · by_cases hk38 : k < 2 ^ 38
-    · exact h2 n k (by omega) hk38 hkn hle hdvd hgap hcomp
+    · by_cases hk14 : k ≤ 14
+      · exact small_k_12_to_14 n k (by omega) hk14 hkn hle hdvd hcomp
+      · exact h2 n k (by omega) hk38 hkn hle hdvd hgap hcomp
     · push Not at hk38
       obtain ⟨hk12_lt, hfact_lt⟩ := factorial_pow_four_lt_of_ge n k hk38 hgap
       by_contra! hS
