@@ -26,6 +26,12 @@ def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ a b c : P, (¬ a ≤ b ∧ ¬ b ≤ a) ∧ (¬ a ≤ c ∧ ¬ c ≤ a) ∧ (¬ b ≤ c ∧ ¬ c ≤ b)) →
     (∃ x : P, 7 ≤ ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard) →
+    (let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+     ¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [])) →
     let ext : Finset (P ≃ Fin (Fintype.card P)) := by
       classical
       exact Finset.univ.filter (fun rank => StrictMono rank)
@@ -875,6 +881,167 @@ lemma automorphism_balanced (P : Type) [PartialOrder P] [Fintype P]
     rw [counts]
   exact moved (fixed_of_preserves_total R irrefl transitive total e.toEquiv invariant x)
 
+-- The local count is the body of numExt from the gold-partition statement
+-- (#6289). Keeping it local permits the reduction's single problem import.
+lemma comparison_counts (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    let ext : Finset (P ≃ Fin (Fintype.card P)) := by
+      classical
+      exact Finset.univ.filter (fun r => StrictMono r)
+    count [] = ext.card ∧
+    (∀ x y : P, count [(x, y)] = (ext.filter (fun r => r x < r y)).card) ∧
+    (∀ (extra : List (P × P)) (x y : P), x ≠ y →
+      count (extra ++ [(x, y)]) + count (extra ++ [(y, x)]) = count extra) ∧
+    (∀ p q : P × P, count [p, q] ≤ count [p] ∧ count [p, q] ≤ count [q] ∧
+      count [p, q] = count [q, p]) := by
+  classical
+  intro count ext
+  let allowed (l : List (P × P)) := ext.filter (fun r => ∀ c ∈ l, r c.1 < r c.2)
+  have card (l : List (P × P)) : count l = (allowed l).card := by
+    unfold count
+    rw [Nat.card_eq_fintype_card]
+    apply Fintype.card_of_subtype
+    intro r
+    simp only [allowed, ext, Finset.mem_filter, Finset.mem_univ, true_and]
+    rfl
+  have add (l : List (P × P)) (p : P × P) : allowed (l ++ [p]) =
+      (allowed l).filter (fun r => r p.1 < r p.2) := by
+    ext r
+    simp only [allowed, Finset.mem_filter, List.forall_mem_append, List.forall_mem_cons,
+      and_assoc]
+    simp
+  refine ⟨?_, ?_, ?_, ?_⟩
+  · rw [card]
+    simp [allowed]
+  · intro x y
+    rw [card]
+    simp [allowed]
+  · intro l x y ne
+    have opposite : (allowed l).filter (fun r => r y < r x) =
+        (allowed l).filter (fun r => ¬ r x < r y) := by
+      apply Finset.filter_congr
+      intro r _
+      exact ⟨fun h => not_lt_of_gt h, fun h => lt_of_le_of_ne (le_of_not_gt h) (r.injective.ne ne.symm)⟩
+    rw [card, card, card, add, add]
+    change ((allowed l).filter (fun r => r x < r y)).card +
+      ((allowed l).filter (fun r => r y < r x)).card = (allowed l).card
+    rw [opposite]
+    exact Finset.card_filter_add_card_filter_not _
+  · intro p q
+    have swap : allowed [p, q] = allowed [q, p] := by
+      ext r
+      simp [allowed, or_comm]
+    have sub (i j : P × P) : allowed [i, j] ⊆ allowed [i] := by
+      rw [show [i, j] = [i] ++ [j] from rfl, add]
+      exact Finset.filter_subset _ _
+    simp only [card]
+    exact ⟨Finset.card_le_card (sub p q), Finset.card_le_card (swap ▸ sub q p), congrArg Finset.card swap⟩
+
+-- Adding the two gold inequalities for a fixed first outcome bounds its row
+-- by two thirds of the total. The other row supplies its lower bound.
+lemma gold_first_pair (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ (x y u v : P), x ≠ y → u ≠ v →
+      (∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count []) →
+      count [] ≤ 3 * count [(x, y)] ∧ 3 * count [(x, y)] ≤ 2 * count [] := by
+  classical
+  intro count x y u v hxy huv gold
+  obtain ⟨_, _, split, _⟩ := comparison_counts P
+  have first : count [(x, y)] + count [(y, x)] = count [] := split [] x y hxy
+  have row (p) (hp : p ∈ [(x, y), (y, x)]) : 3 * count [p] ≤ 2 * count [] := by
+    have partition : count [p, (u, v)] + count [p, (v, u)] = count [p] := split [p] u v huv
+    have a := gold p hp (u, v) (by simp)
+    have b := gold p hp (v, u) (by simp)
+    omega
+  have up := row (x, y) (by simp)
+  have rev := row (y, x) (by simp)
+  exact ⟨by omega, up⟩
+
+lemma gold_balanced (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count []) →
+    let ext : Finset (P ≃ Fin (Fintype.card P)) := by
+      classical
+      exact Finset.univ.filter (fun r => StrictMono r)
+    ∃ x y : P, x ≠ y ∧
+      let p := ((ext.filter (fun r => r x < r y)).card : ℚ) / ext.card
+      1 / 3 ≤ p ∧ p ≤ 2 / 3 := by
+  classical
+  intro count cert ext
+  obtain ⟨x, y, u, v, xy, uv, gold⟩ := cert
+  obtain ⟨lo, hi⟩ := gold_first_pair P x y u v xy uv gold
+  obtain ⟨den, num, _, _⟩ := comparison_counts P
+  rw [den, num] at lo hi
+  obtain ⟨r, hr⟩ := rank_exists P
+  have pos : 0 < ext.card := Finset.card_pos.mpr ⟨r, Finset.mem_filter.mpr ⟨Finset.mem_univ _, hr⟩⟩
+  let n := (ext.filter (fun r => r x < r y)).card
+  have low : (ext.card : ℚ) ≤ 3 * (n : ℚ) := by exact_mod_cast lo
+  have high : 3 * (n : ℚ) ≤ 2 * (ext.card : ℚ) := by exact_mod_cast hi
+  have posq : (0 : ℚ) < ext.card := by exact_mod_cast pos
+  refine ⟨x, y, xy, (le_div_iff₀ posq).2 ?_, (div_le_iff₀ posq).2 ?_⟩ <;> linarith
+
+-- Peczarski's balanced-triple criterion (Comments on the Golden Partition
+-- Conjecture, Fact 1). Use the comparison with the larger reverse count first.
+lemma balanced_triple_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y z : P, x ≠ y → y ≠ z → x ≠ z →
+      count [(x, y), (y, z)] ≤ max (count [(y, x)]) (count [(z, y)]) →
+      2 * max (count [(y, x)]) (count [(z, y)]) ≤ count [] →
+      ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  classical
+  intro count x y z xy yz _ middle half
+  obtain ⟨_, _, split, cells⟩ := comparison_counts P
+  have chooseFirst (a b c d : P) (ab : a ≠ b) (cd : c ≠ d)
+      (other : count [(d, c)] ≤ count [(b, a)])
+      (chain : count [(a, b), (c, d)] ≤ count [(b, a)])
+      (small : 2 * count [(b, a)] ≤ count []) :
+      ∃ i j k l : P, i ≠ j ∧ k ≠ l ∧
+        ∀ p ∈ [(i, j), (j, i)], ∀ q ∈ [(k, l), (l, k)], count [p] + count [p, q] ≤ count [] := by
+    have rows : count [(a, b)] + count [(b, a)] = count [] := split [] a b ab
+    refine ⟨a, b, c, d, ab, cd, ?_⟩
+    intro p hp q hq
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hp hq
+    rcases hp with rfl | rfl
+    · rcases hq with rfl | rfl
+      · omega
+      · have cell : count [(a, b), (d, c)] ≤ count [(d, c)] := (cells _ _).2.1
+        omega
+    · have cell : count [(b, a), q] ≤ count [(b, a)] := (cells _ _).1
+      omega
+  rcases le_total (count [(z, y)]) (count [(y, x)]) with h | h
+  · rw [max_eq_left h] at middle half
+    exact chooseFirst x y y z xy yz h middle half
+  · rw [max_eq_right h] at middle half
+    have flip : count [(y, z), (x, y)] = count [(x, y), (y, z)] := (cells _ _).2.2
+    exact chooseFirst y z x y yz xy h (flip.trans_le middle) half
+
+-- The six-thin gold-partition theorem would discharge the existing H1.
+lemma six_thin_gold_suffices (sixThin : ∀ (P : Type) [PartialOrder P] [Fintype P],
+    (∃ a b : P, ¬ a ≤ b ∧ ¬ b ≤ a) →
+    (∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ 6) →
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count []) : H1 := by
+  intro P _ _ _ _ _ three thin
+  obtain ⟨x, y, _, xy, _, _⟩ := three
+  exact gold_balanced P (sixThin P ⟨x, y, xy⟩ thin)
+
 theorem main : H1 → H2 → type_of% @OMA.S_wp_1_3_2_3_conjecture.main := by
   classical
   intro thinCase remaining P _ _ nonchain
@@ -905,7 +1072,11 @@ theorem main : H1 → H2 → type_of% @OMA.S_wp_1_3_2_3_conjecture.main := by
       · by_cases thin : ∀ x : Q, ({y : Q | ¬ x ≤ y ∧ ¬ y ≤ x} : Set Q).ncard ≤ 6
         · exact thinCase Q hn hi rigid three thin
         · obtain ⟨x, hx⟩ := not_forall.mp thin
-          exact remaining Q hn hi rigid three ⟨x, by omega⟩
+          by_contra noPair
+          apply noPair
+          apply remaining Q hn hi rigid three ⟨x, by omega⟩
+          intro count certificate
+          exact noPair (gold_balanced Q certificate)
       · simp only [not_forall] at rigid
         exact automorphism_balanced Q rigid
   obtain ⟨x, y, hxy, hbounds⟩ := core S hS hcut
