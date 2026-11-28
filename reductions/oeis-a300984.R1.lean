@@ -69,8 +69,8 @@ namespace OMA.R_oeis_a300984_R1
 open OMA.S_oeis_a300984
 
 /-- Evaluate both divisor sums using the two exponents. -/
-def H1 : Prop := ∀ p i j : ℕ, p.Prime → p ≠ 2 → 0<j →
-  let S := (if i=0 then 1 else 3)*(1+p)
+def H1 : Prop := ∀ p i j : ℕ, p.Prime → p ≠ 2 → 0 < j →
+  let S := (if i = 0 then 1 else 3)*(1+p)
   let T := (∑ a ∈ Finset.range (i+1), 2^a) * (∑ b ∈ Finset.range (j+1), p^b)
   squarefreeSum (2^i*p^j) = S ∧ nonsquarefreeSum (2^i*p^j) = T-S
 
@@ -78,19 +78,20 @@ def H1 : Prop := ∀ p i j : ℕ, p.Prime → p ≠ 2 → 0<j →
 def H2 : Prop := by
   classical
   let F (B : ℕ) : Finset ℕ := (Finset.range (B+1)).filter fun p ↦ p.Prime ∧ p ≠ 2 ∧
-      ∃ i j : ℕ, 0<j ∧ 2^i*p^j ≤ B ∧
-        Squarefree ((if i=0 then 1 else 3)*(1+p)) ∧
-        Squarefree ((∑ a ∈ Finset.range (i+1), 2^a) * (∑ b ∈ Finset.range (j+1), p^b) - (if i=0 then 1 else 3)*(1+p))
-  exact ∀ m : ℕ, 7<m → (F (10^m)).card < 2*((F (10^m)).filter isA082539).card
+      ∃ i j : ℕ, 0 < j ∧ 2^i*p^j ≤ B ∧
+        Squarefree ((if i = 0 then 1 else 3)*(1+p)) ∧
+        Squarefree ((∑ a ∈ Finset.range (i+1), 2^a) * (∑ b ∈ Finset.range (j+1), p^b) - (if i = 0 then 1 else 3)*(1+p))
+  exact ∀ m : ℕ, 7 < m →
+    (F (10 ^ m)).card < 2 * ((F (10 ^ m)).filter isA082539).card
 
 theorem main : H1 → H2 → type_of% @OMA.S_oeis_a300984.main := by
   classical
   intro h₁ h₂
   refine ⟨lagneau_support, ?_⟩
   let F (B : ℕ) : Finset ℕ := (Finset.range (B+1)).filter fun p ↦ p.Prime ∧ p ≠ 2 ∧
-      ∃ i j : ℕ, 0<j ∧ 2^i*p^j ≤ B ∧
-        Squarefree ((if i=0 then 1 else 3)*(1+p)) ∧
-        Squarefree ((∑ a ∈ Finset.range (i+1), 2^a) * (∑ b ∈ Finset.range (j+1), p^b) - (if i=0 then 1 else 3)*(1+p))
+      ∃ i j : ℕ, 0 < j ∧ 2^i*p^j ≤ B ∧
+        Squarefree ((if i = 0 then 1 else 3)*(1+p)) ∧
+        Squarefree ((∑ a ∈ Finset.range (i+1), 2^a) * (∑ b ∈ Finset.range (j+1), p^b) - (if i = 0 then 1 else 3)*(1+p))
   have same (B : ℕ) : representedPrimes B = F B := by
     ext p
     simp only [representedPrimes, F, Finset.mem_filter]
