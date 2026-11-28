@@ -196,8 +196,7 @@ lemma longest_endpoint (G : SimpleGraph V) [DecidableRel G.Adj]
     have inpath : w ∈ p.support := by
       by_contra hn
       have h := longest w v (.cons ew.symm p) (hp.cons hn)
-      simp at h
-      omega
+      exact Nat.not_succ_le_self p.length h
     obtain ⟨i,hi,hiw⟩ := List.mem_iff_getElem.mp inpath
     have il : i ≤ p.length := by rw [p.length_support] at hi; omega
     have hit : p.getVert i = w := (p.getVert_eq_support_getElem il).trans hiw
