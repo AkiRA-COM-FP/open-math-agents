@@ -12280,6 +12280,174 @@
     "https://oeis.org/A176680"
    ],
    "reason": "Trivial. For even k, 2^k+1 prime forces k to be a power of 2 (classical). For odd k, 2^k-3 == 2 mod 3, and Robert Israel's comment in A176680 (Feb 2016) already says 2^n-3 == 2 mod 3 iff n is odd. The union {2} u Fermat primes>3 u A176680 is thus a direct rewriting of the definition. The statement is faithful, but nothing open is proved."
+  },
+  "oeis-a280606": {
+   "date": "2026-11-28",
+   "pr": 24739,
+   "evidence": [
+    "https://oeis.org/A280606"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 294 conjectures: the recurrence printed 'n>4' fails only at n=6 (a(6)=1000001 vs 1000101); Gutkovskiy's g.f. has an x^6 term, so it holds for n>6. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a281146": {
+   "date": "2026-11-28",
+   "pr": 27569,
+   "evidence": [
+    "https://oeis.org/A281146"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 515 conjectures: the recurrence printed 'n>2' fails at n=4 (10100 vs 10000); the g.f. numerator has degree 4, so it holds for n>4. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282412": {
+   "date": "2026-11-28",
+   "pr": 26656,
+   "evidence": [
+    "https://oeis.org/A282412"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 467 conjectures: the recurrence printed 'n>3' fails at n=5; the g.f. numerator has degree 5. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282413": {
+   "date": "2026-11-28",
+   "pr": 24198,
+   "evidence": [
+    "https://oeis.org/A282413"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 467 conjectures: the recurrence printed 'n>3' fails at n=5 (0 vs -4); the g.f. numerator has degree 5. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282414": {
+   "date": "2026-11-28",
+   "pr": 26688,
+   "evidence": [
+    "https://oeis.org/A282414"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 467 conjectures: the recurrence printed 'n>3' fails at n=5 (0 vs -8); Mathar's equality conjunct is untouched. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282483": {
+   "date": "2026-11-28",
+   "pr": 26582,
+   "evidence": [
+    "https://oeis.org/A282483"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 478 conjectures: the recurrence printed 'n>6' fails at n=10; the g.f. numerator has degree 10. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282652": {
+   "date": "2026-11-28",
+   "pr": 26995,
+   "evidence": [
+    "https://oeis.org/A282652"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 491 conjectures: the recurrence printed 'n>5' fails at n=7 and 11; the g.f. numerator has degree 11. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282654": {
+   "date": "2026-11-28",
+   "pr": 27005,
+   "evidence": [
+    "https://oeis.org/A282654"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 491 conjectures: the recurrence printed 'n>5' fails at n=7 and 11; the g.f. numerator has degree 11. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282655": {
+   "date": "2026-11-28",
+   "pr": 23112,
+   "evidence": [
+    "https://oeis.org/A282655"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 491 conjectures: the recurrence printed 'n>5' fails at n=7 and 11; the g.f. numerator has degree 11. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282802": {
+   "date": "2026-11-28",
+   "pr": 24281,
+   "evidence": [
+    "https://oeis.org/A282802"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 507 conjectures: the recurrence printed 'n>3' fails at n=5 (20 vs 16); the g.f. numerator has degree 5. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282803": {
+   "date": "2026-11-28",
+   "pr": 24521,
+   "evidence": [
+    "https://oeis.org/A282803"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 507 conjectures: the recurrence printed 'n>3' fails at n=5 (10 vs 2); the g.f. numerator has degree 5. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282828": {
+   "date": "2026-11-28",
+   "pr": 26783,
+   "evidence": [
+    "https://oeis.org/A282828"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 521 conjectures: the recurrence printed 'n>15' fails at n=17; the g.f. numerator has degree 17. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282871": {
+   "date": "2026-11-28",
+   "pr": 26727,
+   "evidence": [
+    "https://oeis.org/A282871"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 617 conjectures: the recurrence printed 'n>4' fails at n=6; the g.f. numerator has degree 6. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282915": {
+   "date": "2026-11-28",
+   "pr": 26649,
+   "evidence": [
+    "https://oeis.org/A282915"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 529 conjectures: the recurrence printed 'n>6' fails at n=10; the g.f. numerator has degree 10. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a282916": {
+   "date": "2026-11-28",
+   "pr": 24732,
+   "evidence": [
+    "https://oeis.org/A282916"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 529 conjectures: the recurrence printed 'n>6' fails at n=10 (100011100 in the data); the g.f. numerator has degree 10. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a283348": {
+   "date": "2026-11-28",
+   "pr": 26773,
+   "evidence": [
+    "https://oeis.org/A283348"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 617 conjectures: the recurrence printed 'n>4' fails at n=6; the g.f. numerator has degree 6. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a283350": {
+   "date": "2026-11-28",
+   "pr": 26533,
+   "evidence": [
+    "https://oeis.org/A283350"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 617 conjectures: the recurrence printed 'n>4' fails at n=6 (62 vs 46); the g.f. numerator has degree 6. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a283355": {
+   "date": "2026-11-28",
+   "pr": 26904,
+   "evidence": [
+    "https://oeis.org/A283355"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 621 conjectures: the recurrence printed 'n>5' fails at n=7; the g.f. numerator has degree 7. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a283356": {
+   "date": "2026-11-28",
+   "pr": 27332,
+   "evidence": [
+    "https://oeis.org/A283356"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 621 conjectures: the recurrence printed 'n>5' fails at n=7; the g.f. numerator has degree 7. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a283357": {
+   "date": "2026-11-28",
+   "pr": 27016,
+   "evidence": [
+    "https://oeis.org/A283357"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 621 conjectures: the recurrence printed 'n>5' fails at n=7; the g.f. numerator has degree 7. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
+  },
+  "oeis-a283358": {
+   "date": "2026-11-28",
+   "pr": 27020,
+   "evidence": [
+    "https://oeis.org/A283358"
+   ],
+   "reason": "Disproof of a printed range slip in Barker's Rule 621 conjectures: the recurrence printed 'n>5' fails at n=7; the g.f. numerator has degree 7. The failing index is inside the listed data. My simulation reproduces the data, and the g.f. and closed forms hold for n<70. The Lean disproof either checks one small index or plays the g.f. off against the recurrence; the intended recurrence (shifted range) is not refuted."
   }
  },
  "known": {
@@ -23060,6 +23228,75 @@
     "https://github.com/blakestone-x/math/commits/main/A081732"
    ],
    "reason": "Second review: Already proved publicly, in Lean, by Blake Stone two days before the site's proof. Not new."
+  },
+  "oeis-a280258": {
+   "date": "2026-11-28",
+   "pr": 23334,
+   "evidence": [
+    "https://oeis.org/A280258",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/KrizekPhitorialDivisorSumParity.lean"
+   ],
+   "reason": "Krizek's parity conjecture (a(n) odd iff n is not 2k^2) is stated faithfully. trureturing proved exactly this iff (same definitions of pxi and a) in D5/S3/Arith/KrizekPhitorialDivisorSumParity.lean, committed 2026-09-18, before this solve. Known."
+  },
+  "oeis-a281817": {
+   "date": "2026-11-28",
+   "pr": 24089,
+   "evidence": [
+    "https://oeis.org/A281817",
+    "https://doi.org/10.5281/zenodo.20441929"
+   ],
+   "reason": "Bala's conjectures: den(B_{2n-2}) divides a(2n)-1, and a(2p) = 1 mod p. Xinjun Wang's Zenodo note (2026-05-29, linked from the entry) proves the first for all n>=2 (n=1 is trivial). The second is the case n=p of the first, since p-1 divides 2p-2. Known."
+  },
+  "oeis-a282502": {
+   "date": "2026-11-28",
+   "pr": 25829,
+   "evidence": [
+    "https://oeis.org/A282502",
+    "https://doi.org/10.1515/ms-2025-0037"
+   ],
+   "reason": "Every n>1 is a sum of at most 5 centered triangular numbers. This is the k=3 case of Warren and Kures, 'Every positive integer is a sum of at most n+2 centered n-gonal numbers', Math. Slovaca 75 (2025) 515-524. It also follows in two lines from Gauss's Eureka theorem, as the statement itself notes. Known."
+  },
+  "oeis-a282504": {
+   "date": "2026-11-28",
+   "pr": 25875,
+   "evidence": [
+    "https://oeis.org/A282504",
+    "https://doi.org/10.1515/ms-2025-0037"
+   ],
+   "reason": "Both conjectures (at most 6 centered squares; at most k+2 centered k-gonal numbers for all k>=3) are exactly the theorem of Warren and Kures, Math. Slovaca 75 (2025) 515-524. The proof uses the Gauss Eureka reduction suggested in the statement. Known."
+  },
+  "oeis-a282295": {
+   "date": "2026-11-28",
+   "pr": 27077,
+   "evidence": [
+    "https://oeis.org/A282295",
+    "https://oeis.org/A279720",
+    "https://oeis.org/A282295/b282295.txt",
+    "https://oeis.org/A279720/b279720.txt"
+   ],
+   "reason": "Mathar's 2025 conjecture A282295(n) = A279720(n) for n>=2 (Rules 451 and 193, left half, base-10 digits). The disproof shows they differ at n=26. Price's 2017 b-files (n=0..126) already show it: 111111111111000000000001111 vs ...000000111 at n=26. Same as the earlier A282681 verdict: the counterexample was in published OEIS data."
+  },
+  "oeis-a282679": {
+   "date": "2026-11-28",
+   "pr": 27224,
+   "evidence": [
+    "https://oeis.org/A282679",
+    "https://oeis.org/A282675",
+    "https://oeis.org/A282679/b282679.txt",
+    "https://oeis.org/A282675/b282675.txt"
+   ],
+   "reason": "Mathar's 2025 conjecture A282679(n) = A282675(n) for n>=2 (Rules 499 and 497, right half, base-10 digits). The disproof uses n=39. Price's 2017 b-files already differ there (1011110000111100001... vs 1011010000111100001...). Same pair as the earlier A282681 verdict; already refuted by published data."
+  },
+  "oeis-a282680": {
+   "date": "2026-11-28",
+   "pr": 27247,
+   "evidence": [
+    "https://oeis.org/A282680",
+    "https://oeis.org/A282676",
+    "https://oeis.org/A282680/b282680.txt",
+    "https://oeis.org/A282676/b282676.txt"
+   ],
+   "reason": "Mathar's 2025 conjecture A282680(n) = A282676(n) for n>=2 (Rules 499 and 497, left half, decimal). The disproof uses n=39. Price's 2017 b-files already differ there: 1110260 vs 1110196. Same pair as the earlier A282681 verdict; already refuted by published data."
   }
  },
  "reviewed": "2026-11-28"
