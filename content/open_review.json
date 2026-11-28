@@ -12999,6 +12999,372 @@
     "https://oeis.org/A209796"
    ],
    "note": "Half the number of (n+1) X 2 arrays over 0..2 where each 2 X 2 block has exactly three distinct signed clockwise differences (b-a,d-b,c-d,a-c). My count is always even and halves to the data for n=1..14. The statement takes Barker's g.f. and the sqrt(73) closed form for n>=1. Ma-Zhang's Zenodo note covers the distinct-differences family A209721-A209727, not this one; routine transfer matrix. Second review: Faithful and true; transfer-matrix g.f. Nothing earlier found."
+  },
+  "oeis-a267227": {
+   "date": "2026-11-28",
+   "pr": 26570,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267227",
+    "https://oeis.org/A267232",
+    "https://oeis.org/A267227",
+    "https://oeis.org/A267232"
+   ],
+   "note": "Barker's g.f. and closed form (n>1) for length-n words over 0..3 in which every element after the first adjacent repeat is smaller than the repeated value. The adjacent-repeat reading reproduces the data (n <= 9 by brute force), while the 'any earlier occurrence' reading does not. The g.f. agrees with the closed form for n < 30. Routine transfer count; no prior proof found. Second review: Faithful (the adjacency reading is forced by the data) and routine. No proof in the parent table A267232 or elsewhere."
+  },
+  "oeis-a227081": {
+   "date": "2026-11-28",
+   "pr": 25610,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A227081",
+    "https://oeis.org/A124576",
+    "https://oeis.org/A227081"
+   ],
+   "note": "Mathar's P-recurrence for the row sums of A124576. The statement takes Kotesovec's g.f. 1/(6x-1+2 sqrt((2x-1)(6x-1))) as the definition, rationalized correctly to (1-6x+2 sqrt R)/(12x^2-20x+3). I checked that the g.f. reproduces the triangle's row sums and that the recurrence holds for n < 40. The recurrence follows mechanically from the algebraic g.f.; no prior proof found. Second review: An unattributed recurrence conjecture for an algebraic g.f.; holonomic, so routine. Faithful, and no prior proof was found."
+  },
+  "oeis-a227776": {
+   "date": "2026-11-28",
+   "pr": 26175,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A227776",
+    "https://oeis.org/A227631",
+    "https://oeis.org/A227776"
+   ],
+   "note": "Kimberling's conjecture that 6n^2+1 is the least splitter of s(n) = n sin(1/n) and s(n+1) is stated faithfully for n >= 1, with splitter as defined in A227631, and the example lists 6/7, 24/25, .... The proof uses the Taylor bounds 1 - 1/(6m^2) < s(m) < 1: c/d = 6n^2/(6n^2+1) splits, and any c/d < 1 with d <= 6n^2 lies below s(n). It is elementary. No prior proof found. Second review: Kimberling's least-splitter conjecture for n sin(1/n). It follows by a short Taylor-bound argument. Faithful, and no prior proof was found in the A2276xx splitter family or on the web."
+  },
+  "oeis-a228212": {
+   "date": "2026-11-28",
+   "pr": 25410,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228212",
+    "https://oeis.org/A228218",
+    "https://oeis.org/A228212"
+   ],
+   "note": "Barker's a(n) = 3^(n+2) - 2^(n+2) for n > 3, counting distinct second-difference arrays of 0..2 arrays of length n+2. It is stated faithfully (a(4) = 665 matches; a(3) = 199 is not 211, so the threshold is right). Two arrays have the same second differences iff they differ by an integer linear function, and once n+1 > 2k only constant shifts are possible. So each class has exactly one member containing a 0. The proof is this elementary argument. The parent A228218 has no proof. Second review: Barker's closed form for a Hardin difference-array count. The definition reproduces the data, and the formula holds exactly where it is stated. Finite-state count, so routine."
+  },
+  "oeis-a228214": {
+   "date": "2026-11-28",
+   "pr": 25413,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228214",
+    "https://oeis.org/A228218",
+    "https://oeis.org/A228214"
+   ],
+   "note": "This is the same family as A228212, for k = 4: a(n) = 5^(n+2) - 4^(n+2) for n > 7. The statement is faithful, and a(8) = 8717049 matches the data. Since n+1 > 2k, the linear part of any difference is forced to be 0, so classes correspond to arrays containing a 0. Elementary; no prior proof found in A228218. Second review: Barker's closed form for a Hardin difference-array count. The definition reproduces the data, and the formula holds exactly where it is stated. Finite-state count, so routine."
+  },
+  "oeis-a228219": {
+   "date": "2026-11-28",
+   "pr": 27610,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228219",
+    "https://oeis.org/A228218",
+    "https://oeis.org/A228219"
+   ],
+   "note": "Barker's g.f. x(15+4x+x^2)/(1-x)^3 and order-3 recurrence for n > 3, i.e. a(n) = 10n^2+4n+1, the number of second-difference pairs of length-4 arrays over 0..n. The a(0) slot is zeroed in the g.f. as the offset requires. The proof characterizes the image as the lattice points of an octagon and counts them. I brute-forced n <= 8 and all agree. Elementary. Second review: A quadratic count; routine. Faithful, and no prior proof was found."
+  },
+  "oeis-a228255": {
+   "date": "2026-11-28",
+   "pr": 25416,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228255",
+    "https://oeis.org/A228260",
+    "https://oeis.org/A228255"
+   ],
+   "note": "Barker's a(n) = 4^(n+3) - 3^(n+3) for n > 5, counting third-difference arrays of 0..3 arrays of length n+3. It is stated faithfully (a(6) = 242461 matches; a(5) = 58911 is not 58975). Arrays with the same third differences differ by an integer-valued quadratic, which for long arrays must be constant, so classes correspond to arrays containing a 0. Elementary; the parent A228260 has no proof. Second review: Barker's closed form for a Hardin difference-array count. The definition reproduces the data, and the formula holds exactly where it is stated. Finite-state count, so routine."
+  },
+  "oeis-a228256": {
+   "date": "2026-11-28",
+   "pr": 25422,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228256",
+    "https://oeis.org/A228260",
+    "https://oeis.org/A228256"
+   ],
+   "note": "This is the same third-difference family for k = 4: a(n) = 5^(n+3) - 4^(n+3) for n > 6. It is faithful (a(7) = 8717049 matches; a(6) is 1688101, not 1690981). The proof is the same counting of the arrays that contain a 0. Elementary; no prior proof found. Second review: Barker's closed form for a Hardin difference-array count. The definition reproduces the data, and the formula holds exactly where it is stated. Finite-state count, so routine."
+  },
+  "oeis-a228462": {
+   "date": "2026-11-28",
+   "pr": 27285,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228462",
+    "https://oeis.org/A228461",
+    "https://oeis.org/A228462"
+   ],
+   "note": "Barker's order-6 recurrence (n > 6) and g.f. for the number of maxima-of-3-window arrays of length-7 arrays over 0..n, with the a(0) slot zeroed in the g.f. as the offset requires. The definition reproduces the data: I brute-forced n <= 5 against Hardin's quintic. The proof uses the min-over-windows characterization of attainable arrays and a polynomial count. The parent A228461 has no proof. Routine. Second review: Barker's polynomial g.f. for a Hardin maxima count. Faithful and verified; no prior proof was found. Routine."
+  },
+  "oeis-a228463": {
+   "date": "2026-11-28",
+   "pr": 27292,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228463",
+    "https://oeis.org/A228461",
+    "https://oeis.org/A228463"
+   ],
+   "note": "This is the same family for length-8 arrays: Barker's order-7 recurrence (n > 7) and g.f. It is stated faithfully, and I brute-forced n <= 4 against the degree-6 polynomial. The proof is the same characterization and count. No prior proof found. Routine. Second review: Barker's polynomial g.f. for a Hardin maxima count. Faithful and verified; no prior proof was found. Routine."
+  },
+  "oeis-a228464": {
+   "date": "2026-11-28",
+   "pr": 27305,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228464",
+    "https://oeis.org/A228461",
+    "https://oeis.org/A228464"
+   ],
+   "note": "This is the same family for length-9 arrays: Barker's order-8 recurrence (n > 8) and g.f. It is stated faithfully, and I brute-forced n <= 3 against Hardin's degree-7 polynomial. The proof is a characterization plus a count. No prior proof found. Routine. Second review: Barker's polynomial g.f. for a Hardin maxima count. Faithful and verified; no prior proof was found. Routine."
+  },
+  "oeis-a228770": {
+   "date": "2026-11-28",
+   "pr": 24906,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228770",
+    "https://arxiv.org/abs/1309.0832",
+    "https://oeis.org/A228770"
+   ],
+   "note": "Mathar's order-6 P-recurrence for Pantone's algebraic g.f. (the enumeration of 3124/4312-avoiders is proved in Pantone's paper). The statement's normalized g.f., with its index shift, reproduces the data, and I expanded the recurrence coefficients and checked them term by term against Mathar's. The recurrence holds for 7 <= n < 31. The proof is a certificate of linear combinations of S^2 = R. Routine; no prior proof found. Second review: Mathar's holonomic recurrence for an algebraic g.f. from Pantone's enumeration. Routine and faithful; no prior proof was found."
+  },
+  "oeis-a228934": {
+   "date": "2026-11-28",
+   "pr": 25732,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A228934",
+    "https://oeis.org/A228929",
+    "https://oeis.org/A228934",
+    "https://oeis.org/A228931/a228931.pdf"
+   ],
+   "note": "Artico's conjecture for sqrt(44) - 6: the terms are negative from a(4), with a(2n) = 4a(2n-1) - 4 and a(2n+1) = -2a(2n-1)^2 + 1 for n >= 3. The definition matches A228929 and the data (-99, -199, -800, -79201, ...). I checked 14 terms at 3000 digits. The proof is an elementary two-step algebraic invariant of the residuals. No prior proof found. Second review: A new two-step invariant argument. Artico's PDF lists sqrt44 as an open question ('how can we characterize them?'), and no later proof was found. Faithful."
+  },
+  "oeis-a229422": {
+   "date": "2026-11-28",
+   "pr": 25293,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A229422",
+    "https://oeis.org/A229428",
+    "https://oeis.org/A229422"
+   ],
+   "note": "Hardin's quartic, Barker's g.f. and Barker's recurrence (n > 5) for n X 2 0..2 arrays with the stated mod-3 difference, row-lex and column-lex conditions. The sign conventions (right minus left != 1, lower minus upper != 2 mod 3, left column >= right column) reproduce the data: I brute-forced n <= 8. The proof is a transfer count over the top row. The parent A229428 has no proof. Routine. Second review: Hardin/Barker polynomial count of lex-ordered arrays; faithful and verified, with no prior proof. Routine."
+  },
+  "oeis-a229423": {
+   "date": "2026-11-28",
+   "pr": 26055,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A229423",
+    "https://oeis.org/A229428",
+    "https://oeis.org/A229423"
+   ],
+   "note": "This is the same family for n X 3 arrays: Hardin's sextic, Barker's g.f. and Barker's recurrence (n > 7). It is stated faithfully, and my brute force for n <= 7 matches the data. The proof is a transfer-matrix polynomial count. No prior proof found. Routine. Second review: Hardin/Barker polynomial count of lex-ordered arrays; faithful and verified, with no prior proof. Routine."
+  },
+  "oeis-a230113": {
+   "date": "2026-11-28",
+   "pr": 25023,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A230113",
+    "https://oeis.org/A227896",
+    "https://oeis.org/A233766",
+    "https://oeis.org/A230113"
+   ],
+   "note": "Barker's recurrence (n > 17) and g.f. for Croft's digital-root sequence. The statement's definition, dr(dr F(m) + dr L(m-1)) with m running over the numbers prime to 30, follows the entry's example (A227896 starts at F(1), A233766 at L(0)) and reproduces all 68 data terms. I checked the recurrence to n = 120. The sequence is periodic because the Pisano periods mod 9 divide 24, so the proof is routine periodicity. Second review: A periodic sequence (period 32); a finite periodicity check. Faithful to the data and examples, and no prior proof was found."
+  },
+  "oeis-a230218": {
+   "date": "2026-11-28",
+   "pr": 26377,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A230218",
+    "https://oeis.org/A185072",
+    "https://oeis.org/A229041",
+    "https://oeis.org/A230218"
+   ],
+   "note": "Hanna's parity conjecture: for n > 0, a(n) is odd iff n is a power of 2. The recursive definition, a(n) = -[x^n](earlier part)^(n^2+n+1)/(n^2+n+1) with a(0) = a(1) = 1, reproduces the data, and I checked that the division is exact and the parity claim holds for n < 70. The proof shows that the division is exact and that mod 2 the series is B with B = B^2 + X. That is a short but genuine argument. No prior proof found in the sister entries (A229044 lists the analogous claim, still as a conjecture). Second review: A genuine proof. Mod 2 the g.f. is B = 1 + sum x^(2^k), the solution of B = B^2 + X, using that n^2+n+1 is odd. Web search (Hanna parity, A292877 cross-reference, Fried's parity papers) found no prior proof. Faithful."
+  },
+  "oeis-a232956": {
+   "date": "2026-11-28",
+   "pr": 25116,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A232956",
+    "https://oeis.org/A232955",
+    "https://oeis.org/A232956"
+   ],
+   "note": "Hardin's recurrence and Barker's g.f. and parity closed forms for 2 X n 0..3 arrays with no horizontal or diagonal neighbour equal to 3-x and top left 0. The adjacency (column difference exactly 1, no vertical constraint) reproduces the data; my transfer-matrix computation for n <= 11 matches it and the closed forms. Routine transfer-matrix count; the parent A232955 has no proof. Second review: A finite transfer-matrix count; faithful, and no prior proof was found. Routine."
+  },
+  "oeis-a233107": {
+   "date": "2026-11-28",
+   "pr": 24825,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A233107",
+    "https://oeis.org/A233113",
+    "https://oeis.org/A233107"
+   ],
+   "note": "Barker's closed form (105+18*7^n+5*21^n)/168 and g.f. for Hardin's n X 2 0..5 arrays (no horizontal or vertical neighbour equal to 5-x, top left 0, first 1 before any 2, 3, 4, first 2 before any 3). The row-major scan with two flags encodes these conditions, and my independent DP reproduces all 9 data terms and the closed form. Routine transfer-matrix count; the parent A233113 has no proof. Second review: Barker's closed form for a Hardin count; transfer matrix. Faithful, with no prior proof. Routine."
+  },
+  "oeis-a233402": {
+   "date": "2026-11-28",
+   "pr": 26568,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A233402",
+    "https://oeis.org/A233408",
+    "https://oeis.org/A233402"
+   ],
+   "note": "Barker's g.f. and parity-split quadratic for (n+1) X 2 0..2 arrays with nondecreasing row and column sums and no equal neighbours. The definition reproduces the data: I brute-forced n <= 8, and the closed form matches. The proof is a transfer count over rows. Routine; the parent A233408 has no proof. Second review: Faithful and verified; finite-state count. Routine."
+  },
+  "oeis-a233419": {
+   "date": "2026-11-28",
+   "pr": 26062,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A233419",
+    "https://oeis.org/A232637",
+    "https://oeis.org/A000069",
+    "https://oeis.org/A233419"
+   ],
+   "note": "Greathouse's conjecture that every k not divisible by 4 divides infinitely many odious numbers of order 2, A000069(A000069(j)). It is stated faithfully: odious(j) = 2(j-1) + [weight(j-1) even] gives A000069, and secondOdious reproduces A232637. I checked numerically that every k < 400 with 4 not dividing k has a multiple among the first 2*10^5 terms. The proof is a genuine binary-block (Thue-Morse) construction. No prior proof found; trureturing has EvilOdious material but nothing on A232637 or A233419. Second review: A new proof of Greathouse's conjecture. Web search, including Allouche-Shallit 'Beyond odious and evil', found no prior proof. Faithful."
+  },
+  "oeis-a234269": {
+   "date": "2026-11-28",
+   "pr": 16254,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A234269",
+    "https://oeis.org/A234269"
+   ],
+   "note": "Mathar's D-finite recurrence for the g.f. (1-2x^2-S)/(2xS), S = sqrt(1-4x^2-4x^3), for n >= 4. The coefficients expand Mathar's factored form exactly, and S and G are uniquely determined by the hypotheses. I checked the recurrence against the expansion for n < 40, and the expansion matches the data. Routine elimination to an ODE. Second review: Mathar's holonomic recurrence for an algebraic g.f.; routine and faithful. Not among the 33 Ekhad-Yang-Zeilberger proofs."
+  },
+  "oeis-a238714": {
+   "date": "2026-11-28",
+   "pr": 26198,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A238714",
+    "https://oeis.org/A238529",
+    "https://oeis.org/A238714"
+   ],
+   "note": "Stauduhar's conjecture that the set of final divisors of the rem -> rem mod sopfr(rem) loop is exactly {m >= 2, m != 6}. The loop matches A238529's SageMath and PARI programs, and the model reproduces the data. The proof is elementary: sopfr(r) = 6 forces r in {8, 9}, where the loop continues; m is attained via r = m*u with sopfr(u) = m - sopfr(m). No prior proof found. Second review: A short constructive argument; routine. Faithful, and no prior proof was found."
+  },
+  "oeis-a238807": {
+   "date": "2026-11-28",
+   "pr": 25175,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A238807",
+    "https://oeis.org/A238812",
+    "https://oeis.org/A238807"
+   ],
+   "note": "Barker's g.f. and order-7 recurrence (n > 9) for Hardin's n X 3 0..2 arrays where no element equals 1 + (sum to its left) or 1 + (sum above it) mod 3. The definition reproduces all 25 data terms; I ran an independent column-sum-state DP. Routine transfer count with a 27-state column-sum vector. No prior proof found. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
+  },
+  "oeis-a239024": {
+   "date": "2026-11-28",
+   "pr": 25134,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239024",
+    "https://oeis.org/A239030",
+    "https://oeis.org/A239024"
+   ],
+   "note": "Barker's g.f. and closed form (2+(-2)^n+2(-1)^n+7*2^n)/12 for Hardin's n X 2 0..2 arrays where no element equals (sum to its left) or 1 + (sum above it) mod 3. The definition reproduces 17 data terms; I ran an independent row DP over column sums. Routine transfer count; the parent A239030 has no proof. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
+  },
+  "oeis-a239031": {
+   "date": "2026-11-28",
+   "pr": 25162,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239031",
+    "https://oeis.org/A239030",
+    "https://oeis.org/A239031"
+   ],
+   "note": "Barker's g.f. and order-5 recurrence (n > 5) for the same family with 4 rows (row 4 of A239030). It is stated faithfully, and my column-state DP reproduces the 16 data terms. Routine transfer count (a polynomial in n); no prior proof found. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
+  },
+  "oeis-a239032": {
+   "date": "2026-11-28",
+   "pr": 25470,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239032",
+    "https://oeis.org/A239030",
+    "https://oeis.org/A239032"
+   ],
+   "note": "This is the same family with 5 rows: Barker's g.f. and order-7 recurrence (n > 8; Hardin's sextic holds only for n > 1, and the g.f. numerator has degree 8). It is stated faithfully, and my DP reproduces the 14 data terms. Routine; no prior proof found. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
+  },
+  "oeis-a239033": {
+   "date": "2026-11-28",
+   "pr": 25495,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239033",
+    "https://oeis.org/A239030",
+    "https://oeis.org/A239033"
+   ],
+   "note": "This is the same family with 6 rows: Barker's degree-12-numerator g.f. over (1-x)^10 and order-10 recurrence (n > 12). It is stated faithfully, and my DP reproduces the 12 data terms. The proof (74 KB) is a large but routine transfer computation. No prior proof found. Second review: Barker's g.f. for a Hardin running-sum count; finite-state, faithful, with no prior proof. Routine."
+  },
+  "oeis-a239201": {
+   "date": "2026-11-28",
+   "pr": 15658,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239201",
+    "https://oeis.org/A239201"
+   ],
+   "note": "Mathar's order-3 P-recurrence (n >= 3) for Kruchinin's algebraic g.f. is stated with S and G determined by S^2 = 1-6x+5x^2, S(0) = 1 and the defining product. The coefficients match Mathar's, and I checked the expansion against the data and the recurrence for n < 35. Routine elimination to a first-order ODE. Second review: Mathar's holonomic recurrence for an algebraic g.f.; routine and faithful. No prior proof was found."
+  },
+  "oeis-a239530": {
+   "date": "2026-11-28",
+   "pr": 24764,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239530",
+    "https://oeis.org/A239537",
+    "https://oeis.org/A239530"
+   ],
+   "note": "Barker's g.f. x(1-x)/((1-3x)(1+x-x^2)) and the Binet-type closed form for Hardin's (n+1) X 2 0..2 arrays with no element equal to all horizontal neighbours or unequal to all vertical neighbours, with values introduced in row-major order. The encoding of 'introduced in order' (every smaller value appeared earlier) is the standard one. My independent DP reproduces all 21 data terms. Routine transfer count. Second review: Finite-state Hardin count; faithful and verified, with no prior proof. Routine."
+  },
+  "oeis-a229439": {
+   "date": "2026-11-28",
+   "pr": 25379,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A229439",
+    "https://oeis.org/A229445",
+    "https://oeis.org/A229439"
+   ],
+   "note": "Hardin's quartic, Barker's g.f. and Barker's recurrence (n > 5) for n X 2 0..2 arrays with right-minus-left != 1 and lower-minus-upper != 2 mod 3, rows and columns lexicographically nondecreasing. The sign conventions reproduce the data: I brute-forced n <= 8. Routine transfer count; the parent A229445 has no proof. Second review: Hardin/Barker polynomial count of lex-ordered arrays; faithful and verified, with no prior proof. Routine."
+  },
+  "oeis-a229440": {
+   "date": "2026-11-28",
+   "pr": 25906,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A229440",
+    "https://oeis.org/A229445",
+    "https://oeis.org/A229440"
+   ],
+   "note": "This is the same family with 3 columns: Hardin's sextic, Barker's g.f. and Barker's recurrence (n > 7). It is stated faithfully, and my brute force for n <= 7 matches the data. Routine; no prior proof found. Second review: Hardin/Barker polynomial count of lex-ordered arrays; faithful and verified, with no prior proof. Routine."
+  },
+  "oeis-a229446": {
+   "date": "2026-11-28",
+   "pr": 26125,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A229446",
+    "https://oeis.org/A229445",
+    "https://oeis.org/A229446"
+   ],
+   "note": "Row 3 of A229445 (3 X n arrays, encoded as a list of columns with the roles of the conditions swapped correctly): the cubic n^3/3 + 8n/3 + 5, Barker's g.f. and his recurrence (n > 4). My brute force for n <= 6 matches the data. Routine transfer count; no prior proof found. Second review: Hardin/Barker polynomial count of lex-ordered arrays; faithful and verified, with no prior proof. Routine."
   }
  },
  "flagged": {
@@ -28543,6 +28909,32 @@
     "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
    ],
    "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a228197": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A228197",
+    "https://oeis.org/A082590"
+   ],
+   "reason": "Second review: The statement is faithful, but the entry already says, since 2016, that the conjecture is satisfied: Irwin's closed form 4^n - 2*A082590(n-1) has the algebraic g.f. 1/((1-2x)sqrt(1-4x)). The site's proof is only a formal version of a recorded settlement, so it is not new. Downgrade to uncertain if 'satisfies' without a written proof is not counted as settled."
+  },
+  "oeis-a228933": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A228933",
+    "https://oeis.org/A228931",
+    "https://oeis.org/A228931/a228931.pdf"
+   ],
+   "reason": "Second review: Faithful, but settled in 2013: Artico's general Pell-invariant theorem (PDF attached to A228931, referenced by A228933's conjecture) gives the recurrence once z_3 = 161-72 sqrt5 is checked. The site proof uses exactly that invariant, traceState: q|z| = 1+|z|^2. Not new."
+  },
+  "oeis-a237930": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A237930",
+    "https://zenodo.org/records/23768236",
+    "https://zenodo.org/records/23617232"
+   ],
+   "reason": "Second review: Faithful, but proved a month earlier by an AI-agent Zenodo preprint (Lin Shi / DeepSeek, Zenodo 23768236, 29 Oct 2026) with its own Lean proof. The site's solve is not new."
   }
  },
  "reviewed": "2026-11-28"
