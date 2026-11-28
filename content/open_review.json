@@ -12232,6 +12232,773 @@
     "https://zenodo.org/records/24384895"
    ],
    "note": "Barker's even/odd closed forms (all n), recurrence (n>3) and g.f. for 2D Rule 261 (x-axis, origin to right edge, base-10 digits) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z (bit c+2s of the rule, background evolving) as Price's program does; my own Python re-simulation reproduces every listed term, and every conjunct holds for n<70. No proof of any Rule 261 formula found in the entry, trureturing/thatnealpatel (searched by A-number and rule number), Palomar or the OEIS proof collections. Routine: explicit stage shape by induction. Second review: Faithful and true. Cohen's paper has a digit automaton for Rule 261 but states only the stage-2^n-1 population, not this x-axis formula, so not prior. Routine finite-certificate proof."
+  },
+  "oeis-a157125": {
+   "date": "2026-11-28",
+   "pr": 24934,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A157125",
+    "https://oeis.org/A157125",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's order-5 P-recursive recurrence (n >= 5) is stated for the coefficients of Barry's g.f., with Mathar's x^3 correction. The series is characterized by S1^2 = 1+x^2+4x^3, S2^2 = 1+x^2 and 2x^3 S2 A = (1-x)(S1-S2). I checked that the g.f. reproduces the data and that the recurrence holds for n < 80. A routine holonomic derivation from the algebraic g.f.; no prior proof found. Second review: Faithful. Routine D-finite recurrence of an algebraic g.f.; no prior proof found."
+  },
+  "oeis-a157792": {
+   "date": "2026-11-28",
+   "pr": 15702,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A157792",
+    "https://oeis.org/A157720",
+    "https://oeis.org/A157792"
+   ],
+   "note": "Noe's 'a(n) = ceiling((n+1)/3) for n > 8' (stated as floor(n/3)+1, which is equal) and Wu's recurrence and g.f. (numerator and denominator match) are stated faithfully. The viewpoints are a subset of one edge; distinct points see each other iff gcd(dx, dy) = 1, and a point sees itself. My brute force reproduces the data 1,1,2,2,3,3,4,4,4,4,4,5,... for n <= 22. The proof gives a genuine lower bound and construction for all n (a mod-3 gap and units argument, plus finite checks for small n). No prior proof was found in the entry, the related entries or the literature. Second review: Faithful and a genuine all-n result (lower bound from rows h=0 and small h, explicit constructions via units mod q), not a finite check. No prior proof found."
+  },
+  "oeis-a158495": {
+   "date": "2026-11-28",
+   "pr": 13671,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A158495",
+    "https://oeis.org/A126966",
+    "https://oeis.org/A158495",
+    "https://oeis.org/A126966"
+   ],
+   "note": "Mathar's recurrence for the coefficients of ((1-4x) + sqrt(1-4x))/(2(1-2x)) is stated for n >= 3. It genuinely fails at n = 2 (the LHS is 4), and Mathar gives no range, so starting at 3 is the right reading. The proof is a routine algebraic-g.f. computation. The sister entry A126966 carries the same D-finite recurrence, and since a(n) = (2*0^n - 2^n + A126966(n))/2 with 2^n annihilated by the operator, the result follows. Routine. Second review: Faithful corrected form (Mathar's recurrence holds for n>=3, fails at n=2). Routine: it is essentially the stated recurrence of A126966 transferred through the entry's own formula, so any announcement should say this is a near-immediate corollary and that the conjecture as printed is false at n=2."
+  },
+  "oeis-a159864": {
+   "date": "2026-11-28",
+   "pr": 15225,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A159864",
+    "https://oeis.org/A159864"
+   ],
+   "note": "Mathar's row-sum conjecture, with the upper limits as corrected on 2026-11-24, is stated faithfully: T(n,k) = k-th forward difference of F at n-k. It is elementary: Delta F(i) = F(i-1), so T(n,k) = F(n-2k) (Somos's 2022 program in the entry). The even rows then cancel by F(-m) = (-1)^(m+1) F(m), and the odd rows sum to 2F(2n+2). Correct but routine. Second review: Faithful to the corrected conjecture (the correction only fixes the summation limits to the full rows). Routine from Heinz's closed form in the entry."
+  },
+  "oeis-a161006": {
+   "date": "2026-11-28",
+   "pr": 25067,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A161006",
+    "https://oeis.org/A161006",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's order-7 P-recursive recurrence is stated faithfully for the coefficients of c(x)c(x^2) (Deutsch's g.f.), for n >= 7. I checked it against the convolution definition for n < 60. The proof is a routine holonomic/algebraic-g.f. certificate. No prior proof was found. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found."
+  },
+  "oeis-a162475": {
+   "date": "2026-11-28",
+   "pr": 13992,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A162475",
+    "https://oeis.org/A162475"
+   ],
+   "note": "Mathar's recurrence for the coefficients of c(x/(1-x)^4) is stated for n >= 6. The printed recurrence genuinely fails at n = 5 (I confirm the LHS is 3), and Mathar gives no range, so this is the natural reading rather than a weakening. The g.f. is pinned down by T^2(1-x)^4 = (1-x)^4 - 4x with T(0) = 1. I checked it numerically for n < 60. A routine algebraic-g.f. certificate. Second review: Faithful corrected form (holds for n>=6, false at n=5 as printed). Routine D-finite recurrence; no prior proof found. Announcement should state the n=5 exception."
+  },
+  "oeis-a162482": {
+   "date": "2026-11-28",
+   "pr": 26105,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A162482",
+    "https://oeis.org/A162482",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's order-6 recurrence for (1/(1-x)^3) M(x/(1-x)^3) is stated faithfully for n >= 6, with the Motzkin square-root branch fixed by T(0) = 1. I checked it against the binomial-sum formula for n < 60. A routine algebraic-g.f. certificate, with no prior proof found. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found."
+  },
+  "oeis-a164010": {
+   "date": "2026-11-28",
+   "pr": 9948,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A164010",
+    "https://oeis.org/A163280",
+    "https://oeis.org/A164010",
+    "https://oeis.org/A163280"
+   ],
+   "note": "Mathar's conjecture a(n) = n(n+9) for n > 16 is stated faithfully. Row 10 of A163280 is the 10th smallest j with largest divisor <= sqrt(j) equal to n, the offset-0 padding matches the data, and the array reproduces the terms 23, 46, 57, ... I checked it for 17 <= n < 400. It is elementary: the candidates are n*m with m in [n, n+9], and a divisor n+i in (n, sqrt(n*m)] would have to divide i(m-n-i) <= 20, which is impossible for n > 16. Routine. Second review: Faithful. The ten smallest j are k*k..k*(k+9) once k+j > j(i-j) for all small i, j, i.e. k>16; a short divisor argument. Routine; no prior proof found."
+  },
+  "oeis-a165203": {
+   "date": "2026-11-28",
+   "pr": 14692,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A165203",
+    "https://oeis.org/A165203",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's order-4 P-recursive recurrence is stated faithfully for (1+x)c^3/(1-xc^3), for n >= 4. The Catalan branch is fixed by S(0) = 1 and 2xc = 1 - S, and the polynomial coefficients are expanded correctly. I checked it against the g.f. series for n < 40. A routine algebraic-g.f. certificate. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found. Note: Blanco Gomez (Zenodo 23112421, Prop. 10.20) proved the different recurrence of the companion A165201; it does not give this one directly."
+  },
+  "oeis-a171849": {
+   "date": "2026-11-28",
+   "pr": 25864,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A171849",
+    "https://oeis.org/A171849",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's order-10 D-finite recurrence is stated faithfully for n >= 10, for Deutsch's g.f. z^3 g^2/((1+z+z^2)(1-3z+z^2)) with g = 1 + zg + z^2 g(g-1). I checked it for n < 40. A routine algebraic-g.f. certificate, with no prior proof found. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found."
+  },
+  "oeis-a171853": {
+   "date": "2026-11-28",
+   "pr": 25167,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A171853",
+    "https://oeis.org/A171853",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's order-8 recurrence is stated for n >= 8, for Deutsch's g.f. rewritten in rationalized form with the sqrt branch fixed by constant term 1. I checked that this normalized form reproduces the data (0,0,0,1,3,8,20,49,119,291,...) and that the recurrence holds for n < 45. A routine algebraic-g.f. certificate, with no prior proof found. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found."
+  },
+  "oeis-a172025": {
+   "date": "2026-11-28",
+   "pr": 25818,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A172025",
+    "https://oeis.org/A172025",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's 2016 second-order recurrence is stated faithfully for n >= 2, for the Choulet diagonal g.f. 2c^3/(3 sqrt(1-4x) - 1 + 4x). I checked it for n < 60 against the binomial-sum formula. Dubickas's Choulet paper (Mathematics 2026) covers the other Choulet family (the convolution recurrences A1766xx/A1771xx), not these diagonals, and Ekhad-Yang-Zeilberger 2017 does not list them. Routine. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found. Siblings A172062/3/5 of the same family are separate site ids with different recurrences, not duplicates."
+  },
+  "oeis-a172064": {
+   "date": "2026-11-28",
+   "pr": 25903,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A172064",
+    "https://oeis.org/A172064",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "This is the same family as A172025, with k = 7. Mathar's recurrence 2n(n+7)(3n+11)a(n) - ... = 0 is stated faithfully for n >= 2, with the coefficients expanded correctly. I checked it for n < 60. Routine, and not covered by Dubickas's Choulet paper. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found. Siblings A172062/3/5 of the same family are separate site ids with different recurrences, not duplicates."
+  },
+  "oeis-a172066": {
+   "date": "2026-11-28",
+   "pr": 25913,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A172066",
+    "https://oeis.org/A172066",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "This is the same family, with k = 9. Mathar's recurrence 2n(n+9)(n+5)a(n) - ... = 0 is stated faithfully for n >= 2. I checked it for n < 60. A routine algebraic-g.f. certificate. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found. Siblings A172062/3/5 of the same family are separate site ids with different recurrences, not duplicates."
+  },
+  "oeis-a172067": {
+   "date": "2026-11-28",
+   "pr": 15810,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A172067",
+    "https://oeis.org/A172067",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "This is the same family, with k = 10. Mathar's recurrence 2n(n+10)(3n+17)a(n) - ... = 0 is stated faithfully for n >= 2. I checked it for n < 60. A routine algebraic-g.f. certificate. Second review: Faithful. A D-finite recurrence for an algebraic g.f., provable by a routine (holonomic) computation; no earlier proof of this entry's recurrence found. Siblings A172062/3/5 of the same family are separate site ids with different recurrences, not duplicates."
+  },
+  "oeis-a273684": {
+   "date": "2026-11-28",
+   "pr": 27662,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273684",
+    "https://oeis.org/A273684",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Blomberg's claim that Rule 857 also generates the Rule 841 sequence at stages 2^n-1 is stated exactly. The two rules differ only in bit 4 (an OFF cell with 2 ON neighbours), and the proof shows that case never matters. My simulation agrees for n<=9. No prior proof found (OEIS entry, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, formal-conjectures). Second review: Faithful. The two rules differ only on a neighbourhood configuration that never occurs, which the proof shows by a short light-cone/parity invariant. No prior proof found (Cohen's paper does not list Rule 857)."
+  },
+  "oeis-a273700": {
+   "date": "2026-11-28",
+   "pr": 27680,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273700",
+    "https://oeis.org/A273700",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Blomberg's claim that Rule 881 = Rule 865 at stages 2^n-1 is stated exactly, with the plane evolving its background. The rules differ in a single neighbourhood case, which the proof shows never occurs. My simulation matches the data for both rules for n<=9. No prior proof found (OEIS entry, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, formal-conjectures). Second review: Faithful. The two rules differ only on a neighbourhood configuration that never occurs, which the proof shows by a short light-cone/parity invariant. No prior proof found (Cohen's paper does not list Rule 881)."
+  },
+  "oeis-a273708": {
+   "date": "2026-11-28",
+   "pr": 27317,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273708",
+    "https://oeis.org/A273708",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Blomberg's claim that Rule 889 = Rule 873 at stages 2^n-1 is stated faithfully. The board model keeps an explicit background, so cells outside the square follow the rule's 0/9 bits. My simulation matches the data for both rules for n<=9. No prior proof found (OEIS entry, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, formal-conjectures). Second review: Faithful. The two rules differ only on a neighbourhood configuration that never occurs, which the proof shows by a short light-cone/parity invariant. No prior proof found (Cohen's paper does not list Rule 889)."
+  },
+  "oeis-a273743": {
+   "date": "2026-11-28",
+   "pr": 16645,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273743",
+    "https://oeis.org/A273744",
+    "https://oeis.org/A273743"
+   ],
+   "note": "Barker's (2n+1)^2 = A016754(n) for n>1, the recurrence (n>4) and the g.f. for 2D Rule 901 are stated faithfully. My simulation matches the data and (2n+1)^2 up to n=200. The result also follows from the partial-sum formula of sister entry A273744, which was solved on this site the same day (PR 15244); neither is prior public literature. No prior proof found (OEIS entry, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, formal-conjectures). Second review: Faithful; from stage 2 every cell is ON and stays ON, so the formulas are routine. No prior proof found."
+  },
+  "oeis-a273745": {
+   "date": "2026-11-28",
+   "pr": 23369,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273745",
+    "https://oeis.org/A273315",
+    "https://oeis.org/A273745",
+    "https://oeis.org/A273315"
+   ],
+   "note": "Barker's 8(1+n) = A273315(n) for n>1, the recurrence (n>3) and the g.f. for the first differences of 2D Rule 901 are stated faithfully. A273315 is modelled as the Rule 643 differences, as its name says. My simulation matches the data and both identities up to n=200. No prior proof found (OEIS entry, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, formal-conjectures). Second review: Faithful; routine consequence of the Rule 901 and Rule 643 full-square dynamics. Overlaps (not duplicates) site ids A273315 and A273791."
+  },
+  "oeis-a273747": {
+   "date": "2026-11-28",
+   "pr": 27692,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273747",
+    "https://oeis.org/A273747",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Blomberg's claim that Rule 982 = Rule 918 at stages 2^n-1 is stated exactly. My simulation reproduces a(0..9) for both rules. No prior proof found (OEIS entry, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, formal-conjectures). Second review: Faithful. The two rules differ only on a neighbourhood configuration that never occurs, which the proof shows by a short light-cone/parity invariant. No prior proof found (Cohen's paper does not list Rule 982)."
+  },
+  "oeis-a273790": {
+   "date": "2026-11-28",
+   "pr": 27308,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273790",
+    "https://oeis.org/A273790",
+    "https://oeis.org/A273789"
+   ],
+   "note": "Barker's cubic closed form (n>0), recurrence (n>4) and g.f., and Spezia's e.g.f., for the partial sums of 2D Rule 931 are stated faithfully. My simulation reproduces the data and the closed form up to n=200, and the e.g.f. gives a(0) = 1. No prior proof found (OEIS entry, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, formal-conjectures). Second review: Faithful; follows from Rule 931 filling the square from stage 2 (A273789's open conjecture, which this proof effectively settles). Routine."
+  },
+  "oeis-a273791": {
+   "date": "2026-11-28",
+   "pr": 23372,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273791",
+    "https://oeis.org/A273745",
+    "https://oeis.org/A273315",
+    "https://oeis.org/A273791",
+    "https://oeis.org/A273745"
+   ],
+   "note": "Barker's 8(1+n) = A273745(n) = A273315(n) for n>1, the recurrence and the g.f. for the first differences of 2D Rule 931 are stated. A273745 and A273315 are modelled as the Rule 901 and Rule 643 differences. My simulation confirms every identity up to n=200 and the data 4,20,24,... No prior proof found (OEIS entry, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, formal-conjectures). Second review: Faithful; routine full-square dynamics of Rules 931, 901 and 643. No prior proof found."
+  },
+  "oeis-a277864": {
+   "date": "2026-11-28",
+   "pr": 23470,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277864",
+    "https://oeis.org/A277864"
+   ],
+   "note": "Barker's g.f. and closed form (all n) for the left half of the x-axis of 2D Rule 3, read as binary digits in base 10, are stated faithfully. The whole plane evolves, so the background flips, as in Price's program. My simulation reproduces the data, and both formulas hold to n=150. No prior proof found (trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch, Blanco Gómez/Fried). Second review: Faithful. The pattern becomes periodic with a fixed growth law, so the proof is a finite certificate plus an induction; routine. No prior proof found."
+  },
+  "oeis-a277936": {
+   "date": "2026-11-28",
+   "pr": 23298,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277936",
+    "https://oeis.org/A277936"
+   ],
+   "note": "Barker's g.f., recurrence (n>4) and closed form (n>0) for the x-axis value of 2D Rule 7 are stated faithfully. The left-edge reading is used, which equals the right-edge reading by symmetry, and the background evolves. My simulation reproduces the data, and all formulas hold to n=150. No prior proof found (trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch, Blanco Gómez/Fried). Second review: Faithful. The pattern becomes periodic with a fixed growth law, so the proof is a finite certificate plus an induction; routine. No prior proof found."
+  },
+  "oeis-a278898": {
+   "date": "2026-11-28",
+   "pr": 26230,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A278898",
+    "https://oeis.org/A278898"
+   ],
+   "note": "Barker's recurrence for n>15 (stated as 16<=n) and his degree-15/degree-8 g.f. for the left x-axis of 2D Rule 107 (binary digits in base 10) are stated faithfully, and they are consistent. The background evolves. My simulation reproduces the data, and both hold to n=150. No prior proof found (trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch, Blanco Gómez/Fried). Second review: Faithful. The pattern becomes periodic with a fixed growth law, so the proof is a finite certificate plus an induction; routine. No prior proof found."
+  },
+  "oeis-a279959": {
+   "date": "2026-11-28",
+   "pr": 23324,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A279959",
+    "https://oeis.org/A279959"
+   ],
+   "note": "Barker's parity closed forms (n>2), recurrence (n>6) and g.f. for the left x-axis of 2D Rule 221 (binary digits in base 10) are stated faithfully, with the background evolving. My simulation reproduces the data, and all four hold to n=150. No prior proof found (trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch, Blanco Gómez/Fried). Second review: Faithful. The pattern becomes periodic with a fixed growth law, so the proof is a finite certificate plus an induction; routine. No prior proof found."
+  },
+  "oeis-a279960": {
+   "date": "2026-11-28",
+   "pr": 23399,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A279960",
+    "https://oeis.org/A279960"
+   ],
+   "note": "Barker's parity closed forms (n>2), recurrence (n>6) and g.f. for the right x-axis of 2D Rule 221 (origin most significant) are stated faithfully, with the background evolving. My simulation reproduces the data, and all four hold to n=150. No prior proof found (trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch, Blanco Gómez/Fried). Second review: Faithful. The pattern becomes periodic with a fixed growth law, so the proof is a finite certificate plus an induction; routine. No prior proof found."
+  },
+  "oeis-a274100": {
+   "date": "2026-11-28",
+   "pr": 24213,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A274100",
+    "https://oeis.org/A274100",
+    "https://oeis.org/A001400"
+   ],
+   "note": "Barker's order-5 recurrence for n>6 for partitions of 2^n into at most four parts. The triple-sum definition counts a>=b>=c>=d>=0 correctly and reproduces the data. The recurrence holds for n>=7 (it fails at n=5, 6) up to n=17. The proof uses the quasi-polynomial for p_4(N) at N = 2^n (roots 8, 4, 2, 1, -1). No prior proof found. Second review: Faithful. The quasi-polynomial for partitions into at most four parts, evaluated at N=2^n, gives a combination of 1,(-1)^n,2^n,4^n,8^n; routine. No prior proof found."
+  },
+  "oeis-a282003": {
+   "date": "2026-11-28",
+   "pr": 23293,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282003",
+    "https://oeis.org/A282003",
+    "https://oeis.org/A282003/b282003.txt",
+    "https://zenodo.org/records/24384895"
+   ],
+   "note": "Barker's closed forms (n>0 even; all odd n), recurrence (n>4) and g.f. for 2D Rule 413 (x-axis, origin to right edge, base-10 digits) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z (bit c+2s of the rule, background evolving) as Price's program does; my own Python re-simulation reproduces every listed term, and every conjunct holds for n<70. No proof of any Rule 413 formula found in the entry, trureturing/thatnealpatel (searched by A-number and rule number), Palomar or the OEIS proof collections. Routine: explicit stage shape by induction. Second review: The statement is faithful, including the n>0 restriction on the even closed form, which is false at n=0 (11/10 against a(0)=1). Every formula holds to n=200. No certified automaton or earlier proof exists for Rule 413's x-axis. This is a routine row-shape induction."
+  },
+  "oeis-a282124": {
+   "date": "2026-11-28",
+   "pr": 27053,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282124",
+    "https://oeis.org/A282124",
+    "https://oeis.org/A282124/b282124.txt",
+    "https://zenodo.org/records/24384895"
+   ],
+   "note": "Barker's closed form, recurrence (n>3) and g.f. plus Curtz's four 2019 conjectures (via A001045, A081631, A098646, defined as in those entries) for 2D Rule 430 (origin to right edge, decimal) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z (bit c+2s of the rule, background evolving) as Price's program does; my own Python re-simulation reproduces every listed term, and every conjunct holds for n<70. No proof of any Rule 430 formula found in the entry, trureturing/thatnealpatel (searched by A-number and rule number), Palomar or the OEIS proof collections. Routine: explicit stage shape by induction. Second review: All seven conjectures (Barker's three and Curtz's four) are stated faithfully, and the auxiliary sequences are defined as their OEIS names say. All hold numerically. No certified automaton for Rule 430 and no earlier proof. Routine."
+  },
+  "oeis-a282416": {
+   "date": "2026-11-28",
+   "pr": 23818,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282416",
+    "https://oeis.org/A282416",
+    "https://oeis.org/A282416/b282416.txt",
+    "https://zenodo.org/records/24384895"
+   ],
+   "note": "Barker's recurrence (n>5, stated as n>=6) and g.f. for 2D Rule 469 (x-axis, origin to right edge, base-10 digits) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z (bit c+2s of the rule, background evolving) as Price's program does; my own Python re-simulation reproduces every listed term, and every conjunct holds for n<70. No proof of any Rule 469 formula found in the entry, trureturing/thatnealpatel (searched by A-number and rule number), Palomar or the OEIS proof collections. Routine: explicit stage shape by induction. Second review: The statement is faithful, and both formulas hold to n=200. Cohen proves only Rule 469's count at stages 2^n-1 (A272417), with no full-evolution certificate and nothing about the x-axis. The proof's 'Adapt' namespace is the author's own helper code; it cites no earlier work. Routine."
+  },
+  "oeis-a283400": {
+   "date": "2026-11-28",
+   "pr": 25126,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A283400",
+    "https://oeis.org/A283400",
+    "https://oeis.org/A283400/b283400.txt",
+    "https://zenodo.org/records/24384895"
+   ],
+   "note": "Wu's 2024 recurrence (n>26) and degree-26 g.f. for 2D Rule 633 (x-axis, left edge to origin, base-10 digits) are stated faithfully; the proof reuses CA infrastructure from the site's A283407 (Rule 637) solve, not a prior solve of this statement. Statement models the 2D outer-totalistic von Neumann CA on Z x Z (bit c+2s of the rule, background evolving) as Price's program does; my own Python re-simulation reproduces every listed term, and every conjunct holds for n<70. No proof of any Rule 633 formula found in the entry, trureturing/thatnealpatel (searched by A-number and rule number), Palomar or the OEIS proof collections. Routine: explicit stage shape by induction. Second review: The statement is faithful (Chai Wah Wu's 2024 conjectures), and the recurrence threshold n>26 is sharp. The proof openly reuses the light-cone and strip framework of the site's own A283407 proof for Rule 637. That is a different rule and a different sequence, so this is neither a duplicate nor prior settlement. No other proof found. Routine (eventually periodic row shape)."
+  },
+  "oeis-a280399": {
+   "date": "2026-11-28",
+   "pr": 24018,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A280399",
+    "https://oeis.org/A280398",
+    "https://oeis.org/A280399",
+    "https://oeis.org/A280399/b280399.txt",
+    "https://oeis.org/A280398"
+   ],
+   "note": "Barker's g.f. 2x^3(1-x-x^2)/((1+x)^2(1-2x)^2) and closed form (n>1) for row 1 of Hardin's A280398. The 1 X n reading (no antidiagonal neighbours; end cells have one neighbour, middle cells must differ from both) reproduces the data; my brute force matches a(1..12) and the closed form. Parent table A280398 has no proof; none found elsewhere. Routine transfer-matrix argument. Second review: The statement is faithful, and the reading of 'antidiagonal neighbours' (none in one row) matches Hardin's data exactly. Both of Barker's formulas hold on all 210 b-file terms. No earlier proof, including in Hardin's parent table. Routine (finite-state transfer matrix)."
+  },
+  "oeis-a280739": {
+   "date": "2026-11-28",
+   "pr": 25649,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A280739",
+    "https://oeis.org/A280739",
+    "https://oeis.org/A288814"
+   ],
+   "note": "Valianatos's conjecture that a(n) exists for all n>=4. The sInf recursion (0 on empty set) is faithful and a(4)=4. The proof is the elementary bound c^3 <= 3^sopfr(c) (from p^3 <= 3^p), so a(n-1) < 9*3^k, 4*3^k or 6*3^k, which have sopfr n. Not vacuous but easy; no prior proof found. Routine. Second review: The statement is faithful, and the conjecture is true by a three-line monotonicity argument (the maximal product with prime-sum n exceeds every number with prime-sum n-1). No earlier proof found anywhere. The easiness is real but does not make the statement vacuous. Routine."
+  },
+  "oeis-a282089": {
+   "date": "2026-11-28",
+   "pr": 25144,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282089",
+    "https://arxiv.org/abs/1702.00901",
+    "https://oeis.org/A282089",
+    "https://arxiv.org/abs/1702.00901"
+   ],
+   "note": "Abrarov-Quine limit pi = lim 2^(k+1)(1-c_k) and summability of 1-c_k, with the index shift k=n+1 done correctly. The paper (and their 2023-2025 follow-ups I checked) only conjecture the limit; it follows since b_k = tan(pi/2^(k+2)) (the paper's eq. 2), so c_k = tan(pi/4 - pi/2^(k+2)). Elementary; no published proof found. Routine. Second review: The statement is faithful (index shift handled correctly). The conjecture is true and follows in a few lines from the half-angle identity that the source paper itself states as its equation (2). No one published that step, so it is new but routine. The easiness does not make the formal statement vacuous."
+  },
+  "oeis-a243515": {
+   "date": "2026-11-28",
+   "pr": 25074,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A243515",
+    "https://oeis.org/A243519",
+    "https://oeis.org/A243515"
+   ],
+   "note": "Barker's rational g.f. and closed form for column 6 of A243519 are stated faithfully. The words are restricted-growth on 0..6 with no aba/abb triple, enumerated from a leading 0 with a (max, last two letters) state, and the encoding treats the start correctly. My DP reproduces all data, and the closed form holds for n<=11 exactly. The proof is a finite-state transfer computation, which is routine. Neither A243519 nor the entry has a proof. Second review: Faithful and true; finite-automaton g.f. identity. Nothing earlier found."
+  },
+  "oeis-a243516": {
+   "date": "2026-11-28",
+   "pr": 25133,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A243516",
+    "https://oeis.org/A243519",
+    "https://oeis.org/A243516"
+   ],
+   "note": "Barker's rational g.f. and closed form for column 7 of A243519 are stated faithfully. The words are restricted-growth on 0..7 with no aba/abb triple, enumerated from a leading 0 with a (max, last two letters) state, and the encoding treats the start correctly. My DP reproduces all data, and the closed form holds for n<=11 exactly. The proof is a finite-state transfer computation, which is routine. Neither A243519 nor the entry has a proof. Second review: Faithful and true; finite-automaton g.f. identity. Nothing earlier found."
+  },
+  "oeis-a244886": {
+   "date": "2026-11-28",
+   "pr": 26242,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A244886",
+    "https://oeis.org/A244886"
+   ],
+   "note": "Mathar's 2020 D-finite recurrence (n>=6) is stated for the unique series G solving G*(1-3x+x^2+x^3+(1-x^2)S) = 1-x+S, S = sqrt(1-2x-3x^2). The denominator's constant term is 2, so G is the entry's g.f. It holds on all data terms and fails only where it would reach before a(0). Deriving a D-finite recurrence from an algebraic g.f. is routine. The entry and its Baril-Petrossian source have no such recurrence proof. Second review: Faithful and true; routine D-finite recurrence for an algebraic g.f. (Mathar, Jan 2020). Nothing earlier found."
+  },
+  "oeis-a245951": {
+   "date": "2026-11-28",
+   "pr": 26110,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A245951",
+    "https://oeis.org/A245950",
+    "https://oeis.org/A245951"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 1 of Hardin's A245950 (some pair in every 4 consecutive terms sums to n) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A245950 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; quasi-polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a245952": {
+   "date": "2026-11-28",
+   "pr": 27373,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A245952",
+    "https://oeis.org/A245950",
+    "https://oeis.org/A245952"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 2 of Hardin's A245950 (some pair in every 4 consecutive terms sums to n) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A245950 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; quasi-polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a246480": {
+   "date": "2026-11-28",
+   "pr": 27162,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A246480",
+    "https://oeis.org/A246479",
+    "https://oeis.org/A246480"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 1 of Hardin's A246479 (no pair in any 4 consecutive terms sums to n) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A246479 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; quasi-polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a246482": {
+   "date": "2026-11-28",
+   "pr": 27304,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A246482",
+    "https://oeis.org/A246479",
+    "https://oeis.org/A246482"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 3 of Hardin's A246479 (no pair in any 4 consecutive terms sums to n) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A246479 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; quasi-polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a246738": {
+   "date": "2026-11-28",
+   "pr": 27167,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A246738",
+    "https://oeis.org/A246737",
+    "https://oeis.org/A246738"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 1 of Hardin's A246737 (no pair in any 5 consecutive terms sums to n) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A246737 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; quasi-polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a246893": {
+   "date": "2026-11-28",
+   "pr": 27248,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A246893",
+    "https://oeis.org/A246892",
+    "https://oeis.org/A246893"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 1 of Hardin's A246892 (some pair in every 5 consecutive terms sums to n) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A246892 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; quasi-polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a246894": {
+   "date": "2026-11-28",
+   "pr": 27416,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A246894",
+    "https://oeis.org/A246892",
+    "https://oeis.org/A246894"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 2 of Hardin's A246892 (some pair in every 5 consecutive terms sums to n) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A246892 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; quasi-polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a249710": {
+   "date": "2026-11-28",
+   "pr": 26462,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A249710",
+    "https://oeis.org/A249707",
+    "https://oeis.org/A249710"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 4 of Hardin's A249707 (every 4 consecutive terms have max of some two = min of the other two) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A249707 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a249712": {
+   "date": "2026-11-28",
+   "pr": 26789,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A249712",
+    "https://oeis.org/A249707",
+    "https://oeis.org/A249712"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 6 of Hardin's A249707 (same max/min window condition) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A249707 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a249713": {
+   "date": "2026-11-28",
+   "pr": 26964,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A249713",
+    "https://oeis.org/A249707",
+    "https://oeis.org/A249713"
+   ],
+   "note": "Barker's 2018 g.f. (with the parity-split or recurrence form) for row 7 of Hardin's A249707 (same max/min window condition) is stated faithfully. Length, window and predicate match the name, and my DP reproduces the data for n<=8. The proof reduces the count to explicit (quasi-)polynomial counts by elementary decompositions (complements, value-set states, order statistics), which is routine. A249707 has no proof (at most column conjectures), and I found no library, registry or paper hit. Second review: Faithful and true; polynomial counting identity. Nothing earlier found."
+  },
+  "oeis-a247471": {
+   "date": "2026-11-28",
+   "pr": 26299,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A247471",
+    "https://oeis.org/A247471"
+   ],
+   "note": "Mathar's 2022 D-finite recurrence is stated for n>=8 for the series G = z^3(1-z-z^2)g^2, where g = 1+zg+z^2g+z^3g^2 (Deutsch's g.f.; g is uniquely determined). Checked on the data, the recurrence first fails at n=7 and holds from n=8, so the range is fair rather than a weakening. Deriving a recurrence for an algebraic g.f. is routine, and I found no earlier proof. Second review: Faithful (n>=8 is exactly where the recurrence holds) and true; routine. Nothing earlier found. Minor: the docstring's 'false as stated' wording should say the recurrence fails at n=7, Mathar stated no range."
+  },
+  "oeis-a207323": {
+   "date": "2026-11-28",
+   "pr": 25979,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207323",
+    "https://oeis.org/A002893",
+    "https://arxiv.org/abs/1112.1034",
+    "https://oeis.org/A207323",
+    "https://arxiv.org/abs/1112.1034"
+   ],
+   "note": "Mathar's order-4 P-recurrence for a(n)=Sum_{k<=n} k*A002893(k), stated for n>=4 with the definitions written out exactly. I checked it numerically for n=4..79 and the definition against the data. Sun's cited paper is about congruences and gives no recurrence; I found no prior proof. It is a creative-telescoping identity, so routine. Second review: Faithful and true; routine holonomic recurrence (Mathar, Nov 2013). Nothing earlier found."
+  },
+  "oeis-a207401": {
+   "date": "2026-11-28",
+   "pr": 25564,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207401",
+    "https://oeis.org/A207403",
+    "https://oeis.org/A207401",
+    "https://isitsolved.com/journal/1f030b3ececa",
+    "https://oeis.org/A207403"
+   ],
+   "note": "Hardin's n X 6 0..1 arrays (rows avoid 001,011 left to right, columns avoid 001,110 top to bottom); the statement takes Barker's g.f. and order-7 recurrence (n>7) with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A207403, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (10:01 UTC Nov 28) predates the concurrent independent claim iis:2611.00288 on isitsolved.com (filed 10:43 UTC) by 0h42m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a207451": {
+   "date": "2026-11-28",
+   "pr": 25228,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207451",
+    "https://oeis.org/A207453",
+    "https://oeis.org/A207451",
+    "https://isitsolved.com/journal/1f030b3ececa",
+    "https://oeis.org/A207453"
+   ],
+   "note": "Hardin's n X 6 0..1 arrays (rows avoid 000,001 left to right, columns avoid 001,101 top to bottom); the statement takes Barker's g.f. and order-5 recurrence (n>5) with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A207453, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (09:47 UTC Nov 28) predates the concurrent independent claim iis:2611.00288 on isitsolved.com (filed 10:43 UTC) by 0h56m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a207597": {
+   "date": "2026-11-28",
+   "pr": 25237,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207597",
+    "https://oeis.org/A207599",
+    "https://oeis.org/A207597",
+    "https://isitsolved.com/journal/1f030b3ececa",
+    "https://oeis.org/A207599"
+   ],
+   "note": "Hardin's n X 6 0..1 arrays (rows avoid 000,010 left to right, columns avoid 001,101 top to bottom); the statement takes Barker's g.f. and order-5 recurrence (n>5) with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A207599, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (09:48 UTC Nov 28) predates the concurrent independent claim iis:2611.00288 on isitsolved.com (filed 10:43 UTC) by 0h55m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a207598": {
+   "date": "2026-11-28",
+   "pr": 27068,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207598",
+    "https://oeis.org/A207599",
+    "https://oeis.org/A207598",
+    "https://isitsolved.com/journal/849ff39de7ae",
+    "https://oeis.org/A207599"
+   ],
+   "note": "Hardin's n X 7 0..1 arrays (rows avoid 000,010 left to right, columns avoid 001,101 top to bottom); the statement takes Barker's g.f. and order-5 recurrence (n>5), via a bitmask row encoding with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A207599, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (10:55 UTC Nov 28) predates the concurrent independent claim iis:2611.00300 on isitsolved.com (filed 11:52 UTC) by 0h57m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a207701": {
+   "date": "2026-11-28",
+   "pr": 25684,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207701",
+    "https://oeis.org/A207703",
+    "https://oeis.org/A207701",
+    "https://isitsolved.com/journal/1f030b3ececa",
+    "https://oeis.org/A207703"
+   ],
+   "note": "Hardin's n X 6 0..1 arrays (rows avoid 000,010 left to right, columns avoid 001,110 top to bottom); the statement takes Barker's g.f. and the closed form (-3+n+15n^2+2n^3)^2/9 with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A207703, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (10:06 UTC Nov 28) predates the concurrent independent claim iis:2611.00288 on isitsolved.com (filed 10:43 UTC) by 0h37m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a207936": {
+   "date": "2026-11-28",
+   "pr": 25635,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207936",
+    "https://oeis.org/A207938",
+    "https://oeis.org/A207936",
+    "https://isitsolved.com/journal/1f030b3ececa",
+    "https://oeis.org/A207938"
+   ],
+   "note": "Hardin's n X 6 0..1 arrays (rows avoid 001,100 left to right, columns avoid 001,110 top to bottom); the statement takes Barker's g.f. and the sextic closed form with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A207938, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (10:04 UTC Nov 28) predates the concurrent independent claim iis:2611.00288 on isitsolved.com (filed 10:43 UTC) by 0h39m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a208086": {
+   "date": "2026-11-28",
+   "pr": 26009,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208086",
+    "https://oeis.org/A208085",
+    "https://oeis.org/A208086",
+    "https://oeis.org/A208085"
+   ],
+   "note": "4 X (n+1) binary arrays where each 2 X 2 block has the same number of equal edges as its horizontal neighbour and a different number from its vertical neighbour, with x(0,0)=0 for the row-major new-value rule. The statement takes Barker's g.f. and closed form for all n>=1. My column-transfer count with this reading reproduces the data for n=1..10. No prior proof found (parent A208085 and sister rows have none); routine transfer-matrix argument. Second review: Faithful and true; transfer-matrix g.f. Nothing earlier found."
+  },
+  "oeis-a208087": {
+   "date": "2026-11-28",
+   "pr": 26975,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208087",
+    "https://oeis.org/A208085",
+    "https://oeis.org/A208087",
+    "https://oeis.org/A208085"
+   ],
+   "note": "6 X (n+1) binary arrays where each 2 X 2 block has the same number of equal edges as its horizontal neighbour and a different number from its vertical neighbour, with x(0,0)=0 for the row-major new-value rule. The statement takes Barker's g.f. and closed form for all n>=1. My column-transfer count with this reading reproduces the data for n=1..10. No prior proof found (parent A208085 and sister rows have none); routine transfer-matrix argument. Second review: Faithful and true; transfer-matrix g.f. Nothing earlier found."
+  },
+  "oeis-a208088": {
+   "date": "2026-11-28",
+   "pr": 27011,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208088",
+    "https://oeis.org/A208085",
+    "https://oeis.org/A208088",
+    "https://oeis.org/A208085"
+   ],
+   "note": "7 X (n+1) binary arrays where each 2 X 2 block has the same number of equal edges as its horizontal neighbour and a different number from its vertical neighbour, with x(0,0)=0 for the row-major new-value rule. The statement takes Barker's g.f. and closed form for all n>=1. My column-transfer count with this reading reproduces the data for n=1..10. No prior proof found (parent A208085 and sister rows have none); routine transfer-matrix argument. Second review: Faithful and true; transfer-matrix g.f. Nothing earlier found."
+  },
+  "oeis-a208089": {
+   "date": "2026-11-28",
+   "pr": 26998,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208089",
+    "https://oeis.org/A208085",
+    "https://oeis.org/A208089",
+    "https://oeis.org/A208085"
+   ],
+   "note": "8 X (n+1) binary arrays where each 2 X 2 block has the same number of equal edges as its horizontal neighbour and a different number from its vertical neighbour, with x(0,0)=0 for the row-major new-value rule. The statement takes Barker's g.f. and closed form for all n>=1. My column-transfer count with this reading reproduces the data for n=1..10. No prior proof found (parent A208085 and sister rows have none); routine transfer-matrix argument. Second review: Faithful and true; transfer-matrix g.f. Nothing earlier found."
+  },
+  "oeis-a208139": {
+   "date": "2026-11-28",
+   "pr": 16651,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208139",
+    "https://oeis.org/A208142",
+    "https://oeis.org/A208139",
+    "https://isitsolved.com/journal/5512caf326aa"
+   ],
+   "note": "n X 5 0..1 arrays avoiding 001,011 horizontally and 001,101 vertically; the statement bundles Hardin's quintic n^2(n+1)^2(n+2), Barker's g.f. and recurrence (n>6), and Amiram Eldar's two Jun 2026 sums (as HasSum). My transfer-matrix count matches the data for n=1..14 and both sums agree numerically to 1e-15. Given the polynomial the sums are partial fractions; no prior proof found. Routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (00:16 UTC Nov 28) predates the concurrent independent claim iis:2611.00284 on isitsolved.com (filed 09:48 UTC) by 9h32m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a208141": {
+   "date": "2026-11-28",
+   "pr": 25443,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208141",
+    "https://oeis.org/A208142",
+    "https://oeis.org/A208141",
+    "https://isitsolved.com/journal/849ff39de7ae",
+    "https://oeis.org/A208142"
+   ],
+   "note": "Hardin's n X 7 0..1 arrays (rows avoid 001,011 left to right, columns avoid 001,101 top to bottom); the statement takes Barker's g.f. and order-8 recurrence (n>8) with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A208142, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (09:56 UTC Nov 28) predates the concurrent independent claim iis:2611.00300 on isitsolved.com (filed 11:52 UTC) by 1h56m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a208285": {
+   "date": "2026-11-28",
+   "pr": 25768,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208285",
+    "https://oeis.org/A208287",
+    "https://oeis.org/A208285",
+    "https://isitsolved.com/journal/1f030b3ececa",
+    "https://oeis.org/A208287"
+   ],
+   "note": "Hardin's n X 6 0..1 arrays (rows avoid 000,001 left to right, columns avoid 001,110 top to bottom); the statement takes Barker's g.f. and order-7 recurrence (n>7) with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A208287, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (10:09 UTC Nov 28) predates the concurrent independent claim iis:2611.00288 on isitsolved.com (filed 10:43 UTC) by 0h34m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a208286": {
+   "date": "2026-11-28",
+   "pr": 27799,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208286",
+    "https://oeis.org/A208287",
+    "https://oeis.org/A208286",
+    "https://isitsolved.com/journal/849ff39de7ae",
+    "https://oeis.org/A208287"
+   ],
+   "note": "Hardin's n X 7 0..1 arrays (rows avoid 000,001 left to right, columns avoid 001,110 top to bottom); the statement takes Barker's g.f. and order-8 recurrence (n>8) with a(0)=0 in the g.f., matching the entry's %F lines and ranges. My Python transfer-matrix count under the same reading reproduces the listed data for n=1..14. No proof found in the entry, its parent table A208287, neighbouring columns, the Lean libraries, Palomar, Zenodo or the Fried/Blanco Gomez collections; a finite transfer-matrix argument, so routine. Second review: Faithful and true; transfer-matrix g.f. identity. The site's proof (11:20 UTC Nov 28) predates the concurrent independent claim iis:2611.00300 on isitsolved.com (filed 11:52 UTC) by 0h32m; worth citing it as a concurrent independent proof. Nothing earlier found."
+  },
+  "oeis-a208428": {
+   "date": "2026-11-28",
+   "pr": 13823,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208428",
+    "https://oeis.org/A208434",
+    "https://oeis.org/A208428",
+    "https://oeis.org/A208434"
+   ],
+   "note": "n X 2 arrays over 0..2 with colours introduced in row-major order and no knight-move neighbours equal, counted by a boundary enumeration. My brute force over all arrays and an emulation of the Lean enumeration both give 2,14,54,216,... matching the data, and the statement's ranges (a(n)=4a(n-1) for n>3, a(n)=27*2^(2n-5) for n>2, g.f.) match the entry. No prior proof found; routine. Second review: Faithful and true; elementary. Nothing earlier found."
+  },
+  "oeis-a209789": {
+   "date": "2026-11-28",
+   "pr": 27684,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A209789",
+    "https://oeis.org/A209796",
+    "https://oeis.org/A209789",
+    "https://oeis.org/A209796"
+   ],
+   "note": "Half the number of (n+1) X 2 arrays over 0..2 where each 2 X 2 block has exactly three distinct signed clockwise differences (b-a,d-b,c-d,a-c). My count is always even and halves to the data for n=1..14. The statement takes Barker's g.f. and the sqrt(73) closed form for n>=1. Ma-Zhang's Zenodo note covers the distinct-differences family A209721-A209727, not this one; routine transfer matrix. Second review: Faithful and true; transfer-matrix g.f. Nothing earlier found."
   }
  },
  "flagged": {
@@ -27291,6 +28058,491 @@
     "https://zenodo.org/records/24410605"
    ],
    "reason": "Second review: Barker's g.f. and closed form follow immediately from Fried's 2024/2025 theorem for q=3 by dividing by 3! (orbits of the S_3 relabelling). The A-number is not named there, but the result is not new in substance. If the owner treats only explicit citations as prior, downgrade to confirmed/routine."
+  },
+  "oeis-a207590": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A207590",
+    "https://isitsolved.com/journal/df182c39e7cd",
+    "https://oeis.org/A207589"
+   ],
+   "reason": "Second review: Statement is faithful and the formulas are true, but an independent public proof claim predates the site: iis:2611.00233 (isitsolved.com, filed 04:57 UTC Nov 28) proves Barker's g.f. for A207590 by transfer matrix, about 5h24m before the site's proof commit (10:21 UTC). That paper is an unreviewed AI attempt, but its method is a complete proof, so the site cannot announce this as a first solution."
+  },
+  "oeis-a207656": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A207656",
+    "https://isitsolved.com/journal/df182c39e7cd",
+    "https://oeis.org/A207661"
+   ],
+   "reason": "Second review: Statement is faithful and the formulas are true, but an independent public proof claim predates the site: iis:2611.00233 (isitsolved.com, filed 04:57 UTC Nov 28) proves Barker's g.f. for A207656 by transfer matrix, about 5h22m before the site's proof commit (10:19 UTC). That paper is an unreviewed AI attempt, but its method is a complete proof, so the site cannot announce this as a first solution."
+  },
+  "oeis-a207846": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A207846",
+    "https://isitsolved.com/journal/df182c39e7cd",
+    "https://oeis.org/A207845"
+   ],
+   "reason": "Second review: Statement is faithful and the formulas are true, but an independent public proof claim predates the site: iis:2611.00233 (isitsolved.com, filed 04:57 UTC Nov 28) proves Barker's g.f. for A207846 by transfer matrix, about 5h23m before the site's proof commit (10:20 UTC). That paper is an unreviewed AI attempt, but its method is a complete proof, so the site cannot announce this as a first solution."
+  },
+  "oeis-a208114": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A208114",
+    "https://isitsolved.com/journal/e9039b327f56",
+    "https://oeis.org/A208118"
+   ],
+   "reason": "Second review: Statement is faithful and the formulas are true, but an independent public proof claim predates the site: iis:2611.00264 (isitsolved.com, filed 08:32 UTC Nov 28) proves Barker's g.f. for A208114 by transfer matrix, about 1h15m before the site's proof commit (09:47 UTC). That paper is an unreviewed AI attempt, but its method is a complete proof, so the site cannot announce this as a first solution."
+  },
+  "oeis-a208138": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A208138",
+    "https://isitsolved.com/journal/e9039b327f56",
+    "https://oeis.org/A208142"
+   ],
+   "reason": "Second review: Statement is faithful and the formulas are true, but an independent public proof claim predates the site: iis:2611.00264 (isitsolved.com, filed 08:32 UTC Nov 28) proves Barker's g.f. for A208138 by transfer matrix, about 2h23m before the site's proof commit (10:55 UTC). That paper is an unreviewed AI attempt, but its method is a complete proof, so the site cannot announce this as a first solution."
+  },
+  "oeis-a208283": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A208283",
+    "https://isitsolved.com/journal/e9039b327f56",
+    "https://oeis.org/A208287"
+   ],
+   "reason": "Second review: Statement is faithful and the formulas are true, but an independent public proof claim predates the site: iis:2611.00264 (isitsolved.com, filed 08:32 UTC Nov 28) proves Barker's g.f. for A208283 by transfer matrix, about 2h18m before the site's proof commit (10:50 UTC). That paper is an unreviewed AI attempt, but its method is a complete proof, so the site cannot announce this as a first solution."
+  },
+  "oeis-a208556": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A208556",
+    "https://isitsolved.com/journal/e9039b327f56",
+    "https://oeis.org/A208555"
+   ],
+   "reason": "Second review: Statement is faithful and the formulas are true, but an independent public proof claim predates the site: iis:2611.00264 (isitsolved.com, filed 08:32 UTC Nov 28) proves Barker's g.f. for A208556 by transfer matrix, about 1h36m before the site's proof commit (10:08 UTC). That paper is an unreviewed AI attempt, but its method is a complete proof, so the site cannot announce this as a first solution."
+  },
+  "oeis-a208689": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A208689",
+    "https://isitsolved.com/journal/df182c39e7cd",
+    "https://oeis.org/A208688"
+   ],
+   "reason": "Second review: Statement is faithful and the formulas are true, but an independent public proof claim predates the site: iis:2611.00233 (isitsolved.com, filed 04:57 UTC Nov 28) proves Barker's g.f. for A208689 by transfer matrix, about 5h23m before the site's proof commit (10:20 UTC). That paper is an unreviewed AI attempt, but its method is a complete proof, so the site cannot announce this as a first solution."
+  },
+  "oeis-a294533": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294543": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293358": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294539": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293357": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294415": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294547": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293058": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293766": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293350": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294554": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294544": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294536": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294551": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293316": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294419": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293349": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294553": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294546": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294537": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294561": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294538": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294366": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294564": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294424": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294367": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294545": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294563": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294565": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294365": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293317": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293767": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294420": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293351": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294423": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294558": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293057": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294421": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294368": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294555": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294557": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294541": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294556": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294548": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294422": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294416": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294418": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294559": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294542": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294540": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294549": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294534": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294535": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293765": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294550": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294414": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a293076": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294562": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
+  },
+  "oeis-a294560": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq"
+   ],
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit."
   }
  },
  "reviewed": "2026-11-28"

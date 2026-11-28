@@ -2910,6 +2910,21 @@
    "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 849 = Rule 833, c833 = c131 for n>=2, and 3*4^n-4*2^n+1 for n>=2 (g.f./recurrence follow from it plus the first few terms).",
    "source": "https://doi.org/10.5281/zenodo.24384895",
    "date": "2026-11-28"
+  },
+  "oeis-a294413": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
+  },
+  "oeis-a294425": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
+  },
+  "oeis-a294426": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
   }
  }
 }
