@@ -1,7 +1,8 @@
 import OMAReductions.R_Erdos151_erdos_151_R2
 
 -- Reduction of the guarded K₄-free Ramsey-jump case of Erdős Problem 151.
--- The bound through threshold nine is already kernel-checked in the K₄-free variant.
+-- Credit: @Alewawa
+-- @princek0 proved the bound through threshold nine in the K₄-free variant.
 -- The additional restriction at higher thresholds comes from incidence-matrix rank.
 
 open Finset SimpleGraph
@@ -14,9 +15,21 @@ def H1 : Prop :=
   ∀ m, Erdos151.H m ≤ 9 → ∀ G : SimpleGraph (Fin m), G.CliqueFree 4 →
     cliqueTransversalNumber G ≤ m - Erdos151.H m
 
-/-- The remaining guarded jumps contain a family of triangles with an incidence matching
-covering every edge of the family and with each of those edges used at least twice. -/
+/-- A family of triangles in a K₄-free graph with each participating edge used
+exactly three times admits a bichromatic edge coloring. This is the graph
+triangle instance of Choi, Kwon and Park, arXiv:2609.33902, Corollary 6.2. -/
 def H2 : Prop :=
+  ∀ (m : ℕ) (G : SimpleGraph (Fin m)) (T : Finset (Finset (Fin m))),
+    G.CliqueFree 4 → (∀ t ∈ T, G.IsNClique 3 t) →
+    let edges := fun t : Finset (Fin m) => t.sym2.filter (fun e => ¬ e.IsDiag)
+    (∀ e ∈ T.biUnion edges, (T.filter (fun t => e ∈ edges t)).card = 3) →
+    ∃ c : Sym2 (Fin m) → Bool, ∀ t ∈ T,
+      (∃ e ∈ edges t, c e = true) ∧ (∃ e ∈ edges t, c e = false)
+
+/-- The remaining guarded jumps contain a family of triangles with an incidence matching
+covering its edges, strict incidence expansion on nonempty proper edge sets,
+and one participating edge used at least four times. -/
+def H3 : Prop :=
   ∀ (n : ℕ) (G : SimpleGraph (Fin (n + 1))),
     10 ≤ Erdos151.H (n + 1) → Erdos151.H n < Erdos151.H (n + 1) →
     G.CliqueFree 4 →
@@ -30,134 +43,149 @@ def H2 : Prop :=
       (∀ t ∈ T, G.IsNClique 3 t) ∧
       let edges := fun t : Finset (Fin (n + 1)) => t.sym2.filter (fun e => ¬ e.IsDiag)
       (∀ S ⊆ T.biUnion edges, S.card ≤ (T.filter (fun t => ∃ e ∈ S, e ∈ edges t)).card) ∧
-      (∀ e ∈ T.biUnion edges, 2 ≤ (T.filter (fun t => e ∈ edges t)).card)) →
+      (∀ S ⊂ T.biUnion edges, S.Nonempty →
+        S.card < (T.filter (fun t => ∃ e ∈ S, e ∈ edges t)).card) ∧
+      (∃ e ∈ T.biUnion edges, 4 ≤ (T.filter (fun t => e ∈ edges t)).card)) →
     cliqueTransversalNumber G ≤ (n + 1) - Erdos151.H (n + 1)
 
 section Proof
 
-variable {ι α : Type*} [DecidableEq ι] [DecidableEq α]
+variable {ι α : Type*}
 
-/-- Full column rank is necessary for a minimal family without a bichromatic coloring.
-A nonzero null vector supplies both signs on every constraint it touches. -/
-private lemma incidence_bound (T : Finset ι) (E : ι → Finset α)
+private lemma opposite_signs (s : Finset α) (w : α → ℚ)
+    (hzero : ∑ e ∈ s, w e = 0) (hsome : ∃ e ∈ s, w e ≠ 0) :
+    (∃ e ∈ s, 0 < w e) ∧ (∃ e ∈ s, w e < 0) := by
+  obtain ⟨e, he, hne⟩ := hsome
+  constructor
+  · by_contra! hp
+    have hlt := sum_neg' hp ⟨e, he, lt_of_le_of_ne (hp e he) hne⟩
+    exact (ne_of_lt hlt) hzero
+  · by_contra! hn
+    have hlt := sum_pos' hn ⟨e, he, lt_of_le_of_ne (hn e he) (Ne.symm hne)⟩
+    exact (ne_of_gt hlt) hzero
+
+/-- A partial signed coloring can be extended over constraints whose weights all vanish. -/
+private lemma weights_impossible [DecidableEq α] (T : Finset ι) (E : ι → Finset α)
+    (hbad : ¬ ∃ c : α → Bool, ∀ t ∈ T,
+      (∃ e ∈ E t, c e = true) ∧ (∃ e ∈ E t, c e = false))
+    (minimal : ∀ U ⊂ T, ∃ c : α → Bool, ∀ t ∈ U,
+      (∃ e ∈ E t, c e = true) ∧ (∃ e ∈ E t, c e = false))
+    (w : α → ℚ) (hw : ∃ e ∈ T.biUnion E, w e ≠ 0)
+    (mixed : ∀ t ∈ T, (∃ e ∈ E t, w e ≠ 0) →
+      (∃ e ∈ E t, 0 < w e) ∧ (∃ e ∈ E t, w e < 0)) : False := by
+  let Z := T.filter (fun t => ∀ e ∈ E t, w e = 0)
+  have hZ : Z ⊂ T := by
+    obtain ⟨e, he, hne⟩ := hw
+    obtain ⟨t, ht, het⟩ := mem_biUnion.mp he
+    refine Finset.ssubset_iff_subset_ne.mpr ⟨filter_subset _ _, fun heq => ?_⟩
+    have htZ : t ∈ Z := by simpa only [heq] using ht
+    exact hne ((mem_filter.mp htZ).2 e het)
+  obtain ⟨base, hbase⟩ := minimal Z hZ
+  let c (e : α) : Bool := if w e = 0 then base e else decide (0 < w e)
+  apply hbad
+  refine ⟨c, ?_⟩
+  intro t ht
+  by_cases htZ : t ∈ Z
+  · obtain ⟨⟨p, hp, hcp⟩, ⟨q, hq, hcq⟩⟩ := hbase t htZ
+    have hz := (mem_filter.mp htZ).2
+    exact ⟨⟨p, hp, by simpa only [c, if_pos (hz p hp)] using hcp⟩,
+      ⟨q, hq, by simpa only [c, if_pos (hz q hq)] using hcq⟩⟩
+  · have hsome : ∃ e ∈ E t, w e ≠ 0 := by
+      by_contra! hz
+      exact htZ (mem_filter.mpr ⟨ht, hz⟩)
+    obtain ⟨⟨p, hp, hwp⟩, ⟨q, hq, hwq⟩⟩ := mixed t ht hsome
+    exact ⟨⟨p, hp, by simp [c, ne_of_gt hwp, hwp]⟩,
+      ⟨q, hq, by simp [c, ne_of_lt hwq, not_lt_of_gt hwq]⟩⟩
+
+/-- The incidence map on a selected edge set is injective. For a nonempty proper
+set it cannot be surjective: that would extend any coloring from untouched
+constraints using rational weights of prescribed signs on the outside. -/
+private lemma incidence_bounds [DecidableEq ι] [DecidableEq α] (T : Finset ι) (E : ι → Finset α)
     (hbad : ¬ ∃ c : α → Bool, ∀ t ∈ T,
       (∃ e ∈ E t, c e = true) ∧ (∃ e ∈ E t, c e = false))
     (minimal : ∀ U ⊂ T, ∃ c : α → Bool, ∀ t ∈ U,
       (∃ e ∈ E t, c e = true) ∧ (∃ e ∈ E t, c e = false))
     (S : Finset α) (hS : S ⊆ T.biUnion E) :
-    S.card ≤ (T.filter (fun t => ∃ e ∈ S, e ∈ E t)).card := by
+    S.card ≤ (T.filter (fun t => ∃ e ∈ S, e ∈ E t)).card ∧
+    (S ⊂ T.biUnion E → S.Nonempty →
+      S.card < (T.filter (fun t => ∃ e ∈ S, e ∈ E t)).card) := by
   let U := T.filter (fun t => ∃ e ∈ S, e ∈ E t)
-  let M : Matrix ↥U ↥S ℚ := fun t e => if e.val ∈ E t.val then 1 else 0
-  let f := M.mulVecLin
-  change S.card ≤ U.card
-  by_contra! hsize
-  have hni : ¬ Function.Injective f := by
-    intro hi
-    apply (Nat.not_le_of_lt hsize)
+  let extend (w : ↥S → ℚ) (e : α) : ℚ := if h : e ∈ S then w ⟨e, h⟩ else 0
+  let f : (↥S → ℚ) →ₗ[ℚ] (↥U → ℚ) :=
+    { toFun := fun w t => ∑ e ∈ E t.val, extend w e
+      map_add' := by
+        intro x y
+        funext t
+        change (∑ e ∈ E t.val, extend (x + y) e) =
+          (∑ e ∈ E t.val, extend x e) + (∑ e ∈ E t.val, extend y e)
+        rw [← sum_add_distrib]
+        apply sum_congr rfl
+        intro e _
+        by_cases he : e ∈ S <;> simp [extend, he, Pi.add_apply]
+      map_smul' := by
+        intro a x
+        funext t
+        change (∑ e ∈ E t.val, extend (a • x) e) = a * (∑ e ∈ E t.val, extend x e)
+        rw [mul_sum]
+        apply sum_congr rfl
+        intro e _
+        by_cases he : e ∈ S <;> simp [extend, he, Pi.smul_apply, smul_eq_mul] }
+  have hinj : Function.Injective f := by
+    apply LinearMap.ker_eq_bot.mp
+    apply LinearMap.ker_eq_bot'.mpr
+    intro w hfw
+    by_contra hn
+    have hsome : ∃ e : ↥S, w e ≠ 0 := by
+      by_contra! hw
+      exact hn (funext hw)
+    obtain ⟨e, hne⟩ := hsome
+    refine weights_impossible T E hbad minimal (extend w)
+      ⟨e.val, hS e.property, by simpa [extend, e.property] using hne⟩ ?_
+    intro t ht ⟨a, hat, hwa⟩
+    have haS : a ∈ S := by
+      by_contra ha
+      simp [extend, ha] at hwa
+    have htU : t ∈ U := mem_filter.mpr ⟨ht, a, haS, hat⟩
+    exact opposite_signs (E t) (extend w) (congrFun hfw ⟨t, htU⟩) ⟨a, hat, hwa⟩
+  have hdim : S.card ≤ U.card := by
     simpa only [Module.finrank_fintype_fun_eq_card, Fintype.card_coe] using
-      LinearMap.finrank_le_finrank_of_injective hi
-  have hkernel : ∃ w : ↥S → ℚ, f w = 0 ∧ w ≠ 0 := by
-    by_contra! hz
-    exact hni (LinearMap.ker_eq_bot.mp (LinearMap.ker_eq_bot'.mpr hz))
-  obtain ⟨w, hfw, hw⟩ := hkernel
-  let T₀ := T.filter (fun t => ∀ e : ↥S, e.val ∈ E t → w e = 0)
-  have hT₀ : T₀ ⊂ T := by
-    apply ssubset_iff_subset_ne.mpr
-    refine ⟨filter_subset _ _, ?_⟩
-    intro heq
-    apply hw
-    funext e
-    obtain ⟨t, ht, het⟩ := mem_biUnion.mp (hS e.property)
-    have ht₀ : t ∈ T₀ := by simpa only [heq] using ht
-    exact (mem_filter.mp ht₀).2 e het
-  obtain ⟨base, hbase⟩ := minimal T₀ hT₀
-  let c (e : α) : Bool :=
-    if h : e ∈ S then if w ⟨e, h⟩ = 0 then base e else decide (0 < w ⟨e, h⟩)
-    else base e
-  apply hbad
-  refine ⟨c, ?_⟩
-  intro t ht
-  by_cases ht₀ : t ∈ T₀
-  · have heq (e : α) (he : e ∈ E t) : c e = base e := by
-      by_cases hs : e ∈ S
-      · simp [c, hs, (mem_filter.mp ht₀).2 ⟨e, hs⟩ he]
-      · simp [c, hs]
-    obtain ⟨⟨p, hp, hcp⟩, ⟨q, hq, hcq⟩⟩ := hbase t ht₀
-    exact ⟨⟨p, hp, (heq p hp).trans hcp⟩, ⟨q, hq, (heq q hq).trans hcq⟩⟩
-  · have hnonzero : ∃ e : ↥S, e.val ∈ E t ∧ w e ≠ 0 := by
-      by_contra! hz
-      exact ht₀ (mem_filter.mpr ⟨ht, hz⟩)
-    obtain ⟨e₀, he₀, hw₀⟩ := hnonzero
-    have htU : t ∈ U := mem_filter.mpr ⟨ht, e₀.val, e₀.property, he₀⟩
-    let term (e : ↥S) : ℚ := if e.val ∈ E t then w e else 0
-    have hsum : ∑ e, term e = 0 := by
-      have hrow := congrFun hfw ⟨t, htU⟩
-      simpa [f, Matrix.mulVec, dotProduct, M, term, ite_mul] using hrow
-    have hpos : ∃ e : ↥S, e.val ∈ E t ∧ 0 < w e := by
-      by_contra! hp
-      have hle (e : ↥S) : term e ≤ 0 := by
-        by_cases he : e.val ∈ E t
-        · simpa [term, he] using hp e he
-        · simp [term, he]
-      have hlt : term e₀ < 0 := by
-        simpa [term, he₀] using lt_of_le_of_ne (hp e₀ he₀) hw₀
-      have hltSum : ∑ e, term e < 0 := sum_neg' (fun e _ => hle e)
-        ⟨e₀, mem_univ _, hlt⟩
-      exact (ne_of_lt hltSum) hsum
-    have hneg : ∃ e : ↥S, e.val ∈ E t ∧ w e < 0 := by
-      by_contra! hn
-      have hle (e : ↥S) : 0 ≤ term e := by
-        by_cases he : e.val ∈ E t
-        · simpa [term, he] using hn e he
-        · simp [term, he]
-      have hlt : 0 < term e₀ := by
-        simpa [term, he₀] using lt_of_le_of_ne (hn e₀ he₀) (Ne.symm hw₀)
-      have hltSum : 0 < ∑ e, term e := sum_pos' (fun e _ => hle e)
-        ⟨e₀, mem_univ _, hlt⟩
-      exact (ne_of_gt hltSum) hsum
-    obtain ⟨p, hp, hwp⟩ := hpos
-    obtain ⟨q, hq, hwq⟩ := hneg
-    exact ⟨⟨p.val, hp, by simp [c, p.property, ne_of_gt hwp, hwp]⟩,
-      ⟨q.val, hq, by simp [c, q.property, ne_of_lt hwq, not_lt_of_gt hwq]⟩⟩
-
-private lemma edge_used_twice (T : Finset ι) (E : ι → Finset α)
-    (two : ∀ t ∈ T, 2 ≤ (E t).card)
-    (hbad : ¬ ∃ c : α → Bool, ∀ t ∈ T,
-      (∃ e ∈ E t, c e = true) ∧ (∃ e ∈ E t, c e = false))
-    (minimal : ∀ U ⊂ T, ∃ c : α → Bool, ∀ t ∈ U,
-      (∃ e ∈ E t, c e = true) ∧ (∃ e ∈ E t, c e = false))
-    (e : α) (he : e ∈ T.biUnion E) :
-    2 ≤ (T.filter (fun t => e ∈ E t)).card := by
-  obtain ⟨t, ht, het⟩ := mem_biUnion.mp he
-  by_contra! hsize
-  have hone : T.filter (fun u => e ∈ E u) = {t} := by
-    symm
-    refine eq_of_subset_of_card_le (singleton_subset_iff.mpr (mem_filter.mpr ⟨ht, het⟩)) ?_
-    simpa only [card_singleton] using Nat.le_of_lt_succ hsize
-  have hex : ∃ a ∈ E t, a ≠ e := by
-    by_contra! h
-    have hle := card_le_card (show E t ⊆ {e} from fun a ha => mem_singleton.mpr (h a ha))
-    simp only [card_singleton] at hle
-    have := two t ht
-    omega
-  obtain ⟨a, hat, hae⟩ := hex
-  obtain ⟨base, hbase⟩ := minimal (T.erase t) (erase_ssubset ht)
-  let c (x : α) := if x = e then !base a else base x
-  apply hbad
-  refine ⟨c, ?_⟩
-  intro u hu
-  by_cases hut : u = t
-  · subst u
-    cases hc : base a
-    · exact ⟨⟨e, het, by simp [c, hc]⟩, ⟨a, hat, by simp [c, hae, hc]⟩⟩
-    · exact ⟨⟨a, hat, by simp [c, hae, hc]⟩, ⟨e, het, by simp [c, hc]⟩⟩
-  · have hne {x : α} (hx : x ∈ E u) : x ≠ e := by
-      rintro rfl
-      have hu' := mem_filter.mpr (p := fun u => e ∈ E u) ⟨hu, hx⟩
-      rw [hone] at hu'
-      exact hut (mem_singleton.mp hu')
-    obtain ⟨⟨p, hp, hcp⟩, ⟨q, hq, hcq⟩⟩ := hbase u (mem_erase.mpr ⟨hut, hu⟩)
-    exact ⟨⟨p, hp, by simpa [c, hne hp] using hcp⟩, ⟨q, hq, by simpa [c, hne hq] using hcq⟩⟩
+      LinearMap.finrank_le_finrank_of_injective hinj
+  change S.card ≤ U.card ∧ (S ⊂ T.biUnion E → S.Nonempty → S.card < U.card)
+  refine ⟨hdim, ?_⟩
+  intro hproper hnonempty
+  by_contra! hle
+  have heq : Module.finrank ℚ (↥S → ℚ) = Module.finrank ℚ (↥U → ℚ) := by
+    simpa only [Module.finrank_fintype_fun_eq_card, Fintype.card_coe] using le_antisymm hdim hle
+  have hsurj := (LinearMap.injective_iff_surjective_of_finrank_eq_finrank (f := f) heq).mp hinj
+  have hTouch : U.Nonempty := by
+    obtain ⟨e, he⟩ := hnonempty
+    obtain ⟨t, ht, het⟩ := mem_biUnion.mp (hS he)
+    exact ⟨t, mem_filter.mpr ⟨ht, e, he, het⟩⟩
+  have hRest : T \ U ⊂ T := by
+    obtain ⟨t, ht⟩ := hTouch
+    refine Finset.ssubset_iff_subset_ne.mpr ⟨sdiff_subset, fun heq => ?_⟩
+    have htT := (mem_filter.mp ht).1
+    have htRest : t ∈ T \ U := by simpa only [heq] using htT
+    exact (mem_sdiff.mp htRest).2 ht
+  obtain ⟨base, hbase⟩ := minimal (T \ U) hRest
+  let outside (e : α) : ℚ := if e ∈ S then 0 else if base e = true then 1 else -1
+  let rhs (t : ↥U) : ℚ := -(∑ e ∈ E t.val, outside e)
+  obtain ⟨w, hw⟩ := hsurj rhs
+  let all (e : α) := extend w e + outside e
+  obtain ⟨a, ha, haS⟩ := exists_of_ssubset hproper
+  refine weights_impossible T E hbad minimal all ⟨a, ha, ?_⟩ ?_
+  · cases hc : base a <;> simp [all, extend, outside, haS, hc]
+  · intro t ht hsome
+    by_cases htU : t ∈ U
+    · have hrow : ∑ e ∈ E t, extend w e = -(∑ e ∈ E t, outside e) :=
+        congrFun hw ⟨t, htU⟩
+      have hzero : ∑ e ∈ E t, all e = 0 := by simp only [all, sum_add_distrib, hrow, neg_add_cancel]
+      exact opposite_signs (E t) all hzero hsome
+    · have hnot {e : α} (he : e ∈ E t) : e ∉ S :=
+        fun heS => htU (mem_filter.mpr ⟨ht, e, heS, he⟩)
+      obtain ⟨⟨p, hp, hcp⟩, ⟨q, hq, hcq⟩⟩ := hbase t (mem_sdiff.mpr ⟨ht, htU⟩)
+      exact ⟨⟨p, hp, by simp [all, extend, outside, hnot hp, hcp]⟩,
+        ⟨q, hq, by simp [all, extend, outside, hnot hq, hcq]⟩⟩
 
 private lemma hitting_of_bichromatic {m : ℕ} (G : SimpleGraph (Fin m))
     (c : Sym2 (Fin m) → Bool)
@@ -218,14 +246,81 @@ private lemma hitting_of_bichromatic {m : ℕ} (G : SimpleGraph (Fin m))
       simp only [mem_insert, mem_singleton] at hz
       exact hz.elim hxz.ne.symm hyz.ne.symm
 
-lemma dense_triangle_family {m : ℕ} (G : SimpleGraph (Fin m))
+/-- When there are at least as many triangles as participating edges, a family
+with at most three occurrences per edge has exactly three per edge. -/
+private lemma regular_or_large_occurrence [DecidableEq α] (T : Finset ι) (E : ι → Finset α)
+    (three : ∀ t ∈ T, (E t).card = 3) (dense : (T.biUnion E).card ≤ T.card) :
+    (∀ e ∈ T.biUnion E, (T.filter (fun t => e ∈ E t)).card = 3) ∨
+    (∃ e ∈ T.biUnion E, 4 ≤ (T.filter (fun t => e ∈ E t)).card) := by
+  let U := T.biUnion E
+  let degree (e : α) := (T.filter (fun t => e ∈ E t)).card
+  change (∀ e ∈ U, degree e = 3) ∨ (∃ e ∈ U, 4 ≤ degree e)
+  by_cases hlarge : ∃ e ∈ U, 4 ≤ degree e
+  · exact Or.inr hlarge
+  left
+  have hle (e : α) (he : e ∈ U) : degree e ≤ 3 := by
+    by_contra! h
+    exact hlarge ⟨e, he, h⟩
+  have total : T.card * 3 = ∑ e ∈ U, degree e := by
+    calc
+      T.card * 3 = ∑ t ∈ T, (E t).card := (sum_const_nat three).symm
+      _ = ∑ t ∈ T, ∑ e ∈ U, if e ∈ E t then 1 else 0 := by
+        apply sum_congr rfl
+        intro t ht
+        have heq : U.filter (fun e => e ∈ E t) = E t := by
+          ext e
+          exact mem_filter.trans ⟨And.right, fun h => ⟨mem_biUnion.mpr ⟨t, ht, h⟩, h⟩⟩
+        rw [← sum_filter, heq]
+        simp
+      _ = ∑ e ∈ U, ∑ t ∈ T, if e ∈ E t then 1 else 0 := sum_comm
+      _ = ∑ e ∈ U, degree e := by
+        apply sum_congr rfl
+        intro e _
+        rw [← sum_filter]
+        simp [degree]
+  intro e he
+  by_contra hne
+  have hlt : ∑ a ∈ U, degree a < ∑ a ∈ U, (3 : ℕ) :=
+    sum_lt_sum hle ⟨e, he, lt_of_le_of_ne (hle e he) hne⟩
+  have hright : (∑ _ ∈ U, (3 : ℕ)) = U.card * 3 := sum_const_nat (fun _ _ => rfl)
+  rw [← total, hright] at hlt
+  change U.card ≤ T.card at dense
+  omega
+
+private lemma triangle_edge_count {m : ℕ} {G : SimpleGraph (Fin m)}
+    {t : Finset (Fin m)} (ht : G.IsNClique 3 t) :
+    (t.sym2.filter (fun e => ¬ e.IsDiag)).card = 3 := by
+  have hd : t.sym2.filter Sym2.IsDiag = t.image (fun x => s(x, x)) := by
+    ext e
+    induction e using Sym2.ind with
+    | h x y =>
+      simp only [mem_filter, mk_mem_sym2_iff, Sym2.mk_isDiag_iff, mem_image, Sym2.eq_iff]
+      constructor
+      · rintro ⟨⟨hx, _⟩, rfl⟩
+        exact ⟨x, hx, Or.inl ⟨rfl, rfl⟩⟩
+      · rintro ⟨a, ha, h | h⟩
+        · exact ⟨⟨h.1 ▸ ha, h.2 ▸ ha⟩, h.1.symm.trans h.2⟩
+        · exact ⟨⟨h.2 ▸ ha, h.1 ▸ ha⟩, h.2.symm.trans h.1⟩
+  have hinj : Function.Injective (fun x : Fin m => s(x, x)) :=
+    fun _ _ h => (Sym2.eq_iff.mp h).elim And.left And.left
+  have htotal : t.sym2.card = 6 := by
+    rw [card_sym2, ht.2]
+    decide
+  have hparts := card_filter_add_card_filter_not (s := t.sym2) Sym2.IsDiag
+  rw [hd, card_image_of_injective _ hinj, ht.2, htotal] at hparts
+  omega
+
+lemma dense_triangle_family (cube : H2) {m : ℕ} (G : SimpleGraph (Fin m))
+    (four : G.CliqueFree 4)
     (hno : ¬ ∃ F : SimpleGraph (Fin m), F.CliqueFree 3 ∧
       ∀ t, G.IsBigMaximalClique t → ∃ x ∈ t, ∃ y ∈ t, F.Adj x y) :
     ∃ T : Finset (Finset (Fin m)), T.Nonempty ∧
       (∀ t ∈ T, G.IsNClique 3 t) ∧
       let E := fun t : Finset (Fin m) => t.sym2.filter (fun e => ¬ e.IsDiag)
       (∀ S ⊆ T.biUnion E, S.card ≤ (T.filter (fun t => ∃ e ∈ S, e ∈ E t)).card) ∧
-      (∀ e ∈ T.biUnion E, 2 ≤ (T.filter (fun t => e ∈ E t)).card) := by
+      (∀ S ⊂ T.biUnion E, S.Nonempty →
+        S.card < (T.filter (fun t => ∃ e ∈ S, e ∈ E t)).card) ∧
+      (∃ e ∈ T.biUnion E, 4 ≤ (T.filter (fun t => e ∈ E t)).card) := by
   let E := fun t : Finset (Fin m) => t.sym2.filter (fun e => ¬ e.IsDiag)
   let triangles := (univ : Finset (Finset (Fin m))).filter (G.IsNClique 3)
   let good (T : Finset (Finset (Fin m))) := ∃ c : Sym2 (Fin m) → Bool,
@@ -244,32 +339,25 @@ lemma dense_triangle_family {m : ℕ} (G : SimpleGraph (Fin m))
     exact (not_le_of_gt (card_lt_card hU))
       (hmin U (mem_filter.mpr ⟨mem_powerset.mpr (hU.subset.trans hsub), hn⟩))
   have hTtri t (ht : t ∈ T) := (mem_filter.mp (hsub ht)).2
-  have htwo t (ht : t ∈ T) : 2 ≤ (E t).card := by
-    obtain ⟨x, y, z, hxy, hxz, hyz, rfl⟩ := is3Clique_iff.mp (hTtri t ht)
-    have hm (u v : Fin m) (hu : u ∈ ({x, y, z} : Finset (Fin m)))
-        (hv : v ∈ ({x, y, z} : Finset (Fin m))) (hne : u ≠ v) :
-        s(u, v) ∈ E {x, y, z} :=
-      mem_filter.mpr ⟨mk_mem_sym2_iff.mpr ⟨hu, hv⟩, fun h => hne (Sym2.mk_isDiag_iff.mp h)⟩
-    have hne : s(x, y) ≠ s(x, z) := by
-      rw [Sym2.eq_iff]
-      exact fun h => h.elim (fun h => hyz.ne h.2) (fun h => hxz.ne h.1)
-    have hsub' : ({s(x, y), s(x, z)} : Finset (Sym2 (Fin m))) ⊆ E {x, y, z} := by
-      intro e he
-      simp only [mem_insert, mem_singleton] at he
-      rcases he with rfl | rfl
-      · exact hm x y (by simp) (by simp) hxy.ne
-      · exact hm x z (by simp) (by simp) hxz.ne
-    simpa only [card_pair hne] using card_le_card hsub'
   have hne : T.Nonempty := by
     by_contra h
     exact hTbad ⟨fun _ => false, by simp [not_nonempty_iff_eq_empty.mp h]⟩
-  exact ⟨T, hne, hTtri, incidence_bound T E hTbad hgood, edge_used_twice T E htwo hTbad hgood⟩
+  have hdense (S : Finset (Sym2 (Fin m))) (hS : S ⊆ T.biUnion E) :=
+    (incidence_bounds T E hTbad hgood S hS).1
+  have hstrict (S : Finset (Sym2 (Fin m))) (hS : S ⊂ T.biUnion E) :=
+    (incidence_bounds T E hTbad hgood S hS.subset).2 hS
+  have htotal : (T.biUnion E).card ≤ T.card :=
+    (hdense _ Subset.rfl).trans (filter_subset _ _ |> card_le_card)
+  have hthree : ∀ t ∈ T, (E t).card = 3 := fun t ht => triangle_edge_count (hTtri t ht)
+  rcases regular_or_large_occurrence T E hthree htotal with hregular | hlarge
+  · exact (hTbad (cube m G T four hTtri hregular)).elim
+  · exact ⟨T, hne, hTtri, hdense, hstrict, hlarge⟩
 
-theorem main : H1 → H2 → OMA.R_Erdos151_erdos_151_R2.H2 := by
-  intro small large n G _ hjump hK4 hdeg hno hguard
+theorem main : H1 → H2 → H3 → OMA.R_Erdos151_erdos_151_R2.H2 := by
+  intro small cube large n G _ hjump hK4 hdeg hno hguard
   by_cases hsmall : Erdos151.H (n + 1) ≤ 9
   · exact small (n + 1) hsmall G hK4
-  · exact large n G (by omega) hjump hK4 hdeg hno hguard (dense_triangle_family G hno)
+  · exact large n G (by omega) hjump hK4 hdeg hno hguard (dense_triangle_family cube G hK4 hno)
 
 end Proof
 end OMA.R_Erdos151_erdos_151_R2_H2_R1
