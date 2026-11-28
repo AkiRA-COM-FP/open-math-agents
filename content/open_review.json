@@ -11365,6 +11365,70 @@
     "https://oeis.org/A211930"
    ],
    "reason": "The statement does not define the OEIS count. Its `sequence n` is 1 + (number of non-adjacent cell pairs) of the triangle, the formalizer's own reduction (a coloring containing T-2 uses T or T-1 colours). The reduction is correct: my brute force over the true definition gives 0,2,9,31,80,171,322,554 for n=1..8. But Lean only checks that a simple pair count (C(T,2) minus the adjacent pairs, plus 1) satisfies Barker's g.f. and recurrence, and the combinatorial step is assumed in the definition, so I flag it as unfaithful and trivial."
+  },
+  "oeis-a285833": {
+   "date": "2026-11-28",
+   "pr": 26712,
+   "evidence": [
+    "https://oeis.org/A285833"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>6', but his g.f. has a numerator of degree 12, so the two conjuncts cannot both hold. The Lean disproof only reads coefficients of the g.f. and finds the recurrence fails at n=8; it never touches the Rule 107 automaton. My simulation reproduces the data and the g.f. The recurrence fails only at n=8,10,12, so the intended statement (for n>12) is true and is not proved here."
+  },
+  "oeis-a285834": {
+   "date": "2026-11-28",
+   "pr": 24542,
+   "evidence": [
+    "https://oeis.org/A285834"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>6', but his g.f. has a numerator of degree 12. The Lean disproof is a kernel evaluation of a(2),a(4),a(6),a(8), showing that the recurrence fails at n=8. My simulation of Rule 107 reproduces the data and the g.f. The recurrence fails only at n=8,10,12, so the intended statement (for n>12) is true and is not proved here."
+  },
+  "oeis-a286770": {
+   "date": "2026-11-28",
+   "pr": 26759,
+   "evidence": [
+    "https://oeis.org/A286770"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his g.f. has a numerator of degree 6, so the package is inconsistent: from the listed terms, a(6)=1 while 101*a(4)-100*a(2)=101. The disproof uses only the g.f. coefficients and never touches the Rule 221 automaton. My simulation reproduces the data, the g.f. and both closed forms; the recurrence fails only at n=6, so the intended statement (n>6) is true and is not proved here."
+  },
+  "oeis-a286771": {
+   "date": "2026-11-28",
+   "pr": 26690,
+   "evidence": [
+    "https://oeis.org/A286771"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his g.f. has a numerator of degree 6. The disproof reads a(0..6) off the g.f. and finds the recurrence fails at n=6 (1010000 vs 1000000), without using the Rule 221 automaton. My simulation reproduces the data, the g.f. and both closed forms; the recurrence fails only at n=6, so the intended statement (n>6) is true and is not proved here."
+  },
+  "oeis-a287190": {
+   "date": "2026-11-28",
+   "pr": 27095,
+   "evidence": [
+    "https://oeis.org/A287190"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his g.f. has a numerator of degree 6. The Lean disproof compares coefficient 6 of the g.f. with the recurrence at n=6, and never touches the Rule 253 automaton. My simulation reproduces the data, the g.f. and both closed forms; the recurrence fails only at n=6, so the intended statement (n>6) is true and is not proved here."
+  },
+  "oeis-a287192": {
+   "date": "2026-11-28",
+   "pr": 27482,
+   "evidence": [
+    "https://oeis.org/A287192"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his g.f. has a numerator of degree 6. The disproof is the g.f. coefficient at n=6 against the recurrence, with no automaton argument. My Rule 253 simulation reproduces the data, the g.f. and both closed forms; the recurrence fails only at n=6, so the intended statement (n>6) is true and is not proved here."
+  },
+  "oeis-a287193": {
+   "date": "2026-11-28",
+   "pr": 26620,
+   "evidence": [
+    "https://oeis.org/A287193"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his g.f. has a numerator of degree 6. The disproof reads a(0..6) off the g.f. and finds the recurrence gives 120 at n=6 instead of 96, with no automaton argument. My Rule 253 simulation reproduces the data, the g.f. and the closed form for n>2; the recurrence fails only at n=6, so the intended statement (n>6) is true and is not proved here."
+  },
+  "oeis-a287199": {
+   "date": "2026-11-28",
+   "pr": 26655,
+   "evidence": [
+    "https://oeis.org/A287199"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's 'a(n) = 2^(n-1) - 1 for n odd' fails at n=1, where a(1)=3; the entry itself notes that A287199 differs from A277800 only at a(1). The Lean disproof reads a(1)=3 off the g.f. and compares it with the odd closed form (0). My simulation also shows that the recurrence printed for n>3 fails at n=5 (the numerator has degree 5). The intended statement (odd n>1, recurrence for n>5) is true and is not proved here."
   }
  },
  "known": {
@@ -23353,6 +23417,34 @@
     "https://naun.org/multimedia/UPress/ami/16-125.pdf"
    ],
    "reason": "Irvine's conjecture is that Cha's N(n) is the partial sums of A064099. In Cha's paper N(n) = sumd(N_3(n)), the sum of inclusive depths of a null-balanced ternary tree, which the BFS complete-tree formalization models faithfully. The n-th node's depth is the tree height, ceil(log_3(2n+1)) by Cha's Fact 1 (eq. 10), which is exactly A064099(n-1). So the conjecture is an immediate consequence of the cited source."
+  },
+  "oeis-a286666": {
+   "date": "2026-11-28",
+   "pr": 13308,
+   "evidence": [
+    "https://oeis.org/A286666",
+    "https://oeis.org/A286665",
+    "https://arxiv.org/abs/1705.08607"
+   ],
+   "reason": "The statement (a(n)/n -> 1+sqrt(2) for the positions of 0 in the {0->01}-transform of the Pell word) is faithful. The entry itself says: 'This conjecture follows easily from the fact that (a(n)) is a Beatty sequence, see my comments in A286665. - Michel Dekking, Mar 11 2018', and A286665 gives the Beatty formula with alpha = 2-sqrt(2). The statement file quotes this. Settled in 2018."
+  },
+  "oeis-a286015": {
+   "date": "2026-11-28",
+   "pr": 23838,
+   "evidence": [
+    "https://oeis.org/A286015",
+    "https://oeis.org/A286013"
+   ],
+   "reason": "The conjecture that A286015 (the sum of the largest parts of partitions into consecutive parts) is the row sums of A286013 is stated faithfully, with A286013 defined from its name. In A286013, Peter Munn (Jun 2017) proved Conjecture 1: each nonzero T(n,k) is the largest part of the partition of n into k consecutive parts. Summing over k gives this conjecture (Conjecture 2 there) at once. The Lean proof is just that termwise identity, so the result is essentially definitional and was already settled."
+  },
+  "oeis-a287614": {
+   "date": "2026-11-28",
+   "pr": 25607,
+   "evidence": [
+    "https://oeis.org/A287614",
+    "https://oeis.org/A285929"
+   ],
+   "reason": "Gerasimov's conjecture: if x>=1 and (1+x)^y+(-x)^y is an odd prime, then y is an odd prime or 2^k with k>=1. The statement reads it faithfully. The same author states the same conjecture in A285929, where Jeppe Stig Nielsen (Feb 2023) notes that it can be proved by the algebraic factorizations. It is the classical fact that a^y - b^y prime forces y prime, and that a^y + b^y prime forces y to be a power of 2. The Lean proof is exactly that argument."
   }
  },
  "reviewed": "2026-11-28"
