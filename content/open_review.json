@@ -17632,6 +17632,31 @@
     "https://oeis.org/A358982"
    ],
    "reason": "Trivial as formalized. The statement is literally 'infinitely many x with digitsum(x^3) < digitsum(x)', and the proof takes x = 587*10^N (digit sums 17 < 20); appending zeros changes no digit sum. Raab's example line says this 'can heuristically be conjectured', which only makes sense for x not divisible by 10 (or some similar restriction), so the formal statement misses the intended content."
+  },
+  "oeis-a211343": {
+   "date": "2026-11-28",
+   "pr": 28268,
+   "evidence": [
+    "https://oeis.org/A211343"
+   ],
+   "reason": "Trivial from the definition. With T(n,k)=t+1 when n=k(k+1)/2+kt (the entry's definition, faithfully encoded), Pol's conjecture 1 is the identity k(t+1)+k(k-1)/2 = n, and conjecture 2 (last positive entry is in column A109814(n)) restates that T(n,k)>0 exactly when n is a sum of k consecutive positive integers; the 70-line proof is just this algebra plus Nat.findGreatest bookkeeping. True, but not a substantive open problem."
+  },
+  "oeis-a227013": {
+   "date": "2026-11-28",
+   "pr": 28333,
+   "evidence": [
+    "https://github.com/blakestone-x/math/blob/main/A227013/README.md",
+    "https://oeis.org/A227013"
+   ],
+   "reason": "Accepted as a disproof: main conjoins the printed cosine closed form at the printed index, which is off by two (proposed(1)=40 but a(1)=1), so the disproof only exploits an index typo, not a substantive error; the proof file also proves the shifted form and the g.f. separately. In any case blakestone-x/math (Nov 27 2026, before the site commit 2026-11-28 11:40 UTC) already published this exact index correction and a Lean proof of the g.f. So the result is known as well."
+  },
+  "oeis-a227017": {
+   "date": "2026-11-28",
+   "pr": 28182,
+   "evidence": [
+    "https://oeis.org/A227017"
+   ],
+   "reason": "Accepted as a disproof that exploits an offset error: the printed closed form (1-(-1)^n+4n+6n^2)/4 is a(n+1), not a(n) (it gives 3 at n=1 and 8 at n=2 against data 1,3), and the disproof just evaluates a(2)=3. The substantive content (the shifted closed form, recurrence and g.f. from the midpoint bound) is in the proof file but not in main. No earlier public correction found (blakestone covers only the quartic A227013)."
   }
  },
  "known": {
@@ -33187,6 +33212,151 @@
     "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Arith/Additive/GreathouseA359506XorBound.lean"
    ],
    "reason": "Duplicate: the formal statement (A359507(n) is of the form 2^m + 1 for n >= 1) is the same claim as oeis-a359507, solved on this site by PR #24949 (merged 12:21 UTC on 2026-11-28, before this PR #27353 at 13:32 UTC, same author). It is also implied by the exact least-ender formula in trureturing's A359506 file (2026-10-29)."
+  },
+  "oeis-a185761": {
+   "date": "2026-11-28",
+   "pr": 28641,
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.24411970",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA185761Recurrence.lean",
+    "https://oeis.org/A185761"
+   ],
+   "reason": "Ma and Zhang, Zenodo 24411970 (2026-11-21), 'Hardin's trace-avoiding array recurrences and Barker's formulas', proves Hardin's recurrence and Barker's 22 Feb 2018 formulas for A185761 explicitly (and notes the width-2 case follows from Riedel 2016 / Howroyd 2025); the trureturing library also has HardinA185761Recurrence (g.f. and closed form). Site proof committed 2026-11-28 11:55 UTC, later. Statement is faithful (width 2 has only vertical neighbours); data matches."
+  },
+  "oeis-a191319": {
+   "date": "2026-11-28",
+   "pr": 19749,
+   "evidence": [
+    "https://isitsolved.com/journal/376c7d060532",
+    "https://oeis.org/A191319"
+   ],
+   "reason": "Mathar's P-recurrence for A191319 is listed as decided true for all n>=4 in iis:2611.00219, filed 03:18 UTC 2026-11-28, before the site proof commit (13:55 UTC). The statement's normalised g.f. x^2 sqrt(1-4x^2)/((1-2x)(1-x^2)(1-4x^2)) equals the entry's z^2/((1-2z)(1-z^2)sqrt(1-4z^2)); range n>=4 matches. Routine holonomic recurrence."
+  },
+  "oeis-a195422": {
+   "date": "2026-11-28",
+   "pr": 28072,
+   "evidence": [
+    "https://oeis.org/A195422",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/proofs/oeis-a195422.lean"
+   ],
+   "reason": "a(n)=U_n(-1) for the menage hit polynomial U_n(t)=sum 2n/(2n-k) C(2n-k,k)(n-k)!(t-1)^k. The classical Kaplansky-Riordan (1946) recurrence (n-2)U_n-(n^2+nt-3n-3t+3)U_{n-1}+(t-1)(n^2-nt-3n+3)U_{n-2}+(n-1)(t-1)^3U_{n-3}=0 (re-derived here symbolically) at t=-1 is exactly Mathar's first conjecture, and the second follows by a shift; the site proof itself says the recurrences follow from Kaplansky-Riordan p.121 eqs (25),(31). Statement faithful, both recurrences verified to n=39."
+  },
+  "oeis-a203719": {
+   "date": "2026-11-28",
+   "pr": 28042,
+   "evidence": [
+    "https://oeis.org/A204521",
+    "https://oeis.org/A204520",
+    "https://oeis.org/A055812"
+   ],
+   "reason": "A203719(n)=A204521(n)^2 (same offset and data). Kleckner (A204520, Nov 11 2026) proved the Pell structure, and Song (A204521, Nov 12 2026) states the proved closed form a(4k+2)=F(6k)/2, a(4k+3)=F(6k), a(4k+4)=F(6k+2), a(4k+5)=F(6k+4) valid from n=2; squaring gives terms annihilated by (x^4-1)(x^8-322x^4+1)=x^12-323x^8+323x^4-1, i.e. Barker's recurrence for n>13 (Song also gives the same recurrence for A055812). Sister-entry results predate the site proof (2026-11-28 10:39 UTC). Statement (Nat.nth enumeration of k with floor(k^2/5) square, keeping the three zeros) is faithful."
+  },
+  "oeis-a207109": {
+   "date": "2026-11-28",
+   "pr": 28012,
+   "evidence": [
+    "https://isitsolved.com/journal/1f030b3ececa",
+    "https://oeis.org/A207109"
+   ],
+   "reason": "iis:2611.00288 (filed 2026-11-28 10:43 UTC) lists A207109 with 'Barker g.f. proved; Barker recurrence (n>7) proved' by exact transfer matrices, 40 minutes before the site proof commit (11:23:47 UTC). Statement (n X 6, horizontal 000/011, vertical 001/110, g.f. over (1-x)^7, recurrence n>=8) is faithful; transfer matrix reproduces the data and the recurrence to n=15."
+  },
+  "oeis-a207257": {
+   "date": "2026-11-28",
+   "pr": 28002,
+   "evidence": [
+    "https://isitsolved.com/journal/1f030b3ececa",
+    "https://oeis.org/A207257"
+   ],
+   "reason": "iis:2611.00288 (filed 2026-11-28 10:43 UTC) lists A207257 (6 X n, horizontal 001/101, vertical 010/101) with Barker's g.f. and recurrence (n>7) proved, before the site proof commit (11:23:15 UTC). Statement faithful; data 26,676,4238,... and recurrence re-checked by transfer matrix to n=15."
+  },
+  "oeis-a207399": {
+   "date": "2026-11-28",
+   "pr": 27968,
+   "evidence": [
+    "https://isitsolved.com/journal/e9039b327f56",
+    "https://oeis.org/A207399"
+   ],
+   "reason": "iis:2611.00264 (filed 2026-11-28 08:32 UTC) lists A207399 with Barker's g.f. and recurrence (n>5) proved by exact transfer matrices, before the site proof commit (11:21:49 UTC). Statement (n X 4, horizontal 001/011, vertical 001/110; recurrence n>=6) is faithful; data and recurrence re-checked to n=15."
+  },
+  "oeis-a207449": {
+   "date": "2026-11-28",
+   "pr": 28000,
+   "evidence": [
+    "https://isitsolved.com/journal/e9039b327f56",
+    "https://oeis.org/A207449"
+   ],
+   "reason": "iis:2611.00264 (filed 2026-11-28 08:32 UTC) lists A207449 with Barker's g.f. and recurrence (n>4) proved, before the site proof commit (11:23:02 UTC). Statement (n X 4, horizontal 000/001, vertical 001/101; recurrence n>=5) is faithful; data 10,100,330,... and recurrence re-checked to n=15."
+  },
+  "oeis-a208341": {
+   "date": "2026-11-28",
+   "pr": 28813,
+   "evidence": [
+    "https://oeis.org/A208341"
+   ],
+   "reason": "Schulte's 2026 conjecture T(n,k)2^(n-2k)=T(n,n-k) is a one-line consequence of Peter Bala's 2015 formula in the same entry, T(n,k)=Sum_i 2^(k-i)C(n-k,i)C(k,i) (equivalently Pfaff's transformation of the terminating 2F1 at z=-1): T(n,n-k)=Sum_i 2^(n-k-i)C(k,i)C(n-k,i)=2^(n-2k)T(n,k). The Lean 2F1 definition is faithful (checked equal to Sum C(n-k+j,j)C(k,j) and to the data) and the identity holds for n<=24."
+  },
+  "oeis-a208342": {
+   "date": "2026-11-28",
+   "pr": 28812,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Recurrence/Invariants/JointPolynomialPairBinomialCoefficients.lean",
+    "https://oeis.org/A208342"
+   ],
+   "reason": "trureturing module JointPolynomialPairBinomialCoefficients (added 2026-09-13, sorry-free) proves theorem schulte_a208342: for 0<k<=n, T(n,k)=Sum_{j<=(k-1)/2} C(k-1-j,j)C(n-k+j,j) with T(n,k)=[x^(k-1)]u(n,x) from the same joint recursion, i.e. exactly the site statement. Site proof committed 2026-11-28, much later."
+  },
+  "oeis-a208402": {
+   "date": "2026-11-28",
+   "pr": 28571,
+   "evidence": [
+    "https://isitsolved.com/journal/d7e3cd59d1bb",
+    "https://oeis.org/A208402"
+   ],
+   "reason": "In an n X 2 array every cell has at most two of the listed neighbours, so the neighbour condition is vacuous and a(n)=Sum_{k<=4} S(2n,k), whose classical closed form is (16^n+6*4^n+8)/24 = Barker's formula; the site proof says the constraint holds automatically. Also listed in iis:2611.00246 (filed 05:39 UTC 2026-11-28, Barker g.f. proved) before the site proof commit (11:51 UTC). Statement faithful."
+  },
+  "oeis-a213243": {
+   "date": "2026-11-28",
+   "pr": 10545,
+   "evidence": [
+    "https://oeis.org/A213243"
+   ],
+   "reason": "The entry itself says Barker's conjectures were 'verified by Robert Israel, Apr 22 2016', and gives a(n)=M/gcd(M,3), M=2^n-1 (cyclic unit group), from which the closed form, the recurrence and the g.f. follow by parity of n. The statement (GaloisField 2 n, n>=1 and n>=5, cross-multiplied g.f.) is faithful and the data matches; settled, as for siblings A213245/A213246."
+  },
+  "oeis-a220181": {
+   "date": "2026-11-28",
+   "pr": 28681,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Recurrence/Periodic/AlternatingWeightStirlingPrimePeriod.lean",
+    "https://oeis.org/A220181"
+   ],
+   "reason": "trureturing module AlternatingWeightStirlingPrimePeriod (added 2026-09-09, sorry-free) proves theorem bala_conjecture: for every prime p and n>=1, a(n+p-1) = a(n) mod p, for A220181 defined by the entry's Stirling formula, i.e. Bala's conjecture as stated on the site. The site's binomial-sum definition from the e.g.f. reproduces the same data; site proof (2026-11-28) uses the same Fermat argument."
+  },
+  "oeis-a222001": {
+   "date": "2026-11-28",
+   "pr": 28447,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/Combinatorics/PermutationArrays/DescentLexCount.lean",
+    "https://oeis.org/A222001"
+   ],
+   "reason": "trureturing module DescentLexCount (added 2026-10-05, sorry-free) proves count_arrays: for n>=1 the number of n X 3 arrays of permutations of 1..3 with nondecreasing descent counts and lexicographically nonincreasing rows is 2+(n+1)(n+2)(n+3)/6, which is Barker's closed form exactly as stated on the site (consecutive-row conditions are equivalent by transitivity). Site proof committed 2026-11-28."
+  },
+  "oeis-a224832": {
+   "date": "2026-11-28",
+   "pr": 29064,
+   "evidence": [
+    "https://oeis.org/A224832",
+    "https://oeis.org/A224832/b224832.txt",
+    "https://oeis.org/A325637"
+   ],
+   "reason": "The site disproves Lagneau's conjecture (every non-twice-even-perfect term has even-divisor reciprocal sum 2) using 2M, M the 6-perfect number 154345556085770649600 (sum 3). The entry already settles this: Eldar's 2024 formula a(n)=2*A325637(n) (multiperfect numbers of even index, sum = index/2), and his b-file lists 2M itself as a(28); among the first 400 b-file terms 245 have index 6 and 107 index 8. Statement faithful; the refutation is immediate from the entry's own data."
+  },
+  "oeis-a227259": {
+   "date": "2026-11-28",
+   "pr": 28394,
+   "evidence": [
+    "https://github.com/etaubman/open-math-agents/blob/003821fe2a6778c0dd8c89a497ad3c609f96dc44/verified/oeis-a227259.lean",
+    "https://oeis.org/A227259"
+   ],
+   "reason": "The site proof says it is ported from @etaubman's complete proof, already public in the etaubman/open-math-agents fork and linked from statement PR #20481 before the proof PR; by the brief's rule an adapted earlier public solution counts as known. The statement is faithful (threshold images of lex-ordered (n+1) X 3 parents; brute force gives 3,9,23,50,96,168 = data), and it proves Martin's ternary-string conjecture and Barker's g.f."
   }
  },
  "reviewed": "2026-11-28"
