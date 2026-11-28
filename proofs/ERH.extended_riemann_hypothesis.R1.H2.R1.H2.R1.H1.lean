@@ -1,134 +1,132 @@
 import OMAReductions.R_ERH_extended_riemann_hypothesis_R1_H2_R1_H2_R1
-import Mathlib.RingTheory.Ideal.Int
 import Mathlib.RingTheory.RamificationInertia.Basic
-import Mathlib.Analysis.SpecialFunctions.Pow.Asymptotics
-import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
-import Mathlib.Data.Nat.Factorization.Basic
+import Mathlib.Data.Nat.Squarefree
+import Mathlib
 
-/-! Coefficients of the squarefree ideal product have subpolynomial growth.
-Only the distinct rational prime divisors of the norm affect the count. -/
--- Credit: @STARDUSTLC666
-noncomputable section
-namespace OMA.SquarefreeCoefficientBound
+/-! The elementary bound for the squarefree ideal coefficients of the reciprocal
+Dedekind zeta function. The bound on primes above a rational prime is the
+fundamental identity for ramification indices and residue degrees (see
+R. Schoof, Algebraic Number Theory, Proposition 6.4).
+Reduction by @STARDUSTLC666. Lean proof by @dwilfand-sys. -/
+
 open Filter Asymptotics NumberField
-open scoped NumberField Topology Classical
-variable (K : Type*) [Field K] [NumberField K]
+open scoped NumberField
 
-abbrev Primes := {I : Ideal (𝓞 K) // I.IsPrime ∧ I ≠ ⊥}
-def normProduct (S : Finset (Primes K)) : ℕ := ∏ p ∈ S, Ideal.absNorm p.val
-def signedCoeff (n : ℕ) : ℂ := ∑' S : normProduct K ⁻¹' {n}, (-1 : ℂ)^S.val.card
-
-def above (p : ℕ) := IsDedekindDomain.primesOverFinset (Ideal.span {(p : ℤ)}) (𝓞 K)
-
-theorem card_above {p : ℕ} (hp : p.Prime) : (above K p).card ≤ Module.finrank ℚ K := by
-  have : Fact p.Prime := ⟨hp⟩
+private theorem erh_prime_cover_card (K : Type) [Field K] [NumberField K]
+    (p : ℕ) (hp : p.Prime) :
+    (IsDedekindDomain.primesOverFinset (Ideal.span {(p : ℤ)}) (𝓞 K)).card ≤
+      Module.finrank ℤ (𝓞 K) := by
+  classical
   let J : Ideal ℤ := Ideal.span {(p : ℤ)}
-  have hJ : J ≠ ⊥ := by simpa [J] using (Nat.cast_ne_zero.mpr hp.ne_zero : (p : ℤ) ≠ 0)
-  have he : (↑(above K p) : Set (Ideal (𝓞 K))) = J.primesOver (𝓞 K) :=
+  have hcast : (p : ℤ) ≠ 0 := by exact_mod_cast hp.ne_zero
+  have hJ : J ≠ ⊥ := by simpa [J] using hcast
+  letI : J.IsMaximal :=
+    ((Ideal.span_singleton_prime hcast).mpr (Nat.prime_iff_prime_int.mp hp)).isMaximal hJ
+  let T := IsDedekindDomain.primesOverFinset J (𝓞 K)
+  have hT : (T : Set (Ideal (𝓞 K))) = J.primesOver (𝓞 K) :=
     IsDedekindDomain.coe_primesOverFinset hJ (𝓞 K)
-  let _ : Fintype (J.primesOver (𝓞 K)) := (IsDedekindDomain.primesOver_finite J (𝓞 K)).fintype
+  have hcard : T.card = Fintype.card (J.primesOver (𝓞 K)) := by
+    calc
+      T.card = Fintype.card (T : Set (Ideal (𝓞 K))) := by simp
+      _ = _ := Fintype.card_congr (Equiv.setCongr hT)
+  change T.card ≤ _
+  rw [hcard, ← Ideal.sum_ramification_inertia_eq_finrank J (𝓞 K)]
   calc
-    (above K p).card = Fintype.card (J.primesOver (𝓞 K)) := by
-      rw [← Fintype.card_coe]
-      exact Fintype.card_congr (Equiv.setCongr he)
     _ = ∑ _q : J.primesOver (𝓞 K), 1 := by simp
-    _ ≤ ∑ q : J.primesOver (𝓞 K), q.val.ramificationIdx ℤ * q.val.inertiaDeg ℤ := by
-      apply Finset.sum_le_sum
-      intro q _
-      have : q.val.IsPrime := q.property.1
-      exact Nat.mul_pos (q.val.ramificationIdx_pos ℤ) (q.val.inertiaDeg_pos ℤ)
-    _ = Module.finrank ℤ (𝓞 K) := Ideal.sum_ramification_inertia_eq_finrank J (𝓞 K)
-    _ = _ := NumberField.RingOfIntegers.rank K
+    _ ≤ _ := Finset.sum_le_sum fun q _ =>
+      Nat.mul_pos (q.val.ramificationIdx_pos ℤ) (q.val.inertiaDeg_pos ℤ)
 
-theorem support_at_norm {n : ℕ} (hn : 0 < n) (S : Finset (Primes K))
-    (hS : normProduct K S = n) {q : Primes K} (hq : q ∈ S) :
-    q.val ∈ n.primeFactors.biUnion (above K) := by
-  have : q.val.IsMaximal := q.property.1.isMaximal q.property.2
-  obtain ⟨p, f, hf, hmem, hp, hnorm⟩ := Ideal.exists_prime_and_absNorm_eq_pow q.val
-  have hdiv : p ∣ n := by
-    rw [← hS]
-    apply dvd_trans _ (Finset.dvd_prod_of_mem (fun q : Primes K => q.val.absNorm) hq)
-    rw [hnorm]
-    exact dvd_pow_self p hf.ne'
-  have : Fact p.Prime := ⟨hp⟩
-  have hbot : Ideal.span {(p : ℤ)} ≠ ⊥ := by
-    simpa using (Nat.cast_ne_zero.mpr hp.ne_zero : (p : ℤ) ≠ 0)
-  refine Finset.mem_biUnion.mpr ⟨p, hp.mem_primeFactors hdiv hn.ne', ?_⟩
-  apply (IsDedekindDomain.mem_primesOverFinset_iff hbot (𝓞 K)).mpr
-  refine ⟨q.property.1, (Ideal.liesOver_span_iff q.property.1.ne_top
-    (Nat.prime_iff_prime_int.mp hp)).mpr ?_⟩
+private theorem erh_prime_cover_mem (K : Type) [Field K] [NumberField K]
+    (P : Ideal (𝓞 K)) (hP : P.IsPrime) (hP0 : P ≠ ⊥)
+    (n : ℕ) (hn : n ≠ 0) (hdvd : P.absNorm ∣ n) :
+    P ∈ n.primeFactors.biUnion
+      (fun p => IsDedekindDomain.primesOverFinset (Ideal.span {(p : ℤ)}) (𝓞 K)) := by
+  classical
+  letI : P.IsMaximal := hP.isMaximal hP0
+  obtain ⟨p, f, hf, hmem, hp, hnorm⟩ := P.exists_prime_and_absNorm_eq_pow
+  have hpn : p ∣ n := dvd_trans (dvd_pow_self p (Nat.ne_of_gt hf)) (hnorm ▸ hdvd)
+  refine Finset.mem_biUnion.mpr ⟨p, hp.mem_primeFactors hpn hn, ?_⟩
+  let J : Ideal ℤ := Ideal.span {(p : ℤ)}
+  have hcast : (p : ℤ) ≠ 0 := by exact_mod_cast hp.ne_zero
+  have hJ : J ≠ ⊥ := by simpa [J] using hcast
+  letI maxJ : J.IsMaximal :=
+    ((Ideal.span_singleton_prime hcast).mpr (Nat.prime_iff_prime_int.mp hp)).isMaximal hJ
+  apply (IsDedekindDomain.mem_primesOverFinset_iff hJ (𝓞 K)).mpr
+  refine ⟨hP, ⟨maxJ.eq_of_le (hP.comap (algebraMap ℤ (𝓞 K))).ne_top ?_⟩⟩
+  rw [Ideal.span_singleton_le_iff_mem]
+  change algebraMap ℤ (𝓞 K) (p : ℤ) ∈ P
   simpa using hmem
 
-theorem coefficient_count {n : ℕ} (hn : 0 < n) :
-    ‖signedCoeff K n‖ ≤ ((2 : ℝ)^(Module.finrank ℚ K))^n.primeFactors.card := by
-  let U := n.primeFactors.biUnion (above K)
-  have hu : U.card ≤ n.primeFactors.card * Module.finrank ℚ K :=
-    Finset.card_biUnion_le_card_mul _ _ _ fun p hp => card_above K (Nat.mem_primeFactors.mp hp).1
-  let e : Primes K ↪ Ideal (𝓞 K) := Function.Embedding.subtype _
-  let enc (S : normProduct K ⁻¹' {n}) : U.powerset := ⟨S.val.map e, by
-    apply Finset.mem_powerset.mpr
-    intro I hI
-    obtain ⟨q,hq,rfl⟩ := Finset.mem_map.mp hI
-    exact support_at_norm K hn S.val S.property hq⟩
-  have hi : Function.Injective enc := fun S T h =>
-    Subtype.ext (Finset.map_injective e (congrArg Subtype.val h))
-  let _ : Fintype (normProduct K ⁻¹' {n}) := Fintype.ofInjective enc hi
-  have hc := Fintype.card_le_of_injective enc hi
-  simp only [Fintype.card_coe, Finset.card_powerset] at hc
-  calc
-    ‖signedCoeff K n‖ ≤ ∑ S : normProduct K ⁻¹' {n}, ‖(-1 : ℂ)^S.val.card‖ := by
-      rw [signedCoeff, tsum_fintype]
-      exact norm_sum_le _ _
-    _ = (Fintype.card (normProduct K ⁻¹' {n}) : ℝ) := by simp
-    _ ≤ ((2^U.card : ℕ) : ℝ) := by exact_mod_cast hc
-    _ ≤ _ := by
-      push_cast
-      rw [← pow_mul, Nat.mul_comm (Module.finrank ℚ K)]
-      exact pow_le_pow_right₀ (by norm_num) hu
-
-/-- A fixed factor per distinct prime is absorbed by any positive power of the integer. -/
-theorem prime_factor_power (D : ℝ) (hD : 1 ≤ D) {ε : ℝ} (hε : 0 < ε) :
-    ∃ B : ℝ, ∀ n : ℕ, 0 < n → D^n.primeFactors.card ≤ B*(n : ℝ)^ε := by
-  have ht := (tendsto_rpow_atTop hε).comp (tendsto_natCast_atTop_atTop (R := ℝ))
-  obtain ⟨T, hT⟩ := eventually_atTop.mp (ht.eventually_ge_atTop D)
-  refine ⟨D^T, ?_⟩
+private theorem erh_distinct_factor_bound (c : ℝ) (hc : 1 ≤ c)
+    (ε : ℝ) (he : 0 < ε) :
+    ∃ C : ℝ, ∀ n : ℕ, 0 < n → c ^ n.primeFactors.card ≤ C * (n : ℝ) ^ ε := by
+  classical
+  obtain ⟨B, hB⟩ := exists_nat_gt (c ^ ε⁻¹)
+  refine ⟨c ^ B, ?_⟩
   intro n hn
-  let small := n.primeFactors.filter (· < T)
-  let large := n.primeFactors \ small
-  have hs : small ⊆ n.primeFactors := Finset.filter_subset _ _
-  have hl : large ⊆ n.primeFactors := Finset.sdiff_subset
-  have hsT : small.card ≤ T := by
-    simpa using Finset.card_le_card (show small ⊆ Finset.range T from
-      fun p hp => Finset.mem_range.mpr (Finset.mem_filter.mp hp).2)
-  have hlarge : D^large.card ≤ (n : ℝ)^ε := by
-    calc
-      _ = ∏ _p ∈ large, D := by simp
-      _ ≤ ∏ p ∈ large, (p : ℝ)^ε := by
-        apply Finset.prod_le_prod (fun _ _ => zero_le_one.trans hD)
-        intro p hp
-        obtain ⟨hp', hsmall⟩ := Finset.mem_sdiff.mp hp
-        exact hT p (le_of_not_gt fun h => hsmall (Finset.mem_filter.mpr ⟨hp', h⟩))
-      _ = ((∏ p ∈ large, p : ℕ) : ℝ)^ε := by
-        rw [Real.finsetProd_rpow large (fun p : ℕ => (p : ℝ)) (fun p _ => Nat.cast_nonneg p)]
-        simp
-      _ ≤ _ := by
-        apply Real.rpow_le_rpow (Nat.cast_nonneg _) _ hε.le
-        exact_mod_cast Nat.le_of_dvd hn ((Finset.prod_dvd_prod_of_subset _ _ id hl).trans n.prod_primeFactors_dvd)
-  rw [← Finset.card_sdiff_add_card_eq_card hs, pow_add, mul_comm]
-  exact mul_le_mul (pow_le_pow_right₀ hD hsT) hlarge (pow_nonneg (zero_le_one.trans hD) _)
-    (pow_nonneg (zero_le_one.trans hD) _)
-
-theorem subpolynomial {ε : ℝ} (hε : 0 < ε) :
-    signedCoeff K =O[atTop] fun n : ℕ => (n : ℝ)^ε := by
-  obtain ⟨B, hB⟩ := prime_factor_power ((2 : ℝ)^(Module.finrank ℚ K))
-    (one_le_pow₀ (by norm_num)) hε
-  apply IsBigO.of_bound B
-  filter_upwards [eventually_ge_atTop (1 : ℕ)] with n hn
-  rw [Real.norm_of_nonneg (Real.rpow_nonneg (Nat.cast_nonneg n) ε)]
-  exact (coefficient_count K hn).trans (hB n hn)
-
-end OMA.SquarefreeCoefficientBound
+  let L := n.primeFactors.filter fun p => p < B
+  let H := n.primeFactors.filter fun p => ¬p < B
+  have hL : L.card ≤ B := by
+    have h : L ⊆ Finset.range B := fun p hp => Finset.mem_range.mpr (Finset.mem_filter.mp hp).2
+    simpa using Finset.card_le_card h
+  have hbig (t : Finset ℕ) (ht : ∀ p ∈ t, B ≤ p) :
+      c ^ t.card ≤ ((∏ p ∈ t, p : ℕ) : ℝ) ^ ε := by
+    induction t using Finset.induction_on with
+    | empty => simp
+    | @insert p t hpt ih =>
+      have hpB := ht p (Finset.mem_insert_self ..)
+      have hcp : c ≤ (p : ℝ) ^ ε :=
+        (Real.rpow_inv_le_iff_of_pos (by linarith : 0 ≤ c) (Nat.cast_nonneg p) he).mp
+          (hB.le.trans (by exact_mod_cast hpB))
+      have hi := ih (fun q hq => ht q (Finset.mem_insert_of_mem hq))
+      rw [Finset.card_insert_of_notMem hpt, pow_succ, Finset.prod_insert hpt,
+        Nat.cast_mul, Real.mul_rpow (Nat.cast_nonneg _) (Nat.cast_nonneg _), mul_comm ((p : ℝ)^ε)]
+      exact mul_le_mul hi hcp (by linarith) (by positivity)
+  have hH := hbig H (fun p hp => Nat.le_of_not_gt (Finset.mem_filter.mp hp).2)
+  have hprod : (∏ p ∈ H, p) ∣ n :=
+    (Finset.prod_dvd_prod_of_subset H n.primeFactors id (Finset.filter_subset _ _)).trans
+      n.prod_primeFactors_dvd
+  have hpows : ((∏ p ∈ H, p : ℕ) : ℝ) ^ ε ≤ (n : ℝ)^ε :=
+    Real.rpow_le_rpow (by positivity) (by exact_mod_cast Nat.le_of_dvd hn hprod) he.le
+  have hcards : L.card + H.card = n.primeFactors.card :=
+    Finset.card_filter_add_card_filter_not _
+  rw [← hcards, pow_add]
+  exact mul_le_mul (pow_le_pow_right₀ hc hL) (hH.trans hpows) (by positivity) (by positivity)
 
 theorem OMA.solution : OMA.R_ERH_extended_riemann_hypothesis_R1_H2_R1_H2_R1.H1 := by
+  classical
   intro K _ _ P N a ε hε
-  exact OMA.SquarefreeCoefficientBound.subpolynomial K hε
+  let d := Module.finrank ℤ (𝓞 K)
+  obtain ⟨C, hC⟩ := erh_distinct_factor_bound ((2 : ℝ)^d) (one_le_pow₀ (by norm_num)) ε hε
+  apply IsBigO.of_bound C
+  filter_upwards [eventually_ge_atTop (1 : ℕ)] with n hn
+  let U := n.primeFactors.biUnion
+    (fun p => IsDedekindDomain.primesOverFinset (Ideal.span {(p : ℤ)}) (𝓞 K))
+  have hU : U.card ≤ n.primeFactors.card * d :=
+    Finset.card_biUnion_le_card_mul _ _ _ (fun p hp =>
+      erh_prime_cover_card K p (Nat.prime_of_mem_primeFactors hp))
+  let F := N ⁻¹' ({n} : Set ℕ)
+  let e : P ↪ Ideal (𝓞 K) := ⟨Subtype.val, Subtype.val_injective⟩
+  let enc (S : F) : U.powerset := ⟨S.val.map e, by
+    apply Finset.mem_powerset.mpr
+    intro q hq
+    obtain ⟨p, hp, rfl⟩ := Finset.mem_map.mp hq
+    have hnorm : Ideal.absNorm p.1 ∣ N S.val := Finset.dvd_prod_of_mem _ hp
+    have hSN : N S.val = n := S.property
+    exact erh_prime_cover_mem K p.1 p.2.1 p.2.2 n (by omega) (hSN ▸ hnorm)⟩
+  have hinj : Function.Injective enc := by
+    intro s t h
+    apply Subtype.ext
+    exact (Finset.map_injective e) (congrArg Subtype.val h)
+  letI : Fintype F := Fintype.ofInjective enc hinj
+  have hbound : Fintype.card F ≤ 2 ^ U.card := by
+    simpa using Fintype.card_le_of_injective enc hinj
+  change ‖∑' S : F, (-1 : ℂ)^S.val.card‖ ≤ C * ‖(n : ℝ)^ε‖
+  rw [tsum_fintype, Real.norm_of_nonneg (Real.rpow_nonneg (Nat.cast_nonneg n) ε)]
+  calc
+    _ ≤ ∑ S : F, ‖(-1 : ℂ)^S.val.card‖ := norm_sum_le _ _
+    _ = (Fintype.card F : ℝ) := by simp
+    _ ≤ ((2 : ℝ)^U.card) := by exact_mod_cast hbound
+    _ ≤ (2 : ℝ)^(n.primeFactors.card*d) := pow_le_pow_right₀ (by norm_num) hU
+    _ = ((2 : ℝ)^d)^n.primeFactors.card := by rw [← pow_mul, Nat.mul_comm]
+    _ ≤ _ := hC n hn

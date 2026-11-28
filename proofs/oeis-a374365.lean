@@ -1,15 +1,12 @@
 import OMAStatements.S_oeis_a374365
 
--- Problem: A374365: Numbers m such that abs(Sum_{k=1..m} [k|m]*A008683(k)*(-1)^(2*k/5)) = 0.
--- Upstream: formal-conjectures statements/oeis-a374365.lean:0 (declaration OMA.S_oeis_a374365.main)
--- Credit: @agchua (the owner of the agent is credited as the solver)
--- Prove EXACTLY this target. No sorry, no axiom, no native_decide.
--- Proof idea: S m = sum over d | m of mu(d) z^d with z = exp(2 pi i/5). If a prime p = 1 mod 5
--- divides m, the involution d <-> d p on the divisors cancels the sum. Otherwise write
--- S m = sum_r c_r z^r over the classes r mod 5; S m = 0 forces all c_r to be equal (the minimal
--- polynomial of z is 1 + x + x^2 + x^3 + x^4), so the sum of mu(d) d over d | m, computed in
--- ZMod 5, is c (0 + 1 + 2 + 3 + 4) = 0; but that sum is the product of 1 - p over the primes
--- p | m, and no factor is 0 in ZMod 5.
+/-!
+# Vanishing Möbius sums at a fifth root of unity
+
+Original proof by @agchua (PR #19316). The Möbius involution and reduction
+modulo five are retained. The coefficient relation now uses Mathlib's
+prime-order root-of-unity theorem directly.
+-/
 
 namespace A374365aux
 
@@ -59,35 +56,9 @@ theorem S_eq (m : ℕ) (hm : 1 ≤ m) :
 theorem li (z : ℂ) (hz : IsPrimitiveRoot z 5) (a b c d e : ℤ)
     (h : (a : ℂ) + b * z + c * z ^ 2 + d * z ^ 3 + e * z ^ 4 = 0) :
     a = e ∧ b = e ∧ c = e ∧ d = e := by
-  have hg : 1 + z + z ^ 2 + z ^ 3 + z ^ 4 = 0 := by
-    have h5 := hz.geom_sum_eq_zero (by norm_num : 1 < 5)
-    simp only [Finset.sum_range_succ, Finset.sum_range_zero, zero_add, pow_zero,
-      pow_one] at h5
-    linear_combination h5
-  obtain ⟨q, hq⟩ : ∃ q : Polynomial ℤ, q = Polynomial.C (d - e) * Polynomial.X ^ 3 +
-      Polynomial.C (c - e) * Polynomial.X ^ 2 + Polynomial.C (b - e) * Polynomial.X +
-      Polynomial.C (a - e) := ⟨_, rfl⟩
-  have hq0 : Polynomial.aeval z q = 0 := by
-    rw [hq]
-    simp only [map_add, map_mul, Polynomial.aeval_C, Polynomial.aeval_X_pow, Polynomial.aeval_X,
-      algebraMap_int_eq, Int.coe_castRingHom, Int.cast_sub]
-    linear_combination h - (e : ℂ) * hg
-  have hdvd : minpoly ℤ z ∣ q :=
-    minpoly.isIntegrallyClosed_dvd (hz.isIntegral (by norm_num)) hq0
-  rw [← Polynomial.cyclotomic_eq_minpoly hz (by norm_num)] at hdvd
-  have hdeg : q.natDegree < (Polynomial.cyclotomic 5 ℤ).natDegree := by
-    rw [Polynomial.natDegree_cyclotomic, Nat.totient_prime (by norm_num : Nat.Prime 5), hq]
-    exact lt_of_le_of_lt Polynomial.natDegree_cubic_le (by norm_num)
-  have hz0 : q = 0 := Polynomial.eq_zero_of_dvd_of_natDegree_lt hdvd hdeg
-  rw [hq] at hz0
-  have c0 := congrArg (fun p => Polynomial.coeff p 0) hz0
-  have c1 := congrArg (fun p => Polynomial.coeff p 1) hz0
-  have c2 := congrArg (fun p => Polynomial.coeff p 2) hz0
-  have c3 := congrArg (fun p => Polynomial.coeff p 3) hz0
-  simp only [Polynomial.coeff_add, Polynomial.coeff_C_mul, Polynomial.coeff_X_pow,
-    Polynomial.coeff_X, Polynomial.coeff_C, Polynomial.coeff_zero] at c0 c1 c2 c3
-  norm_num at c0 c1 c2 c3
-  refine ⟨by omega, by omega, by omega, by omega⟩
+  have hc := (IsPrimitiveRoot.sum_eq_zero_iff_forall_eq_int (by decide) hz ![a,b,c,d,e]).mp
+    (by simpa [Fin.sum_univ_succ, add_assoc] using h)
+  exact ⟨hc 0 4, hc 1 4, hc 2 4, hc 3 4⟩
 
 theorem regroup {R : Type*} [CommRing R] (s : Finset ℕ) (G : ℕ → R) :
     ∑ d ∈ s, ((ArithmeticFunction.moebius d : ℤ) : R) * G (d % 5) =

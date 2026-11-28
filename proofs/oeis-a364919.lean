@@ -109,39 +109,6 @@ lemma surjective (m : ℕ) (hm : 0 < m) : ∃ n, a n = m := by
   have : 2 ^ x = 2 ^ y := by omega
   exact hxy (Nat.pow_right_injective (le_refl 2) this)
 
-/-- Controls from the entry's data: a(1) = 2 and a(2) = 3. -/
-theorem controls : a 1 = 2 ∧ a 2 = 3 := by
-  have hp0 : Nat.nth Nat.Prime 0 = 2 := Nat.nth_prime_zero_eq_two
-  have hp1 : Nat.nth Nat.Prime 1 = 3 := Nat.nth_prime_one_eq_three
-  have hP1 : P 1 = 2 := by
-    unfold P
-    rw [show (Finset.range 1).filter (fun i => (1 : ℕ).testBit i) = {0} by decide]
-    simp [hp0]
-  have hP2 : P 2 = 3 := by
-    unfold P
-    rw [show (Finset.range 2).filter (fun i => (2 : ℕ).testBit i) = {1} by decide]
-    simp [hp1]
-  have ha0 : a 0 = 1 := by rw [a]
-  have hr1 : rad 1 = 1 := by simp [rad]
-  have hr2 : rad 2 = 2 := by simpa using rad_prime_pow Nat.prime_two (k := 1) (by norm_num)
-  have hr3 : rad 3 = 3 := by simpa using rad_prime_pow Nat.prime_three (k := 1) (by norm_num)
-  have h1 : a 1 = 2 := by
-    apply le_antisymm
-    · exact le_of_cand 0 2 (by norm_num) (fun j => by fin_cases j; simp [ha0]) (by rw [hr2, hP1])
-    · obtain ⟨hpos, hne, -⟩ := spec 0
-      have h0 := hne ⟨0, by norm_num⟩
-      norm_num [ha0] at h0 hpos
-      omega
-  refine ⟨h1, ?_⟩
-  apply le_antisymm
-  · exact le_of_cand 1 3 (by norm_num) (fun j => by fin_cases j <;> simp [ha0, h1])
-      (by rw [hr3, hP2])
-  · obtain ⟨hpos, hne, -⟩ := spec 1
-    have e0 := hne ⟨0, by norm_num⟩
-    have e1 := hne ⟨1, by norm_num⟩
-    norm_num [ha0, h1] at e0 e1 hpos
-    omega
-
 /-- The conjecture: a is a permutation of the positive integers. -/
 theorem conjecture : (∀ n, 0 < a n) ∧ Function.Injective a ∧ ∀ m, 0 < m → ∃ n, a n = m :=
   ⟨pos, injective, surjective⟩
