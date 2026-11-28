@@ -17964,6 +17964,286 @@
     "https://oeis.org/A178352"
    ],
    "note": "Mathar's closed form 2*8^n-9*6^n/2+12^n+18^n/2+10^n for collinear 3-subsets of {0..5}^n (real collinearity), doubled to clear denominators, is stated faithfully. It gives 0,20,372,5696,... matching the data, and I brute-forced n=1,2. Same routine line-classification count as the site's sibling solves A178351/A178353 for the 7-grid, which do not imply this one. No earlier proof found. Second review: Faithful, with no prior proof found. This is the earliest solve in Hardin's collinear-tuple family on this site."
+  },
+  "mo-248883": {
+   "date": "2026-11-28",
+   "pr": 17312,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/248883",
+    "https://mathoverflow.net/questions/248883"
+   ],
+   "note": "The question asks: in S_n (7<=n<=10), if H1 = S_k and H2 = S_{n-k} commute elementwise, must they be point stabilizers? The disproof gives n=7, k=2: H1 = <(0 1)> and H2 = {sigma * (0 1)^{sign sigma} : sigma in S_5 on letters 2..6}, a twisted copy of S_5 that commutes with H1 but is not a pointwise stabilizer. Schlage-Puchta's answer only shows H1 is a stabilizer when a prime lies in (n/2, n-k], and the comments' counterexamples are for n=6 (outside the range). The negative answer is new to the thread but the construction is a routine sign twist. Second review: Disproof by the sign-twisted embedding of S_5 into S_2 x S_5 inside S_7. It answers the question as asked (no), using a standard trick that the thread missed; elementary, finite."
+  },
+  "oeis-a026970": {
+   "date": "2026-11-28",
+   "pr": 29549,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A026970",
+    "https://oeis.org/A026644",
+    "https://oeis.org/A026637",
+    "https://oeis.org/A026970",
+    "https://oeis.org/A026637"
+   ],
+   "note": "Barker's closed form, recurrence and g.f.; by symmetry a(n)=(n+2)S(n)/2 with S the row sums A026644, whose closed form (2^(n+2)-4)/3 or (2^(n+2)-2)/3 is already printed in A026644 (Hess) and the row-sum identity in A026637 (Greubel). Definition of A026637 matches and data agree; closed form checked to n=29. Routine consequence of sister-entry formulas, no named prior proof found. Second review: Barker's formulas for a Kimberling path-count transform; true, routine generating-function identity."
+  },
+  "oeis-a223234": {
+   "date": "2026-11-28",
+   "pr": 16355,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223234",
+    "https://oeis.org/A223233",
+    "https://oeis.org/A223234",
+    "https://oeis.org/A223233"
+   ],
+   "note": "Row 2 of Hardin's A223233; the Lean model (2 X n arrays, horizontal/diagonal/antidiagonal moves along icosahedral edges, vertical unconstrained, neighbour lists from the entry) reproduces the data, and a column transfer matrix confirms recurrence, g.f. and closed form to n=9. Standard transfer-matrix argument; no prior proof found in the parent entry, iis crawl or the listed collections. Second review: Row 2 of a Hardin table; a 2-state-column transfer matrix gives the rational g.f. Routine."
+  },
+  "oeis-a372239": {
+   "date": "2026-11-28",
+   "pr": 15239,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A372239",
+    "https://oeis.org/A372239"
+   ],
+   "note": "Tebni's two congruences a(p)==6 (p=1 mod 4) and a(p)==-2 (p=3 mod 4) are proved via C(2k,k)==(-4)^k C(m,k) mod p, Lucas and Fermat; the series formalization matches the entry's formula and data, and both congruences check for all primes below 400. Elementary; no prior proof found. Second review: Standard Lucas-type congruence sum_{k<p} C(2k,k)x^k = (1-4x)^{(p-1)/2} mod p at x=1/2; routine."
+  },
+  "oeis-a235882": {
+   "date": "2026-11-28",
+   "pr": 29537,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235882",
+    "https://oeis.org/A235884",
+    "https://oeis.org/A235882",
+    "https://oeis.org/A235884"
+   ],
+   "note": "Column 6 of Hardin's A235884; Lean array/median condition reproduces the data (independent row transfer matrix over 3^7 states gives a(1..8) equal to Barker's closed form). Barker's g.f. and closed form follow from an exact transfer-matrix computation. No prior proof found in the parent entry, iis crawl or other collections. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
+  },
+  "oeis-a290073": {
+   "date": "2026-11-28",
+   "pr": 27581,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290073",
+    "https://oeis.org/A283506",
+    "https://oeis.org/A290073",
+    "https://oeis.org/A283506"
+   ],
+   "note": "Rule 641 diagonal (corner to origin, base 2); Lean CA model follows %N and data (the entry's %t line is wrong, noted in the statement). Closed forms, equality with A283506, g.f. and recurrence check by simulation to n=22. Cohen's Rule 641 result covers only the ON count at stage 2^n-1 and the site's A283506 solve (09:12Z) covers only the x-axis, so the diagonal claim was first proved here (11:14Z); companions A290072/A290074 were solved later. Second review: True, faithful, first site solve on this diagonal. Routine CA shape argument."
+  },
+  "oeis-a246481": {
+   "date": "2026-11-28",
+   "pr": 29498,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A246481",
+    "https://oeis.org/A246479",
+    "https://oeis.org/A246481",
+    "https://oeis.org/A246479"
+   ],
+   "note": "Row 2 of Hardin's A246479 (length-5 arrays, no pair within any 4 consecutive terms summing to n); Lean window condition is faithful and the parity closed forms match brute force for n=1..11 (the g.f. is equivalent). Polynomial-count argument, no prior proof found. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
+  },
+  "oeis-a228261": {
+   "date": "2026-11-28",
+   "pr": 29495,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228261",
+    "https://oeis.org/A228260",
+    "https://oeis.org/A228261",
+    "https://oeis.org/A228260"
+   ],
+   "note": "Row 2 of Hardin's A228260: number of distinct third-difference vectors of length-5 arrays over 0..n; Lean uses the image cardinality, matching the definition, and brute force gives 35n^2+n+1 for n=2..11 with a(1)=31, consistent with Barker's g.f. and recurrence. Routine. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
+  },
+  "oeis-a188153": {
+   "date": "2026-11-28",
+   "pr": 29471,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A188153",
+    "https://oeis.org/A188147",
+    "https://oeis.org/A188153",
+    "https://oeis.org/A188147"
+   ],
+   "note": "Row 8 of A188147; Hardin's 'n-step' means walks through n cells (T(1,k)=k^2), which the Lean statement follows (8 cells), and DFS enumeration reproduces the data and the g.f. to n=13. Fixed-length self-avoiding-walk counts are quadratic for large n by a boundary argument; routine. Not in the iis transfer-matrix papers. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
+  },
+  "oeis-a188149": {
+   "date": "2026-11-28",
+   "pr": 29405,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A188149",
+    "https://oeis.org/A188147",
+    "https://oeis.org/A188149",
+    "https://oeis.org/A188147"
+   ],
+   "note": "Row 4 of A188147 (walks through 4 cells); Lean definition matches the data and DFS enumeration confirms Barker's g.f. 8x^2(1+7x+2x^2-x^3)/(1-x)^3 to n=11. Routine; no prior proof found. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
+  },
+  "oeis-a004395": {
+   "date": "2026-11-28",
+   "pr": 29476,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A004395",
+    "https://oeis.org/A004395",
+    "https://oeis.org/A004396"
+   ],
+   "note": "Lean definition a(n+1)=a(n)*floor((2n+3)/3) reproduces the ratio pattern and data; Mathar's order-4 recurrence with cubic coefficients checks to n=59 and is proved by eliminating the mod-3 ratio structure. Routine; no prior proof found. Second review: Mathar's D-finite recurrence from a hypergeometric-type product; the proof splits n mod 3 and checks polynomial identities. Routine."
+  },
+  "oeis-a059158": {
+   "date": "2026-11-28",
+   "pr": 29435,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A059158",
+    "https://oeis.org/A059157",
+    "https://oeis.org/A059126/a059126.txt",
+    "https://oeis.org/A059158",
+    "https://oeis.org/A059126"
+   ],
+   "note": "Lean model of S(W'3{2,2}cc) (Wallgren's definitions) reproduces the data; the k-th collapsed term is 24*16^v2(k), as already recorded in A059157 (Mitch Harris), so Stephan's closed form 24/7(8*16^n-2^n), Barker's recurrence and g.f. follow by a geometric sum (checked to n=9). Routine, close to immediate from the sister entry's formula. Second review: Closed form, recurrence and g.f. follow from counting 2-adic valuations; routine. Fidelity to Ashley's hierarchical construction is confirmed through the data rather than by reading A059126-A059157 in full."
+  },
+  "oeis-a202210": {
+   "date": "2026-11-28",
+   "pr": 29418,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A202210",
+    "https://oeis.org/A202210"
+   ],
+   "note": "Bala's congruence 5 | a(5n+4) for the cube root of Sum 3^n(2n+1)x^{T_n} is proved via A = S^2/A^5 and A^5 == A(x^5) mod 5: the coefficients of S^2 at exponents == 4 mod 5 come only from T_n == 3 mod 5 (n == 2 mod 5), where 2n+1 == 0 mod 5. Statement faithful (unique cube root with A(0)=1); verified to n=239. No prior proof found. Second review: A short Frobenius argument in characteristic 5 settles Bala's congruence; true and faithful. Routine."
+  },
+  "oeis-a270361": {
+   "date": "2026-11-28",
+   "pr": 22948,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A270361",
+    "https://oeis.org/A270361"
+   ],
+   "note": "If pq-1=a^2 with odd primes q<p then a is even and a<p, and a, p-a are the only square roots of -1 below p; exactly one is even, so q is unique. Faithful formalization of the only conjecture in the entry (Subsingleton). Elementary; no prior proof found. Second review: True by an elementary argument on square roots of -1 modulo p (oddness of q is used only through parity). Faithful, very low novelty."
+  },
+  "oeis-a235889": {
+   "date": "2026-11-28",
+   "pr": 29427,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235889",
+    "https://oeis.org/A235893",
+    "https://oeis.org/A235889",
+    "https://oeis.org/A235893"
+   ],
+   "note": "Column 4 of Hardin's A235893 (0..3 entries, 5 columns); Lean median condition reproduces the data, and an independent transfer matrix gives a(1..6) equal to Barker's closed form 4(210+45*2^n+4^n). Exact transfer-matrix proof; no prior proof found in the parent or the iis papers. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
+  },
+  "oeis-a235881": {
+   "date": "2026-11-28",
+   "pr": 29398,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235881",
+    "https://oeis.org/A235884",
+    "https://oeis.org/A235881",
+    "https://oeis.org/A235884"
+   ],
+   "note": "Column 5 of Hardin's A235884; Lean definition reproduces the data and an independent transfer matrix confirms Barker's closed form 3(180+31*2^(1+n)+3^n) for n=1..6. Routine transfer-matrix result; no prior proof found. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
+  },
+  "mo-257393": {
+   "date": "2026-11-28",
+   "pr": 29528,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/257393",
+    "https://mathoverflow.net/questions/257393"
+   ],
+   "note": "Irreducibility of p and q_0 over the fraction field K of C[x_1..x_l]/(q_1..q_{l-1}); the indexing (l=m+1, z_0..z_l, x_1..x_k in p) matches the question, and the primality of I is assumed exactly as the asker allows. That assumption is not vacuous: the ideal defines an irreducible Kummer-type curve, since the roots -(z_l-z_i)/z_i are distinct and nonzero. Unanswered on MO (no answers or comments); no prior proof found. Second review: Faithful formalization of the OP's question; the proof uses local power-series parametrisations and Eisenstein at two points. Genuine algebra, not routine; credit belongs to the original prover named in the file."
+  },
+  "mo-397080": {
+   "date": "2026-11-28",
+   "pr": 29463,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/397080",
+    "https://doi.org/10.2307/1971057",
+    "https://mathoverflow.net/questions/397080",
+    "https://doi.org/10.2307/1971057"
+   ],
+   "note": "No dimension-free constant C exists, even in the asker's limsup form; the counterexample uses diagonal positive contractions and a unitary reflection. Ramps, normalized trace norm and quantifiers match the question. The comments cite Connes (Annals 1976, Remark 1.2.7) only for the variant with an arbitrary positive B instead of U*AU, so the unitary-conjugate case settled here was not covered. Second review: Negative answer: no k-independent constant exists, even for the limsup. A multiscale Householder construction, numerically confirmed; new as far as I can tell."
+  },
+  "mo-420936": {
+   "date": "2026-11-28",
+   "pr": 29455,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/420936",
+    "https://mathoverflow.net/questions/420936"
+   ],
+   "note": "Answers the soft question: no uniform c gives B >= c*t_2^{q1}*t_1^{q2} (counterexample with diagonal invertible matrices), together with a sharp power-mean lower bound in t_2 alone, using sigma_1 >= sqrt(sigma_1 sigma_2). The statement handles the question's 3-versus-4 index slip by covering every family size >= 2. Elementary; unanswered on MO. Second review: Answers a loosely posed question: no constant multiple of t2*t1 bounds B from below, with an alternative power-mean bound. Elementary; low novelty."
+  },
+  "mo-472881": {
+   "date": "2026-11-28",
+   "pr": 29430,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/472881",
+    "https://mathoverflow.net/questions/472881"
+   ],
+   "note": "Parts (a),(b) are Lagrange interpolation (as Vit Tucek's comment notes); for (c) the statement adopts a strong reading (every coefficient polynomial in v on the admissible locus, no uniform degree bound) and proves it impossible. In essence, letting v->0, a point fixed by all of Gamma, forces p(0)=1 and p(0)=0. A commenter says (c) is under-specified, so this settles one reasonable reading. Elementary. Second review: Answers yes to (a),(b) and no to (c) by a scaling argument. Faithful to the clarified question, short proof."
+  },
+  "mo-332685": {
+   "date": "2026-11-28",
+   "pr": 29419,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/332685",
+    "https://mathoverflow.net/questions/332685"
+   ],
+   "note": "Shows Spielman's bound is sharp at alpha+beta+delta+epsilon=1 with E=Y+X-1, P=XY on the grids {0,1}x{0,1}: all eight local divisibilities hold (P vanishes on two of the lines) but E does not divide P. The degree bookkeeping (degX P/m + degY P/n = 1) matches the question's parameters. A trivial but valid counterexample; unanswered on MO. Second review: A four-point counterexample shows the strict inequality in Spielman's lemma cannot be relaxed to equality. Correct and faithful; very elementary, and such tightness examples may be folklore in the coding-theory literature (not found)."
+  },
+  "mo-507197": {
+   "date": "2026-11-28",
+   "pr": 29410,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/507197",
+    "https://mathoverflow.net/questions/507197"
+   ],
+   "note": "Answers the question negatively in general: a +-1 circulant on Z/(q^2) of rank q whose Hadamard square is the all-ones matrix (rank 1), with r=sqrt(n) meeting the stated growth condition. Adds the trivial upper bound rank(A) <= r^2 and a sparsity sufficient condition (n <= w rank A). Elementary; unanswered on MO. Second review: Answers 'no' to an Omega(r) lower bound in general and gives an easy sufficient condition and the r^2 upper bound. Correct; elementary, and the open-ended 'under what conditions' part is answered only partially."
+  },
+  "oeis-a211439": {
+   "date": "2026-11-28",
+   "pr": 29382,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211439",
+    "https://oeis.org/A211439",
+    "https://oeis.org/A211422"
+   ],
+   "note": "Barker's g.f. (cross-multiplied over Z[[x]]) and order-7 recurrence for n>6 are stated faithfully for the count of (w,x,y) in [-n,n]^3 with w+3x+3y=0. Proof is the elementary closed form a(n)=(2m+1)(2n+1)-m(m+1), m=floor(n/3). No earlier proof found (OEIS, Lean libraries, Blanco Gomez, isitsolved map, GitHub code search shows only data/program repos). Routine. Second review: Lattice-point count giving a quasi-polynomial of period 3; routine."
+  },
+  "oeis-a188150": {
+   "date": "2026-11-28",
+   "pr": 29392,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A188150",
+    "https://oeis.org/A188150",
+    "https://oeis.org/A188147"
+   ],
+   "note": "Barker's g.f. and recurrence (n>6) for 5-cell (4-move) self-avoiding walks on the n X n grid; I checked by brute force that the 5-cell reading reproduces the data 0,0,104,432,972,1712 (the 6-cell reading does not). Equivalent to Hardin's quadratic 100n^2-360n+272 for n>3; proof counts walks by step shape and bounding-box shifts. No earlier proof found; routine. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
+  },
+  "oeis-a188865": {
+   "date": "2026-11-28",
+   "pr": 29378,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A188865",
+    "https://oeis.org/A188865",
+    "https://oeis.org/A188866"
+   ],
+   "note": "Only Barker's recurrence a(n)=2a(n-1)-a(n-2) for n>7 is formalized (not the g.f.), as a faithful single clause. My transfer-matrix count with the statement's rule (a 0 forces 0 in the three cells below it) reproduces the data 256,1393,3194,... The proof is a light-cone argument showing linear growth. No earlier proof found; routine. Second review: Barker/Hardin empirical formula for a fixed row or column of a Hardin table; true and faithfully encoded. Routine transfer-matrix or polynomial-count identity."
   }
  },
  "flagged": {
@@ -21699,6 +21979,21 @@
     "https://oeis.org/A160324"
    ],
    "reason": "Second review: The bundled 'It seems' remark (ii) is an author remark presented as a conjecture, and the entry's b-file already contradicts it, so refuting main is vacuous as stated. The real content, that Sun's limit conjecture (iii) fails because representation counts are unbounded relative to sqrt(n), is genuine and worth keeping. But the formalization should isolate (iii), and Sun's main conjecture (every count occurs) stays open."
+  },
+  "oeis-a282411": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A282411",
+    "https://oeis.org/A279118"
+   ],
+   "reason": "Second review: An index-slip disproof; Barker's and Mathar's substantive claims are true. Same pattern as A269782."
+  },
+  "oeis-a269782": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A269782"
+   ],
+   "reason": "Second review: An index-slip disproof: Barker's recurrence should read n>10, and every substantive claim (closed forms, g.f.) is true. Announcing this as a disproof would mislead; the honest result is a proof of the corrected statement, which is not what was proved."
   }
  },
  "known": {
@@ -39357,6 +39652,37 @@
     "https://doi.org/10.1016/j.disc.2007.11.040"
    ],
    "reason": "Second review: Pfoertner's 2007 conjecture is essentially a corollary of the Reay-Zamfirescu (2000) / Gordon-Orlovich-Werner (2008) Hamiltonicity theorems for linearly convex or locally connected triangular grid graphs. The only extra step is that maximal disk lattice sets are 2-connected or locally connected, which the site proof itself establishes. The Lean formalization is new, but the mathematics should not be announced as a newly solved open problem."
+  },
+  "oeis-a191898": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A191898"
+   ],
+   "reason": "Second review: The entry already records the closed form T(n,k)=A023900(gcd(n,k)), from which 'no zero entries' follows at once; the %C conjecture is stale. The site's real contribution is a formal proof of Granvik's (unproved) gcd formula, not a resolution of an open question."
+  },
+  "oeis-a269909": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A269909",
+    "https://oeis.org/A269906"
+   ],
+   "reason": "Second review: Differences of the site's own A269906 result; nothing new beyond A269906. Should be credited as a corollary, not a separate solve."
+  },
+  "oeis-a269908": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A269908",
+    "https://oeis.org/A269906"
+   ],
+   "reason": "Second review: Partial sums of the site's own A269906 result; a corollary, not a separate open problem."
+  },
+  "mo-232822": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://mathoverflow.net/questions/232822",
+    "https://arxiv.org/abs/1608.04001"
+   ],
+   "reason": "Second review: The site's absolutely continuous counterexample is correct and cleaner than the literature's. But the 2016 paper from the question's own research line already says the general inequality fails, by a sketched example that is not absolutely continuous. Prior settlement in substance; at most a rigorous version of a known negative answer."
   }
  },
  "reviewed": "2026-11-28"
