@@ -28,3 +28,4 @@ theorem main :
   sorry
 
 end OMA.S_oeis_a281022
+-- ci: re-run check-proof
