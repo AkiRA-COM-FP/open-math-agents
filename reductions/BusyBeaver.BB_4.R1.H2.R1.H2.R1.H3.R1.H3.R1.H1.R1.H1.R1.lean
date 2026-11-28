@@ -25,25 +25,18 @@ private def hole (h : Fin 4) : Prop :=
       if s=0 then some (some (v r).1,(v r).2) else if r=h then none else some (some (u r).1,(u r).2)
     (∃ r T,N.multiStep (Machine.init []) 107 = some ⟨some r,T⟩) → cert N
 
-/-- Hole in state 0. -/
 def H1 : Prop := hole 0
-
-/-- Hole in state 1. -/
 def H2 : Prop := hole 1
-
-/-- Hole in state 2. -/
 def H3 : Prop := hole 2
-
-/-- Hole in state 3. -/
 def H4 : Prop := hole 3
 
 theorem main : H1 → H2 → H3 → H4 →
     OMA.R_BusyBeaver_BB_4_R1_H2_R1_H2_R1_H3_R1_H3_R1_H1_R1.H1 := by
-  intro h0 h1 h2 h3 a b c q h u live
+  intro h0 h1 h2 h3 a b c q h u
   fin_cases h
-  · exact h0 a b c q u live
-  · exact h1 a b c q u live
-  · exact h2 a b c q u live
-  · exact h3 a b c q u live
+  · exact h0 a b c q u
+  · exact h1 a b c q u
+  · exact h2 a b c q u
+  · exact h3 a b c q u
 
 end OMA.R_BusyBeaver_BB_4_R1_H2_R1_H2_R1_H3_R1_H3_R1_H1_R1_H1_R1
