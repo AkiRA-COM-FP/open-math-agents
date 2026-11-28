@@ -25,7 +25,7 @@ theorem OMA.solution : type_of% @WrittenOnTheWallII.GraphConjecture33.conjecture
     induction v using WellFounded.induction (measure Fin.val).wf with
     | h v ih =>
       by_cases hz : v = 0
-      · subst v; exact .rfl _
+      · subst v; exact .rfl
       · have l := (by decide : ∀ v : Fin 20, v ≠ 0 → par v < v) v hz
         exact (ih (par v) l).trans (show G.Adj (par v) v from .inl ⟨l, rfl⟩).reachable
   have hwb {v w} (p : G.Walk v w) : lvl w ≤ lvl v + p.length := by
