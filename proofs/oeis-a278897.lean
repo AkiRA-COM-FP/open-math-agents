@@ -57,7 +57,7 @@ private theorem poisson_step (n k : ℕ) :
   unfold poissonTerm
   rw [Nat.factorial_succ, Nat.cast_mul, Nat.cast_succ, pow_succ,
     show ((k : ℝ)+1)^n*((k : ℝ)+1)/(((k : ℝ)+1)*(k.factorial : ℝ)) =
-      ((k : ℝ)+1)^n/(k.factorial : ℝ) by field_simp; ring,
+      ((k : ℝ)+1)^n/(k.factorial : ℝ) by field_simp <;> ring,
     hb, sum_div]
   apply sum_congr rfl
   intro i _
@@ -68,7 +68,11 @@ private theorem summable_poisson (n : ℕ) : Summable (poissonTerm n) := by
   | h n ih =>
     cases n with
     | zero =>
-      simpa only [poissonTerm, pow_zero, one_pow] using Real.summable_pow_div_factorial 1
+      have h : poissonTerm 0 = fun k => (1 : ℝ)/(k.factorial : ℝ) := by
+        funext k
+        simp only [poissonTerm,pow_zero]
+      rw [h]
+      simpa only [one_pow] using Real.summable_pow_div_factorial 1
     | succ n =>
       apply (summable_nat_add_iff 1).mp
       simp only [poisson_step]
@@ -287,6 +291,7 @@ private theorem bell_det_pos (n : ℕ) : 0 < (hankel n).det := by
   have he (i j : Fin n) : M i j = (Nat.bell ((i.val+j.val)^2) : ℝ) := by
     simp [M, hankel]
   have hp : M.PosDef := by
+    try rw [Matrix.posDef_iff_dotProduct_mulVec]
     constructor
     · apply Matrix.IsHermitian.ext
       intro i j
