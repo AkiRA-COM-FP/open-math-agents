@@ -22,11 +22,12 @@ Proved below, with no hypothesis:
   `log k! / log (k + 1) < k`.
 * `bound`: deficiency at least `2` gives `(n + 1 - k)^2 ≤ k!`. So each `k` occurs with only finitely
   many `n` (at most `k + √(k!)`, and at most `k + (k!)^(1/d)` for deficiency `d`).
-* `five_le`, `six_le`, `seven_le`: no exceptional `C(n, k)` of deficiency at least `2`, `3`, `4`
-  has `k ≤ 4`, `k ≤ 5`, `k ≤ 6` respectively.
+* `five_le`: no exceptional `C(n, k)` of deficiency at least `2` has `k ≤ 4`.
 * `eight_le`: with the tables `table5`, `table6`, `table7` (for `k = 5, 6, 7` every `n` left by
   `bound` gives a `C(n, k)` with a prime factor at most `k`), no exceptional `C(n, k)` of
   deficiency at least `2` has `k ≤ 7`. This is sharp: `C(44, 8)` is exceptional of deficiency `2`.
+* `ten_le`: with `table8`, `table9` and the cube bound `(n + 1 - k) ^ 3 ≤ k!`, no exceptional
+  `C(n, k)` of deficiency at least `3` has `k ≤ 9`. Also sharp: `C(46, 10)` has deficiency `3`.
 
 So the finiteness of the pairs is the finiteness of the set of `k` that occur. The two
 hypotheses split that set by the deficiency; each is a special case of the target.
@@ -184,29 +185,54 @@ lemma eight_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 1 < deficiency n k)
     · exact small 5 Nat.prime_five (by norm_num) h'
     · exact small 7 (by norm_num) (by norm_num) h'
 
-/-- No exceptional `C(n, k)` of deficiency at least `3` has `k ≤ 5`. -/
-lemma six_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 2 < deficiency n k)
-    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) : 6 ≤ k := by
-  by_contra h
-  have h5 : k ≤ 5 := by omega
-  have h3 : (k + 1) ^ 3 ≤ k ! :=
-    (Nat.pow_le_pow_right (by omega) hd).trans (succ_pow_deficiency_le hk hC)
-  rcases Nat.eq_zero_or_pos k with h0 | h0
-  · subst h0
-    simp [deficiency] at hd
-  · interval_cases k <;> simp [Nat.factorial] at h3
+/-- `t ^ 3 ≤ c < (m + 1) ^ 3` forces `t ≤ m`. -/
+lemma le_of_cube_le {t m c : ℕ} (h : t ^ 3 ≤ c) (hc : c < (m + 1) ^ 3) : t ≤ m := by
+  by_contra hlt
+  have h1 : m + 1 ≤ t := by omega
+  exact absurd (hc.trans_le ((Nat.pow_le_pow_left h1 3).trans h)) (lt_irrefl c)
 
-/-- No exceptional `C(n, k)` of deficiency at least `4` has `k ≤ 6`. -/
-lemma seven_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 3 < deficiency n k)
-    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) : 7 ≤ k := by
+/-- Table for `k = 8`: for `16 ≤ n ≤ 41`, `C(n, 8)` has a prime factor at most `7`. -/
+lemma table8 : ∀ n, n ≤ 41 → 16 ≤ n →
+    (n.descFactorial 8 / 8 !) % 2 = 0 ∨ (n.descFactorial 8 / 8 !) % 3 = 0 ∨
+      (n.descFactorial 8 / 8 !) % 5 = 0 ∨ (n.descFactorial 8 / 8 !) % 7 = 0 := by
+  decide
+
+/-- Table for `k = 9`: for `18 ≤ n ≤ 79`, `C(n, 9)` has a prime factor at most `7`. -/
+lemma table9 : ∀ n, n ≤ 79 → 18 ≤ n →
+    (n.descFactorial 9 / 9 !) % 2 = 0 ∨ (n.descFactorial 9 / 9 !) % 3 = 0 ∨
+      (n.descFactorial 9 / 9 !) % 5 = 0 ∨ (n.descFactorial 9 / 9 !) % 7 = 0 := by
+  decide
+
+/-- No exceptional `C(n, k)` of deficiency at least `3` has `k ≤ 9`. This is sharp: `C(46, 10)`
+is exceptional of deficiency `3` (a computation, not used here). -/
+lemma ten_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 2 < deficiency n k)
+    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) : 10 ≤ k := by
+  have h8 := eight_le hk (by omega) hC
+  have h3 : (n + 1 - k) ^ 3 ≤ k ! :=
+    (Nat.pow_le_pow_right (by omega) hd).trans (pow_deficiency_le hk hC)
   by_contra h
-  have h6 : k ≤ 6 := by omega
-  have h4 : (k + 1) ^ 4 ≤ k ! :=
-    (Nat.pow_le_pow_right (by omega) hd).trans (succ_pow_deficiency_le hk hC)
-  rcases Nat.eq_zero_or_pos k with h0 | h0
-  · subst h0
-    simp [deficiency] at hd
-  · interval_cases k <;> simp [Nat.factorial] at h4
+  have hk9 : k ≤ 9 := by omega
+  have hch : choose n k = n.descFactorial k / k ! := Nat.choose_eq_descFactorial_div_factorial n k
+  have small : ∀ p, p.Prime → p ≤ k → (n.descFactorial k / k !) % p = 0 → False := by
+    intro p hp hpk hmod
+    have hdvd : p ∣ choose n k := by
+      rw [hch]
+      exact Nat.dvd_of_mod_eq_zero hmod
+    have := hC p hp hdvd
+    omega
+  interval_cases k
+  · have hn : n + 1 - 8 ≤ 34 := le_of_cube_le h3 (by decide)
+    rcases table8 n (by omega) (by omega) with h' | h' | h' | h'
+    · exact small 2 Nat.prime_two (by norm_num) h'
+    · exact small 3 Nat.prime_three (by norm_num) h'
+    · exact small 5 Nat.prime_five (by norm_num) h'
+    · exact small 7 (by norm_num) (by norm_num) h'
+  · have hn : n + 1 - 9 ≤ 71 := le_of_cube_le h3 (by decide)
+    rcases table9 n (by omega) (by omega) with h' | h' | h' | h'
+    · exact small 2 Nat.prime_two (by norm_num) h'
+    · exact small 3 Nat.prime_three (by norm_num) h'
+    · exact small 5 Nat.prime_five (by norm_num) h'
+    · exact small 7 (by norm_num) (by norm_num) h'
 
 theorem main : H1 → H2 → type_of% @Erdos1093.erdos_1093.parts.ii := by
   intro h1 h2
