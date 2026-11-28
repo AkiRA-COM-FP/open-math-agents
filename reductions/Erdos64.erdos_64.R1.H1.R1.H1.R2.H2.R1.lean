@@ -24,13 +24,15 @@ def H1 : Prop :=
       3 ≤ n ∧ 2 ≤ k ∧ f r ∈ Set.range c ∧ (n+1=2^k ∨ n+2=2^k)
 
 /-- In cyclic labels the dyadic Hamiltonian cycle is already present.
-Only the cubic transitive extensions without a shorter dyadic cycle remain. -/
+The transitive residual has an automorphic image of the ring using a chord. -/
 def H2 : Prop :=
   ∀ (t : ℕ), 6 ≤ t → ∀ (D : SimpleGraph (Fin (2^t))) [DecidableRel D.Adj],
     (∀ i, D.degree i = 3) → ∀ mate : Fin (2^t) → Fin (2^t),
     Function.Involutive mate → (∀ i, mate i ≠ i ∧ ¬ (cycleGraph (2^t)).Adj i (mate i)) →
     (∀ i j, D.Adj i j ↔ (cycleGraph (2^t)).Adj i j ∨ j = mate i) →
     (∀ i j, ∃ f : D ≃g D, f i = j) →
+    (∃ (f : D ≃g D) (i j : Fin (2^t)), (cycleGraph (2^t)).Adj i j ∧
+      ¬ (cycleGraph (2^t)).Adj (f i) (f j)) →
     (¬ cycleGraph 3 ⊑ D) → (¬ cycleGraph 6 ⊑ D) →
     (∀ j : ℕ, 2 ≤ j → j < t → ¬ cycleGraph (2^j) ⊑ D) →
     ∃ n k : ℕ, 3 ≤ n ∧ 2 ≤ k ∧ cycleGraph n ⊑ D ∧ (n+1=2^k ∨ n+2=2^k)
@@ -923,6 +925,163 @@ theorem ring32 (D : SimpleGraph (Fin 32)) (mate : Fin 32 → Fin 32)
     #[1,1,33794,1115139,1,1141904515,40974256160,1275708080358,1,1,1,1,1,1674449926157993347104,51145047194284357335468,1675639117301442310847949,1,2338598437735271213073406,73081201179227225392126,1217446718138350261907,1,1,1,1,1,2162411004959,35432362874,2077066238,1,2096032,65472,1] (by decide) (by decide +kernel) (partnerCons (partner4 D mate inv chord edges noCycle) (partnerCons (partner8 D mate inv chord edges noCycle) (partnerCons (partner9 D mate inv chord edges noCycle) (partnerCons (partner10 D mate inv chord edges noCycle) (partnerCons (partner11 D mate inv chord edges noCycle) (partnerCons (partner12 D mate inv chord edges noCycle) (partnerCons (partner16 D mate inv chord edges noCycle) (partnerCons (partner20 D mate inv chord edges noCycle) (partnerCons (partner21 D mate inv chord edges noCycle) (partnerCons (partner22 D mate inv chord edges noCycle) (partnerCons (partner23 D mate inv chord edges noCycle) (partnerCons (partner24 D mate inv chord edges noCycle) (partnerCons (partner28 D mate inv chord edges noCycle) (by simp))))))))))))))
   exact r196 (by simp)
 
+
+private theorem ringDirections {n : ℕ} (x y : Fin (n+3)) :
+    (cycleGraph (n+3)).Adj x y ↔ y = x+1 ∨ y = x-1 := by
+  rw [cycleGraph_adj]
+  constructor
+  · rintro (h|h)
+    · right
+      rw [eq_sub_iff_add_eq]
+      simpa [add_comm] using (sub_eq_iff_eq_add.mp h).symm
+    · left
+      simpa [add_comm] using sub_eq_iff_eq_add.mp h
+  · rintro (rfl|rfl)
+    · right
+      simp [sub_eq_add_neg,add_comm,add_left_comm]
+    · left
+      simp [sub_eq_add_neg,add_comm]
+
+/-- A bijection preserving the edges of a labeled ring is a rotation or a reflection. -/
+theorem ringAffine {n : ℕ} (f : Fin (n+3) → Fin (n+3)) (inj : Function.Injective f)
+    (pres : ∀ i j, (cycleGraph (n+3)).Adj i j → (cycleGraph (n+3)).Adj (f i) (f j)) :
+    (∀ i, f i = f 0 + i) ∨ (∀ i, f i = f 0 - i) := by
+  have two : (2 : Fin (n+3)) ≠ 0 := ne_of_beq_false rfl
+  have steps (i) := (ringDirections _ _).mp (pres i (i+1) ((ringDirections _ _).mpr (Or.inl rfl)))
+  have forward (g : Fin (n+3) → Fin (n+3)) (gi : Function.Injective g)
+      (step : ∀ i, g (i+1) = g i+1 ∨ g (i+1) = g i-1)
+      (first : g 1 = g 0+1) : ∀ i, g i = g 0+i := by
+    have run (k : ℕ) : g (Fin.ofNat (n+3) k) = g 0 + Fin.ofNat (n+3) k ∧
+        g (Fin.ofNat (n+3) k+1) = g (Fin.ofNat (n+3) k)+1 := by
+      induction k with
+      | zero => simpa using first
+      | succ k ih =>
+        rw [show Fin.ofNat (n+3) (k+1) = Fin.ofNat (n+3) k + 1 by
+          apply Fin.ext
+          simp [Fin.ofNat,Fin.val_add,Nat.add_mod]]
+        refine ⟨by rw [ih.2,ih.1,add_assoc],?_⟩
+        rcases step (Fin.ofNat (n+3) k+1) with h | back
+        · exact h
+        · rw [ih.2,add_sub_cancel_right] at back
+          have eq := gi back
+          have eq' : Fin.ofNat (n+3) k + 2 = Fin.ofNat (n+3) k + 0 := by simpa [add_assoc,show (1:Fin (n+3))+1=2 from rfl] using eq
+          exact (two (add_left_cancel eq')).elim
+    intro i
+    simpa using (run i.val).1
+  rcases steps 0 with pos | neg
+  · exact Or.inl (forward f inj steps (by simpa using pos))
+  · right
+    have rev (i : Fin (n+3)) : -f (i+1) = -f i+1 ∨ -f (i+1) = -f i-1 := by
+      rcases steps i with h|h
+      · right; rw [h]; simp [sub_eq_add_neg,add_comm]
+      · left; rw [h]; simp [sub_eq_add_neg,add_comm]
+    have first : -f 1 = -f 0+1 := by
+      rw [show f 1 = f 0-1 by simpa using neg]
+      simp [sub_eq_add_neg,add_comm]
+    intro i
+    have h := congrArg Neg.neg (forward (fun j => -f j) (fun _ _ e => inj (neg_injective e)) rev first i)
+    simpa [sub_eq_add_neg,add_comm] using h
+
+/-- Transitivity of ring-preserving symmetries forces the two-step rotation. -/
+theorem ringShiftTwo {n : ℕ} (D : SimpleGraph (Fin (n+3)))
+    (trans : ∀ i j, ∃ f : D ≃g D, f i = j)
+    (pres : ∀ (f : D ≃g D) i j, (cycleGraph (n+3)).Adj i j →
+      (cycleGraph (n+3)).Adj (f i) (f j)) :
+    ∃ s : D ≃g D, ∀ i, s i = i+2 := by
+  obtain ⟨f,hf⟩ := trans 0 1
+  obtain ⟨g,hg⟩ := trans 0 2
+  have twice (u : D ≃g D) (hu : ∀ i, u i = i+1) :
+      ∃ s : D ≃g D, ∀ i, s i = i+2 := by
+    refine ⟨u.trans u,fun i => ?_⟩
+    change u (u i) = i+2
+    rw [hu,hu,add_assoc]
+    rfl
+  rcases ringAffine f f.injective (pres f) with rot | flip
+  · exact twice f (fun i => by rw [rot i,hf,add_comm (1 : Fin (n+3)) i])
+  rcases ringAffine g g.injective (pres g) with rot | flip'
+  · exact ⟨g,fun i => by rw [rot i,hg,add_comm (2 : Fin (n+3)) i]⟩
+  apply twice (f.trans g)
+  intro i
+  change g (f i) = i+1
+  rw [flip' (f i),flip i,hf,hg,sub_sub_eq_add_sub,
+    show (2 : Fin (n+3)) = 1+1 from rfl]
+  rw [add_comm (1+1 : Fin (n+3)) i,← add_assoc,add_sub_cancel_right]
+
+/-- A chord and its translate by two close a hexagon, except when the
+two short arcs overlap and the original chord already closes a triangle. -/
+theorem shiftedChords {n : ℕ} (D : SimpleGraph (Fin (n+3)))
+    (ring : cycleGraph (n+3) ≤ D) (j : Fin (n+3))
+    (outside : ¬ (cycleGraph (n+3)).Adj 0 j) (chord : D.Adj 0 j)
+    (shift : D.Adj 2 (j+2)) : cycleGraph 3 ⊑ D ∨ cycleGraph 6 ⊑ D := by
+  have step (i : Fin (n+3)) : D.Adj i (i+1) := ring ((ringDirections _ _).2 (Or.inl rfl))
+  have z : (0 : Fin (n+3)).val = 0 := rfl
+  have o : (1 : Fin (n+3)).val = 1 := rfl
+  have t : (2 : Fin (n+3)).val = 2 := rfl
+  have sum : (j+1).val = (j.val+1) % (n+3) := Fin.val_add ..
+  have sum' : (j+2).val = (j.val+2) % (n+3) := Fin.val_add ..
+  have low : 1 < j.val := by
+    by_contra! h
+    rcases (show j.val = 0 ∨ j.val = 1 by omega) with e|e
+    · exact chord.ne (Fin.ext e.symm)
+    · exact outside ((ringDirections _ _).2 (Or.inl (Fin.ext e)))
+  have high : j.val+1 < n+3 := by
+    by_contra! h
+    have h' : j.val+1 = n+3 := by have := j.isLt; omega
+    have wrap : j+1=0 := Fin.ext (by rw [sum,h',Nat.mod_self,z])
+    exact outside ((ringDirections j 0).2 (Or.inl wrap.symm)).symm
+  have v := sum.trans (Nat.mod_eq_of_lt high)
+  have first : D.Adj 0 1 := by simpa using step 0
+  have second : D.Adj 1 2 := step 1
+  have far : D.Adj (j+1) (j+2) := by
+    simpa only [add_assoc,show (1 : Fin (n+3))+1 = 2 from rfl] using step (j+1)
+  by_cases short : j.val = 2
+  · have eq : j = 2 := Fin.ext short
+    obtain ⟨c,_⟩ := rootedRing D [0,1,2] (by exact Nat.le_refl 3)
+      (by simp only [List.nodup_cons,List.mem_cons,List.not_mem_nil,or_false,
+                     List.nodup_nil,not_false_eq_true,and_true,not_or,Fin.ext_iff,z,o,t]
+          decide)
+      (by simpa using And.intro first second) (by simpa [eq] using chord.symm)
+    exact Or.inl ⟨c⟩
+  by_cases back : j.val+2 = n+3
+  · have wrap : j+2=0 := Fin.ext (by rw [sum',back,Nat.mod_self,z])
+    obtain ⟨c,_⟩ := rootedRing D [j,j+1,0] (by exact Nat.le_refl 3)
+      (by simp only [List.nodup_cons,List.mem_cons,List.not_mem_nil,or_false,
+                     List.nodup_nil,not_false_eq_true,and_true,not_or,Fin.ext_iff,z,v]
+          omega)
+      (by simpa using And.intro (step j) (wrap ▸ far : D.Adj (j+1) 0))
+      (by simpa using chord)
+    exact Or.inl ⟨c⟩
+  have w := sum'.trans (Nat.mod_eq_of_lt (by omega))
+  obtain ⟨c,_⟩ := rootedRing D [0,1,2,j+2,j+1,j] (by exact (by decide : 3 ≤ 6))
+    (by simp only [List.nodup_cons,List.mem_cons,List.not_mem_nil,or_false,
+                   List.nodup_nil,not_false_eq_true,and_true,not_or,Fin.ext_iff,z,o,t,w,v]
+        omega)
+    (by simpa using And.intro first ⟨second,shift,far.symm,(step j).symm⟩)
+    (by simpa using chord.symm)
+  exact Or.inr ⟨c⟩
+
+/-- In a transitive graph extending the ring, one extra edge suffices:
+unless a triangle or a hexagon exists, an automorphism carries a ring edge
+outside the ring. Its image of the spanning cycle is a second Hamiltonian cycle. -/
+theorem movedRingEdge {n : ℕ} (large : 3 ≤ n) (D : SimpleGraph (Fin n))
+    (ring : cycleGraph n ≤ D) (trans : ∀ i j, ∃ f : D ≃g D, f i = j)
+    (extra : ∃ a b, D.Adj a b ∧ ¬ (cycleGraph n).Adj a b)
+    (noTri : ¬ cycleGraph 3 ⊑ D) (noHex : ¬ cycleGraph 6 ⊑ D) :
+    ∃ (f : D ≃g D) (i j : Fin n), (cycleGraph n).Adj i j ∧ ¬ (cycleGraph n).Adj (f i) (f j) := by
+  obtain ⟨k,h⟩ : ∃ k, n = k+3 := ⟨n-3,by omega⟩
+  subst n
+  by_contra! pres
+  obtain ⟨a,b,edge,off⟩ := extra
+  obtain ⟨u,hu⟩ := trans a 0
+  have atZero : D.Adj 0 (u b) := hu ▸ u.map_rel_iff.mpr edge
+  have outside : ¬ (cycleGraph (k+3)).Adj 0 (u b) := by
+    intro inside
+    rw [← hu] at inside
+    exact off (by simpa using pres u.symm _ _ inside)
+  obtain ⟨s,hs⟩ := ringShiftTwo D trans pres
+  have shifted : D.Adj 2 (u b+2) := by simpa only [hs,zero_add] using s.map_rel_iff.mpr atZero
+  exact (shiftedChords D ring (u b) outside atZero shifted).elim noTri noHex
+
 theorem main : H1 → H2 → OMA.R_Erdos64_erdos_64_R1_H1_R1_H1_R2.H2 := by
   intro partialOrbits hamilton V G _ _ r conn cubic bridges triangles witness forced
   classical
@@ -974,8 +1133,12 @@ theorem main : H1 → H2 → OMA.R_Erdos64_erdos_64_R1_H1_R1_H1_R2.H2 := by
     obtain ⟨mate,inv,chord,edges⟩ := chordMatching large D ring deg
     have goal : ∃ n k : ℕ, 3 ≤ n ∧ 2 ≤ k ∧ cycleGraph n ⊑ D ∧ (n+1=2^k ∨ n+2=2^k) := by
       by_cases big : 6 ≤ t
-      · exact hamilton t big D deg mate inv chord edges sym (exclude 3 (Or.inl rfl))
-          (exclude 6 (Or.inr rfl)) noshort
+      · have extra : ∃ a b, D.Adj a b ∧ ¬ (cycleGraph (2^t)).Adj a b :=
+          ⟨0,mate 0,(edges _ _).2 (Or.inr rfl),(chord 0).2⟩
+        have tri := exclude 3 (Or.inl rfl)
+        have hexFree := exclude 6 (Or.inr rfl)
+        exact hamilton t big D deg mate inv chord edges sym
+          (movedRingEdge large D ring sym extra tri hexFree) tri hexFree noshort
       · by_cases five : t = 5
         · subst t
           obtain ⟨m,hm,copy⟩ := ring32 D mate inv chord edges
