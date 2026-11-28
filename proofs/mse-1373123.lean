@@ -1089,6 +1089,32 @@ private lemma sum_Fin19_expand (f : Fin 19 → ℝ) :
   simp only [Fin.sum_univ_succ, Fin.sum_univ_zero, add_zero, ← add_assoc]
   rfl
 
+private lemma T_all :
+    T 0 = ⟨3, 1, 0, 2, 0, 0⟩ ∧ T 1 = ⟨-8, 1, 1, 2, -1, 0⟩ ∧
+    T 2 = ⟨-8, 1, 1, 2, -1, -1⟩ ∧ T 3 = ⟨6, 1, 2, 2, -2, 0⟩ ∧
+    T 4 = ⟨16, 1, 1, 1, 0, 0⟩ ∧ T 5 = ⟨-16, 1, 0, 1, 0, 0⟩ ∧
+    T 6 = ⟨24, 1, 0, 1, 0, -1⟩ ∧ T 7 = ⟨-4, 1, 2, 1, -2, 1⟩ ∧
+    T 8 = ⟨4, 1, 0, 0, -2, 1⟩ ∧ T 9 = ⟨8, 1, -1, 0, -1, 0⟩ ∧
+    T 10 = ⟨32, 1, 0, 0, 1, 0⟩ ∧ T 11 = ⟨-24, 1, -1, 0, 1, 0⟩ ∧
+    T 12 = ⟨8, 1, -1, 0, -1, 1⟩ ∧ T 13 = ⟨-32, 1, 0, 0, -1, 1⟩ ∧
+    T 14 = ⟨-24, 1, -1, 0, 1, -1⟩ ∧ T 15 = ⟨-4, -1, 0, 2, 0, -1⟩ ∧
+    T 16 = ⟨16, -1, 1, 1, 0, -1⟩ ∧ T 17 = ⟨8, -1, 0, 1, 0, -1⟩ ∧
+    T 18 = ⟨-4, -1, 2, 1, -2, 0⟩ :=
+  ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+
+private lemma log1mExps_all :
+    log1mExps 0 = (0, 0, 1, 0, 1, 0) ∧ log1mExps 1 = (0, 0, -1, 1, 1, 0) ∧
+    log1mExps 2 = (0, 0, -1, -1, 0, 1) ∧ log1mExps 3 = (0, 0, -2, 0, 1, 1) ∧
+    log1mExps 4 = (0, 0, 0, 1, 0, 0) ∧ log1mExps 5 = (0, 0, 1, 0, 0, 0) ∧
+    log1mExps 6 = (0, 0, 0, -1, 0, 1) ∧ log1mExps 7 = (0, 0, -2, 0, 0, 2) ∧
+    log1mExps 8 = (0, 2, -2, 0, 0, 0) ∧ log1mExps 9 = (-1, 0, -1, 1, 0, 0) ∧
+    log1mExps 10 = (0, 1, 0, 0, 0, 0) ∧ log1mExps 11 = (-1, 0, 0, 0, 1, 0) ∧
+    log1mExps 12 = (-1, 0, -1, 0, 0, 0) ∧ log1mExps 13 = (0, 1, -1, 0, 0, 0) ∧
+    log1mExps 14 = (-1, 0, 0, -1, 0, 1) ∧ log1mExps 15 = (0, 0, 2, -1, 0, 0) ∧
+    log1mExps 16 = (0, 0, 0, -1, 0, 0) ∧ log1mExps 17 = (0, 0, 1, -1, 0, 0) ∧
+    log1mExps 18 = (0, 0, -2, 0, 2, 0) :=
+  ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+
 private lemma evalTerm_zero_vals :
     evalTerm (T 0) 0 = 0 ∧ evalTerm (T 1) 0 = 0 ∧ evalTerm (T 2) 0 = 0 ∧
     evalTerm (T 3) 0 = 0 ∧ evalTerm (T 4) 0 = 0 ∧ evalTerm (T 5) 0 = 0 ∧
@@ -1097,8 +1123,10 @@ private lemma evalTerm_zero_vals :
     evalTerm (T 12) 0 = 1 / 2 ∧ evalTerm (T 13) 0 = 1 ∧ evalTerm (T 14) 0 = 1 / 2 ∧
     evalTerm (T 15) 0 = 0 ∧ evalTerm (T 16) 0 = 0 ∧ evalTerm (T 17) 0 = 0 ∧
     evalTerm (T 18) 0 = 0 := by
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
-    norm_num [T, evalTerm]
+  rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+  rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
+  unfold evalTerm
+  norm_num
 
 private lemma evalTerm_third_vals :
     evalTerm (T 0) (1 / 3) = 1 / 9 ∧ evalTerm (T 1) (1 / 3) = 1 / 3 ∧
@@ -1111,8 +1139,10 @@ private lemma evalTerm_third_vals :
     evalTerm (T 14) (1 / 3) = 1 ∧ evalTerm (T 15) (1 / 3) = -(1 / 3) ∧
     evalTerm (T 16) (1 / 3) = -2 ∧ evalTerm (T 17) (1 / 3) = -1 ∧
     evalTerm (T 18) (1 / 3) = -3 := by
-  refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩ <;>
-    norm_num [T, evalTerm]
+  rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+  rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
+  unfold evalTerm
+  norm_num
 
 /-! Weight-2 identities `M_xx, M_xy, M_xz, M_yy, M_yz, M_zz = 0` on `[0, 1/3]` -/
 
@@ -1158,7 +1188,10 @@ private lemma M_xx_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_xx t = 0 := 
       (hasDerivAt_Li2E_T k ht hr1 h14).const_mul _)).congr_deriv ?_
     rw [sum_Fin19_expand]
     simp only [log_one_sub_evalTerm ht]
-    simp only [T, log1mExps, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rcases log1mExps_all with ⟨l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18,
+      l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18]
     norm_num
     ring
   have h0 : M_xx 0 = 0 := by
@@ -1167,7 +1200,8 @@ private lemma M_xx_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_xx t = 0 := 
     rcases evalTerm_zero_vals with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18⟩
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li2_zero]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
   intro t ht
   rw [const_on_Icc_third hcont hderiv t ht, h0]
@@ -1185,7 +1219,10 @@ private lemma M_xy_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_xy t = 0 := 
     refine (hd1.fun_sub hd2).congr_deriv ?_
     rw [sum_Fin19_expand]
     simp only [log_one_sub_evalTerm ht]
-    simp only [T, log1mExps, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rcases log1mExps_all with ⟨l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18,
+      l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18]
     norm_num
     ring
   have h0 : M_xy 0 = 0 := by
@@ -1194,7 +1231,8 @@ private lemma M_xy_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_xy t = 0 := 
     rcases evalTerm_zero_vals with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18⟩
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li2_zero]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
   intro t ht
   rw [const_on_Icc_third hcont hderiv t ht, h0]
@@ -1214,7 +1252,10 @@ private lemma M_xz_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_xz t = 0 := 
     refine (hd1.fun_sub hd2).congr_deriv ?_
     rw [sum_Fin19_expand]
     simp only [log_one_sub_evalTerm ht]
-    simp only [T, log1mExps, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rcases log1mExps_all with ⟨l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18,
+      l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18]
     norm_num
     ring
   have h0 : M_xz 0 = 0 := by
@@ -1223,7 +1264,8 @@ private lemma M_xz_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_xz t = 0 := 
     rcases evalTerm_zero_vals with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18⟩
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li2_zero]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
   intro t ht
   rw [const_on_Icc_third hcont hderiv t ht, h0]
@@ -1250,7 +1292,10 @@ private lemma M_yy_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_yy t = 0 := 
     refine (hd1.fun_sub hd2).congr_deriv ?_
     rw [sum_Fin19_expand]
     simp only [log_one_sub_evalTerm ht]
-    simp only [T, log1mExps, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rcases log1mExps_all with ⟨l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18,
+      l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18]
     norm_num
     ring
   have h0 : M_yy 0 = 0 := by
@@ -1260,7 +1305,8 @@ private lemma M_yy_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_yy t = 0 := 
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 1),
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 1 / 2), Li2_zero, Li2_one, Li2_half]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
     ring
   intro t ht
@@ -1291,7 +1337,10 @@ private lemma M_yz_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_yz t = 0 := 
     refine (hd1.fun_sub hd2).congr_deriv ?_
     rw [sum_Fin19_expand]
     simp only [log_one_sub_evalTerm ht]
-    simp only [T, log1mExps, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rcases log1mExps_all with ⟨l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18,
+      l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18]
     norm_num
     ring
   have h0 : M_yz 0 = 0 := by
@@ -1301,7 +1350,8 @@ private lemma M_yz_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_yz t = 0 := 
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 1),
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 1 / 2), Li2_zero, Li2_one, Li2_half]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
     ring
   intro t ht
@@ -1333,7 +1383,10 @@ private lemma M_zz_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_zz t = 0 := 
     refine (hd1.fun_sub hd2).congr_deriv ?_
     rw [sum_Fin19_expand]
     simp only [log_one_sub_evalTerm ht]
-    simp only [T, log1mExps, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rcases log1mExps_all with ⟨l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18,
+      l0, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12, l13, l14, l15, l16, l17, l18]
     norm_num
     ring
   have h0 : M_zz 0 = 0 := by
@@ -1343,7 +1396,8 @@ private lemma M_zz_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), M_zz t = 0 := 
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 1),
       Li2E_of_ge (by norm_num : (-1 : ℝ) ≤ 1 / 2), Li2_zero, Li2_one, Li2_half]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
     ring
   intro t ht
@@ -1420,7 +1474,8 @@ private lemma W3_x_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), W3_x t = 0 := 
     rcases evalTerm_zero_vals with ⟨h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18⟩
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li3E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li3_zero]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
   intro t ht
   rw [const_on_Icc_third hcont hderiv t ht, h0]
@@ -1483,7 +1538,8 @@ private lemma W3_y_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), W3_y t = 0 := 
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li3E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li3E_of_ge (by norm_num : (-1 : ℝ) ≤ 1),
       Li3E_of_ge (by norm_num : (-1 : ℝ) ≤ 1 / 2), Li3_zero, Li3_half]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
     ring
   intro t ht
@@ -1553,7 +1609,8 @@ private lemma W3_z_eq_zero : ∀ t ∈ Set.Icc (0 : ℝ) (1 / 3), W3_z t = 0 := 
     rw [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15, h16, h17, h18,
       Li3E_of_ge (by norm_num : (-1 : ℝ) ≤ 0), Li3E_of_ge (by norm_num : (-1 : ℝ) ≤ 1),
       Li3E_of_ge (by norm_num : (-1 : ℝ) ≤ 1 / 2), Li3_zero, Li3_half]
-    simp only [T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one]
+    rcases T_all with ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+    rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18]
     norm_num
     ring
   intro t ht
@@ -1680,7 +1737,9 @@ theorem OMA.solution : type_of% @OMA.S_mse_1373123.main := by
     rw [one_div, Real.log_inv]
   have hdup2 := OMA.S_mse_1373123_proof.Li4_dup (x := 1 / 2) (by norm_num) (by norm_num)
   rw [show (1 / 2 : ℝ) ^ 2 = 1 / 4 by norm_num] at hdup2
-  simp only [OMA.S_mse_1373123_proof.T, Fin.isValue, Matrix.cons_val_zero, Matrix.cons_val_one] at hmain
+  rcases OMA.S_mse_1373123_proof.T_all with
+    ⟨k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18⟩
+  rw [k0, k1, k2, k3, k4, k5, k6, k7, k8, k9, k10, k11, k12, k13, k14, k15, k16, k17, k18] at hmain
   rw [h1, h2, h13, h23, h01, h02, neg_neg, neg_neg, hlog23, hlog13,
     Real.log_one, Real.log_zero,
     OMA.S_mse_1373123_proof.Li4_zero,
