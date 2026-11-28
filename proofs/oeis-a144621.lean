@@ -1,183 +1,140 @@
 import OMAStatements.S_oeis_a144621
+import Mathlib
 
--- Problem: A144621, a(n+1) = det of the 2^n x 2^n matrix 1 + v_2(i+j-1) (Stephan's conjecture).
--- Credit: @bnb9001
+/-
+A144621: a(n+1) = det M(n) for n > 2, where M(n) is the 2^n x 2^n matrix with entries
+1 + v_2(i+j+1) (0-based i, j).
 
-namespace OMA_A144621_Proof
+Method. Work with the two-parameter family K n x y = x * M n + y * J n, where J n is the
+anti-diagonal permutation matrix; its (i, j) entry is c n x y (i+j+1) with
+c n x y m = x (1 + v_2 m) + y [m = 2^n].
 
-open Matrix OMA.S_oeis_a144621
-open scoped Kronecker
+Splitting the index set as 2^(n+1) = 2^n + 2^n gives the block form
+  K (n+1) x y = [[P, Q], [Q, P]],   P = K n x 0,   Q = K n x (x+y),
+because v_2(m + 2^n) = v_2(m) + [m = 2^n] and v_2(m + 2^(n+1)) = v_2(m) for 0 < m < 2^(n+1).
+Hence (blk_det)
+  det K (n+1) x y = det (P+Q) * det (P-Q) = det K n (2x) (x+y) * det K n 0 (-(x+y)).
 
-def Mq (n : ℕ) : Matrix (Fin (2 ^ n)) (Fin (2 ^ n)) ℚ :=
-  Matrix.of fun i j => (1 + (padicValNat 2 (i.val + j.val + 1) : ℚ))
+From this recursion alone: det K (n+1) 0 z is even in z (ev), and by induction (R)
+  det K (n+2) x y * ((2^(n+2)-1) x + y) = ((2^(n+3)-1) x + y) * (det K (n+1) x y)^2.
+The sequence satisfies the same relation (A): a(n+2) (2^(n+1)-1) = (2^(n+2)-1) a(n+1)^2,
+and a(3) = 21 = det K 2 1 0, so a(n+3) = det K (n+2) 1 0 = det M (n+2) for every n (key).
+-/
 
-def sw : Matrix (Fin 2) (Fin 2) ℚ := !![0, 1; 1, 0]
+namespace OMA.P144621
+open OMA.S_oeis_a144621 Matrix
 
-def Jm (ι : Type) [Fintype ι] : Matrix ι ι ℚ := Matrix.of fun _ _ => 1
+/-- Entry function: `x * (1 + v₂ m) + y * [m = 2 ^ n]`. -/
+def c (n : ℕ) (x y : ℤ) (m : ℕ) : ℤ :=
+  x * (1 + padicValNat 2 m) + if m = 2 ^ n then y else 0
 
-def e (n : ℕ) : Fin (2 ^ n) × Fin 2 ≃ Fin (2 ^ (n + 1)) :=
-  finProdFinEquiv.trans (finCongr (pow_succ 2 n).symm)
+/-- `x • M n + y • J n`, where `J n` is the anti-diagonal permutation matrix. -/
+def K (n : ℕ) (x y : ℤ) : Matrix (Fin (2 ^ n)) (Fin (2 ^ n)) ℤ :=
+  of fun i j => c n x y (i.val + j.val + 1)
 
-theorem e_val (n : ℕ) (x : Fin (2 ^ n)) (b : Fin 2) :
-    ((e n) (x, b)).val = b.val + 2 * x.val := rfl
+lemma v_add {k m : ℕ} (h0 : m ≠ 0) (h : ¬ 2 ^ k ∣ m) :
+    padicValNat 2 (m + 2 ^ k) = padicValNat 2 m := by
+  obtain ⟨a, b, hb, rfl⟩ := Nat.exists_eq_two_pow_mul_odd h0
+  have hak : a < k := by
+    by_contra hc
+    exact h (Dvd.dvd.mul_right (pow_dvd_pow 2 (not_lt.1 hc)) b)
+  obtain ⟨d, rfl⟩ := Nat.exists_eq_add_of_lt hak
+  have e : 2 ^ a * b + 2 ^ (a + d + 1) = 2 ^ a * (b + 2 * 2 ^ d) := by ring
+  have h2 : ¬ 2 ∣ b := hb.not_two_dvd_nat
+  rw [e, padicValNat.mul (by positivity) (by positivity), padicValNat.mul (by positivity) hb.pos.ne',
+    padicValNat.eq_zero_of_not_dvd h2, padicValNat.eq_zero_of_not_dvd (n := b + 2 * 2 ^ d)]
+  omega
 
-theorem v2_odd (k : ℕ) : padicValNat 2 (2 * k + 1) = 0 :=
-  padicValNat.eq_zero_of_not_dvd (by omega)
+lemma c1 {n m : ℕ} (x y : ℤ) (h : m < 2 ^ (n + 1)) : c (n + 1) x y m = c n x 0 m := by
+  simp [c, h.ne]
 
-theorem v2_even (k : ℕ) : padicValNat 2 (2 * (k + 1)) = 1 + padicValNat 2 (k + 1) := by
-  rw [padicValNat.mul (by norm_num) (by omega), padicValNat.self (by norm_num)]
+lemma c2 {n m : ℕ} (x y : ℤ) (h0 : m ≠ 0) (h : m < 2 ^ (n + 1)) :
+    c (n + 1) x y (m + 2 ^ n) = c n x (x + y) m := by
+  unfold c
+  by_cases hm : m = 2 ^ n
+  · subst hm
+    rw [← two_mul, ← pow_succ', padicValNat.prime_pow, padicValNat.prime_pow]
+    simp; ring
+  · have hd : ¬ 2 ^ n ∣ m := fun hd => hm (Nat.eq_of_dvd_of_lt_two_mul h0 hd (by rwa [← pow_succ']))
+    have : m + 2 ^ n ≠ 2 ^ (n + 1) := by rw [pow_succ']; omega
+    rw [v_add h0 hd]; simp [hm, this]
 
-theorem entry (x y : ℕ) (p q : Fin 2) :
-    (1 + (padicValNat 2 (p.val + 2 * x + (q.val + 2 * y) + 1) : ℚ)) =
-      (1 + (padicValNat 2 (x + y + 1) : ℚ)) * sw p q + 1 := by
-  fin_cases p <;> fin_cases q <;> simp [sw]
-  · omega
-  · rw [show 2 * x + (1 + 2 * y) + 1 = 2 * (x + y + 1) by ring, v2_even]; push_cast; ring
-  · rw [show 1 + 2 * x + 2 * y + 1 = 2 * (x + y + 1) by ring, v2_even]; push_cast; ring
-  · omega
+lemma c3 {n m : ℕ} (x y : ℤ) (h0 : m ≠ 0) (h : m < 2 ^ (n + 1)) :
+    c (n + 1) x y (m + 2 ^ (n + 1)) = c n x 0 m := by
+  unfold c
+  rw [v_add h0 (Nat.not_dvd_of_pos_of_lt (Nat.pos_of_ne_zero h0) h)]; simp [h0]
 
-theorem Mq_succ (n : ℕ) : Mq (n + 1) = reindex (e n) (e n) (Mq n ⊗ₖ sw + Jm _) := by
-  ext i j
-  obtain ⟨⟨x, p⟩, rfl⟩ := (e n).surjective i
-  obtain ⟨⟨y, q⟩, rfl⟩ := (e n).surjective j
-  rw [reindex_apply, submatrix_apply, Equiv.symm_apply_apply, Equiv.symm_apply_apply,
-    Matrix.add_apply, kronecker_apply]
-  simp only [Mq, Jm, of_apply, e_val]
-  exact entry x.val y.val p q
+/-- The index split `2 ^ (n + 1) = 2 ^ n + 2 ^ n`. -/
+def e (n : ℕ) : Fin (2 ^ n) ⊕ Fin (2 ^ n) ≃ Fin (2 ^ (n + 1)) :=
+  finSumFinEquiv.trans (finCongr (by ring))
 
-theorem sw_rowsum (p : Fin 2) : ∑ q, sw p q = 1 := by
-  fin_cases p <;> simp [sw, Fin.sum_univ_two]
+lemma blk (n : ℕ) (x y : ℤ) : (K (n + 1) x y).submatrix (e n) (e n) =
+    fromBlocks (K n x 0) (K n x (x + y)) (K n x (x + y)) (K n x 0) := by
+  have h2 : 2 ^ (n + 1) = 2 * 2 ^ n := pow_succ' 2 n
+  ext (i | i) (j | j) <;> simp [K, e]
+  · exact c1 x y (by omega)
+  · rw [← c2 x y (m := i + j + 1) (by omega) (by omega)]; congr 1; ring
+  · rw [← c2 x y (m := i + j + 1) (by omega) (by omega)]; congr 1; ring
+  · rw [← c3 x y (m := i + j + 1) (by omega) (by omega)]; congr 1; ring
 
-theorem rowsum (n : ℕ) : ∀ i, ∑ j, Mq n i j = (2 : ℚ) ^ (n + 1) - 1 := by
+lemma det_bb {m : Type*} [Fintype m] [DecidableEq m] (A B : Matrix m m ℤ) :
+    (fromBlocks A B B A).det = (A + B).det * (A - B).det := by
+  have h : fromBlocks 1 0 1 1 * fromBlocks A B B A * fromBlocks 1 0 (-1) 1 =
+      fromBlocks (A - B) B 0 (A + B) := by
+    simp [fromBlocks_multiply, sub_eq_add_neg, add_comm]
+    abel
+  have := congrArg det h
+  rw [det_mul, det_mul, det_fromBlocks_zero₁₂, det_fromBlocks_zero₁₂, det_fromBlocks_zero₂₁] at this
+  simpa [mul_comm] using this
+
+lemma blk_det (n : ℕ) (x y : ℤ) :
+    (K (n + 1) x y).det = (K n (2 * x) (x + y)).det * (K n 0 (-(x + y))).det := by
+  rw [← det_submatrix_equiv_self (e n), blk, det_bb]
+  congr 2 <;> ext i j <;> simp [K, c] <;> split_ifs <;> ring
+
+lemma D0 (x y : ℤ) : (K 0 x y).det = x + y := by
+  show (K 0 x y : Matrix (Fin 1) (Fin 1) ℤ).det = x + y
+  rw [det_fin_one]; simp [K, c]
+
+lemma ev (n : ℕ) (z : ℤ) : (K (n + 1) 0 (-z)).det = (K (n + 1) 0 z).det := by
+  rw [blk_det, blk_det]; simp [mul_comm]
+
+lemma R (n : ℕ) : ∀ x y : ℤ, (K (n + 2) x y).det * ((2 ^ (n + 2) - 1) * x + y) =
+    ((2 ^ (n + 3) - 1) * x + y) * (K (n + 1) x y).det ^ 2 := by
   induction n with
-  | zero =>
-    intro i
-    have hsub : ∀ x : Fin (2 ^ 0), x = ⟨0, by norm_num⟩ := fun x => Fin.ext (by
-      have := x.2; simp at this; simp [this])
-    rw [Fintype.sum_eq_single (⟨0, by norm_num⟩ : Fin (2 ^ 0)) (fun x hx => absurd (hsub x) hx)]
-    rw [hsub i]; simp [Mq]; norm_num
+  | zero => intro x y; simp only [blk_det, D0]; ring
   | succ n ih =>
-    intro i
-    obtain ⟨⟨x, p⟩, rfl⟩ := (e n).surjective i
-    rw [Mq_succ]
-    simp only [reindex_apply, submatrix_apply, Equiv.symm_apply_apply]
-    rw [← (e n).sum_comp]
-    simp only [Equiv.symm_apply_apply, Matrix.add_apply, kronecker_apply, Jm, of_apply]
-    rw [Fintype.sum_prod_type]
-    simp only [Finset.sum_add_distrib, Finset.sum_const, Finset.card_univ, Fintype.card_fin,
-      nsmul_eq_mul, kroneckerMap_apply, kronecker_apply]
-    simp only [← Finset.mul_sum, sw_rowsum, mul_one, ih]
-    push_cast; ring
+    intro x y
+    have h := ih (2 * x) (x + y)
+    rw [blk_det (n + 2), blk_det (n + 1) x y, blk_det (n + 1) 0, ev n]
+    simp only [mul_zero, zero_add] at *
+    rw [ev n (x + y)]
+    linear_combination (K (n + 1) 0 (x + y)).det ^ 2 * h
 
-theorem det_add_J {ι : Type} [Fintype ι] [DecidableEq ι] (B : Matrix ι ι ℚ) (s : ℚ) (hs : s ≠ 0)
-    (hB : ∀ i, ∑ j, B i j = s) :
-    (B + Jm ι).det = B.det * (1 + (Fintype.card ι : ℚ) / s) := by
-  have key : B + Jm ι = B * (1 + replicateCol Unit (fun _ : ι => s⁻¹) *
-      replicateRow Unit (fun _ : ι => (1 : ℚ))) := by
-    rw [Matrix.mul_add, Matrix.mul_one]
-    congr 1
-    ext i j
-    have h1 : ∀ x, (replicateCol Unit (fun _ : ι => s⁻¹) * replicateRow Unit (fun _ : ι => (1 : ℚ))) x j
-        = s⁻¹ := by
-      intro x; simp [Matrix.mul_apply]
-    rw [Matrix.mul_apply]
-    simp only [h1, Jm, of_apply]
-    rw [← Finset.sum_mul, hB i, mul_inv_cancel₀ hs]
-  rw [key, det_mul, det_one_add_replicateCol_mul_replicateRow]
-  congr 1
-  simp [dotProduct, div_eq_mul_inv]
+lemma A (n : ℕ) : a (n + 2) * (2 ^ (n + 1) - 1) = (2 ^ (n + 2) - 1) * a (n + 1) ^ 2 := by
+  induction n with
+  | zero => simp [a]
+  | succ n ih =>
+    rw [show a (n + 1 + 2) = a (n + 2) * (3 * a (n + 2) - 2 * a (n + 1) ^ 2) from rfl]
+    linear_combination (2 * a (n + 2)) * ih
 
-theorem kron_rowsum (n : ℕ) (i : Fin (2 ^ n) × Fin 2) :
-    ∑ j, (Mq n ⊗ₖ sw) i j = (2 : ℚ) ^ (n + 1) - 1 := by
-  obtain ⟨x, p⟩ := i
-  rw [Fintype.sum_prod_type]
-  simp only [kronecker_apply, ← Finset.mul_sum, sw_rowsum, mul_one, rowsum]
+lemma key (n : ℕ) : a (n + 3) = (K (n + 2) 1 0).det := by
+  induction n with
+  | zero => simp only [blk_det, D0]; simp [a]
+  | succ n ih =>
+    have h1 := A (n + 2)
+    have h2 := R (n + 1) 1 0
+    rw [← ih] at h2
+    have h3 : (1 : ℤ) < 2 ^ (n + 3) := one_lt_pow₀ (by norm_num) (by omega)
+    refine mul_right_cancel₀ (b := (2 : ℤ) ^ (n + 3) - 1) (by omega) ?_
+    linear_combination h1 - h2
 
-noncomputable def D (n : ℕ) : ℚ := (Mq n).det
+end OMA.P144621
 
-theorem D_succ (n : ℕ) :
-    D (n + 1) = D n ^ 2 * (-1) ^ (2 ^ n) * (1 + 2 ^ (n + 1) / (2 ^ (n + 1) - 1)) := by
-  unfold D
-  rw [Mq_succ, det_reindex_self]
-  have hs : (2 : ℚ) ^ (n + 1) - 1 ≠ 0 := by
-    have : (2 : ℚ) ≤ 2 ^ (n + 1) := by
-      calc (2 : ℚ) = 2 ^ 1 := by norm_num
-        _ ≤ 2 ^ (n + 1) := pow_le_pow_right₀ (by norm_num) (by omega)
-    linarith
-  rw [det_add_J _ _ hs (kron_rowsum n), det_kronecker]
-  simp only [Fintype.card_prod, Fintype.card_fin]
-  have hsw : sw.det = -1 := by simp [sw, det_fin_two]
-  rw [hsw]
-  push_cast
-  ring
-
-theorem D_zero : D 0 = 1 := by
-  unfold D
-  haveI : Subsingleton (Fin (2 ^ 0)) := ⟨fun x y => Fin.ext (by
-    have := x.2; have := y.2; simp only [pow_zero] at *; omega)⟩
-  rw [det_eq_elem_of_subsingleton _ ⟨0, by norm_num⟩]
-  simp [Mq]
-
-theorem D_one : D 1 = -3 := by
-  rw [D_succ, D_zero]; norm_num
-
-theorem D_two : D 2 = 21 := by
-  rw [D_succ, D_one]; norm_num
-
-theorem D_rec (k : ℕ) :
-    D (k + 2) = D (k + 1) ^ 2 * (1 + 2 ^ (k + 2) / (2 ^ (k + 2) - 1)) := by
-  rw [D_succ]
-  have : ((-1 : ℚ)) ^ (2 ^ (k + 1)) = 1 := Even.neg_one_pow ⟨2 ^ k, by ring⟩
-  rw [this, mul_one]
-
-theorem main_q : ∀ k : ℕ, (a (k + 3) : ℚ) = D (k + 2) ∧ (a (k + 2) : ℚ) ^ 2 = D (k + 1) ^ 2 := by
-  intro k
-  induction k with
-  | zero =>
-    refine ⟨?_, ?_⟩
-    · have : a 3 = 21 := by simp [a]
-      rw [D_two, this]; norm_num
-    · have : a 2 = 3 := by simp [a]
-      rw [D_one, this]; norm_num
-  | succ k ih =>
-    obtain ⟨h1, h2⟩ := ih
-    have ha : a (k + 4) = a (k + 3) * (3 * a (k + 3) - 2 * a (k + 2) ^ 2) := rfl
-    refine ⟨?_, ?_⟩
-    · have hT : (4 : ℚ) ≤ 2 ^ (k + 2) := by
-        calc (4 : ℚ) = 2 ^ 2 := by norm_num
-          _ ≤ 2 ^ (k + 2) := pow_le_pow_right₀ (by norm_num) (by omega)
-      set T : ℚ := 2 ^ (k + 2) with hTdef
-      have hT3 : (2 : ℚ) ^ (k + 3) = 2 * T := by rw [hTdef]; ring
-      have e1 := D_rec k
-      have e2 := D_rec (k + 1)
-      rw [show k + 1 + 2 = k + 3 by ring, show k + 1 + 1 = k + 2 by ring, hT3] at e2
-      rw [← hTdef] at e1
-      rw [show k + 1 + 3 = k + 4 by ring, show k + 1 + 2 = k + 3 by ring, ha]
-      push_cast
-      rw [h1, h2, e2]
-      have hT1 : T - 1 ≠ 0 := by linarith
-      have hT2 : 2 * T - 1 ≠ 0 := by linarith
-      have h2T : T - 1 + T ≠ 0 := by linarith
-      have hD1 : D (k + 1) ^ 2 = D (k + 2) / (1 + T / (T - 1)) := by
-        rw [e1]; field_simp
-      rw [hD1]
-      field_simp
-      ring
-    · rw [show k + 1 + 2 = k + 3 by ring, show k + 1 + 1 = k + 2 by ring, h1]
-
-end OMA_A144621_Proof
-
-open Matrix OMA.S_oeis_a144621 OMA_A144621_Proof in
 theorem OMA.solution : type_of% @OMA.S_oeis_a144621.main := by
   intro n hn
-  obtain ⟨k, rfl⟩ : ∃ k, n = k + 2 := ⟨n - 2, by omega⟩
-  have hmap : (Int.castRingHom ℚ).mapMatrix (M (k + 2)) = Mq (k + 2) := by
-    ext i j
-    simp [M, Mq]
-  have h := (Int.castRingHom ℚ).map_det (M (k + 2))
-  rw [hmap] at h
-  have hq := (main_q k).1
-  have hc : (((M (k + 2)).det : ℤ) : ℚ) = D (k + 2) := by
-    unfold D; simpa using h
-  apply Int.cast_injective (α := ℚ)
-  rw [show k + 2 + 1 = k + 3 by ring, hq, hc]
+  obtain ⟨k, rfl⟩ : ∃ k, n = k + 3 := ⟨n - 3, by omega⟩
+  rw [OMA.P144621.key (k + 1)]
+  congr 1
+  ext i j
+  simp [OMA.S_oeis_a144621.M, OMA.P144621.K, OMA.P144621.c]
