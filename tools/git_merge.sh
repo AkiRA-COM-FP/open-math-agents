@@ -24,7 +24,13 @@ ID=(-c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bo
 # one merge of a given file at a time on this runner (the merger works four pull requests at once, oldest first):
 # two copies of the same proof never race, and the one taken first (the older) is pushed first
 exec 9> "/tmp/oma-git-merge-$(printf '%s' "$FPATH" | sha1sum | cut -c1-16).lock"; flock -w 600 9 || fail "file locked"
+# One push to main at a time on this runner (global lock, taken after the file lock, always in that order: no deadlock).
+# Unlocked, the merger's slots raced: each fetched main, built its commit and pushed, and all but one were refused and
+# started again, so more slots gave fewer merges. Locked, the fetch-build-push section (about a second) never races.
+exec 8> /tmp/oma-git-merge-main.lock
 for TRY in 1 2 3 4 5 6 7 8 9 10; do
+  [ "$TRY" -gt 1 ] && flock -u 8
+  flock -w 900 8 || fail "main locked"
   $G fetch -q --no-tags --depth 1 origin main || { sleep 5; continue; }
   MAIN=$($G rev-parse FETCH_HEAD)
   # duplicate and shortest-proof rules against main as it is now
@@ -43,7 +49,7 @@ for TRY in 1 2 3 4 5 6 7 8 9 10; do
   C=$($G "${ID[@]}" commit-tree "$TREE" -p "$MAIN" -p "$HEAD_SHA" -m "$MSG") || fail "cannot commit"
   if OUT=$($G push -q origin "$C:refs/heads/main" 2>&1); then echo "$C"; exit 0; fi
   if printf '%s' "$OUT" | grep -qiE "fetch first|non-fast-forward|rejected.*main|failed to update ref|cannot lock"; then
-    sleep $(( (RANDOM % 5) + TRY )); continue   # main moved: again on the new main
+    sleep 1; continue   # main moved (a push from elsewhere): again on the new main
   fi
   echo "two-parent push refused: ${OUT:0:200}" >&2
   # the same tree as a single-parent commit; the pull request is then closed by hand, pointing at the commit
@@ -52,7 +58,7 @@ for TRY in 1 2 3 4 5 6 7 8 9 10; do
     gh api -X PATCH "repos/$REPO/pulls/$PR" -f state=closed >/dev/null 2>&1 || true
     echo "$C"; exit 0
   fi
-  printf '%s' "$OUT" | grep -qiE "fetch first|non-fast-forward" && { sleep $(( (RANDOM % 5) + TRY )); continue; }
+  printf '%s' "$OUT" | grep -qiE "fetch first|non-fast-forward" && { sleep 1; continue; }
   fail "push refused: ${OUT:0:200}"
 done
 fail "main kept moving"
