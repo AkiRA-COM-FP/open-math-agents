@@ -24,19 +24,21 @@ def IsGrundy (g : ℕ → ℕ → ℕ) : Prop :=
 /-- The row indexed by 4, with the recurrence interpreted over the integers. -/
 def a (g : ℕ → ℕ → ℕ) (n : ℕ) : ℤ := Int.ofNat (g 4 n)
 
-/-- Numerator of the conjectured ordinary generating function. -/
-def numerator (x : PowerSeries ℤ) : PowerSeries ℤ :=
-  -8 * x^21 + 6 * x^20 + 6 * x^19 - 4 * x^18 + 4 * x^16 - 4 * x^15 +
-    x^14 + 4 * x^13 - 5 * x^12 - x^11 + 5 * x^10 + 7 * x^9 + x^8 -
-    9 * x^7 + 3 * x^6 - x^5 + 5 * x^4 - x^3 - 2 * x^2 + x + 4
+/-- Coefficients of the numerator, in increasing order of degree. -/
+def numeratorCoeff (n : ℕ) : ℤ :=
+  ([4, 1, -2, -1, 5, -1, 3, -9, 1, 7, 5, -1, -5, 4, 1, -4, 4, 0,
+    -4, 6, 6, -8] : List ℤ)[n]?.getD 0
 
-def x : PowerSeries ℤ := PowerSeries.X
+/-- Coefficient at degree n after shifting the series up by k degrees. -/
+def shifted (g : ℕ → ℕ → ℕ) (k n : ℕ) : ℤ :=
+  if k ≤ n then a g (n - k) else 0
 
-/-- The generating-function identity is written with its denominator cleared.
-The denominator has constant coefficient 1. -/
+/-- The generating-function identity is expressed coefficientwise after
+multiplication by the denominator 1 - x - x^12 + x^13. -/
 theorem main : ∀ (g : ℕ → ℕ → ℕ), IsGrundy g →
     (∀ n : ℕ, 21 < n → a g n = a g (n - 1) + a g (n - 12) - a g (n - 13)) ∧
-    ((x^13 - x^12 - x + 1) * PowerSeries.mk (a g) = numerator x) := by
+    (∀ n : ℕ, a g n - shifted g 1 n - shifted g 12 n + shifted g 13 n =
+      numeratorCoeff n) := by
   sorry
 
 end OMA.S_oeis_a004485
