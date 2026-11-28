@@ -3,35 +3,37 @@ import OMAReductions.R_wp_1_3_2_3_conjecture_R1
 -- Credit: @wispiANt
 namespace OMA.R_wp_1_3_2_3_conjecture_R1_H2_R1
 
+open scoped Classical in
 def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
+    let C (A : Type) [PartialOrder A] [Fintype A] (l : List (A × A)) :=
+      Nat.card {f : A ≃ Fin (Fintype.card A) // (∀ u v, u < v → f u < f v) ∧ ∀ p ∈ l, f p.1 < f p.2}
     (¬ ∀ x y : P, x ≤ y ∨ y ≤ x) →
     (¬ ∃ L : Set P, L.Nonempty ∧ (∃ y, y ∉ L) ∧
       ∀ x ∈ L, ∀ y ∉ L, x < y) →
     (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ a b c : P, (¬ a ≤ b ∧ ¬ b ≤ a) ∧ (¬ a ≤ c ∧ ¬ c ≤ a) ∧ (¬ b ≤ c ∧ ¬ c ≤ b)) →
     (∃ x : P, let N := {y : P | ¬ x ≤ y ∧ ¬ y ≤ x}
-      7 ≤ N.ncard ∧ (∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d ∧
-      let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
-      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+      let Q := {y : P // y ≠ x}
+      7 ≤ N.ncard ∧ (∀ a b : Q, a ≠ b → 2 * C P [] <
+        3 * ((N.ncard+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ∧
+        3 * min (C Q [(a,b)]) (C Q [(b,a)]) < C P []) ∧
+      (∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d ∧
       let blocked (l : List (P × P)) (i j : P) := ∃ (r : P ≃ Fin (Fintype.card P)) (z : P),
         StrictMono r ∧ (∀ p ∈ l, r p.1 < r p.2) ∧ r i < r z ∧ r z < r j ∧ (i < z ∨ z < j);
       let jump (u v : P) := let l := [(u,x),(x,v)];
-        3 * C [(x,u)] < C [] ∧ 2 * C [] < 3 * C [(x,v)] ∧
-        C [] < 3 * C l ∧ blocked l u x ∧ blocked l x v;
-      (2 * C [] < 3 * C [(x,a)] ∧ blocked [(x,a)] x a) ∨
-      (2 * C [] < 3 * C [(d,x)] ∧ blocked [(d,x)] d x) ∨ jump a b ∨ jump b c ∨ jump c d)) →
+        3 * C P [(x,u)] < C P [] ∧ 2 * C P [] < 3 * C P [(x,v)] ∧
+        C P [] < 3 * C P l ∧ blocked l u x ∧ blocked l x v;
+      (2 * C P [] < 3 * C P [(x,a)] ∧ blocked [(x,a)] x a) ∨
+      (2 * C P [] < 3 * C P [(d,x)] ∧ blocked [(d,x)] d x) ∨ jump a b ∨ jump b c ∨ jump c d)) →
     (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
       (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
       (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
     (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
       (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
       (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
-    (let count (extra : List (P × P)) :=
-      Nat.card {σ : P ≃ Fin (Fintype.card P) //
-        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
-     ¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+    (¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
       ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
-        count [p] + count [p, q] ≤ count [])) →
+        C P [p] + C P [p, q] ≤ C P [])) →
     let ext : Finset (P ≃ Fin (Fintype.card P)) := by
       classical
       exact Finset.univ.filter (fun rank => StrictMono rank)
@@ -39,13 +41,20 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
       let p := ((ext.filter (fun r => r x < r y)).card : ℚ) / ext.card
       1 / 3 ≤ p ∧ p ≤ 2 / 3
 
+open scoped Classical in
 def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
+    let C (A : Type) [PartialOrder A] [Fintype A] (l : List (A × A)) :=
+      Nat.card {f : A ≃ Fin (Fintype.card A) // (∀ u v, u < v → f u < f v) ∧ ∀ p ∈ l, f p.1 < f p.2}
     (¬ ∀ x y : P, x ≤ y ∨ y ≤ x) →
     (¬ ∃ L : Set P, L.Nonempty ∧ (∃ y, y ∉ L) ∧
       ∀ x ∈ L, ∀ y ∉ L, x < y) →
     (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ x : P, let N := {y : P | ¬ x ≤ y ∧ ¬ y ≤ x}
-      7 ≤ N.ncard ∧ (¬ ∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d) ∧
+      let Q := {y : P // y ≠ x}
+      7 ≤ N.ncard ∧ (∀ a b : Q, a ≠ b → 2 * C P [] <
+        3 * ((N.ncard+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ∧
+        3 * min (C Q [(a,b)]) (C Q [(b,a)]) < C P []) ∧
+      (¬ ∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d) ∧
       ∃ t : Finset P, x ∈ t ∧ (t : Set P).Pairwise (fun a b => ¬ a ≤ b) ∧
         4 ≤ t.card ∧ N.ncard + 3 ≤ 3 * t.card) →
     (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
@@ -54,12 +63,9 @@ def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
       (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
       (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
-    (let count (extra : List (P × P)) :=
-      Nat.card {σ : P ≃ Fin (Fintype.card P) //
-        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
-     ¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+    (¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
       ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
-        count [p] + count [p, q] ≤ count [])) →
+        C P [p] + C P [p, q] ≤ C P [])) →
     let ext : Finset (P ≃ Fin (Fintype.card P)) := by
       classical
       exact Finset.univ.filter (fun rank => StrictMono rank)
@@ -306,10 +312,333 @@ lemma four_chain_obstructions (P : Type) [PartialOrder P] [Fintype P] :
   · exact Or.inr (Or.inr (Or.inr (Or.inl (middle b c (by simp) (by simp) lo hi mass))))
   · exact Or.inr (Or.inr (Or.inr (Or.inr (middle c d (by simp) (by simp) lo hi mass))))
 
+-- Delete x and close the gap in the ranks. The inverse operation skips slot k.
+lemma insert_rank_bijection (P : Type) (x : P) (n : ℕ) :
+    let Q := {y : P // y ≠ x}
+    ∃ E : ((Q ≃ Fin n) × Fin (n+1)) ≃ (P ≃ Fin (n+1)),
+      ∀ (r : Q ≃ Fin n) k, E (r,k) x = k ∧ ∀ a : Q, E (r,k) a.val = k.succAbove (r a) := by
+  classical
+  intro Q
+  let ins (r : Q ≃ Fin n) (k : Fin (n+1)) :=
+    (Equiv.optionSubtypeNe x).symm.trans (r.optionCongr.trans (finSuccEquiv' k).symm)
+  have atX (r : Q ≃ Fin n) (k) : ins r k x = k := by simp [ins]
+  have atQ (r : Q ≃ Fin n) (k) (a : Q) : ins r k a.val = k.succAbove (r a) := by
+    simp [ins,Equiv.optionSubtypeNe_symm_of_ne a.property]
+  let del (f : P ≃ Fin (n+1)) : Q ≃ Fin n :=
+    (f.subtypeEquiv (fun y => (f.injective.ne_iff : f y ≠ f x ↔ y ≠ x).symm)).trans
+      (finSuccAboveEquiv (f x)).symm
+  have close (f : P ≃ Fin (n+1)) (a : Q) : (f x).succAbove (del f a) = f a :=
+    congrArg Subtype.val ((finSuccAboveEquiv (f x)).apply_symm_apply ⟨f a,f.injective.ne a.property⟩)
+  let insertAll (p : (Q ≃ Fin n) × Fin (n+1)) := ins p.1 p.2
+  have inj : Function.Injective insertAll := by
+    rintro ⟨r,k⟩ ⟨s,l⟩ h
+    change ins r k = ins s l at h
+    have kl : k = l := (atX r k).symm.trans ((DFunLike.congr_fun h x).trans (atX s l))
+    subst l
+    have rs : r = s := by
+      apply Equiv.ext
+      intro a
+      apply (Fin.strictMono_succAbove k).injective
+      exact (atQ r k a).symm.trans ((DFunLike.congr_fun h a.val).trans (atQ s k a))
+    simp [rs]
+  have onto : Function.Surjective insertAll := by
+    intro f
+    refine ⟨⟨del f,f x⟩,?_⟩
+    apply Equiv.ext
+    intro a
+    by_cases h : a = x
+    · subst a
+      exact atX _ _
+    · exact (atQ _ _ ⟨a,h⟩).trans (close f ⟨a,h⟩)
+  exact ⟨Equiv.ofBijective insertAll ⟨inj,onto⟩,fun r k => ⟨atX r k, atQ r k⟩⟩
+
+-- T tests comparisons among surviving elements. V tests which survivors
+-- follow x and can therefore vary between slots of the same extension.
+open scoped Classical in
+lemma deletion_slot_count (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    let n := Fintype.card Q
+    let legal (r : Q ≃ Fin n) (k : Fin (n+1)) :=
+      (∀ a : Q, a.val < x → (r a).val < k.val) ∧ (∀ a : Q, x < a.val → k.val ≤ (r a).val)
+    ∀ (T : (Q → Q → Prop) → Prop) (V : (Q → Prop) → Prop),
+      Nat.card {f : P ≃ Fin (Fintype.card P) // (StrictMono f ∧ T (fun a b => f a.val < f b.val)) ∧
+        V (fun a => f x < f a.val)} =
+      ∑ r : {r : Q ≃ Fin n // StrictMono r ∧ T (fun a b => r a < r b)},
+        Nat.card {k : Fin (n+1) // legal r.val k ∧ V (fun a => k.val ≤ (r.val a).val)} := by
+  classical
+  intro Q n legal T V
+  have size : Fintype.card P = n+1 := by
+    simpa [n,Q] using (Fintype.card_congr (Equiv.optionSubtypeNe x)).symm
+  obtain ⟨E,hE⟩ := insert_rank_bijection P x n
+  let castRank := finCongr size.symm
+  let F := E.trans (Equiv.equivCongr (Equiv.refl P) castRank)
+  have compare (r : Q ≃ Fin n) (k : Fin (n+1)) (a b : P) :
+      F (r,k) a < F (r,k) b ↔ E (r,k) a < E (r,k) b := Iff.rfl
+  have rest (r : Q ≃ Fin n) (k) (a b : Q) :
+      F (r,k) a.val < F (r,k) b.val ↔ r a < r b := by
+    rw [compare,(hE r k).2 a,(hE r k).2 b,Fin.succAbove_lt_succAbove_iff]
+  have pred (r : Q ≃ Fin n) (k) (a : Q) :
+      F (r,k) a.val < F (r,k) x ↔ (r a).val < k.val := by
+    rw [compare,(hE r k).1,(hE r k).2 a,Fin.succAbove_lt_iff_castSucc_lt]
+    rfl
+  have succ (r : Q ≃ Fin n) (k) (a : Q) :
+      F (r,k) x < F (r,k) a.val ↔ k.val ≤ (r a).val := by
+    rw [compare,(hE r k).1,(hE r k).2 a,Fin.lt_succAbove_iff_le_castSucc]
+    rfl
+  have mono (r : Q ≃ Fin n) (k) : StrictMono (F (r,k)) ↔ StrictMono r ∧ legal r k := by
+    constructor
+    · intro h
+      exact ⟨fun {a b} ab => (rest r k a b).mp (h (show a.val < b.val from ab)),
+        fun a ax => (pred r k a).mp (h ax), fun a xa => (succ r k a).mp (h xa)⟩
+    · rintro ⟨h,hp,hs⟩ a b ab
+      by_cases ax : a = x
+      · subst a
+        exact (succ r k ⟨b,ab.ne.symm⟩).mpr (hs _ ab)
+      by_cases bx : b = x
+      · subst b
+        exact (pred r k ⟨a,ax⟩).mpr (hp _ ab)
+      exact (rest r k ⟨a,ax⟩ ⟨b,bx⟩).mpr (h (show (⟨a,ax⟩ : Q) < ⟨b,bx⟩ from ab))
+  let good (r : Q ≃ Fin n) := StrictMono r ∧ T (fun a b => r a < r b)
+  let allowed (r : Q ≃ Fin n) (k : Fin (n+1)) := legal r k ∧ V (fun a => k.val ≤ (r a).val)
+  let fibers := (r : {r : Q ≃ Fin n // good r}) × {k : Fin (n+1) // allowed r.val k}
+  let packed := {p : (Q ≃ Fin n) × Fin (n+1) // good p.1 ∧ allowed p.1 p.2}
+  let pack : fibers ≃ packed := {
+    toFun := fun ⟨r,k⟩ => ⟨(r.val,k.val),r.property,k.property⟩
+    invFun := fun p => ⟨⟨p.val.1,p.property.1⟩,⟨p.val.2,p.property.2⟩⟩
+    left_inv := fun ⟨⟨_,_⟩,⟨_,_⟩⟩ => rfl
+    right_inv := fun ⟨⟨_,_⟩,_⟩ => rfl }
+  have test (p : (Q ≃ Fin n) × Fin (n+1)) :
+      good p.1 ∧ allowed p.1 p.2 ↔ (StrictMono (F p) ∧ T (fun a b : Q => F p a.val < F p b.val)) ∧
+        V (fun a : Q => F p x < F p a.val) := by
+    obtain ⟨r,k⟩ := p
+    have rel : (fun a b : Q => F (r,k) a.val < F (r,k) b.val) = (fun a b => r a < r b) :=
+      funext fun a => funext fun b => propext (rest r k a b)
+    have side : (fun a : Q => F (r,k) x < F (r,k) a.val) = (fun a => k.val ≤ (r a).val) :=
+      funext fun a => propext (succ r k a)
+    rw [rel,side,mono]
+    exact ⟨fun ⟨⟨m,t⟩,s,v⟩ => ⟨⟨⟨m,s⟩,t⟩,v⟩,fun ⟨⟨⟨m,s⟩,t⟩,v⟩ => ⟨⟨m,t⟩,s,v⟩⟩
+  exact (Nat.card_congr (pack.trans (F.subtypeEquiv test))).symm.trans Nat.card_sigma
+
+open scoped Classical in
+lemma deletion_event_count (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    let n := Fintype.card Q
+    let legal (r : Q ≃ Fin n) (k : Fin (n+1)) :=
+      (∀ a : Q, a.val < x → (r a).val < k.val) ∧ (∀ a : Q, x < a.val → k.val ≤ (r a).val)
+    ∀ T : (Q → Q → Prop) → Prop,
+      Nat.card {f : P ≃ Fin (Fintype.card P) // StrictMono f ∧ T (fun a b => f a.val < f b.val)} =
+      ∑ r : {r : Q ≃ Fin n // StrictMono r ∧ T (fun a b => r a < r b)},
+        Nat.card {k : Fin (n+1) // legal r.val k} := by
+  classical
+  intro Q n legal T
+  simpa only [and_true] using deletion_slot_count P x T (fun _ => True)
+
+-- Insertion immediately after the last predecessor is always legal.
+open scoped Classical in
+lemma legal_slot_exists (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    let n := Fintype.card Q
+    ∀ r : Q ≃ Fin n, StrictMono r → ∃ k : Fin (n+1),
+      (∀ a : Q, a.val < x → (r a).val < k.val) ∧ (∀ a : Q, x < a.val → k.val ≤ (r a).val) := by
+  classical
+  intro Q n r mono
+  let pred := Finset.univ.filter (fun a : Q => a.val < x)
+  by_cases h : pred.Nonempty
+  · obtain ⟨a,ha,last⟩ := pred.exists_max_image (fun a => (r a).val) h
+    refine ⟨(r a).succ,fun b hb => Nat.lt_succ_of_le (last _ (Finset.mem_filter.mpr ⟨Finset.mem_univ _,hb⟩)),?_⟩
+    intro b hb
+    have ab : a.val < b.val := lt_trans (Finset.mem_filter.mp ha).2 hb
+    exact mono (show a < b from ab)
+  · refine ⟨0,fun a ha => ?_,fun _ _ => Nat.zero_le _⟩
+    exact (h ⟨a,Finset.mem_filter.mpr ⟨Finset.mem_univ _,ha⟩⟩).elim
+
+open scoped Classical in
+lemma deletion_event_lower (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    ∀ T : (Q → Q → Prop) → Prop,
+      Nat.card {r : Q ≃ Fin (Fintype.card Q) // StrictMono r ∧ T (fun a b => r a < r b)} ≤
+        Nat.card {f : P ≃ Fin (Fintype.card P) // StrictMono f ∧ T (fun a b => f a.val < f b.val)} := by
+  classical
+  intro Q T
+  rw [deletion_event_count P x T, ← Nat.card_sigma]
+  let R := {r : Q ≃ Fin (Fintype.card Q) // StrictMono r ∧ T (fun a b => r a < r b)}
+  have slot (r : R) := legal_slot_exists P x r.val r.property.1
+  choose k hk using slot
+  exact Nat.card_le_card_of_injective (fun r : R => ⟨r,⟨k r,hk r⟩⟩)
+    (fun _ _ h => congrArg Sigma.fst h)
+
+-- Apart from the last legal slot, a slot can be charged to the survivor
+-- immediately after it. That survivor must be incomparable with x.
+open scoped Classical in
+lemma legal_slot_bound (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    let n := Fintype.card Q
+    ∀ r : Q ≃ Fin n,
+      Nat.card {k : Fin (n+1) //
+        (∀ a : Q, a.val < x → (r a).val < k.val) ∧ (∀ a : Q, x < a.val → k.val ≤ (r a).val)} ≤
+        ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard + 1 := by
+  classical
+  intro Q n r
+  let S := {k : Fin (n+1) //
+    (∀ a : Q, a.val < x → (r a).val < k.val) ∧ (∀ a : Q, x < a.val → k.val ≤ (r a).val)}
+  change Nat.card S ≤ _
+  by_cases hn : Nonempty S
+  · obtain ⟨m,_,last⟩ := Finset.univ.exists_max_image (fun k : S => k.val.val)
+      ⟨hn.some,Finset.mem_univ _⟩
+    let A := {k : S // k ≠ m}
+    have before (k : A) : k.val.val.val < m.val.val := by
+      apply lt_of_le_of_ne (last _ (Finset.mem_univ _))
+      exact fun eq => k.property (Subtype.ext (Fin.ext eq))
+    let idx (k : A) : Fin n := ⟨k.val.val.val, by have := before k; have := m.val.isLt; omega⟩
+    let elt (k : A) : Q := r.symm (idx k)
+    have pos (k : A) : (r (elt k)).val = k.val.val.val := by simp [elt,idx]
+    let N := {y : P | ¬ x ≤ y ∧ ¬ y ≤ x}
+    have inc (k : A) : (elt k).val ∈ N := by
+      constructor
+      · intro h
+        have bound := m.property.2 (elt k) (lt_of_le_of_ne h (elt k).property.symm)
+        rw [pos] at bound
+        exact (before k).not_ge bound
+      · intro h
+        have bound := k.val.property.1 (elt k) (lt_of_le_of_ne h (elt k).property)
+        rw [pos] at bound
+        exact (lt_irrefl _ bound)
+    let charge (k : A) : ↥N := ⟨(elt k).val, inc k⟩
+    have inj : Function.Injective charge := by
+      intro k l eq
+      have e : elt k = elt l := Subtype.ext (congrArg (fun z : ↥N => z.val) eq)
+      exact Subtype.ext (Subtype.ext (Fin.ext ((pos k).symm.trans ((congrArg (fun a => (r a).val) e).trans (pos l)))))
+    have cap := Nat.card_le_card_of_injective charge inj
+    have split : Nat.card S = Nat.card A + 1 := by
+      simpa only [Nat.card_eq_fintype_card,Fintype.card_option] using
+        (Nat.card_congr (Equiv.optionSubtypeNe m)).symm
+    rw [split]
+    exact Nat.add_le_add_right cap 1
+  · have : IsEmpty S := not_nonempty_iff.mp hn
+    simp
+
+open scoped Classical in
+lemma deletion_event_bound (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    let d := ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard
+    ∀ T : (Q → Q → Prop) → Prop,
+      Nat.card {f : P ≃ Fin (Fintype.card P) // StrictMono f ∧ T (fun a b => f a.val < f b.val)} ≤
+        (d+1) * Nat.card {r : Q ≃ Fin (Fintype.card Q) // StrictMono r ∧ T (fun a b => r a < r b)} := by
+  classical
+  intro Q d T
+  rw [deletion_event_count P x T]
+  have bounded {A : Type} (s : Finset A) (w : A → ℕ) (h : ∀ i, w i ≤ d+1) :
+      ∑ i ∈ s, w i ≤ (d+1) * s.card := by
+    induction s using Finset.induction_on with
+    | empty => simp
+    | @insert i s hi ih =>
+      rw [Finset.sum_insert hi, Finset.card_insert_of_notMem hi,Nat.mul_succ]
+      exact (Nat.add_le_add (h i) ih).trans_eq (Nat.add_comm _ _)
+  simpa only [Finset.card_univ,Nat.card_eq_fintype_card] using
+    bounded (Finset.univ : Finset {r : Q ≃ Fin (Fintype.card Q) // StrictMono r ∧ T (fun a b => r a < r b)})
+      (fun r => Nat.card {k : Fin (Fintype.card Q+1) //
+        (∀ a : Q, a.val < x → (r.val a).val < k.val) ∧ (∀ a : Q, x < a.val → k.val ≤ (r.val a).val)})
+      (fun r => legal_slot_bound P x r.val)
+
+-- Bound each restored orientation by charging its deleted extensions at
+-- most d+1 times. A bound on the larger deleted row controls both tails.
+open scoped Classical in
+lemma deletion_balance_transfer (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    let C (A : Type) [PartialOrder A] [Fintype A] (l : List (A × A)) :=
+      Nat.card {f : A ≃ Fin (Fintype.card A) // (∀ u v, u < v → f u < f v) ∧ ∀ p ∈ l, f p.1 < f p.2}
+    let d := ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard
+    ∀ a b : Q, a ≠ b →
+      (3 * ((d+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ≤ 2 * C P [] ∨
+       C P [] ≤ 3 * min (C Q [(a,b)]) (C Q [(b,a)])) →
+      C P [] ≤ 3 * C P [(a.val,b.val)] ∧ 3 * C P [(a.val,b.val)] ≤ 2 * C P [] := by
+  classical
+  intro Q C d a b ne mass
+  have ident (A : Type) [PartialOrder A] [Fintype A] (s t : A) :
+        C A [(s,t)] = Nat.card {r : A ≃ Fin (Fintype.card A) // StrictMono r ∧ r s < r t} := by
+    dsimp only [C]
+    apply Nat.card_congr (Equiv.subtypeEquivRight ?_)
+    intro r
+    simp [StrictMono]
+  have bound (u v : Q) : C P [(u.val,v.val)] ≤ (d+1) * C Q [(u,v)] := by
+    rw [ident P,ident Q]
+    exact deletion_event_bound P x (fun rel => rel u v)
+  have lower (u v : Q) : C Q [(u,v)] ≤ C P [(u.val,v.val)] := by
+    rw [ident P,ident Q]
+    exact deletion_event_lower P x (fun rel => rel u v)
+  have full : C P [(a.val,b.val)] + C P [(b.val,a.val)] = C P [] :=
+    (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P).2.2.1 [] a.val b.val (fun e => ne (Subtype.ext e))
+  rcases mass with high | low
+  · have up := (bound a b).trans (Nat.mul_le_mul_left (d+1) (le_max_left (C Q [(a,b)]) (C Q [(b,a)])))
+    have down := (bound b a).trans (Nat.mul_le_mul_left (d+1) (le_max_right (C Q [(a,b)]) (C Q [(b,a)])))
+    constructor <;> omega
+  · have up := lower a b
+    have down := lower b a
+    have left := min_le_left (C Q [(a,b)]) (C Q [(b,a)])
+    have right := min_le_right (C Q [(a,b)]) (C Q [(b,a)])
+    constructor <;> omega
+
+-- A tied comparison on deletion survives as a balanced comparison if the
+-- average fiber size is at least three quarters of the maximum slot bound.
+open scoped Classical in
+lemma tied_deletion_bounds (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    let C (A : Type) [PartialOrder A] [Fintype A] (l : List (A × A)) :=
+      Nat.card {f : A ≃ Fin (Fintype.card A) // (∀ u v, u < v → f u < f v) ∧ ∀ p ∈ l, f p.1 < f p.2}
+    let d := ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard
+    ∀ a b : Q, a ≠ b → 2 * C Q [(a,b)] = C Q [] →
+      3 * (d+1) * C Q [] ≤ 4 * C P [] →
+      C P [] ≤ 3 * C P [(a.val,b.val)] ∧ 3 * C P [(a.val,b.val)] ≤ 2 * C P [] := by
+  classical
+  intro Q C d a b ne tie mass
+  have del : C Q [(a,b)] + C Q [(b,a)] = C Q [] :=
+    (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts Q).2.2.1 [] a b ne
+  have both : C Q [(b,a)] = C Q [(a,b)] := by omega
+  apply deletion_balance_transfer P x a b ne
+  left
+  change 3 * ((d+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ≤ 2 * C P []
+  rw [both,max_self]
+  rw [← tie] at mass
+  rw [show 3 * (d+1) * (2 * C Q [(a,b)]) = 2 * (3 * ((d+1) * C Q [(a,b)])) by ac_rfl] at mass
+  omega
+
+open scoped Classical in
+lemma degree_seven_tie_transfer (P : Type) [PartialOrder P] [Fintype P] (x : P) :
+    let Q := {y : P // y ≠ x}
+    let C (A : Type) [PartialOrder A] [Fintype A] (l : List (A × A)) :=
+      Nat.card {f : A ≃ Fin (Fintype.card A) // (∀ u v, u < v → f u < f v) ∧ ∀ p ∈ l, f p.1 < f p.2}
+    let d := ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard
+    d = 7 → ∀ a b : Q, a ≠ b → 2 * C Q [(a,b)] = C Q [] →
+      6 * C Q [] ≤ C P [] →
+      C P [] ≤ 3 * C P [(a.val,b.val)] ∧ 3 * C P [(a.val,b.val)] ≤ 2 * C P [] := by
+  classical
+  intro Q C d seven a b ne tie average
+  apply tied_deletion_bounds P x a b ne tie
+  change 3 * (d+1) * C Q [] ≤ 4 * C P []
+  rw [seven]
+  omega
+
 theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
+  classical
   intro chainCase antichainCase P _ _ nonchain indecomp rigid three wide up down noGold
   obtain ⟨x, hx⟩ := wide
   let N := {y : P | ¬ x ≤ y ∧ ¬ y ≤ x}
+  let Q := {y : P // y ≠ x}
+  let C (A : Type) [PartialOrder A] [Fintype A] (l : List (A × A)) :=
+      Nat.card {f : A ≃ Fin (Fintype.card A) // (∀ u v, u < v → f u < f v) ∧ ∀ p ∈ l, f p.1 < f p.2}
+  by_contra noPair
+  have obstruction (a b : Q) (ne : a ≠ b) :
+      2 * C P [] < 3 * ((N.ncard+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ∧
+        3 * min (C Q [(a,b)]) (C Q [(b,a)]) < C P [] := by
+    by_contra fail
+    have mass : 3 * ((N.ncard+1) * max (C Q [(a,b)]) (C Q [(b,a)])) ≤ 2 * C P [] ∨
+        C P [] ≤ 3 * min (C Q [(a,b)]) (C Q [(b,a)]) := by omega
+    obtain ⟨lo,hi⟩ := deletion_balance_transfer P x a b ne mass
+    apply noPair
+    apply pair_of_count_bounds P a.val b.val (fun eq => ne (Subtype.ext eq))
+    · exact lo
+    · exact hi
+  apply noPair
   by_cases chain : ∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d
   · obtain ⟨a, ha, b, hb, c, hc, d, hd, ab, bc, cd⟩ := chain
     have ne (y : P) (hy : y ∈ N) : x ≠ y := fun h => hy.1 h.le
@@ -323,9 +652,11 @@ theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
         rcases hy with rfl | rfl | rfl | rfl <;> assumption
       exact pair_of_count_bounds P x y (ne y yn) lo hi
     · exact chainCase P nonchain indecomp rigid three
-        ⟨x, hx, a, ha, b, hb, c, hc, d, hd, ab, bc, cd, gap⟩ up down noGold
+        ⟨x, hx, obstruction, a, ha, b, hb, c, hc, d, hd, ab, bc, cd, gap⟩ up down
+        noGold
   · obtain ⟨t, xt, anti, bound⟩ := antichain_through_vertex P x chain
     have four : 4 ≤ t.card := by omega
-    exact antichainCase P nonchain indecomp rigid ⟨x, hx, chain, t, xt, anti, four, bound⟩ up down noGold
+    exact antichainCase P nonchain indecomp rigid ⟨x, hx, obstruction, chain, t, xt, anti, four, bound⟩ up down
+      noGold
 
 end OMA.R_wp_1_3_2_3_conjecture_R1_H2_R1
