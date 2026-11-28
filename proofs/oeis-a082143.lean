@@ -1,17 +1,17 @@
 import OMAStatements.S_oeis_a082143
-import Mathlib
+
+open OMA.S_oeis_a082143
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a082143.main := by
   intro n hn
-  obtain ⟨m, rfl⟩ : ∃ m, n = m + 2 := ⟨n - 2, by omega⟩
-  simp only [OMA.S_oeis_a082143.a, OMA.S_oeis_a082143.T, show m + 2 - 1 = m + 1 by omega,
-    show m + 2 + (m + 2 + 1) = 2 * m + 3 + 2 by ring, show m + 1 + (m + 1 + 1) = 2 * m + 3 by ring,
-    Nat.cast_choose ℚ (show m + 2 ≤ 2 * m + 3 + 2 by omega),
-    Nat.cast_choose ℚ (show m + 1 ≤ 2 * m + 3 by omega),
-    show 2 * m + 3 + 2 - (m + 2) = m + 2 + 1 by omega, show 2 * m + 3 - (m + 1) = m + 1 + 1 by omega,
-    show (((m + 2 : ℕ) : ℤ) - 1) = ((m + 1 : ℕ) : ℤ) by push_cast; ring,
-    show (((m + 1 : ℕ) : ℤ) - 1) = ((m : ℕ) : ℤ) by push_cast; ring, zpow_natCast,
-    Nat.factorial_succ, zero_pow (Nat.succ_ne_zero _)]
-  push_cast
-  field_simp
-  ring
+  obtain ⟨m, rfl⟩ := Nat.exists_eq_add_of_le' hn
+  have h1 := Nat.add_one_mul_choose_eq (2*m+4) (m+1)
+  have h2 := Nat.choose_mul_succ_eq (2*m+3) (m+1)
+  rw [show 2*m+3+1-(m+1) = m+3 by omega] at h2
+  qify at h1 h2
+  simp only [a, T, show m+2-1 = m+1 by omega]
+  rw [show ((m+2:ℕ):ℤ)-1 = (m+1:ℕ) by omega, show ((m+1:ℕ):ℤ)-1 = m by omega, zpow_natCast, zpow_natCast]
+  simp
+  refine mul_left_cancel₀ (show (m:ℚ)+2 ≠ 0 by positivity) ?_
+  ring_nf at *
+  linear_combination 2^m*(-2*(m+3)*h1 - 2*(2*m+5)*h2)
