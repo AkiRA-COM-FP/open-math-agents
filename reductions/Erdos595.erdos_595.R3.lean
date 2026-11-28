@@ -1450,6 +1450,126 @@ theorem endpoint_rows_three_row_test {I : Type} [LinearOrder I]
       (convert G a c (ab.trans bc)).symm.trans (h₂.trans (convert J a c (ab.trans bc))),
       (convert G b c bc).symm.trans (h₃.trans (convert J b c bc))⟩
 
+/-- A common neighbour extends a triangle to a four-clique. -/
+private theorem triangle_no_common {I : Type} (G : SimpleGraph I) (free : G.CliqueFree 4)
+    {a b c : I} (ab : G.Adj a b) (ac : G.Adj a c) (bc : G.Adj b c) (x : I) :
+    ¬ (G.Adj x a ∧ G.Adj x b ∧ G.Adj x c) := by
+  classical
+  rintro ⟨xa,xb,xc⟩
+  apply free (insert x {a,b,c})
+  apply (is3Clique_triple_iff.mpr ⟨ab,ac,bc⟩).insert
+  intro y hy
+  simp only [Finset.mem_insert,Finset.mem_singleton] at hy
+  rcases hy with rfl | rfl | rfl <;> assumption
+
+/-- Three proposed incoming rows containing the ordered triangle are
+realizable exactly when they have no common member. A realizing graph
+can have all other rows empty and admits a proper three-colouring. -/
+theorem three_row_realization {I : Type} [LinearOrder I] (a b c : I)
+    (ab : a < b) (bc : b < c) (A B C : Set I)
+    (ha : A ⊆ Set.Iio a) (hb : B ⊆ Set.Iio b) (hc : C ⊆ Set.Iio c)
+    (tab : a ∈ B) (tac : a ∈ C) (tbc : b ∈ C) :
+    (¬ ∃ x, x ∈ A ∧ x ∈ B ∧ x ∈ C) ↔
+      ∃ G : SimpleGraph I, G.CliqueFree 4 ∧
+        (∃ col : I → Fin 3, ∀ x y, G.Adj x y → col x ≠ col y) ∧
+        {x | x < a ∧ G.Adj x a} = A ∧ {x | x < b ∧ G.Adj x b} = B ∧
+        {x | x < c ∧ G.Adj x c} = C ∧
+        ∀ x y, x < y → G.Adj x y → y = a ∨ y = b ∨ y = c := by
+  classical
+  constructor
+  · intro empty
+    let link (x y : I) := (y = a ∧ x ∈ A) ∨ (y = b ∧ x ∈ B) ∨ (y = c ∧ x ∈ C)
+    have forward {x y} (e : link x y) : x < y := by
+      rcases e with ⟨rfl,h⟩ | ⟨rfl,h⟩ | ⟨rfl,h⟩
+      · exact ha h
+      · exact hb h
+      · exact hc h
+    let G : SimpleGraph I := {
+      Adj := fun x y => link x y ∨ link y x
+      symm := ⟨fun _ _ => Or.symm⟩
+      loopless := ⟨fun x h => h.elim (fun e => (forward e).false) (fun e => (forward e).false)⟩ }
+    have incoming (x y : I) : (x < y ∧ G.Adj x y) ↔ link x y :=
+      ⟨fun ⟨lt,e⟩ => e.resolve_right (fun rev => lt.asymm (forward rev)),fun e => ⟨forward e,Or.inl e⟩⟩
+    let col (x : I) : Fin 3 := if x = a then 0 else if x = b then 1 else if x = c then 2
+      else if x ∉ A then 0 else if x ∉ B then 1 else 2
+    have different {x y} (e : link x y) : col x ≠ col y := by
+      have lt := forward e
+      have miss : ¬ (x ∈ A ∧ x ∈ B ∧ x ∈ C) := fun h => empty ⟨x,h⟩
+      have ca : col a = 0 := by simp [col]
+      have cb : col b = 1 := by simp [col,ab.ne.symm]
+      have cc : col c = 2 := by simp [col,(ab.trans bc).ne.symm,bc.ne.symm]
+      rcases e with ⟨rfl,h⟩ | ⟨rfl,h⟩ | ⟨rfl,h⟩
+      · rw [ca]
+        simp only [col,if_neg lt.ne,if_neg (lt.trans ab).ne,if_neg ((lt.trans ab).trans bc).ne,
+          not_true_eq_false,h,ite_false]
+        split <;> decide
+      · rw [cb]
+        by_cases eq : x = a
+        · subst x; rw [ca]; decide
+        · simp only [col,if_neg eq,if_neg lt.ne,if_neg (lt.trans bc).ne,h,not_true_eq_false,ite_false]
+          split <;> decide
+      · rw [cc]
+        by_cases ea : x = a
+        · subst x; rw [ca]; decide
+        by_cases eb : x = b
+        · subst x; rw [cb]; decide
+        by_cases m : x ∈ A
+        · have nb : x ∉ B := fun mb => miss ⟨m,mb,h⟩
+          simp [col,ea,eb,lt.ne,m,nb]
+        · simp [col,ea,eb,lt.ne,m]
+    have proper (x y) (e : G.Adj x y) : col x ≠ col y := e.elim different (fun h => (different h).symm)
+    have free : G.CliqueFree 4 := by
+      by_contra bad
+      obtain ⟨g⟩ := (not_cliqueFree_iff_top_isContained 4).mp bad
+      have inj : Function.Injective (fun i : Fin 4 => col (g i)) := fun i j eq =>
+        by_contra fun ne => proper _ _ (g.toHom.map_rel ne) eq
+      have := Fintype.card_le_of_injective _ inj
+      simp at this
+    refine ⟨G,free,⟨col,proper⟩,?_,?_,?_,?_⟩
+    · ext x
+      simpa [link,ab.ne,(ab.trans bc).ne] using incoming x a
+    · ext x
+      simpa [link,ab.ne.symm,bc.ne] using incoming x b
+    · ext x
+      simpa [link,(ab.trans bc).ne.symm,bc.ne.symm] using incoming x c
+    · intro x y lt e
+      rcases (incoming x y).mp ⟨lt,e⟩ with ⟨h,_⟩ | ⟨h,_⟩ | ⟨h,_⟩ <;> tauto
+  · rintro ⟨G,free,_,rA,rB,rC,_⟩ ⟨x,xa,xb,xc⟩
+    rw [←rA] at xa
+    rw [←rB] at xb tab
+    rw [←rC] at xc tac tbc
+    exact triangle_no_common G free tab.2 tac.2 tbc.2 x ⟨xa.2,xb.2,xc.2⟩
+
+/-- A fixed endpoint-row rule wins on all legal plays iff every formally
+monochromatic ordered triangle of row data has a common predecessor.
+The latter condition quantifies only over vertices and three sets. -/
+theorem endpoint_painter_iff_common_predecessor {I : Type} [LinearOrder I]
+    (paint : I → I → Set I → Set I → ℕ) :
+    let row := fun (G : SimpleGraph I) (j : I) => {x | x < j ∧ G.Adj x j}
+    (∀ (G : SimpleGraph I), G.CliqueFree 4 → ∀ a b c, a < b → b < c →
+      G.Adj a b → G.Adj a c → G.Adj b c →
+      paint a b (row G a) (row G b) = paint a c (row G a) (row G c) →
+      paint a b (row G a) (row G b) ≠ paint b c (row G b) (row G c)) ↔
+    ∀ a b c, a < b → b < c → ∀ A B C : Set I,
+      A ⊆ Set.Iio a → B ⊆ Set.Iio b → C ⊆ Set.Iio c → a ∈ B → a ∈ C → b ∈ C →
+      paint a b A B = paint a c A C → paint a b A B = paint b c B C →
+      ∃ x, x ∈ A ∧ x ∈ B ∧ x ∈ C := by
+  classical
+  intro row
+  constructor
+  · intro win a b c ab bc A B C ha hb hc tab tac tbc e₁ e₂
+    by_contra none
+    obtain ⟨G,free,_,rA,rB,rC,_⟩ := (three_row_realization a b c ab bc A B C ha hb hc tab tac tbc).mp none
+    rw [←rA,←rB,←rC] at e₁ e₂
+    rw [←rB] at tab
+    rw [←rC] at tac tbc
+    exact win G free a b c ab bc tab.2 tac.2 tbc.2 e₁ e₂
+  · intro test G free a b c ab bc gab gac gbc e₁ e₂
+    obtain ⟨x,xa,xb,xc⟩ := test a b c ab bc (row G a) (row G b) (row G c)
+      (fun _ h => h.1) (fun _ h => h.1) (fun _ h => h.1)
+      ⟨ab,gab⟩ ⟨ab.trans bc,gac⟩ ⟨bc,gbc⟩ e₁ e₂
+    exact triangle_no_common G free gab gac gbc x ⟨xa.2,xb.2,xc.2⟩
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
