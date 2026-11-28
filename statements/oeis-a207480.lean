@@ -29,3 +29,4 @@ theorem main : ∀ n : ℕ, 2 ≤ n → 0 < a n := by
   sorry
 
 end OMA.S_oeis_a207480
+-- ci: re-run check-proof
