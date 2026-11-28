@@ -11,13 +11,14 @@ quartic z² + 3u⁴ = v⁴ a primitive solution splits as v² = a² + 3c²,
 u² = 2ac. Reducing (v+a)/c yields a new solution whose positive
 fourth-power coordinate is strictly smaller.
 
-For cofactor 17, factoring off a Gaussian square of norm 17 gives a
-single pair of binary cubics. Congruences modulo 16 and 9 give eight lattice
-classes modulo 48. A strip-wise intersection of square-residue tests at
-18 primes certifies the whole signed box |m|,|n| ≤ 469320. Thus k ≥ 41
-and b ≤ 122475323887. The two remaining steps distinguish k = 41 from k ≥ 73.
-A rational
-right triangle with area 2b is constructed directly in both cases.
+For each of 17 and 41, factoring off a Gaussian square of that norm gives
+one pair of binary cubic forms, up to exchanging the two square coordinates.
+Congruences modulo 16 and 9 give eight classes modulo 48 for the cofactor
+17 and 24 classes for 41. Intersecting square-residue tests at 18 primes in
+strips of 256 rows certifies both signed boxes. The coordinate radii are
+469320 and 349964, respectively. Thus k ≥ 73 and b ≤ 83372455837.
+The two remaining subproblems distinguish k = 73 from k ≥ 89. A rational
+right triangle with area 2b is constructed in both cases.
 
 Chad Mazzola formalized Lucas's theorem using a different descent in Beal
 reduction #9630. The reduced-slope proof here also
@@ -31,19 +32,20 @@ https://antsmath.org/ANTSXV/papers/ANTS-XV_elkies-goel.pdf
 
 namespace OMA.R_mo_191889_R1_H3_R1
 
-/-- After excluding 17, the first possible cofactor is 41. -/
+/-- Cofactor 73 is the first surviving possibility. -/
 def H1 : Prop :=
-  ∀ b x y : ℕ, 10000 < b → b ≤ 122475323887 → Squarefree b →
+  ∀ b x y : ℕ, 10000 < b → b ≤ 83372455837 → Squarefree b →
     (∀ p ∈ b.primeFactors, p % 8 = 1) →
     (∃ a d c : ℚ, 0 < a ∧ 0 < d ∧ 0 < c ∧ a^2+d^2=c^2 ∧ a*d=4*(b:ℚ)) →
     0 < x → x < y → y ≤ 1325648472 → x.Coprime y →
-    x^4+y^4=b^3*41^2 → b^3*41^2 < 3088257489493360278725196965477359217 → False
+    x^4+y^4=b^3*73^2 → b^3*73^2 < 3088257489493360278725196965477359217 → False
 
-/-- The remaining cofactors are at least 73. -/
+/-- If k exceeds 73, it is at least 89. In the top part of this
+parameter range, only 89 is possible. -/
 def H2 : Prop :=
-  ∀ b k x y : ℕ, 10000 < b → b ≤ 83372455837 → Squarefree b →
-    (∀ p ∈ b.primeFactors, p % 8 = 1) → 73 ≤ k →
-    (∀ p ∈ k.primeFactors, p % 8 = 1) →
+  ∀ b k x y : ℕ, 10000 < b → b ≤ 73054083499 → Squarefree b →
+    (∀ p ∈ b.primeFactors, p % 8 = 1) → 89 ≤ k →
+    (∀ p ∈ k.primeFactors, p % 8 = 1) → (68980024602 < b → k=89) →
     (∃ a d c : ℚ, 0 < a ∧ 0 < d ∧ 0 < c ∧ a^2+d^2=c^2 ∧ a*d=4*(b:ℚ)) →
     0 < x → x < y → y ≤ 1325648472 → x.Coprime y →
     x^4+y^4=b^3*k^2 → b^3*k^2 < 3088257489493360278725196965477359217 → False
@@ -767,6 +769,101 @@ private theorem chart_residues {b : ℕ} {m n X Y : ℤ} (odd : b%2=1)
     · have := lift n; omega
     · simpa only [Nat.cast_ofNat,Int.emod_emod_of_dvd _ (by decide : (16:ℤ)∣48)] using m16
 
+/-- There is just one Gaussian cubic chart for cofactor 41 if the two square
+coordinates may be interchanged. Its signed parameters have norm b. -/
+theorem gaussian_fortyone {b x y : ℕ} (hb : Odd b) (hc : x.Coprime y)
+    (he : x^4+y^4=b^3*41^2) :
+    ∃ m n X Y : ℤ, m^2+n^2=(b:ℤ) ∧
+      ((X=(x:ℤ) ∧ Y=(y:ℤ)) ∨ (X=(y:ℤ) ∧ Y=(x:ℤ))) ∧
+      X^2= 9*(m^3-3*m*n^2)-40*(3*m^2*n-n^3) ∧
+      Y^2= 40*(m^3-3*m*n^2)-(-9)*(3*m^2*n-n^3) := by
+  obtain ⟨⟨m,n⟩,⟨e,f⟩,fac,bn,wn⟩ := powerful_descent hb (by decide : 0<41) hc he
+  have ex := congrArg Zsqrtd.re fac
+  have ey := congrArg Zsqrtd.im fac
+  simp [pow_succ] at ex ey
+  have norm : m^2+n^2=(b:ℤ) := by simpa [Zsqrtd.norm,pow_two] using bn
+  have qr : e^2+f^2=41 := by simpa [Zsqrtd.norm,pow_two] using wn
+  have lim {c d : ℤ} (eq : c^2+d^2=41) : -6≤c ∧ c≤6 := by
+    constructor
+    · by_contra! h
+      nlinarith [sq_nonneg d,mul_nonneg (show 0≤ -c-7 by omega) (show 0≤ -c+7 by omega)]
+    · by_contra! h
+      nlinarith [sq_nonneg d,mul_nonneg (show 0≤c-7 by omega) (show 0≤c+7 by omega)]
+  have ec := lim qr
+  have fc := lim (by rw [add_comm]; exact qr : f^2+e^2=41)
+  have cases : (e=-5 ∧ f=-4) ∨ (e=-5 ∧ f=4) ∨ (e=-4 ∧ f=-5) ∨ (e=-4 ∧ f=5) ∨ (e=4 ∧ f=-5) ∨ (e=4 ∧ f=5) ∨ (e=5 ∧ f=-4) ∨ (e=5 ∧ f=4) := by
+    have table : ∀ i j : Fin 13, ((i.val:ℤ)-6)^2+((j.val:ℤ)-6)^2=41 →
+        ((i.val:ℤ)-6,(j.val:ℤ)-6) ∈ [(-5,-4),(-5,4),(-4,-5),(-4,5),(4,-5),(4,5),(5,-4),(5,4)] := by
+      decide +kernel
+    let I : Fin 13 := ⟨(e+6).toNat,by omega⟩
+    let J : Fin 13 := ⟨(f+6).toNat,by omega⟩
+    have ie : (I.val:ℤ)-6=e := by dsimp [I];omega
+    have jf : (J.val:ℤ)-6=f := by dsimp [J];omega
+    have h := table I J (by simpa only [ie,jf] using qr)
+    simpa only [ie,jf,List.mem_cons,List.not_mem_nil,or_false,Prod.mk.injEq] using h
+  rcases cases with ⟨rfl,rfl⟩|⟨rfl,rfl⟩|⟨rfl,rfl⟩|⟨rfl,rfl⟩|⟨rfl,rfl⟩|⟨rfl,rfl⟩|⟨rfl,rfl⟩|⟨rfl,rfl⟩
+  · refine ⟨m,n,x,y,by linear_combination norm,Or.inl ⟨rfl,rfl⟩,?_,?_⟩
+    · linear_combination ex
+    · linear_combination ey
+  · refine ⟨(-n),(-m),y,x,by linear_combination norm,Or.inr ⟨rfl,rfl⟩,?_,?_⟩
+    · linear_combination ey
+    · linear_combination ex
+  · refine ⟨n,m,y,x,by linear_combination norm,Or.inr ⟨rfl,rfl⟩,?_,?_⟩
+    · linear_combination ey
+    · linear_combination ex
+  · refine ⟨(-m),(-n),x,y,by linear_combination norm,Or.inl ⟨rfl,rfl⟩,?_,?_⟩
+    · linear_combination ex
+    · linear_combination ey
+  · refine ⟨(-m),(-n),x,y,by linear_combination norm,Or.inl ⟨rfl,rfl⟩,?_,?_⟩
+    · linear_combination ex
+    · linear_combination ey
+  · refine ⟨n,m,y,x,by linear_combination norm,Or.inr ⟨rfl,rfl⟩,?_,?_⟩
+    · linear_combination ey
+    · linear_combination ex
+  · refine ⟨(-n),(-m),y,x,by linear_combination norm,Or.inr ⟨rfl,rfl⟩,?_,?_⟩
+    · linear_combination ey
+    · linear_combination ex
+  · refine ⟨m,n,x,y,by linear_combination norm,Or.inl ⟨rfl,rfl⟩,?_,?_⟩
+    · linear_combination ex
+    · linear_combination ey
+
+set_option maxRecDepth 20000 in
+/-- The cofactor-41 chart meets only these 24 residue pairs modulo 48. -/
+private theorem fortyone_classes {b : ℕ} {m n X Y : ℤ} (odd : b%2=1) (d3 : b%3≠0)
+    (bn : m^2+n^2=(b:ℤ))
+    (ex : X^2=9*(m^3-3*m*n^2)-40*(3*m^2*n-n^3))
+    (ey : Y^2=40*(m^3-3*m*n^2)-(-9)*(3*m^2*n-n^3)) :
+    (m%48,n%48) ∈ [(1,4),(1,24),(1,36),(1,40),(9,4),(9,40),(12,7),(12,31),(24,7),(24,31),(25,4),(25,24),(25,36),(25,40),(28,7),(28,15),(28,31),(28,39),(33,4),(33,40),(40,7),(40,15),(40,31),(40,39)] := by
+  let chart (p : ℕ) (a c : ZMod p) : Prop :=
+    (∃ X : ZMod p, X^2=9*(a^3-3*a*c^2)-40*(3*a^2*c-c^3)) ∧
+    (∃ Y : ZMod p, Y^2=40*(a^3-3*a*c^2)-(-9)*(3*a^2*c-c^3))
+  have point (p : ℕ) : chart p m n := by
+    refine ⟨⟨(X : ZMod p),?_⟩,⟨(Y : ZMod p),?_⟩⟩
+    · simpa using congrArg (fun z : ℤ => (z : ZMod p)) ex
+    · simpa using congrArg (fun z : ℤ => (z : ZMod p)) ey
+  have hn (p : ℕ) : (m : ZMod p)^2+(n : ZMod p)^2=(b : ZMod p) := by
+    simpa using congrArg (fun z : ℤ => (z : ZMod p)) bn
+  have t16 : ∀ a c : ZMod 16, chart 16 a c → (a^2+c^2).val%2=1 →
+      ((a.val:ℤ),(c.val:ℤ)) ∈ [(1,4),(1,8),(8,7),(8,15),(9,4),(9,8),(12,7),(12,15)] := by unfold chart; decide +kernel
+  have s16 := t16 _ _ (point 16)
+  simp only [hn,ZMod.val_natCast,ZMod.val_intCast] at s16
+  have m16 := s16 (by omega)
+  have t9 : ∀ a c : ZMod 9, chart 9 a c → (a^2+c^2).val%3≠0 →
+      ((a.val:ℤ)%3,(c.val:ℤ)%3) ∈ [(0,1),(1,0),(1,1)] := by unfold chart; decide +kernel
+  have s9 := t9 _ _ (point 9)
+  simp only [hn,ZMod.val_natCast,ZMod.val_intCast] at s9
+  have m3 := s9 (by omega)
+  have tab : ∀ a c : Fin 48, ((a.val:ℤ)%16,(c.val:ℤ)%16) ∈ [(1,4),(1,8),(8,7),(8,15),(9,4),(9,8),(12,7),(12,15)] →
+      ((a.val:ℤ)%3,(c.val:ℤ)%3) ∈ [(0,1),(1,0),(1,1)] → ((a.val:ℤ),(c.val:ℤ)) ∈ [(1,4),(1,24),(1,36),(1,40),(9,4),(9,40),(12,7),(12,31),(24,7),(24,31),(25,4),(25,24),(25,36),(25,40),(28,7),(28,15),(28,31),(28,39),(33,4),(33,40),(40,7),(40,15),(40,31),(40,39)] := by decide +kernel
+  have lift (t : ℤ) : ((t%48).toNat:ℤ)=t%48 := Int.toNat_of_nonneg (Int.emod_nonneg _ (by decide))
+  have take (t : ℤ) : (t%48).toNat < 48 := by have := lift t; omega
+  have h := tab ⟨_,take m⟩ ⟨_,take n⟩
+  simp only [lift] at h
+  apply h
+  · simpa only [Nat.cast_ofNat,Int.emod_emod_of_dvd _ (by decide : (16:ℤ)∣48)] using m16
+  · simpa only [Nat.cast_ofNat,Int.emod_emod_of_dvd _ (by decide : (3:ℤ)∣48),
+      Int.emod_emod_of_dvd _ (by decide : (3:ℤ)∣9)] using m3
+
 /-- Doubling a bit pattern preserves every residue from the first period. -/
 private theorem extend_bits (p : ℕ) (seed : ℕ) (k i : ℕ) (hi : i<p*2^k)
     (hit : seed.testBit (i%p)=true) :
@@ -825,10 +922,10 @@ private theorem sheet_bit (w p k : ℕ) (f : ℕ → ℕ) (i j : ℕ) (hi : i<p*
 
 /-- Check the two cubics modulo each prime. The rectangular certificate intersects
 periodic masks in strips of 256 rows and requires each intersection to be zero. -/
-private theorem grid_sieve (width origin height : ℕ) (classes : List (ℤ × ℤ))
+private theorem grid_sieve (realNeg cross : ℤ) (width origin height : ℕ) (classes : List (ℤ × ℤ))
     (gates : List (ℕ × ℕ × ℕ × ℕ × ℕ × ℕ)) :
-    let F (m n : ℤ) := -15*(m^3-3*m*n^2)-8*(3*m^2*n-n^3)
-    let G (m n : ℤ) := 8*(m^3-3*m*n^2)-15*(3*m^2*n-n^3)
+    let F (m n : ℤ) := (-realNeg)*(m^3-3*m*n^2)-cross*(3*m^2*n-n^3)
+    let G (m n : ℤ) := cross*(m^3-3*m*n^2)-realNeg*(3*m^2*n-n^3)
     let res (a : ℤ) (p : ℕ) := (a%(p:ℤ)).toNat
     let seed (code p i : ℕ) := (code >>> (p*i)) &&& ((1 <<< p)-1)
     let valid (g : ℕ × ℕ × ℕ × ℕ × ℕ × ℕ) :=
@@ -896,9 +993,9 @@ private theorem grid_sieve (width origin height : ℕ) (classes : List (ℤ × �
     have u := (left.pow 3).sub (((left.mul (right.pow 2)).mul_left 3))
     have vcong := (((left.pow 2).mul right).mul_left 3).sub (right.pow 3)
     have f : F (res m p) (48*(col:ℤ)) ≡ F m n [ZMOD (p:ℤ)] := by
-      dsimp only [F]; convert (u.mul_left (-15)).sub (vcong.mul_left 8) using 1 <;> ring
+      dsimp only [F]; convert (u.mul_left (-realNeg)).sub (vcong.mul_left cross) using 1 <;> ring
     have g' : G (res m p) (48*(col:ℤ)) ≡ G m n [ZMOD (p:ℤ)] := by
-      dsimp only [G]; convert (u.mul_left 8).sub (vcong.mul_left 15) using 1 <;> ring
+      dsimp only [G]; convert (u.mul_left cross).sub (vcong.mul_left realNeg) using 1 <;> ring
     have sqhit (Z : ℤ) {a : ℤ} (he : a ≡ Z^2 [ZMOD (p:ℤ)]) : sq.testBit (res a p)=true := by
       have h := List.all_eq_true.mp quadratic (res Z p) (List.mem_range.mpr (small Z hp))
       have eq : (res Z p)^2%p=res a p := by
@@ -986,7 +1083,7 @@ private theorem zero_seventeen_grid :
     (61,14,9,3,0x1713e6940a59f23b,0x1180c8285a2c7254158fc90b071c66119117240a275431163b05600b0b1245130b015f014261c4079417323692d66633673c8194548398862c17f0005f53538510143505d016b4b34e8d5a0126360b2f966480e1038fc00d22951215b5bd0043512040a8baf0222a60188a51030ab5b220d9020407c1b0ce414700688d9a7f00cd1c16289607bb15172068cd38c2dc20421db006204492b2c8de15a58d50984a420e1a6c64184a2561b83ca9c1520c399681202396dfe1051524f230b584100630a28b1d33f91710f04110fb840505ca06ca916c98d4a02322ad7c455d81178e86994446ab6ab1114cb0b8f440dd511f5aa26202958c9b44a9b029d05010ef84410784744fe65c68a286300410d6862792545043fdb4e20240b4ce182541ca9e0ec352290c131b2c3821290c8558d2d43d89a6a491023006dc21021da18e598b0274546ef0348a341c59807f2cd88b0071413986c1f010204d8226d6a86045288c032a2207ae8a81024561005ed6d42454a25801f8e043809334fa683632402d58b96696b405d056140450e5657d0007f41a308ce09514c09e73663335a4b6267414f011c321407d4068645124686803506e3446157228127444c4331c706849f8d415271a2d0a0980c4000000000000000),
     (67,7,9,3,0x359c281ba27ebc653,0x42200401286862ccd001300510b41490410900c5c0024501122250428324436002ad34080805850008626429808030c4022ca10409610a50c8010cb00240640480b0041c20085441003398c002206f01260b310c130680380411428020188001e09ca00605098e20200828310004a010018368314d8922082828360c5032c104090c10124e86c15801000053c215d000581411484a0a1100620939100e87010d1450031c1422000002864339008d014cac00071421310c09b18152802028344c11885502104e032503c360107284c00020c68c0001102533252940000918132116a0034840948c0030c405412e00cad000212502613090028612012019800d92008221251a03a11400408820a2210802ad330014408a42081335400446018e82182100344306201b3600a3808228046206804a69048c494000151581082a2282212800ce3800ba022402e80ce98002402068548d048110040cc518001e0620050a00000c87a0804ab828001603100c8805408806702143001028c04140023016a201747828c04a08201e41000040047700c891b0ac28004035024002848d0a0f500802500038c00083441608981228412011484120510482902308c22a20005865614022828c0805064290785442208074254360220a048004003341b60cc400401008d31811c804401a29124249426900306d0c41022835301422030c01002ca0e280542468008310208361022881268121162a0290042b8282980a00ca40984103002009331614100000000000000000),
     (71,37,9,3,0x1164729716b1d977f,0x4104024881346100001083881a008410404407210150004080482001204805c048014c12624082000950006010001d042100093102001b431ac11041d0a0a80009240010c82810408a0849018081022104348c9000400e000020842360469468a48180000021d38090060904070910b90609c10080814d10ad816650140c048008052100a244408028204324108048205d4090262801b810a0406400c0124307100a00600420140441001805106a5041000109045b16098c2809080e20c81a24271c20014214e41223a83220a9c2a0002080000e0030202806660000203063a0900a1520e901800e0100e0020a9022002268a0408b1a59810810ba040000211441211008d2009040220248c0280818d01516541018128248008460041483e0802a2074188890420e02315110a2e68922100890a050a96001284400920816900140000826311c0808150902004488001c0803138008c0594949c00b22088148009101004854186c80218a68220120e12812314521902082040d62200310024208560e80f84201503040400340082062820312a62112d61201010c15e54186a410404461500444002a0004300c138502108004020f00040004420016928622801088004c76e09c87442a618000e41a5028c0e6104040c180025422218002560011828222815008d998202684b648e4a0108049025410000238014040010245c48818008020c09c00127b922484218108004253040219580a025c200400aeb068d0008cc08a48890995802aa50001c0d421000160090e40041848a01794808604d4222312400fdc00e02022887c008817003018e2c18890848076022e1a60a1042c0e007044b4c063040c812220ca01164729716b1d977e)]
-  apply grid_sieve 19556 469344 256 [(8,23),(8,47),(17,8),(17,20),(41,8),(41,20),(44,23),(44,47)] gates (by decide)
+  apply grid_sieve 15 8 19556 469344 256 [(8,23),(8,47),(17,8),(17,20),(41,8),(41,20),(44,23),(44,47)] gates (by decide)
   · simp only [gates,List.all_cons,List.all_nil,Bool.and_eq_true]
     repeat' apply And.intro
     all_goals decide +kernel
@@ -1032,6 +1129,77 @@ theorem no_cofactor_seventeen {b x y : ℕ} (bound : b≤220261480241)
   obtain ⟨i,hi,mi⟩ := index m (box bn)
   obtain ⟨j,hj,nj⟩ := index n (box (by rw [add_comm];exact bn : n^2+m^2=(b:ℤ)))
   exact zero_seventeen_grid m n X Y xy ex ey (m%48,n%48) hit i j hi hj mi nj
+
+set_option maxRecDepth 16000 in
+private theorem zero_fortyone_grid :
+    ∀ m n X Y : ℤ, X.natAbs.Coprime Y.natAbs →
+    X^2= 9*(m^3-3*m*n^2)-40*(3*m^2*n-n^3) →
+    Y^2= 40*(m^3-3*m*n^2)-(-9)*(3*m^2*n-n^3) →
+    ∀ c ∈ ([(1,4),(1,24),(1,36),(1,40),(9,4),(9,40),(12,7),(12,31),(24,7),(24,31),(25,4),(25,24),(25,36),(25,40),(28,7),(28,15),(28,31),(28,39),(33,4),(33,40),(40,7),(40,15),(40,31),(40,39)] : List (ℤ × ℤ)), ∀ i j : ℕ, i<14584 → j<14584 →
+    m=48*(i:ℤ)+c.1-350016 → n=48*(j:ℤ)+c.2-350016 → False := by
+  let gates : List (ℕ × ℕ × ℕ × ℕ × ℕ × ℕ) := [
+    (5,2,12,6,0x13,0x19482c),
+    (7,6,12,6,0x17,0x18144890a3016),
+    (11,3,11,5,0x23b,0x1112101c030950088006501210245c4),
+    (13,3,11,5,0x161b,0x149200040021e046223103c0001000a49000361a),
+    (17,11,10,5,0x1a317,0xd69034c5002a294c84060222000381386530e40e00022203010994a2a00519604b580000),
+    (19,2,10,4,0x30af3,0x10b81040b108c8c04444a301848810858212a044381031120216025c0483802151388105102401a8b010930af2),
+    (23,12,10,4,0x5335f,0x74200a15102004d0c4811315200128803823102090c280201b0911048201680442e000882c840701504140432051060180a6802000c981092100a8090e20017acca0),
+    (29,26,9,4,0x13d122f3,0xa29b12408060c102201188130979c1708241a462a4703402b00c330000a8d39021c50001318001020c02288a63a0289448000009148a02e3288a2018204000c6400051c204e58a8000661806a0160712a312c1208741cf486408c4022041830081246ca2800000000),
+    (31,11,9,4,0x121d47b7,0x8c0310002c0d0014b00d290288450104204208138c72080918900080cc0404a00052108120424099990380b87407a019805e020c101034992c128400850309990c4104c82008a00510300480302a8615470a0c143929819494a88454ab00000d1e40009e9a224459c008400cd40902b6087384180000000),
+    (37,27,9,3,0x165e211e9b,0x11050020613d0c290bc3001120054482a5000208cd2cd4c489a75d023100480095216ef60400b0021141004c6100184b0300085045028203864d0c9464881fd1130d86310fc0101c084824e38c60e8d542922a362a24a1558b8318e39009081c0411f84630d86445fc089314985930c020a05105080060690c0043190041442006821037bb424480090046a05d72c891959a5988000052a0915002440069e84a185e030200504765e211e9a),
+    (41,6,9,3,0x1b382b50737,0x1a95f1904c7f1904c7d4a84c7d4af8cbd4af8c8262f8c8263ea58263ea57c63ea57c641317c64131f524131f52be31f52be3209abe32098fab2098fa95f18fa95f190495f1904c7d1904c7d4af8c7d4af8c834af8c8263e8c8263ea57a63ea57c642a57c64131fc64131f52b131f52be32752be32098fe32098fa94098fa95f19fa95f1904c5f1904c7d4904c7d4af8c7d4af8c826af8c8263ea48263ea57c63ea57c641257c64131f564131f52be31f52be32092be32098fa32098fa95f98fa95f190295f1904c7f1904c7d4ae4c7d4af8c8),
+    (43,26,9,3,0x35883a3ee53,0x4c822100249230521007890330094351001609300b1b10009258260103a001610d640a0411901027a2811a26c42440800801600da800c404180e028278a42401390000208ec012c0103803280014e90020848a462008028a80810d1480b88061286405524807730510421428100a9014a04264554801805188a284012022088838401094524220408b10970df06001880940a110361924a03053140c90d0271408e54a21000040402840fa8a0800a30965e2171048103c28d1002820860184110900236942218474204060c041ba014061120380cc0440c2480414301808286119180000000000),
+    (47,1,9,3,0x4351b2753df,0x30040603b680a0502a29a2002248b436082224620b30200388641c5042288068e106044c0d0a101840426869016042251210c8a8000ad48c01c1402c1352008c42e40c00a144900850c4036b210d000f1080034429210b22090049e401d0820888865c0842c312324006440c4513080280044f910d608407c401098820450212d40902803828e10047610885814b148021980690800429b2088c08a8c1125042b80d120018442a09700a0820590328604190d06844424aa490000b8408048a8ad4120600e08e8408619b8401020c2128658050a8ba0408025081c9092807002218025322a082ee080803892e004254843bc0840108031484570103409c04204823882040418bc461002e102246a7bcae4d8ac20),
+    (53,21,9,3,0x12dd703303aed3,0x582030010003b9000412df3404b0c890de2201000800040458a2e191a0329484482400000047208260c00000034650674314911102094002018201800080100c2218820408008220c538515d008344244002000a051bb022850392300800004c02280e122000203040304500000300c1048721a193e80755407a00a1120174c90b0452159c2040b49ca106a21028cb03a8088c080d1b5a1842220060041020013023008801181ac80d02743617205809ac0c000880620640020410030022211c2d6c580818880ae0698a0422b0429c9681021cd42510684997402442802f0155700be4c2c2709001806000005106010602000224380a20190000088624e050a206e85028002001123160805d450e508220800810208c221804008000c020c020014822444494617305216000000183208271000000120d1094a602c4c3828d101000080140223d84898690167da410004ea0004006020d02d228fccfc512c),
+    (59,16,8,3,0x22b62183e7b92bb,0x4000241a6002220cd14969181040840600029060260040520c4280020086004024201a00300e643518019c020060862042510004813c41909a0c104000615a8000241488a6006cc01c25062a20c040f430160022045108080080791a3583120102c8204a4a032704ce020004042408524008801092001210180018114084ca0ed894804202000a8b01108004805100000806e0434404448020204088800a81000468051c560044963084e22009918097408007202100e10001620820004149040408209061100408240088510c04000248025416100350402006b432a13a0868041cc209889c8320c00470c84509257800a628332414040501bd0000c040802073024050c80200a0809428426ec0520110aa2e00990b80060802f04406869b081c50ef20450201130850000000988700002a7462325520129549a084303a38200c132009c04050242258020040024a04c8000c091142b0f05400a6001c150a04000038400018a0005808115cd00831a0a090140841100098a8cc258640880844400a08005a00324160b5030a820304d106112114b42850422c034172a108184800000a18900464140914cda5d49de7c1846d44),
+    (61,14,8,3,0x1713e6940a59f23b,0x143020a81030a000103402000a002c15450c29002008012c3400084d18000012054800025501401100002994041402820030422460000004212b004406051442841000254040b0184000000714600c24210001400ca404090c0482008418010304d1020b024008260c0202050510c00004515050451010441d0008000080293400981000011114065020200580e000148682828408410212142011a320088010008022640110306801109006110218010102110412160010009030283816000000680240011e104410a11461400080122041400980500c02a000080460c44008020912400550012448200801118310080002a0180500c8014102240080014314428411043c4001200b000000340e0a0604800400342410442040400c2044300484400b060440132200800400880262c402142420410810a0a0b094000380d00202053014444000040c80164a00800008005c11040451050545100001845050202018320801206820459060400c1080209018481012980140004212180314700000010c06810152000410a114503011006a42100000031221060020a0141014ca000044014055200009502400000c590800161a400802004a1851541a002800201604000286040a820614000000000000000),
+    (67,7,8,3,0x359c281ba27ebc653,0x503801c080444a11044023022790024968228c26440020351d601212008ca115200098074a20c05044a6a097105810000e004027a12c0980001a38065ce0160028220a001112414991a140378000450020b208802834302088902d8980022920a901e221b198c5091204c280048808802109cd081112c000081cee01040031e42842401005084008a4031284411c02c049020c4820c5682040e5d001a005040088e580390a060c2128001861821420c9049109204483010920c1240129049203098107a20001809810d2850802200c41a0090ac0024007a200c002851a540c8420a9184004c02b0a9113231532540018a0400040109183600a31d08a620384180096429dc00a8802110052d342a030460600883030214371208c20042890264010750142088600c02c60841004c0060020000a9ec3a1431d0422080248a4a06000842682a48421121111c20082c04501040198168705094508a9a232e000060ca0490c4ae000208d80420be122400f1020c0a3c8116084c084803ab740200904068190900828800d5143484a04820800274f00126109a120a08220252282220205cc1980085c159850000f12c291001d00c510a81ce100455040a0950b8081c48060808405100b815104006444090241044428452448c6135022050680612448418e80a0488c00086320610882d004542145506c400012b07268140c4040054b20001a010068074a608348400030ba10c0040938201197002035088207420110a481a8a00c816040a80000000000000000),
+    (71,37,8,3,0x1164729716b1d977f,0x4704081081d040020810bd80180040030060050849100042920a80010845514280014a0e024002066900004a000019026092412320485101a2580501103b88022100401099330102880c430002820e025e20841000000c22108068820852217e209020820801c3028614038601420594200555704019810081c406b3824c00002c0741828040408024a4838280100838882b094431009d0004426002503a0505160400408020a430441154040068120300944204461d010024a3c8c20214caea0600609102e0341008173a09a8068042240a40880020a42005080812a030a5c8160001188c889b0a000ea002920002452010a809414a2382a01c24040028210740a8041ad800a0022004410500286e4420b445182012a042200410c40461259206aa04284420c80d42c0c00465a8c980b00420e519221102088012b2041c80002200193830940840310116003208029008200d200078d10c31451a21019310029000208692147480800c1e059010840012183603f9200610980a002390026a72040a04011a506100084c436208002481012004de82a7102181c4021725086407414c40221c4020300405303c19011002004008240064108622001380006704c09300aa06b04491f06029342020aa8c04c25090420b504502648200005446084240682400300cd25b990488230246e00262410a3058102440014002215204900a980020811424101a0730a39462001003465140080050890f1c0b2850027a09081300228c481c9064042938882042cd034204000904c428188040314d81624434140a3236010c13610c084066a41a4a214008b804285040085b18a6605c33402c8a24818042506b4880e5820210800000000000000000)]
+  apply grid_sieve (-9) 40 14584 350016 256 [(1,4),(1,24),(1,36),(1,40),(9,4),(9,40),(12,7),(12,31),(24,7),(24,31),(25,4),(25,24),(25,36),(25,40),(28,7),(28,15),(28,31),(28,39),(33,4),(33,40),(40,7),(40,15),(40,31),(40,39)] gates (by decide)
+  · simp only [gates,List.all_cons,List.all_nil,Bool.and_eq_true]
+    repeat' apply And.intro
+    all_goals decide +kernel
+  · intro c hc
+    simp only [List.mem_cons,List.not_mem_nil,or_false] at hc
+    rcases hc with rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl|rfl <;> decide +kernel
+
+
+/-- The entire cofactor-41 range below the census cutoff is impossible. -/
+theorem no_cofactor_fortyone {b x y : ℕ} (bound : b≤122475323887)
+    (cop : x.Coprime y) (he : x^4+y^4=b^3*41^2) : False := by
+  have odd : Odd b := by
+    rcases Nat.even_or_odd b with h|h
+    · have d := even_iff_two_dvd.mp h
+      have q : 4∣b^3 := (pow_dvd_pow_of_dvd d 2).trans (pow_dvd_pow b (by decide : 2≤3))
+      exact (not_four cop (he ▸ dvd_mul_of_dvd_left q _)).elim
+    · exact h
+  have unit (p : ℕ) (hp : p.Prime) (two : p≠2) (bad : p%8≠1) : b%p≠0 := by
+    intro h
+    have d := dvd_pow (Nat.dvd_of_mod_eq_zero h) (by decide : 3≠0)
+    exact bad (prime_residue cop hp two (he ▸ dvd_mul_of_dvd_left d _))
+  obtain ⟨m,n,X,Y,bn,orient,ex,ey⟩ := gaussian_fortyone odd cop he
+  have xy : X.natAbs.Coprime Y.natAbs := by
+    rcases orient with ⟨rfl,rfl⟩|⟨rfl,rfl⟩
+    · simpa using cop
+    · simpa using cop.symm
+  have hit := fortyone_classes (Nat.odd_iff.mp odd) (unit 3 (by decide) (by decide) (by decide)) bn ex ey
+  have box {a c : ℤ} (hn : a^2+c^2=(b:ℤ)) :
+      -349964≤a ∧ a≤349964 := by
+    have bb : (b:ℤ)≤122475323887 := by exact_mod_cast bound
+    constructor
+    · by_contra! h
+      nlinarith [sq_nonneg c,mul_nonneg (show 0≤ -a-349965 by omega) (show 0≤ -a+349965 by omega)]
+    · by_contra! h
+      nlinarith [sq_nonneg c,mul_nonneg (show 0≤a-349965 by omega) (show 0≤a+349965 by omega)]
+  have index (a : ℤ) (h : -349964≤a ∧ a≤349964) :
+      ∃ i : ℕ, i<14584 ∧ a=48*(i:ℤ)+a%48-350016 := by
+    let i := ((a+350016)/48).toNat
+    have e : (i:ℤ)=(a+350016)/48 := Int.toNat_of_nonneg (by omega)
+    exact ⟨i,by omega,by omega⟩
+  obtain ⟨i,hi,mi⟩ := index m (box bn)
+  obtain ⟨j,hj,nj⟩ := index n (box (by rw [add_comm];exact bn : n^2+m^2=(b:ℤ)))
+  exact zero_fortyone_grid m n X Y xy ex ey (m%48,n%48) hit i j hi hj mi nj
 
 end Arithmetic
 
@@ -1104,6 +1272,34 @@ theorem parameter_bounds_after_seventeen {b z x y : ℕ} (bhi : b≤145625635780
       (∀ p ∈ (i : ℕ).primeFactors, p % 8 = 1) → (i : ℕ) = 41 := by decide +kernel
   exact d (tab ⟨k,h⟩ k41 kres)
 
+/-- The two verified Gaussian charts force k ≥ 73. The next prime
+cofactors give the upper bounds for each remaining stratum. -/
+theorem parameter_bounds_after_fortyone {b z x y : ℕ} (bhi : b≤1456256357804)
+    (hx : 0<x) (hy : 0<y) (hc : x.Coprime y) (hz : b∣z)
+    (hsum : x^4+y^4=b*z^2) (hsmall : b*z^2<3088257489493360278725196965477359217) :
+    ∃ k, z=b*k ∧ 73≤k ∧ (∀ p ∈ k.primeFactors, p%8=1) ∧ b≤83372455837 ∧
+      (k≠73 → 89≤k ∧ b≤73054083499) ∧ (k≠73 → k≠89 → b≤68980024602) := by
+  obtain ⟨k,hk,_,kres,bound,next⟩ := parameter_bounds_after_seventeen bhi hx hy hc hz hsum hsmall
+  have changeN : b*z^2=b^3*k^2 := by rw [hk];ring
+  have no41 : k≠41 := by
+    rintro rfl
+    exact no_cofactor_fortyone bound hc (hsum.trans changeN)
+  obtain ⟨k73,cap⟩ := next no41
+  have cases : k=73 ∨ k=89 ∨ 97≤k := by
+    by_cases lt : k<97
+    · have tab : ∀ i : Fin 97, (73 ≤ (i : ℕ)) → (∀ p ∈ (i : ℕ).primeFactors, p%8=1) →
+          (i : ℕ)=73 ∨ (i : ℕ)=89 := by decide +kernel
+      exact (tab ⟨k,lt⟩ k73 kres).imp_right Or.inl
+    · omega
+  rw [changeN] at hsmall
+  have upper {B K : ℕ} (le : K≤k) (cut : 3088257489493360278725196965477359217 ≤ (B+1)^3*K^2) :
+      b≤B := by
+    by_contra! h
+    have mul := Nat.mul_le_mul (Nat.pow_le_pow_left (show B+1≤b by omega) 3) (Nat.pow_le_pow_left le 2)
+    omega
+  refine ⟨k,hk,k73,kres,cap,fun d => ⟨by omega,upper (K:=89) (by omega) (by decide)⟩,?_⟩
+  exact fun no73 no89 => upper (K:=97) (by omega) (by decide)
+
 theorem main : H1 → H2 → OMA.R_mo_191889_R1.H3 := by
   intro first rest b z x y blo bhi sq primes hz hx hxy hy hc he cut
   have zp : 0<z := by
@@ -1118,16 +1314,18 @@ theorem main : H1 → H2 → OMA.R_mo_191889_R1.H3 := by
     have two : 2=b*z^2 := by simpa [←e,one] using he
     have le : b≤b*z^2 := by simpa using Nat.mul_le_mul_left b (show 1≤z^2 from pow_pos zp _)
     omega
-  obtain ⟨k,hk,_,kres,upper,h73⟩ :=
-    parameter_bounds_after_seventeen bhi hx (hx.trans strict) hc hz he cut
+  obtain ⟨k,hk,_,kres,upper,h89,h97⟩ :=
+    parameter_bounds_after_fortyone bhi hx (hx.trans strict) hc hz he cut
   have tri := triangle_of_quartic (x := (x:ℚ)) (y := (y:ℚ)) (z := (z:ℚ)) (b := (b:ℚ))
     (by exact_mod_cast hx) (by exact_mod_cast strict) (by exact_mod_cast zp) (by exact_mod_cast he)
   have val : b*z^2=b^3*k^2 := by rw [hk];ring
   rw [val] at he cut
-  by_cases d : k=41
+  by_cases d : k=73
   · subst k
     exact first b x y blo upper sq primes tri hx strict hy hc he cut
-  · obtain ⟨k73,smaller⟩ := h73 d
-    exact rest b k x y blo smaller sq primes k73 kres tri hx strict hy hc he cut
+  · obtain ⟨k89,smaller⟩ := h89 d
+    exact rest b k x y blo smaller sq primes k89 kres
+      (fun high => by by_contra no89; exact (Nat.not_lt_of_ge (h97 d no89)) high)
+      tri hx strict hy hc he cut
 
 end OMA.R_mo_191889_R1_H3_R1
