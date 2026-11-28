@@ -1,4 +1,6 @@
 import OMAReductions.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2
+import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
+import Mathlib.LinearAlgebra.Matrix.ToLin
 import Mathlib.RepresentationTheory.Maschke
 import Mathlib.RingTheory.SimpleModule.Isotypic
 import Mathlib.LinearAlgebra.Dimension.Constructions
@@ -35,7 +37,7 @@ def H1 : Prop :=
         (Nat.card H).Coprime ((c+2)^t) ∧
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
-          (((c+2).Prime ∧ ¬ (c+2) ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
+          ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
         (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∧ ¬ IsZGroup G ∧
         (∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
@@ -50,7 +52,7 @@ def H2 : Prop :=
         (Nat.card H).Coprime ((c+2)^t) ∧
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
-          (((c+2).Prime ∧ ¬ (c+2) ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
+          ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
         (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
 
@@ -1021,54 +1023,135 @@ theorem coprime_module_family_bound (F H : Type) [Field F] [Group H] [Finite H]
   simpa only [Nat.card_fun, Nat.card_fin, Nat.card_eq_fintype_card (α := ↥c), Fintype.card_coe] using
     (sum_bound t).trans (Nat.pow_le_pow_left (Nat.add_le_add_right size 1) t)
 
-/-- Fixed complement and elementary abelian kernel, including higher-dimensional irreducible representations. -/
-theorem elementary_kernel_classes (p t : ℕ) [Fact p.Prime] (H : FiniteGrp.{0})
+/-- Summing translates of a map produces an intertwiner. -/
+lemma average_intertwines {R H : Type*} [Ring R] [Group H] [Fintype H]
+    (a b : H →* R) (T : R) (g : H) :
+    b g * (∑ h : H, b h * T * a h⁻¹) = (∑ h : H, b h * T * a h⁻¹) * a g := by
+  let f (h : H) := b h * T * a h⁻¹ * a g
+  calc
+    _ = ∑ h : H, f (g*h) := by
+      rw [Finset.mul_sum]
+      apply Finset.sum_congr rfl
+      intro h _
+      have cancel : a ((g*h)⁻¹) * a g = a h⁻¹ := by rw [← a.map_mul]; simp
+      simp only [f, mul_assoc, cancel, map_mul]
+    _ = ∑ h : H, f h := Equiv.sum_comp (Equiv.mulLeft g) f
+    _ = _ := (Finset.sum_mul ..).symm
+
+/-- Lift a specified invertible intertwiner modulo p by averaging a normalized entrywise lift. -/
+theorem prime_power_intertwiner {p n : ℕ} [Fact p.Prime] (hn : 0 < n)
+    {I H : Type*} [Fintype I] [DecidableEq I] [Group H] [Fintype H]
+    (cop : ¬ p ∣ Fintype.card H)
+    (a b : H →* Matrix I I (ZMod (p^n)))
+    (T : Matrix I I (ZMod p)) (unitT : IsUnit T)
+    (inter : ∀ h, (b h).map (ZMod.castHom (dvd_pow_self p hn.ne') (ZMod p)) * T =
+      T * (a h).map (ZMod.castHom (dvd_pow_self p hn.ne') (ZMod p))) :
+    ∃ U : Matrix I I (ZMod (p^n)), IsUnit U ∧
+      U.map (ZMod.castHom (dvd_pow_self p hn.ne') (ZMod p)) = T ∧ ∀ g, b g * U = U * a g := by
+  classical
+  let φ := ZMod.castHom (dvd_pow_self p hn.ne') (ZMod p)
+  let ψ : Matrix I I (ZMod (p^n)) →+* Matrix I I (ZMod p) := φ.mapMatrix
+  let c : ZMod p := Fintype.card H
+  have hc : c ≠ 0 := fun h => cop ((ZMod.natCast_eq_zero_iff ..).mp h)
+  let V : Matrix I I (ZMod (p^n)) := fun i j => (ZMod.castHom_surjective (dvd_pow_self p hn.ne') (c⁻¹ * T i j)).choose
+  have hv : ψ V = c⁻¹ • T := by
+    ext i j
+    exact (ZMod.castHom_surjective (dvd_pow_self p hn.ne') (c⁻¹ * T i j)).choose_spec
+  let U := ∑ h : H, b h * V * a h⁻¹
+  have red : ψ U = T := by
+    have term (h : H) : ψ (b h * V * a h⁻¹) = c⁻¹ • T := by
+      simp only [map_mul, hv, Matrix.mul_smul, Matrix.smul_mul]
+      change c⁻¹ • (((b h).map φ * T) * ψ (a h⁻¹)) = _
+      rw [inter, mul_assoc]
+      change c⁻¹ • (T * (ψ (a h) * ψ (a h⁻¹))) = _
+      rw [← map_mul, ← map_mul, mul_inv_cancel, map_one, map_one, mul_one]
+    simp only [U, map_sum, term, Finset.sum_const, Finset.card_univ]
+    rw [← Nat.cast_smul_eq_nsmul (ZMod p), smul_smul]
+    change (c*c⁻¹) • T = T
+    rw [mul_inv_cancel₀ hc, one_smul]
+  refine ⟨U, (Matrix.isUnit_iff_isUnit_det U).mpr ?_, red, average_intertwines a b V⟩
+  let _ : NeZero (p^n) := ⟨pow_ne_zero _ (Fact.out : p.Prime).ne_zero⟩
+  have hd : φ U.det ≠ 0 := by
+    rw [φ.map_det]
+    exact ((Matrix.isUnit_iff_isUnit_det (ψ U)).mp (red.symm ▸ unitT)).ne_zero
+  rw [← ZMod.natCast_zmod_val U.det]
+  apply (ZMod.isUnit_natCast_iff_not_dvd_pow Fact.out hn).mpr
+  intro h
+  apply hd
+  rw [← ZMod.natCast_zmod_val U.det, map_natCast, ZMod.natCast_eq_zero_iff]
+  exact h
+
+/-- Fixed complement and homocyclic kernel, including higher-dimensional irreducible representations. -/
+theorem homocyclic_kernel_classes (p n t : ℕ) (hn : 0 < n) [Fact p.Prime] (H : FiniteGrp.{0})
     [NeZero (Nat.card H : ZMod p)] :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | ∃ a : H →* MulAut (Multiplicative (Fin t → ZMod p)),
+      {G : FiniteGrp.{0} | ∃ a : H →* MulAut (Multiplicative (Fin t → ZMod (p^n))),
         Nonempty (G ≃* SemidirectProduct _ H a)}).ncard ≤ (Nat.card H + 1)^t := by
   classical
-  let V := Fin t → ZMod p
+  let _ := Fintype.ofFinite H
+  let V := Fin t → ZMod (p^n)
   let K := Multiplicative V
   let S := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
     {G : FiniteGrp.{0} | ∃ a : H →* MulAut K, Nonempty (G ≃* SemidirectProduct K H a)}
   let G (x : S) : FiniteGrp.{0} := x.property.choose
   have rep (x : S) : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (G x) = x.val := x.property.choose_spec.2
   choose a iso using fun x : S => x.property.choose_spec.1
-  let ρ (x : S) : Representation (ZMod p) H V :=
-    { toFun := fun h => (AddMonoidHom.toMultiplicative.symm ((a x h).toMonoidHom)).toZModLinearMap p
+  let integral (x : S) : Representation (ZMod (p^n)) H V :=
+    { toFun := fun h => (AddMonoidHom.toMultiplicative.symm ((a x h).toMonoidHom)).toZModLinearMap (p^n)
       map_one' := by apply LinearMap.ext; intro v; change (a x 1) v = v; rw [map_one]; rfl
       map_mul' := by intro h j; apply LinearMap.ext; intro v; change (a x (h*j)) v = (a x h) ((a x j) v); rw [map_mul]; rfl }
+  let φ := ZMod.castHom (dvd_pow_self p hn.ne') (ZMod p)
+  let M (x : S) := LinearMap.toMatrixAlgEquiv'.toMonoidHom.comp (integral x)
+  let red (x : S) := φ.mapMatrix.toMonoidHom.comp (M x)
+  let ρ (x : S) : Representation (ZMod p) H (Fin t → ZMod p) :=
+    Matrix.toLinAlgEquiv'.toMonoidHom.comp (red x)
   change Nat.card S ≤ _
   apply (coprime_module_family_bound (ZMod p) H (fun x : S => (ρ x).asModule) t ?_ ?_).2
   · intro x
     rw [(ρ x).asModuleEquiv.finrank_eq]
-    simp [V]
+    simp
   · rintro x y ⟨e⟩
-    let add := (ρ x).asModuleEquiv.symm.toAddEquiv.trans (e.toAddEquiv.trans (ρ y).asModuleEquiv.toAddEquiv)
-    let f : K ≃* K := add.toMultiplicative
-    have equivariant (h : H) : (a x h).trans f = f.trans (a y h) := by
-      apply DFunLike.ext'
-      funext v
-      change add (ρ x h v) = ρ y h (add v)
+    let v := (ρ x).asModuleEquiv.symm.trans ((e.restrictScalars (ZMod p)).trans (ρ y).asModuleEquiv)
+    have comm (h : H) (z : Fin t → ZMod p) : v (ρ x h z) = ρ y h (v z) := by
       apply (ρ y).asModuleEquiv.symm.injective
-      simp only [Representation.asModuleEquiv_symm_map_rho]
-      change e ((ρ x).asModuleEquiv.symm (ρ x h v)) = MonoidAlgebra.of (ZMod p) H h • e ((ρ x).asModuleEquiv.symm v)
-      exact (congrArg e ((ρ x).asModuleEquiv_symm_map_rho h (v : V))).trans (e.map_smul _ _)
+      rw [(ρ y).asModuleEquiv_symm_map_rho]
+      exact (congrArg e ((ρ x).asModuleEquiv_symm_map_rho h z)).trans (e.map_smul _ _)
+    let T := LinearMap.toMatrixAlgEquiv' v.toLinearMap
+    have isT : IsUnit T := LinearMap.isUnit_toMatrix'_iff.mpr ((Module.End.isUnit_iff _).mpr v.bijective)
+    have intertwines (h : H) : (red y h)*T = T*(red x h) := by
+      apply Matrix.toLinAlgEquiv'.injective
+      rw [map_mul, map_mul, Matrix.toLinAlgEquiv'_toMatrixAlgEquiv']
+      exact LinearMap.ext fun z => (comm h z).symm
+    have cop : ¬ p ∣ Fintype.card H := by
+      rw [Fintype.card_eq_nat_card]
+      exact fun h => (NeZero.ne (Nat.card H : ZMod p)) ((ZMod.natCast_eq_zero_iff ..).mpr h)
+    obtain ⟨U, hU, _, lift⟩ := prime_power_intertwiner hn cop (M x) (M y) T isT intertwines
+    let L := Matrix.toLinAlgEquiv' U
+    let f := (LinearEquiv.ofBijective L ((Module.End.isUnit_iff _).mp
+      (Matrix.isUnit_toLin'_iff.mpr hU))).toAddEquiv.toMultiplicative
+    have equivariant (h : H) : (a x h).trans f = f.trans (a y h) := by
+      have eq := congrArg Matrix.toLinAlgEquiv' (lift h)
+      rw [map_mul, map_mul] at eq
+      change Matrix.toLinAlgEquiv' (LinearMap.toMatrixAlgEquiv' (integral y h)) * L =
+        L * Matrix.toLinAlgEquiv' (LinearMap.toMatrixAlgEquiv' (integral x h)) at eq
+      rw [Matrix.toLinAlgEquiv'_toMatrixAlgEquiv', Matrix.toLinAlgEquiv'_toMatrixAlgEquiv'] at eq
+      apply DFunLike.ext'
+      funext z
+      exact (DFunLike.congr_fun eq (z : V)).symm
     let mid := SemidirectProduct.congr f (MulEquiv.refl H) equivariant
     apply Subtype.ext
     rw [← rep x, ← rep y]
     exact Quotient.sound ⟨InducedCategory.isoMk (F := FiniteGrp.toGrp)
       (((iso x).some.trans (mid.trans (iso y).some.symm)).toGrpIso)⟩
 
-/-- For a prime-order coordinate group every coprime action is allowed.
-For a composite coordinate order we count actions admitting diagonal coordinates. -/
-theorem elementary_or_diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l r : ℕ)
+/-- For a prime-power coordinate group every coprime action is allowed.
+For other coordinate orders we count actions admitting diagonal coordinates. -/
+theorem homocyclic_or_diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l r : ℕ)
     (hl : 0 < l) (cop : l.Coprime (Nat.card C^t)) (hr : Nat.card C^t*l < 2^r) :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | ∃ H : FiniteGrp.{0}, Nat.card H = l ∧ Group.IsSolvable H ∧ Group.IsNilpotent H ∧
         ∃ (χ : Fin t → H →* MulAut C) (a : H →* MulAut (Fin t → C)),
-          (((Nat.card C).Prime ∧ ¬ Nat.card C ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct (Fin t → C) H a)}).ncard ≤
+          ((IsPrimePow (Nat.card C) ∧ (Nat.card C).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct (Fin t → C) H a)}).ncard ≤
       2^(r*r) * ∏ b ∈ (Nat.card C^t*l).primeFactors, g (b^(Nat.card C^t*l).factorization b) := by
   classical
   let k := Nat.card C^t
@@ -1083,20 +1166,23 @@ theorem elementary_or_diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l 
   let _ := Fintype.ofFinite O
   let S (H : FiniteGrp.{0}) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
     {G : FiniteGrp.{0} | ∃ (χ : Fin t → H →* MulAut C) (a : H →* MulAut (Fin t → C)),
-      (((Nat.card C).Prime ∧ ¬ Nat.card C ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct (Fin t → C) H a)}
+      ((IsPrimePow (Nat.card C) ∧ (Nat.card C).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct (Fin t → C) H a)}
   have finite (x : O) : (S (K x)).Finite := (finite_classes (k*l)).subset (Set.image_mono (by
     rintro G ⟨χ,a,_,⟨e⟩⟩
     exact (Nat.card_congr e.toEquiv).trans (by simp [SemidirectProduct.card, Nat.card_fun, k, order])))
   have bound (x : O) : (S (K x)).ncard ≤ 2^(r*r) := by
-    by_cases hp : (Nat.card C).Prime ∧ ¬ Nat.card C ∣ Nat.card (K x)
-    · let p := Nat.card C
-      let _ : Fact p.Prime := ⟨hp.1⟩
-      let _ : NeZero (Nat.card (K x) : ZMod p) := ⟨fun h => hp.2 ((ZMod.natCast_eq_zero_iff ..).mp h)⟩
-      let u : C ≃* Multiplicative (ZMod p) := mulEquivOfCyclicCardEq (Nat.card_zmod p).symm
-      let tag : (Fin t → Multiplicative (ZMod p)) ≃* Multiplicative (Fin t → ZMod p) :=
+    by_cases hp : IsPrimePow (Nat.card C) ∧ (Nat.card C).Coprime (Nat.card (K x))
+    · obtain ⟨p,n,hpprime,hn,heq⟩ := (isPrimePow_nat_iff _).mp hp.1
+      let _ : Fact p.Prime := ⟨hpprime⟩
+      let _ : NeZero (p^n) := ⟨pow_ne_zero _ hpprime.ne_zero⟩
+      have copP := hp.2.coprime_dvd_left (heq ▸ dvd_pow_self p hn.ne')
+      let _ : NeZero (Nat.card (K x) : ZMod p) := ⟨fun h =>
+        (hpprime.coprime_iff_not_dvd.mp copP) ((ZMod.natCast_eq_zero_iff ..).mp h)⟩
+      let u : C ≃* Multiplicative (ZMod (p^n)) := mulEquivOfCyclicCardEq (heq.symm.trans (Nat.card_zmod _).symm)
+      let tag : (Fin t → Multiplicative (ZMod (p^n))) ≃* Multiplicative (Fin t → ZMod (p^n)) :=
         { Equiv.refl _ with map_mul' := fun _ _ => rfl }
       let f := (MulEquiv.piCongrRight fun _ : Fin t => u).trans tag
-      apply le_trans _ (le_trans (elementary_kernel_classes p t (K x)) ?_)
+      apply le_trans _ (le_trans (homocyclic_kernel_classes p n t hn (K x)) ?_)
       · apply Set.ncard_le_ncard _ ((finite_classes (k*l)).subset (Set.image_mono (by
           rintro G ⟨a,⟨e⟩⟩
           exact (Nat.card_congr e.toEquiv).trans (by
@@ -1104,7 +1190,7 @@ theorem elementary_or_diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l 
         rintro _ ⟨G, ⟨_,a,_,⟨e⟩⟩,rfl⟩
         exact ⟨G, ⟨_, ⟨e.trans (SemidirectProduct.congr' f (MulEquiv.refl (K x)))⟩⟩, rfl⟩
       · have ht : t ≤ r := by
-          have hpow : 2^t < 2^r := (Nat.pow_le_pow_left hp.1.two_le t).trans_lt
+          have hpow : 2^t < 2^r := (Nat.pow_le_pow_left (by rw [← heq]; exact hpprime.two_le.trans (by simpa using Nat.pow_le_pow_right hpprime.pos hn)) t).trans_lt
             ((Nat.le_mul_of_pos_right k hl).trans_lt hr)
           by_contra! bad
           exact hpow.not_ge (Nat.pow_le_pow_right (by decide) bad.le)
@@ -1159,14 +1245,14 @@ theorem elementary_or_diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l 
       _ = 2^(r*r)*O.ncard := by simp [← Nat.card_eq_fintype_card, Nat.mul_comm]
       _ ≤ _ := Nat.mul_le_mul_left _ parts
 
-/-- Count all elementary abelian Hall kernels with nilpotent complement together with the diagonal family. -/
-theorem elementary_or_diagonal_hall_union {q r : ℕ} (hr : q < 2^r) :
+/-- Count all homocyclic prime-power Hall kernels with nilpotent complement together with the diagonal family. -/
+theorem homocyclic_or_diagonal_hall_union {q r : ℕ} (hr : q < 2^r) :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | Nat.card G = q ∧ (∃ c t : ℕ, 0 < t ∧ ∃ H : FiniteGrp.{0}, Group.IsSolvable H ∧ Group.IsNilpotent H ∧
         (Nat.card H).Coprime ((c+2)^t) ∧
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
-          (((c+2).Prime ∧ ¬ (c+2) ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))}).ncard ≤
+          ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))}).ncard ≤
       2^((r+1)^2) * ∏ b ∈ q.primeFactors, g (b^q.factorization b) := by
   classical
   let J := Fin (q+1) × Fin (q+1)
@@ -1180,12 +1266,12 @@ theorem elementary_or_diagonal_hall_union {q r : ℕ} (hr : q < 2^r) :
   let S (i : I) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
     {G : FiniteGrp.{0} | ∃ H : FiniteGrp.{0}, Nat.card H = q/k i.val ∧ Group.IsSolvable H ∧ Group.IsNilpotent H ∧
       ∃ (χ : Fin i.val.2.val → H →* MulAut (C i.val)) (a : H →* MulAut (Fin i.val.2.val → C i.val)),
-        (((i.val.1.val+2).Prime ∧ ¬ (i.val.1.val+2) ∣ Nat.card H) ∨ (∀ h v j, a h v j = χ j h (v j))) ∧ Nonempty (G ≃* SemidirectProduct _ H a)}
+        ((IsPrimePow (i.val.1.val+2) ∧ (i.val.1.val+2).Coprime (Nat.card H)) ∨ (∀ h v j, a h v j = χ j h (v j))) ∧ Nonempty (G ≃* SemidirectProduct _ H a)}
   let L := ∏ b ∈ q.primeFactors, g (b^q.factorization b)
   have cardpow (i : I) : Nat.card (C i.val)^i.val.2.val = k i.val := by rw [card]
   have bound (i : I) : (S i).ncard ≤ 2^(r*r)*L := by
     have eq := (congrArg (· * (q/k i.val)) (cardpow i)).trans i.property.2.2
-    have h := elementary_or_diagonal_hall_bound (C i.val) i.val.2.val (q/k i.val) r i.property.1
+    have h := homocyclic_or_diagonal_hall_bound (C i.val) i.val.2.val (q/k i.val) r i.property.1
       ((cardpow i).symm ▸ i.property.2.1) (eq.trans_lt hr)
     rw [eq] at h
     simpa only [card] using h
@@ -1247,7 +1333,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
         (Nat.card H).Coprime ((c+2)^t) ∧
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
-          (((c+2).Prime ∧ ¬ (c+2) ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))
+          ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))
   let U (G : FiniteGrp.{0}) := U₁ G ∨ U₂ G
   let V (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))
   let N (G : FiniteGrp.{0}) := U G ∨ V G
@@ -1328,7 +1414,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
       have fin (F : FiniteGrp.{0} → Prop) : (S F).Finite :=
         (finite_classes q).subset (Set.image_mono (fun _ h => h.1))
       have h₂ : (S U₂).ncard ≤ 2^m*L := by
-        apply le_trans _ (elementary_or_diagonal_hall_union hr)
+        apply le_trans _ (homocyclic_or_diagonal_hall_union hr)
         apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono (fun _ h => h.1)))
         rintro _ ⟨G, ⟨hg,_,h⟩,rfl⟩
         exact ⟨G,⟨hg,h⟩,rfl⟩
