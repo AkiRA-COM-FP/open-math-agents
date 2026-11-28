@@ -64,12 +64,12 @@ def H2 : Prop :=
         ∀ p l a : ℕ, (shape p l a) →
           ((∃ N : Subgroup G, N.Normal ∧ card N = p^a) ∨ card (Sylow l G) = 1)) ∧ ¬ ((((∃ N P : Subgroup G, (N.Normal ∨ P.Normal) ∧ N.IsComplement' P ∧ IsCyclic P ∧ IsNilpotent N ∧ (card N).Coprime (card P)) ∨
         ((∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ IsNilpotent N ∧ IsNilpotent P ∧ card N ^ (rank N * rank P) ≤ 2^(r*r*2) ∧ (card N).Coprime (card P)) ∨ (∃ (N : Subgroup G) (_ : N.Normal), (∃ (M : Subgroup N) (_ : M.Normal), IsNilpotent M ∧ IsCyclic (N ⧸ M)) ∧ IsCyclic (G ⧸ N)))) ∨ (∃ A B : FiniteGrp.{0}, 1 < card A ∧ 1 < card B ∧ (card A).Coprime (card B) ∧ Nonempty (G ≃* A × B))) ∨
-        ((∃ K : Subgroup G, K.Normal ∧ IsNilpotent K ∧ 1 < card K ∧ (card K).Coprime K.index) ∨ ((∃ N P : Subgroup G, P.Normal ∧ N.IsComplement' P ∧ IsCyclic P ∧ 1 < card P) ∨ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧ let J := (conj : N →* MulAut N).range; ∃ _ : J.Normal, (ConjClasses.mk '' {t : MulAut N ⧸ J | t^N.index = 1}).ncard * card (center N) ≤ card N^(E * log 2 N.index+1))))) ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P) ∧ ¬ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧
-          (∀ P : Sylow N.index.minFac G, IsMulCommutative P) ∧
-          ∃ (p a : ℕ) (_ : p.Prime) (S : Sylow p N), 0 < a ∧ N.index = p^a ∧
-            p ^ ((conj : N →* MulAut N).range.subgroupOf
-              (fixingSubgroup (MulAut N) (S : Set N))).index.factorization p *
-            card (center N) ≤ card N ^ (E * log 2 N.index + 1))}).ncard ≤
+        ((∃ K : Subgroup G, K.Normal ∧ IsNilpotent K ∧ 1 < card K ∧ (card K).Coprime K.index) ∨ ((∃ N P : Subgroup G, P.Normal ∧ N.IsComplement' P ∧ IsCyclic P ∧ 1 < card P) ∨ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧ let J := (conj : N →* MulAut N).range; ∃ _ : J.Normal, (ConjClasses.mk '' {t : MulAut N ⧸ J | t^N.index = 1}).ncard * card (center N) ≤ card N^(E * log 2 N.index+1))))) ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P) ∧ ¬ (∃ (N : Subgroup G) (_ : N.Normal), let m := N.index; IsCyclic (G ⧸ N) ∧ 1 < m ∧
+          (∃ P : Sylow m.minFac G, center P ⊔ N.subgroupOf P = ⊤) ∧
+          ∃ (p a : ℕ) (_ : p.Prime) (S : Sylow p N), 0 < a ∧ m = p^a ∧
+        p ^ ((conj : N →* MulAut N).range.subgroupOf
+          (fixingSubgroup (MulAut N) (S : Set N))).index.factorization p *
+        card (center N) ≤ card N ^ (E * log 2 m + 1))}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
 
 /-- Label each group by a multiplication table on Fin n. -/
@@ -2664,6 +2664,130 @@ lemma outer_classes_le_eligible (K : Type*) [Group K] [Finite K] (m : ℕ)
     exact ⟨_,⟨u,⟨b,hb⟩,rfl⟩,congrArg ConjClasses.mk hu⟩
   exact (Set.ncard_le_ncard sub (Set.Finite.image _ (Set.toFinite S))).trans (Set.ncard_image_le (Set.toFinite S))
 
+/-- A surjection maps the center onto the target precisely when the center and
+the kernel together generate the source. -/
+lemma center_maps_onto_iff {P Q : Type*} [Group P] [Group Q] (f : P →* Q)
+    (onto : Function.Surjective f) :
+    (Subgroup.center P).map f = ⊤ ↔ Subgroup.center P ⊔ f.ker = ⊤ := by
+  rw [← Subgroup.comap_map_eq,← Subgroup.comap_top f]
+  exact (Subgroup.comap_injective onto).eq_iff.symm
+
+lemma center_sup_of_commutative {P : Type*} [Group P] (comm : IsMulCommutative P)
+    (H : Subgroup P) : Subgroup.center P ⊔ H = ⊤ := by
+  have top : Subgroup.center P = ⊤ := top_unique fun x _ =>
+    Subgroup.mem_center_iff.mpr fun y => comm.is_comm.comm y x
+  rw [top,top_sup_eq]
+
+/-- For a normal kernel it suffices to test the center condition on one Sylow subgroup. -/
+lemma sylow_center_sup_iff_all {G : Type*} [Group G] [Finite G] {p : ℕ} [Fact p.Prime]
+    (N : Subgroup G) [hN : N.Normal] :
+    (∃ P : Sylow p G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤) ↔
+      ∀ P : Sylow p G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤ := by
+  constructor
+  · rintro ⟨P,hP⟩ Q
+    obtain ⟨g,rfl⟩ := MulAction.exists_smul_eq G P Q
+    let e := P.equivSMul g
+    have hz : (Subgroup.center P).map e.toMonoidHom ≤ Subgroup.center (g • P : Sylow p G) := by
+      rintro _ ⟨z,hz,rfl⟩
+      apply Subgroup.mem_center_iff.mpr
+      intro y
+      obtain ⟨x,rfl⟩ := e.surjective y
+      change e x * e z = e z * e x
+      simpa only [map_mul] using congrArg e (Subgroup.mem_center_iff.mp hz x)
+    have hk : (N.subgroupOf P.toSubgroup).map e.toMonoidHom ≤ N.subgroupOf (g • P).toSubgroup := by
+      rintro _ ⟨x,hx,rfl⟩
+      exact hN.conj_mem x.val hx g
+    apply top_unique
+    calc
+      ⊤ = (⊤ : Subgroup P).map e.toMonoidHom := (Subgroup.map_top_of_surjective _ e.surjective).symm
+      _ = _ := congrArg (Subgroup.map e.toMonoidHom) hP.symm
+      _ ≤ _ := by rw [Subgroup.map_sup]; exact sup_le_sup hz hk
+  · intro h
+    exact ⟨default,h _⟩
+
+/-- A central cyclic direct factor illustrates the center-surjectivity condition
+even when the other factor is nonabelian. -/
+lemma second_factor_center_surjects (D C : Type*) [Group D] [CommGroup C] :
+    (Subgroup.center (D × C)).map (MonoidHom.snd D C) = ⊤ := by
+  apply top_unique
+  intro c _
+  refine ⟨(1,c),Subgroup.mem_center_iff.mpr ?_,rfl⟩
+  intro x
+  exact Prod.ext (by simp) (mul_comm _ _)
+
+/-- A Sylow subgroup projects onto a quotient of order a power of the same prime. -/
+lemma sylow_projection_surjective {G : Type*} [Group G] [Finite G] {p a : ℕ} [Fact p.Prime]
+    (N : Subgroup G) [N.Normal] (idx : N.index = p^a) (P : Sylow p G) :
+    Function.Surjective ((QuotientGroup.mk' N).comp P.toSubgroup.subtype) := by
+  let q := QuotientGroup.mk' N
+  let Q := P.mapSurjective (QuotientGroup.mk'_surjective N)
+  have htop : IsPGroup p (⊤ : Subgroup (G ⧸ N)) :=
+    (IsPGroup.of_card (G := G ⧸ N) idx).to_subgroup _
+  have top_eq : (⊤ : Subgroup (G ⧸ N)) = Q.toSubgroup := Q.is_maximal' htop le_top
+  intro y
+  have mem : y ∈ P.toSubgroup.map q := by
+    change y ∈ Q.toSubgroup
+    rw [← top_eq]
+    trivial
+  obtain ⟨t,ht,eq⟩ := mem
+  exact ⟨⟨t,ht⟩,eq⟩
+
+/-- At prime index, a single element of the Sylow center outside the kernel
+is necessary and sufficient for the center to cover the quotient. -/
+lemma sylow_center_sup_prime_index_iff {G : Type*} [Group G] [Finite G] {p : ℕ} [hp : Fact p.Prime]
+    (N : Subgroup G) [N.Normal] (idx : N.index = p) (P : Sylow p G) :
+    Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤ ↔
+      ∃ z : P, z ∈ Subgroup.center P ∧ z.val ∉ N := by
+  classical
+  let f := (QuotientGroup.mk' N).comp P.toSubgroup.subtype
+  have onto : Function.Surjective f := sylow_projection_surjective N (idx.trans (pow_one p).symm) P
+  have ker : f.ker = N.subgroupOf P.toSubgroup := by
+    ext z
+    exact QuotientGroup.eq_one_iff z.val
+  have card : Nat.card (G ⧸ N) = p := idx
+  let _ : Fact (Nat.card (G ⧸ N)).Prime := ⟨card ▸ hp.out⟩
+  let _ : Nontrivial (G ⧸ N) := Finite.one_lt_card_iff_nontrivial.mp (card ▸ hp.out.one_lt)
+  rw [← ker,← center_maps_onto_iff f onto]
+  have witnesses : (∃ z : P, z ∈ Subgroup.center P ∧ z.val ∉ N) ↔ ¬ Subgroup.center P ≤ f.ker := by
+    rw [ker,SetLike.le_def]
+    push Not
+    rfl
+  rw [witnesses,← Subgroup.map_eq_bot_iff]
+  constructor
+  · intro h
+    rw [h]
+    exact top_ne_bot
+  · intro h
+    exact ((Subgroup.center P).map f).eq_bot_or_eq_top_of_prime_card.resolve_left h
+
+/-- Lift from the center of an ambient Sylow subgroup containing the prescribed kernel p-subgroup. -/
+lemma central_sylow_quotient_lift {K G : Type*} [Group K] [Group G] [Finite G]
+    {p a : ℕ} [Fact p.Prime] (N : Subgroup G) [N.Normal] (idx : N.index = p^a)
+    (e : K ≃* N) (S : Subgroup K) (hS : IsPGroup p S)
+    (central : ∀ P : Sylow p G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤) (v : G ⧸ N) :
+    ∃ t : G, QuotientGroup.mk' N t = v ∧
+      ∀ x ∈ S, (MulAut.congr e.symm (MulAut.conjNormal (H := N) t)) x = x := by
+  let i := N.subtype.comp e.toMonoidHom
+  obtain ⟨P,hP⟩ := (hS.map i).exists_le_sylow
+  let f := (QuotientGroup.mk' N).comp P.toSubgroup.subtype
+  have onto : Function.Surjective f := sylow_projection_surjective N idx P
+  have ker : f.ker = N.subgroupOf P.toSubgroup := by
+    ext u
+    exact QuotientGroup.eq_one_iff u.val
+  have full : (Subgroup.center P).map f = ⊤ := (center_maps_onto_iff f onto).mpr (ker ▸ central P)
+  obtain ⟨t,ht,eq⟩ := (show v ∈ (Subgroup.center P).map f by rw [full]; trivial)
+  refine ⟨t.val,eq,?_⟩
+  intro x hx
+  have mem : i x ∈ P := hP ⟨x,hx,rfl⟩
+  have commute : t.val * i x = i x * t.val := congrArg Subtype.val
+    ((Subgroup.mem_center_iff.mp ht (⟨i x,mem⟩ : P)).symm)
+  apply e.injective
+  change e (e.symm _) = e x
+  rw [e.apply_symm_apply]
+  apply Subtype.ext
+  change t.val * i x * t.val⁻¹ = i x
+  rw [commute,mul_inv_cancel_right]
+
 /-- A generator of a prime-power quotient lifts to an element centralizing any prescribed
 kernel p-subgroup if the ambient Sylow p-subgroups are abelian. -/
 lemma exists_pointwise_fixed_quotient_lift {K G : Type*} [Group K] [Group G] [Finite G]
@@ -2671,30 +2795,9 @@ lemma exists_pointwise_fixed_quotient_lift {K G : Type*} [Group K] [Group G] [Fi
     (e : K ≃* N) (S : Subgroup K) (hS : IsPGroup p S)
     (comm : ∀ P : Sylow p G, IsMulCommutative P) (v : G ⧸ N) :
     ∃ t : G, QuotientGroup.mk' N t = v ∧
-      ∀ x ∈ S, (MulAut.congr e.symm (MulAut.conjNormal (H := N) t)) x = x := by
-  let i := N.subtype.comp e.toMonoidHom
-  obtain ⟨P,hP⟩ := (hS.map i).exists_le_sylow
-  let q := QuotientGroup.mk' N
-  let Q := P.mapSurjective (QuotientGroup.mk'_surjective N)
-  have htop : IsPGroup p (⊤ : Subgroup (G ⧸ N)) :=
-    (IsPGroup.of_card (G := G ⧸ N) idx).to_subgroup _
-  have top_eq : (⊤ : Subgroup (G ⧸ N)) = Q.toSubgroup := Q.is_maximal' htop le_top
-  have hv : v ∈ P.toSubgroup.map q := by
-    change v ∈ Q.toSubgroup
-    rw [← top_eq]
-    trivial
-  obtain ⟨t,ht,eq⟩ := hv
-  refine ⟨t,eq,?_⟩
-  intro x hx
-  have mem : i x ∈ P := hP ⟨x,hx,rfl⟩
-  have commute : t * i x = i x * t := congrArg Subtype.val
-    ((comm P).is_comm.comm (⟨t,ht⟩ : P) ⟨i x,mem⟩)
-  apply e.injective
-  change e (e.symm _) = e x
-  rw [e.apply_symm_apply]
-  apply Subtype.ext
-  change t * i x * t⁻¹ = i x
-  rw [commute,mul_inv_cancel_right]
+      ∀ x ∈ S, (MulAut.congr e.symm (MulAut.conjNormal (H := N) t)) x = x :=
+  central_sylow_quotient_lift N idx e S hS
+    (fun P => center_sup_of_commutative (comm P) _) v
 
 /-- Count cyclic extensions using any set of outer classes covering chosen generator lifts. -/
 lemma filtered_outer_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ)
@@ -2819,6 +2922,41 @@ lemma outer_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ)
   obtain ⟨t,ht⟩ := QuotientGroup.mk'_surjective N v
   exact ⟨N,hn,e,v,t,idx,hv,ht,Set.mem_univ _⟩
 
+private lemma abelian_sylow_count_le_central_lift_count (K : FiniteGrp.{0}) (p a : ℕ) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | (∀ Q : Sylow p G, IsMulCommutative Q) ∧
+        ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+          N.index = p^a ∧ Nonempty (K ≃* N)}).ncard ≤
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+          N.index = p^a ∧ (∀ P : Sylow p G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤) ∧ Nonempty (K ≃* N)}).ncard := by
+  apply Set.ncard_le_ncard (Set.image_mono ?_)
+    ((finite_classes ((p^a)*Nat.card K)).subset (Set.image_mono ?_))
+  · rintro G ⟨comm,N,hn,cyc,idx,e⟩
+    exact ⟨N,hn,cyc,idx,fun P => center_sup_of_commutative (comm P) _,e⟩
+  · rintro G ⟨N,_,_,idx,_,⟨e⟩⟩
+    change Nat.card G = _
+    rw [← N.index_mul_card,idx,Nat.card_congr e.toEquiv]
+
+/-- Count extensions whose Sylow centers supply lifts from the cyclic quotient. -/
+lemma central_lift_filtered_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
+    (a : ℕ) (S : Sylow p K) [(MulAut.conj : K →* MulAut K).range.Normal] :
+    let π := QuotientGroup.mk' (MulAut.conj : K →* MulAut K).range
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+          N.index = p^a ∧ (∀ P : Sylow p G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤) ∧ Nonempty (K ≃* N)}).ncard ≤
+      ((ConjClasses.mk '' {t : MulAut K ⧸ (MulAut.conj : K →* MulAut K).range | t^(p^a) = 1}) ∩
+        ((fun f : MulAut K => ConjClasses.mk (π f)) '' {f | ∀ x ∈ S, f x = x})).ncard
+        * Nat.card (Subgroup.center K) := by
+  dsimp only
+  apply filtered_outer_cyclic_quotient_count
+  rintro G ⟨N,hn,cyc,idx,central,⟨e⟩⟩
+  let _ : N.Normal := hn
+  let _ : IsCyclic (G ⧸ N) := cyc
+  obtain ⟨v,hv⟩ := IsCyclic.exists_generator (α := G ⧸ N)
+  obtain ⟨t,ht,fixed⟩ := central_sylow_quotient_lift N idx e S.toSubgroup S.isPGroup' central v
+  exact ⟨N,hn,e,v,t,idx,hv,ht,_,fixed,rfl⟩
+
 /-- With abelian ambient Sylow p-subgroups, only outer classes represented by an
 automorphism fixing the prescribed kernel Sylow subgroup pointwise can occur. -/
 lemma abelian_sylow_filtered_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
@@ -2831,14 +2969,7 @@ lemma abelian_sylow_filtered_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact
       ((ConjClasses.mk '' {t : MulAut K ⧸ (MulAut.conj : K →* MulAut K).range | t^(p^a) = 1}) ∩
         ((fun f : MulAut K => ConjClasses.mk (π f)) '' {f | ∀ x ∈ S, f x = x})).ncard
         * Nat.card (Subgroup.center K) := by
-  dsimp only
-  apply filtered_outer_cyclic_quotient_count
-  rintro G ⟨comm,N,hn,cyc,idx,⟨e⟩⟩
-  let _ : N.Normal := hn
-  let _ : IsCyclic (G ⧸ N) := cyc
-  obtain ⟨v,hv⟩ := IsCyclic.exists_generator (α := G ⧸ N)
-  obtain ⟨t,ht,fixed⟩ := exists_pointwise_fixed_quotient_lift N idx e S.toSubgroup S.isPGroup' comm v
-  exact ⟨N,hn,e,v,t,idx,hv,ht,_,fixed,rfl⟩
+  exact (abelian_sylow_count_le_central_lift_count K p a).trans (central_lift_filtered_extension_count K a S)
 
 /-- Specifying the images of the generators outside the kernel Sylow subgroup bounds
 the realized outer classes in the abelian ambient Sylow case. -/
@@ -3259,20 +3390,18 @@ lemma prime_power_torsion_classes_le_sylow (G : Type*) [Group G] [Finite G]
   exact (Set.ncard_le_ncard covers ((Set.toFinite S).image _)).trans
     (Set.ncard_image_le (Set.toFinite S))
 
-/-- Localize the filtered count to a Sylow subgroup of the image in Out(K) of the
-pointwise stabilizer of a kernel Sylow subgroup. -/
-lemma pointwise_stabilizer_sylow_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
+/-- Bound the central-lift extension family using a Sylow subgroup of the outer stabilizer. -/
+lemma central_lift_outer_sylow_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
     (a : ℕ) (S : Sylow p K) [(MulAut.conj : K →* MulAut K).range.Normal] :
     let π := QuotientGroup.mk' (MulAut.conj : K →* MulAut K).range
     let H := (fixingSubgroup (MulAut K) (S : Set K)).map π
     ∀ P : Sylow p H, (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | (∀ Q : Sylow p G, IsMulCommutative Q) ∧
-        ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
-          N.index = p^a ∧ Nonempty (K ≃* N)}).ncard ≤
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+          N.index = p^a ∧ (∀ P : Sylow p G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤) ∧ Nonempty (K ≃* N)}).ncard ≤
       (ConjClasses.mk '' {x : P | x^(p^a) = 1}).ncard * Nat.card (Subgroup.center K) := by
   classical
   intro π H P
-  apply (abelian_sylow_filtered_extension_count K a S).trans
+  apply (central_lift_filtered_extension_count K a S).trans
   apply Nat.mul_le_mul_right
   apply le_trans _ (prime_power_torsion_classes_le_sylow H P a)
   let T := ConjClasses.mk '' {x : H | x^(p^a) = 1}
@@ -3286,14 +3415,26 @@ lemma pointwise_stabilizer_sylow_extension_count (K : FiniteGrp.{0}) {p : ℕ} [
   have hy : y^(p^a) = 1 := Subtype.ext (isConj_one_left.mp conj)
   exact ⟨_,⟨y,hy,rfl⟩,eq⟩
 
-/-- The index of the inner automorphisms in the pointwise stabilizer equals its
-outer image order. Only the p-part of that index enters this extension count. -/
-lemma outer_stabilizer_prime_part_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
-    (a : ℕ) (S : Sylow p K) :
-    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+/-- Localize the filtered count to a Sylow subgroup of the image in Out(K) of the
+pointwise stabilizer of a kernel Sylow subgroup. -/
+lemma pointwise_stabilizer_sylow_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
+    (a : ℕ) (S : Sylow p K) [(MulAut.conj : K →* MulAut K).range.Normal] :
+    let π := QuotientGroup.mk' (MulAut.conj : K →* MulAut K).range
+    let H := (fixingSubgroup (MulAut K) (S : Set K)).map π
+    ∀ P : Sylow p H, (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | (∀ Q : Sylow p G, IsMulCommutative Q) ∧
         ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
           N.index = p^a ∧ Nonempty (K ≃* N)}).ncard ≤
+      (ConjClasses.mk '' {x : P | x^(p^a) = 1}).ncard * Nat.card (Subgroup.center K) := by
+  intro π H P
+  exact (abelian_sylow_count_le_central_lift_count K p a).trans (central_lift_outer_sylow_count K a S P)
+
+/-- Bound the central-lift extension family by the p-part of the outer stabilizer order times the kernel center order. -/
+lemma central_lift_outer_prime_part_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
+    (a : ℕ) (S : Sylow p K) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+          N.index = p^a ∧ (∀ P : Sylow p G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤) ∧ Nonempty (K ≃* N)}).ncard ≤
       p ^ ((MulAut.conj : K →* MulAut K).range.subgroupOf
               (fixingSubgroup (MulAut K) (S : Set K))).index.factorization p *
         Nat.card (Subgroup.center K) := by
@@ -3308,11 +3449,24 @@ lemma outer_stabilizer_prime_part_extension_count (K : FiniteGrp.{0}) {p : ℕ} 
     rw [show f = π.subgroupMap A from rfl, Subgroup.ker_subgroupMap, QuotientGroup.ker_mk']
   have index : (I.subgroupOf A).index = Nat.card (A.map π) := by
     rw [← ker,Subgroup.index_ker,MonoidHom.range_eq_top.mpr (π.subgroupMap_surjective A),Subgroup.card_top]
-  apply (pointwise_stabilizer_sylow_extension_count K a S Q).trans
+  apply (central_lift_outer_sylow_count K a S Q).trans
   apply Nat.mul_le_mul_right
   rw [index,← Q.card_eq_multiplicity]
   exact (Set.ncard_image_le (Set.toFinite _)).trans
     (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective)
+
+/-- The index of the inner automorphisms in the pointwise stabilizer equals its
+outer image order. Only the p-part of that index enters this extension count. -/
+lemma outer_stabilizer_prime_part_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
+    (a : ℕ) (S : Sylow p K) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | (∀ Q : Sylow p G, IsMulCommutative Q) ∧
+        ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+          N.index = p^a ∧ Nonempty (K ≃* N)}).ncard ≤
+      p ^ ((MulAut.conj : K →* MulAut K).range.subgroupOf
+              (fixingSubgroup (MulAut K) (S : Set K))).index.factorization p *
+        Nat.card (Subgroup.center K) := by
+  exact (abelian_sylow_count_le_central_lift_count K p a).trans (central_lift_outer_prime_part_count K a S)
 
 private lemma prime_part_index_le {A : Type*} [Group A] [Finite A] (U : Subgroup A)
     {p : ℕ} (hp : p.Prime) : p ^ U.index.factorization p ≤ p ^ (Nat.card A).factorization p := by
@@ -3815,18 +3969,18 @@ lemma cyclic_quotient_rank_count (K : FiniteGrp.{0}) (m : ℕ) :
 
 /-- Sum a fixed-kernel bound over solvable kernel classes and quotient orders.
 The ambient family and kernel condition can depend on the order of the cyclic quotient. -/
-theorem filtered_cyclic_extension_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
-    (F C : ℕ → FiniteGrp.{0} → Prop)
+theorem kernel_filtered_cyclic_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
+    (F : ℕ → (G : FiniteGrp.{0}) → Subgroup G → Prop) (C : ℕ → FiniteGrp.{0} → Prop)
     (cost : ∀ k K, C k K → (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | F k G ∧ ∃ (N : Subgroup G) (_ : N.Normal),
-        IsCyclic (G ⧸ N) ∧ N.index = k ∧ Nonempty (K ≃* N)}).ncard ≤
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal),
+        IsCyclic (G ⧸ N) ∧ N.index = k ∧ F k G N ∧ Nonempty (K ≃* N)}).ncard ≤
           Nat.card K^(B * Nat.log 2 k+1))
     (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
       (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
         {G : FiniteGrp.{0} | Nat.card G = n ∧ Group.IsSolvable G}).ncard ≤
         2^(E*(s+1)^2) * ∏ p ∈ n.primeFactors, g (p^n.factorization p)) :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧ F N.index G ∧ C N.index (FiniteGrp.of N))}).ncard ≤
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧ F N.index G N ∧ C N.index (FiniteGrp.of N))}).ncard ≤
       2^(E*(r+1)^2-6) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
   classical
   let L (n : ℕ) := ∏ p ∈ n.primeFactors, g (p^n.factorization p)
@@ -3837,10 +3991,10 @@ theorem filtered_cyclic_extension_induction_step {q r E B : ℕ} (hr : q < 2^r) 
   let K (i : I) (x : T i) : FiniteGrp.{0} := x.property.choose
   have kc (i : I) (x : T i) : Nat.card (K i x) = q/i.val.val := x.property.choose_spec.1.1
   let S (i : I) (x : T i) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-    {G : FiniteGrp.{0} | F i.val.val G ∧ ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
-      N.index = i.val.val ∧ Nonempty (K i x ≃* N)}
+    {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+      N.index = i.val.val ∧ F i.val.val G N ∧ Nonempty (K i x ≃* N)}
   have finite (i : I) (x : T i) : (S i x).Finite := (finite_classes q).subset (Set.image_mono (by
-    rintro G ⟨_,N,_,_,idx,⟨e⟩⟩
+    rintro G ⟨N,_,_,idx,_,⟨e⟩⟩
     change Nat.card G = q
     rw [← N.index_mul_card,idx,← Nat.card_congr e.toEquiv,kc,i.property.2.2]))
   have inner (i : I) : (⋃ x : T i, S i x).ncard ≤ 2^(E*(r+1)^2-6-r)*L q := by
@@ -3897,7 +4051,7 @@ theorem filtered_cyclic_extension_induction_step {q r E B : ℕ} (hr : q < 2^r) 
       ⟨div.symm,inferInstanceAs (Group.IsSolvable N),rk⟩,rfl⟩
     have rep : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (K i x) = Quotient.mk _ (FiniteGrp.of N) := x.property.choose_spec.2
     let e := ((inducedFunctor FiniteGrp.toGrp).mapIso (Classical.choice (Quotient.exact rep))).groupIsoToMulEquiv
-    exact Set.mem_iUnion.mpr ⟨i,Set.mem_iUnion.mpr ⟨x,G,⟨fam,N,hn,cyc,rfl,⟨e⟩⟩,rfl⟩⟩
+    exact Set.mem_iUnion.mpr ⟨i,Set.mem_iUnion.mpr ⟨x,G,⟨N,hn,cyc,rfl,fam,⟨e⟩⟩,rfl⟩⟩
   · let _ := Fintype.ofFinite I
     have ni : Nat.card I ≤ 2^r := (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective).trans
       (by simpa using hr : Nat.card (Fin (q+1)) ≤ 2^r)
@@ -3913,6 +4067,30 @@ theorem filtered_cyclic_extension_induction_step {q r E B : ℕ} (hr : q < 2^r) 
         have := Nat.mul_le_mul_right ((r+1)^2) (show 6 ≤ E by omega)
         have : r+6 ≤ 6*(r+1)^2 := by nlinarith
         omega
+
+/-- Specialization to filters on the ambient group and quotient order. -/
+theorem filtered_cyclic_extension_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
+    (F C : ℕ → FiniteGrp.{0} → Prop)
+    (cost : ∀ k K, C k K → (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | F k G ∧ ∃ (N : Subgroup G) (_ : N.Normal),
+        IsCyclic (G ⧸ N) ∧ N.index = k ∧ Nonempty (K ≃* N)}).ncard ≤
+          Nat.card K^(B * Nat.log 2 k+1))
+    (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
+      (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+        {G : FiniteGrp.{0} | Nat.card G = n ∧ Group.IsSolvable G}).ncard ≤
+        2^(E*(s+1)^2) * ∏ p ∈ n.primeFactors, g (p^n.factorization p)) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧ F N.index G ∧ C N.index (FiniteGrp.of N))}).ncard ≤
+      2^(E*(r+1)^2-6) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
+  apply kernel_filtered_cyclic_induction_step hr odd hE (fun k G _ => F k G) C _ ih
+  intro k K hK
+  apply le_trans _ (cost k K hK)
+  apply Set.ncard_le_ncard (Set.image_mono ?_) ((finite_classes (k*Nat.card K)).subset (Set.image_mono ?_))
+  · rintro G ⟨N,hn,cyc,idx,fam,e⟩
+    exact ⟨fam,N,hn,cyc,idx,e⟩
+  · rintro G ⟨_,N,_,_,idx,⟨e⟩⟩
+    change Nat.card G = _
+    rw [← N.index_mul_card,idx,Nat.card_congr e.toEquiv]
 
 /-- Induct when the kernel automorphism class count fits the quotient-order budget. -/
 theorem outer_cyclic_quotient_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
@@ -3955,6 +4133,40 @@ lemma sylow_commutative_of_valuation_le_two {G : Type*} [Group G] [Finite G]
   · rw [h] at card
     exact IsPGroup.isMulCommutative_of_card_eq_prime_sq card
 
+/-- Sum the fixed-kernel counts when each Sylow center covers the quotient. -/
+theorem central_lift_stabilizer_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
+    (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
+      (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+        {G : FiniteGrp.{0} | Nat.card G = n ∧ Group.IsSolvable G}).ncard ≤
+        2^(E*(s+1)^2) * ∏ p ∈ n.primeFactors, g (p^n.factorization p)) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧ (∃ P : Sylow N.index.minFac G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤) ∧
+          ∃ (p a : ℕ) (_ : p.Prime) (S : Sylow p N),
+      0 < a ∧ N.index = p^a ∧ p ^ ((MulAut.conj : N →* MulAut N).range.subgroupOf
+              (fixingSubgroup (MulAut N) (S : Set N))).index.factorization p *
+            Nat.card (Subgroup.center N) ≤ Nat.card N ^ (B * Nat.log 2 N.index + 1))}).ncard ≤
+      2^(E*(r+1)^2-6) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
+  let F (k : ℕ) (G : FiniteGrp.{0}) (N : Subgroup G) :=
+    ∃ P : Sylow k.minFac G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤
+  let C (k : ℕ) (K : FiniteGrp.{0}) := ∃ (p a : ℕ) (_ : p.Prime) (S : Sylow p K),
+      0 < a ∧ k = p^a ∧ p ^ ((MulAut.conj : K →* MulAut K).range.subgroupOf
+              (fixingSubgroup (MulAut K) (S : Set K))).index.factorization p *
+            Nat.card (Subgroup.center K) ≤ Nat.card K ^ (B * Nat.log 2 k + 1)
+  apply kernel_filtered_cyclic_induction_step hr odd hE F C _ ih
+  rintro k K ⟨p,a,hp,S,ha,rfl,size⟩
+  let _ : Fact p.Prime := ⟨hp⟩
+  apply le_trans _ ((central_lift_outer_prime_part_count K a S).trans size)
+  · apply Set.ncard_le_ncard (Set.image_mono ?_) ((finite_classes ((p^a)*Nat.card K)).subset
+      (Set.image_mono ?_))
+    · rintro G ⟨N,hn,cyc,idx,fam,e⟩
+      change ∃ P : Sylow (p^a).minFac G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤ at fam
+      rw [hp.pow_minFac ha.ne'] at fam
+      let _ : N.Normal := hn
+      exact ⟨N,hn,cyc,idx,(sylow_center_sup_iff_all N).mp fam,e⟩
+    · rintro G ⟨N,_,_,idx,_,⟨e⟩⟩
+      change Nat.card G = _
+      rw [← N.index_mul_card,idx,Nat.card_congr e.toEquiv]
+
 /-- Only Sylow subgroups at the cyclic quotient prime need to commute in the ambient group. -/
 theorem quotient_prime_stabilizer_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
     (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
@@ -3968,24 +4180,12 @@ theorem quotient_prime_stabilizer_induction_step {q r E B : ℕ} (hr : q < 2^r) 
               (fixingSubgroup (MulAut N) (S : Set N))).index.factorization p *
             Nat.card (Subgroup.center N) ≤ Nat.card N ^ (B * Nat.log 2 N.index + 1))}).ncard ≤
       2^(E*(r+1)^2-6) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
-  let F (k : ℕ) (G : FiniteGrp.{0}) := ∀ P : Sylow k.minFac G, IsMulCommutative P
-  let C (k : ℕ) (K : FiniteGrp.{0}) := ∃ (p a : ℕ) (_ : p.Prime) (S : Sylow p K),
-      0 < a ∧ k = p^a ∧ p ^ ((MulAut.conj : K →* MulAut K).range.subgroupOf
-              (fixingSubgroup (MulAut K) (S : Set K))).index.factorization p *
-            Nat.card (Subgroup.center K) ≤ Nat.card K ^ (B * Nat.log 2 k + 1)
-  apply filtered_cyclic_extension_induction_step hr odd hE F C _ ih
-  rintro k K ⟨p,a,hp,S,ha,rfl,size⟩
-  let _ : Fact p.Prime := ⟨hp⟩
-  apply le_trans _ ((outer_stabilizer_prime_part_extension_count K a S).trans size)
-  · apply Set.ncard_le_ncard (Set.image_mono ?_) ((finite_classes ((p^a)*Nat.card K)).subset
-      (Set.image_mono ?_))
-    · rintro G ⟨fam,extension⟩
-      change ∀ P : Sylow (p^a).minFac G, IsMulCommutative P at fam
-      rw [hp.pow_minFac ha.ne'] at fam
-      exact ⟨fam,extension⟩
-    · rintro G ⟨_,N,_,_,idx,⟨e⟩⟩
-      change Nat.card G = _
-      rw [← N.index_mul_card,idx,Nat.card_congr e.toEquiv]
+  apply le_trans _ (central_lift_stabilizer_induction_step hr odd hE ih)
+  apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono fun _ h => h.1))
+  rintro _ ⟨G,⟨hg,hs,N,hn,cyc,big,comm,rest⟩,rfl⟩
+  let _ : Fact N.index.minFac.Prime := ⟨Nat.minFac_prime (by omega)⟩
+  let P : Sylow N.index.minFac G := default
+  exact ⟨G,⟨hg,hs,N,hn,cyc,big,⟨P,center_sup_of_commutative (comm P) _⟩,rest⟩,rfl⟩
 
 /-- An arithmetic sufficient condition for the mixed-Sylow induction step. -/
 theorem small_valuation_stabilizer_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
@@ -4385,7 +4585,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
               (fixingSubgroup (MulAut N) (S : Set N))).index.factorization p *
             Nat.card (Subgroup.center N) ≤ Nat.card N ^ (A * Nat.log 2 N.index + 1))
   let Mixed (G : FiniteGrp.{0}) := (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧
-          (∀ P : Sylow N.index.minFac G, IsMulCommutative P) ∧
+          (∃ P : Sylow N.index.minFac G, Subgroup.center P ⊔ N.subgroupOf P.toSubgroup = ⊤) ∧
           ∃ (p a : ℕ) (_ : p.Prime) (S : Sylow p N), 0 < a ∧ N.index = p^a ∧
             p ^ ((MulAut.conj : N →* MulAut N).range.subgroupOf
               (fixingSubgroup (MulAut N) (S : Set N))).index.factorization p *
@@ -4546,7 +4746,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
   have bb : (S Y).ncard ≤ 2^(E*m-3)*L := by
     apply combine Y Mixed other
     have hb : B+6 ≤ E := Nat.add_le_add_right ((le_max_right A B).trans (le_max_right ..)) 6
-    apply le_trans _ (quotient_prime_stabilizer_induction_step hr odd hb ih)
+    apply le_trans _ (central_lift_stabilizer_induction_step hr odd hb ih)
     apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono fun _ h => h.1))
     rintro _ ⟨G,⟨hg,hs,_,mixed⟩,rfl⟩
     exact ⟨G,⟨hg,hs,mixed⟩,rfl⟩
