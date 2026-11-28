@@ -15,7 +15,8 @@ def H1 : Prop := ∀ t : ℕ, Odd t → 1 < t → ¬ (16 * t ^ 2 + 1 ∣ 2 ^ (4 
     R1 left p = 3, k = 3 mod 4 open, and `eight_three_fails` below closes it modulo 9.
     In the family x = 16 p^k, `sixteen_prime_power` leaves six primes, each in one or two
     classes of k. In the family x = 24 p^k, `twentyfour_fails` leaves only p ∈ {3, 5, 7, 19}
-    (and p = 3 is already excluded as 8·3^(k+1)). -/
+    (and p = 3 is already excluded as 8·3^(k+1)). In the family x = 32 p^k,
+    `thirtytwo_prime_power` leaves six primes, each in at most four classes of k. -/
 def H2 : Prop := ∀ x : ℕ, 4 < x → 8 ∣ x → ¬ (x - 1).Prime →
     (¬ ∃ s : ℕ, x = 2 ^ s) →
     (∀ p k : ℕ, p.Prime → p ≠ 2 → k ≠ 0 → x ≠ 8 * p ^ k) →
@@ -25,6 +26,10 @@ def H2 : Prop := ∀ x : ℕ, 4 < x → 8 ∣ x → ¬ (x - 1).Prime →
       (p = 241 ∧ k % 4 = 1) ∨ (p = 643 ∧ k % 16 = 4)) →
     (∀ p k : ℕ, p.Prime → p ≠ 2 → k ≠ 0 → x = 24 * p ^ k →
       p = 3 ∨ p = 5 ∨ p = 7 ∨ p = 19) →
+    (∀ p k : ℕ, p.Prime → p ≠ 2 → k ≠ 0 → x = 32 * p ^ k →
+      (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨
+      (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨
+      (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5)) →
     (∀ m : ℕ, m ∣ x ^ 2 + 1 → m < 2 ^ (m.primeFactors.lcm fun q => x.gcd (q - 1))) →
     ¬ (x ^ 4 - 1 ∣ 2 ^ x - 1)
 
@@ -300,6 +305,721 @@ theorem sixteen_prime_power (p k : ℕ) (hp : p.Prime) (odd : p ≠ 2) (hk : k �
       (fun q hq => by rw [List.eq_of_mem_replicate hq]; exact Nat.prime_two) (by simpa using plus)
     simp at this
     rcases this with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact (two rfl).elim
+
+-- The x = 32 p^k family.
+
+/-- If q has order exactly 2^(n+1) modulo r, the solutions k of t q^k = 1 mod r form one class. -/
+lemma pow2_class (t q k r n a : ℕ) (h1 : q ^ 2 ^ (n + 1) ≡ 1 [MOD r])
+    (h2 : ¬ q ^ 2 ^ n ≡ 1 [MOD r]) (ha : t * q ^ a ≡ 1 [MOD r]) (hlt : a < 2 ^ (n + 1))
+    (hpos : 0 < t * q ^ k) (hk : r ∣ t * q ^ k - 1) : k % 2 ^ (n + 1) = a := by
+  have _ : Fact (Nat.Prime 2) := ⟨Nat.prime_two⟩
+  have e1 : ((q : ZMod r)) ^ 2 ^ (n + 1) = 1 := by
+    have := (ZMod.natCast_eq_natCast_iff _ _ _).mpr h1
+    push_cast at this
+    exact this
+  have e2 : ¬ ((q : ZMod r)) ^ 2 ^ n = 1 := by
+    intro h
+    apply h2
+    apply (ZMod.natCast_eq_natCast_iff _ _ _).mp
+    push_cast
+    exact h
+  have ea : (t : ZMod r) * (q : ZMod r) ^ a = 1 := by
+    have := (ZMod.natCast_eq_natCast_iff _ _ _).mpr ha
+    push_cast at this
+    exact this
+  have ek : (t : ZMod r) * (q : ZMod r) ^ k = 1 := by
+    have := (ZMod.natCast_eq_natCast_iff _ _ _).mpr ((Nat.modEq_iff_dvd' hpos).mpr hk).symm
+    push_cast at this
+    exact this
+  have ord : orderOf (q : ZMod r) = 2 ^ (n + 1) := orderOf_eq_prime_pow e2 e1
+  have key : (q : ZMod r) ^ (k + (2 ^ (n + 1) - a)) = 1 := by
+    calc (q : ZMod r) ^ (k + (2 ^ (n + 1) - a))
+        = (q : ZMod r) ^ k * (q : ZMod r) ^ (2 ^ (n + 1) - a) * ((t : ZMod r) * (q : ZMod r) ^ a) := by
+          rw [ea, mul_one, pow_add]
+      _ = ((t : ZMod r) * (q : ZMod r) ^ k) * (q : ZMod r) ^ (2 ^ (n + 1) - a + a) := by ring
+      _ = 1 := by rw [ek, Nat.sub_add_cancel hlt.le, e1, one_mul]
+  have hdvd : 2 ^ (n + 1) ∣ k + (2 ^ (n + 1) - a) := by
+    have := orderOf_dvd_of_pow_eq_one key
+    rwa [ord] at this
+  have m : k + (2 ^ (n + 1) - a) ≡ a + (2 ^ (n + 1) - a) [MOD 2 ^ (n + 1)] := by
+    rw [Nat.add_sub_cancel' hlt.le]
+    exact (Nat.modEq_zero_iff_dvd.mpr hdvd).trans (Nat.modEq_zero_iff_dvd.mpr dvd_rfl).symm
+  have := Nat.ModEq.add_right_cancel' _ m
+  rw [Nat.ModEq, Nat.mod_eq_of_lt hlt] at this
+  exact this
+
+/-- If q^M = 1 but t^M ≠ 1 modulo r, then t q^k is never 1 modulo r. -/
+lemma pow_no_class (t q k r M : ℕ) (h1 : q ^ M ≡ 1 [MOD r]) (h2 : ¬ t ^ M ≡ 1 [MOD r])
+    (hpos : 0 < t * q ^ k) (hk : r ∣ t * q ^ k - 1) : False := by
+  have m : 1 ≡ t * q ^ k [MOD r] := (Nat.modEq_iff_dvd' hpos).mpr hk
+  have m2 := m.pow M
+  rw [one_pow, mul_pow, ← pow_mul, mul_comm k M, pow_mul] at m2
+  have m3 : t ^ M * (q ^ M) ^ k ≡ t ^ M * 1 ^ k [MOD r] := (h1.pow k).mul_left _
+  rw [one_pow, mul_one] at m3
+  exact h2 (m2.trans m3).symm
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_0 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (1 * (1 * (1 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (1 * (1 * (1 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp (List.replicate 1 2)
+    (fun q hq => by rw [List.eq_of_mem_replicate hq]; exact Nat.prime_two) (by simpa using plus)
+  exact (two (List.eq_of_mem_replicate this)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_1 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (1 * (1 * (1 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (1 * (1 * (1 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 3, 3, 11, 331] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 3 k 65537 15 51200 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+  · clear plus
+    have c0 := pow2_class 32 3 k 65537 15 51200 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+  · clear plus
+    have c0 := pow2_class 32 11 k 65537 15 14336 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+  · clear plus
+    have c0 := pow2_class 32 331 k 65537 15 14336 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_2 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (1 * (1 * (257 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (1 * (1 * (257 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 3, 43] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 3 k 257 7 16 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+  · clear plus
+    have c0 := pow2_class 32 43 k 257 7 240 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_3 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (1 * (1 * (257 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (1 * (1 * (257 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 5, 1684301] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 5 k 257 7 112 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 5 k 65537 15 38912 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 1684301 k 257 7 144 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 1684301 k 65537 15 26624 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_4 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (1 * (17 * (1 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (1 * (17 * (1 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 3, 3] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 3 k 17 3 10 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+  · clear plus
+    have c0 := pow2_class 32 3 k 17 3 10 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_5 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (1 * (17 * (1 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (1 * (17 * (1 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 5, 43, 2591] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 5 k 17 3 2 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 5 k 65537 15 38912 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 43 k 17 2 5 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 43 k 65537 15 2048 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 2591 k 17 3 14 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 2591 k 65537 13 4608 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_6 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (1 * (17 * (257 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (1 * (17 * (257 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 5, 19, 23] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 5 k 17 3 2 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 5 k 257 7 112 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 19 k 17 2 3 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 19 k 257 7 80 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 23 k 17 3 6 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 23 k 257 5 28 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_7 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (1 * (17 * (257 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (1 * (17 * (257 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 3, 131, 364289] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 3 k 257 7 16 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 3 k 65537 15 51200 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 131 k 257 7 112 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 131 k 65537 15 18432 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · exact (pow_no_class 32 364289 k 17 4 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_8 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (5 * (1 * (1 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (5 * (1 * (1 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 3] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 3 k 5 1 1 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_9 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (5 * (1 * (1 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (5 * (1 * (1 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 59, 2777] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 59 k 5 2 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · clear plus
+    have c0 := pow2_class 32 2777 k 5 1 3 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 2777 k 65537 15 14336 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_10 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (5 * (1 * (257 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (5 * (1 * (257 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 643] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 643 k 257 3 5 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_11 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (5 * (1 * (257 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (5 * (1 * (257 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 3, 457, 30713] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 3 k 257 7 16 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 3 k 65537 15 51200 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 457 k 257 6 120 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 457 k 65537 15 10240 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 30713 k 257 7 16 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 30713 k 65537 14 29696 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_12 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (5 * (17 * (1 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (5 * (17 * (1 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 43] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 43 k 17 2 5 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_13 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (5 * (17 * (1 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (5 * (17 * (1 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 3, 23, 37, 1091] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 3 k 17 3 10 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 3 k 65537 15 51200 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 23 k 17 3 6 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 23 k 65537 15 55296 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 37 k 17 3 10 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 37 k 65537 14 29696 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · exact (pow_no_class 32 1091 k 5 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_14 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (5 * (17 * (257 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (5 * (17 * (257 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 3, 11, 331] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 3 k 17 3 10 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 3 k 257 7 16 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · exact (pow_no_class 32 11 k 5 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · exact (pow_no_class 32 331 k 5 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_15 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 1 * (5 * (17 * (257 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 1 * (5 * (17 * (257 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 715827883] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 715827883 k 65537 4 5 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_16 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (1 * (1 * (1 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (1 * (1 * (1 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp (List.replicate 2 2)
+    (fun q hq => by rw [List.eq_of_mem_replicate hq]; exact Nat.prime_two) (by simpa using plus)
+  exact (two (List.eq_of_mem_replicate this)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_17 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (1 * (1 * (1 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (1 * (1 * (1 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 13, 19, 199] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 13 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · exact (pow_no_class 32 19 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · exact (pow_no_class 32 199 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_18 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (1 * (1 * (257 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (1 * (1 * (257 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 193] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 193 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_19 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (1 * (1 * (257 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (1 * (1 * (257 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 11, 1148387] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 11 k 257 5 4 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 11 k 65537 15 14336 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 1148387 k 257 5 28 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 1148387 k 65537 15 51200 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_20 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (1 * (17 * (1 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (1 * (17 * (1 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 13] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 13 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_21 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (1 * (17 * (1 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (1 * (17 * (1 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 7, 7, 17053] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 7 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · exact (pow_no_class 32 7 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · exact (pow_no_class 32 17053 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_22 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (1 * (17 * (257 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (1 * (17 * (257 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 29, 113] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 29 k 17 3 2 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 29 k 257 6 120 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · clear plus
+    have c0 := pow2_class 32 113 k 17 3 6 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 113 k 257 6 8 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_23 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (1 * (17 * (257 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (1 * (17 * (257 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 5, 13, 41, 61, 1321] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · clear plus
+    have c0 := pow2_class 32 5 k 257 7 112 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 5 k 65537 15 38912 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · exact (pow_no_class 32 13 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · clear plus
+    have c0 := pow2_class 32 41 k 257 7 176 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    have c1 := pow2_class 32 41 k 65537 15 22528 (by decide +kernel) (by decide +kernel)
+      (by decide +kernel) (by norm_num) hpos (dvd_trans (by norm_num) dh)
+    norm_num at c0 c1
+    omega
+  · exact (pow_no_class 32 61 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · exact (pow_no_class 32 1321 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_24 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (5 * (1 * (1 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (5 * (1 * (1 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp (List.replicate 4 2)
+    (fun q hq => by rw [List.eq_of_mem_replicate hq]; exact Nat.prime_two) (by simpa using plus)
+  exact (two (List.eq_of_mem_replicate this)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_25 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (5 * (1 * (1 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (5 * (1 * (1 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 2, 2, 61441] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 61441 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_26 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (5 * (1 * (257 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (5 * (1 * (257 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 2, 2, 241] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 241 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_27 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (5 * (1 * (257 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (5 * (1 * (257 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 2, 2, 15790321] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 15790321 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_28 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (5 * (17 * (1 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (5 * (17 * (1 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp (List.replicate 8 2)
+    (fun q hq => by rw [List.eq_of_mem_replicate hq]; exact Nat.prime_two) (by simpa using plus)
+  exact (two (List.eq_of_mem_replicate this)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_29 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (5 * (17 * (1 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (5 * (17 * (1 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp [2, 2, 2, 2, 2, 2, 2, 2, 97, 673] (by norm_num) (by simpa using plus)
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+  rcases this with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (two rfl).elim
+  · exact (pow_no_class 32 97 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+  · exact (pow_no_class 32 673 k 3 1 (by decide +kernel) (by decide +kernel) hpos
+      (dvd_trans (by norm_num) dh)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_30 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (5 * (17 * (257 * 1))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (5 * (17 * (257 * 1))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp (List.replicate 16 2)
+    (fun q hq => by rw [List.eq_of_mem_replicate hq]; exact Nat.prime_two) (by simpa using plus)
+  exact (two (List.eq_of_mem_replicate this)).elim
+
+set_option maxRecDepth 100000 in
+lemma t32_leaf_31 (p k : ℕ) (hp : p.Prime) (two : p ≠ 2) (hpos : 0 < 32 * p ^ k)
+    (dh : 3 * (5 * (17 * (257 * 65537))) ∣ 32 * p ^ k - 1) (plus : p ∣ 3 * (5 * (17 * (257 * 65537))) + 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  have := prime_mem_of_dvd hp (List.replicate 32 2)
+    (fun q hq => by rw [List.eq_of_mem_replicate hq]; exact Nat.prime_two) (by simpa using plus)
+  exact (two (List.eq_of_mem_replicate this)).elim
+
+set_option maxHeartbeats 4000000 in
+set_option maxRecDepth 100000 in
+/-- In the family x = 32 p^k only six odd primes survive the predecessor test, each in at most
+    four classes of k. Modulo each prime r ∣ 2^32 - 1 the order of p is a power of 2, so
+    `pow_no_class` or `pow2_class` applies, and two incompatible classes give a contradiction. -/
+theorem thirtytwo_prime_power (p k : ℕ) (hp : p.Prime) (odd : p ≠ 2) (hk : k ≠ 0)
+    (test : (32 * p ^ k) ^ 4 - 1 ∣ 2 ^ (32 * p ^ k) - 1) :
+    (p = 3 ∧ (k % 4 = 1 ∨ k % 16 = 10 ∨ k % 256 = 16 ∨ k % 65536 = 51200)) ∨ (p = 11 ∧ k % 65536 = 14336) ∨ (p = 43 ∧ (k % 8 = 5 ∨ k % 256 = 240)) ∨ (p = 331 ∧ k % 65536 = 14336) ∨ (p = 643 ∧ k % 16 = 5) ∨ (p = 715827883 ∧ k % 32 = 5) := by
+  obtain ⟨d, hd, dh, plus⟩ := divisor_before 32 p k (by decide) hp hk test
+  clear test
+  have hpos : 0 < 32 * p ^ k := Nat.mul_pos (by norm_num) (Nat.pow_pos hp.pos)
+  have two : p ≠ 2 := odd
+  have h32 : 2 ^ 32 - 1 = 3 * (5 * (17 * (257 * 65537))) := by norm_num
+  rw [h32] at hd
+  obtain ⟨a, d1, ha, hd1, rfl⟩ := Nat.dvd_mul.mp hd
+  obtain ⟨b, d2, hb, hd2, rfl⟩ := Nat.dvd_mul.mp hd1
+  obtain ⟨c, d3, hc, hd3, rfl⟩ := Nat.dvd_mul.mp hd2
+  obtain ⟨e, f, he, hf, rfl⟩ := Nat.dvd_mul.mp hd3
+  have h0 := (Nat.dvd_prime (by norm_num)).mp ha
+  have h1 := (Nat.dvd_prime (by norm_num)).mp hb
+  have h2 := (Nat.dvd_prime (by norm_num)).mp hc
+  have h3 := (Nat.dvd_prime (by norm_num)).mp he
+  have h4 := (Nat.dvd_prime (by norm_num)).mp hf
+  clear ha hb hc he hf hd hd1 hd2 hd3
+  rcases h0 with rfl | rfl
+  · rcases h1 with rfl | rfl
+    · rcases h2 with rfl | rfl
+      · rcases h3 with rfl | rfl
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_0 p k hp two hpos dh plus
+          · exact t32_leaf_1 p k hp two hpos dh plus
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_2 p k hp two hpos dh plus
+          · exact t32_leaf_3 p k hp two hpos dh plus
+      · rcases h3 with rfl | rfl
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_4 p k hp two hpos dh plus
+          · exact t32_leaf_5 p k hp two hpos dh plus
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_6 p k hp two hpos dh plus
+          · exact t32_leaf_7 p k hp two hpos dh plus
+    · rcases h2 with rfl | rfl
+      · rcases h3 with rfl | rfl
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_8 p k hp two hpos dh plus
+          · exact t32_leaf_9 p k hp two hpos dh plus
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_10 p k hp two hpos dh plus
+          · exact t32_leaf_11 p k hp two hpos dh plus
+      · rcases h3 with rfl | rfl
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_12 p k hp two hpos dh plus
+          · exact t32_leaf_13 p k hp two hpos dh plus
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_14 p k hp two hpos dh plus
+          · exact t32_leaf_15 p k hp two hpos dh plus
+  · rcases h1 with rfl | rfl
+    · rcases h2 with rfl | rfl
+      · rcases h3 with rfl | rfl
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_16 p k hp two hpos dh plus
+          · exact t32_leaf_17 p k hp two hpos dh plus
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_18 p k hp two hpos dh plus
+          · exact t32_leaf_19 p k hp two hpos dh plus
+      · rcases h3 with rfl | rfl
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_20 p k hp two hpos dh plus
+          · exact t32_leaf_21 p k hp two hpos dh plus
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_22 p k hp two hpos dh plus
+          · exact t32_leaf_23 p k hp two hpos dh plus
+    · rcases h2 with rfl | rfl
+      · rcases h3 with rfl | rfl
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_24 p k hp two hpos dh plus
+          · exact t32_leaf_25 p k hp two hpos dh plus
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_26 p k hp two hpos dh plus
+          · exact t32_leaf_27 p k hp two hpos dh plus
+      · rcases h3 with rfl | rfl
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_28 p k hp two hpos dh plus
+          · exact t32_leaf_29 p k hp two hpos dh plus
+        · rcases h4 with rfl | rfl
+          · exact t32_leaf_30 p k hp two hpos dh plus
+          · exact t32_leaf_31 p k hp two hpos dh plus
 
 -- The x = 24 p^k family: lemmas by fleet-2 (desk notes #122389-#122392).
 
@@ -934,7 +1654,7 @@ theorem main : H1 → H2 → OMA.R_oeis_a000215_R1.H3 := by
   intro h1 h2 x big four np npow _ _ _ _ mbound _ test
   have hmod : x % 8 = 0 ∨ x % 8 = 4 := by omega
   rcases hmod with h0 | h4
-  · refine h2 x big (by omega) np npow ?_ ?_ ?_ mbound test
+  · refine h2 x big (by omega) np npow ?_ ?_ ?_ ?_ mbound test
     · rintro p k hp hp2 hk rfl
       exact eight_prime_power_fails p k hp hp2 hk test
     · rintro p k hp hp2 hk rfl
@@ -943,6 +1663,8 @@ theorem main : H1 → H2 → OMA.R_oeis_a000215_R1.H3 := by
       by_contra hne
       simp only [not_or] at hne
       exact twentyfour_fails p k hp hk hp2 hne.1 hne.2.1 hne.2.2.1 hne.2.2.2 test
+    · rintro p k hp hp2 hk rfl
+      exact thirtytwo_prime_power p k hp hp2 hk test
   · obtain ⟨t, rfl⟩ : ∃ t, x = 4 * t := ⟨x / 4, by omega⟩
     have todd : Odd t := ⟨t / 2, by omega⟩
     apply h1 t todd (by omega)
