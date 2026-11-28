@@ -7,6 +7,12 @@ set -euo pipefail
 # Comments and labels go through REST: the GraphQL budget of GITHUB_TOKEN (about 1,000 points an hour for the whole
 # repository) is kept for the merge itself.
 comment() { gh api "repos/$REPO/issues/$PR/comments" -f body="$1" >/dev/null; }
+comment_gate() {  # one rejection comment per 8 seconds for all the merger's slots
+  local G=/tmp/oma-comment-gate L N; exec 6> "$G.lock"; flock -w 5 6 || return 1
+  L=$(cat "$G" 2>/dev/null || echo 0); N=$(date -u +%s)
+  if [ $(( N - L )) -ge "${OMA_COMMENT_EVERY:-8}" ]; then echo "$N" > "$G"; flock -u 6; return 0; fi
+  flock -u 6; return 1
+}
 # The merger (backlog.yml, tools/merger_loop.sh v2) is the only caller now; an older merger still running from before
 # tools/merger.v2 existed must not report twice, so it does nothing here.
 if [ -e base/tools/merger.v2 ] && [ -z "${MERGER_V2:-}" ]; then exit 0; fi
@@ -160,7 +166,17 @@ case "$VERDICT" in
       fi
     } ;;
   rejected) printf '%s\n' "$REASON" > reason.txt   # for the merger: the submission status on the site
-    comment "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)" ;;
+    # GitHub allows about 80 comments a minute and 500 an hour (secondary rate limit, whatever the token): rejection
+    # comments share one gate on the runner, one per 8 seconds. Over it, a check-proof rejection is shown by its red
+    # check and on the site (reason.txt) without a comment; a batch-checker rejection (no check on the pull request)
+    # waits for a later pass.
+    if comment_gate; then
+      comment "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)"
+    elif [ "${VERDICT_MODE:-}" = batch ]; then
+      echo "comment deferred (gate)"; touch defer.flag
+    else
+      echo "REJECTED without a comment (gate): the check and the site show it"
+    fi ;;
   *)
     # A fault is ours (a download that failed, a runner problem): re-run the same check, up to 3 attempts.
     if [ "${RUN_ATTEMPT:-1}" -lt 3 ] && gh api -X POST "repos/$REPO/actions/runs/$RUN_ID/rerun" >/dev/null; then

@@ -64,10 +64,14 @@ if [ -z "${MERGER_RESUME:-}" ] && [ -n "${GITHUB_RUN_ID:-}" ]; then
     MINE=$(awk -F'\t' -v me="$GITHUB_RUN_ID" '$1 == me {print $2}' mergers.tsv); MINE=${MINE:-$(date -u +%FT%TZ)}
     OLDEST=$(awk -F'\t' -v me="$GITHUB_RUN_ID" '$1 != me' mergers.tsv | sort -t$'\t' -k2 | head -n 1)
     [ -n "$OLDEST" ] || break                                   # no other merger: this one works
+    TKO=$(cat base/tools/merger_takeover 2>/dev/null | tr -cd '0-9'); TKO=${TKO:-0}
     OSTART=$(printf '%s' "$OLDEST" | cut -f2)
     [[ "$OSTART" > "$MINE" ]] && break                          # the others started after this one: this one works
     LEFT=$(( $(date -u -d "$OSTART" +%s) + ${MERGER_SECONDS:-20400} + 300 - $(date -u +%s) ))
     OTHERS=$(awk -F'\t' -v me="$GITHUB_RUN_ID" -v o="$OSTART" -v m="$MINE" '$1 != me && $2 > o && $2 < m' mergers.tsv | wc -l)
+    # a takeover asked on main (tools/merger_takeover, a unix time): a merger started before it stops at its next
+    # pass, and a job started after it waits on standby for that instead of leaving
+    [ "$(date -u -d "$OSTART" +%s)" -lt "$TKO" ] && [ "$(date -u -d "$MINE" +%s)" -ge "$TKO" ] && [ "$OTHERS" = 0 ] && LEFT=1
     if [ "$OTHERS" -gt 0 ] || [ "$LEFT" -gt 4500 ]; then
       echo "merger: another merger is running (${LEFT}s left, $OTHERS on standby): nothing to do"; exit 0
     fi
@@ -129,7 +133,7 @@ JQ_RUN='[.id, .head_sha, .run_attempt, .html_url, .updated_at, (.conclusion // "
 remaining() { gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset)"' 2>/dev/null || echo "999 0"; }
 budget() {  # never let the repository run dry: other jobs (checks, deploys) need the API too; GraphQL is checked too
   local rem reset grem greset; read -r rem reset grem greset < <(gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset) \(.resources.graphql.remaining) \(.resources.graphql.reset)"' 2>/dev/null || echo "999 0 999 0")
-  echo "$(date -u +%H:%M:%S) budget: core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv"), busy $(cat "$ROOT/busy" 2>/dev/null || echo ?)/$SLOTS" >> "$ROOT/merger_out.txt"
+  echo "$(date -u +%H:%M:%S) budget ($([ -s "$OMA_TOKEN_FILE" ] && echo "App token" || echo GITHUB_TOKEN), limit $(gh api rate_limit --jq .resources.core.limit 2>/dev/null)): core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv"), busy $(cat "$ROOT/busy" 2>/dev/null || echo ?)/$SLOTS" >> "$ROOT/merger_out.txt"
   echo "budget: core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv"), busy slots $(cat "$ROOT/busy" 2>/dev/null || echo ?)/$SLOTS, verdicts in 10 min $(awk -v t=$(( $(date -u +%s) - 600 )) '$1 >= t' "$ROOT/verdicts.log" 2>/dev/null | wc -l)"
   # the wait never runs past the end of this job, and the queue is saved first (the next merger resumes it)
   if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; touch "$ROOT/budget_low"; nap $(( reset - $(date -u +%s) + 5 )); fi
@@ -138,13 +142,15 @@ budget() {  # never let the repository run dry: other jobs (checks, deploys) nee
   # Spread the budget over the hour: from the burn since the last look, the slots the dispatcher may use until the
   # reset (all of them while the budget lasts at the current pace; fewer, down to 2, when it would run out first).
   local NOWB=$(date -u +%s) CAP=$SLOTS
-  if [ -n "${PREV_REM:-}" ] && [ "$NOWB" -gt "${PREV_T:-0}" ] && [ "${rem:-0}" -lt "$PREV_REM" ] && [ "${reset:-0}" -gt "$NOWB" ]; then
+  if [ -n "${PREV_REM:-}" ] && [ "$NOWB" -gt "${PREV_T:-0}" ] && [ "${reset:-0}" = "${PREV_RESET:-}" ] && [ "${rem:-0}" -le "$PREV_REM" ] && [ "${reset:-0}" -gt "$NOWB" ]; then
     local BURN=$(( (PREV_REM - rem) * 60 / (NOWB - PREV_T) )) MINS=$(( (reset - NOWB) / 60 + 1 ))
+    [ "$BURN" -gt 3000 ] && BURN=0   # not one bucket's burn (two buckets answered in turn): ignored
+    BURN_AVG=$(( (${BURN_AVG:-$BURN} * 2 + BURN) / 3 )); BURN=$BURN_AVG
     [ "$BURN" -gt 0 ] && CAP=$(( SLOTS * (rem - 500) / (BURN * MINS) ))
     [ "$CAP" -gt "$SLOTS" ] && CAP=$SLOTS; [ "$CAP" -lt 2 ] && CAP=2
     echo "$(date -u +%H:%M:%S) budget pace: $BURN calls/min, $MINS min to reset, slots allowed $CAP" >> "$ROOT/merger_out.txt"
   fi
-  echo "$CAP" > "$ROOT/slots_cap"; PREV_REM=$rem; PREV_T=$NOWB
+  echo "$CAP" > "$ROOT/slots_cap"; PREV_REM=$rem; PREV_T=$NOWB; PREV_RESET=$reset
 }
 refresh() {  # main moved on (merges): pull it; each verdict slot's copy is synced when the slot next starts (sync_slot)
   ( flock -w 300 7
@@ -228,7 +234,7 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   elif ! gh run download "$ID" --repo "$REPO" -n verdict -D "$W/artifact" >/dev/null 2>&1; then
     # not finished yet (left the in-progress list for a re-run or a queue) or no artifact: look again later, twice at
     # most (an artifact that is gone stays gone; the batch checker answers that head instead)
-    local NA; NA=$(( $(cat "$ROOT/noart/$ID.$ATT" 2>/dev/null || echo 0) + 1 )); mkdir -p "$ROOT/noart"; echo "$NA" > "$ROOT/noart/$ID.$ATT"
+    local NA; NA=$(( $(cat "$ROOT/noart/$ID.$ATT" 2>/dev/null || echo 0) + 1 )); [ -e "$ROOT/budget_low" ] && NA=$(( NA - 1 )); mkdir -p "$ROOT/noart"; echo "$NA" > "$ROOT/noart/$ID.$ATT"
     if [ "$NA" -ge 3 ]; then
       echo "$(date -u +%H:%M:%S) run $ID.$ATT ($TITLE): no artifact after $NA tries, left to the batch checker" >> "$ROOT/vlog.txt"; return 0
     fi
@@ -245,7 +251,7 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
     [ "$CONC" = success ] || return 0
     [ "$RM" = 0 ] && RM=1
   fi
-  ( cd "$W" && RELINT="$W/relint.json" RUN_ID="$ID" RUN_ATTEMPT="$ATT" HEAD_SHA="$SHA" RUN_URL="$URL" REMERGE="$RM" \
+  ( cd "$W" && VERDICT_MODE="$MODE" RELINT="$W/relint.json" RUN_ID="$ID" RUN_ATTEMPT="$ATT" HEAD_SHA="$SHA" RUN_URL="$URL" REMERGE="$RM" \
       timeout 900 bash "$B/tools/verdict_one.sh" ) > "$W/log.txt" 2>&1
   local RC=$? SUM; SUM="#$PR run $ID.$ATT: exit $RC $(grep -m1 -oiE 'merged by git|rate limit|ACCEPTED|REJECTED|FAULT|already on main|not into main|secondary' "$W/log.txt" || true)"
   # a rejection whose comment GitHub refused (secondary rate limit on comments): the verdict is not given yet, retry
@@ -264,6 +270,8 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
     echo "$PR" >> "$ROOT/rejected.txt"
     jq -nc --argjson pr "$PR" --arg r "$(head -c 300 "$W/reason.txt")" '{pr: $pr, reason: $r}' >> "$ROOT/reasons.jsonl" 2>/dev/null || true
   fi
+  # a batch rejection whose comment waits for the gate: not given yet, it comes back with the next batch pass
+  [ -e "$W/defer.flag" ] && { rm -f "$ROOT/done/$ID.$ATT"; git -C "$B" clean -fdq -- proofs reductions statements 2>/dev/null; return 0; }
   [ -e "$W/rerun.flag" ] && echo "$ID" >> "$ROOT/watch.txt"   # a fault re-runs the check: same run id, next attempt
   if [ -e "$W/remerge.flag" ]; then                               # merge refused: try the same verdict again later
     echo $((RM + 1)) > "$ROOT/remerge/$PR"; rm -f "$ROOT/done/$ID.$ATT"
@@ -369,6 +377,10 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
   NOW=$(date -u +%s)
   if [ $(( NOW - LAST_REFRESH )) -ge 120 ]; then
     LAST_REFRESH=$NOW; refresh
+    TKO=$(cat base/tools/merger_takeover 2>/dev/null | tr -cd '0-9')
+    if [ -n "$TKO" ] && [ "$START" -lt "$TKO" ] && [ -n "${GITHUB_RUN_ID:-}" ]; then
+      echo "merger: takeover asked on main: handing over to the newer job"; break
+    fi
     if [ "$(sha1sum "$SELF" | cut -d' ' -f1)" != "$SELF_SHA" ]; then
       echo "merger: new version on main, restarting in place"; stop_pollers; wait_slots
       printf '%s\n' "${QL[@]:$QI}" | awk 'NF' > queue.tsv
