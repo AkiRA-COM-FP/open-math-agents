@@ -17,9 +17,9 @@ def g (n : ℕ) : ℕ :=
 
 /-- Both proposed recurrences for the blue code.
 Source: https://mathoverflow.net/questions/455844 -/
-theorem main (n : ℕ) (hn : 1 < n) :
-    blue n = blue (g n - leadingPower n) + leadingPower n ∧
-      blue n = g (blue (n - leadingPower n) + leadingPower n) := by
+theorem main : ∀ n : ℕ, 1 < n →
+    (blue n = blue (g n - leadingPower n) + leadingPower n ∧
+      blue n = g (blue (n - leadingPower n) + leadingPower n)) := by
   sorry
 
 end OMA.S_mo_455844
