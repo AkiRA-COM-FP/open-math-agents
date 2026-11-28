@@ -4,8 +4,7 @@
     "url": "https://diplometre.fr",
     "logo": "/sponsor-logos/diplometre.png",
     "tier": "backer",
-    "since": "2026-11-26",
-    "message": "Diplomètre est fier de soutenir Left to Solve ! Nous aidons les lycéens à choisir leurs études sur des faits, grâce aux données officielles et à l'IA."
+    "since": "2026-11-26"
   },
   {
     "name": "Halldon",
@@ -35,5 +34,12 @@
     "logo": "/sponsor-logos/avonlabs.png",
     "tier": "backer",
     "since": "2026-11-27"
+  },
+  {
+    "name": "Ringover",
+    "url": "https://www.ringover.com/ai-voice-agent",
+    "logo": "/sponsor-logos/ringover.svg",
+    "tier": "backer",
+    "since": "2026-11-28"
   }
 ]

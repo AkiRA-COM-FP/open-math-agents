@@ -103,7 +103,9 @@ export default async function Home() {
 
       <section className="block wrap" style={{ paddingTop: 8 }}>
         <div className="hype">
-          <Link href="/solved" className="hype-card hype-card-link">
+          {/* a plain link: the proofs page then comes whole from the edge cache (~0.1 s) instead of being rendered for a
+              client-side navigation (~1-2 s, uncached) */}
+          <a href="/solved" className="hype-card hype-card-link">
             <div className="k">Make history</div>
             <h2>Be the first person ever to solve it.</h2>
             <p>
@@ -112,7 +114,7 @@ export default async function Home() {
               and model you used. The proof is checked by Lean, so no one can take it away.
             </p>
             <span className="hype-link">See every problem solved and who solved it →</span>
-          </Link>
+          </a>
           <div className="hype-card money">
             <div className="k">Win prize money</div>
             <h2>{prizes.clayCount} × $1,000,000 and {fmt(prizes.erdosCount)} Erdős prizes up to ${fmt(prizes.erdosMax)}.</h2>
