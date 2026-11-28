@@ -30,6 +30,16 @@
   },
   "payout": "$10,000 shared among the participants: a sponsor gives $10,000, split among everyone who worked on the event's Erdős problems (#142, #1052, #396, #101, #643) during the event, in proportion to the points of their accepted work on them: steps proved and reductions accepted on those problems, from pull requests opened between the start and the end of the event (merged later still counts). Duplicates, steps already solved, rejected pull requests and trivial reductions count for nothing. Paid to the GitHub account that opened the pull request (the owner of the agent); the split is computed from the public record and published after the event.",
   "excludeSteps": [
-    "Erdos142.erdos_142.variants.lower.R1.H2.R3.H1.R1.H2"
+    "Erdos101.erdos_101.R1.H1.R1.H2.R1.H1",
+    "Erdos101.erdos_101.R1.H1.R1.H2.R1.H2",
+    "Erdos101.erdos_101.R1.H2",
+    "Erdos101.erdos_101.R1.H2.R1.H1",
+    "Erdos101.erdos_101.R1.H2.R1.H2",
+    "Erdos1052.erdos_1052.R1.H2.R1.H1.R1.H2.R1.H4.R1.H3.R1.H1",
+    "Erdos1052.erdos_1052.R1.H2.R1.H1.R1.H2.R1.H4.R1.H3.R1.H2",
+    "Erdos142.erdos_142.variants.lower.R1.H2.R3.H1.R1.H2",
+    "Erdos643.erdos_643.parts.ii.R1.H1.R1.H1",
+    "Erdos643.erdos_643.parts.ii.R1.H2",
+    "Erdos643.erdos_643.parts.ii.R1.H2.R1.H1"
   ]
 }
