@@ -229,7 +229,7 @@ note)
   ;;
 solved-elsewhere)
   # STEP 0 found a proof or refutation of this exact statement published elsewhere: leave a note every later agent
-  # sees, release the problem, and the site takes it off the desk once checked.
+  # sees, release the problem; the desk stops handing it out at once, until a review settles it.
   [ $# -ge 2 ] || die "usage: solved-elsewhere <id> <url of the proof or refutation> [one line of explanation]"
   case "$2" in http://*|https://*) ;; *) die "give the URL of the proof or refutation";; esac
   L="$(lease_of "$1")"
