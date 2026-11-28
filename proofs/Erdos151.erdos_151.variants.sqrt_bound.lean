@@ -10,10 +10,8 @@ theorem OMA.solution : type_of% @Erdos151.erdos_151.variants.sqrt_bound := by
   have complement_bound (s : Finset (Fin n)) (hs : n.sqrt ≤ s.card)
       (ht : G.IsCliqueTransversal sᶜ) :
       G.cliqueTransversalNumber ≤ n - n.sqrt := by
-    calc
-      G.cliqueTransversalNumber ≤ sᶜ.card := csInf_le' ⟨sᶜ, ht, rfl⟩
-      _ = n - s.card := by rw [Finset.card_compl, Fintype.card_fin]
-      _ ≤ n - n.sqrt := Nat.sub_le_sub_left hs n
+    calc G.cliqueTransversalNumber ≤ sᶜ.card := csInf_le' ⟨sᶜ, ht, rfl⟩
+      _ ≤ _ := by simp [Finset.card_compl]; omega
   by_cases h : ∃ v, n.sqrt ≤ (G.neighborFinset v).card
   · obtain ⟨v, hv⟩ := h
     apply complement_bound (G.neighborFinset v) hv
@@ -21,10 +19,8 @@ theorem OMA.solution : type_of% @Erdos151.erdos_151.variants.sqrt_bound := by
     by_contra! hmiss
     have hadj : ∀ w ∈ t, G.Adj v w := fun w hw =>
       (G.mem_neighborFinset v w).mp (Finset.notMem_compl.mp (hmiss w hw))
-    have hins : G.IsClique ((insert v t : Finset (Fin n)) : Set (Fin n)) := by
-      rw [Finset.coe_insert, SimpleGraph.isClique_insert]
-      exact ⟨ht.1.1, fun w hw _ => hadj w hw⟩
-    exact G.irrefl (hadj v (ht.1.2 hins (Finset.subset_insert v t) (Finset.mem_insert_self v t)))
+    exact G.irrefl (hadj v (ht.1.2 (by simpa [SimpleGraph.isClique_insert] using
+      ⟨ht.1.1, fun w hw _ => hadj w hw⟩) (Finset.subset_insert v t) (Finset.mem_insert_self v t)))
   · push Not at h
     obtain ⟨s, hs⟩ := G.maximumIndepSet_exists
     let closed (v : Fin n) := insert v (G.neighborFinset v)
@@ -49,14 +45,9 @@ theorem OMA.solution : type_of% @Erdos151.erdos_151.variants.sqrt_bound := by
       apply Finset.card_biUnion_le_card_mul
       intro v _
       exact (Finset.card_insert_le v _).trans (h v)
-    have hsqrt : n.sqrt ≤ s.card := by
-      by_contra! hlt
-      exact (not_lt_of_ge ((Nat.sqrt_le n).trans hcard))
-        (Nat.mul_lt_mul_of_pos_right hlt (Nat.zero_lt_of_lt hlt))
+    have hsqrt : n.sqrt ≤ s.card := by nlinarith [Nat.sqrt_le n]
     apply complement_bound s hsqrt
     intro t ht
     obtain ⟨a, b, ha, hb, hab⟩ := Finset.one_lt_card_iff.mp ht.2
-    by_cases hsa : a ∈ s
-    · exact ⟨b, hb, Finset.mem_compl.mpr
-        (fun hsb => hs.isIndepSet hsa hsb hab (ht.1.1 ha hb hab))⟩
-    · exact ⟨a, ha, Finset.mem_compl.mpr hsa⟩
+    by_contra! h'
+    exact hs.isIndepSet (by simpa using h' a ha) (by simpa using h' b hb) hab (ht.1.1 ha hb hab)
