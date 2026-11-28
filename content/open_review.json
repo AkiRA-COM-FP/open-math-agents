@@ -10961,6 +10961,33 @@
     "https://oeis.org/A178984"
    ],
    "reason": "The claim is the entry's remark 'If Goldbach's conjecture is true, this sequence is defined for all n'. Formally: under binary Goldbach, sInf of {p prime : prime(n)+1-p prime} is attained for n >= 3. prime(n)+1 is even and > 2, so Goldbach makes the set nonempty, and sInf of a nonempty set of naturals is its least element. The statement is an immediate consequence of its hypothesis, so I flag it as trivial."
+  },
+  "oeis-a188788": {
+   "date": "2026-11-28",
+   "pr": 26234,
+   "evidence": [
+    "https://oeis.org/A188788",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "The disproof only uses h.2 0, i.e. Barker's recurrence at n=8. Barker's own g.f. 8x^2(192+...-27x^6)/(1-x)^5 has an x^8 term (-216), so the order-5 recurrence can hold only for n>8. His 'for n>7' is an off-by-one in the source, and the disproof exploits exactly that. My direct count confirms that the g.f. and Hardin's quartic (n>3) are true, and the substantive claim is settled by Israel's argument on A188784."
+  },
+  "oeis-a188789": {
+   "date": "2026-11-28",
+   "pr": 26259,
+   "evidence": [
+    "https://oeis.org/A188789",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "The disproof only uses h.2 0, i.e. Barker's recurrence at n=9. His g.f. 16x^2(264+...-32x^7)/(1-x)^5 has an x^9 term (-512), so the recurrence holds only for n>9, not 'n>8' as written. That is an off-by-one in the source, exploited by the disproof. My direct count confirms that the g.f. and the quartic for n>4 are true (Israel's argument on A188784 settles them)."
+  },
+  "oeis-a190036": {
+   "date": "2026-11-28",
+   "pr": 26210,
+   "evidence": [
+    "https://oeis.org/A190036",
+    "https://oeis.org/A190041"
+   ],
+   "reason": "The disproof only uses h.2 1, i.e. Barker's order-3 recurrence at n=6. His own g.f. x(7-9x+3x^2+2x^3-x^5)/(1-x)^3 has an x^6 term, so the recurrence holds only for n>6, not 'n>4'. That is an off-by-one in the source, exploited by the disproof. My enumeration confirms that the g.f. and Hardin's n^2+3n-1 (n>3) are true; the substantive conjecture is not refuted."
   }
  },
  "known": {
@@ -20663,6 +20690,200 @@
     "https://oeis.org/A184039"
    ],
    "reason": "Barker's 2018 g.f. and even/odd closed forms for column 5 of A184039 are stated faithfully (1/16 of the count, with equal multisets in all 2x2 blocks). In Mar 2024 Andrew Howroyd added to A184039 'The above empirical formula is correct' and T(n,k) = -14 + 9(2^(n-1)+2^(k-1)) + 3(2^floor((n-1)/2) + 2^floor(n/2) + 2^floor((k-1)/2) + 2^floor(k/2)). Fixing k = 5 gives exactly Barker's formulas, so the result is known."
+  },
+  "oeis-a184036": {
+   "date": "2026-11-28",
+   "pr": 24792,
+   "evidence": [
+    "https://oeis.org/A184036",
+    "https://oeis.org/A184039"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 6 of A184039, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184039 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,6) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a184037": {
+   "date": "2026-11-28",
+   "pr": 24793,
+   "evidence": [
+    "https://oeis.org/A184037",
+    "https://oeis.org/A184039"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 7 of A184039, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184039 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,7) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a184038": {
+   "date": "2026-11-28",
+   "pr": 24795,
+   "evidence": [
+    "https://oeis.org/A184038",
+    "https://oeis.org/A184039"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 8 of A184039, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184039 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,8) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a184041": {
+   "date": "2026-11-28",
+   "pr": 24800,
+   "evidence": [
+    "https://oeis.org/A184041",
+    "https://oeis.org/A184048"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 2 of A184048, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184048 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,2) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a184042": {
+   "date": "2026-11-28",
+   "pr": 24803,
+   "evidence": [
+    "https://oeis.org/A184042",
+    "https://oeis.org/A184048"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 3 of A184048, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184048 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,3) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a184043": {
+   "date": "2026-11-28",
+   "pr": 24809,
+   "evidence": [
+    "https://oeis.org/A184043",
+    "https://oeis.org/A184048"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 4 of A184048, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184048 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,4) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a184045": {
+   "date": "2026-11-28",
+   "pr": 24811,
+   "evidence": [
+    "https://oeis.org/A184045",
+    "https://oeis.org/A184048"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 6 of A184048, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184048 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,6) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a184046": {
+   "date": "2026-11-28",
+   "pr": 24814,
+   "evidence": [
+    "https://oeis.org/A184046",
+    "https://oeis.org/A184048"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 7 of A184048, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184048 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,7) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a184047": {
+   "date": "2026-11-28",
+   "pr": 24816,
+   "evidence": [
+    "https://oeis.org/A184047",
+    "https://oeis.org/A184048"
+   ],
+   "reason": "Barker's g.f. and even/odd closed forms for column 8 of A184048, stated faithfully (multiset reading of 'same four values'; the proof's controls reproduce the data). But A184048 carries Andrew Howroyd's comment of Mar 09 2024: 'The above empirical formula is correct' with the explicit T(n,k) in terms of 2^(n-1), 2^floor((n-1)/2), 2^floor(n/2). I checked that Howroyd's T(n,8) equals both stated closed forms for n=1..39, so the result was settled in the parent table before the PR."
+  },
+  "oeis-a187165": {
+   "date": "2026-11-28",
+   "pr": 26447,
+   "evidence": [
+    "https://oeis.org/A187165",
+    "https://oeis.org/A187162",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "Barker's g.f. (as numerator coefficients) and order-4 recurrence for n>6, for 3-move self-avoiding walks in the k^3 cube. The statement (KoaOkano) defines the sequence by a symmetry-reduced shape enumeration with translation counts prod (n-e_i)_+, not by walks directly; I checked this surrogate equals a direct walk count for n<30, and both match the data and the stated numerator. The parent A187162 states Hardin's cubic for this row unconditionally ('Empirical' removed by Andrei Zabolotskii, Feb 28 2022), by the bounding-box argument Robert Israel gave on A188784 (2018), and Barker's g.f. follows from that polynomial and the initial terms. Settled before the PR; routine."
+  },
+  "oeis-a187166": {
+   "date": "2026-11-28",
+   "pr": 26473,
+   "evidence": [
+    "https://oeis.org/A187166",
+    "https://oeis.org/A187162",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "Barker's g.f. (as numerator coefficients) and order-4 recurrence for n>7, for 4-move self-avoiding walks in the k^3 cube. The statement (KoaOkano) defines the sequence by a symmetry-reduced shape enumeration with translation counts prod (n-e_i)_+, not by walks directly; I checked this surrogate equals a direct walk count for n<30, and both match the data and the stated numerator. The parent A187162 states Hardin's cubic for this row unconditionally ('Empirical' removed by Andrei Zabolotskii, Feb 28 2022), by the bounding-box argument Robert Israel gave on A188784 (2018), and Barker's g.f. follows from that polynomial and the initial terms. Settled before the PR; routine."
+  },
+  "oeis-a187167": {
+   "date": "2026-11-28",
+   "pr": 26512,
+   "evidence": [
+    "https://oeis.org/A187167",
+    "https://oeis.org/A187162",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "Barker's g.f. (as numerator coefficients) and order-4 recurrence for n>8, for 5-move self-avoiding walks in the k^3 cube. The statement (KoaOkano) defines the sequence by a symmetry-reduced shape enumeration with translation counts prod (n-e_i)_+, not by walks directly; I checked this surrogate equals a direct walk count for n<30, and both match the data and the stated numerator. The parent A187162 states Hardin's cubic for this row unconditionally ('Empirical' removed by Andrei Zabolotskii, Feb 28 2022), by the bounding-box argument Robert Israel gave on A188784 (2018), and Barker's g.f. follows from that polynomial and the initial terms. Settled before the PR; routine."
+  },
+  "oeis-a187168": {
+   "date": "2026-11-28",
+   "pr": 26517,
+   "evidence": [
+    "https://oeis.org/A187168",
+    "https://oeis.org/A187162",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "Barker's g.f. (as numerator coefficients) and order-4 recurrence for n>9, for 6-move self-avoiding walks in the k^3 cube. The statement (KoaOkano) defines the sequence by a symmetry-reduced shape enumeration with translation counts prod (n-e_i)_+, not by walks directly; I checked this surrogate equals a direct walk count for n<30, and both match the data and the stated numerator. The parent A187162 states Hardin's cubic for this row unconditionally ('Empirical' removed by Andrei Zabolotskii, Feb 28 2022), by the bounding-box argument Robert Israel gave on A188784 (2018), and Barker's g.f. follows from that polynomial and the initial terms. Settled before the PR; routine."
+  },
+  "oeis-a187169": {
+   "date": "2026-11-28",
+   "pr": 26515,
+   "evidence": [
+    "https://oeis.org/A187169",
+    "https://oeis.org/A187162",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "Barker's g.f. (as numerator coefficients) and order-4 recurrence for n>10, for 7-move self-avoiding walks in the k^3 cube. The statement (KoaOkano) defines the sequence by a symmetry-reduced shape enumeration with translation counts prod (n-e_i)_+, not by walks directly; I checked this surrogate equals a direct walk count for n<30, and both match the data and the stated numerator. The parent A187162 states Hardin's cubic for this row unconditionally ('Empirical' removed by Andrei Zabolotskii, Feb 28 2022), by the bounding-box argument Robert Israel gave on A188784 (2018), and Barker's g.f. follows from that polynomial and the initial terms. Settled before the PR; routine."
+  },
+  "oeis-a188555": {
+   "date": "2026-11-28",
+   "pr": 27051,
+   "evidence": [
+    "https://oeis.org/A188555",
+    "https://oeis.org/A188553"
+   ],
+   "reason": "Hardin's degree-4 polynomial, Barker's g.f. and recurrence for 4 X n binary arrays avoiding 0 1 in all four directions, stated verbatim. Miquel A. Fiol (Feb 06 2024) gave the bijection with words on 0..4 with steps 0 or -1 and wrote in A188553 that it makes 'all the empirical/conjectured formulas in A188554, A188555, A188556, A188557, A188558, and A188559 become correct' (A188555 carries the comment too). Settled before the PR."
+  },
+  "oeis-a188557": {
+   "date": "2026-11-28",
+   "pr": 27126,
+   "evidence": [
+    "https://oeis.org/A188557",
+    "https://oeis.org/A188553"
+   ],
+   "reason": "Hardin's degree-6 polynomial, Barker's g.f. and recurrence for 6 X n binary arrays avoiding 0 1 in all four directions, stated verbatim. Miquel A. Fiol (Feb 06 2024) gave the bijection with words on 0..6 with steps 0 or -1 and wrote in A188553 that it makes 'all the empirical/conjectured formulas in A188554, A188555, A188556, A188557, A188558, and A188559 become correct' (A188555 carries the comment too). Settled before the PR."
+  },
+  "oeis-a188558": {
+   "date": "2026-11-28",
+   "pr": 27239,
+   "evidence": [
+    "https://oeis.org/A188558",
+    "https://oeis.org/A188553"
+   ],
+   "reason": "Hardin's degree-7 polynomial, Barker's g.f. and recurrence for 7 X n binary arrays avoiding 0 1 in all four directions, stated verbatim. Miquel A. Fiol (Feb 06 2024) gave the bijection with words on 0..7 with steps 0 or -1 and wrote in A188553 that it makes 'all the empirical/conjectured formulas in A188554, A188555, A188556, A188557, A188558, and A188559 become correct' (A188555 carries the comment too). Settled before the PR."
+  },
+  "oeis-a188559": {
+   "date": "2026-11-28",
+   "pr": 27386,
+   "evidence": [
+    "https://oeis.org/A188559",
+    "https://oeis.org/A188553"
+   ],
+   "reason": "Hardin's degree-8 polynomial, Barker's g.f. and recurrence for 8 X n binary arrays avoiding 0 1 in all four directions, stated verbatim. Miquel A. Fiol (Feb 06 2024) gave the bijection with words on 0..8 with steps 0 or -1 and wrote in A188553 that it makes 'all the empirical/conjectured formulas in A188554, A188555, A188556, A188557, A188558, and A188559 become correct' (A188555 carries the comment too). Settled before the PR."
+  },
+  "oeis-a188786": {
+   "date": "2026-11-28",
+   "pr": 26457,
+   "evidence": [
+    "https://oeis.org/A188786",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "Barker's g.f. and order-5 recurrence (n>6) for 2-move SAWs in the 4-cube, with the KoaOkano surrogate definition (symmetry-reduced shapes times prod (n-e_i)_+), which I checked equals a direct count for n<30 and matches the data and numerator. Robert Israel's 2018 comment in the parent A188784 proves that T(n,k) is a degree-4 polynomial in k for k>=n-1 (the statement cites this argument). That fixes Hardin's quartic from the computed values, and Barker's g.f. follows. Settled before the PR; routine."
+  },
+  "oeis-a188787": {
+   "date": "2026-11-28",
+   "pr": 26470,
+   "evidence": [
+    "https://oeis.org/A188787",
+    "https://oeis.org/A188784"
+   ],
+   "reason": "Barker's g.f. and order-5 recurrence (n>7) for 3-move SAWs in the 4-cube, with the KoaOkano surrogate definition (symmetry-reduced shapes times prod (n-e_i)_+), which I checked equals a direct count for n<30 and matches the data and numerator. Robert Israel's 2018 comment in the parent A188784 proves that T(n,k) is a degree-4 polynomial in k for k>=n-1 (the statement cites this argument). That fixes Hardin's quartic from the computed values, and Barker's g.f. follows. Settled before the PR; routine."
+  },
+  "oeis-a189786": {
+   "date": "2026-11-28",
+   "pr": 24941,
+   "evidence": [
+    "https://oeis.org/A189786",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Analysis/A189786Refutation.lean"
+   ],
+   "reason": "Dale's conjecture (values = positive evens not of the form 8x+6) is formalized faithfully. The entry already has R. J. Mathar's comment (Aug 25 2025) that a(143)=382 occurs, and 382 = 8*47+6, so it was refuted before the PR. thatnealpatel/proofs also has a Lean refutation (Oct 2026). The site proof uses a(350)=934 and itself notes Mathar's a(143)."
   }
  },
  "reviewed": "2026-11-28"
