@@ -4,7 +4,7 @@ import Mathlib
 # OEIS A308190: iterating A111234 from any n ≥ 5 reaches 5
 
 Source: https://oeis.org/A308190
-Credit: @SudharsanAnimations
+Credit: Sudharsan Rajendiran
 
 A308190(n) is the number of steps to reach 5 when iterating `x ↦ A111234(x)` from `x = n`, where
 A111234(1) = 2 and A111234(n) = (largest proper divisor of n) + (smallest prime divisor of n).
