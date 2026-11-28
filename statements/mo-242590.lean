@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # A quaternionic half-space counterexample in every degree
 
-Source: Ali Taghavi, https://mathoverflow.net/questions/242590 (CC BY-SA 4.0).
+Source: Ali Taghavi, https://mathoverflow.net/questions/242590 (CC BY-SA 3.0).
 Credit: @connoranderson. Ghiloni and Perotti recall the quadratic
 counterexample with a unique quaternionic root in arXiv:1712.00744,
 using right coefficients. We use the question's left coefficients, rotate
