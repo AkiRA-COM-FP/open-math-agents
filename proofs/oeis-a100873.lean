@@ -1,5 +1,7 @@
 import OMAStatements.S_oeis_a100873
 
+/- Reduce the divisibility claim to the prime residue field and use `ZMod.pow_card`. -/
+
 theorem OMA.solution : type_of% @OMA.S_oeis_a100873.main := by
   intro p _ hq
   have := Fact.mk hq
