@@ -1,6 +1,7 @@
 import FormalConjectures.ErdosProblems.«409»
 import Mathlib
 
+section
 open Nat Finset Real
 
 /-!
@@ -120,3 +121,5 @@ theorem OMA.solution : Erdos409.erdos_409.parts.i.isLittleO.answer = OMA.answer 
   push Not at hlt
   have hsq := hc n hn0
   nlinarith [mul_pos hε hnpos]
+
+end
