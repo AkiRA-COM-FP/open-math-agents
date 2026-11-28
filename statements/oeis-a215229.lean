@@ -19,12 +19,6 @@ size, independent of the empirical polynomial and of Colin Barker's
 
 namespace OMA.S_oeis_a215229
 
-/-- Enumerate normalized words and record how many distinct letters they use. -/
-def candidates : ℕ → List (List ℕ × ℕ)
-  | 0 => [([], 0)]
-  | d + 1 => (candidates d).flatMap (fun p =>
-      (List.range (p.2 + 1)).map (fun i => (p.1 ++ [i], max p.2 (i + 1))))
-
 /-- No circular square with starting position s and half-length 1 through 5. -/
 def squarefree (w : List ℕ) : Bool :=
   (List.range 6).all fun s =>
@@ -32,14 +26,10 @@ def squarefree (w : List ℕ) : Bool :=
       (List.range (t+1)).any fun j =>
         w[(s+j)%6]? != w[(s+t+1+j)%6]?
 
-/-- Entry j counts the admissible equality patterns on j distinct letters. -/
-def histogram : List ℕ :=
-  let good := ((candidates 6).filter fun p => squarefree p.1).map Prod.snd
-  (List.range 7).map fun j => good.count j
-
+/-- A215229, directly as the cardinality of circular squarefree words on the
+alphabet 0 through k, with their six positions distinguished. -/
 noncomputable def total (k : ℕ) : ℤ :=
-  ((List.range 7).map (fun j =>
-    ((histogram.getD j 0 : ℕ) : ℤ) * (Fintype.card (Fin j ↪ Fin (k+1)) : ℤ))).sum
+  (Nat.card {w : List ℕ // w.length = 6 ∧ (∀ c ∈ w, c < k+1) ∧ squarefree w = true} : ℤ)
 
 open PowerSeries
 
