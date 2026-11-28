@@ -11337,6 +11337,24 @@
     "https://oeis.org/A227025"
    ],
    "reason": "The disproof uses only Barker's off-by-one range. The recurrence is stated 'for n>6', but his own g.f. numerator x(7-16x+21x^2-11x^3+7x^4-6x^5+x^7) has degree 8, so the coefficient identity at n = 8 forces the recurrence to fail there. The proof derives the contradiction from the two conjuncts alone, without evaluating the sequence. In the data, the recurrence fails only at n = 8 (by 1) and holds for n >= 9. The substantive g.f. conjecture is untouched."
+  },
+  "oeis-a267876": {
+   "date": "2026-11-28",
+   "pr": 23080,
+   "evidence": [
+    "https://oeis.org/A267876",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "The disproof exploits an index-range slip. Barker's recurrence is printed 'for n>3', but the g.f. numerator has degree 5, so it can only hold from n=6. The proof reads a(0..5) off the g.f. and shows that the recurrence fails at n=5, a value already in the entry's data. The intended conjecture is true: the g.f. holds and the recurrence holds for n>=6 (my simulation to n=120). Muñoz (Zenodo 24552741, 2026-11-26) already lists this line as false-as-stated, 'holds exactly for n>=6', and proves the g.f."
+  },
+  "oeis-a267877": {
+   "date": "2026-11-28",
+   "pr": 23078,
+   "evidence": [
+    "https://oeis.org/A267877",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "The disproof exploits an index-range slip. Barker's recurrence is printed 'for n>3', but the g.f. numerator has degree 5, so it can only hold from n=6. The proof reads a(0..5) off the g.f. and shows that the recurrence fails at n=5, a value already in the entry's data. The intended conjecture is true: the g.f. holds and the recurrence holds for n>=6 (my simulation to n=120). Muñoz (Zenodo 24552741, 2026-11-26) already lists this line as false-as-stated, 'holds exactly for n>=6', and proves the g.f."
   }
  },
  "known": {
@@ -21427,6 +21445,271 @@
     "https://oeis.org/A221463"
    ],
    "reason": "Proved on the parent table before this site's proof: Parent A221463: %A line 'general recursion proved by Robert Israel in the Sequence Fans Mailing List, Jan 17 2013' (column recursion a(n)=k*a(n-1)+k*a(n-2)); with T(2,k)=k, T(3,k)=k^2 it forces T(6,k)=k^5+3k^4+k^3, hence Barker's g.f. and recurrence."
+  },
+  "oeis-a267271": {
+   "date": "2026-11-28",
+   "pr": 22620,
+   "evidence": [
+    "https://oeis.org/A267271",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 115 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267271 as proved: recurrence (n>6) and g.f. (results/claims.json)."
+  },
+  "oeis-a267274": {
+   "date": "2026-11-28",
+   "pr": 23701,
+   "evidence": [
+    "https://oeis.org/A267274",
+    "https://zenodo.org/records/24552741",
+    "https://oeis.org/A266984"
+   ],
+   "reason": "Barker's conjectures for Rule 117 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267274 as proved: closed form, = A266984 (Rule 81, also proved there), recurrence (n>5) and g.f. (results/claims.json)."
+  },
+  "oeis-a267350": {
+   "date": "2026-11-28",
+   "pr": 22380,
+   "evidence": [
+    "https://oeis.org/A267350",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 123 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267350 as proved: recurrence (n>6) and g.f. (results/claims.json)."
+  },
+  "oeis-a267351": {
+   "date": "2026-11-28",
+   "pr": 22387,
+   "evidence": [
+    "https://oeis.org/A267351",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 123 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267351 as proved: recurrence (n>6) and g.f. (results/claims.json)."
+  },
+  "oeis-a267456": {
+   "date": "2026-11-28",
+   "pr": 22531,
+   "evidence": [
+    "https://oeis.org/A267456",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 133 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267456 as proved: recurrence (n>5) and g.f. (results/claims.json)."
+  },
+  "oeis-a267457": {
+   "date": "2026-11-28",
+   "pr": 22539,
+   "evidence": [
+    "https://oeis.org/A267457",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 133 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267457 as proved: recurrence (n>5), plus Spezia's closed form, which fixes the g.f. (results/claims.json)."
+  },
+  "oeis-a267524": {
+   "date": "2026-11-28",
+   "pr": 23408,
+   "evidence": [
+    "https://oeis.org/A267524",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 139 (binary middle column) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267524 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267526": {
+   "date": "2026-11-28",
+   "pr": 24573,
+   "evidence": [
+    "https://oeis.org/A267526",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 141 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267526 as proved: recurrence (n>5) and Keller's closed form (n>1); the g.f. line is listed as not covered but follows from the closed form (results/claims.json)."
+  },
+  "oeis-a267531": {
+   "date": "2026-11-28",
+   "pr": 24102,
+   "evidence": [
+    "https://oeis.org/A267531",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 141 (cumulative OFF count) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267531 as proved: recurrence (n>4) and g.f.; Stauduhar's a(n)=a(n-1)+floor((n+5)/2), also in the Lean statement, follows from the g.f. in one line (results/claims.json)."
+  },
+  "oeis-a267535": {
+   "date": "2026-11-28",
+   "pr": 22448,
+   "evidence": [
+    "https://oeis.org/A267535",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 143 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267535 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267536": {
+   "date": "2026-11-28",
+   "pr": 22461,
+   "evidence": [
+    "https://oeis.org/A267536",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 143 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267536 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267595": {
+   "date": "2026-11-28",
+   "pr": 22295,
+   "evidence": [
+    "https://oeis.org/A267595",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 173 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267595 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267596": {
+   "date": "2026-11-28",
+   "pr": 22296,
+   "evidence": [
+    "https://oeis.org/A267596",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 173 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267596 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267599": {
+   "date": "2026-11-28",
+   "pr": 22543,
+   "evidence": [
+    "https://oeis.org/A267599",
+    "https://zenodo.org/records/24552741",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rule-163.md"
+   ],
+   "reason": "Barker's conjectures for Rule 177 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267599 as proved: recurrence (n>2) and g.f. (Rule 177 is also the mirror of Rule 163, whose row word trureturing proved) (results/claims.json)."
+  },
+  "oeis-a267604": {
+   "date": "2026-11-28",
+   "pr": 16983,
+   "evidence": [
+    "https://oeis.org/A267604",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 175 (decimal middle column) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267604 as proved: recurrence (n>3); the g.f., Alkan's A086224(n-2) and the ceiling form in the Lean statement follow from it with the initial terms (results/claims.json)."
+  },
+  "oeis-a267614": {
+   "date": "2026-11-28",
+   "pr": 22453,
+   "evidence": [
+    "https://oeis.org/A267614",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 185 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267614 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267705": {
+   "date": "2026-11-28",
+   "pr": 22409,
+   "evidence": [
+    "https://oeis.org/A267705",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 205 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267705 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267775": {
+   "date": "2026-11-28",
+   "pr": 22298,
+   "evidence": [
+    "https://oeis.org/A267775",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 207 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267775 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267777": {
+   "date": "2026-11-28",
+   "pr": 22458,
+   "evidence": [
+    "https://oeis.org/A267777",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 209 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267777 as proved: recurrence (n>2) and g.f. (results/claims.json)."
+  },
+  "oeis-a267779": {
+   "date": "2026-11-28",
+   "pr": 22462,
+   "evidence": [
+    "https://oeis.org/A267779",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 211 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267779 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267780": {
+   "date": "2026-11-28",
+   "pr": 22463,
+   "evidence": [
+    "https://oeis.org/A267780",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 211 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267780 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267801": {
+   "date": "2026-11-28",
+   "pr": 22464,
+   "evidence": [
+    "https://oeis.org/A267801",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 213 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267801 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267815": {
+   "date": "2026-11-28",
+   "pr": 22300,
+   "evidence": [
+    "https://oeis.org/A267815",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 221 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267815 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267816": {
+   "date": "2026-11-28",
+   "pr": 22366,
+   "evidence": [
+    "https://oeis.org/A267816",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 221 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267816 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267850": {
+   "date": "2026-11-28",
+   "pr": 22302,
+   "evidence": [
+    "https://oeis.org/A267850",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 229 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267850 as proved: recurrence (n>3) and g.f. (results/claims.json)."
+  },
+  "oeis-a267880": {
+   "date": "2026-11-28",
+   "pr": 22405,
+   "evidence": [
+    "https://oeis.org/A267880",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 233 (decimal middle column) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267880 as proved: recurrence (n>4) and g.f. (results/claims.json)."
+  },
+  "oeis-a267885": {
+   "date": "2026-11-28",
+   "pr": 22320,
+   "evidence": [
+    "https://oeis.org/A267885",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 235 (bin rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267885 as proved: recurrence (n>4) and g.f. (results/claims.json)."
+  },
+  "oeis-a267886": {
+   "date": "2026-11-28",
+   "pr": 22322,
+   "evidence": [
+    "https://oeis.org/A267886",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's conjectures for Rule 235 (dec rows) are stated faithfully. The Lean CA evolves the whole of Z, background included, my simulation matches the data, and the formulas hold for n<=120. But F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 10.5281/zenodo.24552741, created 2026-11-26, before this 2026-11-28 merge), lists A267886 as proved: recurrence (n>4) and g.f. (results/claims.json)."
+  },
+  "oeis-a267680": {
+   "date": "2026-11-28",
+   "pr": 22397,
+   "evidence": [
+    "https://oeis.org/A267680",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a267681-rule201-barker-hasler.md",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/CellularAutomata/Rule201Rows.lean",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Barker's recurrence (n>4) and g.f. for the Rule 201 rows read as decimal digit strings are stated faithfully, and my simulation matches. trureturing's Rule201Rows.result (sorry-free, committed 2026-09-29) proves exactly these two statements for A267680, together with A267681. Muñoz's ECA-certificate paper (Zenodo 24552741, 2026-11-26) also lists them as proved. Both predate the 2026-11-28 merge."
   }
  },
  "reviewed": "2026-11-28"
