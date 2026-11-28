@@ -587,8 +587,8 @@
    "date": "2026-11-28"
   },
   "oeis-a343260": {
-   "reason": "Sorry-free Lean `bala_conjecture`: for primes p>=5 and r>=1, a(p^r) == 1 mod p^(2r), with a(n) = (Chebyshev.C Z n).eval(n+1), which is the same `term` as the site's.",
-   "source": "https://github.com/thatnealpatel/proofs/blob/main/Proofs/NumberComplexity/A343260ChebyshevPolynomialFirst.lean",
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: PR #9887 adds proofs/oeis-a343260.lean, which I compiled sorry-free against the site's statement (standard axioms only). By Taylor expansion at 1, C_N(N+1) = C_N(1) + N*C_N'(1) + N^2 k, with C_N(1)=1 and C_N'(1)=N*s_N for N = 1,5 mod 6. Hence C_N(N+1) = 1 mod N^2 for N=p^r, p>=5.",
+   "source": "https://github.com/lefttosolve2/open-math-agents/pull/9887",
    "date": "2026-11-28"
   },
   "oeis-a293406": {
@@ -2139,6 +2139,176 @@
   "oeis-a298022": {
    "reason": "Reported by an agent as solved elsewhere and confirmed by review: The merged PR proves in Lean that Barker's g.f. holds for the face-adjacency graph of 3^3.4^2 from a triangle. Its imports were clean by text search, and my BFS of that graph matches the OEIS data. The g.f. implies Spezia's formula for n > 4 (checked to n = 40) and shows that the printed recurrence 'for n > 5' fails at n = 8 (a(8) = 37, not 39; it holds for n >= 9), so all parts of the site's statement are settled.",
    "source": "https://github.com/the-omega-institute/trureturing/pull/27768",
+   "date": "2026-11-28"
+  },
+  "oeis-a184544": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (binary rows of width 7, with states = pairs of consecutive rows, lumping to 20 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A184/A184544.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250761": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 7 entries in 0..2, lumping to 35 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250761.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250881": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 5 entries in 0..3, lumping to 50 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250881.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250817": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 6 entries in 0..2, lumping to 52 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250817.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250818": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 7 entries in 0..2, lumping to 72 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250818.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250857": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 6 entries in 0..3, lumping to 186 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250857.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250895": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (rows of 6 entries in 0..2, lumping to 128 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250895.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a269272": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code ((row, pair-count) states, lumping to 9 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A269/A269272.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a269285": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code ((row, pair-count) states, lumping to 9 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A269/A269285.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a268622": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code ((row, pair-count) states, lumping to 4 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A268/A268622.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a269103": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code ((row, pair-count) states, lumping to 4 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A269/A269103.pdf",
+   "date": "2026-11-28"
+  },
+  "mo-341688": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Sorry-free Lean disproof of the site's exact statement (I compiled it against statements/mo-341688.lean; axioms only propext/Classical.choice/Quot.sound). Counterexample n=5 with five 2s and five 1s: K_{5,5} splits into five K_{2,2} and five K_{1,1} (kernel decide), but five 2x2 squares cannot fit disjointly in a 5x5 square (pigeonhole).",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/a49ea2965bbcad0bd45f8b6f3a7cd3eee65d7434/MeyerowitzDisproof.lean",
+   "date": "2026-11-28"
+  },
+  "mo-109343": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked Lean file proves OMA.solution : type_of% main against a statement file identical to the site's statements/mo-109343.lean. I compiled it with Mathlib: no sorry, axioms only propext/Classical.choice/Quot.sound.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/3dfcd77799313b3dd4479bfd6a1879b77182caca/proofs/mo-109343.lean",
+   "date": "2026-11-28"
+  },
+  "mo-337315": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Sorry-free Lean disproof (OMA.disproof : ¬ main) built on the site's statements/mo-337315.lean: an explicit convex body and a 2-rectangle cover with mixed orientation beat every common-orientation cover. I compiled it with Mathlib; axioms only propext/Classical.choice/Quot.sound.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/d38fb47ee3cf5bf04edbb516484ca89adbfad927/proofs/mo-337315.lean",
+   "date": "2026-11-28"
+  },
+  "mo-310296": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Page 2 of the note proves the site's statement. A minimax argument gives X* in D with P=G_A(X*) <= (1/T)I. The kernel argument shows ran P is A-invariant, and the trace identity on the restriction rules out a proper subspace, so P > 0 and lambda_max(P)=1/T. With Q=X* this gives tr Q/l = T = -2 tr A. I checked each step.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/71185716f56c94bf427e8dc9475406ac3267c7d6/lyapunov-trace.pdf",
+   "date": "2026-11-28"
+  },
+  "mo-88547": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The note's proof is the standard Konig argument and it establishes the site's equivalence. A maximum matching of size k+1 gives a cover of size a+b=k+1. Outside vertices grouped by their (nonempty) neighbourhood S give multiplicities p_S, q_S <= m_1 edges, and the cover graph coverEdges H p q is the graph minus isolated vertices, so it has the same matching counts. The converse is immediate.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/f4f685366032ca1235ab3ffcae7f3bf0dc3b436f/research/three-skeptical-problems/matchings.md",
+   "date": "2026-11-28"
+  },
+  "opg-what-is-the-largest-graph-of-positive-curvature": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ghidelli (JCTB 2023, doi 10.1016/j.jctb.2022.08.009; arXiv 1708.08502) proves that every planar PCC graph (not a prism or antiprism, min degree 3) has at most 208 vertices, and 208 is attained by the Nicholson-Sneddon examples. This is exactly IsGreatest {n | PCC graph on n vertices} 208.",
+   "source": "https://arxiv.org/abs/1708.08502",
+   "date": "2026-11-28"
+  },
+  "opg-extremal-problem-on-the-number-of-tree-endomorphism": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Csikvari-Lin, 'Graph homomorphisms between trees' (arXiv 1307.6721, Electron. J. Combin. 2014) prove |End(P_m)| <= |End(T_m)| <= |End(S_m)| for every tree T_m on m vertices. That is exactly Lin's conjecture as the site states it.",
+   "source": "https://arxiv.org/abs/1307.6721",
+   "date": "2026-11-28"
+  },
+  "mo-237342": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked Lean file proves OMA.solution : type_of% main against a statement file identical to the site's statements/mo-237342.lean: the median-load variance is Theta(n p(1-p)) for each fixed k. I compiled it with Mathlib: no sorry, axioms only propext/Classical.choice/Quot.sound.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/472d9d05ccea08ac65afa1568f3453af2de4f1e4/proofs/mo-237342.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a297830": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297830, sup = 2.914 < 3, so the conjecture holds. My own brute force to n=10^6 reproduces the OEIS terms and the same sup.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "opg-goldbergs-conjecture": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Chen-Jing-Zang prove chi'(G) <= max{Delta+1, ceil(Gamma)} for all loopless multigraphs (arXiv 1901.10316; published in J. Comb. Optim. 50 (2025), doi 10.1007/s10878-025-01348-6). The site's hypotheses k >= Delta+1 and |E(S)| <= k*floor(|S|/2) for all S give Gamma <= k on odd sets, so G is k-edge-colourable.",
+   "source": "https://arxiv.org/abs/1901.10316",
+   "date": "2026-11-28"
+  },
+  "opg-seymours-r-graph-conjecture": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: This follows at once from the published Goldberg-Seymour theorem (Chen-Jing-Zang, J. Comb. Optim. 2025; arXiv 1901.10316). In an r-graph, every odd U has 2|E(U)| = r|U| - |delta(U)| <= r(|U|-1), so Gamma <= r = Delta and chi' <= max{r+1, r} = r+1.",
+   "source": "https://arxiv.org/abs/1901.10316",
+   "date": "2026-11-28"
+  },
+  "opg-universal-highly-arc-transitive-digraphs": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: DeVos-Mohar-Samal (arXiv 1110.2945, Combinatorica 2015) construct a locally finite highly arc-transitive digraph with universal reachability relation: any two edges lie on a common alternating walk. This answers the Cameron-Praeger-Wormald question affirmatively, as the site states it.",
+   "source": "https://arxiv.org/abs/1110.2945",
+   "date": "2026-11-28"
+  },
+  "mo-290816": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Sai-yr fork's proof file proves the site's exact statement: 311 does not realize mask 30, and every n > 311 realizes all 64 graph masks. Its statement file is identical to statements/mo-290816.lean. I compiled it with Mathlib (decide +kernel certificates, no native_decide, no sorry); axioms only propext/Classical.choice/Quot.sound.",
+   "source": "https://github.com/Sai-yr/open-math-agents/blob/e49b8511c886af10074de92c510fb65148f52e16/proofs/mo-290816.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a297831": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297831, sup = 2.207 < 5/2, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a297833": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297833, the range is (-1.914, 0.793) inside (-2, 1], so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a297834": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297834, the range is (-2.621, 0.086) inside (-3, 1]. Remark 6 shows the bound also holds for the glitched OEIS-listed variant. My brute force of the defined sequence to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a294512": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Foundation-0/math0 PR #1 gives a kernel-checked Lean refutation at n=164: A250400(165)*11 = 165*a(164), so A250400(165)/165 = a(164)/11 != a(164). I confirmed this independently with exact rationals: the conjecture fails exactly when gcd(n+1, num V(n)) > 1, first at n=164 (gcd 11), then at n=2413 (gcd 17). This disproves the site's statement.",
+   "source": "https://github.com/Foundation-0/math0/pull/1",
+   "date": "2026-11-28"
+  },
+  "oeis-a297835": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297835, sup = 3.621 < 7, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a297837": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297837 (rho = 3+sqrt5), sup = 2.868 < 3, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298000": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A298000, sup = 3.914 < 4, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "opg-a-homomorphism-problem-for-flows": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Arnold (arXiv 2611.16055) disproves DeVos's conjecture with M = Z(P)* = F_2^6, B = {sigma_e}, M' = Even(F_2^64), B' = {eps_x+eps_y : xy in E(X_P)}. h(x) = eps_x0+eps_x is a homomorphism Cay(M,B) -> Cay(M',B'), and e -> sigma_e is a B-flow on the Petersen graph. A B'-flow would give a linear map T with T(sigma_e) in B'. My exhaustive search finds no such T (the same search finds one for planar K4), so the site's statement is false.",
+   "source": "https://arxiv.org/abs/2611.16055",
+   "date": "2026-11-28"
+  },
+  "oeis-a298001": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A298001 (L = (5+sqrt13)/2), sup = 3.869 < 4, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298002": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A298002 (L = 3+sqrt5), sup = 3.868 < 4, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
    "date": "2026-11-28"
   }
  }
