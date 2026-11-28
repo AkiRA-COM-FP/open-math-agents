@@ -1491,6 +1491,591 @@
       ],
       "check": "library-match",
       "silent": true
+    },
+    {
+      "id": "oeis-a390246",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00201, filed 2026-11-28 01:51 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a268967",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00271, filed 2026-11-28 09:04 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a233078",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00271, filed 2026-11-28 09:04 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a233094",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00271, filed 2026-11-28 09:04 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a268900",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00271, filed 2026-11-28 09:04 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a207450",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00284, filed 2026-11-28 09:48 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a222835",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00284, filed 2026-11-28 09:48 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a268053",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00284, filed 2026-11-28 09:48 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a209649",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00300, filed 2026-11-28 11:52 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a207702",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00300, filed 2026-11-28 11:52 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a207937",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00300, filed 2026-11-28 11:52 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a207402",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00300, filed 2026-11-28 11:52 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a207390",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00300, filed 2026-11-28 11:52 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a128750",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a191398",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a210064",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a174195",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a157021",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a182879",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a130655",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a053482",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a166135",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a218185",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a220433",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00206, filed 2026-11-28 02:12 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a162548",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a188482",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a225887",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a133307",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a111942",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a133305",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a176479",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a115256",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a182887",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a151483",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a182881",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a101478",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a168506",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00219, filed 2026-11-28 03:18 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a141222",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00211, filed 2026-11-28 02:37 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a119975",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00211, filed 2026-11-28 02:37 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a188821",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00288, filed 2026-11-28 10:43 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a207066",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00288, filed 2026-11-28 10:43 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a233077",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00233, filed 2026-11-28 04:57 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a268898",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00233, filed 2026-11-28 04:57 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a269284",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00233, filed 2026-11-28 04:57 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a233211",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00233, filed 2026-11-28 04:57 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a207363",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00233, filed 2026-11-28 04:57 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a233212",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00233, filed 2026-11-28 04:57 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a208064",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00233, filed 2026-11-28 04:57 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a233020",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00233, filed 2026-11-28 04:57 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a280668",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00260, filed 2026-11-28 08:00 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a060774",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00226, filed 2026-11-28 04:01 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a228180",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00226, filed 2026-11-28 04:01 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a026571",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00226, filed 2026-11-28 04:01 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a279262",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00237, filed 2026-11-28 05:28 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a279735",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00237, filed 2026-11-28 05:28 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a222777",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00258, filed 2026-11-28 07:43 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a209094",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00246, filed 2026-11-28 05:39 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a208316",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00246, filed 2026-11-28 05:39 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a280474",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00246, filed 2026-11-28 05:39 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a277761",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00246, filed 2026-11-28 05:39 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a268052",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00264, filed 2026-11-28 08:32 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a208705",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00264, filed 2026-11-28 08:32 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a208065",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00264, filed 2026-11-28 08:32 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a118447",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00230, filed 2026-11-28 04:26 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
+    },
+    {
+      "id": "oeis-a309515",
+      "status": "claimed",
+      "summary": "An isitsolved.com journal preprint (iis:2611.00231, filed 2026-11-28 04:30 UTC) lists this entry among its proof claims. Until we have checked it is the same conjecture and proved, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://isitsolved.com/journal"
+      ]
     }
   ]
 }
