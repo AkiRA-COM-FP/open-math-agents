@@ -7,7 +7,9 @@ namespace OMA.R_Erdos89_erdos_89_R1_H2_R1
 
 /-- Packing for squarefree diagonal forms. Count disjoint collinear k-point
 blocks using all form values realized on their union, including cross-block
-differences. Assume any collection of at most k lines covers less than half the union. The constant is independent of the form and the block size. -/
+differences. Assume any k lines cover less than half the union and its squared
+horizontal span exceeds d times its vertical span times k when its height is positive.
+The constant is independent of the form and the block size. -/
 def H1 : Prop :=
   ∃ C : ℕ, ∀ (d k : ℕ) (F : Finset (Finset (ℤ × ℤ))), 0 < d → Squarefree d → 0 < k →
     (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id →
@@ -16,6 +18,9 @@ def H1 : Prop :=
     (∀ G : Finset (Finset (ℤ × ℤ)), G.card ≤ k →
       (∀ T ∈ G, T ⊆ F.biUnion id ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
       2*(G.biUnion id).card < (F.biUnion id).card) →
+    (let S := F.biUnion id
+     (∀ p ∈ S, ∀ t ∈ S, p.2 < t.2 →
+      ∃ z ∈ S, ∃ u ∈ S, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)) →
     let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
     F.card ≤ C * (((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card+1)
 
@@ -277,6 +282,138 @@ private theorem line_value_bound (d : ℤ) (hd : 0 < d) (S T : Finset (ℤ × �
   have := card_erase_add_one ho
   omega
 
+private lemma separated {u v h k d H : ℤ} (hd : 0 < d) (hH : 0 < H)
+    (K : ℕ) (hK : 0 < K) (hu : u^2 ≤ d*H*K) (hh : H ≤ 2*h) (hk : (K:ℤ) ≤ k-h) :
+    u^2+d*h^2 < v^2+d*k^2 := by
+  have hKz : (0:ℤ) < K := by exact_mod_cast hK
+  have hg : (K:ℤ)*(H+1) ≤ (k-h)*(k+h) := by
+    have h₁ := hk
+    have h₂ : H+1 ≤ k+h := by omega
+    have := mul_le_mul_of_nonneg_right h₁ (by omega : 0 ≤ k+h)
+    exact (mul_le_mul_of_nonneg_left h₂ hKz.le).trans this
+  have : (0:ℤ) < d*K := mul_pos hd hKz
+  have := mul_le_mul_of_nonneg_left hg hd.le
+  nlinarith [sq_nonneg v]
+
+/-- Points on one side of the pin, at least half the specified height away. -/
+private theorem far_pin_bound (d H : ℤ) (K : ℕ) (hK : 0 < K) (hd : 0 < d) (hH : 0 < H)
+    (S T : Finset (ℤ × ℤ)) (p : ℤ × ℤ) (hp : p ∈ S) (hsub : T ⊆ S)
+    (hx : ∀ z ∈ T, (z.1-p.1)^2 ≤ d*H*K)
+    (hfar : (∀ z ∈ T, H ≤ 2*(z.2-p.2)) ∨ (∀ z ∈ T, H ≤ 2*(p.2-z.2))) :
+    T.card ≤ (2*K)*(S.offDiag.image fun xy => (fun z : ℤ × ℤ => z.1^2+d*z.2^2) (xy.1-xy.2)).card := by
+  classical
+  have hKz : (0:ℤ) < K := by exact_mod_cast hK
+  let tag (z : ℤ × ℤ) : Fin K := ⟨(z.2-p.2).natAbs % K, Nat.mod_lt _ hK⟩
+  let F (z : ℤ × ℤ) := ((fun z : ℤ × ℤ => z.1^2+d*z.2^2) (z-p), decide (p.1 ≤ z.1), tag z)
+  have hgap (z) (hz : z ∈ T) : H ≤ 2*|z.2-p.2| := by
+    rcases hfar with hf|hf <;> specialize hf z hz <;> cases abs_cases (z.2-p.2) <;> omega
+  have hcard : T.card ≤ ((S.offDiag.image fun xy => (fun z : ℤ × ℤ => z.1^2+d*z.2^2) (xy.1-xy.2)) ×ˢ (univ : Finset (Bool × Fin K))).card := by
+    apply card_le_card_of_injOn F
+    · intro z hz
+      apply mem_product.mpr
+      have hne : z ≠ p := by
+        intro hzEq
+        have hg := hgap z hz
+        rw [hzEq] at hg
+        simp at hg
+        omega
+      exact ⟨mem_image.mpr ⟨(z,p),mem_offDiag.mpr ⟨hsub hz,hp,hne⟩,rfl⟩, mem_univ _⟩
+    · intro z hz w hw he
+      have eqv := congrArg Prod.fst he
+      change (z.1-p.1)^2+d*(z.2-p.2)^2 = (w.1-p.1)^2+d*(w.2-p.2)^2 at eqv
+      have e : (z.1-p.1)^2+d*|z.2-p.2|^2 = (w.1-p.1)^2+d*|w.2-p.2|^2 := by simpa using eqv
+      have htag := congrArg (fun v : ℤ × Bool × Fin K => (v.2.2 : ℕ)) he
+      change (z.2-p.2).natAbs % K = (w.2-p.2).natAbs % K at htag
+      have hmod : |z.2-p.2| % (K:ℤ) = |w.2-p.2| % (K:ℤ) := by
+        simpa only [Int.natCast_mod, Int.natCast_natAbs] using congrArg (fun n : ℕ => (n:ℤ)) htag
+      have gap {j k : ℤ} (hlt : j < k) (heq : j % K = k % K) : (K:ℤ) ≤ k-j := by
+        apply Int.le_of_dvd (by omega)
+        exact Int.dvd_of_emod_eq_zero (by rw [Int.sub_emod, heq]; simp)
+      have heights : |z.2-p.2| = |w.2-p.2| := by
+        rcases lt_trichotomy |z.2-p.2| |w.2-p.2| with h|h|h
+        · exact False.elim ((separated hd hH K hK (hx z hz) (hgap z hz) (gap h hmod)).ne e)
+        · exact h
+        · exact False.elim ((separated hd hH K hK (hx w hw) (hgap w hw) (gap h hmod.symm)).ne e.symm)
+      have hs := congrArg (fun v : ℤ × Bool × Fin K => v.2.1) he
+      change decide (p.1 ≤ z.1) = decide (p.1 ≤ w.1) at hs
+      have hs' : (p.1 ≤ z.1) ↔ (p.1 ≤ w.1) := by simpa using hs
+      rw [heights] at e
+      have hsquares := sq_eq_sq_iff_eq_or_eq_neg.mp (add_right_cancel e)
+      apply Prod.ext
+      · rcases hsquares with h|h <;> omega
+      · rcases hfar with hf|hf <;> have hz' := hf z hz <;> have hw' := hf w hw <;>
+          cases abs_cases (z.2-p.2) <;> cases abs_cases (w.2-p.2) <;> omega
+  simpa [Nat.mul_comm, Nat.mul_left_comm, Nat.mul_assoc] using hcard
+
+/-- Two pins in rows separated by H give a cardinal bound whenever the squared
+horizontal span is at most K times dH. -/
+private theorem two_extreme_rows_bound (K : ℕ) (hK : 0 < K) (d : ℤ) (hd : 0 < d) (S : Finset (ℤ × ℤ))
+    (p t : ℤ × ℤ) (hp : p ∈ S) (ht : t ∈ S) (hh : p.2 < t.2)
+    (hwidth : ∀ z ∈ S, ∀ u ∈ S, (z.1-u.1)^2 ≤ d*(t.2-p.2)*K) :
+    S.card ≤ 4*K*(S.offDiag.image fun xy => (fun z : ℤ × ℤ => z.1^2+d*z.2^2) (xy.1-xy.2)).card := by
+  let H := t.2-p.2
+  let P := S.filter fun z => H ≤ 2*(z.2-p.2)
+  let T := S.filter fun z => ¬ H ≤ 2*(z.2-p.2)
+  have hP := far_pin_bound d H K hK hd (by dsimp [H]; omega) S P p hp (filter_subset ..)
+    (fun z hz => hwidth z (mem_filter.mp hz).1 p hp)
+    (Or.inl fun z hz => (mem_filter.mp hz).2)
+  have hT := far_pin_bound d H K hK hd (by dsimp [H]; omega) S T t ht (filter_subset ..)
+    (fun z hz => hwidth z (mem_filter.mp hz).1 t ht)
+    (Or.inr fun z hz => by have hz' := (mem_filter.mp hz).2; dsimp [H] at *; omega)
+  have hc : P.card + T.card = S.card := card_filter_add_card_filter_not ..
+  calc
+    _ = P.card + T.card := hc.symm
+    _ ≤ _ := add_le_add hP hT
+    _ = _ := by ring
+
+/-- Two rows certify the packing bound for a union of disjoint equal-size blocks. -/
+private theorem narrow_packing (d : ℤ) (hd : 0 < d) (k : ℕ) (hk : 0 < k)
+    (F : Finset (Finset (ℤ × ℤ))) (hdis : (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id)
+    (hcard : ∀ T ∈ F, T.card = k) :
+    let S := F.biUnion id
+    ∀ p ∈ S, ∀ t ∈ S, p.2 < t.2 →
+      (∀ z ∈ S, ∀ u ∈ S, (z.1-u.1)^2 ≤ d*(t.2-p.2)*k) →
+      F.card ≤ 4*(S.offDiag.image fun xy => (fun z : ℤ × ℤ => z.1^2+d*z.2^2) (xy.1-xy.2)).card := by
+  classical
+  intro S p hp t ht hpt hw
+  have hsize : S.card = F.card*k := by
+    dsimp [S]; rw [card_biUnion hdis]
+    calc
+      _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => hcard T hT
+      _ = _ := by simp
+  have h := two_extreme_rows_bound k hk d hd S p t hp ht hpt hw
+  rw [hsize] at h
+  apply Nat.le_of_mul_le_mul_right _ hk
+  simpa only [Nat.mul_right_comm 4 k] using h
+
+/-- The wide-union estimate implies the previous spread-only hypothesis. -/
+private theorem packing_from_width (packing : H1) :
+  ∃ C : ℕ, ∀ (d k : ℕ) (F : Finset (Finset (ℤ × ℤ))), 0 < d → Squarefree d → 0 < k →
+    (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id →
+    (∀ T ∈ F, T.card = k ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
+    ((F.biUnion id).card : ℝ) ≤ Real.exp ((k : ℝ)^2) →
+    (∀ G : Finset (Finset (ℤ × ℤ)), G.card ≤ k →
+      (∀ T ∈ G, T ⊆ F.biUnion id ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
+      2*(G.biUnion id).card < (F.biUnion id).card) →
+    let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
+    F.card ≤ C * (((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  obtain ⟨C,pack⟩ := packing
+  refine ⟨max C 4,?_⟩
+  intro d k F hd hsq hk hdis hline hsize hspread q
+  let S := F.biUnion id
+  let D := (S.offDiag.image fun xy => q (xy.1-xy.2)).card
+  change F.card ≤ max C 4 * (D+1)
+  by_cases hw : (∀ p ∈ S, ∀ t ∈ S, p.2 < t.2 →
+      ∃ z ∈ S, ∃ u ∈ S, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)
+  · exact (pack d k F hd hsq hk hdis hline hsize hspread hw).trans
+      (Nat.mul_le_mul_right _ (le_max_left C 4))
+  push Not at hw
+  obtain ⟨p,hp,t,ht,hpt,hwidth⟩ := hw
+  have h : F.card ≤ 4*D := narrow_packing d (by exact_mod_cast hd) k hk F hdis
+    (fun T hT => (hline T hT).1) p hp t ht hpt hwidth
+  exact h.trans (Nat.mul_le_mul (le_max_right C 4) (Nat.le_succ D))
+
 private theorem packing_from_spread (packing : H1) :
   ∃ C : ℕ, ∀ (d k : ℕ) (F : Finset (Finset (ℤ × ℤ))), 0 < d → Squarefree d → 0 < k →
     (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id →
@@ -285,7 +422,7 @@ private theorem packing_from_spread (packing : H1) :
     let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
     F.card ≤ C * (((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
   classical
-  obtain ⟨C,pack⟩ := packing
+  obtain ⟨C,pack⟩ := packing_from_width packing
   refine ⟨max C 2,?_⟩
   intro d k F hd hsq hk hdis hline hsize q
   let S := F.biUnion id
