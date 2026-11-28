@@ -148,6 +148,7 @@ theorem main : H1 → H2 → type_of% @Green91.green_91 := by
     have hh : 99 * (2 * k) ≤ 100 * numFriendly G s := by omega
     have hr : (99 : ℝ) * ((2 * k : ℕ) : ℝ) ≤ 100 * (numFriendly G s : ℝ) := by exact_mod_cast hh
     linarith
+  -- The unused 1/200 covers the extra vertex precisely when k is at least 99.
   have ho (k : ℕ) (hk : 99 ≤ k) : p k ≤ prob (2 * k + 1) (T (2 * k + 1)) := by
     let P (G : SimpleGraph (Fin (2 * k))) := E k G ∧ ¬ B k G
     have hdiff : p k ≤ prob (2 * k) P := le_measure_sdiff
