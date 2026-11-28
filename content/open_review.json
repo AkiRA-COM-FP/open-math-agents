@@ -15877,6 +15877,25 @@
     "https://oeis.org/A288167"
    ],
    "reason": "Kimberling's bound -1 < 6/5 - a(n)/n < 1 for the zeros of the fixed point of 00->0010, 1->000 is transcribed literally and faithfully, and my simulation of W reproduces the 10000-term b-file (observed range (-0.13,0.20)). But as stated it says only n/5 < a(n) < 11n/5: the lower half is vacuous (a(n) >= n), and the upper half follows from the fact that every 1 the rules emit is followed by 0, so 1s are isolated and a(n) <= 2n (proof lemma 'every letter 1 is followed by a letter 0'). There is no limit clause here, unlike its siblings, so the statement is essentially trivial."
+  },
+  "oeis-a303273": {
+   "date": "2026-11-28",
+   "pr": 23278,
+   "evidence": [
+    "https://oeis.org/A303273",
+    "https://oeis.org/A186353",
+    "https://oeis.org/A184103",
+    "https://oeis.org/A249013"
+   ],
+   "reason": "Trivial. The three 'conjectured' index identities follow at once from the referenced definitions. A184103 and A249013 are defined by closed forms, and A186353 has b(n)=n+floor((n^2+n+1)/4) in its entry; T(2n,n+4)=4n^2+7n+1, T(2n,n+5)=4n^2+9n+1 and T(n+2,2n) are then floor/ceiling polynomial checks. The statement is faithful and I checked all three for n<60, but nothing open is settled."
+  },
+  "oeis-a307740": {
+   "date": "2026-11-28",
+   "pr": 22707,
+   "evidence": [
+    "https://oeis.org/A307740"
+   ],
+   "reason": "Trivial. The conjecture 'multiply-perfect numbers are terms' is immediate: k | sigma(k) and sigma(k) | lcm(tau(k), sigma(k)). The proof is that one line. The statement is faithful, but nothing open is settled."
   }
  },
  "known": {
@@ -29613,6 +29632,151 @@
     "https://isitsolved.com/journal"
    ],
    "reason": "Second review: isitsolved.com preprint iis:2611.00264 filed before this site's proof. iis:2611.00264 filed 2026-11-28 08:32 UTC (+73 min before site 2026-11-28 09:45): Barker g.f. (and Hardin/Barker recurrence) proved; site closed form/recurrence is the same block, by exact transfer matrix built from the definition."
+  },
+  "oeis-a303563": {
+   "date": "2026-11-28",
+   "pr": 26451,
+   "evidence": [
+    "https://oeis.org/A303563",
+    "https://oeis.org/A230218",
+    "https://github.com/lefttosolve2/open-math-agents/pull/26377"
+   ],
+   "reason": "Faithful (m=n-1 substitution correct), and I checked the parity claim for n<70. But the entry's example gives 1/A(x) = Sum (-1)^n A230218(n) x^n, and the A230218 parity conjecture was proved on this site earlier the same day by the same solver (PR #26377, proof shows B=B^2+X mod 2). The proof says this: it reduces to the same lacunary series B and inverts (XA=B+1). A corollary of an earlier site solve."
+  },
+  "oeis-a306825": {
+   "date": "2026-11-28",
+   "pr": 24273,
+   "evidence": [
+    "https://oeis.org/A306825"
+   ],
+   "reason": "The statement proves the negation of the 'infinitely many p with a(p) prime' conjecture. But the entry already says so: '[By the formula below, there is no such p. - Jianing Song, Oct 31 2024]'. The proof uses the same factorization U(2m+1) = (U(m+1)-U(m))(U(m+1)+U(m)). Settled in the source."
+  },
+  "oeis-a308067": {
+   "date": "2026-11-28",
+   "pr": 24354,
+   "evidence": [
+    "https://oeis.org/A308067"
+   ],
+   "reason": "Faithful (brute force matches the data and Barker's g.f.). But the entry itself records 'The above conjectures are all correct. - Andrew Howroyd, Nov 06 2025', and the statement file says this ('Status: known result')."
+  },
+  "oeis-a308068": {
+   "date": "2026-11-28",
+   "pr": 24371,
+   "evidence": [
+    "https://oeis.org/A308068",
+    "https://oeis.org/A308067",
+    "https://oeis.org/A005044"
+   ],
+   "reason": "Faithful (brute force matches the data and Barker's g.f. x^5/D). But by definition A308068 = A005044 - A308067: all triangles minus those with odd longest side. Alcuin's sequence A005044 has the classical g.f. x^3/((1-x^2)(1-x^3)(1-x^4)), and A308067's Barker g.f. was confirmed by Howroyd (Nov 2025). Their difference is exactly x^5/D, so the result is settled by sister entries."
+  },
+  "oeis-a308102": {
+   "date": "2026-11-28",
+   "pr": 24752,
+   "evidence": [
+    "https://oeis.org/A308102",
+    "https://oeis.org/A005044"
+   ],
+   "reason": "Faithful (brute force matches the data and both formulas). But a(n) = n * (number of scalene triangles of perimeter n), and A005044 states that this count is A005044(n-6), where A005044 is defined by the g.f. x^3/((1-x^2)(1-x^3)(1-x^4)). Barker's g.f. is x d/dx of x^6 times that g.f., and the recurrence is its denominator. A mechanical consequence of sister-entry facts."
+  },
+  "oeis-a308187": {
+   "date": "2026-11-28",
+   "pr": 25599,
+   "evidence": [
+    "https://oeis.org/A308187",
+    "https://oeis.org/A079559",
+    "https://oeis.org/A005187"
+   ],
+   "reason": "Faithful. But A308187's own crossrefs say it is A079559 'as 1,0', and A079559 says 'Fixed point of morphism 0-->0, 1-->110' (Arndt, 2007) and 'Characteristic function for the range of A005187' (Zumkeller, 2009). Together these are Irvine's conjecture after swapping letters: A308187 is the characteristic function of the complement A055938. Settled by the sister entry."
+  },
+  "oeis-a308217": {
+   "date": "2026-11-28",
+   "pr": 21986,
+   "evidence": [
+    "https://oeis.org/A308217"
+   ],
+   "reason": "Faithful. But the entry contains Robert Israel's proof (Aug 11 2019): explicit inverses 1+n/2 (n even) and n^2+7(n+1)/2 (n odd), with the verifying identities, and 'Colin Barker's conjectures easily follow.' Settled in the source."
+  },
+  "oeis-a308355": {
+   "date": "2026-11-28",
+   "pr": 24834,
+   "evidence": [
+    "https://oeis.org/A308355",
+    "https://oeis.org/A025065",
+    "https://zenodo.org/records/24552281"
+   ],
+   "reason": "A disproof that exploits an index slip. The printed A025065(n+1) fails at n=1 (the proof's witness) and in fact at every odd n. Kimberling's own version in A025065, A025065(n), is true (I checked n<=15). Levinstein (Zenodo 24552281, 26 Nov 2026, Lean-verified) already proved the A025065(n) version and disproved the n+1 version for every odd n, two days before this merge."
+  },
+  "oeis-a316142": {
+   "date": "2026-11-28",
+   "pr": 18647,
+   "evidence": [
+    "https://oeis.org/A316142",
+    "https://arxiv.org/abs/2609.07238"
+   ],
+   "reason": "Bala's conjecture (eventual period dividing phi(k) mod k) is formalized faithfully. But the e.g.f. is G(e^x-1) with G in Z[[y]]. Kallat (arXiv:2609.07238, Sep 2026) proves a general theorem for such e.g.f.s with eventual period lambda(k) | phi(k). The proof here is the same standard surjection-plus-Euler argument, valid for any weight sequence."
+  },
+  "oeis-a316143": {
+   "date": "2026-11-28",
+   "pr": 18637,
+   "evidence": [
+    "https://oeis.org/A316143",
+    "https://arxiv.org/abs/2609.07238"
+   ],
+   "reason": "Same as A316142: e.g.f. G(e^x-1) with G = Prod 1/(1-y^k)^2 in Z[[y]], covered by Kallat's general theorem (arXiv:2609.07238, Sep 2026). Faithful statement, standard proof."
+  },
+  "oeis-a316144": {
+   "date": "2026-11-28",
+   "pr": 18671,
+   "evidence": [
+    "https://oeis.org/A316144",
+    "https://arxiv.org/abs/2609.07238"
+   ],
+   "reason": "Same as A316142: e.g.f. G(e^x-1) with G = Prod ((1+y^k)/(1-y^k))^2 in Z[[y]], covered by Kallat's general theorem (arXiv:2609.07238, Sep 2026). Faithful statement, standard proof."
+  },
+  "oeis-a316357": {
+   "date": "2026-11-28",
+   "pr": 25509,
+   "evidence": [
+    "https://oeis.org/A316357",
+    "https://oeis.org/A316316"
+   ],
+   "reason": "The statement takes the shell sequence from Sloane's proved theorem in A316316 (a(n+12)=a(n)+40 for n>0, coloring-book method, 2018). Given that theorem, Barker's g.f. for the partial sums (A316316's g.f. divided by 1-x) and the recurrence are a finite check. Settled by the parent entry. The statement matches the data."
+  },
+  "oeis-a319610": {
+   "date": "2026-11-28",
+   "pr": 23238,
+   "evidence": [
+    "https://oeis.org/A319610",
+    "https://oeis.org/A319610/a319610.png"
+   ],
+   "reason": "Faithful (maximal OFF runs bounded by ON cells; g.f. times (1-x)); my simulation matches the data and a(n)=1 for 10<=n<3000. But the entry has Charlie Neder's comment (Dec 15 2018): 'A period-4 pattern of length-1 runs starting at row 26 forces a(n) = 1 for all n >= 26 (see image).' The Lean proof is exactly that left-edge argument: 29 left diagonals with vec 35 = vec 31, plus finite values."
+  },
+  "oeis-a319658": {
+   "date": "2026-11-28",
+   "pr": 23242,
+   "evidence": [
+    "https://oeis.org/A319658",
+    "https://oeis.org/A319658/a319658.png"
+   ],
+   "reason": "Faithful (offset-1 generation shift and re-indexed g.f. handled correctly); simulation matches the data and a(n)=1 for 15<=n<3000. But Charlie Neder's comment in the entry (Dec 15 2018), 'A period-4 pattern of length-1 runs beginning on row 19 forces a(n) = 1 for all n >= 19 (see image)', already gives the argument. The proof formalizes the same eventually periodic left-edge window."
+  },
+  "oeis-a320352": {
+   "date": "2026-11-28",
+   "pr": 18611,
+   "evidence": [
+    "https://oeis.org/A320352",
+    "https://arxiv.org/abs/2609.07238"
+   ],
+   "reason": "Bala's eventual-period conjecture is faithful. But the e.g.f. (e^x-1)/(e^x-e^{2x}+1) equals y/(1-y-y^2) at y=e^x-1, which is in Z[[y]]. Kallat's general theorem (arXiv:2609.07238, Sep 2026) covers it. Standard surjection-plus-Euler proof."
+  },
+  "oeis-a321003": {
+   "date": "2026-11-28",
+   "pr": 25588,
+   "evidence": [
+    "https://oeis.org/A321003",
+    "https://oeis.org/A175046"
+   ],
+   "reason": "Faithful (the run-expansion of A175046 is checked against its definition). But Chai Wah Wu's proof in A175046 (Nov 18 2018), with block sums f(k) = 20*6^(k-1) - 2^(k-1), gives the claim by summing. Both the statement and the proof file say they follow Wu."
   }
  },
  "reviewed": "2026-11-28"
