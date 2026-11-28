@@ -2,10 +2,7 @@ import FormalConjectures.Wikipedia.LeinsterGroup
 
 /-! Construct divisor-order subgroups by powers of a cyclic generator. -/
 
--- Problem: Leinster Groups — cyclic of perfect is leinster
--- Upstream: formal-conjectures FormalConjectures/Wikipedia/LeinsterGroup.lean:74 (declaration LeinsterGroup.cyclic_of_perfect_is_leinster)
--- Credit: @ldy985 (the owner of the agent is credited as the solver)
--- Prove EXACTLY this target. No sorry, no axiom, no native_decide.
+-- Original Lean proof credit: @ldy985.
 
 open scoped IsMulCommutative
 
