@@ -16374,6 +16374,217 @@
     "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Patterns/BarkerRegularRelationCounting.lean"
    ],
    "note": "Column 5 of A269690 (successive repeat values must NOT differ by +-1 mod 6): Barker's g.f. and closed form. Lean reading reproduces 20-25 data terms; g.f. checks. The allowed relation includes equality (a loop), so Ma-Zhang's loopless Corollary 4 does not apply (it would give a different g.f.); no prior proof found. Second review: Faithful statement of Barker's g.f. and closed form for column 5 of A269690. The nearby Ma-Zhang family theorem does not apply (loops allowed). Routine 3-state transfer count; no earlier proof found."
+  },
+  "oeis-a338169": {
+   "date": "2026-11-28",
+   "pr": 26115,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A338169",
+    "https://oeis.org/A338169",
+    "https://oeis.org/A281912"
+   ],
+   "note": "Faithful: lists of distinct positive integers with maximum n, sum of their sums equals A281912(n) by its first formula. Proof is a reflection x -> n-x argument on subsets of 1..n-1. I recomputed both sides for n = 1..6 (exact agreement). No prior proof found in the entry, A281912 or the proof collections. Second review: Faithful and new as far as searchable. The proof is a short reflection x->n-x counting argument; routine."
+  },
+  "oeis-a338635": {
+   "date": "2026-11-28",
+   "pr": 26836,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A338635",
+    "https://oeis.org/A338635",
+    "https://oeis.org/A118113"
+   ],
+   "note": "The tail-series encoding of Hanna's continued fraction characterises A uniquely (each tail is forced x-adically), and the true g.f. satisfies it; the statement uses m Fibbinary with m = 0 allowed, which silently fixes the entry's 'A118113(k), k >= 1' (that would wrongly exclude n = 1, where a(1) = 1 is odd). Proof reduces mod 2 to u + u^3 = x and matches the Fibbinary g.f.; I checked parity against the computed series for n < 60. No prior proof found. Second review: Faithful, verified to n=79, no prior proof found. Short but not merely a recurrence check."
+  },
+  "oeis-a338722": {
+   "date": "2026-11-28",
+   "pr": 23858,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A338722",
+    "https://oeis.org/A338722",
+    "https://oeis.org/A338721",
+    "https://oeis.org/A335616"
+   ],
+   "note": "Faithful to A338721 (Heinz's column formula T(n,k) = 2*floor((n-k(k-1)/2)/k) - 1, equivalently the stated one) and A335616's definition. Both sides count the same parametrised consecutive-part partitions; numerically identical with the data for n <= 14. Elementary bookkeeping. Second review: Faithful and true; essentially a g.f. identity (column g.f. x^{T_k}(1+x^k)/((1-x)(1-x^k)) vs Bala's g.f.). The A335616 crossref already asserts it without proof, so 'new' only in the sense of first written proof."
+  },
+  "oeis-a340263": {
+   "date": "2026-11-28",
+   "pr": 26898,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A340263",
+    "https://oeis.org/A340263"
+   ],
+   "note": "Statement uses the closed form in the name; it reproduces rows 1-3. Since 2^n is even the polynomial is c1(x-1)^N + c2(x+1)^N, and y = (x+1)/(x-1) turns it into the binomial y^(2^n) + (2^(n+1)-1), irreducible by Capelli (negative constant, not -4b^4). The proof follows that route. No prior proof found (A340312 still calls it '(?)'). Second review: Faithful; a genuine 2021 conjecture with a short Capelli-type proof (the Lean proof does the binomial/Mobius route). No prior proof found."
+  },
+  "oeis-a341063": {
+   "date": "2026-11-28",
+   "pr": 24622,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A341063",
+    "https://oeis.org/A341063"
+   ],
+   "note": "Faithful: the totatives in increasing order, the sum over 1-based i+j <= m+1 is the 0-based i+j < m, and the formula is cleared of the /24 in Z. My recomputation gives a(1..12) = 1,1,5,7,35,11,126,70,177,90,715,142 and the formula for all pq with p,q <= 13. The proof is an elementary but real moment computation over units mod pq; no prior proof found. Second review: Faithful, checked numerically, no prior proof found; 517-line algebraic proof."
+  },
+  "oeis-a342909": {
+   "date": "2026-11-28",
+   "pr": 26418,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A342909",
+    "https://oeis.org/A342909"
+   ],
+   "note": "The definitions reproduce the 31 listed terms (I recomputed them). The theorem has a(n+1) < n (which the entry says follows from the definition) and Sycamore's conjecture that 0 occurs infinitely often. The proof argues by pigeonhole that the sequence is unbounded, and a new strict record is novel with no larger prior term, so it is followed by 0. Short and elementary, but a correct settlement. Second review: Faithful; proof idea (bounded terms force a value repeated > B+1 times, contradiction; new maxima give zeros) is short but genuine. No prior proof found."
+  },
+  "oeis-a343311": {
+   "date": "2026-11-28",
+   "pr": 10512,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A343311",
+    "https://oeis.org/A343311",
+    "https://oeis.org/A387319"
+   ],
+   "note": "Israel's conjecture is stated as an iff, faithfully: n is represented iff n is composite and n is not 4, 8, 9 or 25. I brute-forced both sides for n < 400 and they agree. The proof uses the construction p + n/p + (n - p - n/p) from Israel's Maple code, plus case work for squares of primes and small n. Elementary; no earlier proof found. Second review: Faithful and verified to 400; no prior proof found."
+  },
+  "oeis-a343913": {
+   "date": "2026-11-28",
+   "pr": 26908,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A343913",
+    "https://mathoverflow.net/questions/391894",
+    "https://oeis.org/A343913",
+    "https://mathoverflow.net/q/391894"
+   ],
+   "note": "Faithful to Sun's question (MO 391894, no answers). Infinitude is proved by an explicit Pell-type family x = d+y with 7d^2+17 = 12y(d+y), (d,y) -> (17d+12y, 7d+5y). I checked numerically that it gives the solutions m = 71, 34037, 16405581, 7907455823, ... with 2m^2-1 = x^4+y^4 and |x-y| > 1 (71 and 34037 are in the data). I found no prior answer. Second review: Faithful; a neat explicit Pell-orbit family (proof 40 lines) settles Sun's question. The family is visible in the b-file but no one had published it as far as found."
+  },
+  "oeis-a344734": {
+   "date": "2026-11-28",
+   "pr": 16924,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A344734",
+    "https://oeis.org/A344734"
+   ],
+   "note": "Faithful (sInf of the positive x with c(n) | 10x+1). The proof computes a(4q+r) explicitly in each residue class (q, 7q+2, 3q+2, 9q+8, with a(1) = 1 the exception), from which the recurrence for n > 9 is immediate (n = 9 fails because of a(1)). Routine. Second review: Faithful; elementary (each residue class mod 4 of the index gives a linear formula). Routine."
+  },
+  "oeis-a345003": {
+   "date": "2026-11-28",
+   "pr": 24054,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A345003",
+    "https://oeis.org/A345043",
+    "https://oeis.org/A345003",
+    "https://oeis.org/A345043",
+    "https://oeis.org/A345005"
+   ],
+   "note": "The definitions follow the cited entries (rational-valued where they divide). The proof factors A344998 - A344999 = (D - P)(sigma(n) - 2n), so terms are perfect numbers or numbers with n' = psi(n). Disjointness handles even perfect numbers via Euler's form, and hypothetical odd ones by parity (D odd, P even). Elementary but complete; A345043 only says 'seems to be a multiple of A033879'. Second review: Faithful and true by a two-line factorisation from the definitions in the entries, plus a parity argument for odd perfect numbers. Routine."
+  },
+  "oeis-a348598": {
+   "date": "2026-11-28",
+   "pr": 10668,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A348598",
+    "https://oeis.org/A002496",
+    "https://oeis.org/A348598",
+    "https://oeis.org/A002496"
+   ],
+   "note": "Statement faithfully quantifies over consecutive primes a<b of the form k^2+1 and the overall least qualifying p (p == a mod q, p>a, q>a, both k^2+1 primes). The disproof at a=17 (next term 37) is correct: the least such p is 42437 = 206^2+1 = 17 + 420*101 with q=101, smaller than a(3)=90001 for q=37. I recomputed this independently. A genuine counterexample to Lagneau's conjecture; no earlier refutation found. Second review: Genuine finite counterexample at the third pair: the least qualifying prime uses modulus 101, not 37. The literal reading is the natural one; the disproof does not exploit a typo. Finite check, so routine."
+  },
+  "oeis-a350191": {
+   "date": "2026-11-28",
+   "pr": 28495,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A350191",
+    "https://oeis.org/A309260",
+    "http://abrobecker.free.fr/text/NonAttackingRooks.pdf",
+    "https://oeis.org/A350191",
+    "https://oeis.org/A309260",
+    "https://oeis.org/A350041",
+    "http://abrobecker.free.fr/text/NonAttackingRooks.pdf",
+    "https://oeis.org/A004396",
+    "https://www.imo-official.org/problems/IMO2009SL.pdf"
+   ],
+   "note": "Statement encodes rooks on triangular/hexagonal boards in barycentric coordinates. Triangle classes are under arbitrary lattice isometries of the placement, which matches A350191's convention as distinguished from A350041 in Kotesovec's n=10 PDF and Brobecker's note. Hexagon classes are under the 12 board symmetries with 2n-1 rooks (A309260). The data agree (1,1,1,5,29,224,3012 at n=1,4,...,19). Brobecker's PDF and the entries give only computations, and no prior proof was found. Second review: Proof: coordinate-sum counting (the IMO 2009 Shortlist C2 / Nivasch-Lev argument) forces every maximum placement on side 3m+1 into the central hexagon, and full occupancy pins any congruence to a hexagon symmetry. The key step is the equality case of a well-known olympiad bound, so this is a short argument from known facts (routine), but I found no prior statement of Kotesovec's conjecture as proved."
+  },
+  "oeis-a350557": {
+   "date": "2026-11-28",
+   "pr": 28858,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A350557",
+    "https://oeis.org/A350512",
+    "https://oeis.org/A350557",
+    "https://oeis.org/A350512",
+    "https://oeis.org/A338291/a338291.pdf"
+   ],
+   "note": "Statement matches Schulte's conjecture: M(n,k)=(-1)^(n-k)T(n,k) with T from the A350557 name formula, L = A350512, and both L*M and M*L are the identity. Exact check for n,k<20. No mention of the inverse in A350512, and no prior proof found. Routine triangular-matrix identity. Second review: Matrix-inverse identity proved from the entry's own recurrence T(n,k)=binom(n-1,k-1)+(2n-1)T(n-1,k) and A350512's binomial structure. Routine triangle identity; no earlier proof found."
+  },
+  "oeis-a276752": {
+   "date": "2026-11-28",
+   "pr": 15723,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A276752",
+    "https://oeis.org/A276752"
+   ],
+   "note": "The composition-sum definitions of the log and exp coefficients reproduce the OEIS data (I checked integrality and terms to n=70). The limit a(n)^(1/n^2) -> sqrt(2) is Kotesovec's 2020 conjecture. The proof is a short elementary sandwich: every composition weight is at most 4^floor(n^2/4), and an all-2s composition attains it up to a 4^n factor; numerically a(70)^(1/4900)=1.4149. I found no prior proof in the sister entries (A276751, A276754), the local lists or Zenodo. Second review: Asymptotic proved by two-sided bounds on composition weights (area n^2/4 argument). Faithful and apparently new; not a finite check."
+  },
+  "oeis-a282607": {
+   "date": "2026-11-28",
+   "pr": 29123,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282607",
+    "https://oeis.org/A282607"
+   ],
+   "note": "Wu's 2024 recurrence (n>13, stated as n>=14) and degree-13 g.f. for 2D Rule 489 (x-axis origin to right edge, base-10 digits) are stated faithfully, with the whole plane and background evolving as in Price's program. My simulation reproduces the data and both formulas hold to n=130. No prior proof found (OEIS entry and sisters, trureturing and thatnealpatel/proofs file lists searched by rule number, Cohen's Zenodo 24384895 (Rule 654 only via ON-cell count A273331), Muñoz (1D only), blakestone-x/math, hoodbroskillson, kolinhuang0427, Asakitan, Palomar, Zenodo API, isitsolved crawl); GitHub code search was rate-limited. Second review: Wu's recurrence and g.f. are faithful and proved through a shape theorem for Rule 489. No prior proof found. A recurrence/g.f. identity, so routine."
+  },
+  "oeis-a288135": {
+   "date": "2026-11-28",
+   "pr": 16159,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288135",
+    "https://mathoverflow.net/questions/259821",
+    "https://oeis.org/A288135",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821"
+   ],
+   "note": "r = sqrt(7/3). Kimberling's strict-increase conjecture for 1/(Sum floor((k+1)r)(-x)^k) is stated faithfully (inverse in Q[[x]], constant term 1). My exact computation reproduces the data and gives strict increase for 3000 terms. r lies in [3/2,5/3), the range of the open MathOverflow questions 258155/259821 (no proof there; checked via the API) and of the site's sibling solves (e.g. A288230, PR 15919), none a duplicate of this r. No prior proof found (A078140 guide, Palomar, Zenodo, Blanco Gómez/Fried, Lean libraries); GitHub code search was rate-limited. Second review: Faithful and apparently first proof for this r. The method is a template shared across sibling solves on the site, and A288231's argument formally works for any r in [3/2,8/5), which includes sqrt(7/3). No earlier statement covers this r, though."
+  },
+  "oeis-a288231": {
+   "date": "2026-11-28",
+   "pr": 16008,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288231",
+    "https://mathoverflow.net/questions/259821",
+    "https://oeis.org/A288231",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821"
+   ],
+   "note": "r = 4^(1/3) as in the name and data (the entry's Mathematica line says Sqrt[5/2], a copy slip from A288230; that r does not reproduce the data). Kimberling's strict-increase conjecture for 1/(Sum floor((k+1)r)(-x)^k) is stated faithfully (inverse in Q[[x]], constant term 1). My exact computation reproduces the data and gives strict increase for 3000 terms. r lies in [3/2,5/3), the range of the open MathOverflow questions 258155/259821 (no proof there; checked via the API) and of the site's sibling solves (e.g. A288230, PR 15919), none a duplicate of this r. No prior proof found (A078140 guide, Palomar, Zenodo, Blanco Gómez/Fried, Lean libraries); GitHub code search was rate-limited. Second review: Faithful and apparently first proof for this r. The method is a template shared across sibling solves on the site, and A288231's argument formally works for any r in [3/2,8/5), which includes sqrt(7/3). No earlier statement covers this r, though."
+  },
+  "oeis-a288232": {
+   "date": "2026-11-28",
+   "pr": 16099,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288232",
+    "https://mathoverflow.net/questions/259821",
+    "https://oeis.org/A288232",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821"
+   ],
+   "note": "r = 3e/5. Kimberling's strict-increase conjecture for 1/(Sum floor((k+1)r)(-x)^k) is stated faithfully (inverse in Q[[x]], constant term 1). My exact computation reproduces the data and gives strict increase for 3000 terms. r lies in [3/2,5/3), the range of the open MathOverflow questions 258155/259821 (no proof there; checked via the API) and of the site's sibling solves (e.g. A288230, PR 15919), none a duplicate of this r. No prior proof found (A078140 guide, Palomar, Zenodo, Blanco Gómez/Fried, Lean libraries); GitHub code search was rate-limited. Second review: Faithful and apparently first proof for this r. The method is a template shared across sibling solves on the site, and A288231's argument formally works for any r in [3/2,8/5), which includes sqrt(7/3). No earlier statement covers this r, though."
   }
  },
  "flagged": {
@@ -36595,6 +36806,68 @@
     "https://doi.org/10.4064/aa-12-2-193-212"
    ],
    "reason": "Second review: The disproof is correct but follows directly from Kesten's 1966 bounded-remainder theorem after a one-line reduction. Count it as known in substance, or at least not new."
+  },
+  "oeis-a338777": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A338777",
+    "https://github.com/epoch-research/LeanOpenProblems-results/blob/main/runs/oeis-full-50usd-ant-j0j0g4uzligm1k41/oeis_338777_conjecture_0/Submission/Spec.lean",
+    "https://arxiv.org/abs/2608.11941"
+   ],
+   "reason": "Second review: An author remark presented as a conjecture, provable in two lines, and already proved four times in Epoch's OEIS Open benchmark (Sep 2026). Not a new solve."
+  },
+  "oeis-a341309": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A341309",
+    "https://oeis.org/A352425",
+    "https://github.com/GuillaumeBAUD-coder/open-math-agents/blob/main/proofs/oeis-a352425.lean"
+   ],
+   "reason": "Second review: Same mathematical statement as oeis-a352425, already solved on this site an hour earlier (A352425's own conjecture). Also trivial. Not a separate new result."
+  },
+  "oeis-a344177": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A344177",
+    "https://github.com/blakestone-x/math/blob/main/A344177/README.md",
+    "https://github.com/blakestone-x/math/commits/main/A344177"
+   ],
+   "reason": "Second review: Already proved publicly by Blake Stone (blakestone-x/math, Nov 27 2026) for all five Song entries. Not new; note also that A344197-A344200 on this site repeat the same general statement."
+  },
+  "oeis-a235886": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/blakestone-x/math/blob/main/Hardin-constant-stress/README.md",
+    "https://github.com/blakestone-x/math/commit/702055c",
+    "https://oeis.org/A235893"
+   ],
+   "reason": "Second review: A235886 is column 1 of A235893, and blakestone-x/math proved the full A235893 table formula, including Barker's column g.f.s and closed forms, before the site proof. The recurrence 6,-8 follows from roots 2 and 4. Previously settled."
+  },
+  "oeis-a283607": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A283607",
+    "https://oeis.org/A283604"
+   ],
+   "reason": "Second review: The same Rule 670 x-axis shape theorem was already established in the earlier site solve of A283604, and A283607 is its mirror and base-2 re-reading. This is a duplicate of an earlier solve on this site, not a new result."
+  },
+  "oeis-a285540": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A285540",
+    "https://oeis.org/A285541",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "reason": "Second review: A285541's closed form fixes the 0/1 diagonal string, and reversing it gives A285540, so the claim follows from an earlier solve on this site plus a symmetry lemma. Cohen's certified Rule 35 automaton predates both. Not new."
+  },
+  "oeis-a287469": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A287469",
+    "https://oeis.org/A287470",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "reason": "Second review: This is the same diagonal theorem as the earlier site solve of A287470, read in base 10 instead of base 2. The evolution itself is simple (ON cells are |x|+|y|<=n with parity) and was already certified by Cohen. Not new."
   }
  },
  "reviewed": "2026-11-28"
