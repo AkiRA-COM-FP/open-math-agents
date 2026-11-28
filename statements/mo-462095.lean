@@ -4,7 +4,7 @@ import Mathlib
 # Nonrepetitive nonhomogeneous partition regularity
 
 Source: https://mathoverflow.net/questions/462095 (domotorp)
-Credit: @SudharsanAnimations
+Credit: Sudharsan Rajendiran
 
 Is it true that for every `k` and every `k`-colouring of the natural numbers there are naturals
 `a_1, …, a_{2l}` for some `l ≥ 2` with `a_1 + a_3 = 2 a_2 + 2`, `a_2 + a_4 = 2 a_3 + 2`, …,
