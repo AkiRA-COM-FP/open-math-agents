@@ -1,0 +1,357 @@
+import FormalConjectures.ErdosProblems.«151»
+import Mathlib
+
+/-! Extending a triangle-free clique-hitting subgraph one vertex at a time.
+Credit: @ellisjr. The guarded deletion and Ramsey bounds are due to @sun-jiao
+in the preceding reduction. The extension works for maximal cliques of every size.
+The seven-vertex link test is finite after adjoining the isolated vertices to the
+chosen set. Eight is the first link order for which an extension can fail. -/
+
+namespace OMA.R_Erdos151_erdos_151_R3
+
+open Finset SimpleGraph
+open scoped Classical
+
+/-- A triangle-free graph R on a link can be extended over its center when at most
+seven link vertices have a neighbor in the link. Singletons are maximal cliques here. -/
+def H1 : Prop := ∀ (n : ℕ) (G R : SimpleGraph (Fin n)) (N : Finset (Fin n)),
+  R ≤ G → R.CliqueFree 3 → (N.filter fun x => ∃ y ∈ N, G.Adj x y).card ≤ 7 →
+  ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin n)) ∧
+    ∀ q : Finset (Fin n), q.Nonempty →
+      Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
+      (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y
+
+/-- At the remaining Ramsey jumps there is a nonempty vertex set U. Every vertex
+of U has a link inside U with at least eight nonisolated vertices and a
+triangle-free choice of edges which cannot be extended over that vertex. -/
+def H2 : Prop := ∀ (m : ℕ) (G : SimpleGraph (Fin (m+1))),
+  Erdos151.H m < Erdos151.H (m+1) →
+  (∀ v, (univ.filter (G.Adj v)).card < Erdos151.H (m+1)) →
+  (∀ A B : Finset (Fin (m+1)), B.Nonempty → A ⊆ B →
+    (∀ t, G.IsBigMaximalClique t → (∃ x ∈ t, x ∈ A) → ∃ y ∈ t, y ∈ B \ A) →
+    A.card + Erdos151.H (m+1 - B.card) < Erdos151.H (m+1)) →
+  (∃ U : Finset (Fin (m+1)), U.Nonempty ∧ ∀ v ∈ U,
+    let N := U.filter (G.Adj v)
+    8 ≤ (N.filter fun x => ∃ y ∈ N, G.Adj x y).card ∧
+    ∃ R : SimpleGraph (Fin (m+1)), R ≤ G ∧ R.CliqueFree 3 ∧
+      ¬ ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin (m+1))) ∧
+        ∀ q : Finset (Fin (m+1)), q.Nonempty →
+          Maximal (fun t : Finset (Fin (m+1)) =>
+            t ⊆ N ∧ G.IsClique (t : Set (Fin (m+1)))) q →
+          (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y) →
+  G.cliqueTransversalNumber ≤ (m+1) - Erdos151.H (m+1)
+
+/- The following Ramsey and deletion lemmas are reproduced from reduction R2. -/
+
+lemma H_attained {n : ℕ} (F : SimpleGraph (Fin n)) (hF : F.CliqueFree 3) :
+    ∃ s, F.IsNIndepSet (Erdos151.H n) s := by
+  let sizes : Set ℕ :=
+    {k | ∀ G : SimpleGraph (Fin n), G.CliqueFree 3 → ∃ s, G.IsNIndepSet k s}
+  have hnonempty : sizes.Nonempty :=
+    ⟨0, fun _ _ => ⟨∅, by simp [SimpleGraph.isNIndepSet_iff]⟩⟩
+  have hfinite : sizes.Finite := by
+    refine (Set.finite_Iic n).subset ?_
+    intro k hk
+    obtain ⟨s, hs⟩ := hk F hF
+    simpa [hs.card_eq] using Finset.card_le_univ s
+  exact (hnonempty.csSup_mem hfinite) F hF
+
+lemma H_le (n : ℕ) : Erdos151.H n ≤ n := by
+  obtain ⟨s, hs⟩ := H_attained (⊥ : SimpleGraph (Fin n)) (cliqueFree_bot (by norm_num))
+  simpa [hs.card_eq] using Finset.card_le_univ s
+
+/-- Any vertex neighborhood misses every maximal clique, bounding `τ(G)` by `n - deg(v)`. -/
+lemma neighborhood_bound {n : ℕ} (G : SimpleGraph (Fin n)) (v : Fin n)
+    (hv : Erdos151.H n ≤ (univ.filter (G.Adj v)).card) :
+    cliqueTransversalNumber G ≤ n - Erdos151.H n := by
+  let N := univ.filter (G.Adj v)
+  have hhit : G.IsCliqueTransversal Nᶜ := by
+    intro t ht
+    by_contra! h
+    have hAdj (w : Fin n) (hw : w ∈ t) : G.Adj v w :=
+      (mem_filter.mp (not_not.mp (by simpa only [mem_compl] using h w hw))).2
+    have hc : G.IsClique (↑(insert v t) : Set (Fin n)) := by
+      rw [coe_insert]
+      exact ht.1.1.insert (fun w hw _ => hAdj w hw)
+    have hv' : v ∈ t := ht.1.2 hc (subset_insert _ _) (mem_insert_self _ _)
+    exact G.irrefl (hAdj v hv')
+  refine (csInf_le' (show Nᶜ.card ∈ {k | ∃ T, G.IsCliqueTransversal T ∧ T.card = k}
+    from ⟨Nᶜ, hhit, rfl⟩)).trans ?_
+  rw [card_compl, Fintype.card_fin]
+  exact Nat.sub_le_sub_left hv n
+
+/-- Any triangle-free graph `F` with an edge inside every big maximal clique of `G` yields the bound. -/
+lemma bound_of_hitting {n : ℕ} (G F : SimpleGraph (Fin n)) (hF : F.CliqueFree 3)
+    (hit : ∀ s, G.IsBigMaximalClique s → ∃ u ∈ s, ∃ v ∈ s, F.Adj u v) :
+    cliqueTransversalNumber G ≤ n - Erdos151.H n := by
+  obtain ⟨s, hs⟩ := H_attained F hF
+  have htransversal : G.IsCliqueTransversal sᶜ := by
+    intro t ht
+    obtain ⟨u, hu, v, hv, huv⟩ := hit t ht
+    by_cases hsu : u ∈ s
+    · by_cases hsv : v ∈ s
+      · exact (hs.isIndepSet hsu hsv huv.ne huv).elim
+      · exact ⟨v, hv, mem_compl.mpr hsv⟩
+    · exact ⟨u, hu, mem_compl.mpr hsu⟩
+  apply csInf_le'
+  exact ⟨sᶜ, htransversal, by rw [card_compl, Fintype.card_fin, hs.card_eq]⟩
+
+lemma pullback_big_clique {m n : ℕ} (G : SimpleGraph (Fin n)) (e : Fin m ↪ Fin n)
+    (t : Finset (Fin n)) (ht : G.IsBigMaximalClique t)
+    (hr : ∀ x ∈ t, ∃ i, e i = x) :
+    (G.comap e).IsBigMaximalClique (t.preimage e e.injective.injOn) := by
+  let u := t.preimage e e.injective.injOn
+  have heq : u.map e = t := by
+    ext x
+    constructor
+    · intro hx
+      obtain ⟨i, hi, rfl⟩ := mem_map.mp hx
+      exact mem_preimage.mp hi
+    · intro hx
+      obtain ⟨i, rfl⟩ := hr x hx
+      exact mem_map.mpr ⟨i, mem_preimage.mpr hx, rfl⟩
+  refine ⟨⟨?_, ?_⟩, ?_⟩
+  · intro i hi j hj hij
+    exact ht.1.1 (mem_preimage.mp hi) (mem_preimage.mp hj) (e.injective.ne hij)
+  · intro w hw huw j hj
+    have hc : G.IsClique (↑(w.map e) : Set (Fin n)) := by
+      intro x hx y hy hxy
+      obtain ⟨i, hi, rfl⟩ := mem_map.mp hx
+      obtain ⟨k, hk, rfl⟩ := mem_map.mp hy
+      exact hw hi hk (fun h => hxy (congrArg e h))
+    have hsub : t ⊆ w.map e := by
+      rw [← heq]
+      exact map_subset_map.mpr huw
+    exact mem_preimage.mpr (ht.1.2 hc hsub (mem_map.mpr ⟨j, hj, rfl⟩))
+  · have h := ht.2
+    rwa [← heq, card_map] at h
+
+/-- Guarded-block deletion inequality for arbitrary graphs. -/
+lemma delete_block {n : ℕ} (G : SimpleGraph (Fin n))
+    (A B : Finset (Fin n)) (hAB : A ⊆ B)
+    (guarded : ∀ t, G.IsBigMaximalClique t → (∃ x ∈ t, x ∈ A) → ∃ y ∈ t, y ∈ B \ A)
+    (e : Fin (n - B.card) ↪ Fin n)
+    (cover : ∀ x, x ∉ B → ∃ i, e i = x) :
+    G.cliqueTransversalNumber ≤ (G.comap e).cliqueTransversalNumber + (B.card - A.card) := by
+  let F := G.comap e
+  have hn : {k | ∃ T : Finset (Fin (n - B.card)), F.IsCliqueTransversal T ∧ T.card = k}.Nonempty := by
+    refine ⟨univ.card, univ, ?_, rfl⟩
+    intro t ht
+    obtain ⟨x, _, hx, _, _⟩ := one_lt_card_iff.mp ht.2
+    exact ⟨x, hx, mem_univ _⟩
+  obtain ⟨T, hT, hsize⟩ := Nat.sInf_mem hn
+  change T.card = F.cliqueTransversalNumber at hsize
+  let U := T.map e ∪ (B \ A)
+  have hU : G.IsCliqueTransversal U := by
+    intro t ht
+    by_cases hhit : ∃ y ∈ t, y ∈ B \ A
+    · obtain ⟨y, hy, hmem⟩ := hhit
+      exact ⟨y, hy, mem_union_right _ hmem⟩
+    have hout (x) (hx : x ∈ t) : x ∉ B := by
+      intro hb
+      by_cases ha : x ∈ A
+      · exact hhit (guarded t ht ⟨x, hx, ha⟩)
+      · exact hhit ⟨x, hx, mem_sdiff.mpr ⟨hb, ha⟩⟩
+    have hbig := pullback_big_clique G e t ht (fun x hx => cover x (hout x hx))
+    obtain ⟨i, hi, hiT⟩ := hT _ hbig
+    exact ⟨e i, mem_preimage.mp hi, mem_union_left _ (mem_map.mpr ⟨i, hiT, rfl⟩)⟩
+  calc
+    G.cliqueTransversalNumber ≤ U.card := csInf_le' ⟨U, hU, rfl⟩
+    _ ≤ (T.map e).card + (B \ A).card := card_union_le _ _
+    _ = _ := by rw [card_map, card_sdiff_of_subset hAB, hsize]
+
+
+/-- A maximal clique through v restricts to a maximal clique of its link. -/
+lemma erase_in_link {V : Type} [DecidableEq V] (G : SimpleGraph V)
+    (U q : Finset V) (v : V) (hv : v ∈ q) (hq : G.IsBigMaximalClique q) (hU : q ⊆ U) :
+    (q.erase v).Nonempty ∧
+    Maximal (fun t : Finset V => t ⊆ U.filter (G.Adj v) ∧ G.IsClique (t : Set V))
+      (q.erase v) := by
+  classical
+  have hc := hq.2
+  refine ⟨card_pos.mp (by rw [card_erase_of_mem hv]; omega), ⟨⟨?_, ?_⟩, ?_⟩⟩
+  · intro x hx
+    obtain ⟨hxv, hxq⟩ := mem_erase.mp hx
+    exact mem_filter.mpr ⟨hU hxq, hq.1.1 hv hxq hxv.symm⟩
+  · intro x hx y hy hxy
+    exact hq.1.1 (mem_of_mem_erase hx) (mem_of_mem_erase hy) hxy
+  · intro t ht hqt
+    have hcl : G.IsClique (↑(insert v t) : Set V) := by
+      rw [coe_insert]
+      exact ht.2.insert (fun x hx _ => (mem_filter.mp (ht.1 hx)).2)
+    have hsub : q ⊆ insert v t := by
+      intro x hx
+      by_cases he : x = v
+      · exact mem_insert.mpr (Or.inl he)
+      · exact mem_insert_of_mem (hqt (mem_erase.mpr ⟨he,hx⟩))
+    intro x hx
+    exact mem_erase.mpr ⟨(mem_filter.mp (ht.1 hx)).2.ne.symm,
+      hq.1.2 hcl hsub (mem_insert_of_mem hx)⟩
+
+/-- Add a star over v. Its leaves are independent in the old red graph. -/
+lemma extend_star {V : Type} [DecidableEq V] (G R : SimpleGraph V) (U : Finset V)
+    (v : V) (hv : v ∈ U) (A : Finset V) (hA : A ⊆ U.filter (G.Adj v))
+    (indep : R.IsIndepSet (A : Set V)) (sub : R ≤ G) (tf : R.CliqueFree 3)
+    (supp : ∀ ⦃x y⦄, R.Adj x y → x ∈ U.erase v ∧ y ∈ U.erase v)
+    (hit : ∀ q, G.IsBigMaximalClique q → q ⊆ U.erase v → ∃ x ∈ q, ∃ y ∈ q, R.Adj x y)
+    (link : ∀ q : Finset V, q.Nonempty →
+      Maximal (fun t : Finset V => t ⊆ U.filter (G.Adj v) ∧ G.IsClique (t : Set V)) q →
+        (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y) :
+    ∃ F : SimpleGraph V, F ≤ G ∧ F.CliqueFree 3 ∧
+      (∀ ⦃x y⦄, F.Adj x y → x ∈ U ∧ y ∈ U) ∧
+      ∀ q, G.IsBigMaximalClique q → q ⊆ U → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y := by
+  classical
+  have hN {x} (hx : x ∈ A) := (mem_filter.mp (hA hx)).2
+  have hsU {x} (hx : x ∈ A) := (mem_filter.mp (hA hx)).1
+  have hvA : v ∉ A := fun h => G.irrefl (hN h)
+  let F : SimpleGraph V := {
+    Adj := fun x y => R.Adj x y ∨ (x = v ∧ y ∈ A) ∨ (y = v ∧ x ∈ A)
+    symm := ⟨fun _ _ e => e.elim (fun h => Or.inl h.symm)
+      (fun h => Or.inr h.symm)⟩
+    loopless := ⟨by
+      intro x h
+      rcases h with h | ⟨rfl, ha⟩ | ⟨rfl, ha⟩
+      · exact R.irrefl h
+      · exact hvA ha
+      · exact hvA ha⟩
+  }
+  have old {x y} (hx : x ≠ v) (hy : y ≠ v) (exy : F.Adj x y) : R.Adj x y :=
+    exy.resolve_right (fun h => h.elim (fun e => hx e.1) (fun e => hy e.1))
+  have leaf {y} (e : F.Adj v y) : y ∈ A := by
+    rcases e with e | ⟨_, ha⟩ | ⟨_, ha⟩
+    · exact (notMem_erase v U (supp e).1).elim
+    · exact ha
+    · exact (hvA ha).elim
+  have no_at {x y} (hx : F.Adj v x) (hy : F.Adj v y) (e : F.Adj x y) : False :=
+    indep (leaf hx) (leaf hy) e.ne (old hx.ne.symm hy.ne.symm e)
+  refine ⟨F, ?_, ?_, ?_, ?_⟩
+  · intro x y e
+    rcases e with e | ⟨rfl, ha⟩ | ⟨rfl, ha⟩
+    · exact sub e
+    · exact hN ha
+    · exact (hN ha).symm
+  · intro t ht
+    obtain ⟨x,y,z,exy,exz,eyz,_⟩ := is3Clique_iff.mp ht
+    by_cases hx : x = v
+    · subst x; exact no_at exy exz eyz
+    by_cases hy : y = v
+    · subst y; exact no_at exy.symm eyz exz
+    by_cases hz : z = v
+    · subst z; exact no_at exz.symm eyz.symm exy
+    exact tf _ (is3Clique_triple_iff.mpr ⟨old hx hy exy,old hx hz exz,old hy hz eyz⟩)
+  · intro x y e
+    rcases e with e | ⟨rfl, ha⟩ | ⟨rfl, ha⟩
+    · exact ⟨mem_of_mem_erase (supp e).1, mem_of_mem_erase (supp e).2⟩
+    · exact ⟨hv, hsU ha⟩
+    · exact ⟨hsU ha, hv⟩
+  · intro q hq hqU
+    by_cases hvq : v ∈ q
+    · obtain ⟨hne, hmax⟩ := erase_in_link G U q v hvq hq hqU
+      rcases link (q.erase v) hne hmax with ⟨x,hx,ha⟩ | ⟨x,hx,y,hy,e⟩
+      · exact ⟨v,hvq,x,mem_of_mem_erase hx,Or.inr (Or.inl ⟨rfl,ha⟩)⟩
+      · exact ⟨x,mem_of_mem_erase hx,y,mem_of_mem_erase hy,Or.inl e⟩
+    · obtain ⟨x,hx,y,hy,e⟩ := hit q hq (fun z hz =>
+        mem_erase.mpr ⟨fun h => hvq (h ▸ hz), hqU hz⟩)
+      exact ⟨x,hx,y,hy,Or.inl e⟩
+
+/-- A least vertex set with no partial solution supplies a bad link at every vertex. -/
+lemma bad_core (hsmall : H1) {n : ℕ} (G : SimpleGraph (Fin n))
+    (nohit : ¬ ∃ F : SimpleGraph (Fin n), F.CliqueFree 3 ∧
+      ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y) :
+    ∃ U : Finset (Fin n), U.Nonempty ∧ ∀ v ∈ U,
+      let N := U.filter (G.Adj v)
+      8 ≤ (N.filter fun x => ∃ y ∈ N, G.Adj x y).card ∧
+      ∃ R : SimpleGraph (Fin n), R ≤ G ∧ R.CliqueFree 3 ∧
+        ¬ ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin n)) ∧
+          ∀ q : Finset (Fin n), q.Nonempty →
+            Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
+            (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y := by
+  classical
+  let Good (U : Finset (Fin n)) : Prop := ∃ R : SimpleGraph (Fin n), R ≤ G ∧ R.CliqueFree 3 ∧
+    (∀ ⦃x y⦄, R.Adj x y → x ∈ U ∧ y ∈ U) ∧
+    ∀ q, G.IsBigMaximalClique q → q ⊆ U → ∃ x ∈ q, ∃ y ∈ q, R.Adj x y
+  have hbad : ¬ Good univ := by
+    rintro ⟨R,_,ht,_,hit⟩
+    exact nohit ⟨R,ht,fun q hq => hit q hq (subset_univ _)⟩
+  have hex : ∃ k, ∃ U : Finset (Fin n), U.card = k ∧ ¬ Good U := ⟨_,univ,rfl,hbad⟩
+  obtain ⟨U, hu, bad⟩ := Nat.find_spec hex
+  have hnon : U.Nonempty := by
+    by_contra! he
+    have hU : U = ∅ := by simpa using he
+    apply bad
+    refine ⟨⊥, bot_le, cliqueFree_bot (by norm_num), by simp, ?_⟩
+    intro q hq hqU
+    have hq0 : q = ∅ := by simpa [hU] using hqU
+    have := hq.2
+    simp [hq0] at this
+  refine ⟨U,hnon,?_⟩
+  intro v hv N
+  have hsm : Good (U.erase v) := by
+    by_contra h
+    have hm := Nat.find_min' hex (show ∃ T : Finset (Fin n),
+      T.card = (U.erase v).card ∧ ¬ Good T from ⟨_,rfl,h⟩)
+    have he := Finset.card_erase_lt_of_mem hv
+    omega
+  obtain ⟨R,sub,tf,supp,hit⟩ := hsm
+  have blocked : ¬ ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin n)) ∧
+        ∀ q : Finset (Fin n), q.Nonempty →
+          Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
+          (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y := by
+    rintro ⟨A,hA,hi,hl⟩
+    exact bad (extend_star G R U v hv A hA hi sub tf supp hit hl)
+  exact ⟨by
+    by_contra! h
+    exact blocked (hsmall n G R N sub tf (by omega)), R,sub,tf,blocked⟩
+
+theorem main : H1 → H2 → type_of% @Erdos151.erdos_151 := by
+  intro h1 h2 m
+  induction m using Nat.strong_induction_on with
+  | h m ih =>
+    intro G
+    rcases m with _ | n
+    · have : cliqueTransversalNumber G ≤ 0 := by
+        apply csInf_le'
+        refine ⟨∅, ?_, rfl⟩
+        intro s hs
+        obtain ⟨a, -, -, -⟩ := one_lt_card_iff.mp hs.2
+        exact a.elim0
+      omega
+    · by_cases hblock : ∃ A B : Finset (Fin (n + 1)), B.Nonempty ∧ A ⊆ B ∧
+          (∀ t, G.IsBigMaximalClique t → (∃ x ∈ t, x ∈ A) → ∃ y ∈ t, y ∈ B \ A) ∧
+          Erdos151.H (n + 1) ≤ A.card + Erdos151.H (n + 1 - B.card)
+      · obtain ⟨A, B, hB, hAB, hg, hgain⟩ := hblock
+        have hb : B.card ≤ n + 1 := by simpa using card_le_univ B
+        have ha := card_le_card hAB
+        have hbpos := card_pos.mpr hB
+        let W := Bᶜ
+        have hW : Fintype.card (↥W) = n + 1 - B.card := by simp [W]
+        let f := Fintype.equivFinOfCardEq hW
+        let e := f.symm.toEmbedding.trans (Function.Embedding.subtype (· ∈ W))
+        have hcover (x : Fin (n + 1)) (hx : x ∉ B) : ∃ i, e i = x := by
+          let z : ↥W := ⟨x, mem_compl.mpr hx⟩
+          exact ⟨f z, by simp [e, z]⟩
+        have hsmall := ih (n + 1 - B.card) (by omega) (G.comap e)
+        have hdelete := delete_block G A B hAB hg e hcover
+        have hH := H_le (n + 1 - B.card)
+        omega
+      have hstrict : ∀ A B : Finset (Fin (n + 1)), B.Nonempty → A ⊆ B →
+          (∀ t, G.IsBigMaximalClique t → (∃ x ∈ t, x ∈ A) → ∃ y ∈ t, y ∈ B \ A) →
+          A.card + Erdos151.H (n + 1 - B.card) < Erdos151.H (n + 1) := by
+        intro A B hb hab hg
+        exact lt_of_not_ge (fun h => hblock ⟨A, B, hb, hab, hg, h⟩)
+      have hjump : Erdos151.H n < Erdos151.H (n + 1) := by
+        have h0 := hstrict ∅ {0} (singleton_nonempty 0) (empty_subset _)
+          (fun _ _ ⟨_, _, hx⟩ => (notMem_empty _ hx).elim)
+        simpa using h0
+      by_cases hlarge : ∃ v, Erdos151.H (n + 1) ≤ (univ.filter (G.Adj v)).card
+      · obtain ⟨v, hv⟩ := hlarge
+        exact neighborhood_bound G v hv
+      have hdeg (v : Fin (n + 1)) : (univ.filter (G.Adj v)).card < Erdos151.H (n + 1) :=
+        lt_of_not_ge (fun h => hlarge ⟨v, h⟩)
+      by_cases hgood : ∃ F : SimpleGraph (Fin (n + 1)), F.CliqueFree 3 ∧
+          ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y
+      · obtain ⟨F,ht,hit⟩ := hgood
+        exact bound_of_hitting G F ht hit
+      exact h2 n G hjump hdeg hstrict (bad_core h1 G hgood)
+
+end OMA.R_Erdos151_erdos_151_R3
