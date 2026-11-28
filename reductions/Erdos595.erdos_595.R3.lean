@@ -642,6 +642,77 @@ theorem blocked_high_degree {I : Type} (R : I → I → Prop) (loop : ∀ x, ¬ 
     exact (proper a b ⟨ha,hb,g a,(allowed a).resolve_left ha,
       eq ▸ (allowed b).resolve_left hb,Or.inl ⟨ab,by omega⟩⟩ eq).elim
 
+/-- One round of the high-degree argument inside a specified vertex set,
+with the surviving palette indexed by an arbitrary injection. -/
+private theorem blocked_subset_step {I : Type} (R : I → I → Prop) (loop : ∀ x, ¬ R x x)
+    (old : I → I → ℕ) (p : ℕ → ℕ) (inj : Function.Injective p) (S : Set I)
+    (bad : ∀ d : I → ℕ, ∃ a b, a ∈ S ∧ b ∈ S ∧ R a b ∧ d a = d b ∧ old a b = p (d a)) :
+    ∃ T ⊆ S, (∀ x ∈ T, ∃ m : ℕ, ∀ n > m, ¬ Set.Countable
+      {y | y ∈ S ∧ ((R x y ∧ old x y = p (2*n)) ∨ (R y x ∧ old y x = p (2*n)))}) ∧
+      ∀ d : I → ℕ, ∃ a b, a ∈ T ∧ b ∈ T ∧ R a b ∧ d a = d b ∧ old a b = p (2*d a+1) := by
+  classical
+  let E (x y : I) := x ∈ S ∧ y ∈ S ∧ R x y
+  let code (v : ℕ) := if h : ∃ n, v = p n then 2*h.choose else 1
+  have decode (v n : ℕ) : code v = 2*n ↔ v = p n := by
+    by_cases h : ∃ k, v = p k
+    · simp only [code,dif_pos h]
+      constructor
+      · intro e
+        have k : h.choose = n := by omega
+        exact k ▸ h.choose_spec
+      · intro e
+        rw [inj (h.choose_spec.symm.trans e)]
+    · simp only [code,dif_neg h]
+      exact ⟨fun e => by omega,fun e => (h ⟨n,e⟩).elim⟩
+  have blocked (d : I → ℕ) : ∃ a b, E a b ∧ d a = d b ∧ code (old a b) = 2*d a := by
+    obtain ⟨a,b,ha,hb,ab,same,hit⟩ := bad d
+    exact ⟨a,b,⟨ha,hb,ab⟩,same,(decode _ _).2 hit⟩
+  let N (x : I) (n : ℕ) := {y | (E x y ∧ code (old x y) = 4*n) ∨
+    (E y x ∧ code (old y x) = 4*n)}
+  let T := {x | x ∈ S ∧ ∃ m : ℕ, ∀ n > m, ¬ (N x n).Countable}
+  refine ⟨T,fun _ hx => hx.1,?_,?_⟩
+  · rintro x ⟨_,m,hm⟩
+    refine ⟨m,fun n lt hc => hm n lt (hc.mono ?_)⟩
+    rintro y (⟨e,hit⟩ | ⟨e,hit⟩)
+    · exact ⟨e.2.1,Or.inl ⟨e.2.2,(decode _ _).1 (by omega)⟩⟩
+    · exact ⟨e.1,Or.inr ⟨e.2.2,(decode _ _).1 (by omega)⟩⟩
+  · intro d
+    obtain ⟨a,b,ab,ra,rb,same,hit⟩ := blocked_high_degree E (fun x e => loop x e.2.2)
+      (fun x y => code (old x y)) blocked d
+    exact ⟨a,b,⟨ab.1,ra⟩,⟨ab.2.1,rb⟩,ab.2.2,same,(decode _ _).1 (by omega)⟩
+
+/-- A blocked fibre has nested nonempty sets at all finite depths. Probe degrees
+at depth k+1 are measured inside depth k. The odd half of each palette
+remains blocked on the next set. -/
+theorem blocked_degree_tower {I : Type} (R : I → I → Prop) (loop : ∀ x, ¬ R x x)
+    (old : I → I → ℕ)
+    (blocked : ∀ d : I → ℕ, ∃ a b, R a b ∧ d a = d b ∧ old a b = 2*d a) :
+    let p : ℕ → ℕ → ℕ := Nat.rec (fun n => 2*n) (fun _ prev n => prev (2*n+1))
+    ∃ S : ℕ → Set I, S 0 = Set.univ ∧ ∀ k,
+      S (k+1) ⊆ S k ∧ (S k).Nonempty ∧
+      (∀ x ∈ S (k+1), ∃ m : ℕ, ∀ n > m, ¬ Set.Countable
+        {y | y ∈ S k ∧ ((R x y ∧ old x y = p k (2*n)) ∨ (R y x ∧ old y x = p k (2*n)))}) ∧
+      ∀ d : I → ℕ, ∃ a b, a ∈ S k ∧ b ∈ S k ∧ R a b ∧ d a = d b ∧ old a b = p k (d a) := by
+  classical
+  intro p
+  have inj (k : ℕ) : Function.Injective (p k) := by
+    induction k with
+    | zero => intro a b h; change 2*a = 2*b at h; omega
+    | succ k ih => intro a b h; have e : 2*a+1 = 2*b+1 := ih h; omega
+  let B (k : ℕ) (S : Set I) := ∀ d : I → ℕ, ∃ a b,
+    a ∈ S ∧ b ∈ S ∧ R a b ∧ d a = d b ∧ old a b = p k (d a)
+  have start : B 0 Set.univ := by
+    intro d
+    obtain ⟨a,b,ab,same,hit⟩ := blocked d
+    exact ⟨a,b,trivial,trivial,ab,same,hit⟩
+  let step (k : ℕ) (s : {S // B k S}) := blocked_subset_step R loop old (p k) (inj k) s.val s.prop
+  let seq : (k : ℕ) → {S // B k S} := Nat.rec ⟨Set.univ,start⟩
+    (fun k s => ⟨(step k s).choose,(step k s).choose_spec.2.2⟩)
+  refine ⟨fun k => (seq k).val,rfl,?_⟩
+  intro k
+  obtain ⟨a,_,ha,_⟩ := (seq k).prop (fun _ => 0)
+  exact ⟨(step k (seq k)).choose_spec.1,⟨a,ha⟩,(step k (seq k)).choose_spec.2.1,(seq k).prop⟩
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
