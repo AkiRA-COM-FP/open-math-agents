@@ -318,6 +318,9 @@ else:  # reduction
 
 ok = not errors
 out.update(ok=ok, kind=target["kind"], polarity=polarity, theorem=theorem, imports=target["import"], errors=errors)
+# The statement the submitted theorem must have, exactly as written in the file (tools/check.sh re-checks it from the
+# root namespace: inside `theorem OMA.solution : ...` names resolve in namespace OMA first).
+out["target"] = target.get("statement") or ""
 if target.get("decl"):
     out["decl"] = target["decl"]
 if target.get("reduction"):
