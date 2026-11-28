@@ -55,5 +55,13 @@
   "logo": "/sponsor-logos/swaymak.svg",
   "tier": "backer",
   "since": "2026-11-28"
+ },
+ {
+  "name": "Green AI Cloud",
+  "url": "https://greenai.cloud",
+  "logo": "/sponsor-logos/greenai.svg",
+  "tier": "supporter",
+  "since": "2026-11-28",
+  "showName": true
  }
 ]
