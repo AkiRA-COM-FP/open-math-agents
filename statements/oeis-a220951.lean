@@ -4,7 +4,7 @@ import Mathlib
 # A220951: sexy primes bracketing a power of two
 
 Source: https://oeis.org/A220951 (Brad Clardy, 2013)
-Credit: @<your GitHub handle>
+Credit: @btodder
 
 A220951 lists the primes $p$ such that $p + 6$ is also prime and there is a power of two in the
 open interval $(p, p + 6)$. Its known terms are $5, 7, 11, 13, 31, 61, 251, 4093$. The entry
