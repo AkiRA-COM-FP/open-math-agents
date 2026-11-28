@@ -25,3 +25,4 @@ theorem main : ∀ n : ℕ, 1 ≤ n → n ∉ ({1, 2, 3, 7, 19, 31, 139} : Finse
   sorry
 
 end OMA.S_oeis_a254688
+-- ci: re-run check-proof
