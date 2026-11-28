@@ -18742,6 +18742,152 @@
     "https://oeis.org/A061232"
    ],
    "reason": "With the entry's offset 0 (a(2)=2, a(3)=6), Bouayoun's conjecture as printed (n+1/2 <= a(n)/a(n-1) <= n+2/3 for n>2) already fails at n=3, since 6/2=3. The main disproof uses only this, so it exploits an indexing slip. The intended reading is a(n+1)/a(n), which fits the data: 21/6=3.5 and 98/21=4.67. The proof file also proves, as an auxiliary theorem, that the upper bound of the shifted reading fails for some 3<=n<2^48. That is a real disproof, but it is not the accepted main statement, so the statement should be redone with a(n+1)/a(n)."
+  },
+  "oeis-a280371": {
+   "date": "2026-11-28",
+   "pr": 27931,
+   "evidence": [
+    "https://oeis.org/A280371"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 260 (left half, base 10). Barker's recurrence is printed 'n>3', but his own g.f. in the same entry has numerator degree 12, so it can only hold from n=13 on; the disproof uses only the early failure at n=5 (101000 vs 100000). My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=13. The intended conjecture is true and not addressed."
+  },
+  "oeis-a280373": {
+   "date": "2026-11-28",
+   "pr": 28031,
+   "evidence": [
+    "https://oeis.org/A280373"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 260 (left half, base 2). Barker's recurrence is printed 'n>3', but his own g.f. in the same entry has numerator degree 12, so it can only hold from n=13 on; the disproof uses only the early failure at n=5 (40 vs 32). My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=13. The intended conjecture is true and not addressed."
+  },
+  "oeis-a280608": {
+   "date": "2026-11-28",
+   "pr": 28118,
+   "evidence": [
+    "https://oeis.org/A280608"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 294 (left half, base 2). Barker's closed form (n>3) is true, but his recurrence a(n)=a(n-1)+4a(n-2)-4a(n-3) is printed 'n>4'; it fails only at n=6 (65 vs 69) and holds for n>=7, as Gutkovskiy's degree-6 g.f. in the same entry implies. My simulation matches the data; the closed form and g.f. hold to n=130. The intended conjecture is true and not addressed."
+  },
+  "oeis-a280610": {
+   "date": "2026-11-28",
+   "pr": 28142,
+   "evidence": [
+    "https://oeis.org/A280610"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 294 (right half, base 2). Barker's closed form 4-3(-1)^n+2^n (n>3) is true, but the recurrence is printed 'n>4'; it fails only at n=6 and holds for n>=7, consistent with Gutkovskiy's degree-6 g.f. My simulation matches the data and all corrected formulas to n=130. The intended conjecture is true and not addressed."
+  },
+  "oeis-a281217": {
+   "date": "2026-11-28",
+   "pr": 28082,
+   "evidence": [
+    "https://oeis.org/A281217"
+   ],
+   "reason": "Keller's printed formula has 52*floor(16^k/15) where floor(52*16^k/15) is evidently meant (k=floor(n/4)): the printed version gives 0, 52, 884, ... at n = 1 mod 4 instead of a(n) = 3, 55, 887, ..., and the disproof uses n=1 (0 vs 3). With the 52 inside the floor the formula matches my simulation of Rule 342 (right half, base 2) for all n<=130. A parenthesization typo exploited; the intended formula is true and not addressed."
+  },
+  "oeis-a282485": {
+   "date": "2026-11-28",
+   "pr": 28164,
+   "evidence": [
+    "https://oeis.org/A282485"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 478 (right half, base 2). Barker's recurrence is printed 'n>6', but his own g.f. in the same entry has numerator degree 10, so it can only hold from n=11 on; the disproof uses only the early failure at n=10. My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=11. The intended conjecture is true and not addressed."
+  },
+  "oeis-a282653": {
+   "date": "2026-11-28",
+   "pr": 27956,
+   "evidence": [
+    "https://oeis.org/A282653"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 491 (right half, base 10). Barker's recurrence is printed 'n>5', but his own g.f. in the same entry has numerator degree 11, so it can only hold from n=12 on; the disproof uses only the early failure at n=7. My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=12. The intended conjecture is true and not addressed."
+  },
+  "oeis-a282826": {
+   "date": "2026-11-28",
+   "pr": 27870,
+   "evidence": [
+    "https://oeis.org/A282826"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 521 (left half, base 10). Barker's recurrence is printed 'n>15', but his own g.f. in the same entry has numerator degree 17, so it can only hold from n=18 on; the disproof uses only the early failure at n=17 (via the g.f. coefficient). My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=18. The intended conjecture is true and not addressed."
+  },
+  "oeis-a282827": {
+   "date": "2026-11-28",
+   "pr": 27879,
+   "evidence": [
+    "https://oeis.org/A282827"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 521 (right half, base 10). Barker's recurrence is printed 'n>15', but his own g.f. in the same entry has numerator degree 17, so it can only hold from n=18 on; the disproof uses only the early failure at n=17 (via the g.f. coefficient). My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=18. The intended conjecture is true and not addressed."
+  },
+  "oeis-a282829": {
+   "date": "2026-11-28",
+   "pr": 27893,
+   "evidence": [
+    "https://oeis.org/A282829"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 521 (right half, base 2). Barker's recurrence is printed 'n>15', but his own g.f. in the same entry has numerator degree 17, so it can only hold from n=18 on; the disproof uses only the early failure at n=17 (via the g.f. coefficient). My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=18. The intended conjecture is true and not addressed."
+  },
+  "oeis-a282917": {
+   "date": "2026-11-28",
+   "pr": 28186,
+   "evidence": [
+    "https://oeis.org/A282917"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 529 (left half, base 2). Barker's recurrence is printed 'n>6', but his own g.f. in the same entry has numerator degree 10, so it can only hold from n=11 on; the disproof uses only the early failure at n=10. My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=11. The intended conjecture is true and not addressed."
+  },
+  "oeis-a282918": {
+   "date": "2026-11-28",
+   "pr": 28196,
+   "evidence": [
+    "https://oeis.org/A282918"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 529 (right half, base 2). Barker's recurrence is printed 'n>6', but his own g.f. in the same entry has numerator degree 10, so it can only hold from n=11 on; the disproof uses only the early failure at n=10. My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=11. The intended conjecture is true and not addressed."
+  },
+  "oeis-a283349": {
+   "date": "2026-11-28",
+   "pr": 28207,
+   "evidence": [
+    "https://oeis.org/A283349"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 617 (left half, base 2). Barker's g.f. and closed form (n>3) are true, but the recurrence a(n)=a(n-1)+4a(n-2)-4a(n-3) is printed 'n>4'; it fails only at n=6 and holds for n>=7, as the degree-6 g.f. implies. My simulation matches the data and the corrected formulas to n=130. The intended conjecture is true and not addressed."
+  },
+  "oeis-a283712": {
+   "date": "2026-11-28",
+   "pr": 28220,
+   "evidence": [
+    "https://oeis.org/A283712"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 758 (left half, base 10). Barker's recurrence is printed 'n>4', but his own g.f. in the same entry has numerator degree 8, so it can only hold from n=9 on; the disproof uses only the early failure at n=6. My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=9. The intended conjecture is true and not addressed."
+  },
+  "oeis-a284175": {
+   "date": "2026-11-28",
+   "pr": 27905,
+   "evidence": [
+    "https://oeis.org/A284175"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 809 (left half, base 10). Barker's recurrence is printed 'n>14', but his own g.f. in the same entry has numerator degree 17, so it can only hold from n=18 on; the disproof uses only the early failure at n=17 (via the g.f. coefficient). My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=18. The intended conjecture is true and not addressed."
+  },
+  "oeis-a284176": {
+   "date": "2026-11-28",
+   "pr": 27918,
+   "evidence": [
+    "https://oeis.org/A284176"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 809 (right half, base 10). Barker's recurrence is printed 'n>14', but his own g.f. in the same entry has numerator degree 17, so it can only hold from n=18 on; the disproof uses only the early failure at n=17 (via the g.f. coefficient). My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=18. The intended conjecture is true and not addressed."
+  },
+  "oeis-a284177": {
+   "date": "2026-11-28",
+   "pr": 27930,
+   "evidence": [
+    "https://oeis.org/A284177"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 809 (left half, base 2). Barker's recurrence is printed 'n>14', but his own g.f. in the same entry has numerator degree 17, so it can only hold from n=18 on; the disproof uses only the early failure at n=17 (via the g.f. coefficient). My simulation (whole plane, background evolving) reproduces the data, the g.f. holds to n=130 and the recurrence holds for every n>=18. The intended conjecture is true and not addressed."
+  },
+  "oeis-a288429": {
+   "date": "2026-11-28",
+   "pr": 27740,
+   "evidence": [
+    "https://oeis.org/A288429",
+    "https://oeis.org/A288426",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "The comment's map '1->100' is a misprint for '10->100' (the cited A288426 map). The disproof refutes the misprinted version at n=2 (length 8 vs 5). With 10->100 the lengths match A288429 in my iteration to n=38, and Ashburn (Zenodo 23407381, Oct 2026) already identified the misprint and proved the intended version. The disproof exploits a typo; the intended conjecture is not addressed by this proof."
   }
  },
  "known": {
@@ -35205,6 +35351,182 @@
     "https://mathoverflow.net/questions/447657"
    ],
    "reason": "The site disproves 'going down implies Spec B -> Spec A is open' with Z -> Q. This is exactly the counterexample R. van Dobben de Bruyn gave in a 2023-05-27 comment ('A localisation is an easy counterexample; for instance Z -> Q'), and the asker replied 'Thanks a lot'. Faithful, but already settled on the source."
+  },
+  "oeis-a285665": {
+   "date": "2026-11-28",
+   "pr": 29121,
+   "evidence": [
+    "https://oeis.org/A285665",
+    "https://doi.org/10.5281/zenodo.23407381",
+    "https://github.com/blakestone-x/math/tree/main/Kimberling-pair-rules"
+   ],
+   "reason": "Kimberling's length conjecture for 00->001, 1->000 (order-7 recurrence, a(7)=90) is stated faithfully and my iteration confirms it to n=26. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables). Also proved in Lean in blakestone-x/math Kimberling-pair-rules (manuscript dated 26 Nov 2026), before this merge (28 Nov)."
+  },
+  "oeis-a286059": {
+   "date": "2026-11-28",
+   "pr": 28356,
+   "evidence": [
+    "https://oeis.org/A286059",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Length conjecture for 00->001, 1->011 = A286062, stated faithfully; my iteration confirms it. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables). It is also a duplicate of this site's A286062 statement, merged 28 Nov 13:07 UTC, before this merge (14:24 UTC)."
+  },
+  "oeis-a286938": {
+   "date": "2026-11-28",
+   "pr": 27842,
+   "evidence": [
+    "https://oeis.org/A286938",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Kimberling's recurrence for the lengths of 00->001, 1->10 ('for 5 >= 0' read as n>=5) is stated faithfully and holds in my iteration to n=32. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables). Its Theorem 1(d) proves exactly this recurrence for n>=5."
+  },
+  "oeis-a287185": {
+   "date": "2026-11-28",
+   "pr": 29147,
+   "evidence": [
+    "https://oeis.org/A287185",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Length conjecture for 00->0010, 1->00 (the statement follows the g.f. and data; the name's recurrence drops a zero coefficient, as Ashburn notes) holds in my iteration to n=23. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a287439": {
+   "date": "2026-11-28",
+   "pr": 28760,
+   "evidence": [
+    "https://oeis.org/A287439",
+    "https://doi.org/10.5281/zenodo.23407381",
+    "https://oeis.org/A287372"
+   ],
+   "reason": "Length conjecture for 00->1000, 10->000 (initial values a(0..2)=2,4,7 as in the data; the name mislabels them) holds in my iteration. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables). Dekking already proved the same statement in the OEIS in 2018 (A287372/A287457 comments), as Ashburn records."
+  },
+  "oeis-a288170": {
+   "date": "2026-11-28",
+   "pr": 29077,
+   "evidence": [
+    "https://oeis.org/A288170",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Length conjecture for 00->0010, 1->000; the statement uses the data/g.f. recurrence (the name misprints -4a(n-3) and the start, as Ashburn notes). My iteration confirms it to n=21. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a288380": {
+   "date": "2026-11-28",
+   "pr": 27987,
+   "evidence": [
+    "https://oeis.org/A288380",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Length conjecture for 00->0001, 1->10 (recurrence from n>=5, not n>=1 as printed) holds in my iteration to n=23. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a288466": {
+   "date": "2026-11-28",
+   "pr": 28515,
+   "evidence": [
+    "https://oeis.org/A288466",
+    "https://doi.org/10.5281/zenodo.23407381",
+    "https://oeis.org/A288260"
+   ],
+   "reason": "Length conjecture for 00->0101, 1->010 = A288260, stated faithfully; my iteration confirms it. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables). Dekking stated the same conjecture in A288260 in 2020 (not a proof). The site's A288260 solve merged later (14:58 UTC), so it is not the prior source."
+  },
+  "oeis-a288524": {
+   "date": "2026-11-28",
+   "pr": 28534,
+   "evidence": [
+    "https://oeis.org/A288524",
+    "https://doi.org/10.5281/zenodo.23407381",
+    "https://github.com/blakestone-x/math/tree/main/A288523"
+   ],
+   "reason": "Length conjecture for 00->0101, 10->010 = A288523, stated faithfully. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables). Also a duplicate of this site's A288523 statement (merged 12:05 UTC, before this 14:29 UTC merge) and proved in blakestone-x/math A288523 (27 Nov 2026)."
+  },
+  "oeis-a288551": {
+   "date": "2026-11-28",
+   "pr": 28520,
+   "evidence": [
+    "https://oeis.org/A288551",
+    "https://doi.org/10.5281/zenodo.23407381",
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Words/KimberlingA288476Length.lean"
+   ],
+   "reason": "Length conjecture for 00->0101, 1->011 = A288476, stated faithfully. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables). Also proved in trureturing D5/S1/Words/KimberlingA288476Length.lean (committed 11 Nov 2026) and a duplicate of this site's A288476 statement (merged 13:07 UTC, before this 14:28 UTC merge)."
+  },
+  "oeis-a288596": {
+   "date": "2026-11-28",
+   "pr": 28524,
+   "evidence": [
+    "https://oeis.org/A288596",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Length conjecture for 00->0101, 10->1000 = A288599 (recurrence from n>=5 as the data require), stated faithfully. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables). Also a duplicate of this site's A288599 statement (merged 13:25 UTC, before this 14:28 UTC merge)."
+  },
+  "oeis-a288633": {
+   "date": "2026-11-28",
+   "pr": 28509,
+   "evidence": [
+    "https://oeis.org/A288633",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Length conjecture for 00->0110, 1->10 = A288465, stated faithfully; my iteration confirms it to n=25. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a287440": {
+   "date": "2026-11-28",
+   "pr": 28034,
+   "evidence": [
+    "https://oeis.org/A287440",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Kimberling's limit-and-bound conjecture for the positions in A287382 (0-limiting word of 00->1000, 10->001), zeros is stated faithfully (limiting word read off the even/odd iterates, positions from 1). My iteration reproduces the data, gives m ~ 1.45491 and the bound (-1,1) on >= 2*10^5 terms. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a287448": {
+   "date": "2026-11-28",
+   "pr": 28041,
+   "evidence": [
+    "https://oeis.org/A287448",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Kimberling's limit-and-bound conjecture for the positions in A287382, ones is stated faithfully (limiting word read off the even/odd iterates, positions from 1). My iteration reproduces the data, gives m ~ 3.19820 and the bound (-1,2) on >= 2*10^5 terms. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a287531": {
+   "date": "2026-11-28",
+   "pr": 28054,
+   "evidence": [
+    "https://oeis.org/A287531",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Kimberling's limit-and-bound conjecture for the positions in A287530 (1-limiting word), zeros is stated faithfully (limiting word read off the even/odd iterates, positions from 1). My iteration reproduces the data, gives m ~ 1.45492 and the bound (-1,1) on >= 2*10^5 terms. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a287551": {
+   "date": "2026-11-28",
+   "pr": 28065,
+   "evidence": [
+    "https://oeis.org/A287551",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Kimberling's limit-and-bound conjecture for the positions in A287530, ones is stated faithfully (limiting word read off the even/odd iterates, positions from 1). My iteration reproduces the data, gives m ~ 3.19820 and the bound (-1,3) on >= 2*10^5 terms. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a288623": {
+   "date": "2026-11-28",
+   "pr": 29109,
+   "evidence": [
+    "https://oeis.org/A288623",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Kimberling's limit-and-bound conjecture for the positions in A288622 (00->0110, 1->01), zeros is stated faithfully (limiting word read off the even/odd iterates, positions from 1). My iteration reproduces the data, gives m ~ 1.83929 (Tribonacci constant) and the bound (-1,1) on >= 2*10^5 terms. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a288624": {
+   "date": "2026-11-28",
+   "pr": 29117,
+   "evidence": [
+    "https://oeis.org/A288624",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Kimberling's limit-and-bound conjecture for the positions in A288622, ones is stated faithfully (limiting word read off the even/odd iterates, positions from 1). My iteration reproduces the data, gives m ~ 2.19149 and the bound (-1,1) on >= 2*10^5 terms. Alex Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) proves it for all n (token morphism plus finite window/interval checks; see its Section 8 tables)."
+  },
+  "oeis-a288205": {
+   "date": "2026-11-28",
+   "pr": 28750,
+   "evidence": [
+    "https://oeis.org/A288205",
+    "https://doi.org/10.5281/zenodo.23407381"
+   ],
+   "reason": "Disproof of Maiga's printed formula a(n)=Sum_{k=1..n}(4-A036987(k)) at n=2 (7 vs 6). It is an offset slip: Sum_{k=0..n-1} holds on all terms I checked. Ashburn (Zenodo 23407381, 16 Oct 2026, Theorem 11) already proved a(n)=4n-floor(log2 n)-1 and showed the printed formula fails first at n=2. So the refutation is known and the corrected version is proved there."
   }
  },
  "reviewed": "2026-11-28"
