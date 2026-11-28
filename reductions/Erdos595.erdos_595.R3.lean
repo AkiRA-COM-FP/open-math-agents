@@ -782,6 +782,86 @@ theorem blocked_degree_intersection {I : Type} (R : I → I → Prop) (loop : �
     exact (proper a b ⟨ha,hb,r,g a,(allowed a).resolve_left ha,
       c ▸ (allowed b).resolve_left hb,ab,ba⟩ c).elim
 
+/-- A blocked assignment on C forces a prescribed edge outside any countable
+family of closed neighbourhoods in a triangle-free ambient graph. -/
+private theorem blocked_escape_neighbours {I J : Type} [Countable J] (G : SimpleGraph I)
+    (free : G.CliqueFree 3) (C : Set I) (old : I → I → ℕ) (p : ℕ → ℕ)
+    (bad : ∀ d : I → ℕ, ∃ a b, a ∈ C ∧ b ∈ C ∧ G.Adj a b ∧ d a = d b ∧ old a b = p (d a))
+    (centre : J → I) (m : ℕ) :
+    ∃ a b, a ∈ C ∧ b ∈ C ∧ G.Adj a b ∧ old a b = p m ∧
+      (∀ j, a ≠ centre j ∧ ¬G.Adj (centre j) a) ∧
+      (∀ j, b ≠ centre j ∧ ¬G.Adj (centre j) b) := by
+  classical
+  let := Encodable.ofCountable J
+  let close (x : I) := ∃ j, x = centre j ∨ G.Adj (centre j) x
+  let tag (x : I) (h : close x) : J × Bool := (h.choose,decide (x = centre h.choose))
+  let d (x : I) := if h : close x then m+1+Encodable.encode (tag x h) else m
+  obtain ⟨a,b,ha,hb,ab,same,hit⟩ := bad d
+  have away x (hx : ¬close x) (j : J) : x ≠ centre j ∧ ¬G.Adj (centre j) x :=
+    ⟨fun eq => hx ⟨j,Or.inl eq⟩,fun e => hx ⟨j,Or.inr e⟩⟩
+  have inside x (hx : close x) : d x = m+1+Encodable.encode (tag x hx) := dif_pos hx
+  have outside x (hx : ¬close x) : d x = m := dif_neg hx
+  by_cases ca : close a <;> by_cases cb : close b
+  · rw [inside a ca,inside b cb] at same
+    have code : Encodable.encode (tag a ca) = Encodable.encode (tag b cb) := by omega
+    have eq := Encodable.encode_injective code
+    have j : ca.choose = cb.choose := congrArg Prod.fst eq
+    have flag : decide (a = centre ca.choose) = decide (b = centre cb.choose) := congrArg Prod.snd eq
+    rw [←j] at flag
+    by_cases ac : a = centre ca.choose
+    · have bc : b = centre ca.choose := by
+        rw [decide_eq_true ac] at flag
+        exact of_decide_eq_true flag.symm
+      exact (ab.ne (ac.trans bc.symm)).elim
+    · have bc : b ≠ centre ca.choose := by
+        rw [decide_eq_false ac] at flag
+        exact of_decide_eq_false flag.symm
+      have e := cb.choose_spec
+      rw [←j] at e
+      exact (free _ (is3Clique_triple_iff.mpr ⟨ca.choose_spec.resolve_left ac,e.resolve_left bc,ab⟩)).elim
+  · rw [inside a ca,outside b cb] at same
+    omega
+  · rw [outside a ca,inside b cb] at same
+    omega
+  · rw [outside a ca] at hit
+    exact ⟨a,b,ha,hb,ab,hit,away a ca,away b cb⟩
+
+/-- Apply inside the surviving intersection of blocked_degree_intersection,
+using the triangle-free graph induced on the rim and p n = 4*n+2.
+Any prescribed sequence of palette colours along a well-order with countable
+initial segments (in particular omega_1) is realized by an induced matching. -/
+theorem blocked_induced_matching {I K : Type} [LinearOrder K] [WellFoundedLT K]
+    (small : ∀ k : K, (Set.Iio k).Countable) (G : SimpleGraph I) (free : G.CliqueFree 3)
+    (C : Set I) (old : I → I → ℕ) (p : ℕ → ℕ)
+    (bad : ∀ d : I → ℕ, ∃ a b, a ∈ C ∧ b ∈ C ∧ G.Adj a b ∧ d a = d b ∧ old a b = p (d a))
+    (colour : K → ℕ) :
+    ∃ e : K → Bool → I, (∀ k, e k false ∈ C ∧ e k true ∈ C ∧ G.Adj (e k false) (e k true) ∧
+      old (e k false) (e k true) = p (colour k)) ∧
+      ∀ i j, i < j → ∀ s t, e j t ≠ e i s ∧ ¬G.Adj (e i s) (e j t) := by
+  classical
+  let Past (k : K) := (i : K) → i < k → Bool → I
+  have choosePair (k : K) (prev : Past k) : ∃ f : Bool → I,
+      (f false ∈ C ∧ f true ∈ C ∧ G.Adj (f false) (f true) ∧ old (f false) (f true) = p (colour k)) ∧
+      ∀ i (lt : i < k) s t, f t ≠ prev i lt s ∧ ¬G.Adj (prev i lt s) (f t) := by
+    let : Countable (Set.Iio k) := small k
+    let centre (z : Set.Iio k × Bool) := prev z.1.val z.1.prop z.2
+    obtain ⟨a,b,ha,hb,ab,hit,aa,bb⟩ := blocked_escape_neighbours G free C old p bad centre (colour k)
+    refine ⟨(fun t => if t then b else a),⟨ha,hb,ab,hit⟩,?_⟩
+    intro i lt s t
+    cases t
+    · exact aa (⟨i,lt⟩,s)
+    · exact bb (⟨i,lt⟩,s)
+  let step (k : K) (prev : Past k) := (choosePair k prev).choose
+  let e : K → Bool → I := wellFounded_lt.fix step
+  have rule (k : K) : e k = step k (fun i _ => e i) := WellFounded.fix_eq _ _ k
+  refine ⟨e,?_,?_⟩
+  · intro k
+    rw [rule k]
+    exact (choosePair k _).choose_spec.1
+  · intro i j lt s t
+    rw [rule j]
+    exact (choosePair j (fun z _ => e z)).choose_spec.2 i lt s t
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
