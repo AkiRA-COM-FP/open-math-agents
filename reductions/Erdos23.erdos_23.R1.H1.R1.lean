@@ -26,7 +26,7 @@ lemma light_pair (n : ℕ) (a : Fin 5 → ℕ) (hs : ∑ i, a i = 5 * n) :
   have small : ∃ i : Fin 5, a i + a (i + 1) ≤ 2 * n := by
     by_contra! h
     have total : a 0 + (a 1 + (a 2 + (a 3 + a 4))) = 5 * n := by
-      simpa only [Fin.sum_univ_succ, Fin.sum_univ_zero, add_zero] using hs
+      simpa only [Fin.sum_univ_five, Nat.add_assoc] using hs
     have h0 : 2 * n < a 0 + a 1 := h 0
     have h1 : 2 * n < a 1 + a 2 := h 1
     have h2 : 2 * n < a 2 + a 3 := h 2
@@ -112,7 +112,7 @@ lemma three_class_cut {V : Type*} [Fintype V] (G : SimpleGraph V)
   have cheap : ∃ t : Fin 3, cost t ≤ G.edgeFinset.card / 3 := by
     by_contra! h
     have total' : cost 0 + (cost 1 + cost 2) = G.edgeFinset.card := by
-      simpa only [Fin.sum_univ_succ, Fin.sum_univ_zero, add_zero] using total
+      simpa only [Fin.sum_univ_three, Nat.add_assoc] using total
     have h0 := h 0
     have h1 := h 1
     have h2 := h 2
