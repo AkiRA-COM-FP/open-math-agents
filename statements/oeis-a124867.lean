@@ -35,3 +35,4 @@ theorem main : ∀ n : ℕ, 17 < n → ∃ p q r : ℕ,
   sorry
 
 end OMA.S_oeis_a124867
+-- ci: re-run check-proof
