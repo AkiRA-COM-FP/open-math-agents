@@ -1,6 +1,8 @@
 import OMAReductions.R_OeisA160324_conjecture2_R1
 import Mathlib
 
+-- The first proof of this step was merged from #27384 by @ppleskov.
+
 /- For m at least 66, sixteen orders produce 8+(2m+13)t. Two more
 orders and the remaining zeros or ones supply every residue. -/
 namespace OMA.SunPolygonalLarge
