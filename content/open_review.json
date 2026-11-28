@@ -11369,6 +11369,51 @@
     "https://oeis.org/A133058"
    ],
    "reason": "The formal statement covers only Sloane's observation that this specific sequence enters the loop (1,x,2x,2) at n=638. That is a kernel computation of a(638)=1 plus a trivial 4-step induction, which Sloane's own comment already spells out ('if at some point a(2k)=1 ... from that point on'). The open parts are Zizka's claims (every starting value reaches a loop; quasi-periodicity only for R<=3), and the docstring explicitly excludes them. So nothing open was proved."
+  },
+  "oeis-a216442": {
+   "date": "2026-11-28",
+   "pr": 26149,
+   "evidence": [
+    "https://oeis.org/A216442",
+    "https://oeis.org/A004050"
+   ],
+   "reason": "Trivial. The claim is that infinitely many n have two representations 2^i+3^j+5^k. Since 2^1+3^1 = 2^2+3^0 = 5, the triples (1,1,k) and (2,0,k) both give 5+5^k for every k. The formalization is faithful, but there is nothing open here, and the 1.2 KB proof is essentially this identity."
+  },
+  "oeis-a217448": {
+   "date": "2026-11-28",
+   "pr": 23180,
+   "evidence": [
+    "https://oeis.org/A217448",
+    "https://oeis.org/A089120"
+   ],
+   "reason": "Trivial. Let p = minFac(1+n^2) and k = p!. Then every prime q <= p divides k, so q | 1+(n+k)^2 iff q | 1+n^2, and the smallest prime factors agree. 'a(n) exists for all n' follows in three lines from this observation, which is exactly the proof. The statement is faithful."
+  },
+  "oeis-a219367": {
+   "date": "2026-11-28",
+   "pr": 26423,
+   "evidence": [
+    "https://oeis.org/A219367",
+    "https://oeis.org/A219373"
+   ],
+   "reason": "The disproof exploits Barker's stated range. His recurrence is given 'for n>9', but his own g.f. has numerator degree 10, so the recurrence can only start at n = 11. The proof combines the g.f. coefficient at x^10 with the recurrence at n = 10. Using the listed data, I checked that the g.f. holds exactly (numerator 4,-23,...,-6) and that the recurrence holds for every n >= 11, failing only at n = 10 (by -6). Barker's substantive conjecture is untouched."
+  },
+  "oeis-a219853": {
+   "date": "2026-11-28",
+   "pr": 26424,
+   "evidence": [
+    "https://oeis.org/A219853",
+    "https://oeis.org/A219852"
+   ],
+   "reason": "The disproof uses only Barker's off-by-one range. The recurrence a(n) = 3a(n-1)-3a(n-2)+a(n-3) is stated 'for n>5', but his g.f. numerator has an x^7 term, so it can only start at n = 8. The proof shows a(4..7) = 33,56,86,125, which matches the data, and 125 != 3*86-3*56+33 = 123. The real conjecture (the g.f., or the recurrence for n > 7) is not addressed."
+  },
+  "oeis-a227021": {
+   "date": "2026-11-28",
+   "pr": 26329,
+   "evidence": [
+    "https://oeis.org/A227021",
+    "https://oeis.org/A227025"
+   ],
+   "reason": "The disproof uses only Barker's off-by-one range. The recurrence is stated 'for n>6', but his own g.f. numerator x(7-16x+21x^2-11x^3+7x^4-6x^5+x^7) has degree 8, so the coefficient identity at n = 8 forces the recurrence to fail there. The proof derives the contradiction from the two conjuncts alone, without evaluating the sequence. In the data, the recurrence fails only at n = 8 (by 1) and holds for n >= 9. The substantive g.f. conjecture is untouched."
   }
  },
  "known": {
@@ -21392,6 +21437,26 @@
     "https://oeis.org/A135499"
    ],
    "reason": "The statement that alternating-digit-sum-balanced numbers are multiples of 11 is faithful. The entry itself already settles it: Zak Seidov (Feb 11 2008) 'Subsequence of A008593', and Jens Kruse Andersen (Jul 13 2014) 'That follows trivially from the divisibility rule for 11.'"
+  },
+  "oeis-a216440": {
+   "date": "2026-11-28",
+   "pr": 26986,
+   "evidence": [
+    "https://oeis.org/A216440",
+    "https://en.wikipedia.org/wiki/Faro_shuffle",
+    "https://oeis.org/A002326"
+   ],
+   "reason": "Kiolein's conjecture: the number of in-shuffles that reverse 2(n-1) cards is the least m with 2n-1 | 2^m+1. The formalization of the in-shuffle matches the entry's example [1,2,3,4] -> [3,1,4,2]. This is classical. Diaconis-Graham-Kantor (1983) describe the in-shuffle of 2k cards as x -> 2x mod (2k+1), and reversal is x -> -x, so m in-shuffles reverse the deck iff 2^m = -1 mod 2k+1. Wikipedia's Faro shuffle article, citing DGK p.193, gives the 52-card case (26 in-shuffles reverse the deck). The general statement is a one-line consequence of that published description."
+  },
+  "oeis-a217976": {
+   "date": "2026-11-28",
+   "pr": 25438,
+   "evidence": [
+    "https://oeis.org/A217976",
+    "https://oeis.org/A217866",
+    "https://github.com/lefttosolve2/open-math-agents/pull/25365"
+   ],
+   "reason": "This is a duplicate. The formal theorem is word for word the one for A217866 (the same 'last n before first n+2' conjecture, which both entries carry), and the proof file is identical. The A217866 solve (PR 25365, same author) was committed first, so this is an earlier solve on this site of the same statement."
   }
  },
  "reviewed": "2026-11-28"
