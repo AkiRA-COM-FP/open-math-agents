@@ -2,7 +2,7 @@ import FormalConjectures.ErdosProblems.«617»
 
 /-! Use the slope of an edge over the prime field to color the pair. For a
 prescribed slope, use the repeated intercept in the selected vertex subtype.
-The construction is from @Deldor14's original proof. -/
+This uses the original slope-coloring construction. -/
 
 theorem OMA.solution : type_of% @Erdos617.erdos_617.variants.r2 := by
   classical
