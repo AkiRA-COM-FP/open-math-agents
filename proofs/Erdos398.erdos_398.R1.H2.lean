@@ -5,8 +5,6 @@ import Mathlib.Algebra.Ring.Parity
 /-! Brocard's equation as a consecutive-factor equation, and a checked prefix. -/
 
 namespace OMA.Erdos398Brocard
-set_option maxRecDepth 20000 in
-set_option maxHeartbeats 2000000 in
 private theorem finite_sqrt_values :
     ∀ j : Fin 128,
       (j.val.factorial + 1).sqrt ^ 2 = j.val.factorial + 1 ↔
