@@ -20,36 +20,37 @@ Let `f(n) = min_{1 < k ≤ n/2} gcd(n, C(n, k))` and let `Q(n)` be the largest p
   (`log_rpow_le_sqrt`), so `f(n) ≤ (2 A) ^ A n / (log n) ^ A`.
 * `nonflat_bound`: so `f(n) ≤ max(1, (2 A) ^ A) n / (log n) ^ A` for every composite `n` with
   `Q(n) ≥ (log n) ^ A`.
-* `flat_log_bound`: if `Q(n) < L` then every prime factor of `n` is below `L` and
-  `n ≤ Q(n) ^ ω(n)`, so `log n ≤ (L + 1) log L`.
-* `flat_small`: for `A < 1`, with `L = (log n) ^ A` this fails for large `n` (`key_ineq`), so only
-  finitely many `n` are flat, and they cost a constant (`f(n) ≤ n`, `f_le_self`).
+* `le_four_pow_mul`: `n ≤ 4 ^ Q(n) * Q(n) ^ (√Q(n) + 1)`, since the primes of `n` contribute at
+  most the primorial of `Q(n)` (at most `4 ^ Q(n)`) and only primes `p ≤ √Q(n)` occur squared.
+* `log_le_six_Q`: hence `log n ≤ 6 Q(n)` for every `n > 1`.
+* `es_bound`: so `f(n) ≤ n / Q(n) ≤ 6 n / log n` for every composite `n` that is not a prime
+  power, and also for prime powers: the Erdős–Szekeres bound `f(n) ≪ n / log n`, with constant
+  `6` in place of their `1 + o(1)`.
 
-So `main` proves the target outright for every `0 < A < 1`, and for `A ≥ 1` on every composite
-`n` with `Q(n) ≥ (log n) ^ A`. What remains are the flat composite `n` for `A ≥ 1`, whose
-prime-power divisors all lie below `(log n) ^ A`. The two hypotheses are the target on these
-numbers, split by squarefreeness; each is a special case of the target. (`A = 1` is the
-Erdős–Szekeres bound, which they prove; `A > 1` is open.)
+So `main` proves the target outright for every `0 < A ≤ 1`, and for `A > 1` on every composite
+`n` with `Q(n) ≥ (log n) ^ A`. What remains, exactly the open range `A > 1`, are the flat
+composite `n`, whose prime-power divisors all lie below `(log n) ^ A`. The two hypotheses are the
+target on these numbers, split by squarefreeness; each is a special case of the target.
 
-* `H1`: for `A ≥ 1`, the bound for squarefree flat composite `n` (all prime factors below
+* `H1`: for `A > 1`, the bound for squarefree flat composite `n` (all prime factors below
   `(log n) ^ A`).
-* `H2`: for `A ≥ 1`, the bound for flat composite `n` that are not squarefree.
+* `H2`: for `A > 1`, the bound for flat composite `n` that are not squarefree.
 -/
 
 namespace OMA.R_Erdos700_erdos_700_parts_iii_R1
 
 open Erdos700
 
-/-- For `A ≥ 1`: the bound `f(n) ≤ C n / (log n) ^ A` for squarefree composite `n` all of whose
+/-- For `A > 1`: the bound `f(n) ≤ C n / (log n) ^ A` for squarefree composite `n` all of whose
 prime factors (equivalently its largest prime-power divisor `Q n`) lie below `(log n) ^ A`. -/
 def H1 : Prop :=
-  ∀ A : ℝ, 1 ≤ A → ∃ C : ℝ, 0 < C ∧ ∀ n : ℕ, ¬ n.Prime → 1 < n → Squarefree n →
+  ∀ A : ℝ, 1 < A → ∃ C : ℝ, 0 < C ∧ ∀ n : ℕ, ¬ n.Prime → 1 < n → Squarefree n →
     (Q n : ℝ) < Real.log n ^ A → (f n : ℝ) ≤ C * (n : ℝ) / Real.log n ^ A
 
-/-- For `A ≥ 1`: the bound `f(n) ≤ C n / (log n) ^ A` for composite `n` that are not squarefree
+/-- For `A > 1`: the bound `f(n) ≤ C n / (log n) ^ A` for composite `n` that are not squarefree
 and whose largest prime-power divisor `Q n` lies below `(log n) ^ A`. -/
 def H2 : Prop :=
-  ∀ A : ℝ, 1 ≤ A → ∃ C : ℝ, 0 < C ∧ ∀ n : ℕ, ¬ n.Prime → 1 < n → ¬ Squarefree n →
+  ∀ A : ℝ, 1 < A → ∃ C : ℝ, 0 < C ∧ ∀ n : ℕ, ¬ n.Prime → 1 < n → ¬ Squarefree n →
     (Q n : ℝ) < Real.log n ^ A → (f n : ℝ) ≤ C * (n : ℝ) / Real.log n ^ A
 
 /-- Lucas' theorem, iterated: if `p ^ a ∣ n` then `C(n, p ^ a) ≡ n / p ^ a (mod p)`. -/
@@ -203,100 +204,161 @@ lemma two_le_Q {n : ℕ} (hn1 : 1 < n) : 2 ≤ Q n := by
   rw [hpQ]
   exact (Nat.prime_of_mem_primeFactors hpmem).two_le.trans (prime_le_component hpmem)
 
-/-- `n ≤ Q(n) ^ ω(n)`. -/
-lemma le_Q_pow {n : ℕ} (hn0 : n ≠ 0) : n ≤ Q n ^ n.primeFactors.card := by
-  have h := Nat.prod_factorization_pow_eq_self hn0
-  rw [Finsupp.prod, Nat.support_factorization] at h
-  calc n = ∏ p ∈ n.primeFactors, p ^ n.factorization p := h.symm
-    _ ≤ Q n ^ n.primeFactors.card :=
-        Finset.prod_le_pow_card _ _ _ (fun p hp => component_le_Q hp)
-
-/-- If `Q(n) < L` then `log n ≤ (L + 1) log L`: all prime factors lie below `L`, so there are at
-most `L + 1` of them, and `n ≤ Q(n) ^ ω(n)`. -/
-lemma flat_log_bound {n : ℕ} (hn1 : 1 < n) {L : ℝ} (hQL : (Q n : ℝ) < L) :
-    Real.log n ≤ (L + 1) * Real.log L := by
+/-- `n ≤ 4 ^ Q(n) * Q(n) ^ (⌊√Q(n)⌋ + 1)`. Write `p ^ v = p * p ^ (v - 1)`: the primes contribute
+at most the primorial of `Q(n)`, and only primes `p` with `p * p ≤ Q(n)` occur to a power above
+`1`. -/
+lemma le_four_pow_mul {n : ℕ} (hn1 : 1 < n) :
+    n ≤ 4 ^ Q n * Q n ^ (Nat.sqrt (Q n) + 1) := by
   have hn0 : n ≠ 0 := by omega
-  have hQ2 : (2 : ℝ) ≤ Q n := by exact_mod_cast two_le_Q hn1
-  have hsub : n.primeFactors ⊆ Finset.range ⌈L⌉₊ := by
+  have hq0 : 0 < Q n := by have := two_le_Q hn1; omega
+  have hfac : n = ∏ p ∈ n.primeFactors, p ^ n.factorization p := by
+    have h := Nat.prod_factorization_pow_eq_self hn0
+    rw [Finsupp.prod, Nat.support_factorization] at h
+    exact h.symm
+  have hsplit : ∏ p ∈ n.primeFactors, p ^ n.factorization p =
+      (∏ p ∈ n.primeFactors, p) * ∏ p ∈ n.primeFactors, p ^ (n.factorization p - 1) := by
+    rw [← Finset.prod_mul_distrib]
+    apply Finset.prod_congr rfl
     intro p hp
-    rw [Finset.mem_range]
-    have h2 : (p : ℝ) < L :=
-      lt_of_le_of_lt (by exact_mod_cast (prime_le_component hp).trans (component_le_Q hp)) hQL
-    exact_mod_cast (lt_of_lt_of_le h2 (Nat.le_ceil L))
-  have hcard : (n.primeFactors.card : ℝ) ≤ L + 1 := by
-    have h3 := Finset.card_le_card hsub
-    rw [Finset.card_range] at h3
-    have h4 : (⌈L⌉₊ : ℝ) < L + 1 := Nat.ceil_lt_add_one (by linarith)
-    have h5 : (n.primeFactors.card : ℝ) ≤ ⌈L⌉₊ := by exact_mod_cast h3
-    linarith
-  have hle : (n : ℝ) ≤ (Q n : ℝ) ^ n.primeFactors.card := by exact_mod_cast le_Q_pow hn0
+    have hpp := Nat.prime_of_mem_primeFactors hp
+    have hv : 1 ≤ n.factorization p :=
+      (hpp.dvd_iff_one_le_factorization hn0).1 (Nat.dvd_of_mem_primeFactors hp)
+    rw [← pow_succ']
+    congr 1
+    omega
+  have h1 : ∏ p ∈ n.primeFactors, p ≤ 4 ^ Q n := by
+    calc ∏ p ∈ n.primeFactors, p ≤ primorial (Q n) := by
+          unfold primorial
+          apply Finset.prod_le_prod_of_subset_of_one_le'
+          · intro p hp
+            rw [Finset.mem_filter, Finset.mem_range]
+            exact ⟨Nat.lt_succ_of_le ((prime_le_component hp).trans (component_le_Q hp)),
+              Nat.prime_of_mem_primeFactors hp⟩
+          · intro p hp _
+            exact (Finset.mem_filter.1 hp).2.one_lt.le
+      _ ≤ 4 ^ Q n := primorial_le_four_pow (Q n)
+  have hfilt : ∏ p ∈ n.primeFactors with 2 ≤ n.factorization p, p ^ (n.factorization p - 1) =
+      ∏ p ∈ n.primeFactors, p ^ (n.factorization p - 1) := by
+    apply Finset.prod_filter_of_ne
+    intro p _ hne
+    by_contra hv
+    apply hne
+    have h0 : n.factorization p - 1 = 0 := by omega
+    rw [h0, pow_zero]
+  have hcard : (n.primeFactors.filter (fun p => 2 ≤ n.factorization p)).card ≤
+      Nat.sqrt (Q n) + 1 := by
+    calc (n.primeFactors.filter (fun p => 2 ≤ n.factorization p)).card
+        ≤ (Finset.range (Nat.sqrt (Q n) + 1)).card := by
+          apply Finset.card_le_card
+          intro p hp
+          obtain ⟨hp', hv⟩ := Finset.mem_filter.1 hp
+          rw [Finset.mem_range, Nat.lt_succ_iff, Nat.le_sqrt]
+          calc p * p = p ^ 2 := (sq p).symm
+            _ ≤ p ^ n.factorization p :=
+                Nat.pow_le_pow_right (Nat.prime_of_mem_primeFactors hp').pos hv
+            _ ≤ Q n := component_le_Q hp'
+      _ = Nat.sqrt (Q n) + 1 := Finset.card_range _
+  have h2 : ∏ p ∈ n.primeFactors, p ^ (n.factorization p - 1) ≤
+      Q n ^ (Nat.sqrt (Q n) + 1) := by
+    rw [← hfilt]
+    calc ∏ p ∈ n.primeFactors with 2 ≤ n.factorization p, p ^ (n.factorization p - 1)
+        ≤ ∏ p ∈ n.primeFactors with 2 ≤ n.factorization p, Q n := by
+          apply Finset.prod_le_prod'
+          intro p hp
+          have hp' := (Finset.mem_filter.1 hp).1
+          calc p ^ (n.factorization p - 1) ≤ p ^ n.factorization p :=
+                Nat.pow_le_pow_right (Nat.prime_of_mem_primeFactors hp').pos (by omega)
+            _ ≤ Q n := component_le_Q hp'
+      _ = Q n ^ (n.primeFactors.filter (fun p => 2 ≤ n.factorization p)).card :=
+          Finset.prod_const _
+      _ ≤ Q n ^ (Nat.sqrt (Q n) + 1) := Nat.pow_le_pow_right hq0 hcard
+  calc n = ∏ p ∈ n.primeFactors, p ^ n.factorization p := hfac
+    _ = (∏ p ∈ n.primeFactors, p) * ∏ p ∈ n.primeFactors, p ^ (n.factorization p - 1) := hsplit
+    _ ≤ 4 ^ Q n * Q n ^ (Nat.sqrt (Q n) + 1) := Nat.mul_le_mul h1 h2
+
+/-- `log n ≤ 6 Q(n)` for `n > 1`: from `le_four_pow_mul`, `log 4 < 2` and `log q ≤ 2 √q`. -/
+lemma log_le_six_Q {n : ℕ} (hn1 : 1 < n) : Real.log n ≤ 6 * Q n := by
+  have hq2 : (2 : ℝ) ≤ Q n := by exact_mod_cast two_le_Q hn1
   have hnpos : (0 : ℝ) < n := by exact_mod_cast (show 0 < n by omega)
-  have hQpos : (0 : ℝ) < Q n := by linarith
-  calc Real.log n ≤ Real.log ((Q n : ℝ) ^ n.primeFactors.card) := Real.log_le_log hnpos hle
-    _ = n.primeFactors.card * Real.log (Q n) := Real.log_pow _ _
-    _ ≤ (L + 1) * Real.log L :=
-        mul_le_mul hcard (Real.log_le_log hQpos hQL.le) (Real.log_nonneg (by linarith))
-          (by linarith)
-
-/-- For `0 < A < 1`, `(u ^ A + 1) A log u < u` for all large `u`. -/
-lemma key_ineq {A : ℝ} (hA0 : 0 < A) (hA1 : A < 1) :
-    ∃ B : ℝ, 1 ≤ B ∧ ∀ u : ℝ, B ≤ u → (u ^ A + 1) * (A * Real.log u) < u := by
-  have hε0 : 0 < (1 - A) / 2 := by linarith
-  have hεne : (1 - A) / 2 ≠ 0 := hε0.ne'
-  have hK : 0 ≤ 2 * A / ((1 - A) / 2) + 1 := by positivity
-  refine ⟨max 1 ((2 * A / ((1 - A) / 2) + 1) ^ (1 / ((1 - A) / 2))), le_max_left _ _, ?_⟩
-  intro u hu
-  have hu1 : 1 ≤ u := le_trans (le_max_left _ _) hu
-  have hu0 : 0 < u := by linarith
-  have hlog : Real.log u ≤ u ^ ((1 - A) / 2) / ((1 - A) / 2) := Real.log_le_rpow_div hu0.le hε0
-  have hlog0 : 0 ≤ Real.log u := Real.log_nonneg hu1
-  have huA : 1 ≤ u ^ A := Real.one_le_rpow hu1 hA0.le
-  have hueps : 2 * A / ((1 - A) / 2) < u ^ ((1 - A) / 2) := by
-    have h1 : (2 * A / ((1 - A) / 2) + 1) ^ (1 / ((1 - A) / 2)) ≤ u := le_trans (le_max_right _ _) hu
-    have h2 : ((2 * A / ((1 - A) / 2) + 1) ^ (1 / ((1 - A) / 2))) ^ ((1 - A) / 2) ≤
-        u ^ ((1 - A) / 2) := Real.rpow_le_rpow (Real.rpow_nonneg hK _) h1 hε0.le
-    rw [← Real.rpow_mul hK, one_div_mul_cancel hεne, Real.rpow_one] at h2
+  have hle : (n : ℝ) ≤ (4 : ℝ) ^ Q n * (Q n : ℝ) ^ (Nat.sqrt (Q n) + 1) := by
+    exact_mod_cast le_four_pow_mul hn1
+  have hqpos : (0 : ℝ) < Q n := by linarith
+  have hlog : Real.log n ≤
+      (Q n : ℝ) * Real.log 4 + ((Nat.sqrt (Q n) : ℝ) + 1) * Real.log (Q n) := by
+    calc Real.log n ≤ Real.log ((4 : ℝ) ^ Q n * (Q n : ℝ) ^ (Nat.sqrt (Q n) + 1)) :=
+          Real.log_le_log hnpos hle
+      _ = (Q n : ℝ) * Real.log 4 + ((Nat.sqrt (Q n) : ℝ) + 1) * Real.log (Q n) := by
+          rw [Real.log_mul (by positivity) (by positivity), Real.log_pow, Real.log_pow]
+          push_cast
+          ring
+  have hl4 : Real.log 4 < 2 := by
+    have h4 : Real.log 4 = 2 * Real.log 2 := by
+      rw [show (4 : ℝ) = 2 ^ 2 by norm_num, Real.log_pow]
+      push_cast
+      ring
+    have h2 := Real.log_two_lt_d9
+    rw [h4]
     linarith
-  calc (u ^ A + 1) * (A * Real.log u)
-      ≤ (2 * u ^ A) * (A * (u ^ ((1 - A) / 2) / ((1 - A) / 2))) :=
-        mul_le_mul (by linarith) (mul_le_mul_of_nonneg_left hlog hA0.le)
-          (mul_nonneg hA0.le hlog0) (by positivity)
-    _ = (2 * A / ((1 - A) / 2)) * (u ^ A * u ^ ((1 - A) / 2)) := by
-        field_simp
-    _ < u ^ ((1 - A) / 2) * (u ^ A * u ^ ((1 - A) / 2)) :=
-        mul_lt_mul_of_pos_right hueps (by positivity)
-    _ = u := by
-        rw [← Real.rpow_add hu0, ← Real.rpow_add hu0]
-        have hsum : (1 - A) / 2 + (A + (1 - A) / 2) = 1 := by ring
-        rw [hsum, Real.rpow_one]
-
-/-- For `0 < A < 1` only finitely many `n` are flat: `Q(n) < (log n) ^ A` forces `n < N`. -/
-lemma flat_small {A : ℝ} (hA0 : 0 < A) (hA1 : A < 1) :
-    ∃ N : ℕ, ∀ n : ℕ, 1 < n → (Q n : ℝ) < Real.log n ^ A → n < N := by
-  obtain ⟨B, hB1, hB⟩ := key_ineq hA0 hA1
-  refine ⟨⌈Real.exp B⌉₊ + 1, ?_⟩
-  intro n hn1 hQ
-  by_contra hge
-  have hge' : ⌈Real.exp B⌉₊ + 1 ≤ n := not_lt.mp hge
-  have hnR : Real.exp B ≤ n := by
-    have h1 : (⌈Real.exp B⌉₊ : ℝ) ≤ n := by exact_mod_cast (show ⌈Real.exp B⌉₊ ≤ n by omega)
-    exact le_trans (Nat.le_ceil _) h1
-  have hu : B ≤ Real.log n := by
-    rw [← Real.log_exp B]
-    exact Real.log_le_log (Real.exp_pos B) hnR
-  have hupos : 0 < Real.log n := lt_of_lt_of_le (by linarith) hu
-  have h1 := flat_log_bound hn1 hQ
-  rw [Real.log_rpow hupos] at h1
-  have h2 := hB (Real.log n) hu
+  have hs : (Nat.sqrt (Q n) : ℝ) ≤ Real.sqrt (Q n) := Real.nat_sqrt_le_real_sqrt
+  have hr0 : 0 ≤ Real.sqrt (Q n) := Real.sqrt_nonneg _
+  have hrr : Real.sqrt (Q n) ^ 2 = Q n := Real.sq_sqrt hqpos.le
+  have hr1 : 1 ≤ Real.sqrt (Q n) := by
+    calc (1 : ℝ) = Real.sqrt 1 := Real.sqrt_one.symm
+      _ ≤ Real.sqrt (Q n) := Real.sqrt_le_sqrt (by linarith)
+  have hrq : Real.sqrt (Q n) ≤ Q n := by nlinarith
+  have hlq : Real.log (Q n) ≤ 2 * Real.sqrt (Q n) := by
+    have h := Real.log_le_rpow_div hqpos.le (by norm_num : (0 : ℝ) < 1 / 2)
+    rw [← Real.sqrt_eq_rpow] at h
+    linarith
+  have hlq0 : 0 ≤ Real.log (Q n) := Real.log_nonneg (by linarith)
+  have ha : ((Nat.sqrt (Q n) : ℝ) + 1) * Real.log (Q n) ≤
+      (Real.sqrt (Q n) + 1) * (2 * Real.sqrt (Q n)) :=
+    mul_le_mul (by linarith) hlq hlq0 (by linarith)
+  have hb : (Real.sqrt (Q n) + 1) * (2 * Real.sqrt (Q n)) =
+      2 * Real.sqrt (Q n) ^ 2 + 2 * Real.sqrt (Q n) := by ring
+  rw [hrr] at hb
+  have hql4 : (Q n : ℝ) * Real.log 4 ≤ 2 * Q n := by nlinarith
   linarith
 
-/-- `f(n) ≤ n` for composite `n`. -/
-lemma f_le_self {n : ℕ} (hnp : ¬ n.Prime) (hn1 : 1 < n) : f n ≤ n := by
-  have h4 : 4 ≤ n := by
-    by_contra h
-    interval_cases n <;> norm_num at hnp
-  calc f n ≤ Nat.gcd n (n.choose 2) := f_le n 2 (by norm_num) (by omega)
-    _ ≤ n := Nat.gcd_le_left _ (by omega)
+/-- The Erdős–Szekeres bound, with constant `6`: `f(n) ≤ 6 n / log n` for every composite `n`. -/
+lemma es_bound {n : ℕ} (hnp : ¬ n.Prime) (hn1 : 1 < n) :
+    (f n : ℝ) ≤ 6 * n / Real.log n := by
+  have hnR : (1 : ℝ) < n := by exact_mod_cast hn1
+  have hL : 0 < Real.log n := Real.log_pos hnR
+  obtain ⟨p, hpmem, hQeq⟩ := Q_spec hn1
+  have hp : p.Prime := Nat.prime_of_mem_primeFactors hpmem
+  have hpn : p ∣ n := Nat.dvd_of_mem_primeFactors hpmem
+  have hn0 : n ≠ 0 := by omega
+  by_cases hpow : n = p ^ n.factorization p
+  · have ha2 : 2 ≤ n.factorization p := by
+      by_contra h
+      rcases (show n.factorization p = 1 ∨ n.factorization p = 0 by omega) with h' | h'
+      · rw [h', pow_one] at hpow
+        exact hnp (by rw [hpow]; exact hp)
+      · rw [h', pow_zero] at hpow
+        omega
+    have hpp := prime_pow_case hp ha2 one_pos
+    rw [← hpow] at hpp
+    simp only [mul_one, Real.rpow_one] at hpp
+    refine hpp.trans ?_
+    apply div_le_div_of_nonneg_right _ hL.le
+    nlinarith [Nat.cast_nonneg (α := ℝ) n]
+  · have hfle := f_le_div_component hp hn0 hpn hpow
+    have hdvd : p ^ n.factorization p ∣ n := Nat.ordProj_dvd n p
+    have hQpos : (0 : ℝ) < ((p ^ n.factorization p : ℕ) : ℝ) := by
+      have : 0 < p ^ n.factorization p := pow_pos hp.pos _
+      exact_mod_cast this
+    have hcast : ((n / p ^ n.factorization p : ℕ) : ℝ) =
+        (n : ℝ) / ((p ^ n.factorization p : ℕ) : ℝ) := Nat.cast_div hdvd hQpos.ne'
+    have hsix : Real.log n ≤ 6 * ((p ^ n.factorization p : ℕ) : ℝ) := by
+      have h6 := log_le_six_Q hn1
+      rw [hQeq] at h6
+      exact h6
+    calc (f n : ℝ) ≤ ((n / p ^ n.factorization p : ℕ) : ℝ) := by exact_mod_cast hfle
+      _ = (n : ℝ) / ((p ^ n.factorization p : ℕ) : ℝ) := hcast
+      _ ≤ 6 * n / Real.log n := by
+          rw [div_le_div_iff₀ hQpos hL]
+          nlinarith [Nat.cast_nonneg (α := ℝ) n]
 
 /-- Enlarging the constant. -/
 lemma mono_C {x C' C n L : ℝ} (hL : 0 < L) (hn : 0 ≤ n) (hC : C' ≤ C) (h : x ≤ C' * n / L) :
@@ -343,7 +405,7 @@ lemma nonflat_bound {A : ℝ} (hA : 0 < A) {n : ℕ} (hnp : ¬ n.Prime) (hn1 : 1
 
 theorem main : H1 → H2 → type_of% @Erdos700.erdos_700.parts.iii := by
   intro h1 h2 A hA
-  by_cases hA1 : 1 ≤ A
+  by_cases hA1 : 1 < A
   · obtain ⟨C1, hC1, hb1⟩ := h1 A hA1
     obtain ⟨C2, hC2, hb2⟩ := h2 A hA1
     have hCpos : 0 < max (max C1 C2) (max 1 ((2 * A) ^ A)) :=
@@ -360,26 +422,22 @@ theorem main : H1 → H2 → type_of% @Erdos700.erdos_700.parts.iii := by
           (hb2 n hnp hn1 hsq hQ)
     · exact mono_C hL (Nat.cast_nonneg n) (le_max_right _ _)
         (nonflat_bound hA hnp hn1 (not_lt.mp hQ))
-  · have hA1' : A < 1 := not_le.mp hA1
-    obtain ⟨N, hN⟩ := flat_small hA hA1'
-    have hCpos : 0 < max (max 1 ((2 * A) ^ A)) (Real.log N ^ A) :=
-      lt_of_lt_of_le one_pos (le_trans (le_max_left _ _) (le_max_left _ _))
-    refine ⟨max (max 1 ((2 * A) ^ A)) (Real.log N ^ A), hCpos, ?_⟩
+  · have hA1' : A ≤ 1 := not_lt.mp hA1
+    refine ⟨6, by norm_num, ?_⟩
     intro n hnp hn1
-    have hnR : (1 : ℝ) < n := by exact_mod_cast hn1
-    have hL : 0 < Real.log n ^ A := Real.rpow_pos_of_pos (Real.log_pos hnR) A
-    by_cases hQ : (Q n : ℝ) < Real.log n ^ A
-    · have hnN : n < N := hN n hn1 hQ
-      have hfn : (f n : ℝ) ≤ n := by exact_mod_cast f_le_self hnp hn1
-      have hnNR : (n : ℝ) ≤ N := by exact_mod_cast hnN.le
-      have hlogle : Real.log n ^ A ≤ Real.log N ^ A :=
-        Real.rpow_le_rpow (Real.log_nonneg hnR.le) (Real.log_le_log (by linarith) hnNR) hA.le
-      have step : (f n : ℝ) ≤ Real.log N ^ A * n / Real.log n ^ A := by
-        refine hfn.trans ?_
-        rw [le_div_iff₀ hL, mul_comm (Real.log N ^ A)]
-        exact mul_le_mul_of_nonneg_left hlogle (Nat.cast_nonneg n)
-      exact mono_C hL (Nat.cast_nonneg n) (le_max_right _ _) step
-    · exact mono_C hL (Nat.cast_nonneg n) (le_max_left _ _)
-        (nonflat_bound hA hnp hn1 (not_lt.mp hQ))
+    have h4 : 4 ≤ n := by
+      by_contra h
+      interval_cases n <;> norm_num at hnp
+    have hlog1 : 1 ≤ Real.log n := by
+      rw [Real.le_log_iff_exp_le (by positivity)]
+      have he := Real.exp_one_lt_d9
+      have hn4 : (4 : ℝ) ≤ n := by exact_mod_cast h4
+      linarith
+    have hLA : 0 < Real.log n ^ A := Real.rpow_pos_of_pos (by linarith) A
+    have hrpow : Real.log n ^ A ≤ Real.log n := by
+      calc Real.log n ^ A ≤ Real.log n ^ (1 : ℝ) := Real.rpow_le_rpow_of_exponent_le hlog1 hA1'
+        _ = Real.log n := Real.rpow_one _
+    calc (f n : ℝ) ≤ 6 * n / Real.log n := es_bound hnp hn1
+      _ ≤ 6 * n / Real.log n ^ A := div_le_div_of_nonneg_left (by positivity) hLA hrpow
 
 end OMA.R_Erdos700_erdos_700_parts_iii_R1
