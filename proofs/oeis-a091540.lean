@@ -1,7 +1,6 @@
 import OMAStatements.S_oeis_a091540
 import Mathlib
 
-namespace A091540
 open OMA.S_oeis_a091540
 
 lemma q_succ (n : ℕ) : q (n + 1) = q n * (3 * (n : ℤ) + 1) := by
@@ -38,28 +37,21 @@ lemma num_rec (m : ℕ) :
   push_cast
   ring
 
-end A091540
-
 theorem OMA.solution : type_of% @OMA.S_oeis_a091540.main := by
   intro n hn
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 4 := ⟨n - 4, by omega⟩
   have e1 : m + 4 - 1 = m + 3 := by omega
   have e2 : m + 4 - 2 = m + 2 := by omega
   rw [e1, e2]
-  have h0 : 6 * OMA.S_oeis_a091540.a (m + 2) = OMA.S_oeis_a091540.numerator (m + 2) :=
-    A091540.a_eq m
-  have h1 : 6 * OMA.S_oeis_a091540.a (m + 3) = OMA.S_oeis_a091540.numerator (m + 3) :=
-    A091540.a_eq (m + 1)
-  have h2 : 6 * OMA.S_oeis_a091540.a (m + 4) = OMA.S_oeis_a091540.numerator (m + 4) :=
-    A091540.a_eq (m + 2)
-  have hr : OMA.S_oeis_a091540.numerator (m + 4) +
-      (-6 * (((m + 2 : ℕ) : ℤ) + 2) + 5) * OMA.S_oeis_a091540.numerator (m + 3) +
-      3 * (((m + 2 : ℕ) : ℤ) + 1) * (3 * ((m + 2 : ℕ) : ℤ) + 1) *
-        OMA.S_oeis_a091540.numerator (m + 2) = 0 := A091540.num_rec (m + 2)
+  have h0 : 6 * a (m + 2) = numerator (m + 2) := a_eq m
+  have h1 : 6 * a (m + 3) = numerator (m + 3) := a_eq (m + 1)
+  have h2 : 6 * a (m + 4) = numerator (m + 4) := a_eq (m + 2)
+  have hr : numerator (m + 4) + (-6 * (((m + 2 : ℕ) : ℤ) + 2) + 5) * numerator (m + 3) +
+      3 * (((m + 2 : ℕ) : ℤ) + 1) * (3 * ((m + 2 : ℕ) : ℤ) + 1) * numerator (m + 2) = 0 :=
+    num_rec (m + 2)
   push_cast at hr ⊢
-  have h6 : (6 : ℤ) * (OMA.S_oeis_a091540.a (m + 4) +
-      (-6 * ((m : ℤ) + 4) + 5) * OMA.S_oeis_a091540.a (m + 3) +
-      3 * ((m : ℤ) + 4 - 1) * (3 * ((m : ℤ) + 4) - 5) * OMA.S_oeis_a091540.a (m + 2)) = 0 := by
+  have h6 : (6 : ℤ) * (a (m + 4) + (-6 * ((m : ℤ) + 4) + 5) * a (m + 3) +
+      3 * ((m : ℤ) + 4 - 1) * (3 * ((m : ℤ) + 4) - 5) * a (m + 2)) = 0 := by
     linear_combination h2 + (-6 * ((m : ℤ) + 4) + 5) * h1 +
       3 * ((m : ℤ) + 4 - 1) * (3 * ((m : ℤ) + 4) - 5) * h0 + hr
   rcases mul_eq_zero.mp h6 with h | h
