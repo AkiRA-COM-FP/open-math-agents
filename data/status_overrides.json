@@ -1263,6 +1263,60 @@
       "sources": [
         "https://en.wikipedia.org/wiki/Ravenel%27s_conjectures"
       ]
+    },
+    {
+      "id": "wpc-komlos-conjecture",
+      "status": "claimed",
+      "title": "Komlós conjecture",
+      "summary": "Proofs have been announced in Sept 2026: Guo, Fang and Lu (arXiv:2609.11189, 10 Sep 2026; proof found by the Odin AI research agent) with constant 3√(2π); an elementary proof with constant 36 by Karingula and Lovett (arXiv:2609.20979); the constant lowered below 6.9013 by Akbas and Sra (arXiv:2609.27172); an exposition by Hollom (arXiv:2611.03427). All are unrefereed preprints and no machine-checked proof is known.",
+      "date": "2026-09-10",
+      "sources": [
+        "https://arxiv.org/abs/2609.11189",
+        "https://arxiv.org/abs/2609.20979",
+        "https://arxiv.org/abs/2609.27172",
+        "https://arxiv.org/abs/2611.03427"
+      ]
+    },
+    {
+      "id": "BeckFiala.beck_fiala_conjecture",
+      "status": "claimed",
+      "title": "Beck–Fiala conjecture",
+      "summary": "Follows from the announced proofs of the Komlós conjecture: Guo, Fang and Lu (arXiv:2609.11189, Sept 2026) state that set systems of degree t have discrepancy below 3√(2πt), which is this statement with C = 3√(2π). Unrefereed; no Lean proof of the statement is known.",
+      "date": "2026-09-10",
+      "sources": [
+        "https://arxiv.org/abs/2609.11189",
+        "https://arxiv.org/abs/2609.20979"
+      ]
+    },
+    {
+      "id": "wp-reinhardt-s-conjecture",
+      "status": "claimed",
+      "title": "Reinhardt's conjecture",
+      "summary": "Fei Xue posted a 430-page proof (arXiv:2611.21470, v1 16 Nov 2026, v2 22 Nov 2026) that the smoothed regular octagon has the least optimal lattice packing density among centrally symmetric convex disks, part of it by a rigorous finite verification. Not refereed or independently checked.",
+      "date": "2026-11-16",
+      "sources": [
+        "https://arxiv.org/abs/2611.21470"
+      ]
+    },
+    {
+      "id": "wpc-omega-equals-two",
+      "status": "claimed",
+      "title": "Is the exponent of matrix multiplication ω equal to 2?",
+      "summary": "Claimed answered negatively: OpenAI's release of AI-generated manuscripts states ω = 9/4 over every field. The upper bound ω ≤ 9/4 is the manuscript of 2 Oct 2026 (family 107), with an independent exposition by Doğan, Lysikov, Sakabe and Walter (arXiv:2611.09716); the matching lower bound, n^{9/4}/2 multiplication or division gates for formal arithmetic circuits, is the manuscript of 24 Nov 2026 (family 379). Unrefereed; the lower bound has not been independently checked.",
+      "date": "2026-11-24",
+      "sources": [
+        "https://github.com/openai/math/blob/main/history.md",
+        "https://arxiv.org/abs/2611.09716"
+      ]
+    },
+    {
+      "id": "OpenQuantumProblem35.oqp_35",
+      "status": "open",
+      "summary": "Still open. One more pair is settled: an AME(9,10) state exists, by a Lean proof of ExistsAME 9 10 with an explicit state in facebookresearch/atlas-lean (not re-checked here). The full classification asked for here remains open.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/facebookresearch/atlas-lean/blob/223d8bc0879b8ddd5b5c935ffe2a3a35f6e0b86d/Atlas/FC/OpenQuantumProblem35_ame_9_10_open_solution.lean"
+      ]
     }
   ]
 }
