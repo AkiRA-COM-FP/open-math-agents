@@ -16856,6 +16856,370 @@
     "https://oeis.org/A202447"
    ],
    "note": "The transfer-matrix encoding (rows avoid 001/110, three vertical triples and the single NW-SE triple per three rows, a(m) = arrays with m+2 rows) matches the definition; brute force gives 80,138,224,338,484 = data and the order-4 recurrence for n>5 and g.f. numerator 2x(40-91x+76x^2-25x^3+2x^4) check to n=39. No prior proof found; routine. Second review: Faithful. Routine."
+  },
+  "oeis-a269688": {
+   "date": "2026-11-28",
+   "pr": 28132,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269688",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269688",
+    "https://oeis.org/A269690"
+   ],
+   "note": "Faithful: the Lean count matches Hardin's definition (brute force reproduces 7, 49, ..., 786079 for n<=7) and Barker's g.f. and Binet form are stated as printed for n>=1. Proved by a 3-state transfer recurrence. No proof in the entry, the parent table A269690, the isitsolved crawl, Blanco Gomez, Fried or the Lean libraries. Second review: Barker's g.f. and Binet form for column 6 of Hardin's A269690 table. No prior proof found; the Ma-Zhang/Fried repetition-word results cover loopless label relations only."
+  },
+  "oeis-a271804": {
+   "date": "2026-11-28",
+   "pr": 28379,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A271804",
+    "https://zenodo.org/records/24384895",
+    "https://oeis.org/A271804"
+   ],
+   "note": "Faithful: Blomberg's Rule 409 claim, Barker's sqrt(17) closed form (n>0) and g.f. at stages 2^n-1, stated with the entry's ranges. My simulation to stage 1023 reproduces the data. The proof is a kernel-checked digit-automaton certificate, the method of Cohen (Zenodo 24384895). Cohen's 50 entries and extra tables do not include Rule 401, and I found nothing in the other sources. Second review: Blomberg's companion Rule 409 and Barker's radical form/g.f.: closed forms for a nonlinear 2D CA at stages 2^n-1, proved via an explicit structure theorem. No prior settlement found."
+  },
+  "oeis-a272832": {
+   "date": "2026-11-28",
+   "pr": 28399,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A272832",
+    "https://zenodo.org/records/24384895",
+    "https://oeis.org/A272832"
+   ],
+   "note": "Faithful: Blomberg's closed form 2*4^n-16*3^(n-2)+2^(n-1)+1 (n>2) and Spezia's g.f. at stages 2^n-1, stated with the entry's ranges. My simulation to stage 1023 reproduces the data. The proof is a kernel-checked digit-automaton certificate, the method of Cohen (Zenodo 24384895). Cohen's 50 entries and extra tables do not include Rule 694, and I found nothing in the other sources. Second review: Blomberg's closed form (n>2) and Spezia's g.f.: closed forms for a nonlinear 2D CA at stages 2^n-1, proved via an explicit structure theorem. No prior settlement found."
+  },
+  "oeis-a272911": {
+   "date": "2026-11-28",
+   "pr": 27865,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A272911",
+    "https://www.fq.math.ca/Papers1/42-1/quartkimberling01_2004.pdf",
+    "https://oeis.org/A272911",
+    "https://oeis.org/A272909",
+    "https://arxiv.org/abs/2610.04842"
+   ],
+   "note": "Faithful: Lucas products L_iL_j with i,j>=1 as a set (no coincidences occur, so set gaps equal the entry's differences), and each gap is a product of two Lucas or two Fibonacci numbers (positive indices). Checked numerically to 10^30. Kimberling's 2004 paper covers only Fibonacci products, and I found no proof of the Lucas analogue anywhere. Second review: Kimberling's gap conjecture for products of two Lucas numbers; appears also in A272909 (same statement, not separately on the site). No prior proof found."
+  },
+  "oeis-a272921": {
+   "date": "2026-11-28",
+   "pr": 28388,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A272921",
+    "https://zenodo.org/records/24384895",
+    "https://oeis.org/A272921"
+   ],
+   "note": "Faithful: Blomberg's Rule 571 claim and closed form 3*4^n-4*3^(n-2)-4*2^n+1 (n>1), and Barker's recurrence (n>5) and g.f. at stages 2^n-1, stated with the entry's ranges. My simulation to stage 1023 reproduces the data. The proof is a kernel-checked digit-automaton certificate, the method of Cohen (Zenodo 24384895). Cohen's 50 entries and extra tables do not include Rule 555, and I found nothing in the other sources. Second review: Blomberg's companion Rule 571, closed form (n>1), Barker's recurrence and g.f.: closed forms for a nonlinear 2D CA at stages 2^n-1, proved via an explicit structure theorem. No prior settlement found."
+  },
+  "oeis-a278618": {
+   "date": "2026-11-28",
+   "pr": 28059,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A278618",
+    "https://oeis.org/A278618"
+   ],
+   "note": "Faithful: the definition reproduces the data (Lean's truncated n-j-1 gives a(0)=1 as in the entry), and the four polynomial coefficients are Mathar's, expanded correctly for n>=3. I checked it numerically to n=300. Proved by a Gosper/creative-telescoping certificate. Not in the iis batches, Blanco Gomez, Fried, kolinhuang or the Lean libraries. Second review: Mathar's holonomic recurrence for a definite binomial sum; provable by creative telescoping, so routine."
+  },
+  "oeis-a395111": {
+   "date": "2026-11-28",
+   "pr": 26144,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A395111",
+    "https://oeis.org/A087188",
+    "https://oeis.org/A395111",
+    "https://oeis.org/A087188"
+   ],
+   "note": "Disproof of Huber's Conjecture 1 (the value sets of A395111 and A087188 coincide). The statement bundles both conjectures, so refuting Conjecture 1 refutes the conjunction. The entry's own data gives a(44)=53. I recomputed both sequences: A087188 is nondecreasing from n=33 and never takes the value 53 (it jumps from 51 to 59). No earlier refutation found. Routine: one data term plus a monotonicity bound. Second review: Conjecture 1 (value sets coincide) is false and Conjecture 2 (density of a(n)=1 is 0) is proved; both parts are in the proof file. The disproof is a genuine value mismatch, not an index slip."
+  },
+  "oeis-a395088": {
+   "date": "2026-11-28",
+   "pr": 26146,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A395088",
+    "https://oeis.org/A026465",
+    "https://oeis.org/A395088"
+   ],
+   "note": "Smeets's run-length conjecture is stated faithfully. Every limit prefix u extends to a limit prefix 011 followed by, for each bit, a 0-run of length 3-2*a(i) and then 11. This encodes c(1)=1, c(n)=3-2a(n-2) and 1-runs of length 2. No earlier proof found. Routine: it follows from the morphism 0->011, 1->0 by induction on prefixes. Second review: Self-generating run structure of the fixed point of 0->011, 1->0; short morphism argument."
+  },
+  "oeis-a395839": {
+   "date": "2026-11-28",
+   "pr": 10097,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A395839",
+    "https://oeis.org/A111019",
+    "https://oeis.org/A395839"
+   ],
+   "note": "Hanna's parity and mod-3 conjectures are stated faithfully, with a(n)=10*Cat(n+1)-Cat(n). Parity reduces to the classical fact that Cat(n) is odd iff n=2^k-1. The mod-3 clauses follow from C^2-C = X*C^3 = X*C(X^3) mod 3 (Frobenius). No earlier proof of these clauses for this entry found. Routine. Second review: Follows quickly from known Catalan congruences (parity: C(n) odd iff n+1 is a power of 2)."
+  },
+  "oeis-a396093": {
+   "date": "2026-11-28",
+   "pr": 24023,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A396093",
+    "https://oeis.org/A396093"
+   ],
+   "note": "Both of Hanna's parity conjectures for the third iterate of x/(1-x)^2 are stated faithfully: a(2n) even, and a(2n-1) even iff n=5k-2. Mod 2, B(x)=x/(1+x^2), so the iterate is a rational function over GF(2) with periodic coefficient parity. No earlier proof found in the libraries or the entry. Routine. Second review: Parity of coefficients of a rational g.f.; finite periodicity check."
+  },
+  "oeis-a397347": {
+   "date": "2026-11-28",
+   "pr": 26702,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A397347",
+    "https://oeis.org/A397346",
+    "https://oeis.org/A397347"
+   ],
+   "note": "Hanna's conjecture a(n) == [1,3,3,3] (mod 4) is stated faithfully. Any integer sequence satisfying the l.g.f. identity, with the x-coefficient fixed at 1, must follow the pattern. The proof introduces b(n)=a(n)/(2n^2-1) (A397346) and inducts on the coefficient recurrence mod 4. No earlier proof found (not in trureturing, thatnealpatel or the collections). Routine. Second review: Mod 4 pattern of Hanna's l.g.f.; short induction from the defining recurrence."
+  },
+  "oeis-a397588": {
+   "date": "2026-11-28",
+   "pr": 13746,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A397588",
+    "https://oeis.org/A397588"
+   ],
+   "note": "Hanna's parity conjecture (a(n) odd iff n is a power of 2) is stated faithfully for the unique series with A = X + (X A^2)'. Mod 2 the equation becomes B = X + B^2, and Frobenius gives B = X + X^2 + X^4 + ... . No earlier proof found. Routine. Second review: Two-line parity argument from Manyama's recurrence in the entry."
+  },
+  "oeis-a397780": {
+   "date": "2026-11-28",
+   "pr": 26114,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A397780",
+    "https://oeis.org/A397780",
+    "https://oeis.org/history?seq=A397780"
+   ],
+   "note": "Disproof of Voievoda's count. The site formalization is faithful: each digit support with an eligible witness contributes exactly one term, its least witness. The proof certifies 671 distinct eligible supports, more than the conjectured 665, including 36 four-digit supports against the conjectured 31. Some witnesses lie beyond the 10^18 search bound stated in the entry. No earlier refutation found. Non-routine: it needs a search for large witnesses. Second review: Disproof by explicit witnesses (finite check). Genuine author miscount, not an index slip: the 4-digit witnesses are all < 10^17, inside the author's claimed exhaustive range."
+  },
+  "oeis-a398343": {
+   "date": "2026-11-28",
+   "pr": 29160,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A398343",
+    "https://oeis.org/A398342",
+    "https://oeis.org/A398343",
+    "https://oeis.org/A398342"
+   ],
+   "note": "Pirc's conjecture that each value m occurs only finitely often is stated faithfully as finiteness of {k>0 : sum_{d|k} rad(d) = m*rad(k)}. Since sum_{d|p^e} rad(d) = 1+e*p, the condition is prod(1+e_p*p) = m*prod p. The proof bounds exponents and prime choices and uses a well-quasi-order argument. No earlier proof found. Second review: Finiteness of fibres of the radical-divisor quotient; no prior proof found."
+  },
+  "oeis-a398920": {
+   "date": "2026-11-28",
+   "pr": 27622,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A398920",
+    "https://oeis.org/A002133",
+    "https://oeis.org/A398920",
+    "https://oeis.org/A002133"
+   ],
+   "note": "Bevan's asymptotic a(n) = n^2 log^2 n/4 + O(n^2 log n) is stated faithfully. The substitution i=b, j=b+d turns the count into #{i<j, a, c >= 1 : ia+jc <= N}, which matches the entry's ab+bc+cd <= n. The proof is elementary harmonic-sum estimation. The leading term also follows from the classical Ingham/Estermann asymptotics for sum d(k)d(n-k). No earlier proof for this entry found. Routine. Second review: True and provable by a short argument from the A002133 g.f. plus the Dirichlet divisor estimate. New as a formal result, but easy."
+  },
+  "oeis-a401673": {
+   "date": "2026-11-28",
+   "pr": 25303,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A401673",
+    "https://dawidrylko.github.io/lattice-dimers/notes/domicules/rectangles-by-diagonal-pieces.html",
+    "https://oeis.org/A401673",
+    "https://dawidrylko.github.io/lattice-dimers/notes/domicules/rectangles-by-diagonal-pieces.html"
+   ],
+   "note": "Ryłko's conjecture T(n,n^2)=1 and T(n,n^2-1)=n^2(n+1) is formalized faithfully. Tilings are fixed-point-free involutions with displacement at most 1, and crossing diagonals are allowed as in the source. Exactly 4 ordinary cells means two dominoes. Ryłko's own notes say both are observations on rows n<=10, not proofs, and I found no other proof. Second review: Endpoint counts of Ryłko's domicule triangle; the author explicitly calls them unproved observations."
+  },
+  "oeis-a401897": {
+   "date": "2026-11-28",
+   "pr": 22460,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A401897",
+    "https://oeis.org/A401897"
+   ],
+   "note": "Sharma's asymptotic a(n) ~ 48n/Pi^2 is stated faithfully: rank is the position in the norm-then-b order of the sector 0<=b<=a, and visibility is coprimality of the coordinate differences over the open disk N(w)<N(z), with w=0 included. The heuristic (density 6/Pi^2 of primitive vectors times area pi*N, with N ~ 8n/pi) matches. The proof does a uniform Möbius lattice-point count. No earlier proof found. Second review: Asymptotic for visible Gaussian integers; plausible (6/pi^2 density, sector 1/8 of disk) and proved."
+  },
+  "oeis-a225034": {
+   "date": "2026-11-28",
+   "pr": 14261,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A225034",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL21/Merlini/merlini5.html",
+    "https://oeis.org/A225034",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL21/Merlini/merlini5.html",
+    "https://arxiv.org/abs/2205.09686"
+   ],
+   "note": "Berselli's P-recurrence (n+1)a(n)-(2n+3)a(n-1)-3(n-2)a(n-2)=0 for n>1 is stated faithfully, with a(n) defined combinatorially (101-avoiding words, n ones, at most n zeros). It also follows mechanically from the entry's algebraic g.f., a theorem of Bilotta et al. and Merlini–Nocentini, whose radicand factors as (1-x)^2(1+x)(1-3x). The site proof instead counts words directly. Not in isitsolved or the libraries. Routine. Second review: P-recurrence from the proven algebraic g.f.; routine."
+  },
+  "oeis-a346784": {
+   "date": "2026-11-28",
+   "pr": 14330,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A346784",
+    "https://oeis.org/A346126",
+    "https://oeis.org/A346785",
+    "https://oeis.org/A346784",
+    "https://oeis.org/A346126"
+   ],
+   "note": "Disproof of 'covered point count = A346126(n-1)' at n=10. With records defined semantically, a disk of squared radius 3 centered at a lattice point covers 13 points, and 14 do not fit; so 13 is the 10th record while A346126(9)=14. The listed radii (…, 7/3, 13/4, …) skip r^2=3, so the entry's data appears to miss a term. The conjecture matches only that defective list. I reproduced the record sequence numerically; Lean certifies the 13/14 bounds. No earlier report found. Second review: Genuine disproof: 13 is a point-record but not a walk-record, so the correspondence fails. Note it rests on an omission in A346784's own data (missing term 3/1 between 7/3 and 13/4), which the owner may want to report to OEIS."
+  },
+  "oeis-a289245": {
+   "date": "2026-11-28",
+   "pr": 17608,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A289245",
+    "https://oeis.org/A078140",
+    "https://oeis.org/A289245",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821"
+   ],
+   "note": "Statement matches: weights floor((k+1)r)-1 with r=(3+sqrt5)/2, reciprocal of sum w(k)(-x)^k (constant term 1), coefficients strictly increasing for all n. Checked 400 terms exactly. The A078140 family (r in [3/2,5/3)) is different and no proof for this entry found in any listed source or as a duplicate on the site. Second review: Short argument using Beatty-difference bounds (2 or 3); no prior proof found."
+  },
+  "oeis-a289404": {
+   "date": "2026-11-28",
+   "pr": 28328,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A289404",
+    "https://zenodo.org/records/24384895",
+    "https://oeis.org/A289404"
+   ],
+   "note": "Rule 566 outer-totalistic von Neumann CA, diagonal (-n,-n)..(0,0) in base 10, matches %N/%t; all four conjectures (Barker g.f. and recurrence, Provvedi's two closed forms) stated and proved. Simulated 60 stages: a(n)=(10^(1+floor(n/2))-1)/9. Cohen's Zenodo 24384895 covers ON-cell counts of other rules, not this diagonal; no other prior proof found. Second review: Diagonal of 2D Rule 566; no prior or sibling settlement found."
+  },
+  "oeis-a290408": {
+   "date": "2026-11-28",
+   "pr": 28491,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290408",
+    "https://oeis.org/A290409",
+    "https://oeis.org/A290408"
+   ],
+   "note": "Statement pins the fixed point of z=(i+z)^(-i) by Re z>1 (Paulovic's comment; uniqueness in all of C fails, noted) with principal branch, proves uniqueness there and Im z = -1/2 (Sykora's conjecture). Newton check gives z = 1.33920916852911 - 0.5i matching the data. No prior proof found on OEIS sisters (A290409/A290410), MSE, or web. Second review: Im z=-1/2 follows from a conjugation symmetry argument; uniqueness for Re z>1 added and proved."
+  },
+  "oeis-a292502": {
+   "date": "2026-11-28",
+   "pr": 15335,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A292502",
+    "https://oeis.org/A292502"
+   ],
+   "note": "Statement rewrites a(n) = n[x^n] Sum_r S_r(x)^r/r as the composition sum Sum_c n/len(c) * prod(2k_i-1)^len(c), which is exact, and asks for a(n)^(1/n^2) -> 3^(1/4) (Kotesovec 2020). Heuristic check: the exponent max of log(2k-1)/k^2 is at k=2, giving log3/4. No prior proof found in any listed source. Second review: Kotesovec's growth conjecture; dominant term from compositions into parts of size 2."
+  },
+  "oeis-a294225": {
+   "date": "2026-11-28",
+   "pr": 28412,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A294225",
+    "https://doi.org/10.1006/jnth.1996.0012",
+    "https://oeis.org/A294225",
+    "https://arxiv.org/abs/1809.01532"
+   ],
+   "note": "Statement faithful (practical = every m<=n is a sum of distinct divisors; infinitely many q with q, q+2, q^2+2 practical). Proof is the contributor's own construction (its research notes are in Krgrocon's fork; its lemmas were reused from their own A017666/A321152 work on the site). No prior proof found: Melfi 1996 only covers q, q+2; nothing turned up in Zenodo, Palomar, iis or the GitHub results repos; sister entries A294112/A294200 are unsolved. Second review: Sun's practical triple conjecture via a Melfi-style cyclotomic construction; no prior proof found."
+  },
+  "oeis-a295318": {
+   "date": "2026-11-28",
+   "pr": 28122,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A295318",
+    "https://isitsolved.com/journal/844f1dfae2e1",
+    "https://oeis.org/A295318",
+    "https://isitsolved.com/journal"
+   ],
+   "note": "Statement matches the entry's sum formula and Barker's recurrence for n>13; checked to n=400. iis:2611.00231 also proves it but was filed 2026-11-28 04:30 UTC, after the site proof commit (2026-11-27 22:10 UTC), so the site solve came first. The recurrence is also implied by Hurt's quasi-polynomial closed form in the entry; routine. Second review: Barker recurrence for a period-4 quasi-polynomial sum; routine. The site predates the isitsolved paper."
+  },
+  "oeis-a295320": {
+   "date": "2026-11-28",
+   "pr": 28485,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A295320",
+    "https://isitsolved.com/journal/844f1dfae2e1",
+    "https://oeis.org/A295320",
+    "https://isitsolved.com/journal"
+   ],
+   "note": "Statement matches the entry's sum formula and Barker's recurrence for n>13; checked to n=400. The site proof (commit 2026-11-27 22:10 UTC) predates iis:2611.00231 (filed 2026-11-28 04:30 UTC), which also covers it. Routine quasi-polynomial recurrence. Second review: Barker recurrence for a period-4 quasi-polynomial sum; routine. The site predates the isitsolved paper."
+  },
+  "oeis-a307554": {
+   "date": "2026-11-28",
+   "pr": 28538,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A307554",
+    "https://arxiv.org/abs/math/9411240",
+    "https://oeis.org/A307554",
+    "https://arxiv.org/abs/2104.13017",
+    "https://mathworld.wolfram.com/FiveleaperGraph.html"
+   ],
+   "note": "Statement: a(n) is the max number of moves of a simple fiveleaper path on the n X n board (jumps of Euclidean length 5); it covers Barker's a(n)=n^2-1 for n>7 and the g.f. coefficientwise, which also pins a(1..10)=0,0,0,0,2,19,47,63,80,99 as in the data. The entry only claims traceability up to n=29. No proof for all n found (leaper-graph literature such as Knuth and Beluhov treats single (p,q)-leapers); nothing in Zenodo, Palomar, iis or the GitHub repos. Second review: Fiveleaper traceability for all n>=8 via 8-strip induction plus kernel-checked witnesses for widths 8-15."
+  },
+  "oeis-a318698": {
+   "date": "2026-11-28",
+   "pr": 28715,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A318698",
+    "https://oeis.org/A318699",
+    "https://oeis.org/A318698",
+    "https://oeis.org/A318699"
+   ],
+   "note": "Statement encodes the greedy rule (same parity as n for A318698 from 0; opposite parity for A318699 from 1; shared decimal digit, 0 having digit 0) and asks for bijectivity of both, which is Navarrete's permutation conjecture for the pair. My simulation reproduces both data lines, and 0..19999 all appear within 20000 terms. No prior proof found (A318699 not solved separately on the site; nothing in Zenodo, Palomar, iis or the GitHub repos). Second review: Permutation conjecture for A318698 (and A318699 together) proved."
+  },
+  "oeis-a320099": {
+   "date": "2026-11-28",
+   "pr": 27837,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A320099",
+    "https://oeis.org/A320099"
+   ],
+   "note": "Statement is a literal column-transfer count (5-bit horizontal masks, 4 vertical edges per column, no vertex of degree 1, empty boundary masks); it reproduces the data 1,50,5193,583199,... and Kagey's order-10 recurrence holds for n=11..39 (checked). Sister widths A301976/A320097 were proved separately on the site, but no prior proof of this width was found (not in the iis Hardin/Barker transfer-matrix papers or the other listed sources). Routine transfer-matrix result. Second review: Transfer-matrix recurrence; finite linear-algebra check."
+  },
+  "oeis-a329395": {
+   "date": "2026-11-28",
+   "pr": 27996,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A329395",
+    "https://oeis.org/A066099",
+    "https://oeis.org/A329395",
+    "https://oeis.org/A066099"
+   ],
+   "note": "Statement faithfully encodes Chen-Fox-Lyndon factorizations of the trimmed binary word, co-Lyndon via bit complement, and A066099 compositions. The disproof at k=166 is correct: 166 (in A329395's own data) has factorizations [01][0011][0] and [1][011][001], but its standard composition (2,3,1,2) is not a palindrome. My recomputation finds the first discrepancies at 166, 169, 172, 181, ... A genuine false conjecture; no earlier refutation found in the entry or its sisters. Second review: Wiseman's palindrome conjecture is refuted by a term already printed in the entry; trivial finite disproof."
+  },
+  "oeis-a338198": {
+   "date": "2026-11-28",
+   "pr": 28816,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A338198",
+    "https://oeis.org/A338198"
+   ],
+   "note": "Statement matches Schulte's conjectured inverse (M(n,n)=1, M(n,n-1)=1-n, M(n,k)=(-1)^(n-k)(k^2-2)(n-2)!/k! for k<=n-2) and proves T*M = M*T = I over Q. Exact check for n,k<25. No prior proof found in the entry, its column entries or the other listed sources. Routine. Second review: Explicit inverse of a lower-triangular matrix; algebraic identity, routine."
+  },
+  "oeis-a343073": {
+   "date": "2026-11-28",
+   "pr": 24500,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A343073",
+    "https://oeis.org/A343073"
+   ],
+   "note": "Statement: with b^^1=b, a(n) = #{0<b<n : b^^x == 1 mod n for some x>=1}, and the set {n>=2 : a(n)=phi(n)} = {2,3}, matching the entry's conjecture. Proof: a Bertrand prime q in (n/2,n) is a coprime b that never works for n>=4, plus direct a(2)=1, a(3)=2. Short and elementary. No prior proof found (entry, A239063/A321312, Zenodo, GitHub repos). Second review: No equality cases beyond 2 and 3; short number-theoretic argument."
   }
  },
  "flagged": {
@@ -20405,6 +20769,13 @@
     "https://doi.org/10.5281/zenodo.23407381"
    ],
    "reason": "The comment's map '1->100' is a misprint for '10->100' (the cited A288426 map). The disproof refutes the misprinted version at n=2 (length 8 vs 5). With 10->100 the lengths match A288429 in my iteration to n=38, and Ashburn (Zenodo 23407381, Oct 2026) already identified the misprint and proved the intended version. The disproof exploits a typo; the intended conjecture is not addressed by this proof."
+  },
+  "oeis-a398692": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A398692"
+   ],
+   "reason": "Second review: Author remark presented as an open conjecture; the equivalence with Collatz holds by the definition of the sequence, so it is not an open problem."
   }
  },
  "known": {
@@ -37158,6 +37529,54 @@
     "https://github.com/joaquimmj/oeis-conjectures"
    ],
    "reason": "Second review: The kept identities were already proved by Manji-Jung (joaquimmj, Nov 18-19 2026) and are immediate from Munn's 2023 comment in the entry. Not new."
+  },
+  "oeis-a288694": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A288694",
+    "https://zenodo.org/records/23407381"
+   ],
+   "reason": "Second review: Settled by Ashburn's Zenodo paper six weeks before the site solve."
+  },
+  "oeis-a288752": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A288752",
+    "https://zenodo.org/records/23407381"
+   ],
+   "reason": "Second review: Settled by Ashburn's Zenodo paper six weeks before the site solve."
+  },
+  "oeis-a288753": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A288753",
+    "https://zenodo.org/records/23407381"
+   ],
+   "reason": "Second review: Settled by Ashburn's Zenodo paper six weeks before the site solve."
+  },
+  "oeis-a288754": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A288754",
+    "https://zenodo.org/records/23407381"
+   ],
+   "reason": "Second review: Settled by Ashburn's Zenodo paper six weeks before the site solve."
+  },
+  "oeis-a290072": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A290072",
+    "https://oeis.org/A290074"
+   ],
+   "reason": "Second review: Implied by the earlier site solve of A290074 (same cells, different base); not a new result."
+  },
+  "oeis-a290194": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A290194",
+    "https://oeis.org/A290192"
+   ],
+   "reason": "Second review: Implied by the earlier site solve of A290192 (same diagonal up to symmetry, other base)."
   }
  },
  "reviewed": "2026-11-28"
