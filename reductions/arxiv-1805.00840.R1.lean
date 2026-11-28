@@ -1071,6 +1071,9 @@ theorem star_cost (p : V) (d : ∀ x, G.degree x ≤ 3)
   rw [edgeFinset_card,Set.fintypeCard_eq_ncard] at deg
   omega
 
+/-- Delete the degree-two vertex and its two neighbors. The remaining even
+region has a perfect matching. One half of its split, plus an edge at the
+deleted vertex, gives the unweighted lower bound. -/
 theorem one_port_bound (hc : G.Connected) (p : V) (hp : G.degree p = 2)
     (hd : ∀ x, x ≠ p → G.degree x = 3) (hb : ∀ e ∈ G.edgeSet, ¬G.IsBridge e) :
     ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ G.edgeFinset.card ≤ 6 * M.edgeSet.ncard := by
@@ -1114,6 +1117,9 @@ namespace BridgePort
 open SimpleGraph BridgeMatching OMA.S_arxiv_1805_00840
 variable {V : Type} [Fintype V] {G : SimpleGraph V} [DecidableRel G.Adj]
 
+/- The closed neighborhood of a vertex on a triangle contains four vertices
+and at least four edges. At most four edges cross out, so its even complement
+has a perfect matching by the small-cut lemma. -/
 set_option maxHeartbeats 1200000 in
 theorem cubic_triangle (hc : G.Connected) (hd : ∀ x, G.degree x = 3)
     (hb : ∀ e ∈ G.edgeSet, ¬G.IsBridge e) {p u v : V}
