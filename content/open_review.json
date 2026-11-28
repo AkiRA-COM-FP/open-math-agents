@@ -14856,6 +14856,338 @@
     "https://oeis.org/A097154"
    ],
    "note": "Faithful: f(x)=reverse(x)-maxdigit(x) in base 10 (trailing zeros dropped on reversal, as in the entry's 89->98 example), fixed-point set stated as {0,89}. Since reverse(x) is congruent to x mod 9 and maxdigit<=9, a nonzero fixed point needs reverse(x)=x+9, and a digit argument leaves only 89. Brute force to 10^7 finds only 0 and 89; the conjecture is still open in A097154/A097155/A097157 and no proof was found elsewhere. Second review: Faithful and true; elementary digit argument."
+  },
+  "oeis-a321727": {
+   "date": "2026-11-28",
+   "pr": 27125,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A321727",
+    "https://mathoverflow.net/questions/315581",
+    "https://oeis.org/A321727",
+    "https://arxiv.org/abs/1811.10503",
+    "https://oeis.org/A390695"
+   ],
+   "note": "Disproof of Sun's conjecture a(n)>0. Faithful: prime(k)=Nat.nth Nat.Prime on Fin n, f a permutation, prime(k)+prime(f(k))+1 prime for all k. The Lean proof shows a prime = 1 mod 3 can only be paired with 3 or a prime = 2 mod 3, so a permutation needs #(1 mod 3) <= #(2 mod 3)+1 among the first n primes, and then certifies by a formal Meissel-type count that this fails near x=608981813029 (the Bays-Hudson first Chebyshev-bias reversal for modulus 3). The MO question 315581 cited by the entry is now deleted (404) and no public refutation was found (entry, sister entries A321597/A321610/A321611, Palomar, Lean lists, web). Non-routine: needs an exact prime count to ~6e11 inside Lean. Second review: Disproof: the mod-3 obstruction plus the first prime-race crossing pi(x;3,1)>pi(x;3,2) at 608981813029 gives a(n)=0 for n=pi(608981813029). The Lean proof certifies the prime counts in-kernel. No earlier refutation was found; the one gap is the deleted MO thread, which is no longer public."
+  },
+  "oeis-a321774": {
+   "date": "2026-11-28",
+   "pr": 26573,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A321774",
+    "https://oeis.org/A242887",
+    "https://oeis.org/A321774",
+    "https://oeis.org/A242887"
+   ],
+   "note": "Barker's g.f. and recurrence (n>10) for compositions of n into exactly 4 parts with distinct multiplicities (column k=4 of A242887) are stated faithfully, with a(n) counted directly over Fin 4 -> parts. My brute-force count of these compositions satisfies the g.f. identity to n=79 (59 for k=7). No prior proof found (entry, parent A242887, Palomar, Lean lists, Blanco Gomez, Fried). Routine: a finite case analysis over multiplicity shapes gives a quasi-polynomial. Second review: A rational g.f. for a fixed number of parts, proved by explicit partition-type sums. It is correct and faithful, and no earlier proof was found."
+  },
+  "oeis-a321775": {
+   "date": "2026-11-28",
+   "pr": 26741,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A321775",
+    "https://oeis.org/A242887",
+    "https://oeis.org/A321775",
+    "https://oeis.org/A242887"
+   ],
+   "note": "Barker's g.f. and recurrence (n>15) for compositions of n into exactly 5 parts with distinct multiplicities (column k=5 of A242887) are stated faithfully, with a(n) counted directly over Fin 5 -> parts. My brute-force count of these compositions satisfies the g.f. identity to n=79 (59 for k=7). No prior proof found (entry, parent A242887, Palomar, Lean lists, Blanco Gomez, Fried). Routine: a finite case analysis over multiplicity shapes gives a quasi-polynomial. Second review: A rational g.f. for a fixed number of parts, proved by explicit partition-type sums. It is correct and faithful, and no earlier proof was found."
+  },
+  "oeis-a321776": {
+   "date": "2026-11-28",
+   "pr": 26835,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A321776",
+    "https://oeis.org/A242887",
+    "https://oeis.org/A321776",
+    "https://oeis.org/A242887"
+   ],
+   "note": "Barker's g.f. and recurrence (n>17 (the entry gives no range; 17 is the g.f. numerator degree)) for compositions of n into exactly 6 parts with distinct multiplicities (column k=6 of A242887) are stated faithfully, with a(n) counted directly over Fin 6 -> parts. My brute-force count of these compositions satisfies the g.f. identity to n=79 (59 for k=7). No prior proof found (entry, parent A242887, Palomar, Lean lists, Blanco Gomez, Fried). Routine: a finite case analysis over multiplicity shapes gives a quasi-polynomial. Second review: A rational g.f. for a fixed number of parts, proved by explicit partition-type sums. It is correct and faithful, and no earlier proof was found."
+  },
+  "oeis-a321777": {
+   "date": "2026-11-28",
+   "pr": 26838,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A321777",
+    "https://oeis.org/A242887",
+    "https://oeis.org/A321777",
+    "https://oeis.org/A242887"
+   ],
+   "note": "Barker's g.f. and recurrence (n>27) for compositions of n into exactly 7 parts with distinct multiplicities (column k=7 of A242887) are stated faithfully, with a(n) counted directly over Fin 7 -> parts. My brute-force count of these compositions satisfies the g.f. identity to n=79 (59 for k=7). No prior proof found (entry, parent A242887, Palomar, Lean lists, Blanco Gomez, Fried). Routine: a finite case analysis over multiplicity shapes gives a quasi-polynomial. Second review: A rational g.f. for a fixed number of parts, proved by explicit partition-type sums. It is correct and faithful, and no earlier proof was found."
+  },
+  "oeis-a322921": {
+   "date": "2026-11-28",
+   "pr": 22433,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A322921",
+    "https://oeis.org/A322921",
+    "https://oeis.org/A002375"
+   ],
+   "note": "Disproof. The statement (n>=48 even; among n, n+2, n+4 the multiple of 6 has at least as many unordered two-prime decompositions as each other) is the entry's conjecture in its weak form, so refuting it is at least as strong. The Lean counterexample is 80080 (1006 decompositions) against 80082 (1005); I computed these values and found the first failure is 80076 (995) vs 80080 (1006). No prior refutation found (entry, web, Palomar). Routine: a finite computation. Second review: Valid finite counterexample (80080 beats the multiple of 6, 80082). Heuristically expected from the singular series, but no published refutation was found."
+  },
+  "oeis-a325498": {
+   "date": "2026-11-28",
+   "pr": 25938,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A325498",
+    "https://oeis.org/A036668",
+    "https://oeis.org/A325498",
+    "https://oeis.org/A325417"
+   ],
+   "note": "Kimberling's conjecture that every gap of A036668 (greedy: not 2x,3x of an earlier term) lies in {1,2,3,4} is stated faithfully. The recursive 'selected' predicate matches the greedy definition, since a(m) < n whenever 2a(m)=n or 3a(m)=n. My sieve to 3e6 shows exactly the claimed gap set. No prior proof found, but it is immediate because every number coprime to 6 is a term (A036668's name: 2^i 3^j k with i+j even). Routine. Second review: Correct and faithful. It is an elementary consequence of the greedy structure (all numbers coprime to 6 or 12 are members, with a short case check for the complement)."
+  },
+  "oeis-a325499": {
+   "date": "2026-11-28",
+   "pr": 26269,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A325499",
+    "https://oeis.org/A325424",
+    "https://oeis.org/A325499",
+    "https://oeis.org/A325417"
+   ],
+   "note": "Kimberling's conjecture that every gap of A325424 (greedy: not 2x,3x of an earlier term) lies in {1,...,7} is stated faithfully. The recursive 'selected' predicate matches the greedy definition, since a(m) < n whenever 2a(m)=n or 3a(m)=n. My sieve to 3e6 shows exactly the claimed gap set. No prior proof found, but it is immediate because within any 7 consecutive integers some z = 2 mod 4 not divisible by 3, or z = 3 mod 6 not divisible by 9, lies in the complement. Routine. Second review: Correct and faithful. It is an elementary consequence of the greedy structure (all numbers coprime to 6 or 12 are members, with a short case check for the complement)."
+  },
+  "oeis-a325524": {
+   "date": "2026-11-28",
+   "pr": 26734,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A325524",
+    "https://oeis.org/A325431",
+    "https://oeis.org/A325524",
+    "https://oeis.org/A325417"
+   ],
+   "note": "Kimberling's conjecture that every gap of A325431 (greedy: not 3x,4x of an earlier term) lies in {1,2,3} is stated faithfully. The recursive 'selected' predicate matches the greedy definition, since a(m) < n whenever 2a(m)=n or 3a(m)=n. My sieve to 3e6 shows exactly the claimed gap set. No prior proof found, but it is immediate because A325431 is characterized in its entry by the parity of the 3- and 4-adic exponents. Routine. Second review: Correct and faithful. It is an elementary consequence of the greedy structure (all numbers coprime to 6 or 12 are members, with a short case check for the complement)."
+  },
+  "oeis-a325525": {
+   "date": "2026-11-28",
+   "pr": 27217,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A325525",
+    "https://oeis.org/A325432",
+    "https://oeis.org/A325525",
+    "https://oeis.org/A325417"
+   ],
+   "note": "Kimberling's conjecture that every gap of A325432 (greedy: not 3x,4x of an earlier term) lies in {1,...,7,9}, gap 8 absent is stated faithfully. The recursive 'selected' predicate matches the greedy definition, since a(m) < n whenever 2a(m)=n or 3a(m)=n. My sieve to 3e6 shows exactly the claimed gap set. No prior proof found, but it is immediate because of the parity characterization of A325432 given in its entry. Routine. Second review: Correct and faithful. It is an elementary consequence of the greedy structure (all numbers coprime to 6 or 12 are members, with a short case check for the complement)."
+  },
+  "oeis-a327464": {
+   "date": "2026-11-28",
+   "pr": 27782,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A327464",
+    "https://oeis.org/A326344",
+    "https://oeis.org/A327241",
+    "https://oeis.org/A327464"
+   ],
+   "note": "Sloane's conjecture (max value 107, first reached at n=883) is stated faithfully as a(n)<=107 for all n, a(883)=107 and a(n)<107 before that. It has the entry's base-5 reversal and next-prime/next-composite definitions. My recomputation to n=2*10^5 gives max 107, first at 883. The proof is a finite reachable-set argument by n mod 6, the method Sigrist and Weimholt used in A326344 and which the base-3 and base-7 sisters A326894/A327241 report adapting. For base 5 no confirmation was recorded in the entry or its sisters. Routine. Second review: Correct: the orbit is eventually confined, so the conjecture reduces to a finite check. No earlier proof was found."
+  },
+  "oeis-a327565": {
+   "date": "2026-11-28",
+   "pr": 24767,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A327565",
+    "https://oeis.org/A327565",
+    "https://oeis.org/A094373"
+   ],
+   "note": "The conjecture that, for m>2, the first n with a(n)=m is 2^(m-3)+1 is stated faithfully. The state machine matches the entry's example and PARI program, with the initial state counted as seen. The statement header correctly notes that the formula line's A094373(m-1) is an index slip for A094373(m-2), which is the same claim. My simulation for n<70000 reproduces the data and the first occurrences 2,3,5,9,...,65537. No prior proof (entry, sisters A327613/A327614, Palomar, Lean lists). Routine (explicit orbit of 2n - x/2). Second review: Faithful, and the proof is a real (short) orbit analysis. No earlier proof was found."
+  },
+  "oeis-a328544": {
+   "date": "2026-11-28",
+   "pr": 23109,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A328544",
+    "https://oeis.org/A328544"
+   ],
+   "note": "Sloane's conjecture that the terms are exactly 0, 5, 6 and the repunits is stated faithfully as a full characterization: dec 0 = [0], substring as List.IsInfix, the condition for every digit d. My search to 3*10^6 gives exactly 0,1,5,6,11,...,1111111. No prior proof found (entry, A328095, Palomar, Lean lists). Routine: digit analysis, a finite check below 1000 plus an argument for longer k. Second review: An easy digit argument, which is correct. No earlier proof was found."
+  },
+  "oeis-a329231": {
+   "date": "2026-11-28",
+   "pr": 24805,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A329231",
+    "https://math.stackexchange.com/q/3418970",
+    "https://oeis.org/A329231",
+    "https://math.stackexchange.com/q/3418970"
+   ],
+   "note": "Disproof of Kagey's C2 (largest n with a(n)=5 is 1972). The procedure is transcribed faithfully: my simulation with the same conventions reproduces all 2048 b-file terms of A329231 (and A329232). It gives a(2436)=5, the counterexample the Lean proof certifies by kernel computation; 2436 lies just past the b-file range. No prior refutation found (entry, MSE 3418970 which has only comments, Palomar). Routine: a finite computation. Second review: Refutes conjecture C2 (largest n with a(n)=5 is 1972) with a(2436)=5, which my own simulation confirms. Only C2 is refuted: C1 (a(n)=1 iff n=3,7,2^k) is untouched, so announce it as 'C2 refuted', not as A329231 settled."
+  },
+  "oeis-a329232": {
+   "date": "2026-11-28",
+   "pr": 25676,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A329232",
+    "https://math.stackexchange.com/q/3418970",
+    "https://oeis.org/A329232",
+    "https://math.stackexchange.com/q/3418970"
+   ],
+   "note": "Kagey's conjecture (no counterclockwise hops before all positions are reached iff n is a power of 2) is stated faithfully and without assuming the procedure stops. The counted hop range was checked against the whole b-file: my simulation with these conventions matches all 2048 terms, and the zero set up to 4096 is exactly the powers of 2. MSE 3418970 has no answer and nothing else settles it. Routine: purely clockwise runs visit the triangular numbers mod n, which cover all residues only for n=2^k. Second review: Faithful and proved for all n. The argument (clockwise-only walk = triangular numbers mod n, which cover Z/n iff n=2^k) is short but not in the entry."
+  },
+  "oeis-a330733": {
+   "date": "2026-11-28",
+   "pr": 24953,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A330733",
+    "https://oeis.org/A002033",
+    "https://oeis.org/A330733",
+    "https://oeis.org/A002033"
+   ],
+   "note": "Hood's two conjectures (right diagonal = A002033(n-1); each prime column with its zeros removed = A002033) are stated faithfully. Proper divisors exclude 1 and n, matching the worked example for 12. The column claim is split into: zero off multiples of p, R(mp,p) = A002033(m-1), and A002033 never 0. A Python re-implementation reproduces row 12, and both claims hold for n<400 and p<=13. No prior proof found. Routine: both sides satisfy the ordered-factorization recursion H(n) = sum over d|n, d<n of H(d). Second review: Correct, a short induction on the defining recursion."
+  },
+  "oeis-a331124": {
+   "date": "2026-11-28",
+   "pr": 14554,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A331124",
+    "https://oeis.org/A331124"
+   ],
+   "note": "Disproof of Konig's conjecture that the no-caching evaluation count is eventually <= C*n^(4/3). It is stated in its weakest form (some C>0 and N), so the refutation is strong, and calls(n) matches the entry's recurrence. The Lean proof builds indices k with index(k) <= 8*64^k and calls >= 257^k, so calls/n^(4/3) >= (257/256)^k/16 is unbounded. Numerically, max a(n)/n^(4/3) on [2^k,2^(k+1)) creeps up from 1.177 (k=8) to 1.306 (k=22), so the true exponent is only slightly above 4/3. No prior refutation found. Non-routine: it needed the right self-similar family. Second review: Valid disproof, though only barely: the true growth exponent is about 1.344, slightly above 4/3. Worth saying so when announcing, since König's 'small constant times n^(4/3)' was an empirical estimate."
+  },
+  "oeis-a331164": {
+   "date": "2026-11-28",
+   "pr": 24801,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A331164",
+    "https://oeis.org/A331164"
+   ],
+   "note": "Konig's conjecture a(n)=O(log n) for the cached evaluation count is stated as a Big-O over atTop. The count is 1 plus the child lookups of each distinct expanded argument >2, with 0,1,2 pre-cached, and my re-implementation reproduces every listed data term. The proof bounds the arguments at depth d to the band [n/2^d-3, n/2^d+2]. No prior proof found. Routine. Second review: Correct. With caching each recursion depth holds only O(1) distinct arguments, so O(log n) follows by a short argument."
+  },
+  "oeis-a334592": {
+   "date": "2026-11-28",
+   "pr": 26419,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A334592",
+    "https://mathoverflow.net/q/359138",
+    "https://oeis.org/A334592",
+    "https://mathoverflow.net/q/359138"
+   ],
+   "note": "Kagey's conjecture 'records occur at powers of two' is stated as: n is a strict record (more zeros than every smaller positive m) iff n=2^e, with the XOR triangle and zero count implemented directly. My computation for n<2^15 gives exactly the powers of 2 as strict records. The linked MO 359138 is about rotation-invariant triangles, not records, and no other prior proof was found. Routine: a power of 2 gives T(e) zeros, and any leading-1 triangle of side L+1 has at least L+1 ones, with equality only for 10...0. Second review: Correct and elementary: a row starting with 1 forces at least L ones, and 2^(L-1) attains the bound."
+  },
+  "oeis-a334886": {
+   "date": "2026-11-28",
+   "pr": 15147,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A334886",
+    "https://arxiv.org/abs/2005.04801",
+    "https://oeis.org/A334886",
+    "https://arxiv.org/abs/2005.04801",
+    "https://arxiv.org/abs/2301.12248"
+   ],
+   "note": "Bala's conjecture p^2 | numerator of A'(p-1) for primes p>=5 is stated faithfully, with Mathlib harmonic numbers and Rat.num. It is checked for 5<=p<120, and it fails at p=3 as the header notes. Gessel 1982 and Rowland-Yassawi-Krattenthaler (arXiv:2005.04801, Thm 8) only give congruences that imply A'(p-1) = 0 mod p, and no mod p^2 proof was found. The Lean proof is an elementary p-adic computation (e(k)=C(p-1+k,k)/p, sum k^(p-3) = 0 mod p). Routine. Second review: A new elementary proof (C(p-1+k,k)=p*e(k), Lucas, sum of k^(p-3) = 0 mod p). No earlier proof was found in the Apéry literature."
+  },
+  "oeis-a335012": {
+   "date": "2026-11-28",
+   "pr": 26900,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A335012",
+    "https://oeis.org/A006883",
+    "https://oeis.org/A335012",
+    "https://oeis.org/A006883"
+   ],
+   "note": "Eu's conjecture (a(n)=n-1 iff n is a long period prime, with 2 included as in A006883) is stated faithfully. The count of residues of the first n repunits is taken in ZMod n, and n=1 is correctly excluded. My computation for n<6000 shows the equivalence with no exceptions. No prior proof found (entry, Israel's comment relating a(n) to A084680 when gcd(n,30)=1, Palomar, Lean lists). Routine: order-of-10 argument plus handling of the factors 2, 3, 5. Second review: Correct, a short classification via the order of 10 mod n."
+  },
+  "oeis-a336759": {
+   "date": "2026-11-28",
+   "pr": 24586,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A336759",
+    "https://oeis.org/A336759"
+   ],
+   "note": "Shapiro's conjecture that A336759 is infinite is stated faithfully. For every n there is a positive m that is a sum of distinct repdigits and every such representation uses at least n of them. No prior proof found (entry, sister A336748, Palomar, Lean lists). Routine counting: the subset sums of L repunits give 2^L representable numbers below 10^(L+1), but sums of fewer than n repdigits of length <= L+1 number only polynomially many in L. Second review: Correct pigeonhole/counting proof."
+  },
+  "oeis-a336972": {
+   "date": "2026-11-28",
+   "pr": 24738,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A336972",
+    "https://oeis.org/A336972"
+   ],
+   "note": "Barker's g.f. and order-15 recurrence (n>15) for the sum of the two smallest sides over integer triangles of perimeter n are stated faithfully, with a(n) defined by the entry's own double-sum formula. My computation of the triangle sum satisfies the g.f. identity to n=119. No prior proof found (entry, Palomar, Lean lists). Routine: a quasi-polynomial count. Second review: A routine rational g.f. identity."
+  },
+  "oeis-a337500": {
+   "date": "2026-11-28",
+   "pr": 24693,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A337500",
+    "https://oeis.org/A337499",
+    "https://oeis.org/A337500"
+   ],
+   "note": "Mathar's conjectured D-finite recurrence is stated faithfully for n>=3. a(n) is the sum of C(n,k) over |n-2k|<=3 (the walks-within-3-of-origin reading in the entry's comments), which reproduces the data. I checked the recurrence for 3<=n<300. Unlike the sister A337499, no verification is recorded in the entry, and nothing else was found. Routine: the closed forms (m+1)a(2m) = (3m+1)C(2m,m) and (m+2)a(2m+1) = 4(2m+1)C(2m,m). Second review: A routine holonomic recurrence for a binomial sum."
+  },
+  "oeis-a337945": {
+   "date": "2026-11-28",
+   "pr": 24333,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A337945",
+    "https://oeis.org/A160014",
+    "https://oeis.org/A337945",
+    "https://oeis.org/A160014"
+   ],
+   "note": "Luschny's conjecture (m is a term iff m*Clausen(m,1) != 2*Clausen(m,0), i.e. iff m is not odd squarefree) is stated faithfully as both equivalences, with A160014 transcribed. My check for m<3000 agrees. No prior proof found (entry, sisters A337101/A337102/A039956, Palomar, Lean lists). Routine: the condition reduces to m | 2s^2 for some 1<=s<=m/2, which fails exactly when m is odd squarefree, and Clausen(m,1)=2 for odd m. Second review: Correct and elementary (m divides 2s^2 forces m | s when m is odd and squarefree)."
+  },
+  "oeis-a337950": {
+   "date": "2026-11-28",
+   "pr": 26636,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A337950",
+    "https://oeis.org/A337948",
+    "https://oeis.org/A337950"
+   ],
+   "note": "Hanna's conjecture a(4n+k) = 0 mod 5 for k=1,2,3 is stated faithfully. A is defined by F*A = -x*F' with F the theta series, which is equivalent to the L.g.f. -log F. My recomputation reproduces the data and the congruence for indices up to 400. No proof in the entry (the analogous mod-3 claim in A337948 is also still open there), Palomar or Lean lists. Routine given the entry's Jacobi-triple-product expansion, since 4 = -1 mod 5. Second review: Routine: for odd n, 4^n+1 = 0 mod 5, so theta mod 5 is a series in x^4, and so is -x theta'/theta."
+  },
+  "oeis-a338020": {
+   "date": "2026-11-28",
+   "pr": 24574,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A338020",
+    "https://oeis.org/A066643",
+    "https://oeis.org/A338020"
+   ],
+   "note": "Rush's conjecture (for k>=2, consecutive triples are triangle sides and the differences form a degenerate triangle) is stated faithfully, with the radius condition taken strictly as in the entry. The degenerate part reduces to strict monotonicity, x=y+z being an identity. My high-precision computation for k<3000 confirms it. No prior proof found. Nearly trivial but not definitional: the proof uses pi(2n-1)-1 <= a(n) < pi(2n-1)+1. Routine. Second review: Correct and routine."
+  },
+  "mo-104812": {
+   "date": "2026-11-28",
+   "pr": 29158,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/104812",
+    "https://projecteuclid.org/euclid.jca/1609815620",
+    "https://mathoverflow.net/questions/104812"
+   ],
+   "note": "Disproof: an explicit space X (N x Side x R, with a 'Side' topology built from eventual domination of rates) and a maximal ideal K of the sequence ring give two intersections of maximal ideals whose sum excludes the witness, so the sum is not an intersection of maximal ideals. Fidelity is fine: an arbitrary topological space is enough because C(X) is isomorphic to C(Y) for a Tychonoff Y. The question has no answers, and web searches on sums of strongly z-ideals / sz-ideals found no prior counterexample (Azarpanah–Parsinia treat sums of z-ideals only). Non-routine. Second review: A negative answer to an unanswered 2012 MO question, via a Tychonoff counterexample built on a dominance-filter space. The literature search on sz-ideals was reasonable but not exhaustive."
+  },
+  "mo-173510": {
+   "date": "2026-11-28",
+   "pr": 29149,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/173510",
+    "https://mathoverflow.net/questions/173510"
+   ],
+   "note": "Disproof of the quoted conjecture: a1=4, d=13, term 2344 = 8*293 > phi(13)*13^2 = 2028 is composite, and none of the 361 splits 4+13i, 4+13(360-i) is a pair of primes. I rechecked this with sympy, and (4,13) is the first counterexample my search found. The MO question has no answers, and the math.SE cross-post (858764) is deleted. A finite computation, so routine. Second review: Valid finite counterexample, and no earlier refutation was found."
   }
  },
  "flagged": {
@@ -18038,6 +18370,21 @@
     "https://oeis.org/A129654"
    ],
    "reason": "Second review: True, but mathematically the same conjecture as the already-solved oeis-a129654, shifted by the trivial identity A177025 = A129654 - 1. Not a separate new solve."
+  },
+  "oeis-a321644": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A321644"
+   ],
+   "reason": "Second review: The comment is an obvious remark, not an open problem: both directions are one-line arguments, which is what the proof does. Announcing it as a solved open problem would be misleading."
+  },
+  "oeis-a322521": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A322521",
+    "https://oeis.org/A319303"
+   ],
+   "reason": "Second review: The conditional is vacuous as stated: the Collatz hypothesis is never used, and the conclusion holds outright by the encoding's injectivity. This is the entry author's remark about the construction, not an open problem. Related site id oeis-a319303 states the companion remark."
   }
  },
  "known": {
@@ -33928,6 +34275,24 @@
     "https://zenodo.org/records/24552741"
    ],
    "reason": "Rule 245: Munoz (Zenodo 24552741, 2026-11-26, claims.json status 'proved') covers exactly the two statement parts, Barker's recurrence for n>2 and the g.f. (1-2x+16x^2)/((1-x)(1-4x)); predates the site commit (2026-11-28 13:47 UTC). Statement definition (whole-line rule incl. background) matches the entry's program."
+  },
+  "oeis-a323210": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A323210",
+    "https://oeis.org/A208556",
+    "https://isitsolved.com/journal/e9039b327f56"
+   ],
+   "reason": "Second review: Known: the isitsolved journal proved this claim about 1.5 h before the site commit. The id also duplicates oeis-a208556, and its statement assumes the transfer-matrix reduction instead of stating the array count from the definition."
+  },
+  "oeis-a328151": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A328151",
+    "https://doi.org/10.5281/zenodo.24163511",
+    "https://github.com/iwasborninbali/athanor-oeis"
+   ],
+   "reason": "Second review: Schoenfield's conjecture was proved in a public Zenodo notebook on 2026-11-12, before the site's proof. Attribute it, or mark it known."
   }
  },
  "reviewed": "2026-11-28"
