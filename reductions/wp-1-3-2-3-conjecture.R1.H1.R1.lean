@@ -67,6 +67,8 @@ def H3 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
       (¬ ∃ r : Fin 3 ↪ P, (∀ q, r q ∉ s) ∧ ∀ k ∉ s,
         (∀ a ∈ s, ∀ b ∈ s, (k < a ↔ k < b) ∧ (a < k ↔ b < k)) ∨
         ∃ q, ∀ a ∈ s, (k < a ↔ r q < a) ∧ (a < k ↔ a < r q)) ∧
+      (¬ ∀ a ∈ s, ∀ b ∈ s, ∀ k : P, a < k → b < k) ∧
+      (¬ ∀ a ∈ s, ∀ b ∈ s, ∀ k : P, k < a → k < b) ∧
       ∀ t : Finset P, (t : Set P).Pairwise (fun a b => ¬ a ≤ b) → t.card ≤ 5) →
     9 ≤ Fintype.card P →
     (∀ t : Finset P, t.card = 3 → (t : Set P).Pairwise (fun a b => ¬ a ≤ b) →
@@ -637,22 +639,18 @@ lemma five_by_three_cover (D U : Fin 5 → Fin 3 → Prop)
   rcases allGood with ((((((((h|h)|h)|h)|h)|h)|h)|h)|h)|h
   all_goals exact witness _ _ _ (by decide) (by decide) h
 
-lemma three_profile_gold (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
-    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) (five : s.card = 5)
-    (r : Fin 3 ↪ P) (outside : ∀ q, r q ∉ s)
-    (profiles : ∀ k ∉ s,
-      (∀ a ∈ s, ∀ b ∈ s, (k < a ↔ k < b) ∧ (a < k ↔ b < k)) ∨
-      ∃ q, ∀ a ∈ s, (k < a ↔ r q < a) ∧ (a < k ↔ a < r q))
-    (thin : ∀ a ∈ s, ({k : P | k ∉ s ∧ ¬ a ≤ k ∧ ¬ k ≤ a} : Set P).ncard ≤ 2) :
+lemma majority_five_labels (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+    (five : s.card = 5) :
     let C (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
-    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+    (¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
       ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
-        C [p] + C [p, q] ≤ C [] := by
+        C [p] + C [p, q] ≤ C [])) →
+    ∃ v : Fin 5 → P, (∀ i, v i ∈ s) ∧
+      (∀ {i j}, i < j → C [] < 2 * C [(v i,v j)]) ∧ ∀ {i j}, i < j → v i ≠ v j := by
   classical
-  intro C
-  by_contra noGold
+  intro C noGold
   obtain ⟨irr, total, transitive⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.no_gold_majority_order P noGold
   have label (A : Type) [Fintype A] (n : Fintype.card A = 5) (r : A → A → Prop)
       (strict : IsStrictTotalOrder A r) : ∃ e : Fin 5 ≃ A, ∀ i j, i < j → r (e i) (e j) := by
@@ -676,6 +674,113 @@ lemma three_profile_gold (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
     have large := earlier h
     rw [eq] at large
     exact irr (v j) large
+  exact ⟨v,mem,@earlier,@diff⟩
+
+lemma common_successors_gold (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) (five : s.card = 5)
+    (same : ∀ a ∈ s, ∀ b ∈ s, ∀ k : P, a < k → b < k)
+    (thin : ∀ a ∈ s, ({k : P | k ∉ s ∧ ¬ a ≤ k ∧ ¬ k ≤ a} : Set P).ncard ≤ 2) :
+    let C (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        C [p] + C [p, q] ≤ C [] := by
+  classical
+  intro C
+  by_contra noGold
+  obtain ⟨v,mem,earlier,diff⟩ := majority_five_labels P s five noGold
+  let E := Finset.univ.filter (fun k : P => k ∉ s ∧ ¬ v 0 ≤ k ∧ ¬ k ≤ v 0)
+  have small : E.card ≤ 2 := by simpa [E, ← Set.ncard_coe_finset] using thin _ (mem 0)
+  let B (j : Fin 4) := E.filter (fun k => ¬ k < v j.succ)
+  have exception {k : P} {a : Fin 5} (ka : k < v a) (miss : ¬ k < v 0) : k ∈ E := by
+    have ks : k ∉ s := fun h => anti h (mem a) ka.ne ka.le
+    have ne : k ≠ v 0 := fun h => ks (h ▸ mem 0)
+    have above : ¬ v 0 ≤ k := by
+      intro le
+      have inc := le.trans_lt ka
+      exact anti (mem 0) (mem a) inc.ne inc.le
+    exact Finset.mem_filter.mpr ⟨Finset.mem_univ _,ks,above,fun le => miss (lt_of_le_of_ne le ne)⟩
+  have proper (j : Fin 4) : B j ≠ E := by
+    intro eq
+    have incl (k : P) (h : k < v j.succ) : k < v 0 := by
+      by_contra miss
+      have hk := exception h miss
+      rw [← eq] at hk
+      exact (Finset.mem_filter.mp hk).2 h
+    have zero := Fin.succ_pos j
+    have bound : C [(v 0,v j.succ)] ≤ C [(v j.succ,v 0)] :=
+      OMA.R_wp_1_3_2_3_conjecture_R1.exchange_count_le P _ _ _
+        (anti (mem 0) (mem _) (diff zero)) incl
+        (fun r mono extra => ⟨extra (v 0,v j.succ) (by simp), fun k h => mono (same _ (mem 0) _ (mem _) k h)⟩)
+    have split : C [(v 0,v j.succ)] + C [(v j.succ,v 0)] = C [] :=
+      (OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P).2.2.1 [] _ _ (diff zero)
+    have maj : C [] < 2 * C [(v 0,v j.succ)] := earlier zero
+    omega
+  have distinct (j l : Fin 4) (jl : j < l) : B j ≠ B l := by
+    intro eq
+    have zero := Fin.succ_pos j
+    have next := Fin.succ_lt_succ_iff.mpr jl
+    apply noGold
+    apply directed_gold P s anti _ (mem 0) _ (mem j.succ) _ (mem l.succ)
+      (diff zero) (diff next) (diff (Fin.succ_pos l)) (earlier zero).le (earlier next).le
+      (same _ (mem _) _ (mem _))
+    intro k h
+    by_contra! miss
+    have hk : k ∈ B j := Finset.mem_filter.mpr ⟨exception h miss.1,miss.2⟩
+    rw [eq] at hk
+    exact (Finset.mem_filter.mp hk).2 h
+  have inj : Function.Injective B := by
+    intro j l eq
+    rcases lt_trichotomy j l with h | h | h
+    · exact False.elim (distinct j l h eq)
+    · exact h
+    · exact False.elim (distinct l j h eq.symm)
+  have subset : Finset.univ.image B ⊆ E.powerset.erase E := by
+    intro x hx
+    obtain ⟨j,_,rfl⟩ := Finset.mem_image.mp hx
+    exact Finset.mem_erase.mpr ⟨proper j, Finset.mem_powerset.mpr (Finset.filter_subset _ _)⟩
+  have bound := Finset.card_le_card subset
+  rw [Finset.card_image_of_injective _ inj, Finset.card_erase_of_mem (Finset.mem_powerset.mpr (by rfl)),
+    Finset.card_powerset] at bound
+  have cap : 2 ^ E.card ≤ (2 : ℕ)^2 := Nat.pow_le_pow_right (by decide) small
+  change 4 ≤ 2 ^ E.card - 1 at bound
+  omega
+
+lemma common_predecessors_gold (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) (five : s.card = 5)
+    (same : ∀ a ∈ s, ∀ b ∈ s, ∀ k : P, k < a → k < b)
+    (thin : ∀ a ∈ s, ({k : P | k ∉ s ∧ ¬ a ≤ k ∧ ¬ k ≤ a} : Set P).ncard ≤ 2) :
+    let C (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        C [p] + C [p, q] ≤ C [] := by
+  apply OMA.R_wp_1_3_2_3_conjecture_R1.gold_of_dual P
+  apply common_successors_gold Pᵒᵈ s (fun a ha b hb ne h => anti hb ha ne.symm h) five same
+  intro a ha
+  apply le_trans _ (thin a ha)
+  apply Set.ncard_le_ncard _ (Set.toFinite _)
+  exact fun k h => ⟨h.1,h.2.2,h.2.1⟩
+
+lemma three_profile_gold (P : Type) [PartialOrder P] [Fintype P] (s : Finset P)
+    (anti : (s : Set P).Pairwise (fun a b => ¬ a ≤ b)) (five : s.card = 5)
+    (r : Fin 3 ↪ P) (outside : ∀ q, r q ∉ s)
+    (profiles : ∀ k ∉ s,
+      (∀ a ∈ s, ∀ b ∈ s, (k < a ↔ k < b) ∧ (a < k ↔ b < k)) ∨
+      ∃ q, ∀ a ∈ s, (k < a ↔ r q < a) ∧ (a < k ↔ a < r q))
+    (thin : ∀ a ∈ s, ({k : P | k ∉ s ∧ ¬ a ≤ k ∧ ¬ k ≤ a} : Set P).ncard ≤ 2) :
+    let C (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        C [p] + C [p, q] ≤ C [] := by
+  classical
+  intro C
+  by_contra noGold
+  obtain ⟨v,mem,earlier,diff⟩ := majority_five_labels P s five noGold
   let D (i : Fin 5) (k : Fin 3) := r k < v i
   let U (i : Fin 5) (k : Fin 3) := v i < r k
   have polar (i j : Fin 5) (k : Fin 3) (di : D i k) (uj : U j k) : False := by
@@ -796,10 +901,12 @@ theorem main : H1 → H2 → H3 → OMA.R_wp_1_3_2_3_conjecture_R1.H1 := by
     have nine : 9 ≤ Fintype.card P := by
       by_contra! small
       exact noGold (eight_gold P t at' five (by omega) ex)
-    apply w5 P nonchain indecomp rigid ⟨t,at',five,ex,?_,maxT⟩ nine
+    apply w5 P nonchain indecomp rigid ⟨t,at',five,ex,?_,?_,?_,maxT⟩ nine
       (trace_obstructions P noGold) thin upper lower noGold
-    rintro ⟨r, outside, profiles⟩
-    exact noGold (three_profile_gold P t at' five r outside profiles ex)
+    · rintro ⟨r, outside, profiles⟩
+      exact noGold (three_profile_gold P t at' five r outside profiles ex)
+    · exact fun h => noGold (common_successors_gold P t at' five h ex)
+    · exact fun h => noGold (common_predecessors_gold P t at' five h ex)
   · have cap (x : P) : ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ s.card := h ▸ thin x
     exact (noGold (near_antichain_gold P s ant (by omega) cap rigid)).elim
 
