@@ -59,7 +59,7 @@ print(verdict); print(path); print(v.get("kind", "")); print(v.get("polarity", "
 PY
 mapfile -t D < decision.txt
 VERDICT="${D[0]}"; FPATH="${D[1]}"; KIND="${D[2]}"; POL="${D[3]}"; REASON="${D[4]}"; MODE="${D[5]:-new}"
-[ "$VERDICT" = "stale" ] && exit 0
+[ "$VERDICT" = "stale" ] && { echo "skip: stale (head moved)"; exit 0; }
 PID="$(basename "$FPATH" .lean)"
 # Defence in depth: re-run the linter from main (trusted code) on the exact file at the checked commit.
 # Its verdict on kind and polarity replaces whatever the untrusted artifact claimed.
@@ -173,12 +173,10 @@ case "$VERDICT" in
   rejected) printf '%s\n' "$REASON" > reason.txt   # for the merger: the submission status on the site
     # GitHub allows about 80 comments a minute and 500 an hour (secondary rate limit, whatever the token): rejection
     # comments share one gate on the runner, one per 8 seconds. Over it, a check-proof rejection is shown by its red
-    # check and on the site (reason.txt) without a comment; a batch-checker rejection (no check on the pull request)
-    # waits for a later pass.
+    # check, and every rejection (batch ones too) shows its reason on the site (reason.txt), without a comment.
+    # (Batch rejections used to wait for a later pass; they came back every 90 s and took most of the slots.)
     if comment_gate; then
       comment "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)"
-    elif [ "${VERDICT_MODE:-}" = batch ]; then
-      echo "comment deferred (gate)"; touch defer.flag
     else
       echo "REJECTED without a comment (gate): the check and the site show it"
     fi ;;
