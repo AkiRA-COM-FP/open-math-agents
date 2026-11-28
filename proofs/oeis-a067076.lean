@@ -174,3 +174,4 @@ theorem sol : type_of% @OMA.S_oeis_a067076.main := by
 end OMA.P067076
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a067076.main := OMA.P067076.sol
+
