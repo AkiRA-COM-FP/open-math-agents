@@ -778,13 +778,429 @@ end BridgeMatching
 namespace OMA.R_arxiv_1805_00840_R1
 open SimpleGraph OMA.S_arxiv_1805_00840
 
-/-- The unweighted published lower bound on cubic or one-port bridgeless blocks. -/
+end OMA.R_arxiv_1805_00840_R1
+
+namespace BridgeCubic
+open SimpleGraph OMA.S_arxiv_1805_00840 OMA.R_arxiv_1805_00840_R1 BridgeMatching
+variable {V : Type*} [Fintype V] [DecidableEq V] {G : SimpleGraph V} [DecidableRel G.Adj]
+
+theorem sparse_proper (hc : G.Connected) (hd : ∀ v, G.degree v ≤ 3)
+    (s : Finset V) (hs : s.Nonempty) (hn : ∃ v, v ∉ s) :
+    ∃ u ∈ s, ((G.neighborFinset u).filter (· ∈ s)).card ≤ 2 := by
+  classical
+  by_contra! h
+  have sat {u : V} (hu : u ∈ s) : (G.neighborFinset u).filter (· ∈ s) = G.neighborFinset u := by
+    apply Finset.eq_of_subset_of_card_le (Finset.filter_subset ..)
+    have h1 := h u hu
+    have h2 := hd u
+    rw [← G.card_neighborFinset_eq_degree u] at h2
+    omega
+  obtain ⟨a, ha⟩ := hs
+  have all_mem (v : V) : v ∈ s := by
+    have path := (G.reachable_iff_reflTransGen a v).1 (hc.preconnected a v)
+    induction path with
+    | refl => exact ha
+    | tail _ e ih =>
+      have he := (G.mem_neighborFinset ..).2 e
+      rw [← sat ih] at he
+      exact (Finset.mem_filter.mp he).2
+  obtain ⟨v,hv⟩ := hn
+  exact hv (all_mem v)
+
+theorem split_proper (hc : G.Connected) (hd : ∀ v, G.degree v ≤ 3)
+    (M : G.Subgraph) (hM : M.IsMatching) (hn : ∃ v, v ∉ M.verts) : ∃ A B : G.Subgraph, IsUniquelyRestricted A ∧ IsUniquelyRestricted B ∧ Disjoint A.verts B.verts ∧ A ⊔ B = M := by
+  classical
+  by_cases hne : M.verts.Nonempty
+  · obtain ⟨u, hu, hd2⟩ := sparse_proper hc hd M.verts.toFinset
+      (Set.toFinset_nonempty.mpr hne) (by simpa using hn)
+    have hum : u ∈ M.verts := Set.mem_toFinset.mp hu
+    obtain ⟨v, e, _⟩ := hM hum
+    let S : Set V := {x | x ∈ M.verts ∧ x ≠ u ∧ x ≠ v}
+    have closed {x y : V} (hx : x ∈ S) (hxy : M.Adj x y) : y ∈ S := by
+      refine ⟨hxy.snd_mem, ?_, ?_⟩
+      · rintro rfl
+        exact hx.2.2 (hM.eq_of_adj_left hxy.symm e)
+      · rintro rfl
+        exact hx.2.1 (hM.eq_of_adj_left hxy.symm e.symm)
+    have hm' := matching_induce_closed hM (s := S) (fun _ hx => hx.1) @closed
+    apply split_insert hM e _ (split_proper hc hd (M.induce S) hm' ⟨u, fun h => h.2.1 rfl⟩)
+    intro x hx y hy hux huy hxv hyv
+    exact unique_other_neighbor (Set.mem_toFinset.mpr e.snd_mem) (M.adj_sub e) hd2
+      (Set.mem_toFinset.mpr hx) (Set.mem_toFinset.mpr hy) hux huy hxv hyv
+  · have hbot : M = ⊥ := by
+      apply bot_unique
+      exact ⟨fun x hx => (hne ⟨x,hx⟩).elim, fun x _ h => (hne ⟨x,h.fst_mem⟩).elim⟩
+    exact ⟨⊥, ⊥, empty_ur, empty_ur, disjoint_bot_left, by simp [hbot]⟩
+termination_by M.verts.ncard
+decreasing_by
+  refine Set.ncard_lt_ncard ?_ (Set.toFinite _)
+  exact Set.ssubset_iff_subset_ne.mpr ⟨fun _ h => h.1, fun he =>
+    have h : u ∈ S := (congrArg (fun t : Set V => u ∈ t) he).mpr hum
+    h.2.1 rfl⟩
+
+
+theorem drop_one (M : G.Subgraph) (hm : M.IsMatching) (x : V) :
+    ∃ A : G.Subgraph, A.IsMatching ∧ x ∉ A.verts ∧ M.edgeSet.ncard ≤ A.edgeSet.ncard + 1 := by
+  classical
+  by_cases hx : x ∈ M.verts
+  · obtain ⟨y,e,_⟩ := hm hx
+    let S : Set V := {z | z ∈ M.verts ∧ z ≠ x ∧ z ≠ y}
+    let A := M.induce S
+    have closed {z w : V} (hz : z ∈ S) (h : M.Adj z w) : w ∈ S := by
+      refine ⟨h.snd_mem,?_,?_⟩
+      · rintro rfl
+        exact hz.2.2 (hm.eq_of_adj_left h.symm e)
+      · rintro rfl
+        exact hz.2.1 (hm.eq_of_adj_left h.symm e.symm)
+    have ma : A.IsMatching := matching_induce_closed hm (fun _ hz => hz.1) @closed
+    refine ⟨A,ma,fun h => h.2.1 rfl,?_⟩
+    have sub : M.verts ⊆ A.verts ∪ {x,y} := by
+      intro z hz
+      change (z ∈ M.verts ∧ z ≠ x ∧ z ≠ y) ∨ z = x ∨ z = y
+      tauto
+    have card := (Set.ncard_le_ncard sub).trans (Set.ncard_union_le _ _)
+    rw [Set.ncard_pair e.ne] at card
+    have h1 := matching_size M hm
+    have h2 := matching_size A ma
+    omega
+  · exact ⟨M,hm,hx,by omega⟩
+
+theorem cubic_four (hc : G.Connected) (hd : ∀ v, G.degree v = 3)
+    (hb : ∀ e ∈ G.edgeSet, ¬G.IsBridge e) (four : 4 ∣ Fintype.card V) :
+    ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ G.edgeFinset.card ≤ 6 * M.edgeSet.ncard := by
+  classical
+  obtain ⟨P,hP⟩ := bridgeless_cubic_perfect G hd hb
+  obtain ⟨x⟩ := hc.nonempty
+  obtain ⟨A,hA,miss,loss⟩ := drop_one P hP.1 x
+  obtain ⟨L,R,hL,hR,_,eq⟩ := split_proper hc (fun x => (hd x).le) A hA ⟨x,miss⟩
+  have pe := matching_size P hP.1
+  rw [hP.2.verts_eq_univ, Set.ncard_univ, Nat.card_eq_fintype_card] at pe
+  have edges := G.sum_degrees_eq_twice_card_edges
+  simp only [hd,Finset.sum_const,Finset.card_univ,smul_eq_mul] at edges
+  have split := Set.ncard_union_le L.edgeSet R.edgeSet
+  rw [← Subgraph.edgeSet_sup,eq] at split
+  obtain ⟨k,hk⟩ := four
+  by_cases h : L.edgeSet.ncard ≤ R.edgeSet.ncard
+  · exact ⟨R,hR,by omega⟩
+  · exact ⟨L,hL,by omega⟩
+
+end BridgeCubic
+
+namespace BridgePortHelpers
+open SimpleGraph
+variable {V : Type*} [Finite V] {G : SimpleGraph V}
+theorem lift_in_side {s : Set V} (M : (G.induce s).Subgraph) : (M.map (Embedding.induce s).toHom).verts ⊆ s := by
+  rintro x ⟨y,_,rfl⟩
+  exact y.2
+
+theorem lift_size {s : Set V} (M : (G.induce s).Subgraph) :
+    (M.map (Embedding.induce s).toHom).edgeSet.ncard = M.edgeSet.ncard := by
+  rw [Subgraph.edgeSet_map]
+  exact Set.ncard_image_of_injective _ (Sym2.map.injective (Embedding.induce (G := G) s).injective)
+
+theorem sup_size (A B : G.Subgraph) (hd : Disjoint A.verts B.verts) :
+    (A ⊔ B).edgeSet.ncard = A.edgeSet.ncard + B.edgeSet.ncard := by
+  rw [Subgraph.edgeSet_sup]
+  refine Set.ncard_union_eq ?_ (Set.toFinite _) (Set.toFinite _)
+  apply Set.disjoint_left.mpr
+  intro e ea eb
+  obtain ⟨x,y⟩ := e
+  exact Set.disjoint_left.mp hd (A.edge_vert ea) (B.edge_vert eb)
+
+
+end BridgePortHelpers
+
+namespace BridgePort
+open SimpleGraph BridgeMatching OMA.S_arxiv_1805_00840
+variable {V : Type} [Fintype V] {G : SimpleGraph V} [DecidableRel G.Adj]
+
+theorem odd_internal_cut (hb : ∀ e ∈ G.edgeSet, ¬G.IsBridge e)
+    (s : Set V) (hs : Odd s.ncard) (hd : ∀ x : s, G.degree x = 3) :
+    3 ≤ Nat.card (Σ x : s, {y : G.neighborSet x // (y : V) ∉ s}) := by
+  classical
+  have h := cut_handshake G s
+  simp only [hd,Finset.sum_const,Finset.card_univ,smul_eq_mul] at h
+  have hc : s.ncard = Fintype.card s := by rw [← Nat.card_coe_set_eq, Nat.card_eq_fintype_card]
+  obtain ⟨k,hk⟩ := hs
+  have := cut_not_one G hb s
+  omega
+
+
+end BridgePort
+
+namespace BridgePort
+open SimpleGraph BridgeMatching
+variable {V : Type} [Fintype V] {G : SimpleGraph V} [DecidableRel G.Adj]
+
+
+/-- An even region of cubic vertices with at most five incoming edges has a perfect matching. -/
+theorem perfect_small_cut (W : Set V) (even : Even W.ncard) (hd : ∀ x : W, G.degree x = 3)
+    (hb : ∀ e ∈ G.edgeSet, ¬G.IsBridge e) (small : Nat.card ((Σ v : ↥(Wᶜ), {y : G.neighborSet v // (y : V) ∈ W})) ≤ 5) :
+    ∃ P : (G.induce W).Subgraph, P.IsPerfectMatching := by
+  classical
+  let B := G.induce W
+  apply tutte.mpr
+  intro U
+  let H := (⊤ : B.Subgraph).deleteVerts U
+  let emb (x : H.verts) : V := x.1.1
+  have embInj : Function.Injective emb := fun _ _ e => Subtype.ext (Subtype.ext e)
+  let S (c : H.coe.oddComponents) := emb '' c.1.supp
+  let D (c : H.coe.oddComponents) := Σ x : S c, {y : G.neighborSet x // (y : V) ∉ S c}
+  have win (c : H.coe.oddComponents) : S c ⊆ W := by
+    rintro _ ⟨x,_,rfl⟩
+    exact x.1.2
+  have lower (c : H.coe.oddComponents) : 3 ≤ Nat.card (D c) := by
+    apply odd_internal_cut hb
+    · rw [show (S c).ncard = c.1.supp.ncard from Set.ncard_image_of_injective _ embInj]
+      exact c.2
+    · exact fun x => hd ⟨x,win c x.2⟩
+  have endsIn (c : H.coe.oddComponents) (d : D c) (hy : (d.2.1 : V) ∈ W) :
+      (⟨d.2.1,hy⟩ : W) ∈ U := by
+    by_contra hout
+    let w : H.verts := ⟨⟨d.2.1,hy⟩,Set.mem_univ _,hout⟩
+    obtain ⟨v,hv,eq⟩ := d.1.2
+    have edge : H.coe.Adj v w := by
+      change v.1 ∈ H.verts ∧ w.1 ∈ H.verts ∧ G.Adj (emb v) (d.2.1 : V)
+      exact ⟨v.2,w.2,eq.symm ▸ d.2.1.2⟩
+    exact d.2.2 ⟨w,c.1.mem_supp_of_adj_mem_supp hv edge,rfl⟩
+  let Z := (Σ x : U, G.neighborSet x.1.1) ⊕ (Σ v : ↥(Wᶜ), {y : G.neighborSet v // (y : V) ∈ W})
+  let f (d : Σ c : H.coe.oddComponents, D c) : Z :=
+    if h : (d.2.2.1 : V) ∈ W then
+      Sum.inl ⟨⟨⟨d.2.2.1,h⟩,endsIn d.1 d.2 h⟩,⟨d.2.1,d.2.2.1.2.symm⟩⟩
+    else Sum.inr ⟨⟨d.2.2.1,h⟩,⟨⟨d.2.1,d.2.2.1.2.symm⟩,win d.1 d.2.1.2⟩⟩
+  let read : Z → V × V := Sum.elim (fun z => (z.2.1,z.1.1.1)) (fun z => (z.2.1.1,z.1.1))
+  have val (d : Σ c : H.coe.oddComponents, D c) : read (f d) = (d.2.1.1,d.2.2.1.1) := by
+    simp only [f]
+    split <;> rfl
+  have inj : Function.Injective f := by
+    rintro ⟨c,d⟩ ⟨c',d'⟩ he
+    have same := (val ⟨c,d⟩).symm.trans ((congrArg read he).trans (val ⟨c',d'⟩))
+    obtain ⟨hx,hy⟩ := Prod.mk.inj same
+    obtain ⟨v,hv,ev⟩ := d.1.2
+    obtain ⟨w,hw,ew⟩ := d'.1.2
+    have vw := embInj (ev.trans (hx.trans ew.symm))
+    have cc : c = c' := Subtype.ext ((c.1.mem_supp_iff v).mp hv |>.symm.trans
+      ((c'.1.mem_supp_iff v).mp (vw ▸ hw)))
+    subst c'
+    have ed := cut_pair_injective G (S c) (Prod.ext hx hy)
+    cases ed
+    rfl
+  have cap := Nat.card_le_card_of_injective f inj
+  change Nat.card (Σ c, D c) ≤ Nat.card ((Σ x : U, G.neighborSet x.1.1) ⊕ (Σ v : ↥(Wᶜ), {y : G.neighborSet v // (y : V) ∈ W})) at cap
+  rw [Nat.card_sum,Nat.card_sigma,Nat.card_sigma] at cap
+  have valU (v : U) : Nat.card (G.neighborSet v.1.1) = 3 :=
+    Nat.card_eq_fintype_card.trans ((card_neighborSet_eq_degree _ _).trans (hd v.1))
+  simp only [valU,Finset.sum_const,Finset.card_univ,smul_eq_mul] at cap
+  have lo := Finset.sum_le_sum (s := Finset.univ) (fun c _ => lower c)
+  simp only [Finset.sum_const,Finset.card_univ,smul_eq_mul] at lo
+  have parity := odd_ncard_oddComponents H.coe
+  have del : Nat.card H.verts = W.ncard - U.ncard := by
+    rw [Nat.card_coe_set_eq]
+    change ((Set.univ : Set W) \ U).ncard = _
+    rw [← Set.compl_eq_univ_sdiff,Set.ncard_compl, Nat.card_coe_set_eq]
+  rw [del] at parity
+  have sub : U.ncard ≤ W.ncard := by
+    simpa only [Set.ncard_univ,Nat.card_coe_set_eq] using (Set.ncard_le_ncard (Set.subset_univ U))
+  change ¬ U.ncard < H.coe.oddComponents.ncard
+  rw [Set.fintypeCard_eq_ncard] at cap lo
+  simp only [Nat.odd_iff] at parity
+  obtain ⟨k,hk⟩ := even
+  omega
+
+end BridgePort
+
+namespace BridgePort
+open SimpleGraph BridgePortHelpers BridgeMatching OMA.S_arxiv_1805_00840
+variable {V : Type} [Fintype V] {G : SimpleGraph V} [DecidableRel G.Adj]
+
+theorem add_outside_star (hc : G.Connected) (hd : ∀ x, G.degree x ≤ 3)
+    (W : Set V) {p u : V} (e : G.Adj p u) (miss : p ∉ W)
+    (outside : ∀ x ∈ W, ¬G.Adj p x)
+    (P : (G.induce W).Subgraph) (hp : P.IsPerfectMatching) :
+    ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ W.ncard + 4 ≤ 4 * M.edgeSet.ncard := by
+  classical
+  let A := P.map (Embedding.induce W).toHom
+  have ha : A.IsMatching := hp.1.map _ (Embedding.induce (G := G) W).injective
+  obtain ⟨L,R,hL,hR,_,eq⟩ := BridgeCubic.split_proper hc hd A ha ⟨p,fun h => miss (lift_in_side P h)⟩
+  have pe := matching_size P hp.1
+  rw [hp.2.verts_eq_univ, Set.ncard_univ, Nat.card_coe_set_eq] at pe
+  have sizes := Set.ncard_union_le L.edgeSet R.edgeSet
+  rw [← Subgraph.edgeSet_sup,eq,lift_size] at sizes
+  have extend (T : G.Subgraph) (ht : IsUniquelyRestricted T) (leA : T ≤ A)
+      (large : W.ncard ≤ 4*T.edgeSet.ncard) :
+      ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ W.ncard + 4 ≤ 4*M.edgeSet.ncard := by
+    have cover : T.verts ⊆ W := fun _ h => lift_in_side P (leA.1 h)
+    have mp : p ∉ T.verts := fun h => miss (cover h)
+    have mu : u ∉ T.verts := fun h => outside u (cover h) e
+    have dis : Disjoint T.verts (G.subgraphOfAdj e).verts := by
+      apply Set.disjoint_left.mpr
+      intro z hz he
+      rcases (show z = p ∨ z = u from he) with rfl | rfl <;> contradiction
+    refine ⟨_,OMA.R_arxiv_1805_00840_R1.uniquelyRestricted_add_forced ht e mp mu
+      (fun x hx => outside x (cover hx)),?_⟩
+    rw [sup_size _ _ dis,edgeSet_subgraphOfAdj,Set.ncard_singleton]
+    omega
+  by_cases h : L.edgeSet.ncard ≤ R.edgeSet.ncard
+  · exact extend R hR (eq ▸ le_sup_right) (by omega)
+  · exact extend L hL (eq ▸ le_sup_left) (by omega)
+
+theorem cut_cap (d : ∀ x, G.degree x ≤ 3) (D : Set V) :
+    Nat.card ((Σ v : ↥(Dᶜᶜ), {y : G.neighborSet v // (y : V) ∈ Dᶜ})) + 2 * (G.induce D).edgeSet.ncard ≤ 3 * D.ncard := by
+  classical
+  have cut := cut_handshake G D
+  have inc : Nat.card ((Σ v : ↥(Dᶜᶜ), {y : G.neighborSet v // (y : V) ∈ Dᶜ})) =
+      Nat.card (Σ v : D, {y : G.neighborSet v // (y : V) ∉ D}) := by
+    exact Nat.card_congr
+      { toFun := fun ⟨v,y⟩ => ⟨⟨v.1,not_not.mp v.2⟩,y⟩
+        invFun := fun ⟨v,y⟩ => ⟨⟨v.1,not_not.mpr v.2⟩,y⟩
+        left_inv := fun _ => rfl
+        right_inv := fun _ => rfl }
+  have cap := Finset.sum_le_sum (s := Finset.univ) (fun x _ => d (x : D).1)
+  simp only [Finset.sum_const,Finset.card_univ,smul_eq_mul,Set.fintypeCard_eq_ncard] at cap
+  rw [edgeFinset_card,Set.fintypeCard_eq_ncard] at cut
+  omega
+
+theorem star_cost (p : V) (d : ∀ x, G.degree x ≤ 3)
+    (D : Set V) (inside : p ∈ D) (neighbors : G.neighborSet p ⊆ D) :
+    Nat.card ((Σ v : ↥(Dᶜᶜ), {y : G.neighborSet v // (y : V) ∈ Dᶜ})) + 2 * G.degree p ≤ 3 * D.ncard := by
+  classical
+  have cut := cut_cap d D
+  have deg := (G.induce D).degree_le_card_edgeFinset (⟨p,inside⟩ : D)
+  rw [degree_induce_of_neighborSet_subset neighbors] at deg
+  change G.degree p ≤ (G.induce D).edgeFinset.card at deg
+  rw [edgeFinset_card,Set.fintypeCard_eq_ncard] at deg
+  omega
+
+theorem one_port_bound (hc : G.Connected) (p : V) (hp : G.degree p = 2)
+    (hd : ∀ x, x ≠ p → G.degree x = 3) (hb : ∀ e ∈ G.edgeSet, ¬G.IsBridge e) :
+    ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ G.edgeFinset.card ≤ 6 * M.edgeSet.ncard := by
+  classical
+  let D : Set V := insert p (G.neighborSet p)
+  have din : p ∈ D := Set.mem_insert _ _
+  have dn : G.neighborSet p ⊆ D := Set.subset_insert _ _
+  have dcard : D.ncard = 3 := by
+    have hn : (G.neighborSet p).ncard = 2 := by
+      rw [← Set.fintypeCard_eq_ncard,card_neighborSet_eq_degree,hp]
+    rw [show D = insert p (G.neighborSet p) from rfl, Set.ncard_insert_of_notMem,hn]
+    exact G.irrefl
+  have deg (x : V) : 2 ≤ G.degree x ∧ G.degree x ≤ 3 := by
+    by_cases e : x = p
+    · subst x
+      exact ⟨hp.ge,hp.le.trans (by decide)⟩
+    · rw [hd x e]
+      decide
+  have edges := deficit_identity G deg
+  have sing : {v | G.degree v = 2} = {p} := by
+    ext x
+    by_cases e : x = p <;> simp [e,hp,hd]
+  rw [sing,Set.ncard_singleton] at edges
+  have total := Set.ncard_add_ncard_compl D
+  rw [dcard,Nat.card_eq_fintype_card] at total
+  have cost := star_cost p (fun x => (deg x).2) D din dn
+  have even : Even Dᶜ.ncard := by
+    rw [Nat.even_iff]
+    omega
+  obtain ⟨P,hP⟩ := perfect_small_cut Dᶜ even
+    (fun x => hd x (fun e => x.2 (e ▸ din))) hb (by omega)
+  have nonempty : (G.neighborFinset p).Nonempty := Finset.card_pos.mp (by rw [card_neighborFinset_eq_degree,hp]; decide)
+  obtain ⟨u,hu⟩ := nonempty
+  obtain ⟨M,hm,size⟩ := add_outside_star hc (fun x => (deg x).2) Dᶜ
+    ((G.mem_neighborFinset p u).mp hu) (fun h => h din) (fun _ h adj => h (dn adj)) P hP
+  exact ⟨M,hm,by omega⟩
+
+end BridgePort
+
+namespace BridgePort
+open SimpleGraph BridgeMatching OMA.S_arxiv_1805_00840
+variable {V : Type} [Fintype V] {G : SimpleGraph V} [DecidableRel G.Adj]
+
+set_option maxHeartbeats 1200000 in
+theorem cubic_triangle (hc : G.Connected) (hd : ∀ x, G.degree x = 3)
+    (hb : ∀ e ∈ G.edgeSet, ¬G.IsBridge e) {p u v : V}
+    (pu : G.Adj p u) (pv : G.Adj p v) (uv : G.Adj u v) :
+    ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ G.edgeFinset.card ≤ 6 * M.edgeSet.ncard := by
+  classical
+  let D : Set V := insert p (G.neighborSet p)
+  letI : Fintype D := Subtype.fintype (· ∈ D)
+  have din : p ∈ D := Set.mem_insert _ _
+  have dn : G.neighborSet p ⊆ D := Set.subset_insert _ _
+  have dcard : D.ncard = 4 := by
+    have hn : (G.neighborSet p).ncard = 3 := by
+      rw [← Set.fintypeCard_eq_ncard,card_neighborSet_eq_degree,hd]
+    rw [show D = insert p (G.neighborSet p) from rfl, Set.ncard_insert_of_notMem,hn]
+    exact G.irrefl
+  let B := G.induce D
+  let z : D := ⟨p,din⟩
+  let x : D := ⟨u,dn pu⟩
+  let y : D := ⟨v,dn pv⟩
+  have inside : s(x,y) ∈ B.edgeFinset := B.mem_edgeFinset.mpr uv
+  have apart : s(x,y) ∉ B.incidenceFinset z := by
+    rw [B.incidenceFinset_eq_filter]
+    intro h
+    rcases Sym2.mem_iff.mp (Finset.mem_filter.mp h).2 with h | h
+    · exact pu.ne (congrArg Subtype.val h)
+    · exact pv.ne (congrArg Subtype.val h)
+  have strict := Finset.card_lt_card (Finset.ssubset_iff_subset_ne.mpr
+    ⟨B.incidenceFinset_subset z,fun e => apart (e.symm ▸ inside)⟩)
+  rw [card_incidenceFinset_eq_degree] at strict
+  have db : B.degree z = G.degree p := by
+    convert! degree_induce_of_neighborSet_subset (v := z) dn using 1
+  have inside_count : 3 < B.edgeFinset.card := (db.trans (hd p)).symm.trans_lt strict
+  rw [edgeFinset_card,Set.fintypeCard_eq_ncard] at inside_count
+  have cost := cut_cap (fun x => (hd x).le) D
+  have edges := G.sum_degrees_eq_twice_card_edges
+  simp only [hd,Finset.sum_const,Finset.card_univ,smul_eq_mul] at edges
+  have total := Set.ncard_add_ncard_compl D
+  rw [dcard,Nat.card_eq_fintype_card] at total
+  have even : Even Dᶜ.ncard := by rw [Nat.even_iff]; omega
+  change 3 < (G.induce D).edgeSet.ncard at inside_count
+  obtain ⟨P,hP⟩ := perfect_small_cut Dᶜ even (fun x => hd x) hb (by omega)
+  obtain ⟨M,hm,size⟩ := add_outside_star hc (fun x => (hd x).le) Dᶜ pu
+    (fun h => h din) (fun _ h adj => h (dn adj)) P hP
+  exact ⟨M,hm,by omega⟩
+
+end BridgePort
+
+namespace OMA.R_arxiv_1805_00840_R1
+open SimpleGraph OMA.S_arxiv_1805_00840
+
+/-- The remaining triangle-free cubic case of the published unweighted bound. -/
 def H1 : Prop :=
   ∀ (V : Type) [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj],
+    G.Connected → (∀ e ∈ G.edgeSet, ¬G.IsBridge e) → (∀ x, G.degree x = 3) →
+    IsEmpty (G ≃g completeBipartiteGraph (Fin 3) (Fin 3)) →
+    Fintype.card V % 4 = 2 → (∀ p u v, G.Adj p u → G.Adj p v → ¬G.Adj u v) →
+    ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ G.edgeFinset.card ≤ 6 * M.edgeSet.ncard
+
+theorem unweighted_from_residual (residual : H1) :
+    ∀ (V : Type) [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj],
       G.Connected → (∀ e ∈ G.edgeSet, ¬ G.IsBridge e) → (∀ x, 2 ≤ G.degree x ∧ G.degree x ≤ 3) →
       IsEmpty (G ≃g completeBipartiteGraph (Fin 3) (Fin 3)) →
       (∀ u v, G.degree u = 2 → G.degree v = 2 → u = v) →
-      ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ G.edgeFinset.card ≤ 6 * M.edgeSet.ncard
+      ∃ M : G.Subgraph, IsUniquelyRestricted M ∧ G.edgeFinset.card ≤ 6 * M.edgeSet.ncard := by
+  intro V _ G _ hc hb hd hk uniquePort
+  classical
+  by_cases port : ∃ p, G.degree p = 2
+  · obtain ⟨p,hp⟩ := port
+    apply BridgePort.one_port_bound hc p hp _ hb
+    intro x hx
+    have neq : G.degree x ≠ 2 := fun h => hx (uniquePort x p h hp)
+    have := hd x
+    omega
+  · have cubic (x : V) : G.degree x = 3 := by
+      have ne : G.degree x ≠ 2 := fun h => port ⟨x,h⟩
+      have := hd x
+      omega
+    by_cases mult : 4 ∣ Fintype.card V
+    · exact BridgeCubic.cubic_four hc cubic hb mult
+    by_cases triangle : ∃ p u v, G.Adj p u ∧ G.Adj p v ∧ G.Adj u v
+    · obtain ⟨p,u,v,pu,pv,uv⟩ := triangle
+      exact BridgePort.cubic_triangle hc cubic hb pu pv uv
+    have edges := G.sum_degrees_eq_twice_card_edges
+    simp only [cubic,Finset.sum_const,Finset.card_univ,smul_eq_mul] at edges
+    apply residual V G hc hb cubic hk (by omega)
+    exact fun p u v pu pv uv => triangle ⟨p,u,v,pu,pv,uv⟩
+
 
 /-- Assemble the two sides of one bridge, keeping enough slots free for future joins. -/
 def H2 : Prop :=
@@ -814,7 +1230,7 @@ theorem certificates_by_order (hbase : H1) (hglue : H2) (n : ℕ) :
       ∀ x, 2 * t x ≤ {i : Fin 6 | x ∉ (L i).verts}.ncard := by
   classical
   have h1 := BridgeMatching.ordinary_block_bound
-  have h2 := BridgeMatching.exceptional_from_unweighted hbase
+  have h2 := BridgeMatching.exceptional_from_unweighted (unweighted_from_residual hbase)
   have h3 := hglue
   induction n using Nat.strong_induction_on with
   | h n ih =>
