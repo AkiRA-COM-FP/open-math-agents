@@ -13,10 +13,9 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a090518.main := by
     rw [pow_succ, show 10 ^ m * 10 = 2 * (5 * 10 ^ m) by ring]
     exact Nat.mul_div_cancel _ (by positivity)
   have h : ∃ k : ℕ, (10 ^ (m + 1) / k).Prime := ⟨5 * 10 ^ m, by rw [hk]; exact Nat.prime_two⟩
-  have hspec := Nat.find_spec h
-  have hfind_ne : Nat.find h ≠ 0 := by
+  have hspec : (10 ^ (m + 1) / OMA.S_oeis_a090518.b (m + 1)).Prime := Nat.sInf_mem h
+  have hb : OMA.S_oeis_a090518.b (m + 1) ≠ 0 := by
     intro h0; rw [h0, Nat.div_zero] at hspec; exact Nat.not_prime_zero hspec
-  unfold OMA.S_oeis_a090518.a OMA.S_oeis_a090518.A090517
-  rw [dif_pos h, if_neg hfind_ne]
+  unfold OMA.S_oeis_a090518.a
+  rw [if_neg hb]
   exact hspec.ne_zero
-
