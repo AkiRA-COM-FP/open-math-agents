@@ -668,7 +668,7 @@ def supportCard (d q m : ℕ) (i : Fin 16) : ℕ :=
   | 13 | 14 => N*m*(d+1)
   | _ => N*m*(d+1)*(q-1)
 
-theorem support_profile (d q m : ℕ) (hq : 2 ≤ q) (hm : 0<m) (i : Fin 16) :
+theorem support_profile (d q m : ℕ) (hq : 2 ≤ q) (hm : 0 < m) (i : Fin 16) :
     bits (supportCard d q m i) = profile (weights d q m) i := by
   have hq' : (q:ℝ) ≠ 0 := by exact_mod_cast (by omega : q≠0)
   have hm' : (m:ℝ) ≠ 0 := by exact_mod_cast hm.ne'
@@ -679,7 +679,7 @@ theorem support_profile (d q m : ℕ) (hq : 2 ≤ q) (hm : 0<m) (i : Fin 16) :
     Real.log_mul,Real.log_pow,hq',hm',ht',hr',hr'',sub_ne_zero.mpr (show (q:ℝ)≠1 by exact_mod_cast (by omega : q≠1))] <;> ring
 
 /-- This conclusion uses the sixteen marginal entropies, with no MI assumptions. -/
-theorem information_of_counts (d q m : ℕ) (hq : 2 ≤ q) (hm : 0<m)
+theorem information_of_counts (d q m : ℕ) (hq : 2 ≤ q) (hm : 0 < m)
     (h : Fin 16 → ℝ) (counts : ∀ i, h i = bits (supportCard d q m i)) :
     V h = bits (q-1)-bits q+3*bits (d+1)-2*bits m ∧ P h=4*(bits m-bits (d+1)) := by
   have e : h=profile (weights d q m) := funext (fun i => (counts i).trans (support_profile _ _ _ hq hm i))
@@ -879,11 +879,11 @@ section
 open EntropyCounts EntropySlice
 namespace EntropyLargeRatio
 
-theorem large_ratio (k q m d : ℕ) (hq : 2≤q) (hr : d+1<m)
+theorem large_ratio (k q m d : ℕ) (hq : 2≤q) (hr : d+1 < m)
     (hgap : q*m^(4*k+2) < (q-1)*(d+1)^(4*k+3)) :
     0 < weights d q m 3 ∧ (k:ℝ)*(4*weights d q m 3) < weights d q m 4 := by
   have hqpos : 0 < (q:ℝ) := by exact_mod_cast (by omega : 0<q)
-  have hmpos : 0 < (m:ℝ) := by exact_mod_cast (by omega : 0<m)
+  have hmpos : 0 < (m:ℝ) := by exact_mod_cast (by omega : 0 < m)
   have hlog := Real.log_lt_log (by positivity : (0:ℝ)<(q:ℝ)*(m:ℝ)^(4*k+2)) (show
       (q:ℝ)*(m:ℝ)^(4*k+2) < ((q-1:ℕ):ℝ)*((d+1:ℕ):ℝ)^(4*k+3) by exact_mod_cast hgap)
   have hq' : (q:ℝ)≠0 := by exact_mod_cast (by omega : q≠0)
@@ -893,7 +893,7 @@ theorem large_ratio (k q m d : ℕ) (hq : 2≤q) (hr : d+1<m)
   rw [Real.log_mul hq' (pow_ne_zero _ hm'),Real.log_mul hp' (pow_ne_zero _ hd'),
     Real.log_pow,Real.log_pow] at hlog
   have h2 : 0 < Real.log 2 := Real.log_pos (by norm_num)
-  have hmr := Real.log_lt_log (show (0:ℝ)<((d+1:ℕ):ℝ) by positivity) (show ((d+1:ℕ):ℝ)<m by exact_mod_cast hr)
+  have hmr := Real.log_lt_log (show (0:ℝ)<((d+1:ℕ):ℝ) by positivity) (show ((d+1:ℕ):ℝ) < m by exact_mod_cast hr)
   change 0 < bits m-bits (d+1) ∧ (k:ℝ)*(4*(bits m-bits (d+1))) <
     bits (q-1)-bits q+3*bits (d+1)-2*bits m
   unfold bits
@@ -909,7 +909,7 @@ def digits (k : ℕ) := 4*(4*k+3)
 def size (k : ℕ) := (alphabet k)^(digits k)
 def modulus (k : ℕ) := (2*alphabet k-1)^(digits k)*(2*(digits k)*(alphabet k-1)^2+1)
 
-theorem size_pos (k : ℕ) : 0<size k := Nat.pow_pos (Nat.pow_pos (by decide : 0<2))
+theorem size_pos (k : ℕ) : 0 < size k := Nat.pow_pos (Nat.pow_pos (by decide : 0<2))
 theorem size_lt_modulus (k : ℕ) : size k < modulus k := by
   let b := alphabet k
   let d := digits k
@@ -1230,7 +1230,7 @@ theorem energy_le {b d : ℕ} (s : S b d) : energy s≤d*b^2 := by
     energy s ≤ ∑ _j : Fin d,b^2 := sum_le_sum fun j _ => Nat.pow_le_pow_left (Nat.le_of_lt_succ (s j).isLt) _
     _ = _ := by simp
 
-private theorem unwrap {m a b : ℕ} (ha : a<m) (hb : b<m) (hh : (a : ZMod m)=b) : a=b := by
+private theorem unwrap {m a b : ℕ} (ha : a < m) (hb : b < m) (hh : (a : ZMod m)=b) : a=b := by
   simpa only [ZMod.val_natCast_of_lt ha,ZMod.val_natCast_of_lt hb] using congrArg ZMod.val hh
 
 theorem digit_eq {b d : ℕ} (x y z t : S b d) (h : col x+col y=col z+col t) (j : Fin d) :
@@ -1975,7 +1975,7 @@ theorem union_eq (r : Ω → Fin n → X) (a b : ℕ) (x y : Ω) :
     exacts [h j e,k j e]
 
 theorem mi_nonneg (p : Ω → ℝ) (hp : ∀ x,0≤p x) (r : Ω → Fin n → X)
-    (a b k : ℕ) : 0≤mi (H p r) a b k := by
+    (a b k : ℕ) : 0 ≤ mi (H p r) a b k := by
   let f x := (mask r k x,mask r a x,mask r b x)
   let P := push p f
   have h := EntropyShannon.conditional (fun i j l => P (i,j,l))
@@ -2450,7 +2450,7 @@ theorem largeTable (k : ℕ) (hg : FiniteGeometry k) : LargeTable k := by
     rw [← Nat.card_eq_fintype_card]
     simp only [Row,Nat.card_prod,g.points,g.labels,g.colours,g.scalars,d,m]
     ring
-  have hm : 0<m := lt_trans (size_pos k) (size_lt_modulus k)
+  have hm : 0 < m := lt_trans (size_pos k) (size_lt_modulus k)
   have hq0 : 0<q := lt_of_lt_of_le (by decide : 0<2) hq
   have hq1 : 0<q-1 := Nat.sub_pos_of_lt (lt_of_lt_of_le (by decide : 1<2) hq)
   have hN : 0<Fintype.card Ω := hc ▸ Nat.mul_pos (Nat.mul_pos (Nat.mul_pos (Nat.pow_pos hq0) hm) (Nat.succ_pos d)) hq1
@@ -2755,7 +2755,7 @@ theorem all_geometry (k : ℕ) : FiniteGeometry k := by
     apply Nat.pow_le_pow_right (by decide); omega
   have ht : 1≤t := by dsimp [t,digits]; omega
   have hbr : b+1=B := by dsimp [b]; omega
-  have hsize : 2≤size k :=
+  have hsize : 2 ≤ size k :=
     hB.trans ((le_of_eq (pow_one B).symm).trans (Nat.pow_le_pow_right (by omega : 0<B) ht))
   obtain ⟨hs,hg⟩ := EntropyProgressionLabels.sizes b t
   have hgs : Nat.card G=modulus k := by
