@@ -1,161 +1,118 @@
 import OMAReductions.R_OeisA217785_conjecture_3_R1
-import Mathlib.Algebra.Polynomial.Reverse
-import Mathlib.Algebra.Polynomial.Taylor
-import Mathlib.Data.Nat.Choose.Dvd
-import Mathlib.RingTheory.Polynomial.Eisenstein.Criterion
+import Mathlib.RingTheory.Polynomial.Eisenstein.Basic
 import Mathlib.RingTheory.Polynomial.GaussLemma
+import Mathlib.Algebra.Polynomial.Taylor
 
-/-! The reciprocal polynomial shifted by one satisfies Eisenstein at the prime n+2. -/
+/-! The prime n+2 case follows from Eisenstein after translation by one. -/
 
 open Polynomial
 
-namespace OMA.A217785
+namespace OMA.PrimeGeometricDerivative
 
--- The reciprocal polynomial has coefficients n+1, n, ..., 1.
-noncomputable def reciprocal : ℕ → Polynomial ℤ
-  | 0 => 1
-  | n + 1 => C ((n : ℤ) + 2) + X * reciprocal n
+lemma polyS_succ (n : ℕ) :
+    OeisA217785.polyS (n + 1) = OeisA217785.polyS n +
+      C (n + 2 : ℤ) * X ^ (n + 1) := by
+  simp [OeisA217785.polyS, Finset.sum_range_succ, Nat.cast_add, Nat.cast_one]
+  ring
 
-lemma coeff_reciprocal (n k : ℕ) :
-    (reciprocal n).coeff k = if k ≤ n then (n : ℤ) + 1 - k else 0 := by
-  induction n generalizing k with
-  | zero => cases k <;> simp [reciprocal, coeff_one]
+lemma coeff_shift (n j : ℕ) :
+    ((OeisA217785.polyS n).comp (X + 1)).coeff j =
+      (j + 1 : ℤ) * (Nat.choose (n + 2) (j + 2) : ℤ) := by
+  induction n with
+  | zero =>
+    by_cases hj : j = 0
+    · subst j; norm_num [OeisA217785.polyS]
+    · have hlt : 2 < j + 2 := by omega
+      simp [OeisA217785.polyS, coeff_one, hj, Nat.choose_eq_zero_of_lt hlt]
   | succ n ih =>
-    cases k with
-    | zero =>
-      simp [reciprocal]
-      ring
-    | succ k =>
-      rw [reciprocal, coeff_add, coeff_C_succ, coeff_X_mul, zero_add, ih]
-      simp only [Nat.succ_le_succ_iff, Nat.cast_succ]
-      split <;> ring
+    rw [polyS_succ, add_comp, coeff_add, ih]
+    simp only [mul_comp, C_comp, pow_comp, X_comp, coeff_C_mul, coeff_X_add_one_pow]
+    have h := Nat.add_one_mul_choose_eq (n + 1) j
+    have hz : (n + 2 : ℤ) * ((n + 1).choose j : ℤ) =
+        ((n + 2).choose (j + 1) : ℤ) * (j + 1 : ℤ) := by exact_mod_cast h
+    rw [show n + 1 + 2 = (n + 2) + 1 by omega,
+      Nat.choose_succ_succ (n + 2) (j + 1)]
+    push_cast
+    nlinarith [hz]
 
-lemma coeff_original (n k : ℕ) :
-    (OeisA217785.polyS n).coeff k = if k ≤ n then (k : ℤ) + 1 else 0 := by
-  classical
-  simp only [OeisA217785.polyS, finsetSum_coeff, coeff_C_mul_X_pow,
-    Finset.sum_ite_eq, Finset.mem_range, Nat.lt_succ_iff]
-
-lemma original_degree (n : ℕ) : (OeisA217785.polyS n).natDegree = n := by
+lemma shifted_degree (n : ℕ) :
+    ((OeisA217785.polyS n).comp (X + 1)).natDegree = n := by
   apply natDegree_eq_of_le_of_coeff_ne_zero
-  · rw [natDegree_le_iff_coeff_eq_zero]
-    intro k hk
-    simp [coeff_original, not_le_of_gt hk]
-  · rw [coeff_original, if_pos le_rfl]
+  · apply natDegree_le_iff_coeff_eq_zero.mpr
+    intro j hj
+    rw [coeff_shift, Nat.choose_eq_zero_of_lt (by omega : n + 2 < j + 2)]
+    simp
+  · rw [coeff_shift, Nat.choose_self]
     positivity
 
-lemma reverse_original (n : ℕ) : (OeisA217785.polyS n).reverse = reciprocal n := by
-  ext k
-  rw [coeff_reverse, original_degree, coeff_reciprocal]
-  by_cases hk : k ≤ n
-  · rw [revAt_le hk, coeff_original, if_pos (Nat.sub_le ..), if_pos hk, Nat.cast_sub hk]
-    ring
-  · rw [revAt_eq_self_of_lt (lt_of_not_ge hk), coeff_original, if_neg hk, if_neg hk]
+lemma shifted_leadingCoeff (n : ℕ) :
+    ((OeisA217785.polyS n).comp (X + 1)).leadingCoeff = (n + 1 : ℤ) := by
+  rw [leadingCoeff, shifted_degree, coeff_shift, Nat.choose_self]
+  simp
 
--- Shifting the reciprocal polynomial by one yields the shifted binomial row.
-lemma coeff_shifted (n k : ℕ) :
-    ((reciprocal n).comp (X + 1)).coeff k = ((n + 2).choose (k + 2) : ℤ) := by
-  induction n generalizing k with
-  | zero =>
-    cases k with
-    | zero => norm_num [reciprocal]
-    | succ k =>
-      simp [reciprocal, coeff_one, Nat.choose_eq_zero_of_lt (show 2 < k.succ + 2 by omega)]
-  | succ n ih =>
-    rw [reciprocal, add_comp, C_comp, mul_comp, X_comp, add_mul, one_mul]
-    cases k with
-    | zero =>
-      simp only [coeff_add, coeff_X_mul_zero, coeff_C_zero, zero_add, ih]
-      change (n : ℤ) + 2 + ((n + 2).choose 2 : ℤ) = ((n + 2 + 1).choose (1 + 1) : ℤ)
-      rw [Nat.choose_succ_succ (n + 2) 1, Nat.choose_one_right, Nat.cast_add, Nat.cast_add, Nat.cast_ofNat]
-    | succ k =>
-      simp only [coeff_add, coeff_C_succ, coeff_X_mul, zero_add, ih]
-      change ((n + 2).choose (k + 2) : ℤ) + ((n + 2).choose (k + 2 + 1) : ℤ) =
-        ((n + 2 + 1).choose ((k + 2) + 1) : ℤ)
-      rw [Nat.choose_succ_succ (n + 2) (k + 2), Nat.cast_add, add_comm]
-
-lemma shifted_degree (n : ℕ) : ((reciprocal n).comp (X + 1)).natDegree = n := by
-  apply natDegree_eq_of_le_of_coeff_ne_zero
-  · rw [natDegree_le_iff_coeff_eq_zero]
-    intro k hk
-    rw [coeff_shifted, Nat.choose_eq_zero_of_lt (by omega : n + 2 < k + 2), Nat.cast_zero]
-  · rw [coeff_shifted, Nat.choose_self, Nat.cast_one]
-    exact one_ne_zero
-
-lemma square_not_dvd_choose_two (p : ℕ) (hp : 2 < p) : ¬ p ^ 2 ∣ p.choose 2 := by
-  have hchoose : 2 * p.choose 2 = p * (p - 1) := by
-    have he := Nat.descFactorial_eq_factorial_mul_choose p 2
-    rwa [Nat.descFactorial_succ p 1, Nat.descFactorial_one, Nat.factorial_two, mul_comm (p-1) p,
-      eq_comm] at he
-  rintro ⟨d, hd⟩
-  have hcancel : p * (p - 1) = p * (2 * p * d) := by
-    rw [← hchoose, hd]
-    ring
-  have hdvd : p ∣ p - 1 :=
-    ⟨2 * d, by
-      have he := Nat.eq_of_mul_eq_mul_left (show 0 < p by omega) hcancel
-      rw [he]
-      ring⟩
-  exact Nat.not_dvd_of_pos_of_lt (by omega) (by omega) hdvd
+lemma shifted_primitive (n : ℕ) :
+    ((OeisA217785.polyS n).comp (X + 1)).IsPrimitive := by
+  intro r hr
+  apply isUnit_of_dvd_one
+  have he := Polynomial.eval_dvd (x := (-1 : ℤ)) hr
+  rw [eval_C, eval_comp] at he
+  simpa [OeisA217785.polyS, ← coeff_zero_eq_eval_zero, finsetSum_coeff, coeff_C_mul_X_pow] using he
 
 lemma shifted_irreducible (n : ℕ) (hn : 1 ≤ n) (hp : (n + 2).Prime) :
-    Irreducible ((reciprocal n).comp (X + 1)) := by
-  let p : ℤ := (n + 2 : ℕ)
-  have hpz : Prime p := Nat.prime_iff_prime_int.mp hp
-  have hm : ((reciprocal n).comp (X + 1)).Monic := by
-    rw [Monic, leadingCoeff, shifted_degree, coeff_shifted, Nat.choose_self, Nat.cast_one]
-  apply irreducible_of_eisenstein_criterion (P := Ideal.span {p})
-    ((Ideal.span_singleton_prime hpz.ne_zero).2 hpz)
-  · rw [hm.leadingCoeff, Ideal.mem_span_singleton]
-    exact hpz.not_isUnit ∘ isUnit_of_dvd_one
-  · intro k hk
-    rw [coe_lt_degree, shifted_degree] at hk
-    rw [coeff_shifted, Ideal.mem_span_singleton]
-    change ((n + 2 : ℕ) : ℤ) ∣ _
-    exact_mod_cast hp.dvd_choose_self (by omega : k + 2 ≠ 0) (by omega : k + 2 < n + 2)
-  · apply natDegree_pos_iff_degree_pos.mp
-    rw [shifted_degree]
-    omega
-  · rw [Ideal.span_singleton_pow, Ideal.mem_span_singleton, coeff_shifted]
-    change ¬ ((n + 2 : ℕ) : ℤ) ^ 2 ∣ _
-    exact_mod_cast square_not_dvd_choose_two (n + 2) (by omega)
-  · exact hm.isPrimitive
+    Irreducible ((OeisA217785.polyS n).comp (X + 1)) := by
+  let P : Ideal ℤ := Ideal.span {((n + 2 : ℕ) : ℤ)}
+  have hP : P.IsPrime := by
+    change (Ideal.span {((n + 2 : ℕ) : ℤ)}).IsPrime
+    rw [Ideal.span_singleton_prime]
+    · rw [Int.prime_iff_natAbs_prime, Int.natAbs_natCast]
+      exact hp
+    · exact_mod_cast (by omega : n + 2 ≠ 0)
+  have he : ((OeisA217785.polyS n).comp (X + 1)).IsEisensteinAt P := by
+    refine ⟨?_, ?_, ?_⟩
+    · rw [shifted_leadingCoeff]
+      change ¬ (n + 1 : ℤ) ∈ Ideal.span {((n + 2 : ℕ) : ℤ)}
+      rw [Ideal.mem_span_singleton]
+      intro h
+      have hnat : n + 2 ∣ n + 1 := by exact_mod_cast h
+      have := Nat.le_of_dvd (by omega : 0 < n + 1) hnat
+      omega
+    · intro j hj
+      rw [shifted_degree] at hj
+      rw [coeff_shift]
+      apply Ideal.mem_span_singleton.mpr
+      have hc : n + 2 ∣ (n + 2).choose (j + 2) :=
+        hp.dvd_choose_self (by omega) (by omega)
+      apply dvd_mul_of_dvd_right
+      exact_mod_cast hc
+    · rw [coeff_shift]
+      simp only [Nat.cast_zero, zero_add, one_mul]
+      change ¬ ((n + 2).choose 2 : ℤ) ∈
+        (Ideal.span {((n + 2 : ℕ) : ℤ)} : Ideal ℤ) ^ 2
+      rw [Ideal.span_singleton_pow, Ideal.mem_span_singleton]
+      intro h
+      have hnat : (n + 2) ^ 2 ∣ (n + 2).choose 2 := by exact_mod_cast h
+      have hpos : 0 < (n + 2).choose 2 := Nat.choose_pos (by omega)
+      have hlt := Nat.choose_lt_pow (by omega : n + 2 ≠ 0) (by omega : 2 ≤ 2)
+      have := Nat.le_of_dvd hpos hnat
+      omega
+  exact he.irreducible hP (shifted_primitive n) (by rw [shifted_degree]; omega)
 
-lemma irreducible_of_reverse_int {f : Polynomial ℤ} (h0 : f.coeff 0 = 1)
-    (hi : Irreducible f.reverse) : Irreducible f := by
-  have reverse_unit_of (g : Polynomial ℤ) (hg : IsUnit (g.coeff 0)) :
-      IsUnit g.reverse → IsUnit g := by
-    intro hr
-    have hz := natDegree_eq_zero_of_isUnit hr
-    have ht : g.natTrailingDegree = 0 := natTrailingDegree_eq_zero_of_constantCoeff_ne_zero hg.ne_zero
-    have hd : g.natDegree = 0 := by
-      rw [natDegree_eq_reverse_natDegree_add_natTrailingDegree, hz, ht, zero_add]
-    rw [eq_C_of_natDegree_eq_zero hd]
-    exact isUnit_C.mpr hg
-  have unit_reverse (g : Polynomial ℤ) (hg : IsUnit g) : IsUnit g.reverse := by
-    have he := eq_C_of_natDegree_eq_zero (natDegree_eq_zero_of_isUnit hg)
-    rw [he, reverse_C]
-    exact isUnit_C.mpr (hg.map constantCoeff)
-  refine ⟨fun hu => hi.not_isUnit (unit_reverse f hu), ?_⟩
-  intro g h hmul
-  have hz : g.coeff 0 * h.coeff 0 = 1 := by rw [← mul_coeff_zero, ← hmul, h0]
-  have he : f.reverse = g.reverse * h.reverse := by rw [hmul, reverse_mul_of_domain]
-  exact (hi.isUnit_or_isUnit he).imp
-    (reverse_unit_of g (.of_mul_eq_one _ hz))
-    (reverse_unit_of h (.of_mul_eq_one _ ((mul_comm _ _).trans hz)))
+lemma original_irreducible (n : ℕ) (hn : 1 ≤ n) (hp : (n + 2).Prime) :
+    Irreducible (OeisA217785.polyS n) := by
+  apply (MulEquiv.irreducible_iff (taylorEquiv (1 : ℤ))).mp
+  change Irreducible ((taylor (1 : ℤ)) (OeisA217785.polyS n))
+  rw [taylor_apply, C_1]
+  exact shifted_irreducible n hn hp
 
-end OMA.A217785
+lemma original_primitive (n : ℕ) : (OeisA217785.polyS n).IsPrimitive := by
+  intro r hr
+  apply isUnit_of_dvd_one
+  have he := Polynomial.eval_dvd (x := (0 : ℤ)) hr
+  simpa [OeisA217785.polyS, ← coeff_zero_eq_eval_zero, finsetSum_coeff, coeff_C_mul_X_pow] using he
+
+end OMA.PrimeGeometricDerivative
 
 theorem OMA.solution : OMA.R_OeisA217785_conjecture_3_R1.H1 := by
   intro n hn hp
-  have h0 : (OeisA217785.polyS n).coeff 0 = 1 := by simp [OMA.A217785.coeff_original]
-  have hPrimitive : (OeisA217785.polyS n).IsPrimitive := by
-    rintro r ⟨q, hq⟩
-    exact .of_mul_eq_one (q.coeff 0) (by rwa [← coeff_C_mul, ← hq])
-  apply (IsPrimitive.Int.irreducible_iff_irreducible_map_cast hPrimitive).mp
-  apply OMA.A217785.irreducible_of_reverse_int h0
-  rw [OMA.A217785.reverse_original]
-  apply (MulEquiv.irreducible_iff (taylorEquiv (1 : ℤ))).mp
-  change Irreducible ((OMA.A217785.reciprocal n).comp (X + C (1 : ℤ)))
-  rw [C_1]
-  exact OMA.A217785.shifted_irreducible n hn hp
+  exact (OMA.PrimeGeometricDerivative.original_primitive n).irreducible_iff_irreducible_map_fraction_map.mp
+    (OMA.PrimeGeometricDerivative.original_irreducible n hn hp)
