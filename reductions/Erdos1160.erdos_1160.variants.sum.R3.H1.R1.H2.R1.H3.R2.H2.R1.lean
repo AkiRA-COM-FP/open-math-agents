@@ -26,7 +26,7 @@ def H1 : Prop :=
     ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ 0 < a ∧ q = p^a*l) →
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ ¬ ((∃ N P : Subgroup G, (N.Normal ∨ P.Normal) ∧ N.IsComplement' P ∧ IsCyclic P ∧ Group.IsNilpotent N ∧ (Nat.card N).Coprime (Nat.card P)) ∨
-        (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Group.rank P ≤ 2 ∧ (Nat.card N).Coprime (Nat.card P))) ∧ ¬ IsZGroup G ∧
+        (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∧ ¬ IsZGroup G ∧
         (∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
 
@@ -37,7 +37,7 @@ def H2 : Prop :=
       {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ ¬ ((∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ 0 < a ∧ q = p^a*l) ∧
         ∀ p l a : ℕ, (p.Prime ∧ l.Prime ∧ p ≠ l ∧ 0 < a ∧ q = p^a*l) →
           ((∃ N : Subgroup G, N.Normal ∧ Nat.card N = p^a) ∨ Nat.card (Sylow l G) = 1)) ∧ ¬ ((∃ N P : Subgroup G, (N.Normal ∨ P.Normal) ∧ N.IsComplement' P ∧ IsCyclic P ∧ Group.IsNilpotent N ∧ (Nat.card N).Coprime (Nat.card P)) ∨
-        (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Group.rank P ≤ 2 ∧ (Nat.card N).Coprime (Nat.card P))) ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P)}).ncard ≤
+        (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
 
 /-- Label each group by a multiplication table on Fin n. -/
@@ -734,10 +734,10 @@ lemma rank_hom_count (G A : Type*) [Group G] [Group A] [Finite G] [Finite A] :
     exact fun x hx => congrFun h ⟨x, hx⟩
   simpa [Nat.card_fun, size] using Nat.card_le_card_of_injective restrict inj
 
-/-- A rank bound on the complement controls split extensions of two nilpotent Hall factors. -/
-theorem bounded_rank_hall_bound {q r d : ℕ} (hd : 0 < d) (hr : q < 2^r) :
+/-- Count nilpotent Hall extensions whose generator images fit the quadratic exponent. -/
+theorem hall_action_bound {q r d : ℕ} (hd : 0 < d) (hr : q < 2^r) :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Group.rank P ≤ d ∧ (Nat.card N).Coprime (Nat.card P))}).ncard ≤
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*d) ∧ (Nat.card N).Coprime (Nat.card P))}).ncard ≤
       2^(d*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p) := by
   classical
   let W (G : FiniteGrp.{0}) := Group.IsSolvable G ∧ Group.IsNilpotent G
@@ -763,7 +763,7 @@ theorem bounded_rank_hall_bound {q r d : ℕ} (hd : 0 < d) (hr : q < 2^r) :
     · exact Finset.prod_congr rfl fun p hp => by rw [Nat.mul_comm k l, part hl hk cop.symm p hp]
   let I := {k : Fin (q+1) // 0 < k.val ∧ 0 < q/k.val ∧ k.val*(q/k.val) = q ∧ k.val.Coprime (q/k.val)}
   let T (i : I) := (x : O i.val.val × O (q/i.val.val)) ×
-    {a : K x.2 →* MulAut (K x.1) // Group.rank (K x.2) ≤ d}
+    {a : K x.2 →* MulAut (K x.1) // Nat.card (K x.1) ^ (Group.rank (K x.1) * Group.rank (K x.2)) ≤ 2^(r*r*d)}
   let autFin (H : FiniteGrp.{0}) : Finite (MulAut H) :=
     Finite.of_injective (fun a : MulAut H => (a : H → H)) (fun _ _ h => DFunLike.ext' h)
   let actFin (H J : FiniteGrp.{0}) : Finite (H →* MulAut J) :=
@@ -776,7 +776,7 @@ theorem bounded_rank_hall_bound {q r d : ℕ} (hd : 0 < d) (hr : q < 2^r) :
       Finite.of_equiv (K x.1 × K x.2) SemidirectProduct.equivProd.symm
     exact Quotient.mk _ (FiniteGrp.of (SemidirectProduct (K x.1) (K x.2) a))
   have cover : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Group.rank P ≤ d ∧ (Nat.card N).Coprime (Nat.card P))} ⊆ Set.range decode := by
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*d) ∧ (Nat.card N).Coprime (Nat.card P))} ⊆ Set.range decode := by
     rintro _ ⟨G, ⟨hg, hs, N, P, hn, comp, hnil, hpnil, rank, cop⟩, rfl⟩
     have eq := comp.card_mul_card.trans hg
     have hk : 0 < Nat.card N := Nat.card_pos
@@ -790,7 +790,7 @@ theorem bounded_rank_hall_bound {q r d : ℕ} (hd : 0 < d) (hr : q < 2^r) :
     let fp : P ≃* K y := ((inducedFunctor FiniteGrp.toGrp).mapIso (Classical.choice (Quotient.exact (rep y)))).groupIsoToMulEquiv.symm
     let a : P →* MulAut N := N.normalizerMonoidHom.comp (Subgroup.inclusion (N.normalizer_eq_top ▸ le_top))
     let e := (SemidirectProduct.mulEquivSubgroup comp).symm.trans (SemidirectProduct.congr' fn fp)
-    refine ⟨⟨i, ⟨x,y⟩, ⟨MonoidHom.comp (MulAut.congr fn) (a.comp fp.symm), (Group.rank_congr fp).symm.le.trans rank⟩⟩, Quotient.sound ?_⟩
+    refine ⟨⟨i, ⟨x,y⟩, ⟨MonoidHom.comp (MulAut.congr fn) (a.comp fp.symm), by simpa only [← Group.rank_congr fn, ← Group.rank_congr fp, ← Nat.card_congr fn.toEquiv] using rank⟩⟩, Quotient.sound ?_⟩
     exact ⟨InducedCategory.isoMk (F := FiniteGrp.toGrp) e.symm.toGrpIso⟩
   have bound (i : I) : Nat.card (T i) ≤ L q * 2^(r*r*d) := by
     let k := i.val.val
@@ -798,29 +798,21 @@ theorem bounded_rank_hall_bound {q r d : ℕ} (hd : 0 < d) (hr : q < 2^r) :
     have hk : 0 < k := i.property.1
     have hl : 0 < l := i.property.2.1
     have eq : k*l = q := i.property.2.2.1
-    have hkr : k < 2^r := (Nat.le_of_lt_succ i.val.isLt).trans_lt hr
     let _ := Fintype.ofFinite (O k × O l)
-    have cnt (x : O k × O l) : Nat.card {a : K x.2 →* MulAut (K x.1) // Group.rank (K x.2) ≤ d} ≤ 2^(r*r*d) := by
-      by_cases hd : Group.rank (K x.2) ≤ d
+    have cnt (x : O k × O l) : Nat.card {a : K x.2 →* MulAut (K x.1) // Nat.card (K x.1) ^ (Group.rank (K x.1) * Group.rank (K x.2)) ≤ 2^(r*r*d)} ≤ 2^(r*r*d) := by
+      by_cases hd : Nat.card (K x.1) ^ (Group.rank (K x.1) * Group.rank (K x.2)) ≤ 2^(r*r*d)
       · apply (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective).trans
         apply (rank_hom_count (K x.2) (MulAut (K x.1))).trans
         have inj : Function.Injective (fun a : MulAut (K x.1) => a.toMonoidHom) := by
           intro a b h
           exact DFunLike.ext' (congrArg (fun f : K x.1 →* K x.1 => (f : K x.1 → K x.1)) h)
         let _ : Finite (K x.1 →* K x.1) := Finite.of_injective (fun f : K x.1 →* K x.1 => (f : K x.1 → K x.1)) (fun _ _ h => DFunLike.ext' h)
-        have ba := (Nat.card_le_card_of_injective _ inj).trans (hom_count (K x.1) (K x.1))
-        rw [order] at ba
-        have powBound : k^(Nat.log 2 k) ≤ 2^(r*r) := by
-          calc
-            _ ≤ (2^r)^(Nat.log 2 k) := Nat.pow_le_pow_left hkr.le _
-            _ ≤ (2^r)^r := Nat.pow_le_pow_right (by positivity) (Nat.log_lt_of_lt_pow hk.ne' hkr).le
-            _ = _ := (pow_mul ..).symm
-        rw [pow_mul 2 (r*r) d]
-        exact (Nat.pow_le_pow_left (ba.trans powBound) _).trans (Nat.pow_le_pow_right (by positivity) hd)
-      · let _ : IsEmpty {a : K x.2 →* MulAut (K x.1) // Group.rank (K x.2) ≤ d} := ⟨fun a => hd a.property⟩
+        have ba := (Nat.card_le_card_of_injective _ inj).trans (rank_hom_count (K x.1) (K x.1))
+        exact (Nat.pow_le_pow_left ba _).trans ((pow_mul ..).symm.le.trans hd)
+      · let _ : IsEmpty {a : K x.2 →* MulAut (K x.1) // Nat.card (K x.1) ^ (Group.rank (K x.1) * Group.rank (K x.2)) ≤ 2^(r*r*d)} := ⟨fun a => hd a.property⟩
         simp
     calc
-      _ = ∑ x : O k × O l, Nat.card {a : K x.2 →* MulAut (K x.1) // Group.rank (K x.2) ≤ d} := Nat.card_sigma
+      _ = ∑ x : O k × O l, Nat.card {a : K x.2 →* MulAut (K x.1) // Nat.card (K x.1) ^ (Group.rank (K x.1) * Group.rank (K x.2)) ≤ 2^(r*r*d)} := Nat.card_sigma
       _ ≤ ∑ _ : O k × O l, 2^(r*r*d) := Finset.sum_le_sum fun x _ => cnt x
       _ = (Nat.card (O k) * Nat.card (O l)) * 2^(r*r*d) := by simp [← Nat.card_eq_fintype_card, Nat.card_prod]
       _ ≤ _ := Nat.mul_le_mul_right _ (by rw [← eq, factor hk hl i.property.2.2.2]; exact Nat.mul_le_mul (nilpotent_bound k) (nilpotent_bound l))
@@ -835,6 +827,35 @@ theorem bounded_rank_hall_bound {q r d : ℕ} (hd : 0 < d) (hr : q < 2^r) :
     _ ≤ 2^r * (L q * 2^(r*r*d)) := Nat.mul_le_mul_right _ ni
     _ = 2^(r+r*r*d) * L q := by rw [pow_add]; ac_rfl
     _ ≤ _ := Nat.mul_le_mul_right _ (Nat.pow_le_pow_right (by decide) (by nlinarith [Nat.mul_le_mul_left r hd, Nat.zero_le (r*d)] : r+r*r*d ≤ d*(r+1)^2))
+
+/-- A rank bound on either factor controls split extensions of two nilpotent Hall factors. -/
+theorem bounded_rank_hall_bound {q r d : ℕ} (hd : 0 < d) (hr : q < 2^r) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ min (Group.rank N) (Group.rank P) ≤ d ∧ (Nat.card N).Coprime (Nat.card P))}).ncard ≤
+      2^(d*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p) := by
+  classical
+  apply le_trans _ (hall_action_bound hd hr)
+  apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono (fun _ h => h.1)))
+  rintro _ ⟨G, ⟨hg, hs, N, P, hn, comp, hnil, hpnil, hmin, cop⟩, rfl⟩
+  refine ⟨G, ⟨hg, hs, N, P, hn, comp, hnil, hpnil, ?_, cop⟩, rfl⟩
+  have rank_le (H : Subgroup G) : Group.rank H ≤ r := by
+    let _ := Fintype.ofFinite H
+    obtain ⟨t, _, ht, size⟩ := thin_generators (Finset.univ : Finset H)
+    rw [Finset.coe_univ, Subgroup.closure_univ] at ht size
+    rw [Subgroup.card_top] at size
+    have hcard : Nat.card H ≤ Nat.card G := Nat.card_le_card_of_injective Subtype.val Subtype.val_injective
+    exact (Group.rank_le ht).trans ((Nat.le_log_of_pow_le (by decide) size).trans
+      (Nat.log_lt_of_lt_pow Nat.card_pos.ne' (hcard.trans_lt (hg ▸ hr))).le)
+  have prod : Group.rank N * Group.rank P ≤ r*d := by
+    rcases min_le_iff.mp hmin with h | h
+    · exact (Nat.mul_le_mul h (rank_le P)).trans (Nat.mul_comm ..).le
+    · exact Nat.mul_le_mul (rank_le N) h
+  have nk : Nat.card N ≤ 2^r :=
+    (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective : Nat.card N ≤ Nat.card G).trans (hg ▸ hr.le)
+  calc
+    _ ≤ (2^r)^(Group.rank N * Group.rank P) := Nat.pow_le_pow_left nk _
+    _ ≤ (2^r)^(r*d) := Nat.pow_le_pow_right (by positivity) prod
+    _ = _ := by rw [← pow_mul, Nat.mul_assoc]
 
 theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2.H2 := by
   classical
@@ -861,7 +882,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
   let S (P : FiniteGrp.{0} → Prop) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
     {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ P G}
   let U (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, (N.Normal ∨ P.Normal) ∧ N.IsComplement' P ∧ IsCyclic P ∧ Group.IsNilpotent N ∧ (Nat.card N).Coprime (Nat.card P))
-  let V (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Group.rank P ≤ 2 ∧ (Nat.card N).Coprime (Nat.card P))
+  let V (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))
   let N (G : FiniteGrp.{0}) := U G ∨ V G
   let Z (G : FiniteGrp.{0}) := IsZGroup G
   let C (G : FiniteGrp.{0}) := ∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P
@@ -934,7 +955,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
         · exact ⟨G, ⟨hg, hs, Or.inr hv⟩, rfl⟩
     have hu : (S U).ncard ≤ 2^(2*m)*L := (cyclic_nilpotent_hall_bound hr).trans
       (by simpa using mono 1 2 (by decide))
-    have hv : (S V).ncard ≤ 2^(2*m)*L := bounded_rank_hall_bound (by decide) hr
+    have hv : (S V).ncard ≤ 2^(2*m)*L := hall_action_bound (by decide) hr
     have hm : 0 < m := Nat.pow_pos (Nat.succ_pos r)
     rw [cover]
     calc
