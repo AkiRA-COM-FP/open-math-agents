@@ -5953,6 +5953,51 @@
     "https://oeis.org/A228213/b228213.txt"
    ],
    "note": "Barker's g.f. and a(n) = 4^(n+2) - 3^(n+2) for n>5 are faithful, with a(n) the number of distinct second-difference sequences. I brute-forced n <= 8 against the data, and the formula matches the 210-term b-file. Elementary: for long arrays, two arrays with equal second differences differ by a constant. Second review: Faithful and true for all n checked. The content is a counting argument on affine-equivalence classes; the closed form for n>5 is an elementary but genuine count. Marked routine (closed-form/g.f. identity for a combinatorial count)."
+  },
+  "oeis-a309353": {
+   "date": "2026-11-28",
+   "pr": 21926,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A309353",
+    "https://oeis.org/A309353"
+   ],
+   "note": "Statement: if {phi(d) : d | m} is the divisor set of k, then k is a power of 2; this is faithful to Lagneau's conjecture. The proof is a few lines: an odd prime divisor q of k would have to equal some phi(d), but phi(d) is even for d > 2 and phi(1) = phi(2) = 1. It is correct but nearly trivial. Second review: Faithful and true. The conjecture falls to the parity of totients (an odd prime factor of k could not be a totient value), so it is genuinely elementary; routine."
+  },
+  "oeis-a235643": {
+   "date": "2026-11-28",
+   "pr": 22580,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235643",
+    "https://oeis.org/A235643",
+    "https://oeis.org/A235643/a235643.pdf"
+   ],
+   "note": "The sequence is defined, as in the entry's Small Basic program, by a[0]=10, a[1]=16, a[n]=3a[n-1]+2a[n-2]+sum 2*3^(n-i+1)a[i-3]. This reproduces the listed data. Barker's closed form (n>=1), recurrence (n>=3, so a(n-2) is a term) and g.f. follow by eliminating the inner sum (T(n+1)=3T(n)+6a(n-2)). Routine; no prior proof found. Second review: Faithful and true for the sequence as the entry's program defines it. Subtracting 3 times the shifted recursion telescopes the sum and gives the order-2 recurrence; routine."
+  },
+  "oeis-a181666": {
+   "date": "2026-11-28",
+   "pr": 23223,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A181666",
+    "https://oeis.org/A023758",
+    "https://oeis.org/A181666",
+    "https://oeis.org/A023758"
+   ],
+   "note": "The conjectured comment (terms of A023758 divisible by 3, divided by 3) is formalized faithfully as a set equality, with x=0 correctly excluded since 0 is not a term. Elementary 2-adic argument (3 | 2^d-1 iff d even). Checked numerically to 5000. No prior formal solve found in the trureturing/thatnealpatel/openai/Epoch/Palomar/Zenodo/formal-conjectures searches. Second review: Faithful and true. The 'conjecture' is a two-line elementary identity, so routine."
+  },
+  "oeis-a182615": {
+   "date": "2026-11-28",
+   "pr": 22134,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A182615",
+    "https://oeis.org/A182615/b182615.txt",
+    "https://oeis.org/A182615",
+    "https://oeis.org/A182614"
+   ],
+   "note": "Wu's recurrence (n>8) and g.f. are faithful. a(n) is sSup of {k : floor(k/phi^n) = n}, which equals floor((n+1)phi^n). This reproduces the b-file, and the recurrence and g.f. hold numerically to n=120. The proof writes phi^n via Lucas numbers, with a sign/size argument for (n+1)psi^n; elementary. Second review: Faithful and true. Since (n+1)(r^n + (-1/r)^n) = (n+1) L_n, for n >= 8 one gets a(n) = (n+1)L_n - [n even], which satisfies the order-6 recurrence with characteristic polynomial (x^2-1)(x^2-x-1)^2. Routine."
   }
  },
  "flagged": {
@@ -6979,6 +7024,15 @@
     "https://oeis.org/A057599"
    ],
    "reason": "Second review: True and faithful, with no earlier external proof found, but it is the same statement as oeis-a096127, which was already solved on the site. It should be counted once (as A096126/A096127 jointly) and not announced as a second result."
+  },
+  "oeis-a345938": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A345938",
+    "https://oeis.org/A160595",
+    "https://en.wikipedia.org/wiki/Lehmer%27s_totient_problem"
+   ],
+   "reason": "Second review: The formal statement is faithful to the comment but the comment is not an open problem: it is an asserted, definitional observation (uphi = phi on squarefree numbers) plus Lehmer's 1932 squarefreeness lemma. Proving it does not resolve anything open, so it should not be announced as a solved conjecture."
   }
  },
  "known": {
