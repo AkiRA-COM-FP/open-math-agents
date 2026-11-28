@@ -16,15 +16,6 @@ def A : M :=
      1, -1, -1, -1, 1, -1, 1;
      -1, -1, 1, 1, -1, 1, -1]
 
-def B : M :=
-  !![1, 0, -1, 0, -1, 0, -1;
-     0, 0, 0, 0, 0, -2, -2;
-     -1, 0, -1, 0, -1, -2, -1;
-     0, 0, 0, -2, -2, -2, -2;
-     -1, 0, -1, -2, -1, -2, -3;
-     0, -2, -2, -2, -2, -2, -2;
-     -1, -2, -1, -2, -3, -2, -3]
-
 noncomputable def w : V := fun i => ((i.val : ℝ) + 1) / 28
 noncomputable def v : ℝ := -1 / 14
 
@@ -42,20 +33,18 @@ lemma simplex : w ∈ stdSimplex ℝ (Fin 7) := by
   refine ⟨fun i => (wpos i).le, ?_⟩
   norm_num [w, Fin.sum_univ_succ]
 
-set_option maxHeartbeats 1800000 in
-lemma inverse : B * A = (4 : ℝ) • (1 : M) := by
-  ext i j
-  fin_cases i <;> fin_cases j <;>
-    norm_num [A, B, Matrix.mul_apply, Fin.sum_univ_succ, Matrix.one_apply]
-
 lemma injective : Function.Injective A.mulVec := by
   intro x y h
-  have he := congrArg B.mulVec h
-  simp only [mulVec_mulVec, inverse, smul_mulVec, one_mulVec] at he
+  have h0 := congrFun h 0
+  have h1 := congrFun h 1
+  have h2 := congrFun h 2
+  have h3 := congrFun h 3
+  have h4 := congrFun h 4
+  have h5 := congrFun h 5
+  have h6 := congrFun h 6
+  simp [A, mulVec, dotProduct, Fin.sum_univ_succ] at h0 h1 h2 h3 h4 h5 h6
   funext i
-  have hi := congrFun he i
-  change (4 : ℝ) * x i = 4 * y i at hi
-  linarith
+  fin_cases i <;> linarith!
 
 lemma payoff_rows (x y : V) : payoff A x y = ∑ i, x i * (A *ᵥ y) i := by
   simp only [payoff, mulVec, dotProduct, mul_sum, mul_assoc]
