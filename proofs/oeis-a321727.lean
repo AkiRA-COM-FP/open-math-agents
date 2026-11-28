@@ -1280,318 +1280,211 @@ theorem binaryRun (t s : ℕ) (a : ℤ) (xs : List (ℤ×ℤ)) (ht : 2^t < 65535
 end SunPrimeNumeric
 
 
+namespace SunPrimeNumeric
+
+structure Frame where
+  first : ℕ
+  stop : ℕ
+  before : ℤ
+  after : ℤ
+  total : ℤ
+  start_pos : 0 < first
+  ordered : first ≤ stop
+  valid : Segment first stop before after total
+
+def frame (t s : ℕ) (a : ℤ) (xs : List (ℤ×ℤ))
+    (ht : 2^t < 65535) (hs : 8500 < s) (hm : s+xs.length*(16*2^t) ≤ 8501^2)
+    (hx : SunPrimeBare.Binary.checkRun t s a xs = true) : Frame :=
+  ⟨s, s+xs.length*(16*2^t), a, lastWeight a xs, (xs.map Prod.snd).sum,
+    by omega, by omega, binaryRun t s a xs ht hs hm hx⟩
+
+def mergeFrame (u v : Frame) : Frame :=
+  if h : u.stop = v.first ∧ u.after = v.before then
+    ⟨u.first, v.stop, u.before, v.after, u.total+v.total,
+     u.start_pos, u.ordered.trans (h.1.le.trans v.ordered), by
+       have second : Segment u.stop v.stop u.after v.after v.total := by
+         rw [h.1,h.2]
+         exact v.valid
+       exact segment_join u.start_pos u.ordered (h.1.le.trans v.ordered) u.valid second⟩
+  else u
+
+def firstFrame : Frame :=
+  ⟨780373,780373,-132,-132,0,by decide,le_rfl,by simp [Segment,SunPrimePermutation.upperWeighted]⟩
+
+def frameData (u : Frame) : ℕ × ℕ × ℤ × ℤ × ℤ :=
+  (u.first,u.stop,u.before,u.after,u.total)
+
+theorem frame_matches {f : Frame} {s e : ℕ} {a b n : ℤ}
+    (h : frameData f = (s,e,a,b,n)) : Segment s e a b n := by
+  cases f with
+  | mk first stop before after total hpos hle valid =>
+    simp only [frameData,Prod.mk.injEq] at h
+    obtain ⟨rfl,rfl,rfl,rfl,rfl⟩ := h
+    exact valid
+
+end SunPrimeNumeric
+
 namespace SunPrimeNumeric.Slim
-open SunPrimePermutation
-
-private theorem glue {s e f : ℕ} {a b c t u : ℤ}
-    (i : Segment s e a b t) (j : Segment e f b c u) (h : 0<s ∧ s≤e ∧ e≤f := by decide) :
-    Segment s f a c (t+u) := segment_join h.1 h.2.1 h.2.2 i j
-
+open SunPrimePermutation SunPrimeNumeric
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem joined : Segment 780373 72018005 (-132) (-747) (-4474) := by
-  have g000 : Segment 780373 796757 (-132) (-125) (4405) :=
-    binaryRun 8 780373 (-132) [(-131,2091),(-121,395),(-134,427),(-125,1492)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g001 : Segment 796757 813141 (-125) (-110) (1803) :=
-    binaryRun 8 796757 (-125) [(-112,15),(-119,1719),(-114,12),(-110,57)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g002 : Segment 813141 829525 (-110) (-81) (-1973) :=
-    binaryRun 8 813141 (-110) [(-106,-1533),(-108,-222),(-97,763),(-81,-981)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g003 : Segment 829525 845909 (-81) (-87) (888) :=
-    binaryRun 8 829525 (-81) [(-74,-92),(-81,500),(-82,689),(-87,-209)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g004 : Segment 845909 862293 (-87) (-78) (718) :=
-    binaryRun 8 845909 (-87) [(-80,409),(-97,452),(-93,-1546),(-78,1403)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g005 : Segment 862293 878677 (-78) (-55) (-1454) :=
-    binaryRun 8 862293 (-78) [(-77,-744),(-65,591),(-55,-813),(-55,-488)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g006 : Segment 878677 895061 (-55) (-71) (25) :=
-    binaryRun 8 878677 (-55) [(-65,404),(-87,-360),(-75,339),(-71,-358)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g007 : Segment 895061 911445 (-71) (-49) (207) :=
-    binaryRun 8 895061 (-71) [(-77,-1077),(-71,820),(-55,400),(-49,64)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g008 : Segment 911445 927829 (-49) (-60) (762) :=
-    binaryRun 8 911445 (-49) [(-59,-209),(-65,145),(-65,87),(-60,739)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g009 : Segment 927829 944213 (-60) (-85) (1540) :=
-    binaryRun 8 927829 (-60) [(-75,756),(-73,-1249),(-88,344),(-85,1689)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g010 : Segment 944213 960597 (-85) (-84) (-562) :=
-    binaryRun 8 944213 (-85) [(-75,-58),(-80,-562),(-87,-240),(-84,298)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g011 : Segment 960597 976981 (-84) (-68) (-2004) :=
-    binaryRun 8 960597 (-84) [(-65,-774),(-65,121),(-81,-249),(-68,-1102)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g012 : Segment 976981 993365 (-68) (-35) (849) :=
-    binaryRun 8 976981 (-68) [(-69,535),(-52,-485),(-46,405),(-35,394)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g013 : Segment 993365 1009749 (-35) (-41) (1154) :=
-    binaryRun 8 993365 (-35) [(-27,129),(-42,210),(-28,300),(-41,515)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g014 : Segment 1009749 1026133 (-41) (-58) (-1016) :=
-    binaryRun 8 1009749 (-41) [(-39,-31),(-60,157),(-59,-676),(-58,-466)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g015 : Segment 1026133 1042517 (-58) (-58) (-280) :=
-    binaryRun 8 1026133 (-58) [(-64,-462),(-62,229),(-60,-454),(-58,407)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g016 : Segment 1042517 1058901 (-58) (-56) (-89) :=
-    binaryRun 8 1042517 (-58) [(-56,61),(-56,-745),(-69,274),(-56,321)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g017 : Segment 1058901 1075285 (-56) (-67) (-179) :=
-    binaryRun 8 1058901 (-56) [(-72,422),(-61,-539),(-71,573),(-67,-635)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g018 : Segment 1075285 1091669 (-67) (-79) (1023) :=
-    binaryRun 8 1075285 (-67) [(-78,632),(-89,461),(-83,-1081),(-79,1011)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g019 : Segment 1091669 1108053 (-79) (-68) (577) :=
-    binaryRun 8 1091669 (-79) [(-67,749),(-79,-499),(-64,85),(-68,242)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g020 : Segment 1108053 1124437 (-68) (-80) (463) :=
-    binaryRun 8 1108053 (-68) [(-75,620),(-68,-473),(-77,-369),(-80,685)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g021 : Segment 1124437 1140821 (-80) (-81) (-315) :=
-    binaryRun 8 1124437 (-80) [(-86,-400),(-83,-38),(-73,-323),(-81,446)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g022 : Segment 1140821 1157205 (-81) (-54) (1263) :=
-    binaryRun 8 1140821 (-81) [(-73,673),(-70,278),(-53,-185),(-54,497)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g023 : Segment 1157205 1173589 (-54) (-82) (-1235) :=
-    binaryRun 8 1157205 (-54) [(-86,-588),(-91,-237),(-91,-142),(-82,-268)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g024 : Segment 1173589 1189973 (-82) (-71) (-716) :=
-    binaryRun 8 1173589 (-82) [(-86,350),(-85,-315),(-73,-650),(-71,-101)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g025 : Segment 1189973 1206357 (-71) (-64) (-962) :=
-    binaryRun 8 1189973 (-71) [(-55,-1264),(-43,160),(-57,-72),(-64,214)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g026 : Segment 1206357 1222741 (-64) (-75) (-646) :=
-    binaryRun 8 1206357 (-64) [(-81,-76),(-79,46),(-75,-446),(-75,-170)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g027 : Segment 1222741 1239125 (-75) (-82) (1636) :=
-    binaryRun 8 1222741 (-75) [(-76,551),(-63,1035),(-72,-412),(-82,462)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g028 : Segment 1239125 1255509 (-82) (-127) (284) :=
-    binaryRun 8 1239125 (-82) [(-95,879),(-118,-74),(-117,586),(-127,-1107)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g029 : Segment 1255509 1271893 (-127) (-103) (124) :=
-    binaryRun 8 1255509 (-127) [(-135,-40),(-122,113),(-114,-279),(-103,330)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g030 : Segment 1271893 1288277 (-103) (-69) (888) :=
-    binaryRun 8 1271893 (-103) [(-81,260),(-96,-405),(-91,885),(-69,148)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g031 : Segment 1288277 1304661 (-69) (-90) (-304) :=
-    binaryRun 8 1288277 (-69) [(-90,-778),(-89,676),(-87,219),(-90,-421)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g032 : Segment 1304661 1321045 (-90) (-117) (-2802) :=
-    binaryRun 8 1304661 (-90) [(-98,-622),(-113,597),(-120,-1849),(-117,-928)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g033 : Segment 1321045 1337429 (-117) (-112) (847) :=
-    binaryRun 8 1321045 (-117) [(-103,368),(-107,529),(-100,1345),(-112,-1395)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g034 : Segment 1337429 1353813 (-112) (-143) (-760) :=
-    binaryRun 8 1337429 (-112) [(-120,688),(-114,-351),(-119,-933),(-143,-164)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g035 : Segment 1353813 1370197 (-143) (-143) (2778) :=
-    binaryRun 8 1353813 (-143) [(-160,-173),(-151,443),(-144,2377),(-143,131)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g036 : Segment 1370197 1386581 (-143) (-175) (-61) :=
-    binaryRun 8 1370197 (-143) [(-137,-381),(-146,448),(-158,-1025),(-175,897)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g037 : Segment 1386581 1402965 (-175) (-156) (-3252) :=
-    binaryRun 8 1386581 (-175) [(-175,-1400),(-165,195),(-161,-1735),(-156,-312)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g038 : Segment 1402965 1419349 (-156) (-187) (-282) :=
-    binaryRun 8 1402965 (-156) [(-180,-563),(-171,-423),(-178,-13),(-187,717)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g039 : Segment 1419349 1435733 (-187) (-155) (195) :=
-    binaryRun 8 1419349 (-187) [(-181,2),(-162,-1075),(-160,-169),(-155,1437)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g040 : Segment 1435733 1452117 (-155) (-146) (1071) :=
-    binaryRun 8 1435733 (-155) [(-152,-487),(-160,146),(-156,683),(-146,729)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g041 : Segment 1452117 1468501 (-146) (-125) (-249) :=
-    binaryRun 8 1452117 (-146) [(-143,588),(-138,543),(-116,-2012),(-125,632)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g042 : Segment 1468501 1484885 (-125) (-147) (-1500) :=
-    binaryRun 8 1468501 (-125) [(-120,-568),(-129,96),(-138,-145),(-147,-883)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g043 : Segment 1484885 1501269 (-147) (-121) (-1309) :=
-    binaryRun 8 1484885 (-147) [(-130,-1643),(-129,617),(-135,-648),(-121,365)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g044 : Segment 1501269 1566805 (-121) (-104) (1068) :=
-    binaryRun 10 1501269 (-121) [(-119,1008),(-115,-183),(-113,-647),(-104,890)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g045 : Segment 1566805 1632341 (-104) (-95) (349) :=
-    binaryRun 10 1566805 (-104) [(-144,-1067),(-120,1716),(-121,411),(-95,-711)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g046 : Segment 1632341 1697877 (-95) (-88) (688) :=
-    binaryRun 10 1632341 (-95) [(-81,569),(-91,-1614),(-83,928),(-88,805)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g047 : Segment 1697877 1763413 (-88) (-83) (-973) :=
-    binaryRun 10 1697877 (-88) [(-97,-555),(-67,480),(-93,-602),(-83,-296)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g048 : Segment 1763413 1828949 (-83) (-91) (1958) :=
-    binaryRun 10 1763413 (-83) [(-118,1837),(-68,-1521),(-69,648),(-91,994)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g049 : Segment 1828949 1894485 (-91) (-110) (207) :=
-    binaryRun 10 1828949 (-91) [(-85,519),(-77,-467),(-107,-551),(-110,706)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g050 : Segment 1894485 1960021 (-110) (-127) (-374) :=
-    binaryRun 10 1894485 (-110) [(-151,-441),(-157,1257),(-150,-1192),(-127,2)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g051 : Segment 1960021 2025557 (-127) (-135) (-508) :=
-    binaryRun 10 1960021 (-127) [(-133,-162),(-112,914),(-147,-608),(-135,-652)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g052 : Segment 2025557 2091093 (-135) (-122) (-2333) :=
-    binaryRun 10 2025557 (-135) [(-165,-1320),(-166,248),(-121,-1056),(-122,-205)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g053 : Segment 2091093 2156629 (-122) (-101) (-540) :=
-    binaryRun 10 2091093 (-122) [(-162,-717),(-146,-1265),(-121,443),(-101,999)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g054 : Segment 2156629 2222165 (-101) (-84) (1402) :=
-    binaryRun 10 2156629 (-101) [(-87,-38),(-64,568),(-68,185),(-84,687)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g055 : Segment 2222165 2287701 (-84) (-108) (-861) :=
-    binaryRun 10 2222165 (-84) [(-71,174),(-77,-317),(-89,-440),(-108,-278)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g056 : Segment 2287701 2353237 (-108) (-92) (-684) :=
-    binaryRun 10 2287701 (-108) [(-109,-922),(-106,-611),(-88,727),(-92,122)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g057 : Segment 2353237 2418773 (-92) (-84) (-772) :=
-    binaryRun 10 2353237 (-92) [(-113,804),(-79,-292),(-85,-1177),(-84,-107)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g058 : Segment 2418773 2484309 (-84) (-133) (1797) :=
-    binaryRun 10 2418773 (-84) [(-89,1208),(-102,1024),(-117,289),(-133,-724)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g059 : Segment 2484309 2549845 (-133) (-109) (205) :=
-    binaryRun 10 2484309 (-133) [(-156,-1739),(-152,239),(-146,49),(-109,1656)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g060 : Segment 2549845 2615381 (-109) (-101) (756) :=
-    binaryRun 10 2549845 (-109) [(-114,-932),(-99,1079),(-106,91),(-101,518)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g061 : Segment 2615381 2680917 (-101) (-106) (-1695) :=
-    binaryRun 10 2615381 (-101) [(-102,-967),(-127,-1185),(-105,248),(-106,209)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g062 : Segment 2680917 2746453 (-106) (-115) (2668) :=
-    binaryRun 10 2680917 (-106) [(-96,1257),(-128,246),(-131,311),(-115,854)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g063 : Segment 2746453 2811989 (-115) (-152) (-456) :=
-    binaryRun 10 2746453 (-115) [(-122,-464),(-128,-708),(-151,-316),(-152,1032)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g064 : Segment 2811989 2877525 (-152) (-183) (-1414) :=
-    binaryRun 10 2811989 (-152) [(-184,-1182),(-144,114),(-164,-120),(-183,-226)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g065 : Segment 2877525 2943061 (-183) (-108) (1549) :=
-    binaryRun 10 2877525 (-183) [(-175,2749),(-141,-1324),(-145,204),(-108,-80)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g066 : Segment 2943061 3008597 (-108) (-132) (2470) :=
-    binaryRun 10 2943061 (-108) [(-154,1050),(-158,-142),(-125,932),(-132,630)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g067 : Segment 3008597 3270741 (-132) (-128) (-7933) :=
-    binaryRun 12 3008597 (-132) [(-179,832),(-158,-2980),(-190,-1616),(-128,-4169)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g068 : Segment 3270741 3532885 (-128) (-128) (890) :=
-    binaryRun 12 3270741 (-128) [(-120,318),(-127,1073),(-95,-1448),(-128,947)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g069 : Segment 3532885 3795029 (-128) (-190) (2084) :=
-    binaryRun 12 3532885 (-128) [(-159,2107),(-197,983),(-211,-1834),(-190,828)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g070 : Segment 3795029 4057173 (-190) (-224) (1220) :=
-    binaryRun 12 3795029 (-190) [(-141,1281),(-196,-1433),(-255,-437),(-224,1809)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g071 : Segment 4057173 4319317 (-224) (-137) (-4451) :=
-    binaryRun 12 4057173 (-224) [(-250,-2736),(-205,-1969),(-205,-1111),(-137,1365)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g072 : Segment 4319317 4581461 (-137) (-81) (1162) :=
-    binaryRun 12 4319317 (-137) [(-100,-953),(-129,1181),(-106,-890),(-81,1824)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g073 : Segment 4581461 4843605 (-81) (-185) (-1890) :=
-    binaryRun 12 4581461 (-81) [(-124,-435),(-150,-578),(-165,1690),(-185,-2567)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g074 : Segment 4843605 5105749 (-185) (-109) (2098) :=
-    binaryRun 12 4843605 (-185) [(-162,68),(-118,681),(-132,2157),(-109,-808)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g075 : Segment 5105749 5367893 (-109) (-109) (1316) :=
-    binaryRun 12 5105749 (-109) [(-107,85),(-131,194),(-104,-134),(-109,1171)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g076 : Segment 5367893 5630037 (-109) (-71) (1054) :=
-    binaryRun 12 5367893 (-109) [(-88,75),(-119,1432),(-76,-755),(-71,302)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g077 : Segment 5630037 5892181 (-71) (-178) (-1079) :=
-    binaryRun 12 5630037 (-71) [(-83,188),(-121,-766),(-163,533),(-178,-1034)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g078 : Segment 5892181 6154325 (-178) (-259) (547) :=
-    binaryRun 12 5892181 (-178) [(-160,-675),(-195,-164),(-212,1068),(-259,318)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g079 : Segment 6154325 6416469 (-259) (-176) (100) :=
-    binaryRun 12 6154325 (-259) [(-277,634),(-239,-137),(-244,-732),(-176,335)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g080 : Segment 6416469 6678613 (-176) (-274) (-3347) :=
-    binaryRun 12 6416469 (-176) [(-208,-1698),(-165,530),(-241,-1905),(-274,-274)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g081 : Segment 6678613 6940757 (-274) (-272) (569) :=
-    binaryRun 12 6678613 (-274) [(-283,-662),(-280,73),(-282,-1304),(-272,2462)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g082 : Segment 6940757 7202901 (-272) (-297) (-2239) :=
-    binaryRun 12 6940757 (-272) [(-240,-626),(-302,-1256),(-292,112),(-297,-469)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g083 : Segment 7202901 7465045 (-297) (-236) (1327) :=
-    binaryRun 12 7202901 (-297) [(-316,3721),(-312,-2164),(-250,1722),(-236,-1952)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g084 : Segment 7465045 7727189 (-236) (-208) (775) :=
-    binaryRun 12 7465045 (-236) [(-255,-221),(-232,-896),(-244,210),(-208,1682)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g085 : Segment 7727189 7989333 (-208) (-210) (-120) :=
-    binaryRun 12 7727189 (-208) [(-203,-88),(-179,-1424),(-196,1613),(-210,-221)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g086 : Segment 7989333 8054869 (-210) (-206) (-103) :=
-    binaryRun 12 7989333 (-210) [(-206,-103)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g087 : Segment 8054869 9103445 (-206) (-186) (-466) :=
-    binaryRun 14 8054869 (-206) [(-248,55),(-262,-2107),(-191,398),(-186,1188)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g088 : Segment 9103445 10152021 (-186) (-170) (590) :=
-    binaryRun 14 9103445 (-186) [(-175,270),(-154,138),(-204,-100),(-170,282)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g089 : Segment 10152021 11200597 (-170) (-116) (439) :=
-    binaryRun 14 10152021 (-170) [(-194,-50),(-154,1079),(-155,-931),(-116,341)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g090 : Segment 11200597 12249173 (-116) (-216) (379) :=
-    binaryRun 14 11200597 (-116) [(-291,-758),(-269,-315),(-262,805),(-216,647)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g091 : Segment 12249173 13297749 (-216) (-343) (-801) :=
-    binaryRun 14 12249173 (-216) [(-230,-2217),(-188,1323),(-329,535),(-343,-442)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g092 : Segment 13297749 14346325 (-343) (-251) (2612) :=
-    binaryRun 14 13297749 (-343) [(-291,102),(-245,2666),(-262,311),(-251,-467)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g093 : Segment 14346325 15394901 (-251) (-417) (-636) :=
-    binaryRun 14 14346325 (-251) [(-286,193),(-235,372),(-306,-766),(-417,-435)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g094 : Segment 15394901 16443477 (-417) (-358) (-2630) :=
-    binaryRun 14 15394901 (-417) [(-446,-113),(-326,555),(-383,-1270),(-358,-1802)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g095 : Segment 16443477 17492053 (-358) (-256) (-384) :=
-    binaryRun 14 16443477 (-358) [(-348,-565),(-248,-282),(-252,-665),(-256,1128)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g096 : Segment 17492053 18540629 (-256) (-318) (1270) :=
-    binaryRun 14 17492053 (-256) [(-281,1442),(-231,-1625),(-281,357),(-318,1096)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g097 : Segment 18540629 19589205 (-318) (-291) (1708) :=
-    binaryRun 14 18540629 (-318) [(-299,-226),(-273,905),(-219,1019),(-291,10)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g098 : Segment 19589205 20637781 (-291) (-345) (-3281) :=
-    binaryRun 14 19589205 (-291) [(-330,-473),(-362,-1301),(-347,-1953),(-345,446)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g099 : Segment 20637781 21686357 (-345) (-349) (-1417) :=
-    binaryRun 14 20637781 (-345) [(-331,886),(-354,-1058),(-340,-1508),(-349,263)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g100 : Segment 21686357 22734933 (-349) (-352) (-230) :=
-    binaryRun 14 21686357 (-349) [(-287,-444),(-224,944),(-399,-1482),(-352,752)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g101 : Segment 22734933 23783509 (-352) (-402) (2323) :=
-    binaryRun 14 22734933 (-352) [(-359,3723),(-437,1376),(-366,-1333),(-402,-1443)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g102 : Segment 23783509 24832085 (-402) (-255) (684) :=
-    binaryRun 14 23783509 (-402) [(-444,2247),(-322,-2287),(-213,-197),(-255,921)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g103 : Segment 24832085 25880661 (-255) (-221) (-1949) :=
-    binaryRun 14 24832085 (-255) [(-221,98),(-282,-755),(-275,-1202),(-221,-90)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g104 : Segment 25880661 26929237 (-221) (-239) (1950) :=
-    binaryRun 14 25880661 (-221) [(-226,976),(-168,-498),(-120,659),(-239,813)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g105 : Segment 26929237 27977813 (-239) (-160) (633) :=
-    binaryRun 14 26929237 (-239) [(-237,-408),(-150,1134),(-106,-546),(-160,453)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g106 : Segment 27977813 29026389 (-160) (-210) (-613) :=
-    binaryRun 14 27977813 (-160) [(-185,-59),(-164,-192),(-201,114),(-210,-476)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g107 : Segment 29026389 30074965 (-210) (-387) (493) :=
-    binaryRun 14 29026389 (-210) [(-242,480),(-239,762),(-321,-1042),(-387,293)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g108 : Segment 30074965 31123541 (-387) (-522) (425) :=
-    binaryRun 14 30074965 (-387) [(-373,116),(-491,1453),(-486,-1373),(-522,229)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g109 : Segment 31123541 32172117 (-522) (-597) (-1402) :=
-    binaryRun 14 31123541 (-522) [(-580,-2291),(-494,624),(-539,-911),(-597,1176)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g110 : Segment 32172117 33220693 (-597) (-605) (2089) :=
-    binaryRun 14 32172117 (-597) [(-652,1291),(-604,1869),(-582,-511),(-605,-560)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g111 : Segment 33220693 34269269 (-605) (-525) (-1525) :=
-    binaryRun 14 33220693 (-605) [(-417,-765),(-420,-3),(-481,-893),(-525,136)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g112 : Segment 34269269 35317845 (-525) (-508) (-4302) :=
-    binaryRun 14 34269269 (-525) [(-547,-1138),(-476,-472),(-505,-2178),(-508,-514)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g113 : Segment 35317845 36366421 (-508) (-546) (-10) :=
-    binaryRun 14 35317845 (-508) [(-506,485),(-559,-1537),(-582,532),(-546,510)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g114 : Segment 36366421 37414997 (-546) (-389) (-11) :=
-    binaryRun 14 36366421 (-546) [(-543,-598),(-493,58),(-454,917),(-389,-388)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g115 : Segment 37414997 38463573 (-389) (-407) (-885) :=
-    binaryRun 14 37414997 (-389) [(-302,128),(-444,684),(-397,452),(-407,-2149)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g116 : Segment 38463573 39512149 (-407) (-373) (1043) :=
-    binaryRun 14 38463573 (-407) [(-377,1496),(-375,-37),(-422,-768),(-373,352)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g117 : Segment 39512149 40560725 (-373) (-478) (35) :=
-    binaryRun 14 39512149 (-373) [(-401,-817),(-454,-395),(-512,235),(-478,1012)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g118 : Segment 40560725 41609301 (-478) (-489) (2043) :=
-    binaryRun 14 40560725 (-478) [(-514,-491),(-531,987),(-423,331),(-489,1216)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g119 : Segment 41609301 42657877 (-489) (-531) (-1564) :=
-    binaryRun 14 41609301 (-489) [(-408,576),(-481,-74),(-501,-1028),(-531,-1038)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g120 : Segment 42657877 43706453 (-531) (-454) (382) :=
-    binaryRun 14 42657877 (-531) [(-454,31),(-450,-554),(-535,924),(-454,-19)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g121 : Segment 43706453 44755029 (-454) (-516) (2063) :=
-    binaryRun 14 43706453 (-454) [(-552,1038),(-553,540),(-499,972),(-516,-487)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g122 : Segment 44755029 45803605 (-516) (-538) (271) :=
-    binaryRun 14 44755029 (-516) [(-576,-992),(-522,2864),(-474,-1505),(-538,-96)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g123 : Segment 45803605 46852181 (-538) (-377) (127) :=
-    binaryRun 14 45803605 (-538) [(-447,-176),(-392,-771),(-369,676),(-377,398)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g124 : Segment 46852181 47900757 (-377) (-408) (-1198) :=
-    binaryRun 14 46852181 (-377) [(-291,270),(-271,528),(-336,-543),(-408,-1453)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g125 : Segment 47900757 48949333 (-408) (-239) (-285) :=
-    binaryRun 14 47900757 (-408) [(-369,1349),(-307,-1547),(-321,-613),(-239,526)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g126 : Segment 48949333 49997909 (-239) (-167) (710) :=
-    binaryRun 14 48949333 (-239) [(-214,-235),(-277,329),(-353,119),(-167,497)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g127 : Segment 49997909 51046485 (-167) (-285) (534) :=
-    binaryRun 14 49997909 (-167) [(-250,503),(-282,260),(-243,-553),(-285,324)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g128 : Segment 51046485 52095061 (-285) (-265) (936) :=
-    binaryRun 14 51046485 (-285) [(-219,674),(-254,-396),(-264,1163),(-265,-505)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g129 : Segment 52095061 53143637 (-265) (-249) (-297) :=
-    binaryRun 14 52095061 (-265) [(-123,49),(-178,70),(-244,-8),(-249,-408)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g130 : Segment 53143637 54192213 (-249) (-252) (23) :=
-    binaryRun 14 53143637 (-249) [(-171,199),(-172,399),(-294,-666),(-252,91)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g131 : Segment 54192213 55240789 (-252) (-388) (-400) :=
-    binaryRun 14 54192213 (-252) [(-383,2),(-382,-374),(-460,26),(-388,-54)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g132 : Segment 55240789 56289365 (-388) (-486) (-749) :=
-    binaryRun 14 55240789 (-388) [(-436,395),(-592,-17),(-483,-736),(-486,-391)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g133 : Segment 56289365 57337941 (-486) (-565) (-1933) :=
-    binaryRun 14 56289365 (-486) [(-458,65),(-469,-429),(-445,-3),(-565,-1566)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g134 : Segment 57337941 58386517 (-565) (-396) (1640) :=
-    binaryRun 14 57337941 (-565) [(-592,1740),(-537,-29),(-461,-53),(-396,-18)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g135 : Segment 58386517 59435093 (-396) (-311) (928) :=
-    binaryRun 14 58386517 (-396) [(-372,-17),(-411,-452),(-359,346),(-311,1051)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g136 : Segment 59435093 60483669 (-311) (-449) (1310) :=
-    binaryRun 14 59435093 (-311) [(-392,377),(-366,734),(-403,742),(-449,-543)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g137 : Segment 60483669 61532245 (-449) (-445) (-242) :=
-    binaryRun 14 60483669 (-449) [(-381,952),(-389,9),(-364,-735),(-445,-468)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g138 : Segment 61532245 62580821 (-445) (-349) (-351) :=
-    binaryRun 14 61532245 (-445) [(-455,-433),(-472,566),(-352,-398),(-349,-86)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g139 : Segment 62580821 63629397 (-349) (-436) (-1626) :=
-    binaryRun 14 62580821 (-349) [(-427,-392),(-425,-9),(-429,-1264),(-436,39)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g140 : Segment 63629397 64677973 (-436) (-574) (3313) :=
-    binaryRun 14 63629397 (-436) [(-445,897),(-495,472),(-539,1881),(-574,63)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g141 : Segment 64677973 65726549 (-574) (-754) (-631) :=
-    binaryRun 14 64677973 (-574) [(-604,-1249),(-684,566),(-759,58),(-754,-6)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g142 : Segment 65726549 66775125 (-754) (-910) (378) :=
-    binaryRun 14 65726549 (-754) [(-836,745),(-827,2425),(-945,-874),(-910,-1918)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g143 : Segment 66775125 67823701 (-910) (-807) (-3557) :=
-    binaryRun 14 66775125 (-910) [(-830,-2643),(-842,-876),(-821,750),(-807,-788)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g144 : Segment 67823701 68872277 (-807) (-683) (-34) :=
-    binaryRun 14 67823701 (-807) [(-784,1634),(-722,-1588),(-823,-1519),(-683,1439)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g145 : Segment 68872277 69920853 (-683) (-674) (-586) :=
-    binaryRun 14 68872277 (-683) [(-731,757),(-725,36),(-717,712),(-674,-2091)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g146 : Segment 69920853 70969429 (-674) (-548) (-481) :=
-    binaryRun 14 69920853 (-674) [(-621,695),(-602,11),(-545,-1151),(-548,-36)] (by decide) (by decide) (by decide) (by decide +kernel)
-  have g147 : Segment 70969429 72018005 (-548) (-747) (634) :=
-    binaryRun 14 70969429 (-548) [(-551,30),(-685,-715),(-632,1319),(-747,0)] (by decide) (by decide) (by decide) (by decide +kernel)
-  exact (glue ((glue ((glue ((glue ((glue ((glue ((glue (g000) (g001))) ((glue (g002) (g003))))) ((glue ((glue (g004) (g005))) ((glue (g006) ((glue (g007) (g008))))))))) ((glue ((glue ((glue (g009) (g010))) ((glue (g011) (g012))))) ((glue ((glue (g013) (g014))) ((glue (g015) ((glue (g016) (g017))))))))))) ((glue ((glue ((glue ((glue (g018) (g019))) ((glue (g020) (g021))))) ((glue ((glue (g022) (g023))) ((glue (g024) ((glue (g025) (g026))))))))) ((glue ((glue ((glue (g027) (g028))) ((glue (g029) ((glue (g030) (g031))))))) ((glue ((glue (g032) (g033))) ((glue (g034) ((glue (g035) (g036))))))))))))) ((glue ((glue ((glue ((glue ((glue (g037) (g038))) ((glue (g039) (g040))))) ((glue ((glue (g041) (g042))) ((glue (g043) ((glue (g044) (g045))))))))) ((glue ((glue ((glue (g046) (g047))) ((glue (g048) (g049))))) ((glue ((glue (g050) (g051))) ((glue (g052) ((glue (g053) (g054))))))))))) ((glue ((glue ((glue ((glue (g055) (g056))) ((glue (g057) (g058))))) ((glue ((glue (g059) (g060))) ((glue (g061) ((glue (g062) (g063))))))))) ((glue ((glue ((glue (g064) (g065))) ((glue (g066) ((glue (g067) (g068))))))) ((glue ((glue (g069) (g070))) ((glue (g071) ((glue (g072) (g073))))))))))))))) ((glue ((glue ((glue ((glue ((glue ((glue (g074) (g075))) ((glue (g076) (g077))))) ((glue ((glue (g078) (g079))) ((glue (g080) ((glue (g081) (g082))))))))) ((glue ((glue ((glue (g083) (g084))) ((glue (g085) (g086))))) ((glue ((glue (g087) (g088))) ((glue (g089) ((glue (g090) (g091))))))))))) ((glue ((glue ((glue ((glue (g092) (g093))) ((glue (g094) (g095))))) ((glue ((glue (g096) (g097))) ((glue (g098) ((glue (g099) (g100))))))))) ((glue ((glue ((glue (g101) (g102))) ((glue (g103) ((glue (g104) (g105))))))) ((glue ((glue (g106) (g107))) ((glue (g108) ((glue (g109) (g110))))))))))))) ((glue ((glue ((glue ((glue ((glue (g111) (g112))) ((glue (g113) (g114))))) ((glue ((glue (g115) (g116))) ((glue (g117) ((glue (g118) (g119))))))))) ((glue ((glue ((glue (g120) (g121))) ((glue (g122) (g123))))) ((glue ((glue (g124) (g125))) ((glue (g126) ((glue (g127) (g128))))))))))) ((glue ((glue ((glue ((glue (g129) (g130))) ((glue (g131) (g132))))) ((glue ((glue (g133) (g134))) ((glue (g135) ((glue (g136) (g137))))))))) ((glue ((glue ((glue (g138) (g139))) ((glue (g140) ((glue (g141) (g142))))))) ((glue ((glue (g143) (g144))) ((glue (g145) ((glue (g146) (g147))))))))))))))))
-
+noncomputable def frames : List Frame := [
+  frame 8 780373 (-132) [(-131,2091),(-121,395),(-134,427),(-125,1492)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 796757 (-125) [(-112,15),(-119,1719),(-114,12),(-110,57)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 813141 (-110) [(-106,-1533),(-108,-222),(-97,763),(-81,-981)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 829525 (-81) [(-74,-92),(-81,500),(-82,689),(-87,-209)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 845909 (-87) [(-80,409),(-97,452),(-93,-1546),(-78,1403)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 862293 (-78) [(-77,-744),(-65,591),(-55,-813),(-55,-488)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 878677 (-55) [(-65,404),(-87,-360),(-75,339),(-71,-358)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 895061 (-71) [(-77,-1077),(-71,820),(-55,400),(-49,64)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 911445 (-49) [(-59,-209),(-65,145),(-65,87),(-60,739)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 927829 (-60) [(-75,756),(-73,-1249),(-88,344),(-85,1689)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 944213 (-85) [(-75,-58),(-80,-562),(-87,-240),(-84,298)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 960597 (-84) [(-65,-774),(-65,121),(-81,-249),(-68,-1102)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 976981 (-68) [(-69,535),(-52,-485),(-46,405),(-35,394)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 993365 (-35) [(-27,129),(-42,210),(-28,300),(-41,515)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1009749 (-41) [(-39,-31),(-60,157),(-59,-676),(-58,-466)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1026133 (-58) [(-64,-462),(-62,229),(-60,-454),(-58,407)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1042517 (-58) [(-56,61),(-56,-745),(-69,274),(-56,321)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1058901 (-56) [(-72,422),(-61,-539),(-71,573),(-67,-635)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1075285 (-67) [(-78,632),(-89,461),(-83,-1081),(-79,1011)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1091669 (-79) [(-67,749),(-79,-499),(-64,85),(-68,242)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1108053 (-68) [(-75,620),(-68,-473),(-77,-369),(-80,685)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1124437 (-80) [(-86,-400),(-83,-38),(-73,-323),(-81,446)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1140821 (-81) [(-73,673),(-70,278),(-53,-185),(-54,497)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1157205 (-54) [(-86,-588),(-91,-237),(-91,-142),(-82,-268)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1173589 (-82) [(-86,350),(-85,-315),(-73,-650),(-71,-101)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1189973 (-71) [(-55,-1264),(-43,160),(-57,-72),(-64,214)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1206357 (-64) [(-81,-76),(-79,46),(-75,-446),(-75,-170)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1222741 (-75) [(-76,551),(-63,1035),(-72,-412),(-82,462)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1239125 (-82) [(-95,879),(-118,-74),(-117,586),(-127,-1107)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1255509 (-127) [(-135,-40),(-122,113),(-114,-279),(-103,330)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1271893 (-103) [(-81,260),(-96,-405),(-91,885),(-69,148)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1288277 (-69) [(-90,-778),(-89,676),(-87,219),(-90,-421)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1304661 (-90) [(-98,-622),(-113,597),(-120,-1849),(-117,-928)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1321045 (-117) [(-103,368),(-107,529),(-100,1345),(-112,-1395)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1337429 (-112) [(-120,688),(-114,-351),(-119,-933),(-143,-164)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1353813 (-143) [(-160,-173),(-151,443),(-144,2377),(-143,131)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1370197 (-143) [(-137,-381),(-146,448),(-158,-1025),(-175,897)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1386581 (-175) [(-175,-1400),(-165,195),(-161,-1735),(-156,-312)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1402965 (-156) [(-180,-563),(-171,-423),(-178,-13),(-187,717)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1419349 (-187) [(-181,2),(-162,-1075),(-160,-169),(-155,1437)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1435733 (-155) [(-152,-487),(-160,146),(-156,683),(-146,729)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1452117 (-146) [(-143,588),(-138,543),(-116,-2012),(-125,632)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1468501 (-125) [(-120,-568),(-129,96),(-138,-145),(-147,-883)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 8 1484885 (-147) [(-130,-1643),(-129,617),(-135,-648),(-121,365)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 1501269 (-121) [(-119,1008),(-115,-183),(-113,-647),(-104,890)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 1566805 (-104) [(-144,-1067),(-120,1716),(-121,411),(-95,-711)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 1632341 (-95) [(-81,569),(-91,-1614),(-83,928),(-88,805)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 1697877 (-88) [(-97,-555),(-67,480),(-93,-602),(-83,-296)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 1763413 (-83) [(-118,1837),(-68,-1521),(-69,648),(-91,994)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 1828949 (-91) [(-85,519),(-77,-467),(-107,-551),(-110,706)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 1894485 (-110) [(-151,-441),(-157,1257),(-150,-1192),(-127,2)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 1960021 (-127) [(-133,-162),(-112,914),(-147,-608),(-135,-652)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2025557 (-135) [(-165,-1320),(-166,248),(-121,-1056),(-122,-205)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2091093 (-122) [(-162,-717),(-146,-1265),(-121,443),(-101,999)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2156629 (-101) [(-87,-38),(-64,568),(-68,185),(-84,687)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2222165 (-84) [(-71,174),(-77,-317),(-89,-440),(-108,-278)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2287701 (-108) [(-109,-922),(-106,-611),(-88,727),(-92,122)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2353237 (-92) [(-113,804),(-79,-292),(-85,-1177),(-84,-107)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2418773 (-84) [(-89,1208),(-102,1024),(-117,289),(-133,-724)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2484309 (-133) [(-156,-1739),(-152,239),(-146,49),(-109,1656)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2549845 (-109) [(-114,-932),(-99,1079),(-106,91),(-101,518)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2615381 (-101) [(-102,-967),(-127,-1185),(-105,248),(-106,209)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2680917 (-106) [(-96,1257),(-128,246),(-131,311),(-115,854)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2746453 (-115) [(-122,-464),(-128,-708),(-151,-316),(-152,1032)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2811989 (-152) [(-184,-1182),(-144,114),(-164,-120),(-183,-226)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2877525 (-183) [(-175,2749),(-141,-1324),(-145,204),(-108,-80)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 10 2943061 (-108) [(-154,1050),(-158,-142),(-125,932),(-132,630)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 3008597 (-132) [(-179,832),(-158,-2980),(-190,-1616),(-128,-4169)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 3270741 (-128) [(-120,318),(-127,1073),(-95,-1448),(-128,947)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 3532885 (-128) [(-159,2107),(-197,983),(-211,-1834),(-190,828)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 3795029 (-190) [(-141,1281),(-196,-1433),(-255,-437),(-224,1809)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 4057173 (-224) [(-250,-2736),(-205,-1969),(-205,-1111),(-137,1365)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 4319317 (-137) [(-100,-953),(-129,1181),(-106,-890),(-81,1824)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 4581461 (-81) [(-124,-435),(-150,-578),(-165,1690),(-185,-2567)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 4843605 (-185) [(-162,68),(-118,681),(-132,2157),(-109,-808)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 5105749 (-109) [(-107,85),(-131,194),(-104,-134),(-109,1171)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 5367893 (-109) [(-88,75),(-119,1432),(-76,-755),(-71,302)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 5630037 (-71) [(-83,188),(-121,-766),(-163,533),(-178,-1034)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 5892181 (-178) [(-160,-675),(-195,-164),(-212,1068),(-259,318)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 6154325 (-259) [(-277,634),(-239,-137),(-244,-732),(-176,335)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 6416469 (-176) [(-208,-1698),(-165,530),(-241,-1905),(-274,-274)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 6678613 (-274) [(-283,-662),(-280,73),(-282,-1304),(-272,2462)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 6940757 (-272) [(-240,-626),(-302,-1256),(-292,112),(-297,-469)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 7202901 (-297) [(-316,3721),(-312,-2164),(-250,1722),(-236,-1952)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 7465045 (-236) [(-255,-221),(-232,-896),(-244,210),(-208,1682)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 7727189 (-208) [(-203,-88),(-179,-1424),(-196,1613),(-210,-221)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 12 7989333 (-210) [(-206,-103)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 8054869 (-206) [(-248,55),(-262,-2107),(-191,398),(-186,1188)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 9103445 (-186) [(-175,270),(-154,138),(-204,-100),(-170,282)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 10152021 (-170) [(-194,-50),(-154,1079),(-155,-931),(-116,341)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 11200597 (-116) [(-291,-758),(-269,-315),(-262,805),(-216,647)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 12249173 (-216) [(-230,-2217),(-188,1323),(-329,535),(-343,-442)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 13297749 (-343) [(-291,102),(-245,2666),(-262,311),(-251,-467)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 14346325 (-251) [(-286,193),(-235,372),(-306,-766),(-417,-435)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 15394901 (-417) [(-446,-113),(-326,555),(-383,-1270),(-358,-1802)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 16443477 (-358) [(-348,-565),(-248,-282),(-252,-665),(-256,1128)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 17492053 (-256) [(-281,1442),(-231,-1625),(-281,357),(-318,1096)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 18540629 (-318) [(-299,-226),(-273,905),(-219,1019),(-291,10)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 19589205 (-291) [(-330,-473),(-362,-1301),(-347,-1953),(-345,446)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 20637781 (-345) [(-331,886),(-354,-1058),(-340,-1508),(-349,263)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 21686357 (-349) [(-287,-444),(-224,944),(-399,-1482),(-352,752)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 22734933 (-352) [(-359,3723),(-437,1376),(-366,-1333),(-402,-1443)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 23783509 (-402) [(-444,2247),(-322,-2287),(-213,-197),(-255,921)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 24832085 (-255) [(-221,98),(-282,-755),(-275,-1202),(-221,-90)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 25880661 (-221) [(-226,976),(-168,-498),(-120,659),(-239,813)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 26929237 (-239) [(-237,-408),(-150,1134),(-106,-546),(-160,453)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 27977813 (-160) [(-185,-59),(-164,-192),(-201,114),(-210,-476)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 29026389 (-210) [(-242,480),(-239,762),(-321,-1042),(-387,293)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 30074965 (-387) [(-373,116),(-491,1453),(-486,-1373),(-522,229)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 31123541 (-522) [(-580,-2291),(-494,624),(-539,-911),(-597,1176)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 32172117 (-597) [(-652,1291),(-604,1869),(-582,-511),(-605,-560)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 33220693 (-605) [(-417,-765),(-420,-3),(-481,-893),(-525,136)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 34269269 (-525) [(-547,-1138),(-476,-472),(-505,-2178),(-508,-514)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 35317845 (-508) [(-506,485),(-559,-1537),(-582,532),(-546,510)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 36366421 (-546) [(-543,-598),(-493,58),(-454,917),(-389,-388)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 37414997 (-389) [(-302,128),(-444,684),(-397,452),(-407,-2149)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 38463573 (-407) [(-377,1496),(-375,-37),(-422,-768),(-373,352)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 39512149 (-373) [(-401,-817),(-454,-395),(-512,235),(-478,1012)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 40560725 (-478) [(-514,-491),(-531,987),(-423,331),(-489,1216)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 41609301 (-489) [(-408,576),(-481,-74),(-501,-1028),(-531,-1038)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 42657877 (-531) [(-454,31),(-450,-554),(-535,924),(-454,-19)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 43706453 (-454) [(-552,1038),(-553,540),(-499,972),(-516,-487)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 44755029 (-516) [(-576,-992),(-522,2864),(-474,-1505),(-538,-96)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 45803605 (-538) [(-447,-176),(-392,-771),(-369,676),(-377,398)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 46852181 (-377) [(-291,270),(-271,528),(-336,-543),(-408,-1453)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 47900757 (-408) [(-369,1349),(-307,-1547),(-321,-613),(-239,526)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 48949333 (-239) [(-214,-235),(-277,329),(-353,119),(-167,497)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 49997909 (-167) [(-250,503),(-282,260),(-243,-553),(-285,324)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 51046485 (-285) [(-219,674),(-254,-396),(-264,1163),(-265,-505)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 52095061 (-265) [(-123,49),(-178,70),(-244,-8),(-249,-408)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 53143637 (-249) [(-171,199),(-172,399),(-294,-666),(-252,91)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 54192213 (-252) [(-383,2),(-382,-374),(-460,26),(-388,-54)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 55240789 (-388) [(-436,395),(-592,-17),(-483,-736),(-486,-391)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 56289365 (-486) [(-458,65),(-469,-429),(-445,-3),(-565,-1566)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 57337941 (-565) [(-592,1740),(-537,-29),(-461,-53),(-396,-18)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 58386517 (-396) [(-372,-17),(-411,-452),(-359,346),(-311,1051)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 59435093 (-311) [(-392,377),(-366,734),(-403,742),(-449,-543)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 60483669 (-449) [(-381,952),(-389,9),(-364,-735),(-445,-468)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 61532245 (-445) [(-455,-433),(-472,566),(-352,-398),(-349,-86)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 62580821 (-349) [(-427,-392),(-425,-9),(-429,-1264),(-436,39)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 63629397 (-436) [(-445,897),(-495,472),(-539,1881),(-574,63)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 64677973 (-574) [(-604,-1249),(-684,566),(-759,58),(-754,-6)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 65726549 (-754) [(-836,745),(-827,2425),(-945,-874),(-910,-1918)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 66775125 (-910) [(-830,-2643),(-842,-876),(-821,750),(-807,-788)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 67823701 (-807) [(-784,1634),(-722,-1588),(-823,-1519),(-683,1439)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 68872277 (-683) [(-731,757),(-725,36),(-717,712),(-674,-2091)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 69920853 (-674) [(-621,695),(-602,11),(-545,-1151),(-548,-36)] (by decide) (by decide) (by decide) (by decide +kernel),
+  frame 14 70969429 (-548) [(-551,30),(-685,-715),(-632,1319),(-747,0)] (by decide) (by decide) (by decide) (by decide +kernel)]
+set_option maxHeartbeats 0 in
+set_option maxRecDepth 100000 in
+theorem joined : Segment 780373 72018005 (-132) (-747) (-4474) :=
+  frame_matches (f := frames.foldl mergeFrame firstFrame) (by decide +kernel)
 theorem weighted_rank_exact : upperWeighted x0 cutB cutR = -4474 := by
   have hh := (joined primeWeight_r).2
-  rwa [show cut 72018005=cutB by decide,show cut 780373=cutR by decide] at hh
-theorem semiprime_exact : semiprimeCorrection 608981813029 8477 780372=17602 :=
+  rwa [show cut 72018005=cutB by decide, show cut 780373=cutR by decide] at hh
+theorem semiprime_exact : semiprimeCorrection 608981813029 8477 780372 = 17602 :=
   semis_explicit weight_8477_from_list primeWeight_r primeCounting_r_b weighted_rank_exact
 end SunPrimeNumeric.Slim
 end
