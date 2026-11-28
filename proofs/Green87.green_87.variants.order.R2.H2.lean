@@ -3736,7 +3736,7 @@ theorem atom_sub_box (p b q m u t : ℕ) (hm : 0 < m) :
     · have hj := hx.2 (left j); change (j.val:ℝ)+1 ≤ u + m*x (left j) at hj; field_simp; linarith
     · have hh := mul_le_mul_of_nonneg_left (hmono (hle j)) hp.le; apply (le_div_iff₀ hp).2; linarith
   constructor
-  · refine ⟨fun i j h ↦ sub_le_sub_right (hmono (show mid i≤mid j by change p+i.val≤p+j.val; omega)) _,fun j ↦ ⟨?_,?_⟩⟩
+  · refine ⟨fun i j h ↦ sub_le_sub_right (hmono (show mid i ≤ mid j by change p+i.val≤p+j.val; omega)) _,fun j ↦ ⟨?_,?_⟩⟩
     · simp only [mul_zero,sub_zero,max_self]; apply sub_nonneg.mpr; rw [div_le_iff₀ hp]
       have hh := mul_le_mul_of_nonneg_left (hmono (hge j)) hp.le; linarith
     · have hh := mul_le_mul_of_nonneg_left (hmono (hle' j)) hp.le; field_simp; linarith
