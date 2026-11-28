@@ -16,6 +16,9 @@ squares. The lemmas below formalize this step and verify the local conditions
 using Hensel's lemma. The two hypotheses are the remaining analytic input for
 coefficients 125 and 25. The cases 1 and 5 follow from the formalized
 three-square theorem, using the sum-of-two-squares identity at 5.
+
+For 25 and 125, primitive local representability is equivalent to the
+explicit congruences in the hypotheses.
 -/
 namespace OMA.R_Erdos940_erdos_940_variants_three_powerful_R1_H2_R2
 
@@ -85,6 +88,30 @@ private lemma odd_padic_binary {p : ℕ} [hp : Fact p.Prime] {t : ℤ}
     obtain ⟨b, hb, hu⟩ := odd_padic_square hp2 hy hm
     exact ⟨x, b, by push_cast at hb; linear_combination hb, Or.inr hu⟩
 
+private lemma primitive_at_an_odd_prime {e n : ℕ} (hn5 : ¬ 5 ∣ n ∨ e = 0)
+    (p : ℕ) [hp : Fact p.Prime] (hp2 : p ≠ 2) :
+    ∃ x y z : ℤ_[p], x ^ 2 + y ^ 2 + (5 : ℤ_[p]) ^ e * z ^ 2 = n ∧
+      (‖x‖ = 1 ∨ ‖y‖ = 1 ∨ ‖z‖ = 1) := by
+  by_cases hpn : (p : ℤ) ∣ (n : ℤ)
+  · have hpc : ¬ (p : ℤ) ∣ 5 ^ e := by
+      intro hd
+      have hNat : p ∣ 5 ^ e := by exact_mod_cast hd
+      have hp5 := (Nat.prime_dvd_prime_iff_eq hp.1 (by decide : Nat.Prime 5)).mp
+        (hp.1.dvd_of_dvd_pow hNat)
+      subst p
+      rcases hn5 with hn5 | rfl
+      · exact hn5 (by exact_mod_cast hpn)
+      · norm_num at hNat
+    have ht : ¬ (p : ℤ) ∣ (n : ℤ) - 5 ^ e := by
+      intro hd
+      apply hpc
+      have hdiff := dvd_sub hpn hd
+      rwa [show (n : ℤ) - ((n : ℤ) - 5 ^ e) = 5 ^ e by ring] at hdiff
+    obtain ⟨a, b, hab, hu⟩ := odd_padic_binary hp2 ht
+    exact ⟨a, b, 1, by push_cast at hab; simp; linear_combination hab, by tauto⟩
+  · obtain ⟨a, b, hab, hu⟩ := odd_padic_binary hp2 hpn
+    exact ⟨a, b, 0, by simpa using hab, by tauto⟩
+
 /-- A primitive local representation for the four forms in Moroz's descent. -/
 private lemma primitive_padic {e n : ℕ} (hn5 : ¬ 5 ∣ n ∨ e = 0)
     (hn8 : (n : ℤ) ≡ 2 + 5 ^ e [ZMOD 8]) (p : ℕ) [hp : Fact p.Prime] :
@@ -97,25 +124,71 @@ private lemma primitive_padic {e n : ℕ} (hn5 : ¬ 5 ∣ n ∨ e = 0)
       ring
     obtain ⟨a, ha, hu⟩ := two_padic_square hm
     exact ⟨a, 1, 1, by push_cast at ha; simp; linear_combination ha, Or.inl hu⟩
-  · by_cases hpn : (p : ℤ) ∣ (n : ℤ)
-    · have hpc : ¬ (p : ℤ) ∣ 5 ^ e := by
-        intro hd
-        have hNat : p ∣ 5 ^ e := by exact_mod_cast hd
-        have hp5 := (Nat.prime_dvd_prime_iff_eq hp.1 (by decide : Nat.Prime 5)).mp
-          (hp.1.dvd_of_dvd_pow hNat)
-        subst p
-        rcases hn5 with hn5 | rfl
-        · exact hn5 (by exact_mod_cast hpn)
-        · norm_num at hNat
-      have ht : ¬ (p : ℤ) ∣ (n : ℤ) - 5 ^ e := by
-        intro hd
-        apply hpc
-        have hdiff := dvd_sub hpn hd
-        rwa [show (n : ℤ) - ((n : ℤ) - 5 ^ e) = 5 ^ e by ring] at hdiff
-      obtain ⟨a, b, hab, hu⟩ := odd_padic_binary hp2 ht
-      exact ⟨a, b, 1, by push_cast at hab; simp; linear_combination hab, by tauto⟩
-    · obtain ⟨a, b, hab, hu⟩ := odd_padic_binary hp2 hpn
-      exact ⟨a, b, 0, by simpa using hab, by tauto⟩
+  · exact primitive_at_an_odd_prime hn5 p hp2
+
+private lemma two_padic_residue_one_or_five {e n : ℕ} (h : n % 8 = 1 ∨ n % 8 = 5) :
+    ∃ x y z : ℤ_[2], x ^ 2 + y ^ 2 + (5 : ℤ_[2]) ^ e * z ^ 2 = n ∧
+      (‖x‖ = 1 ∨ ‖y‖ = 1 ∨ ‖z‖ = 1) := by
+  rcases h with h | h
+  · have hn : (n : ℤ) ≡ (1 : ℕ) [ZMOD (8 : ℕ)] :=
+      Int.natCast_modEq_iff.mpr (by simpa [Nat.ModEq] using h)
+    obtain ⟨a, ha, hu⟩ := two_padic_square hn
+    exact ⟨a, 0, 0, by simpa using ha, Or.inl hu⟩
+  · have hn : (n : ℤ) ≡ (5 : ℕ) [ZMOD (8 : ℕ)] :=
+      Int.natCast_modEq_iff.mpr (by simpa [Nat.ModEq] using h)
+    have ht : (n : ℤ) - 4 ≡ 1 [ZMOD 8] := by
+      simpa using hn.sub_right 4
+    obtain ⟨a, ha, hu⟩ := two_padic_square ht
+    refine ⟨a, 2, 0, ?_, Or.inl hu⟩
+    push_cast at ha
+    simp
+    linear_combination ha
+
+private noncomputable def residueMod8 : ℤ_[2] →+* ZMod 8 := PadicInt.toZModPow 3
+
+private lemma residue25 : ∀ x y z : ZMod 8, (x ^ 2 + y ^ 2 + 5 ^ (2 : ℕ) * z ^ 2).val ≠ 7 := by
+  decide +kernel
+
+private lemma residue125 : ∀ x y z : ZMod 8, (x ^ 2 + y ^ 2 + 5 ^ (3 : ℕ) * z ^ 2).val ≠ 3 := by
+  decide +kernel
+
+/-- For odd integers coprime to 5, the coefficient-25 and coefficient-125
+forms have primitive representations at all primes exactly when the stated
+residue modulo 8 is avoided. -/
+theorem primitive_local_iff_residue {e n : ℕ} (he : e = 2 ∨ e = 3)
+    (hn : Odd n) (hn5 : ¬ 5 ∣ n) :
+    (∀ (p : ℕ) [Fact p.Prime], ∃ x y z : ℤ_[p],
+      x ^ 2 + y ^ 2 + (5 : ℤ_[p]) ^ e * z ^ 2 = n ∧
+        (‖x‖ = 1 ∨ ‖y‖ = 1 ∨ ‖z‖ = 1)) ↔
+      n % 8 ≠ if e = 2 then 7 else 3 := by
+  constructor
+  · intro h
+    obtain ⟨x, y, z, hxyz, _⟩ := h 2
+    have hmod := congrArg residueMod8 hxyz
+    simp only [map_add, map_pow, map_mul, map_ofNat, map_natCast] at hmod
+    rw [← ZMod.val_natCast, ← hmod]
+    rcases he with rfl | rfl
+    · exact residue25 _ _ _
+    · exact residue125 _ _ _
+  · intro h p hp
+    by_cases hp2 : p = 2
+    · subst p
+      by_cases h₁ : n % 8 = 1 ∨ n % 8 = 5
+      · exact two_padic_residue_one_or_five h₁
+      · obtain ⟨k, hk⟩ := hn
+        have hn8 : (n : ℤ) ≡ 2 + 5 ^ e [ZMOD 8] := by
+          have hr : n % 8 = if e = 2 then 3 else 7 := by
+            rcases he with rfl | rfl <;> simp at * <;> omega
+          rcases he with rfl | rfl
+          · have hh : (n : ℤ) ≡ (3 : ℕ) [ZMOD (8 : ℕ)] :=
+              Int.natCast_modEq_iff.mpr (by simpa [Nat.ModEq] using hr)
+            exact hh.trans (by decide)
+          · have hh : (n : ℤ) ≡ (7 : ℕ) [ZMOD (8 : ℕ)] :=
+              Int.natCast_modEq_iff.mpr (by simpa [Nat.ModEq] using hr)
+            exact hh.trans (by decide)
+        exact primitive_padic (.inl hn5) hn8 2
+    · exact primitive_at_an_odd_prime (.inl hn5) p hp2
+
 
 private lemma strip_fives (n : ℕ) :
     ∃ k m : ℕ, k ≤ 3 ∧ n = 5 ^ k * m ∧ (¬ 5 ∣ m ∨ k = 3) := by
@@ -214,20 +287,21 @@ private def AllSmallCoefficients : Prop :=
       (‖x‖ = 1 ∨ ‖y‖ = 1 ∨ ‖z‖ = 1)) →
     ∃ x y z : ℤ, x ^ 2 + y ^ 2 + 5 ^ e * z ^ 2 = m
 
-/-- The eventual local-to-global implication for coefficient 125. -/
-def H1 : Prop :=
+private def Local125 : Prop :=
   ∀ᶠ m : ℕ in atTop, Odd m → ¬ 5 ∣ m →
     (∀ (p : ℕ) [Fact p.Prime], ∃ x y z : ℤ_[p],
       x ^ 2 + y ^ 2 + (5 : ℤ_[p]) ^ (3 : ℕ) * z ^ 2 = m ∧
       (‖x‖ = 1 ∨ ‖y‖ = 1 ∨ ‖z‖ = 1)) →
     ∃ x y z : ℤ, x ^ 2 + y ^ 2 + 5 ^ (3 : ℕ) * z ^ 2 = m
 
-/-- The eventual local-to-global implication for coefficient 25. -/
+/-- The coefficient-125 form represents all sufficiently large admissible integers. -/
+def H1 : Prop :=
+  ∀ᶠ m : ℕ in atTop, Odd m → ¬ 5 ∣ m → m % 8 ≠ 3 →
+    ∃ x y z : ℤ, x ^ 2 + y ^ 2 + 5 ^ (3 : ℕ) * z ^ 2 = m
+
+/-- The coefficient-25 form represents all sufficiently large admissible integers. -/
 def H2 : Prop :=
-  ∀ᶠ m : ℕ in atTop, Odd m → ¬ 5 ∣ m →
-    (∀ (p : ℕ) [Fact p.Prime], ∃ x y z : ℤ_[p],
-      x ^ 2 + y ^ 2 + (5 : ℤ_[p]) ^ (2 : ℕ) * z ^ 2 = m ∧
-      (‖x‖ = 1 ∨ ‖y‖ = 1 ∨ ‖z‖ = 1)) →
+  ∀ᶠ m : ℕ in atTop, Odd m → ¬ 5 ∣ m → m % 8 ≠ 7 →
     ∃ x y z : ℤ, x ^ 2 + y ^ 2 + 5 ^ (2 : ℕ) * z ^ 2 = m
 
 section
@@ -243,7 +317,7 @@ private lemma full_125_mul_sq (z : ℕ) : Nat.Full 2 (125 * z ^ 2) := by
     exact dvd_mul_of_dvd_left (by decide : 5 ^ 2 ∣ 125) _
   · exact dvd_mul_of_dvd_right (pow_dvd_pow_of_dvd (hp.dvd_of_dvd_pow hz) 2) _
 
-private theorem main_of_all_small_coefficients : H1 → AllSmallCoefficients → OMA.R_Erdos940_erdos_940_variants_three_powerful_R1.H2 := by
+private theorem main_of_all_small_coefficients : Local125 → AllSmallCoefficients → OMA.R_Erdos940_erdos_940_variants_three_powerful_R1.H2 := by
   intro large125 small
   have global : ∀ e ≤ 3, ∀ᶠ m : ℕ in atTop, Odd m → (¬ 5 ∣ m ∨ e = 0) →
       (∀ (p : ℕ) [Fact p.Prime], ∃ x y z : ℤ_[p],
@@ -1357,8 +1431,16 @@ open scoped PadicInt
 
 theorem main : H1 → H2 → OMA.R_Erdos940_erdos_940_variants_three_powerful_R1.H2 := by
   intro h125 h25
-  apply main_of_all_small_coefficients h125
-  exact Erdos940Bridge.small_coefficients_of_legendre_and_twenty_five
-    Erdos940Bridge.odd_legendre h25
+  apply main_of_all_small_coefficients
+  · filter_upwards [h125] with m hm hOdd hCoprime hLocal
+    have h := (primitive_local_iff_residue (Or.inr (rfl : (3 : ℕ) = 3))
+      hOdd hCoprime).mp hLocal
+    exact hm hOdd hCoprime (by simpa using h)
+  · apply Erdos940Bridge.small_coefficients_of_legendre_and_twenty_five
+      Erdos940Bridge.odd_legendre
+    filter_upwards [h25] with m hm hOdd hCoprime hLocal
+    have h := (primitive_local_iff_residue (Or.inl (rfl : (2 : ℕ) = 2))
+      hOdd hCoprime).mp hLocal
+    exact hm hOdd hCoprime (by simpa using h)
 
 end OMA.R_Erdos940_erdos_940_variants_three_powerful_R1_H2_R2
