@@ -33,3 +33,4 @@ theorem main : ∀ p : ℕ, Nat.Prime p → ∃ a : ℕ, 0 < a ∧ Nat.Prime (p 
   sorry
 
 end OMA.S_oeis_a240232
+-- ci: re-run check-proof
