@@ -12,17 +12,6 @@ theorem strictMono : StrictMono a := by
   unfold a
   split_ifs <;> omega
 
-/-- `a` takes exactly the values `≡ 1, 2 (mod 6)`. -/
-theorem range_iff (x : ℕ) : (x % 6 = 1 ∨ x % 6 = 2) ↔ ∃ n, 1 ≤ n ∧ a n = x := by
-  constructor
-  · rintro (h | h)
-    · refine ⟨2 * (x / 6) + 1, by omega, ?_⟩
-      unfold a; split_ifs <;> omega
-    · refine ⟨2 * (x / 6) + 2, by omega, ?_⟩
-      unfold a; split_ifs <;> omega
-  · rintro ⟨n, hn, rfl⟩
-    exact a_mod n hn
-
 /-- Control: the first eight terms. -/
 theorem first_terms : (List.range 8).map (fun i => a (i + 1)) = [1, 2, 7, 8, 13, 14, 19, 20] := by
   decide
