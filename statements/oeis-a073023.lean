@@ -32,3 +32,4 @@ theorem main : ∀ n : ℕ, 100 < n →
   sorry
 
 end OMA.S_oeis_a073023
+-- ci: re-run check-proof
