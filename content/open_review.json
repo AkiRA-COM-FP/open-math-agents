@@ -17108,6 +17108,32 @@
     "https://oeis.org/A261702"
    ],
    "reason": "The statement is 'Collatz implies the greedy preimage sequence is a permutation'. That is Paul Tek's remark in the entry, not an open conjecture; the open part is the Collatz conjecture, which is assumed. The implication is a few-line argument: each k becomes eligible once step(k) appears and is then picked within k steps. The definition matches the data, but this should not count as solving an open problem."
+  },
+  "oeis-a047211": {
+   "date": "2026-11-28",
+   "pr": 14119,
+   "evidence": [
+    "https://oeis.org/A047211"
+   ],
+   "reason": "Disproof by a trivial edge case. At n=1, M(1)=[1] has characteristic polynomial X-1, which is irreducible, while 1 is not 2 or 4 mod 5. Every degree-1 polynomial is irreducible, so this only shows the conjecture cannot include n=1 (the entry's data starts at 2). My sympy check finds n=1 to be the only mismatch for n<=30, so the intended n>=2 conjecture is untouched."
+  },
+  "oeis-a059163": {
+   "date": "2026-11-28",
+   "pr": 28729,
+   "evidence": [
+    "https://oeis.org/A059163",
+    "https://oeis.org/A059129"
+   ],
+   "reason": "Triviality. Mathar's a(n)=2^(1+A059129(n)) is correct, and the Wallgren definitions match the data (Irvine's formula). But with the definitions it is a one-line identity: the k-th element's three phrase sums are 2^(h-1)+2^h+2^(h-1)=2^(h+1), 2^h+2^(h+1)+2^h=2^(h+2) and 2^(h+1), against A059129's phrase (h,h+1,h). The 22-line proof is just this computation. Not a substantive solve."
+  },
+  "oeis-a062282": {
+   "date": "2026-11-28",
+   "pr": 14190,
+   "evidence": [
+    "https://oeis.org/A062282",
+    "https://oeis.org/A008290"
+   ],
+   "reason": "Triviality. Keith's 'conjecture' a(n) = sum_k A008290(n,k)*A059841(k) just splits permutations by their number of fixed points and keeps the even counts. With T(n,k) and a(n) defined (as here) by the same fixed-point count over Perm(Fin n), the identity follows from the definitions (partition a finite set by a statistic). The formalization is faithful, but nothing open was settled."
   }
  },
  "known": {
@@ -32294,6 +32320,152 @@
     "https://doi.org/10.5281/zenodo.24552741"
    ],
    "reason": "Barker's closed form (n>2), recurrence (n>7) and g.f. for Rule 9 are stated with the entry's ranges. All three are marked 'proved' in Muñoz's Zenodo 24552741 (26 Nov 2026), before the site proof (2026-11-28 13:48 UTC)."
+  },
+  "oeis-a004123": {
+   "date": "2026-11-28",
+   "pr": 18578,
+   "evidence": [
+    "https://oeis.org/A004123",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/OrdinaryIntegralEGF.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a004123-generalized-weak-orders-totient-period.md"
+   ],
+   "reason": "Both of Bala's conjectures are covered. The totient period of a(n) mod k is covered, and so is the general claim for any integer weight g, with b(n)=sum S(n,j) j! g(j). thatnealpatel/proofs proves exactly this for an arbitrary weight: Proofs/Enumerative/OrdinaryIntegralEGF.lean, weightedStirlingTransform_eventuallyPeriodic, with A004123BalaModEventually.lean (commit of 2026-10-25). trureturing proved the same general theorem on 2026-09-10 (stirling_transform_totient_period, dossier Problems/oeis-a004123-...). The site proof is dated 2026-11-28 and uses the same route. (The statement's 0-based indexing is a harmless shift.)"
+  },
+  "oeis-a004484": {
+   "date": "2026-11-28",
+   "pr": 28193,
+   "evidence": [
+    "https://oeis.org/A004484",
+    "https://oeis.org/A046874",
+    "https://oeis.org/A046875",
+    "https://doi.org/10.1006/aama.1998.0632"
+   ],
+   "reason": "The statement of Wu's recurrence (n>14) and g.f. for row 3 of the Wythoff Sprague-Grundy table is faithful. But Dress-Flammenkamp-Pink (Adv. Appl. Math. 22, 1999, cited in the entry) prove that every row is ultimately additively periodic (G(x,y+p)=G(x,y)+p). Their values, recorded in A046874/A046875, give row 3 preperiod 8 and period 6. That determines row 3 completely from its first 14 values, and Wu's g.f. and recurrence follow at once. The Lean proof uses exactly this preperiod-8, period-6 shift table."
+  },
+  "oeis-a005572": {
+   "date": "2026-11-28",
+   "pr": 10207,
+   "evidence": [
+    "https://oeis.org/A005572"
+   ],
+   "reason": "Both conjuncts are settled in the entry itself. The g.f. A(x)=c(x/(1-2x))^2/(1-2x) is Bala's Aug 2021 formula stated as fact (equivalent to Arndt's 2011 B=C(x/(1-2x))). The parity conjecture is annotated in the entry: 'added Feb 03 2024: the conjecture follows from the formula a(n)=Sum 2^(n-k)C(n,k)Catalan(k+1)'. The definition (Layman's recurrence) is faithful."
+  },
+  "oeis-a007540": {
+   "date": "2026-11-28",
+   "pr": 28231,
+   "evidence": [
+    "https://oeis.org/A007540",
+    "https://doi.org/10.1007/978-1-4939-1601-6_17",
+    "https://zenodo.org/records/24163511"
+   ],
+   "reason": "The statement of Ordowski-Resta's power-sum characterization of Wilson primes is faithful. But it is an immediate consequence of Lerch's 1905 formula sum q_p(a) == W_p (mod p). Sum a^(p-1) = p-1 + p*sum q_p(a) == p-1 + p*W_p (mod p^2), and (p-1)! = -1 + p*W_p, so the two congruences are equivalent. Lerch's formula is stated in Sondow's paper cited by the entry. Kudriashov's Athanor notebook (Zenodo 24163511, 2026-11-12) also records A007540 as 'already settled (Lerch 1905)'. The site proof (2026-11-28) re-derives exactly this."
+  },
+  "oeis-a050686": {
+   "date": "2026-11-28",
+   "pr": 29041,
+   "evidence": [
+    "https://oeis.org/A050686"
+   ],
+   "reason": "The statement (closed form 9*10^m - 8*9^m with m = ceil(n/2)-1, which is equivalent to Barker's g.f.) is faithful. But the entry itself records 'From Sela Fried, Dec 10 2024: The conjectured g.f is correct', with this closed form. The statement header even credits Fried. Settled in the source."
+  },
+  "oeis-a051487": {
+   "date": "2026-11-28",
+   "pr": 14812,
+   "evidence": [
+    "https://oeis.org/A051487",
+    "https://oeis.org/A108569",
+    "https://zenodo.org/records/24536214"
+   ],
+   "reason": "Disproof of Firoozbakht's 'all terms even' with k=8488966395 (odd): phi(k)=3393612288 and k-phi(k)=5095354107, which has the same totient. This is exactly the odd pair from Salem Levinstein's refutation of the companion conjecture for A108569 (Zenodo 24536214, 2026-11-25: n=5095354107, n+phi(n)=8488966395, equal totients). That pair is an A051487 counterexample at once. The proof file says 'The two factorizations come from Salem Levinstein's counterexample for A108569'. The site proof is dated 2026-11-27."
+  },
+  "oeis-a063956": {
+   "date": "2026-11-28",
+   "pr": 28104,
+   "evidence": [
+    "https://oeis.org/A063956",
+    "https://github.com/blakestone-x/math/blob/main/A063956/README.md"
+   ],
+   "reason": "Yanev's identity a(nm)+a(gcd(n^2,m))+a(gcd(n,m^2)) = a(n)+a(m) is faithful (additive form, unitary prime divisors = exponent exactly 1). But blakestone-x/math already proves it in Lean (A063956/README.md and Proof.lean, dated November 26, 2026) by the same per-prime exponent identity [x+y=1]+[min(2x,y)=1]+[min(x,2y)=1]=[x=1]+[y=1]. That predates this proof (2026-11-27 22:16 UTC)."
+  },
+  "oeis-a064618": {
+   "date": "2026-11-28",
+   "pr": 18591,
+   "evidence": [
+    "https://oeis.org/A064618",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a064618-stirling-transform-totient-period.md",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A064618ModEventuallyPeriodic.lean"
+   ],
+   "reason": "Bala's conjecture (a(n) mod k eventually has period dividing phi(k), for the Stirling transform of (n!)^2) is stated faithfully. trureturing proved it on 2026-09-10 as bala_conjecture_a064618, an instance of the general stirling_transform_totient_period (dossier Problems/oeis-a064618-stirling-transform-totient-period.md). thatnealpatel/proofs has Proofs/Enumerative/A064618ModEventuallyPeriodic.lean on top of weightedStirlingTransform_eventuallyPeriodic. This proof (2026-11-28) uses the same route as its A004123 sibling."
+  },
+  "oeis-a069548": {
+   "date": "2026-11-28",
+   "pr": 16443,
+   "evidence": [
+    "https://oeis.org/A069548"
+   ],
+   "reason": "Del Arte's condition (for n>1, an odd value of sum_{d|n} 6d/(2+mu(d)) forces n to be a square or twice a square) is stated faithfully, with exact integer division. But Greathouse's comment in the entry (Feb 18 2011) proves it: the function is 3*sigma(n) plus a squarefree correction that is even for n>1, so oddness needs sigma(n) odd, i.e. n a square or twice a square. The statement header notes a nuance in his intermediate parity claim at powers of two, but the conclusion is his. Settled in the source."
+  },
+  "oeis-a079044": {
+   "date": "2026-11-28",
+   "pr": 14413,
+   "evidence": [
+    "https://oeis.org/A079044"
+   ],
+   "reason": "Librandi's a(n)=floor(2 pi^2 n) is stated faithfully (Nat.nth of the k with sum_{j<=k} sin(j/pi)<0). I confirmed it for all 10132 terms below 2*10^5. But the entry already lists Kotesovec's unconditional characterizations (Feb 2019): the k with sin(k/(2pi))sin((k+1)/(2pi))<0, equivalently the k with k mod 2pi^2 > 2pi^2-1. Since 2pi^2 is irrational, that set is exactly {floor(2pi^2 m): m>=1}. So the conjecture is a one-line restatement of a formula already recorded in the source."
+  },
+  "oeis-a079267": {
+   "date": "2026-11-28",
+   "pr": 15856,
+   "evidence": [
+    "https://oeis.org/A079267",
+    "https://oeis.org/A000806/a000806.pdf",
+    "https://arxiv.org/abs/2104.01134"
+   ],
+   "reason": "Callan's conjecture (the number of short pairs {i,i+1} in a uniform perfect matching of [2n] tends to Poisson(1); stated as d(n,s)/(2n-1)!! -> e^-1/s! for each s) is faithful. But it is classical. Kreweras-Poupard (1978, linked in the entry) showed that all factorial moments tend to 1, which gives the Poisson limit. Later work (e.g. Acan et al., arXiv:2104.01134) gives an O(1/n) total-variation rate to Poisson(1)."
+  },
+  "oeis-a080958": {
+   "date": "2026-11-28",
+   "pr": 10633,
+   "evidence": [
+    "https://oeis.org/A080958"
+   ],
+   "reason": "Mathar's recurrence -(n+1)a(n+1)+a(n)+n^2(n+2)a(n-1)=0 (n>=2) is stated faithfully. But the entry already says 'Conjecture verified, using the differential equation (x^3-x)g''+(5x^2-1)g'+(3x+1)g+2=0 satisfied by the e.g.f.' (Robert Israel, Dec 26 2018). Settled in the source."
+  },
+  "oeis-a081124": {
+   "date": "2026-11-28",
+   "pr": 17175,
+   "evidence": [
+    "https://oeis.org/A081124",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/mathar-2012-a081124-recurrence.md",
+    "https://zenodo.org/records/24412942"
+   ],
+   "reason": "Mathar's recurrence 2a(n)-4a(n-1)+(2-n)a(n-2)+(n-1)a(n-3)=0 is stated for n>=3 with a(n)=sum C(n,k)floor(k/2)!. trureturing proved this exact target (n>=3, the same literal sum) on 2026-11-06: D5/S1/Recurrence/MatharA081124.lean, dossier Problems/mathar-2012-a081124-recurrence.md. Haobo Ma's Zenodo 24412942 (2026-11-21) also proves Mathar's A081124 recurrence for n>=3. Both predate this proof (2026-11-28 01:41 UTC)."
+  },
+  "oeis-a081200": {
+   "date": "2026-11-28",
+   "pr": 29034,
+   "evidence": [
+    "https://oeis.org/A081200",
+    "https://oeis.org/A081201"
+   ],
+   "reason": "Hardin's interpretation (collinear 5-sets in the 5^n grid = 6th binomial transform of 0,1,0,1,... = (7^n-5^n)/2) is stated faithfully. A line meeting {0..4}^n in 5 points has a step vector in {-1,0,1}^n, so it is a tic-tac-toe winning line. The count ((k+2)^n-k^n)/2 of such lines on the k^n board is classical (Moser; Golomb-Hales). Same verdict as the sister A081201 solved earlier on this site (6^n grid)."
+  },
+  "oeis-a090049": {
+   "date": "2026-11-28",
+   "pr": 28084,
+   "evidence": [
+    "https://oeis.org/A090049"
+   ],
+   "reason": "Israel's conjecture (n<2^k implies a(n)<3k, plus the stated lower bound a(n)>=3*v2(n)) is stated faithfully, with the k=0 corner handled. But it follows at once from Greathouse's bound a(n) <= 3*A070939(n)-3 (n>0), recorded in the entry the same day: n<2^k means bitlength(n)<=k. It is also trivial in itself, since n^3 has at most 3k bits with a leading 1, so any zero run has length <= 3k-1. Not a substantive solve."
+  },
+  "oeis-a090519": {
+   "date": "2026-11-28",
+   "pr": 14474,
+   "evidence": [
+    "https://oeis.org/A090519",
+    "https://zenodo.org/records/23067094"
+   ],
+   "reason": "'No term is zero' is stated faithfully: for every n>=1 there is a prime p with floor(10^n/p) prime. The proof uses Bertrand's postulate at floor(10^n/4) to get quotient 2 or 3. But Lien-Hung Su's Zenodo 23067094 (2026-10-01), 'Nonvanishing and Growth of Least Prime Denominators for Decimal Powers', proves exactly this (a(n)>0 for all n>=1 via Bertrand, and quotient 2 via Nagura), well before this proof (2026-11-27)."
   }
  },
  "reviewed": "2026-11-28"
