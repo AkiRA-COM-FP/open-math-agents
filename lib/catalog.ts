@@ -308,37 +308,15 @@ export async function search(query: Query) {
   return { total, items: list.slice(offset, offset + limit) };
 }
 
-const TEX: Record<string, string> = {
-  mathbb: "", mathbf: "", mathrm: "", mathcal: "", operatorname: "", text: "", textrm: "", mathfrak: "",
-  le: "≤", leq: "≤", ge: "≥", geq: "≥", ne: "≠", neq: "≠", in: "∈", notin: "∉", subset: "⊂", subseteq: "⊆",
-  cup: "∪", cap: "∩", infty: "∞", to: "→", rightarrow: "→", mapsto: "↦", times: "×", cdot: "·", cdots: "…", ldots: "…", dots: "…",
-  sum: "∑", prod: "∏", int: "∫", sqrt: "√", log: "log", exp: "exp", lim: "lim", liminf: "liminf", limsup: "limsup", sim: "∼",
-  approx: "≈", ll: "≪", gg: "≫", forall: "∀", exists: "∃", neg: "¬", land: "∧", lor: "∨", mid: "|", lvert: "|", rvert: "|", vert: "|",
-  alpha: "α", beta: "β", gamma: "γ", delta: "δ", epsilon: "ε", varepsilon: "ε", zeta: "ζ", eta: "η", theta: "θ", lambda: "λ",
-  mu: "μ", nu: "ν", pi: "π", rho: "ρ", sigma: "σ", tau: "τ", phi: "φ", varphi: "φ", chi: "χ", psi: "ψ", omega: "ω",
-  Gamma: "Γ", Delta: "Δ", Lambda: "Λ", Sigma: "Σ", Phi: "Φ", Omega: "Ω", left: "", right: "", lfloor: "⌊", rfloor: "⌋",
-  lceil: "⌈", rceil: "⌉", binom: "binom", frac: "", pmod: "mod", bmod: "mod", equiv: "≡", setminus: "∖", emptyset: "∅",
-};
-const BB: Record<string, string> = { N: "ℕ", Z: "ℤ", Q: "ℚ", R: "ℝ", C: "ℂ", P: "ℙ", F: "𝔽" };
-
-/** Rough TeX → Unicode for one-line excerpts (the problem page renders real KaTeX). */
-export function texPlain(s: string) {
-  return s
-    .replace(/\\mathbb\s*\{?([A-Z])\}?/g, (_, c) => BB[c] ?? c)
-    .replace(/\\frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, "($1)/($2)")
-    .replace(/\\([A-Za-z]+)/g, (m, w) => (w in TEX ? TEX[w] : w))
-    .replace(/\\[,;!: ]/g, " ")
-    .replace(/[{}$*`]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+export { texPlain } from "@/lib/texplain";
+import { texPlain } from "@/lib/texplain";
 
 /** Compact card shape sent to the browser. The excerpt comes from D1 (see withExcerpts). */
 export function toCard(p: Problem, excerpt = "") {
   return {
     claimed: Boolean(p.claim),
     id: p.id,
-    title: p.title,
+    title: texPlain(p.title),
     source: p.source,
     kind: p.kind,
     fields: p.fields,
