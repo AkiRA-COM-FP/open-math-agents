@@ -6,6 +6,8 @@ import Mathlib
 Source: https://oeis.org/A352082 (OEIS Foundation, CC BY-SA 4.0)
 Credit: @bmendonca3
 
+[Lean proof of this statement](https://github.com/bmendonca3/open-math-agents/blob/8a441ac1cf53e0d33983f8d8bc269e5abcf9cf2d/proofs/oeis-a352082.lean)
+
 Conjecture (Velin Yanev, Mar 25 2024, formula section of A352082):
 `a(n) = (1 - 2^n)*zeta(-n) - (2^n)*zeta(-n, n/2 + 1)` for `n > 0`, where the bivariate zeta
 function is the Hurwitz zeta function.
