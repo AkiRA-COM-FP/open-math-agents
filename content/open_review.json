@@ -21269,6 +21269,15 @@
     "https://arxiv.org/abs/math/0112281"
    ],
    "reason": "Faithful: x in 0..n^4 with neither x0<x1<x2 nor x1<x2<x3, and brute force matches all of Barker's forms. But A200786 is row 2 of A200785, which lists T(2,k) = (17/24)k^4+(43/12)k^3+(151/24)k^2+(53/12)k+1 under 'Formulae for rows'. It states 'All the conjectured formulas are true, and follow from the Burstein-Mansour paper' (N. J. A. Sloane, May 21 2013; Burstein-Mansour Th. 3.13). That quartic is Barker's closed form, and the g.f. and recurrence follow at once."
+  },
+  "oeis-a203472": {
+   "date": "2026-11-28",
+   "pr": 24925,
+   "evidence": [
+    "https://oeis.org/A203472",
+    "https://oeis.org/A203474"
+   ],
+   "reason": "The conjecture is that superfactorial(n-1) = A000178(n-1) divides Product_{3<=i<j<=n+2}(i+j). The statement uses the indexing of A203474, and it is faithful. But Greubel's 2023 formulas already settle it: A203472(n) = Prod_{j=3..n+2} (2j-1)!/(j+2)!, and A203474(n) = A203472(n)/A000178(n-1) = Prod_{j=1..n} C(2j+3,j+4). These are exact identities (the j-th factor is (2j+3)!/((j+4)!(j-1)!)), so the quotient is a product of binomials. The 37-line proof (each new factor is a product of n consecutive integers) is the same observation."
   }
  },
  "reviewed": "2026-11-28"
