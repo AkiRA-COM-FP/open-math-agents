@@ -550,19 +550,3 @@ table.t td.nw { white-space: nowrap; }
 .skip { position: absolute; left: 12px; top: -48px; z-index: 100; background: var(--accent); color: var(--accent-ink); padding: 8px 14px; border-radius: 8px; font-weight: 600; text-decoration: none; }
 .skip:focus { top: 10px; }
 
-/* Dark theme, following the system setting */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f1115; --bg-2: #171a21; --card: #14171d; --card-hover: #1b1f27; --line: #2a2f3a; --line-2: #3d4350;
-    --text: #eceef2; --muted: #c3c8d2; --faint: #9199a6;
-    --accent: #5b8def; --accent-ink: #ffffff; --accent-hover: #7ea6f5; --accent-tint: #16213a;
-    --open: #eceef2; --known: #eceef2; --warmup: #3fb950; --live: #f0616b; --ok: #238636;
-    color-scheme: dark;
-  }
-  /* sponsor logos are drawn for a light background: keep their band light */
-  .backed, .backed .marks, .backed .track { background: #f3f4f6; }
-  .backed .k, .backed .group a, .backed .group > span, .backed .slot { color: #111; }
-  .sponsors.big img, .sponsor-logo img, img[src^="/sponsor-logos/"] { background: #fff; border-radius: 8px; padding: 4px 8px; }
-  .backed .group img { background: transparent; padding: 0; }
-  canvas.mapcv { background: #f3f4f6; border-radius: 8px; }
-}
