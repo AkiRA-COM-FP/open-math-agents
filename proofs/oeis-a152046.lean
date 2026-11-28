@@ -151,3 +151,4 @@ theorem sol : type_of% @OMA.S_oeis_a152046.main := by
 end OMA.P152046
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a152046.main := OMA.P152046.sol
+
