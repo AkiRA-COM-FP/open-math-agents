@@ -558,3 +558,66 @@ table.t td.nw { white-space: nowrap; }
 .skip { position: absolute; left: 12px; top: -48px; z-index: 100; background: var(--accent); color: var(--accent-ink); padding: 8px 14px; border-radius: 8px; font-weight: 600; text-decoration: none; }
 .skip:focus { top: 10px; }
 
+/* profile: prestige badges (components/ProfileBadges.tsx). The "why" line opens under the whole row on hover/focus. */
+:root { --gold: #a87b12; --gold-tint: #fbf3df; --silver: #6f7782; --silver-tint: #f1f3f5; --bronze: #9a5a2c; --bronze-tint: #f8ede4; }
+.medals { position: relative; display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 4px; padding-bottom: 2px; }
+.medal { display: inline-flex; align-items: center; gap: 9px; padding: 6px 14px 6px 8px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--card); cursor: default; outline: none; --m: var(--faint); }
+.medal.gold { --m: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); background: var(--gold-tint); }
+.medal.silver { --m: var(--silver); border-color: color-mix(in srgb, var(--silver) 40%, transparent); background: var(--silver-tint); }
+.medal.bronze { --m: var(--bronze); border-color: color-mix(in srgb, var(--bronze) 40%, transparent); background: var(--bronze-tint); }
+.medal:hover, .medal:focus-visible { border-color: var(--text); }
+.medal:focus-visible { box-shadow: 0 0 0 2px var(--accent-tint), 0 0 0 3px var(--accent); }
+.medal-ico { width: 24px; height: 29px; flex: none; }
+.medal-ico .ribbon { fill: var(--m); opacity: .55; }
+.medal-ico .disc { fill: var(--m); }
+.medal-ico .ring { fill: none; stroke: #fff; stroke-opacity: .55; stroke-width: 1; }
+.medal-ico text { fill: #fff; font: 700 12px var(--sans); }
+.medal .mt { display: flex; flex-direction: column; line-height: 1.15; }
+.medal .mt b { font-size: .86rem; font-weight: 600; color: var(--text); white-space: nowrap; }
+.medal .mt small { font-size: .72rem; color: var(--faint); font-family: var(--mono); }
+.medal.none { padding-left: 14px; border-style: dashed; }
+.medal .why { position: absolute; left: 0; right: 0; top: calc(100% + 6px); z-index: 5; padding: 9px 14px; border: 1px solid var(--line-2); border-radius: 10px; background: var(--card); box-shadow: 0 6px 22px rgba(0, 0, 0, .08); color: var(--muted); font-size: .86rem; line-height: 1.4; visibility: hidden; opacity: 0; transition: opacity .12s; pointer-events: none; }
+.medal:hover .why, .medal:focus .why { visibility: visible; opacity: 1; }
+@media (max-width: 560px) { .medals { gap: 6px; } .medal { padding: 5px 11px 5px 6px; gap: 7px; } .medal .mt b { font-size: .8rem; } .medal-ico { width: 20px; height: 24px; } }
+
+/* profile: charts (components/ProfileCharts.tsx) */
+.pdash { margin-top: 34px; }
+.pdash-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.pdash-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+@media (max-width: 900px) { .pdash-2, .pdash-3 { grid-template-columns: minmax(0, 1fr); } }
+.pchart { margin: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); padding: 18px 18px 14px; min-width: 0; }
+.pchart .sub { margin-bottom: 8px; }
+.pchart-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.pchart-svg text { font: 12px var(--sans); fill: var(--faint); font-variant-numeric: tabular-nums; }
+.pchart-svg text.direct { fill: var(--text); font-weight: 600; }
+.pchart-svg .grid { stroke: var(--line); stroke-dasharray: 2 3; }
+.pchart-svg .base { stroke: var(--line-2); }
+.pchart-svg .line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.pchart-svg .area { fill: var(--accent); fill-opacity: .07; }
+.pchart-svg .end { fill: var(--accent); stroke: var(--card); stroke-width: 2; }
+.pchart-svg .hit { fill: transparent; }
+.pchart-svg .hit:hover { fill: var(--accent); fill-opacity: .25; }
+.pchart-svg .bar { fill: var(--accent); }
+.pchart-svg .hitr { fill: transparent; }
+.pchart-svg .hitr:hover { fill: var(--accent); fill-opacity: .06; }
+.pchart-svg .cell { fill: var(--accent); }
+.pchart-svg .cell.zero { fill: var(--bg-2); }
+.pchart-svg .cell:hover { stroke: var(--text); stroke-width: 1.5; }
+.vw-sm { display: none; }
+@media (max-width: 560px) { .vw-lg { display: none; } .vw-sm { display: block; } .pchart { padding: 14px 12px 12px; } }
+.heatkey { display: flex; align-items: center; gap: 3px; justify-content: flex-end; margin-top: 8px; font-size: .75rem; color: var(--faint); }
+.heatkey i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--accent); }
+.heatkey span { margin: 0 4px; }
+.hbars { display: grid; gap: 9px; margin-top: 4px; }
+.hbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "l v" "t t"; gap: 3px 10px; align-items: baseline; }
+.hbar .hl { grid-area: l; font-size: .86rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hbar .hv { grid-area: v; font-size: .86rem; font-variant-numeric: tabular-nums; font-weight: 600; }
+.hbar .ht { grid-area: t; display: block; width: 100%; height: 8px; border-radius: 4px; overflow: hidden; }
+.hbar .ht .track { fill: var(--bg-2); }
+.hbar .ht .fill { fill: var(--accent); }
+.hbar:hover .ht .fill { fill: var(--accent-hover); }
+.hbar .hl small { color: var(--faint); font-size: .78rem; }
+.hbar.rest .ht .fill { fill: var(--line-2); }
+.hbar.rest:hover .ht .fill { fill: var(--faint); }
+@media (max-width: 560px) { .pdash .h2 { flex-direction: column; align-items: flex-start; gap: 2px; } }
+
