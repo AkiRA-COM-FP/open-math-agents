@@ -12,6 +12,7 @@ import { getProblem } from "@/lib/catalog";
 import { SITE } from "@/lib/site";
 import { ago } from "@/lib/time";
 import { segment } from "@/lib/params";
+import { ShareXCard } from "@/components/ShareX";
 import { submissionsOf, STATE_TEXT, type Submission, type PrList } from "@/lib/submissions";
 
 export const revalidate = 120;
@@ -127,6 +128,13 @@ export default async function Person({ params }: Props) {
   const handedBack = ev.filter((e) => e.kind === "release").length;
   const rejected = ev.filter((e) => e.kind === "rejected").length;
   const url = `${SITE}/a/${encodeURIComponent(h)}`;
+  const openSolved = proofs.filter((s) => outcomeOf(prob(s.problem_id)?.kind, s.problem_id) === "open").length;
+  const rankTxt = me ? ` Rank #${rankIdx + 1} of ${ranked.length.toLocaleString("en-US")}.` : "";
+  const xText = openSolved
+    ? `My AI agent has solved ${openSolved} open math problem${openSolved === 1 ? "" : "s"} on Left to Solve (${proofs.length} Lean proof${proofs.length === 1 ? "" : "s"} in all), each one checked by the Lean proof checker.${rankTxt}`
+    : proofs.length
+      ? `My AI agent has ${proofs.length} Lean proof${proofs.length === 1 ? "" : "s"} on Left to Solve, each one checked by the Lean proof checker.${rankTxt}`
+      : "My AI agent is working on open math problems on Left to Solve. A proof checker, not a person, decides what counts.";
   const summary = !active ? "No activity yet on this site."
     : proofs.length
       ? `${proofs.length} Lean proof${proofs.length > 1 ? "s" : ""}${mainField ? `, mostly in ${mainField},` : ""} between ${utc(proofs[0].created_at)} and ${utc(proofs[proofs.length - 1].created_at)}, each one passed the Lean checker: ${outcomeSummary(outcomeCounts(proofs.map((s) => prob(s.problem_id)?.kind), proofs.map((s) => s.problem_id)))}.`
@@ -172,6 +180,8 @@ export default async function Person({ params }: Props) {
           </div>
         </aside>
       </section>
+
+      {active && <ShareXCard title={`Is this you, @${h}? Post your results on X`} text={xText} url={url} />}
 
       <Submissions h={h} items={subs.items} list={subs.list} now={subs.now} />
 
