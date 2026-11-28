@@ -29,7 +29,7 @@ def H1 : Prop :=
     n ≤ B ∨ ∃ u v : ℕ, ∃ T : Finset ℕ, ∃ non : T.Nonempty,
       u*v = n ∧ 1 < u ∧ 1 < v ∧ u ≤ B ∧ B < n ∧ u.Coprime v ∧
       u ∣ moment u ∧ moment u < 2*(u*σ 0 u) ∧ T ⊆ v.primeFactors ∧
-      moment u * (∏ p ∈ T, p) = 2*(u*σ 0 u) * (∏ p ∈ T, p-1) ∧ T.max' non ∣ σ 0 u
+      moment u * (∏ p ∈ T, p) = 2*(u*σ 0 u) * (∏ p ∈ T, (p-1)) ∧ T.max' non ∣ σ 0 u
 
 /-- A finite negative test at each specified rank. Known odd prime powers
 are not part of the search. -/
@@ -64,7 +64,7 @@ def H3 : Prop :=
     let B := ceiling (u*v).primeFactors.card 1
     u ≤ B → B < u*v → u ∣ moment u → moment u < 2*(u*σ 0 u) →
     ∀ T ⊆ v.primeFactors, ∀ non : T.Nonempty,
-      moment u * (∏ p ∈ T, p) = 2*(u*σ 0 u) * (∏ p ∈ T, p-1) →
+      moment u * (∏ p ∈ T, p) = 2*(u*σ 0 u) * (∏ p ∈ T, (p-1)) →
       T.max' non ∣ σ 0 u → OeisA245212.a (u*v) ≠ (σ 1 (u*v) : ℤ)
 
 theorem main : H1 → H2 → H3 → OMA.R_OeisA245212_conjecture_R1.H1 := by
