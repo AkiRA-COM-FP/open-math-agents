@@ -1,258 +1,194 @@
 import OMAStatements.S_oeis_a267044
+import Mathlib
 
-namespace OMA.S_oeis_a267044
+/-!
+Rule 91 from a single ON cell: stage 1 is everything but cell 0, stage 2 is the cells -1 and 1,
+and from stage 3 on the pattern has period 2: at odd stages every cell except -1, 0, 1 is ON, at
+even stages exactly the cells -2..2 are ON. So the middle cell is ON at stage 0 and at the even
+stages >= 4. With a(n+1) = 10 a(n) + c(n+1) this gives the closed form, the recurrence and the
+generating function.
+-/
 
-open PowerSeries
+namespace R91
+open OMA.S_oeis_a267044 PowerSeries
 
+theorem rule_true (l c r : Bool) :
+    Nat.testBit 91 (4 * l.toNat + 2 * c.toNat + r.toNat) = true ↔
+      ¬ ((l = true ∧ r = true) ∨ (l = false ∧ c = true ∧ r = false)) := by
+  cases l <;> cases c <;> cases r <;> decide
 
+/-- Odd stages from 3 on. -/
+def So (x : ℤ) : Bool := decide (x < -1 ∨ 1 < x)
 
+/-- Even stages from 4 on. -/
+def Se (x : ℤ) : Bool := decide (-2 ≤ x ∧ x ≤ 2)
 
-
-
-/-- Barker's conjectures. -/
-def Conjecture : Prop :=
-  (∀ n : ℕ, 1 < n → (a n : ℚ) = (-550 + 450 * (-1) ^ n + 9901 * 10 ^ n) / 9900) ∧
-  (∀ n : ℕ, 4 < n → (a n : ℤ) = 10 * a (n - 1) + a (n - 2) - 10 * a (n - 3)) ∧
-  A = (1 - X ^ 2 + X ^ 4) * ((1 - X) * (1 + X) * (1 - 10 * X))⁻¹
-
-/-- Odd rows from row 3 on: OFF exactly on `[-1, 1]`. -/
-def pO : ℤ → Bool := fun x => decide (x < -1 ∨ 1 < x)
-/-- Even rows from row 4 on: ON exactly on `[-2, 2]`. -/
-def pE : ℤ → Bool := fun x => decide (-2 ≤ x ∧ x ≤ 2)
-
-theorem state_one : state 91 1 = fun x => decide (x ≠ 0) := by
+theorem st1 : state 91 1 = fun x => decide (x ≠ 0) := by
   funext x
-  simp only [state, step]
-  rcases (show x ≤ -2 ∨ x = -1 ∨ x = 0 ∨ x = 1 ∨ 2 ≤ x by omega) with h | h | h | h | h
-  · rw [decide_eq_false (show x - 1 ≠ 0 by omega), decide_eq_false (show x ≠ 0 by omega),
-      decide_eq_false (show x + 1 ≠ 0 by omega), decide_eq_true (show x ≠ 0 by omega)]
-    decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_false (show x - 1 ≠ 0 by omega), decide_eq_false (show x ≠ 0 by omega),
-      decide_eq_false (show x + 1 ≠ 0 by omega), decide_eq_true (show x ≠ 0 by omega)]
-    decide
-
-theorem state_two : state 91 2 = fun x => decide (x = -1 ∨ x = 1) := by
-  funext x
-  rw [show state 91 2 = step 91 (state 91 1) from rfl, state_one]
-  simp only [step]
-  rcases (show x ≤ -2 ∨ x = -1 ∨ x = 0 ∨ x = 1 ∨ 2 ≤ x by omega) with h | h | h | h | h
-  · rw [decide_eq_true (show x - 1 ≠ 0 by omega), decide_eq_true (show x ≠ 0 by omega),
-      decide_eq_true (show x + 1 ≠ 0 by omega), decide_eq_false (show ¬(x = -1 ∨ x = 1) by omega)]
-    decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_true (show x - 1 ≠ 0 by omega), decide_eq_true (show x ≠ 0 by omega),
-      decide_eq_true (show x + 1 ≠ 0 by omega), decide_eq_false (show ¬(x = -1 ∨ x = 1) by omega)]
-    decide
-
-theorem state_three : state 91 3 = pO := by
-  funext x
-  rw [show state 91 3 = step 91 (state 91 2) from rfl, state_two]
-  simp only [step, pO]
-  rcases (show x ≤ -3 ∨ x = -2 ∨ x = -1 ∨ x = 0 ∨ x = 1 ∨ x = 2 ∨ 3 ≤ x by omega) with
-    h | h | h | h | h | h | h
-  · rw [decide_eq_false (show ¬(x - 1 = -1 ∨ x - 1 = 1) by omega),
-      decide_eq_false (show ¬(x = -1 ∨ x = 1) by omega),
-      decide_eq_false (show ¬(x + 1 = -1 ∨ x + 1 = 1) by omega),
-      decide_eq_true (show x < -1 ∨ 1 < x by omega)]
-    decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_false (show ¬(x - 1 = -1 ∨ x - 1 = 1) by omega),
-      decide_eq_false (show ¬(x = -1 ∨ x = 1) by omega),
-      decide_eq_false (show ¬(x + 1 = -1 ∨ x + 1 = 1) by omega),
-      decide_eq_true (show x < -1 ∨ 1 < x by omega)]
-    decide
-
-theorem step_pO : step 91 pO = pE := by
-  funext x
-  simp only [step, pO, pE]
-  rcases (show x ≤ -4 ∨ x = -3 ∨ x = -2 ∨ x = -1 ∨ x = 0 ∨ x = 1 ∨ x = 2 ∨ x = 3 ∨ 4 ≤ x by
-      omega) with h | h | h | h | h | h | h | h | h
-  · rw [decide_eq_true (show x - 1 < -1 ∨ 1 < x - 1 by omega),
-      decide_eq_true (show x < -1 ∨ 1 < x by omega),
-      decide_eq_true (show x + 1 < -1 ∨ 1 < x + 1 by omega),
-      decide_eq_false (show ¬(-2 ≤ x ∧ x ≤ 2) by omega)]
-    decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_true (show x - 1 < -1 ∨ 1 < x - 1 by omega),
-      decide_eq_true (show x < -1 ∨ 1 < x by omega),
-      decide_eq_true (show x + 1 < -1 ∨ 1 < x + 1 by omega),
-      decide_eq_false (show ¬(-2 ≤ x ∧ x ≤ 2) by omega)]
-    decide
-
-theorem step_pE : step 91 pE = pO := by
-  funext x
-  simp only [step, pO, pE]
-  rcases (show x ≤ -4 ∨ x = -3 ∨ x = -2 ∨ x = -1 ∨ x = 0 ∨ x = 1 ∨ x = 2 ∨ x = 3 ∨ 4 ≤ x by
-      omega) with h | h | h | h | h | h | h | h | h
-  · rw [decide_eq_false (show ¬(-2 ≤ x - 1 ∧ x - 1 ≤ 2) by omega),
-      decide_eq_false (show ¬(-2 ≤ x ∧ x ≤ 2) by omega),
-      decide_eq_false (show ¬(-2 ≤ x + 1 ∧ x + 1 ≤ 2) by omega),
-      decide_eq_true (show x < -1 ∨ 1 < x by omega)]
-    decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_false (show ¬(-2 ≤ x - 1 ∧ x - 1 ≤ 2) by omega),
-      decide_eq_false (show ¬(-2 ≤ x ∧ x ≤ 2) by omega),
-      decide_eq_false (show ¬(-2 ≤ x + 1 ∧ x + 1 ≤ 2) by omega),
-      decide_eq_true (show x < -1 ∨ 1 < x by omega)]
-    decide
-
-theorem state_late (k : ℕ) : state 91 (2 * k + 3) = pO ∧ state 91 (2 * k + 4) = pE := by
-  induction k with
-  | zero =>
-    refine ⟨state_three, ?_⟩
-    rw [show state 91 (2 * 0 + 4) = step 91 (state 91 3) from rfl, state_three, step_pO]
-  | succ k ih =>
-    have h1 : state 91 (2 * (k + 1) + 3) = pO := by
-      rw [show 2 * (k + 1) + 3 = 2 * k + 4 + 1 by ring,
-        show state 91 (2 * k + 4 + 1) = step 91 (state 91 (2 * k + 4)) from rfl, ih.2, step_pE]
-    refine ⟨h1, ?_⟩
-    rw [show state 91 (2 * (k + 1) + 4) = step 91 (state 91 (2 * (k + 1) + 3)) from rfl, h1,
-      step_pO]
-
-/-- The centre column from row 3 on: 1 on even rows, 0 on odd rows. -/
-theorem c_late (n : ℕ) (hn : 3 ≤ n) : c n = if Even n then 1 else 0 := by
-  rcases Nat.even_or_odd n with ⟨m, hm⟩ | ⟨m, hm⟩
-  · obtain ⟨k, rfl⟩ : ∃ k, m = k + 2 := ⟨m - 2, by omega⟩
-    rw [if_pos ⟨_, hm⟩, c, show n = 2 * k + 4 by omega, (state_late k).2]
-    decide
-  · obtain ⟨k, rfl⟩ : ∃ k, m = k + 1 := ⟨m - 1, by omega⟩
-    rw [if_neg (Nat.not_even_iff_odd.2 ⟨_, hm⟩), c, show n = 2 * k + 3 by omega,
-      (state_late k).1]
-    decide
-
-theorem a_succ (n : ℕ) : a (n + 1) = 10 * a n + c (n + 1) := by
-  rw [a, a, Finset.sum_range_succ, Nat.sub_self, pow_zero, mul_one, Finset.mul_sum]
-  congr 1
-  refine Finset.sum_congr rfl fun k hk => ?_
-  rw [Finset.mem_range] at hk
-  rw [show n + 1 - k = n - k + 1 by omega, pow_succ]
-  ring
-
-theorem c0 : c 0 = 1 := by decide
-theorem c1 : c 1 = 0 := by rw [c, state_one]; decide
-theorem c2 : c 2 = 0 := by rw [c, state_two]; decide
-
-theorem a0 : a 0 = 1 := by rw [a]; simp [c0]
-theorem a1 : a 1 = 10 := by rw [a_succ, a0, c1]
-theorem a2 : a 2 = 100 := by rw [a_succ, a1, c2]
-
-/-- `9900 a(n) = 9901*10^n + 450*(-1)^n - 550` for `n >= 2`. -/
-theorem closed (n : ℕ) (hn : 2 ≤ n) :
-    9900 * (a n : ℤ) = 9901 * 10 ^ n + 450 * (-1) ^ n - 550 := by
-  induction n, hn using Nat.le_induction with
-  | base => rw [a2]; norm_num
-  | succ n hn ih =>
-    rw [a_succ, c_late (n + 1) (by omega)]
-    push_cast
-    have p10 : (10 : ℤ) ^ (n + 1) = 10 ^ n * 10 := pow_succ _ _
-    rcases Nat.even_or_odd n with he | ho
-    · have he' : ¬ Even (n + 1) := fun h => (Nat.not_even_iff_odd.2 he.add_one) h
-      have q0 : ((-1 : ℤ)) ^ n = 1 := Even.neg_one_pow he
-      have q1 : ((-1 : ℤ)) ^ (n + 1) = -1 := by rw [pow_succ, q0]; ring
-      rw [if_neg he']
-      push_cast
-      rw [p10, q1]
-      rw [q0] at ih
-      linarith
-    · have ho' : Even (n + 1) := ho.add_one
-      have q0 : ((-1 : ℤ)) ^ n = -1 := Odd.neg_one_pow ho
-      have q1 : ((-1 : ℤ)) ^ (n + 1) = 1 := by rw [pow_succ, q0]; ring
-      rw [if_pos ho']
-      push_cast
-      rw [p10, q1]
-      rw [q0] at ih
-      linarith
-
-theorem barker_closed (n : ℕ) (hn : 1 < n) :
-    (a n : ℚ) = (-550 + 450 * (-1) ^ n + 9901 * 10 ^ n) / 9900 := by
-  have h := closed n hn
-  have h' : (9900 : ℚ) * (a n : ℚ) = 9901 * 10 ^ n + 450 * (-1) ^ n - 550 := by exact_mod_cast h
-  rw [eq_div_iff (by norm_num)]
-  linarith
-
-theorem recurrence (n : ℕ) (hn : 4 < n) :
-    (a n : ℤ) = 10 * a (n - 1) + a (n - 2) - 10 * a (n - 3) := by
-  obtain ⟨k, rfl⟩ : ∃ k, n = k + 5 := ⟨n - 5, by omega⟩
-  have h0 := closed (k + 5) (by omega)
-  have h1 := closed (k + 4) (by omega)
-  have h2 := closed (k + 3) (by omega)
-  have h3 := closed (k + 2) (by omega)
-  rw [show k + 5 - 1 = k + 4 by omega, show k + 5 - 2 = k + 3 by omega,
-    show k + 5 - 3 = k + 2 by omega]
-  have key : 9900 * ((a (k + 5) : ℤ) - (10 * a (k + 4) + a (k + 3) - 10 * a (k + 2))) = 0 := by
-    linear_combination h0 - 10 * h1 - h2 + 10 * h3
+  show step 91 (state 91 0) x = _
+  rw [Bool.eq_iff_iff]
+  unfold step
+  rw [rule_true]
+  simp only [state, decide_eq_true_eq, decide_eq_false_iff_not]
   omega
 
-theorem gf_mul : A * ((1 - X) * (1 + X) * (1 - 10 * X)) = 1 - X ^ 2 + X ^ 4 := by
-  have hD : A * ((1 - X) * (1 + X) * (1 - 10 * X)) =
-      A - C 10 * (A * X ^ 1) - C 1 * (A * X ^ 2) + C 10 * (A * X ^ 3) := by
-    simp only [map_one, map_ofNat]
+theorem st2 : state 91 2 = fun x => decide (x = -1 ∨ x = 1) := by
+  funext x
+  show step 91 (state 91 1) x = _
+  rw [st1, Bool.eq_iff_iff]
+  unfold step
+  rw [rule_true]
+  simp only [decide_eq_true_eq, decide_eq_false_iff_not]
+  omega
+
+theorem st3 : state 91 3 = So := by
+  funext x
+  show step 91 (state 91 2) x = _
+  rw [st2, Bool.eq_iff_iff]
+  unfold step
+  rw [rule_true]
+  simp only [So, decide_eq_true_eq, decide_eq_false_iff_not]
+  omega
+
+theorem so_step : step 91 So = Se := by
+  funext x
+  rw [Bool.eq_iff_iff]
+  unfold step
+  rw [rule_true]
+  simp only [So, Se, decide_eq_true_eq, decide_eq_false_iff_not]
+  omega
+
+theorem se_step : step 91 Se = So := by
+  funext x
+  rw [Bool.eq_iff_iff]
+  unfold step
+  rw [rule_true]
+  simp only [So, Se, decide_eq_true_eq, decide_eq_false_iff_not]
+  omega
+
+theorem state_big (j : ℕ) : state 91 (2 * j + 3) = So ∧ state 91 (2 * j + 4) = Se := by
+  induction j with
+  | zero => exact ⟨st3, (congrArg (step 91) st3).trans so_step⟩
+  | succ j ih =>
+    have h5 : state 91 (2 * (j + 1) + 3) = So := by
+      rw [show 2 * (j + 1) + 3 = 2 * j + 4 + 1 by ring]
+      exact (congrArg (step 91) ih.2).trans se_step
+    refine ⟨h5, ?_⟩
+    rw [show 2 * (j + 1) + 4 = 2 * (j + 1) + 3 + 1 by ring]
+    exact (congrArg (step 91) h5).trans so_step
+
+theorem c_eq (k : ℕ) : c k = if k = 0 ∨ (4 ≤ k ∧ k % 2 = 0) then 1 else 0 := by
+  rcases k with _ | _ | _ | k
+  · decide
+  · decide
+  · decide
+  · obtain ⟨j, hj | hj⟩ := Nat.even_or_odd' k
+    · subst hj
+      have hn : ¬ (2 * j + 3 = 0 ∨ (4 ≤ 2 * j + 3 ∧ (2 * j + 3) % 2 = 0)) := by omega
+      rw [show 2 * j + 1 + 1 + 1 = 2 * j + 3 by ring, if_neg hn]
+      unfold c
+      rw [(state_big j).1]
+      decide
+    · subst hj
+      have hp : 2 * j + 4 = 0 ∨ (4 ≤ 2 * j + 4 ∧ (2 * j + 4) % 2 = 0) := by omega
+      rw [show 2 * j + 1 + 1 + 1 + 1 = 2 * j + 4 by ring, if_pos hp]
+      unfold c
+      rw [(state_big j).2]
+      decide
+
+theorem next_a (n : ℕ) : a (n + 1) = 10 * a n + c (n + 1) := by
+  unfold a
+  rw [Finset.sum_range_succ, Finset.mul_sum]
+  congr 1
+  · apply Finset.sum_congr rfl
+    intro t ht
+    have ht' := Finset.mem_range.mp ht
+    rw [show n + 1 - t = n - t + 1 by omega, pow_succ]
     ring
-  have hN : (1 - X ^ 2 + X ^ 4 : ℚ⟦X⟧) = C 1 * X ^ 0 - C 1 * X ^ 2 + C 1 * X ^ 4 := by
-    simp only [map_one]
-    ring
-  rw [hD, hN]
-  ext m
-  simp only [map_add, map_sub, coeff_C_mul, coeff_mul_X_pow', A, coeff_mk]
-  rcases Nat.lt_or_ge m 5 with hm | hm
-  · have e3 : (a 3 : ℚ) = 1000 := by
-      have := closed 3 (by norm_num); norm_num at this
-      have : (a 3 : ℤ) = 1000 := by linarith
-      exact_mod_cast this
-    have e4 : (a 4 : ℚ) = 10001 := by
-      have := closed 4 (by norm_num); norm_num at this
-      have : (a 4 : ℤ) = 10001 := by linarith
-      exact_mod_cast this
-    interval_cases m <;> norm_num [a0, a1, a2, e3, e4]
-  · have hr := recurrence m (by omega)
-    have hq : (a m : ℚ) = 10 * a (m - 1) + a (m - 2) - 10 * a (m - 3) := by exact_mod_cast hr
-    have h1 : 1 ≤ m := by omega
-    have h2 : 2 ≤ m := by omega
-    have h3 : 3 ≤ m := by omega
-    have h4 : 4 ≤ m := by omega
-    have k0 : m - 0 ≠ 0 := by omega
-    have k2 : m - 2 ≠ 0 := by omega
-    have k4 : m - 4 ≠ 0 := by omega
-    simp only [h1, h2, h3, h4, Nat.zero_le, k0, k2, k4, coeff_C, if_true, if_false, hq]
-    ring
+  · simp
 
-theorem proof : Conjecture := by
-  refine ⟨barker_closed, recurrence, ?_⟩
-  have h0 : constantCoeff ((1 - X) * (1 + X) * (1 - 10 * X) : ℚ⟦X⟧) ≠ 0 := by simp
-  rw [← gf_mul, mul_assoc, PowerSeries.mul_inv_cancel _ h0, mul_one]
+theorem a2 : a 2 = 100 := by decide
 
-/-- Control: the first terms listed in the entry. -/
-theorem a_values : a 0 = 1 ∧ a 1 = 10 ∧ a 2 = 100 ∧ a 3 = 1000 ∧ a 4 = 10001 ∧
-    a 5 = 100010 ∧ a 6 = 1000101 := by
-  have h3 := closed 3 (by norm_num)
-  have h4 := closed 4 (by norm_num)
-  have h5 := closed 5 (by norm_num)
-  have h6 := closed 6 (by norm_num)
-  norm_num at h3 h4 h5 h6
-  refine ⟨a0, a1, a2, ?_, ?_, ?_, ?_⟩ <;> omega
+theorem closed (m : ℕ) :
+    (a (m + 2) : ℚ) = (-550 + 450 * (-1) ^ (m + 2) + 9901 * 10 ^ (m + 2)) / 9900 := by
+  induction m with
+  | zero => rw [a2]; norm_num
+  | succ m ih =>
+    rw [show m + 1 + 2 = m + 2 + 1 by ring, next_a]
+    rcases Nat.even_or_odd m with ⟨j, hj⟩ | ⟨j, hj⟩
+    · have hc : c (m + 2 + 1) = 0 := by rw [c_eq]; exact if_neg (by omega)
+      have e1 : (-1 : ℚ) ^ (m + 2) = 1 := Even.neg_one_pow ⟨j + 1, by omega⟩
+      have e2 : (-1 : ℚ) ^ (m + 2 + 1) = -1 := Odd.neg_one_pow ⟨j + 1, by omega⟩
+      rw [hc]
+      push_cast
+      rw [ih, e1, e2]
+      ring
+    · have hc : c (m + 2 + 1) = 1 := by rw [c_eq]; exact if_pos (by omega)
+      have e1 : (-1 : ℚ) ^ (m + 2) = -1 := Odd.neg_one_pow ⟨j + 1, by omega⟩
+      have e2 : (-1 : ℚ) ^ (m + 2 + 1) = 1 := Even.neg_one_pow ⟨j + 2, by omega⟩
+      rw [hc]
+      push_cast
+      rw [ih, e1, e2]
+      ring
 
-end OMA.S_oeis_a267044
+theorem c_two (k : ℕ) (hk : 3 ≤ k) : c (k + 2) = c k := by
+  rw [c_eq, c_eq]
+  by_cases h : k % 2 = 0
+  · have h1 : k + 2 = 0 ∨ (4 ≤ k + 2 ∧ (k + 2) % 2 = 0) := by omega
+    have h2 : k = 0 ∨ (4 ≤ k ∧ k % 2 = 0) := by omega
+    rw [if_pos h1, if_pos h2]
+  · have h1 : ¬ (k + 2 = 0 ∨ (4 ≤ k + 2 ∧ (k + 2) % 2 = 0)) := by omega
+    have h2 : ¬ (k = 0 ∨ (4 ≤ k ∧ k % 2 = 0)) := by omega
+    rw [if_neg h1, if_neg h2]
 
-theorem OMA.solution : type_of% @OMA.S_oeis_a267044.main :=
-  OMA.S_oeis_a267044.proof
+theorem recur (n : ℕ) (hn : 4 < n) :
+    (a n : ℤ) = 10 * a (n - 1) + a (n - 2) - 10 * a (n - 3) := by
+  obtain ⟨m, rfl⟩ : ∃ m, n = m + 4 + 1 := ⟨n - 5, by omega⟩
+  rw [show m + 4 + 1 - 1 = m + 4 by omega, show m + 4 + 1 - 2 = m + 2 + 1 by omega,
+    show m + 4 + 1 - 3 = m + 2 by omega]
+  have h1 := next_a (m + 4)
+  have h2 := next_a (m + 2)
+  have hc : c (m + 4 + 1) = c (m + 2 + 1) := c_two (m + 2 + 1) (by omega)
+  rw [h1, h2, hc]
+  push_cast
+  ring
+
+theorem a0 : a 0 = 1 := by decide
+theorem a1 : a 1 = 10 := by decide
+theorem a3 : a 3 = 1000 := by decide
+theorem a4 : a 4 = 10001 := by decide
+
+end R91
+
+open PowerSeries in
+theorem OMA.solution : type_of% @OMA.S_oeis_a267044.main := by
+  open OMA.S_oeis_a267044 R91 in
+  refine ⟨?_, recur, ?_⟩
+  · intro n hn
+    obtain ⟨m, rfl⟩ : ∃ m, n = m + 2 := ⟨n - 2, by omega⟩
+    exact closed m
+  have q0 : (a 0 : ℚ) = 1 := by exact_mod_cast a0
+  have q1 : (a 1 : ℚ) = 10 := by exact_mod_cast a1
+  have q2 : (a 2 : ℚ) = 100 := by exact_mod_cast a2
+  have q3 : (a 3 : ℚ) = 1000 := by exact_mod_cast a3
+  have q4 : (a 4 : ℚ) = 10001 := by exact_mod_cast a4
+  rw [PowerSeries.eq_mul_inv_iff_mul_eq (by simp)]
+  rw [show ((1 - X) * (1 + X) * (1 - 10 * X) : ℚ⟦X⟧)
+        = 1 - C 10 * X ^ 1 - X ^ 2 + C 10 * X ^ 3 by simp only [map_ofNat]; ring,
+      show ∀ p : ℚ⟦X⟧, p * (1 - C 10 * X ^ 1 - X ^ 2 + C 10 * X ^ 3)
+        = p - C 10 * (p * X ^ 1) - p * X ^ 2 + C 10 * (p * X ^ 3) from fun p => by ring]
+  ext n
+  simp only [A, map_sub, map_add, coeff_C_mul, coeff_mul_X_pow', coeff_one, coeff_mk]
+  rcases n with _ | _ | _ | _ | _ | n
+  · simp [q0]
+  · simp [q0, q1]
+  · simp [q0, q1, q2] <;> norm_num
+  · simp [q0, q1, q2, q3]; norm_num
+  · simp [q1, q2, q3, q4]; norm_num
+  · have h := recur (n + 5) (by omega)
+    simp only [show n + 5 - 1 = n + 4 by omega, show n + 5 - 2 = n + 3 by omega,
+      show n + 5 - 3 = n + 2 by omega] at h
+    have hq : (a (n + 5) : ℚ) = 10 * a (n + 4) + a (n + 3) - 10 * a (n + 2) := by
+      exact_mod_cast h
+    simp only [show n + 1 + 1 + 1 + 1 + 1 = n + 5 by ring]
+    simp [hq] <;> ring

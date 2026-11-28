@@ -38,18 +38,8 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a097967.main := by
     linarith
   intro n hn
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 5 := ⟨n - 5, by omega⟩
-  have q1 := hqs m
-  have q2 := hqs (m + 1)
-  have q3 := hqs (m + 2)
-  have q4 := hqs (m + 3)
-  have q5 := hqs (m + 4)
-  rw [show m + 1 + 1 = m + 2 by omega] at q2
-  rw [show m + 2 + 1 = m + 3 by omega] at q3
-  rw [show m + 3 + 1 = m + 4 by omega] at q4
-  rw [show m + 4 + 1 = m + 5 by omega] at q5
-  rw [show m + 5 - 1 = m + 4 by omega, show m + 5 - 2 = m + 3 by omega,
-    show m + 5 - 3 = m + 2 by omega, show m + 5 - 4 = m + 1 by omega,
-    show m + 5 - 5 = m by omega]
-  rw [ha (m + 5), ha (m + 4), ha (m + 3), ha (m + 2), ha (m + 1), ha m, q5, q4, q3, q2, q1]
+  simp only [ha, hqs, Nat.add_sub_cancel, show m + 5 - 1 = m + 4 by omega,
+    show m + 5 - 2 = m + 3 by omega, show m + 5 - 3 = m + 2 by omega,
+    show m + 5 - 4 = m + 1 by omega]
   push_cast
   ring
