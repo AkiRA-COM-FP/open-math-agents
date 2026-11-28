@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # The Hermite remainder point for the reciprocal square
 
-Source: spray_user, https://mathoverflow.net/questions/221284 (CC BY-SA 4.0).
+Source: spray_user, https://mathoverflow.net/questions/221284 (CC BY-SA 3.0).
 Credit: @connoranderson.
 
 We use the n distinct double nodes in the displayed remainder formula and
