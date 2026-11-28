@@ -15,7 +15,7 @@ namespace OMA.S_oeis_a081113
 
 open Finset
 
-private def Walk : ℕ → Type
+private abbrev Walk : ℕ → Type
   | 0 => PUnit
   | m+1 => Fin 3 × Walk m
 
@@ -383,7 +383,7 @@ private theorem E_step (m : ℕ) (z : ℤ) :
     E (m+1) z = E m (z-1)+E m z+E m (z+1) := by
   unfold E
   rw [total_succ]
-  simp only [endpoint_succ, letter_two, letter_one, letter_zero, zero_add]
+  simp only [endpoint_succ m, letter_two, letter_one, letter_zero, zero_add]
   have he (b : ℤ) :
       (fun w : Walk m => max 0 (b+endpoint w-z) + max 0 (b+endpoint w-z-1)) =
       (fun w : Walk m => max 0 (endpoint w-(z-b)) + max 0 (endpoint w-(z-b)-1)) := by
@@ -449,7 +449,7 @@ private theorem count_step (m : ℕ) (z : ℤ) :
     count (m+1) z = count m (z-1)+count m z+count m (z+1) := by
   unfold count
   rw [total_succ]
-  simp only [endpoint_succ, letter_two, letter_one, letter_zero, zero_add,
+  simp only [endpoint_succ m, letter_two, letter_one, letter_zero, zero_add,
     show ∀ e : ℤ, 1+e=z ↔ e=z-1 by intro e; omega,
     show ∀ e : ℤ, -1+e=z ↔ e=z+1 by intro e; omega]
 
@@ -461,7 +461,7 @@ private theorem W_step (m : ℕ) (g : ℤ → ℤ) :
       total m (fun w => g (1+endpoint w)-g (-1+endpoint w)) := by
   unfold W
   rw [total_succ]
-  simp only [endpoint_succ, letter_two, letter_one, letter_zero, zero_add]
+  simp only [endpoint_succ m, letter_two, letter_one, letter_zero, zero_add]
   rw [show (fun w : Walk m => (1+endpoint w)*g (1+endpoint w)) =
     (fun w => endpoint w*g (1+endpoint w)+g (1+endpoint w)) by funext w; ring,
     show (fun w : Walk m => (-1+endpoint w)*g (-1+endpoint w)) =
@@ -480,7 +480,7 @@ private theorem W_sum (m : ℕ) (g : ℤ → ℤ) :
       Nat.cast_zero, one_mul]
   | succ m ih =>
     rw [W_step (m+1), ih, ih, ih, total_succ]
-    simp only [endpoint_succ, letter_two, letter_one, letter_zero, zero_add, Nat.cast_succ]
+    simp only [endpoint_succ m, letter_two, letter_one, letter_zero, zero_add, Nat.cast_succ]
     rw [show (fun w : Walk m => g (1+(-1+endpoint w))-g (-1+(-1+endpoint w))) =
       (fun w => g (-1+(1+endpoint w))-g (-1+(-1+endpoint w))) by
         funext w; congr 2; omega,
