@@ -5,14 +5,16 @@ open Finset Filter EuclideanGeometry
 
 namespace OMA.R_Erdos89_erdos_89_R1_H2_R3
 
-/-- Squarefree diagonal counting in the remaining case. For every pin, any
-selection of at least half the targets has more than k occupied horizontal
-columns in some squared residue class modulo d. -/
+/-- Squarefree diagonal counting in the remaining case. For every dense subset and assignment of occupied pins with
+vertical displacements divisible by m, some squared residue modulo d*m²
+contains more than k distinct (pin, horizontal column) pairs. -/
 def H1 : Prop :=
   ∃ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
-    (∀ p ∈ S, ∀ T ⊆ S, S.card ≤ 2*T.card → ∃ r : ℤ,
-      k < ((T.image Prod.fst).filter fun x => (x-p.1)^2 % (d:ℤ) = r).card) →
+    (∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (m : ℤ), 0 < m →
+      ∀ p : ℤ × ℤ → ℤ × ℤ, (∀ x ∈ T, p x ∈ S ∧ m ∣ x.2-(p x).2) →
+      ∃ r : ℤ, k < ((T.image fun x => (p x,x.1)).filter fun e =>
+        (e.2-e.1.1)^2 % ((d:ℤ)*m^2) = r).card) →
     let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
     S.card ≤ k*C*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1)
 
@@ -493,6 +495,62 @@ private theorem squarefree_model (a b c : ℤ) (ha : 0 < a) (hdisc : b^2 < 4*a*c
     obtain ⟨p,hp,t,ht,hne,rfl⟩ := (mem_values ..).mp hw
     exact ⟨_,Finset.mem_image_of_mem F hp,_,Finset.mem_image_of_mem F ht,hinj.ne hne,hval p t⟩
 
+/-- Targets may choose different pins. Vertical divisibility fixes the horizontal
+square modulo d*m²; all pins draw values from the same set of pair values. -/
+theorem assigned_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
+    (p : ℤ × ℤ → ℤ × ℤ) (m : ℤ) (hsub : T ⊆ S) (k : ℕ)
+    (pins : ∀ x ∈ T, p x ∈ S ∧ m ∣ x.2-(p x).2)
+    (hcap : ∀ r : ℤ, ((T.image fun x => (p x,x.1)).filter fun e =>
+      (e.2-e.1.1)^2 % ((d:ℤ)*m^2) = r).card ≤ k) :
+    let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
+    T.card ≤ 2*k*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  intro q
+  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
+  let f := fun x : ℤ × ℤ => q (x-p x)
+  let label := fun x : ℤ × ℤ => (p x,x.1)
+  let M := (d:ℤ)*m^2
+  have hm : ∀ x ∈ T, f x ∈ insert 0 V := by
+    intro x hx
+    by_cases he : x=p x
+    · have hz : x-p x=0 := sub_eq_zero.mpr he
+      change q (x-p x) ∈ insert 0 V
+      rw [hz]
+      simp [q]
+    · exact mem_insert_of_mem (mem_image.mpr ⟨(x,p x),mem_offDiag.mpr ⟨hsub hx,(pins x hx).1,he⟩,rfl⟩)
+  have h := card_le_mul_card_image_of_maps_to hm (2*k) (by
+    intro r _
+    let U := T.filter fun x => f x=r
+    let C := (T.image label).filter fun e => (e.2-e.1.1)^2 % M = r % M
+    let g := fun x : ℤ × ℤ => (label x,decide ((p x).2 ≤ x.2))
+    have eqv (x) (hx : x ∈ U) : (x.1-(p x).1)^2+(d:ℤ)*(x.2-(p x).2)^2 = r := (mem_filter.mp hx).2
+    have sub : U.image g ⊆ C ×ˢ (univ : Finset Bool) := by
+      intro z hz
+      obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
+      refine mem_product.mpr ⟨mem_filter.mpr ⟨mem_image_of_mem _ (mem_filter.mp hx).1,?_⟩,mem_univ _⟩
+      change (x.1-(p x).1)^2 % M = r % M
+      obtain ⟨t,ht⟩ := (pins x (mem_filter.mp hx).1).2
+      have e : r = (x.1-(p x).1)^2 + M*t^2 := by rw [← eqv x hx,ht]; dsimp [M]; ring
+      rw [e]
+      simp
+    have inj : Set.InjOn g (U : Set (ℤ × ℤ)) := by
+      intro x hx y hy he
+      have hl : label x=label y := congrArg Prod.fst he
+      have ep : p x=p y := congrArg Prod.fst hl
+      have ex : x.1=y.1 := congrArg Prod.snd hl
+      have e := (eqv x hx).trans (eqv y hy).symm
+      rw [ep,ex] at e
+      have ey := sq_eq_sq_iff_eq_or_eq_neg.mp
+        (mul_left_cancel₀ (by exact_mod_cast hd.ne' : (d:ℤ) ≠ 0) (add_left_cancel e))
+      have sign := congrArg Prod.snd he
+      simp [g,ep] at sign
+      exact Prod.ext ex (by omega)
+    have hc := card_le_card sub
+    rw [card_image_of_injOn inj,card_product] at hc
+    change U.card ≤ 2*k
+    exact hc.trans (by simpa [mul_comm] using Nat.mul_le_mul_right 2 (hcap (r % M))))
+  exact h.trans (Nat.mul_le_mul_left _ (card_insert_le ..))
+
 /-- Each pinned value fixes the horizontal square residue. Within each column its
 targets are determined by the sign of their vertical displacement. -/
 theorem residue_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
@@ -501,45 +559,18 @@ theorem residue_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
     let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
     T.card ≤ 2*k*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
   classical
-  intro q
-  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
-  let f := fun x : ℤ × ℤ => q (x-p)
-  have hm : ∀ x ∈ T, f x ∈ insert 0 V := by
-    intro x hx
-    by_cases he : x=p
-    · simp [f,q,he]
-    · exact mem_insert_of_mem (mem_image.mpr ⟨(x,p),mem_offDiag.mpr ⟨hsub hx,hp,he⟩,rfl⟩)
-  have h := card_le_mul_card_image_of_maps_to hm (2*k) (by
-    intro r _
-    let U := T.filter fun x => f x=r
-    let C := (T.image Prod.fst).filter fun x => (x-p.1)^2 % (d:ℤ) = r % (d:ℤ)
-    let g := fun x : ℤ × ℤ => (x.1,decide (p.2 ≤ x.2))
-    have eqv (x) (hx : x ∈ U) : (x.1-p.1)^2+(d:ℤ)*(x.2-p.2)^2 = r := (mem_filter.mp hx).2
-    have sub : U.image g ⊆ C ×ˢ (univ : Finset Bool) := by
-      intro z hz
-      obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
-      apply mem_product.mpr
-      refine ⟨mem_filter.mpr ⟨mem_image_of_mem _ (mem_filter.mp hx).1,?_⟩,mem_univ _⟩
-      change (x.1-p.1)^2 % (d:ℤ) = r % (d:ℤ)
-      rw [← eqv x hx]
-      simp
-    have inj : Set.InjOn g (U : Set (ℤ × ℤ)) := by
-      intro x hx y hy he
-      have ex : x.1=y.1 := (congrArg Prod.fst he : (g x).1=(g y).1)
-      have e := (eqv x hx).trans (eqv y hy).symm
-      rw [ex] at e
-      have ey := sq_eq_sq_iff_eq_or_eq_neg.mp
-        (mul_left_cancel₀ (by exact_mod_cast hd.ne' : (d:ℤ) ≠ 0) (add_left_cancel e))
-      have sign := congrArg Prod.snd he
-      simp [g] at sign
-      exact Prod.ext ex (by omega)
-    have hc := card_le_card sub
-    rw [card_image_of_injOn inj,card_product] at hc
-    change U.card ≤ 2*k
-    exact hc.trans (by simpa [mul_comm] using Nat.mul_le_mul_right 2 (hcap (r % (d:ℤ)))))
-  exact h.trans (Nat.mul_le_mul_left _ (card_insert_le ..))
+  apply assigned_pin_bound d hd S T (fun _ => p) 1 hsub k (fun _ _ => ⟨hp,one_dvd _⟩)
+  intro r
+  let C := (T.image Prod.fst).filter fun x => (x-p.1)^2 % (d:ℤ) = r
+  have sub : ((T.image fun x => (p,x.1)).filter fun e =>
+      (e.2-e.1.1)^2 % ((d:ℤ)*1^2) = r) ⊆ C.image (fun x => (p,x)) := by
+    intro z hz
+    obtain ⟨hz,hr⟩ := mem_filter.mp hz
+    obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
+    exact mem_image.mpr ⟨x.1,mem_filter.mpr ⟨mem_image_of_mem _ hx,by simpa using hr⟩,rfl⟩
+  exact (card_le_card sub).trans (card_image_le.trans (hcap r))
 
-/-- After squarefree normalization, either a pin certifies half of the
+/-- After squarefree normalization, either the assigned pins certify half of the
 points or the configuration satisfies the remaining arithmetic hypothesis. -/
 theorem integral_form_bound (arith : H1) :
   ∃ C : ℕ, ∀ a b c : ℤ, 0 < a → b^2 < 4*a*c → ∀ (S : Finset (ℤ × ℤ)) (k : ℕ),
@@ -561,13 +592,15 @@ theorem integral_form_bound (arith : H1) :
   rw [card_image_of_injective _ (mul_right_injective₀ (by positivity : 4*a ≠ 0))] at hvals
   change A.card ≤ k*max C 4*((V Q A).card+1)
   rw [← hc,← hvals]
-  by_cases heavy : ∀ p ∈ S, ∀ T ⊆ S, S.card ≤ 2*T.card → ∃ r : ℤ,
-      k < ((T.image Prod.fst).filter fun x => (x-p.1)^2 % (d:ℤ) = r).card
+  by_cases heavy : ∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (m : ℤ), 0 < m →
+      ∀ p : ℤ × ℤ → ℤ × ℤ, (∀ x ∈ T, p x ∈ S ∧ m ∣ x.2-(p x).2) →
+      ∃ r : ℤ, k < ((T.image fun x => (p x,x.1)).filter fun e =>
+        (e.2-e.1.1)^2 % ((d:ℤ)*m^2) = r).card
   · have h := hard d S k hd hsq hk (by rwa [hc]) heavy
     exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (le_max_left ..)))
   push Not at heavy
-  obtain ⟨p,hp,T,hsub,half,cap⟩ := heavy
-  have h := residue_pin_bound d hd S T p hp hsub k cap
+  obtain ⟨T,hsub,half,m,_,p,pins,cap⟩ := heavy
+  have h := assigned_pin_bound d hd S T p m hsub k pins cap
   calc
     _ ≤ 2*T.card := half
     _ ≤ 2*(2*k*((V q S).card+1)) := Nat.mul_le_mul_left _ h
