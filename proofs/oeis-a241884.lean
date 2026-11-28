@@ -8,6 +8,4 @@ import OMAStatements.S_oeis_a241884
 
 theorem OMA.disproof : ¬ (type_of% @OMA.S_oeis_a241884.main) := by
   intro h
-  have h56 := (h 56 (by norm_num)).mpr (by norm_num)
-  apply h56 7 (by decide)
-  exact ⟨7, by norm_num, by norm_num⟩
+  exact (h 56 (by decide)).2 (by decide) 7 (by decide) ⟨7, by decide, rfl⟩
