@@ -22,7 +22,8 @@ coloring from the project's reduction Erdos19.erdos_19.R1 (PR #1479) by @zarnab2
 interval order and constructs such an order for at most two large blocks.
 The small-rank design formulation is the H1 of @mucoucah's large-n reduction.
 
-For the interval coloring method see B. Jackson, G. Sethuraman and C. Whitehead,
+For a published theorem implying the linear-forest coloring case, see
+B. Jackson, G. Sethuraman and C. Whitehead,
 Discrete Mathematics 307 (2007), 911–915, https://doi.org/10.1016/j.disc.2005.11.053.
 -/
 
