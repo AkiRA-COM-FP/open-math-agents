@@ -2,14 +2,15 @@ import FormalConjectures.ErdosProblems.«145»
 import Mathlib
 
 /-!
-Convergence of squarefree-gap moments up to the cubic endpoint from fixed-gap
-frequencies and uniform decay of the cubic tail.
-Credit: @Pasx71.
+Convergence of squarefree-gap moments for exponents from zero through three.
 
-The Cauchy argument is adapted from the accepted proof in PR 4712 of the
-project, itself based on the frequency-and-tail reduction in PR 3976.
-The cubic tail is an independent hypothesis, not an asserted theorem here.
+The remaining analytic input is a linear upper bound for the order-7/2
+moment of completed gaps, as in Chan, arXiv:2310.08448, equation (3).
+Bertrand's postulate includes the gap crossing the cutoff by doubling it.
+The fixed-gap frequencies have a proof in PR 4209. The Cauchy argument
+adapts the truncation proofs in PRs 3976 and 4712.
 -/
+-- Credit: @Pasx71
 
 namespace OMA.R_Erdos145_erdos_145_variants_le_three_R2
 
@@ -21,10 +22,74 @@ def H1 : Prop := ∀ k : ℕ, ∃ d : ℝ,
   Tendsto (fun x : ℝ => 1/x * (((A x).filter
     (fun n => s (n+1)-s n = k)).card : ℝ)) atTop (𝓝 d)
 
-/-- Contributions of sufficiently large gaps to the cubic moment vanish uniformly. -/
-def H2 : Prop := ∀ ε : ℝ, 0 < ε → ∃ K : ℕ, 0 < K ∧
-  ∀ᶠ x : ℝ in atTop, 1/x * ∑ n ∈ (A x).filter
-    (fun n => ¬ s (n+1)-s n < K), ((s (n+1)-s n : ℕ) : ℝ)^3 ≤ ε
+/-- An eventual bound for the moment of order seven halves over completed gaps.
+The weight is written as the cube of the gap times its square root. -/
+def H2 : Prop := ∃ C : ℝ, 0 < C ∧ ∀ᶠ y : ℝ in atTop,
+  (∑ n ∈ (A y).filter (fun n => s (n+1) ≤ ⌊y⌋₊),
+    ((s (n+1)-s n : ℕ) : ℝ)^3 * Real.sqrt ((s (n+1)-s n : ℕ) : ℝ)) ≤ C*y
+
+/-- Every squarefree gap counted at x is completed by 2x. -/
+lemma next_le_double {x : ℝ} (hx : 1 ≤ x) {n : ℕ} (hn : n ∈ A x) :
+    s (n+1) ≤ ⌊2*x⌋₊ := by
+  have hfloor : 1 ≤ ⌊x⌋₊ := (Nat.one_le_floor_iff x).2 hx
+  obtain ⟨p, hp, hgt, hle⟩ := Nat.exists_prime_lt_and_le_two_mul ⌊x⌋₊ (by omega)
+  have hleft : s n ≤ ⌊x⌋₊ := (Finset.mem_Icc.mp (Finset.mem_preimage.mp hn)).2
+  have hnext : s (n+1) ≤ p := by
+    by_contra! h
+    have hback : p ≤ s n := Nat.le_nth_of_lt_nth_succ h hp.squarefree
+    omega
+  apply (Nat.le_floor_iff (by linarith : 0 ≤ 2*x)).2
+  have hnat := hnext.trans hle
+  have hreal : (s (n+1) : ℝ) ≤ 2*(⌊x⌋₊ : ℝ) := by exact_mod_cast hnat
+  linarith [Nat.floor_le (by linarith : 0 ≤ x)]
+
+lemma cubic_tail (moment : H2) (ε : ℝ) (hε : 0 < ε) :
+    ∃ K : ℕ, 0 < K ∧ ∀ᶠ x : ℝ in atTop, 1/x * ∑ n ∈ (A x).filter
+      (fun n => ¬ s (n+1)-s n < K), ((s (n+1)-s n : ℕ) : ℝ)^3 ≤ ε := by
+  classical
+  obtain ⟨C,hC,bounded⟩ := moment
+  obtain ⟨L,hL⟩ := exists_nat_gt (2*C/ε)
+  have hLpos : (0:ℝ) < L := lt_trans (by positivity) hL
+  have hLn : 0 < L := by exact_mod_cast hLpos
+  have hscale : 2*C ≤ ε*L := by linarith [(div_lt_iff₀ hε).mp hL]
+  obtain ⟨Y,hY⟩ := eventually_atTop.mp bounded
+  refine ⟨L^2, by positivity, ?_⟩
+  filter_upwards [eventually_ge_atTop (max Y 1)] with x hx
+  have hx1 : 1 ≤ x := (le_max_right _ _).trans hx
+  have hxpos : 0 < x := by linarith
+  have hbound := hY (2*x) (by linarith [(le_max_left Y 1).trans hx])
+  let g (n : ℕ) : ℝ := ((s (n+1)-s n : ℕ) : ℝ)
+  let T := (A x).filter (fun n => ¬ s (n+1)-s n < L^2)
+  let D := (A (2*x)).filter (fun n => s (n+1) ≤ ⌊2*x⌋₊)
+  have hsub : T ⊆ D := by
+    intro n hn
+    have hleft := (mem_filter.mp hn).1
+    apply mem_filter.mpr
+    refine ⟨?_, next_le_double hx1 hleft⟩
+    apply mem_preimage.mpr
+    exact mem_Icc.mpr ⟨Nat.zero_le _, ((mem_Icc.mp (mem_preimage.mp hleft)).2).trans
+      (Nat.floor_mono (by linarith : x ≤ 2*x))⟩
+  have hscaled : (L:ℝ) * (∑ n ∈ T, g n ^ 3) ≤ C*(2*x) := by
+    calc
+      _ = ∑ n ∈ T, (L:ℝ) * g n ^ 3 := mul_sum ..
+      _ ≤ ∑ n ∈ T, g n ^ 3 * Real.sqrt (g n) := by
+        apply sum_le_sum
+        intro n hn
+        have hn' : L^2 ≤ s (n+1)-s n := not_lt.mp (mem_filter.mp hn).2
+        have hr : (L:ℝ)^2 ≤ g n := by dsimp [g]; exact_mod_cast hn'
+        have hs := Real.sqrt_le_sqrt hr
+        rw [Real.sqrt_sq hLpos.le] at hs
+        rw [mul_comm (L:ℝ)]
+        exact mul_le_mul_of_nonneg_left hs (by dsimp [g]; positivity)
+      _ ≤ ∑ n ∈ D, g n ^ 3 * Real.sqrt (g n) :=
+        sum_le_sum_of_subset_of_nonneg hsub (fun n _ _ => by dsimp [g]; positivity)
+      _ ≤ _ := hbound
+  change 1/x * (∑ n ∈ T, g n ^ 3) ≤ ε
+  rw [one_div, ← div_eq_inv_mul, div_le_iff₀ hxpos]
+  apply le_of_mul_le_mul_left _ hLpos
+  calc
+    _ ≤ C*(2*x) := hscaled
+    _ ≤ L*(ε*x) := by nlinarith only [mul_le_mul_of_nonneg_right hscale hxpos.le]
 
 lemma sumByGapSize (D : Finset ℕ) (g : ℕ → ℕ) (a : ℝ) (K : ℕ) :
     (∑ k ∈ range K, ((D.filter fun n => g n=k).card : ℝ) * (k:ℝ)^a) =
@@ -41,7 +106,8 @@ lemma sumByGapSize (D : Finset ℕ) (g : ℕ → ℕ) (a : ℝ) (K : ℕ) :
 
 theorem main : H1 → H2 → type_of% @Erdos145.erdos_145.variants.le_three := by
   classical
-  intro freq tail
+  intro freq moment
+  have tail := cubic_tail moment
   intro a ha
   let g (n : ℕ) := s (n+1) - s n
   have hg (n : ℕ) : ((g n : ℕ) : ℝ) = (s (n+1) : ℝ) - s n :=
