@@ -177,8 +177,6 @@ case "$VERDICT" in
     # waits for a later pass.
     if comment_gate; then
       comment "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)"
-    elif [ "${VERDICT_MODE:-}" = batch ]; then
-      echo "comment deferred (gate)"; touch defer.flag
     else
       echo "REJECTED without a comment (gate): the check and the site show it"
     fi ;;
