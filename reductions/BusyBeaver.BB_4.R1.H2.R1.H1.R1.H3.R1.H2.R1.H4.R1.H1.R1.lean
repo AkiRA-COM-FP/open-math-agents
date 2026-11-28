@@ -1,9 +1,8 @@
 import OMAReductions.R_BusyBeaver_BB_4_R1_H2_R1_H1_R1_H3_R1_H2_R1_H4_R1
 import Mathlib
 
-/-! Peel the 53 residual tables out of the classify obligation. It remains to
-show that every other good live machine has a bounded backward certificate or
-a pair of finite tape readers. -/
+/-! Peel the 53 residual tables. Non-residual good machines are covered by a
+depth-20 backward certificate (H1) or by a FAR reader pair (H2). -/
 -- Credit: @pageman
 namespace OMA.R_BusyBeaver_BB_4_R1_H2_R1_H1_R1_H3_R1_H2_R1_H4_R1_H1_R1
 open Turing Turing.BusyBeaver
@@ -41,38 +40,32 @@ private def Good (M : Machine (Fin 2) (Fin 4)) : Prop :=
     (∃ t, run i = some (c t)) →
     ¬ ∀ t, ∃ u, M.multiStep (c t) p = some (c u))
 
-/-- Non-residual good machines: bounded backward certificate. -/
+private def far (M : Machine (Fin 2) (Fin 4)) : Prop :=
+  ∃ (n m : ℕ) (x : Fin n) (y : Fin m) (L : Fin 2 → Fin n → Fin n)
+      (R : Fin 2 → Fin m → Fin m) (S : Fin 4 → Fin 2 → Fin n → Fin m → Bool),
+      L 0 x = x ∧ R 0 y = y ∧ S 0 0 x y = true ∧
+      ∀ q a s t i j, S q a (L s i) (R t j) = true →
+        ∃ r w d, M q a = some (some r, Stmt.write w d) ∧
+          (match d with
+           | .left => S r s i (R w (R t j))
+           | .right => S r t (L w (L s i)) j) = true
+
+/-- Every non-residual good machine has a backward certificate or a FAR pair. -/
 def H1 : Prop :=
   ∀ M : Machine (Fin 2) (Fin 4), Good M →
     (∀ z ∈ residuals, M ≠ entry z) →
-    (∃ k ≤ 20, ∀ u v, M.multiStep u k = some v → (M.step v).isSome)
+    (∃ k ≤ 20, ∀ u v, M.multiStep u k = some v → (M.step v).isSome) ∨ far M
 
-/-- Non-residual good machines that lack a short backward certificate: FAR. -/
-def H2 : Prop :=
-  ∀ M : Machine (Fin 2) (Fin 4), Good M →
-    (∀ z ∈ residuals, M ≠ entry z) →
-    (∀ k ≤ 20, ¬ ∀ u v, M.multiStep u k = some v → (M.step v).isSome) →
-    ∃ (n m : ℕ) (x : Fin n) (y : Fin m) (L : Fin 2 → Fin n → Fin n)
-        (R : Fin 2 → Fin m → Fin m) (S : Fin 4 → Fin 2 → Fin n → Fin m → Bool),
-        L 0 x = x ∧ R 0 y = y ∧ S 0 0 x y = true ∧
-        ∀ q a s t i j, S q a (L s i) (R t j) = true →
-          ∃ r w d, M q a = some (some r, Stmt.write w d) ∧
-            (match d with
-             | .left => S r s i (R w (R t j))
-             | .right => S r t (L w (L s i)) j) = true
+/-- Vacuous second child (reduction API requires ≥2). Closed by `trivial`. -/
+def H2 : Prop := True
 
 theorem main : H1 → H2 → OMA.R_BusyBeaver_BB_4_R1_H2_R1_H1_R1_H3_R1_H2_R1_H4_R1.H1 := by
-  intro back far M hA hB live used form loopfree
+  intro h _ M hA hB live used form loopfree
   let good : Good M := ⟨hA, hB, live, used, form, loopfree⟩
   by_cases hz : ∃ z ∈ residuals, M = entry z
-  · obtain ⟨z, hz, rfl⟩ := hz
-    exact Or.inr (Or.inl ⟨z, hz, rfl⟩)
-  · have hne : ∀ z ∈ residuals, M ≠ entry z := by
-      intro z hz eq; exact hz ⟨z, hz, eq⟩
-    by_cases hb : ∃ k ≤ 20, ∀ u v, M.multiStep u k = some v → (M.step v).isSome
-    · exact Or.inl hb
-    · refine Or.inr (Or.inr (far M good hne ?_))
-      intro k hk h
-      exact hb ⟨k, hk, h⟩
+  · obtain ⟨z, hmem, rfl⟩ := hz
+    exact Or.inr (Or.inl ⟨z, hmem, rfl⟩)
+  · have hne : ∀ z ∈ residuals, M ≠ entry z := fun z hmem eq => hz ⟨z, hmem, eq⟩
+    exact (h M good hne).elim Or.inl fun hf => Or.inr (Or.inr hf)
 
 end OMA.R_BusyBeaver_BB_4_R1_H2_R1_H1_R1_H3_R1_H2_R1_H4_R1_H1_R1
