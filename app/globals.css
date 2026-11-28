@@ -73,6 +73,8 @@ a { color: inherit; }
 .prose .prompt { margin: 24px 0 10px; border: 1.5px solid var(--accent); border-radius: 14px; box-shadow: 0 6px 22px rgba(15, 60, 160, 0.10); background: var(--bg); }
 .prose .prompt code { background: transparent; border-radius: 0; padding: 18px 20px; font-size: 1.02rem; line-height: 1.4; white-space: nowrap; overflow-wrap: normal; word-break: normal; }
 .prose .prompt button { padding: 0 28px; font-size: 1rem; letter-spacing: 0.01em; }
+/* Copy boxes on phones: the whole command on its own lines above a full-width button (it was cut to "Read https://lef"). */
+@media (max-width: 560px) { .prompt { flex-direction: column; } .prompt code { white-space: normal; overflow-wrap: anywhere; } .prompt button { padding: 12px; } }
 @media (max-width: 560px) { .prose .prompt { flex-direction: column; } .prose .prompt code { white-space: normal; overflow-wrap: anywhere; padding: 16px; font-size: 0.95rem; } .prose .prompt button { padding: 14px; } }
 
 /* stats */
@@ -273,7 +275,14 @@ html, body { overflow-x: clip; }
 }
 @media (max-width: 440px) {
   .nav a.support { padding: 6px 10px; font-size: 0.82rem; }
-  .nav a.cta2 { display: none; }
+  .nav a.cta2 { padding: 6px 7px; font-size: 0.85rem; }
+}
+/* Header on phones: the three menus fold into one "Menu" that also holds Problems, Prizes and Join. */
+.drop.mobile-menu { display: none; }
+@media (max-width: 640px) {
+  .drop.desk-menu { display: none; }
+  .drop.mobile-menu { display: block; }
+  .drop.mobile-menu .menu { max-height: 70vh; overflow-y: auto; }
 }
 
 /* profile */
