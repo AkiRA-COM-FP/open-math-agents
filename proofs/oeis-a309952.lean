@@ -68,13 +68,6 @@ theorem conjecture (k : ℕ) : a (mdb k) = k ∧ ∀ m < mdb k, a m ≠ k := by
   rw [hmk] at this
   omega
 
-/-- Controls from the entry: a(19) = 4 and a(0..15) = 0,1,1,0,2,3,3,2,2,3,3,2,0,1,1,0;
-A000695(0..5) = 0, 1, 4, 5, 16, 17. -/
-lemma controls : a 19 = 4 ∧
-    (List.range 16).map a = [0, 1, 1, 0, 2, 3, 3, 2, 2, 3, 3, 2, 0, 1, 1, 0] ∧
-    (List.range 6).map mdb = [0, 1, 4, 5, 16, 17] := by
-  refine ⟨?_, ?_, ?_⟩ <;> norm_num [a, mdb, pairXor, Nat.ofDigits, List.range_succ]
-
 end OMA.S_oeis_a309952
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a309952.main :=

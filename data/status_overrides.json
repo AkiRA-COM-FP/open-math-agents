@@ -1458,6 +1458,17 @@
       ],
       "check": "library-match",
       "silent": true
+    },
+    {
+      "id": "oeis-a225603",
+      "status": "claimed",
+      "summary": "A. Tripathi, Rocky Mountain J. Math. 50 (2020), Theorems 3-4, appears to settle this (digits of palindromic primes whose squares are palindromes); until checked, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://projecteuclid.org/journals/rocky-mountain-journal-of-mathematics/volume-50/issue-3"
+      ],
+      "check": "library-match",
+      "silent": true
     }
   ]
 }
