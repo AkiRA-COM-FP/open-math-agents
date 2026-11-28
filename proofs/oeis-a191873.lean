@@ -170,39 +170,20 @@ private theorem cyclic {n : ℕ} (hn : 3 ≤ n) : 2 * n ∈ weights n := by
 private theorem fullRowBound {n : ℕ} {A : Board n} (hA : rectangleFree A)
     {r : Fin n} (hr : ∀ j, (r, j) ∈ A) : A.card ≤ 2 * n - 1 := by
   classical
-  let U := A.filter (fun p => p.1 = r)
-  let V := A.filter (fun p => p.1 ≠ r)
-  have hsplit : U.card + V.card = A.card :=
-    Finset.card_filter_add_card_filter_not (s := A) (fun p => p.1 = r)
-  have hU : U.card ≤ n := by
-    have h : (U.image Prod.snd).card = U.card := Finset.card_image_iff.mpr (by
-      rintro ⟨i, j⟩ hp ⟨k, l⟩ hq hjl
-      have hi : i = r := (Finset.mem_filter.mp hp).2
-      have hk : k = r := (Finset.mem_filter.mp hq).2
-      exact Prod.ext (hi.trans hk.symm) hjl)
-    have hub : (U.image Prod.snd).card ≤ n := by
-      simpa using (U.image Prod.snd).card_le_univ
-    omega
-  have hV : V.card ≤ n - 1 := by
-    have h : (V.image Prod.fst).card = V.card := Finset.card_image_iff.mpr (by
-      rintro ⟨i, j⟩ hp ⟨k, l⟩ hq hik
-      change i = k at hik
-      subst k
-      have hp' : (i, j) ∈ A ∧ i ≠ r := Finset.mem_filter.mp hp
-      have hq' : (i, l) ∈ A ∧ i ≠ r := Finset.mem_filter.mp hq
-      have heq : j = l := by
+  let tag (p : Fin n × Fin n) : Fin n ⊕ Fin n :=
+    if p.1 = r then .inl p.2 else .inr p.1
+  have h : A.card ≤ ((Finset.univ : Finset (Fin n)).disjSum (Finset.univ.erase r)).card := by
+    apply Finset.card_le_card_of_injOn tag
+    · intro p _
+      by_cases hp : p.1 = r <;> simp [tag, hp]
+    · rintro ⟨i, j⟩ hij ⟨k, l⟩ hkl heq
+      by_cases hi : i = r <;> by_cases hk : k = r <;> simp [tag, hi, hk] at heq
+      · exact Prod.ext (hi.trans hk.symm) heq
+      · subst k
+        refine Prod.ext rfl ?_
         by_contra hjl
-        exact hA i r j l hp'.2 hjl hp'.1 hq'.1 (hr j) (hr l)
-      exact Prod.ext rfl heq)
-    have hsub : V.image Prod.fst ⊆ Finset.univ.erase r := by
-      intro i hi
-      obtain ⟨⟨k, j⟩, hk, hki⟩ := Finset.mem_image.mp hi
-      change k = i at hki
-      subst i
-      exact Finset.mem_erase.mpr ⟨(Finset.mem_filter.mp hk).2, Finset.mem_univ _⟩
-    have hub := Finset.card_le_card hsub
-    rw [Finset.card_erase_of_mem (Finset.mem_univ r), Finset.card_univ, Fintype.card_fin] at hub
-    omega
+        exact hA i r j l hi hjl hij hkl (hr j) (hr l)
+  simp [Finset.card_erase_of_mem (Finset.mem_univ r)] at h
   omega
 
 private theorem fullColBound {n : ℕ} {A : Board n} (hA : rectangleFree A)

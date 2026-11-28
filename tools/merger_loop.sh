@@ -92,7 +92,7 @@ else
   BPID=""; LAST_BACKLOG=0; LAST_SCAN=0
 fi
 touch "$ROOT/queue.tsv"
-SLOTS=${SLOTS:-24}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0; CPID=""
+SLOTS=${SLOTS:-32}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0; CPID=""
 wait_slots() { local i; for i in $(seq 1 "$SLOTS"); do [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""; done; }
 iso() { date -u -d "@$1" +%Y-%m-%dT%H:%M:%SZ; }
 nap() { local S=$1 L=$(( END - $(date -u +%s) )); [ "$S" -gt "$L" ] && S=$L; [ "$S" -gt 0 ] && sleep "$S"; return 0; }
@@ -247,6 +247,14 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   fi
   PR=$(head -c 12 "$W/artifact/pr.txt" 2>/dev/null | tr -cd '0-9'); [ -n "$PR" ] || return 0
   [ -e "$ROOT/done/pr.$PR.$SHA" ] && return 0   # this head already has its verdict (from check-proof or the batch checker)
+  # On hold (tools/merger_hold.txt on main, one pull request number per line, # comments): no verdict and no merge yet,
+  # nothing posted. The run is not marked done, so the scans find it again and it gets its verdict, in its place in the
+  # filing order, once its number leaves the file. For a person's review of an unexpected claim (28 Nov: three PRs that
+  # together would close an open variant of Erdős #142).
+  if [ -s "$B/tools/merger_hold.txt" ] && grep -qx "$PR" <(sed 's/#.*//; s/[^0-9]//g' "$B/tools/merger_hold.txt"); then
+    echo "$(date -u +%H:%M:%S) #$PR run $ID.$ATT: held (tools/merger_hold.txt), no verdict yet" >> "$ROOT/vlog.txt"
+    rm -f "$ROOT/done/$ID.$ATT"; return 0
+  fi
   local RM; RM=$(cat "$ROOT/remerge/$PR" 2>/dev/null || echo 0)
   [ "$MODE" = remerge ] && [ "$RM" = 0 ] && RM=1               # requeued: accepted and reported before, merge again
   if [ "$OLD" = 1 ] && [ "$CONC" != success ] && gh api "repos/$REPO/issues/$PR/comments?per_page=100" --jq '.[].body' 2>/dev/null | grep -qF "$URL"; then
