@@ -7347,6 +7347,370 @@
     "https://oeis.org/A168503"
    ],
    "note": "The period-3 continued fraction 1/(1-x/(1-2x/(1-3x/...))) is encoded faithfully by its three tails, with an existence clause, and reproduces the data. Mathar's recurrence holds for n = 4..59. Routine; no prior proof found. Second review: Faithful and true; the entry's algebraic g.f. makes it routine."
+  },
+  "OeisA79727.conjecture1": {
+   "date": "2026-11-28",
+   "pr": 7091,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A079727",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/79727.lean",
+    "https://oeis.org/A079727",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/79727.lean",
+    "https://github.com/TheJustinSunPrize/awards/issues/4912"
+   ],
+   "note": "Bala's conjecture 1 (2024): for p in A003625 (p = 3,5,6 mod 7), a(p^2) = 8 + p^2 mod p^3. The formal statement matches the entry word for word, and I checked it numerically for p = 3, 5, 13, 17, 19. The proof extends the site's earlier conjecture-2 proof (PR 6898) with Lucas vanishing and C(2p^2,p^2)^3 = 8 mod p^3, using CM/Picard-Fuchs arguments. Epoch's runs on the sibling conjecture 2 all failed. I found nothing on Palomar, in Fried's four OEIS papers or in Z.-H. Sun's 2026 preprint arXiv:2611.16834. Second review: Faithful, open, and new as far as every tracker I could reach shows. The proof (230 KB) also proves conjecture 2 on the way. I did not audit the Lean itself."
+  },
+  "arxiv-1912.11230": {
+   "date": "2026-11-28",
+   "pr": 24556,
+   "routine": false,
+   "evidence": [
+    "https://arxiv.org/abs/1912.11230",
+    "https://arxiv.org/abs/1912.11230",
+    "https://alco.centre-mersenne.org/item/10.5802/alco.103.pdf"
+   ],
+   "note": "Best-Wanless Conjecture 31: t_ac + t_bc + t_ad + t_bd = 0 mod 4 for every Latin square. The statement matches the source, including its definition of transversals of the (n-1)x(n-1) Latin array (min(m,n) entries, no shared row, column or symbol) and all a, b, c, d, not necessarily distinct. Brute force over all Latin squares of order <= 4 and 300 of order 5 found no violation. The proof is a genuine algebraic argument using signed sums of products prod_s(z + c_s(U,T)). I found no prior proof on the web, Palomar or openai/math. Second review: A real 2019 conjecture, now proved by a parity/sign argument (66 KB Lean). I found no prior proof."
+  },
+  "arxiv-2008.10398": {
+   "date": "2026-11-28",
+   "pr": 6635,
+   "routine": false,
+   "evidence": [
+    "https://arxiv.org/abs/2008.10398",
+    "https://arxiv.org/abs/2008.10398",
+    "https://lims.ac.uk/wp-content/uploads/paper5-4.pdf",
+    "https://arxiv.org/abs/2307.16691",
+    "https://arxiv.org/abs/2307.09140"
+   ],
+   "note": "Fink's Conjecture 1: for every k there are ample numbers (a(n) > n, where a is the recursive divisor count of Definition 1) not divisible by the first k primes. The Lean recursiveDivisors matches Definition 1 (a(10)=6, a(12)=16, a(216)=504 checked), and 'p <= k' is an equivalent way of excluding the first primes. The proof is an elementary mass argument using divergence of sum 1/p over primes > k. The source and later Fink versions list it as open, and I found no prior proof. Second review: Short and elegant, a Hille-style argument. It is new as far as I can find, though an expert might call it folklore-level."
+  },
+  "arxiv-2101.07103": {
+   "date": "2026-11-28",
+   "pr": 7171,
+   "routine": true,
+   "evidence": [
+    "https://arxiv.org/abs/2101.07103v2",
+    "https://arxiv.org/abs/2101.07103"
+   ],
+   "note": "Counterexample to Estrada-Mugnolo Conjecture 4.13 (v2): two K4's joined through a path 0-4-5 on 9 vertices. I recomputed it in floating point: the hubs-attracting index is about 68.1, above the ordinary index 61. That violates R_0 >= R_{-1} under both the Moore-Penrose inverse (the formal choice) and the paper's V Lambda^+ V^{-1} spectral inverse, so the disproof does not depend on that modelling choice. The conjecture does hold on all connected graphs up to 6 vertices (consistent with the authors' search up to 8). The proof is a finite rational certificate, and I found no prior counterexample. Second review: The counterexample refutes Conjecture 4.13 under both readings of the hubs-biased resistance. The formal statement follows the paper's literal 'Moore-Penrose' wording, which is evidently not what the authors computed. The write-up should mention that, and should say that the same graph also breaks the spectral version."
+  },
+  "arxiv-2510.24280": {
+   "date": "2026-11-28",
+   "pr": 24493,
+   "routine": true,
+   "evidence": [
+    "https://arxiv.org/abs/2510.24280v2",
+    "https://arxiv.org/abs/2510.24280"
+   ],
+   "note": "Counterexample to Conjecture 4 (FvF never worse than AvA for either player): S = {3,5,12,16,30}, heap 83 gives FvF (48,35) and AvA (47,36), which I recomputed independently. The Lean recurrence matches Definition 2 of the paper, with friendly maximizing and antagonistic minimizing the opponent's total over the tied moves. The authors only tested max S <= 25, which explains why they missed it (here max S = 30). The latest version (v2, Jan 2026) still states the conjecture, and I found no prior counterexample. Second review: A clean finite counterexample to a 2025 conjecture, verified by kernel evaluation and by my own recomputation."
+  },
+  "mo-267889": {
+   "date": "2026-11-28",
+   "pr": 24524,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/267889",
+    "https://mathoverflow.net/questions/267889"
+   ],
+   "note": "The asker's proposed identity E|B\\A| = E|B|(1 - E|A|/n) fails at n = m = 2. By hand: E|A| = 3/2, E|B| = 5/4 and E|B\\A| = 1/4, while the right side is 5/16. The formal model (second sample of size |A| drawn conditionally uniformly) matches the question. The question has no answers or comments, so this is an elementary but unrecorded refutation. Second review: A correct refutation by the smallest case. It is trivial, but the question really was unanswered."
+  },
+  "mo-298064": {
+   "date": "2026-11-28",
+   "pr": 24510,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/298064",
+    "https://mathoverflow.net/questions/298064"
+   ],
+   "note": "The inequality |S_0(t,m)| >= |S_a(t,m)| is refuted. The Lean witness is the degenerate m = t = 1 case over F_2 ([1] has trace 1 and no rank-1 1x1 matrix has trace 0). My enumeration shows the claim also fails in non-degenerate cases: F_2 with m = 2, t = 1 (1 vs 2), F_3 with m = 3, t = 1 (8 vs 9), and F_5 with m = 2, t = 2 (16 vs 21). So the refutation is genuine, not an edge-case exploit. The question has no answers. Second review: Correct disproof. For an announcement, a nondegenerate counterexample (e.g. q=3, m=4, t=3) should go next to the 1x1 one."
+  },
+  "mo-313415": {
+   "date": "2026-11-28",
+   "pr": 24094,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/313415",
+    "https://mathoverflow.net/questions/313415"
+   ],
+   "note": "Affirmative answer: with f(n) = (n+1)^3 ceil((32/27)^{n/3+1}), m = 1/2 beats every other m in [0,1], for any coupling of the arrays. The statement asks for this for every joint distribution satisfying row-wise independence and the Bin(n,1/2) law, which is stronger than any reading of the question. The proof uses threshold 2^{n/3} with binomial and first-moment bounds, a real argument. The question has no answers, and I found no prior solution. Second review: A substantive affirmative answer (m=1/2 with exponentially many agents), formalized with explicit bounds. I did not audit the 50 KB Lean, but the mathematics is consistent."
+  },
+  "mo-331165": {
+   "date": "2026-11-28",
+   "pr": 24394,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/331165",
+    "https://mathoverflow.net/questions/331165"
+   ],
+   "note": "Berger's conjecture (div(rho B x v) = 0 for all B forces v parallel to grad rho) is refuted with constant rho and constant v. That witness is degenerate, but the conjecture also fails for non-constant rho: the condition is v x grad rho = rho curl v, and v = grad(psi)/rho solves it for every psi. The formal statement (all nonzero B, positive differentiable rho, differentiable v) matches the question, and it has no answers. Second review: The refutation is correct, but the Lean counterexample uses constant rho, which the asker probably did not intend. The announcement should give the general solution v=grad(phi)/rho (e.g. rho=e^x, v=e^{-x} e_y) so it cannot be dismissed as an edge case."
+  },
+  "mo-479805": {
+   "date": "2026-11-28",
+   "pr": 24532,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/479805",
+    "https://mathoverflow.net/questions/479805"
+   ],
+   "note": "Proof of Kiwi's binomial-cdf inequality (1): (F(k)+F(k+1))/((n-k)(F(k-1)+F(k))) is nonincreasing in n. The formal statement matches the question: 0 < p < 1, m < n, 1 <= k <= m-1, and the same grouping. I verified it in exact rational arithmetic for 2275 cases (n <= 15, five values of p) with no violations. The proof uses a beta-integral representation, integration by parts and moment positivity. The question has no answers, and I found nothing on Palomar. Second review: A genuine proof of an inequality that was unanswered on MO."
+  },
+  "mo-513259": {
+   "date": "2026-11-28",
+   "pr": 16854,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/513259",
+    "https://mathoverflow.net/questions/513259",
+    "https://mathoverflow.net/questions/513095"
+   ],
+   "note": "Both of joro's 2026 conjectures are proved: per(M^{-1}) = 1 mod 8 and 2 per(M) + per(M^{-1}) = 3 mod 24, for adjacency matrices invertible mod 8 or 24, with the inverse taken in ZMod, which is equivalent to reducing the rational inverse. I checked every graph on n <= 6 vertices (13917 and 12401 cases) with no failures. The proof (Ryser expansion over Boolean faces mod 8, a mixed-moment identity over F_3) is genuine. The question has no answers, and I found nothing on Palomar. Second review: A recent (July 2026) MO conjecture, proved in 63 KB of Lean. Nothing prior found."
+  },
+  "oeis-a000247": {
+   "date": "2026-11-28",
+   "pr": 10486,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A000247",
+    "https://oeis.org/A000247"
+   ],
+   "note": "L. Edson Jeffery's (2012) conjectured matrix identity: for n > 2, entry v_{n-2} of A^n * 1, with A the n x n tridiagonal unit-primitive matrix whose last diagonal entry is 1, equals 2^n - n - 2. The zero-based index n-3 is correct, and I checked numerically for n = 3..19. The proof is a short dynamic-programming induction on the top diagonals. The entry still labels the identity a conjecture, and I found no prior proof. Second review: Correct and faithful. A short dynamic-programming identity."
+  },
+  "oeis-a002857": {
+   "date": "2026-11-28",
+   "pr": 24151,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A002857",
+    "https://oeis.org/A055621",
+    "https://oeis.org/A055152",
+    "https://oeis.org/A002857",
+    "https://oeis.org/A055621",
+    "https://oeis.org/A055152"
+   ],
+   "note": "Mathar's 2022 conjecture A002857(n) = A055621(n) - A055152(n), proved by the bijection between Boolean functions with f(0)=0, f(1)=1 and families of nonempty subsets containing the full set, equivariant under S_n. The Lean definitions reproduce the OEIS data (1,3,20,996 for Post functions; 1,4,34,1952 for covers; 0,1,14,956 for proper covers; brute force n <= 4). Elementary, and I found no prior proof. Second review: True by a one-line bijection; routine."
+  },
+  "oeis-a007062": {
+   "date": "2026-11-28",
+   "pr": 24615,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A007062",
+    "https://oeis.org/A057030",
+    "https://oeis.org/A007062",
+    "https://oeis.org/A057030"
+   ],
+   "note": "Kurkov's conjecture A007062(n) = A057030(n-1) + 1 (n >= 2). The Lean P(n) block-reversal maps for both entries reproduce the OEIS data (first 24 terms of each, checked). The proof observes that on positions >= 2 the A007062 map is the A057030 map shifted by one, and inducts. Short and elementary; no prior proof found (both entries still say 'Conjecture'). Second review: Correct and routine. It also settles the site's open oeis-a057030, which should be linked or closed as a duplicate."
+  },
+  "oeis-a013302": {
+   "date": "2026-11-28",
+   "pr": 24672,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A013302",
+    "https://oeis.org/A013302"
+   ],
+   "note": "Both of Mathar's 2014 recurrences for A013302, with the sequence defined from Jovovic's e.g.f. (2-x^2)/(2 sqrt(1-x^2)). The proof also shows this equals cosh(log(1+x) - artanh x), so the definition matches the entry's name, and it reproduces the data. I checked both recurrences numerically for n <= 14. Routine holonomic-recurrence verification; no prior proof found. Second review: Routine g.f. recurrence."
+  },
+  "oeis-a093210": {
+   "date": "2026-11-28",
+   "pr": 23358,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A093210",
+    "https://oeis.org/A092964",
+    "https://oeis.org/A060477",
+    "https://oeis.org/A093210",
+    "https://oeis.org/A092964",
+    "https://oeis.org/A060477"
+   ],
+   "note": "Stephan's conjecture a(n) = A060477(n+4) - 2 is stated faithfully: T(n,k) = A051168(n+4,k+2), k=0..n, matches the Mathematica program of A092964 (k+1 for k=1..n+1) and the data rows 1; 2,2; 2,3,2. Checked first terms against A060477. The proof is a routine Moebius-sum interchange. No prior proof found (OEIS, trureturing, thatnealpatel, openai/math, Epoch OEIS Open, Fried's four OEIS papers). Second review: True and routine (total Lyndon count minus the two border terms)."
+  },
+  "oeis-a093726": {
+   "date": "2026-11-28",
+   "pr": 23375,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A093726",
+    "https://oeis.org/A138573",
+    "https://oeis.org/A317974",
+    "https://oeis.org/A093726",
+    "https://oeis.org/A093727"
+   ],
+   "note": "He's 2026 conjecture Im c(n) = A317974(n+1)/A138573(n) is stated faithfully for all representations c(n) = (x+yi)/d, with the convergent recursion matching the entry's examples (c(3) = (8+4i)/5 gives 4/5 = A317974(4)/A138573(3)). The proof uses Bala's Gaussian Lucas sequence U(n) from A138573 (|U(n)|^2 = A138573(n)) plus a quadratic-form recurrence identity; routine. No prior proof of this specific identity found. Second review: Routine: a quadratic form in a Lucas-type sequence satisfies an order-4 recurrence."
+  },
+  "oeis-a097180": {
+   "date": "2026-11-28",
+   "pr": 24187,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A097180",
+    "https://oeis.org/A097180"
+   ],
+   "note": "Mathar's order-3 recurrence is stated faithfully for n >= 3; I checked symbolically that the expanded coefficients equal Mathar's factored ones and that the recurrence holds for the series of 2/((1-8x)+(1-8x)^(3/4)) up to n=40. Using the entry's g.f. as the definition (T^4 = 1-8x, T(0)=1) is standard. Proof is the routine algebraic-to-D-finite derivation; no prior proof found. Second review: Routine algebraic g.f. recurrence."
+  },
+  "oeis-a100833": {
+   "date": "2026-11-28",
+   "pr": 22915,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A100833",
+    "https://oeis.org/A007814",
+    "https://oeis.org/A100833",
+    "https://arxiv.org/abs/0901.1397"
+   ],
+   "note": "Israel's 2019 conjectured formula (1 if n=1 mod 3, 2 if n=2 mod 3, else 3+v2(n/3)) is stated for all n>=1 against a faithful greedy definition (least positive letter avoiding a palindromic suffix of length >=2 and a square suffix). I recomputed the greedy word by brute force to n=1500 and it matches. The proof is a genuine combinatorics-on-words argument (no palindromes, no squares via a ruler lemma, minimality). No prior proof found; note the statement credits @frido22 while the PR is by Salofe. Second review: Correct; a short combinatorics-on-words argument."
+  },
+  "oeis-a102319": {
+   "date": "2026-11-28",
+   "pr": 24674,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A102319",
+    "https://oeis.org/A102319"
+   ],
+   "note": "Both of Mathar's recurrences (order 6 for n>=6, order 4 for n>=4) are stated with coefficients copied correctly and a(n) = sum C(n,k)C(2k,k)(1+(-1)^(n-k))/2 as in the entry; both hold for n<80. Proof derives three-term recurrences for the two binomial transforms and combines them; routine holonomic work. No prior proof found. Second review: Routine."
+  },
+  "oeis-a102880": {
+   "date": "2026-11-28",
+   "pr": 24583,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A102880",
+    "https://oeis.org/A102880"
+   ],
+   "note": "Mathar's recurrence is stated with the entry's g.f. ((1-x^2)/(1+x^2))c(x/(1+x^2)) as definition. It fails at n=4 (left side 3), so the statement starts at n=5; the entry gives no range, and from n=5 on the identity holds (checked to n=40), which is the usual reading for such g.f.-derived recurrences. The restriction is disclosed and reasonable. Routine D-finite derivation; no prior proof found. Second review: Routine. Mathar's recurrence holds exactly from n=5. Say 'for n>=5' explicitly in any announcement."
+  },
+  "oeis-a106249": {
+   "date": "2026-11-28",
+   "pr": 23972,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A106249",
+    "https://oeis.org/A106249"
+   ],
+   "note": "Barry's conjecture a(n) = Sum_{k<=n} Jacobi(2^k, 2k+1) is stated faithfully for all n>=0 with the entry's g.f. as definition. Since (2^k|2k+1) = chi_8(2k+1)^k is 4-periodic (-1 iff k=1 mod 4), the claim is elementary; checked to n=200. thatnealpatel/proofs has an A106249 file, but it refutes Lagneau's different left-half-plane conjecture, so it is not a prior proof of this one. Second review: Routine periodicity argument."
+  },
+  "oeis-a106391": {
+   "date": "2026-11-28",
+   "pr": 23381,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A106391",
+    "https://oeis.org/A106391"
+   ],
+   "note": "Both Mathar recurrences (order 6 for n>=6, order 4 for n>=4) are transcribed correctly with a(n) = Sum binomial(n,2k) binomial(2(n-2k), n-2k+1) from the entry; both hold for n<80. Routine holonomic proof via the binomial and inverse binomial transforms of binomial(2j,j+1). No prior proof found; the statement credits @JeremyDevs while the PR is by Salofe. Second review: Routine."
+  },
+  "oeis-a107793": {
+   "date": "2026-11-28",
+   "pr": 24358,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A107793",
+    "https://oeis.org/A275925",
+    "https://oeis.org/A305390",
+    "https://oeis.org/A107793",
+    "https://oeis.org/A305390",
+    "https://oeis.org/A275925",
+    "https://arxiv.org/abs/1907.09120"
+   ],
+   "note": "Disproof of Sloane's 2018 conjecture that A107793, relabeled (5->6, 4->5) and with the first two terms dropped, is a shift of A275925. The definitions (f-morphism limit S[3k+1], sigma-trajectory of 3) are faithful and reproduce both entries' data, and the statement allows shifts in both directions. Numerically the best shift (11) agrees only for 41 terms. In ~10^5-term windows no shift in [-20000,20000] even agrees eventually. The proof writes the relabeled word as a sigma-image and uses aperiodicity of A275925; no prior refutation found. Second review: Sloane's 2018 'appears to be a shifted version' is false: the two words share a language but are not shifts of each other. The disproof is genuinely new."
+  },
+  "oeis-a108600": {
+   "date": "2026-11-28",
+   "pr": 24400,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A108600",
+    "https://oeis.org/A108600"
+   ],
+   "note": "Mathar's order-6 recurrence for n>=6 is transcribed correctly; the normalised g.f. used as the definition equals the entry's (Vatter) g.f. as a series (checked to x^40), and the recurrence holds for n<40. It is about the g.f., not the pattern class. Routine certificate proof from S^2 = 1-4x; no prior proof found. The statement credits @vivanpoddar, the proof and PR credit ivillar. Second review: Routine."
+  },
+  "oeis-a110521": {
+   "date": "2026-11-28",
+   "pr": 14351,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A110521",
+    "https://oeis.org/A110521"
+   ],
+   "note": "Mathar's order-5 recurrence for n>=5 is transcribed correctly, with the entry's g.f. 1/(1-(x+x^2)c(3x)) as the definition (6xc = 1-S, S^2 = 1-12x); it holds for n<40. Routine D-finite derivation; no prior proof found. Second review: Routine."
+  },
+  "oeis-a112000": {
+   "date": "2026-11-28",
+   "pr": 24687,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A112000",
+    "https://oeis.org/A111999",
+    "https://oeis.org/A112000",
+    "https://oeis.org/A111999"
+   ],
+   "note": "Mathar's first-order recurrence n(4n+5)a(n) + (2n+3)(n+2)(4n+9)a(n-1) = 0 is stated faithfully for n>=1, with a(n) = A111999(n+3,2)/2 and A111999 given by its formula-section recurrence (it reproduces rows -1; 3,2; -15,-20,-6). Checked for n<40. The proof finds closed forms for columns 0-2 by induction; routine. Second review: Routine closed form."
+  },
+  "oeis-a114584": {
+   "date": "2026-11-28",
+   "pr": 24401,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A114584",
+    "https://oeis.org/A114584"
+   ],
+   "note": "Mathar's order-7 recurrence for n>=7 is transcribed correctly, with Deutsch's g.f. (1-z+z^3-sqrt((1+z+z^3)(1-3z+z^3)))/(2z^2) as the definition (the radicand is expanded correctly); it holds for n<42. The path-counting interpretation is not used; the g.f. is published (Asinowski et al.). Routine certificate proof; no prior proof found. The statement credits @vivanpoddar, the PR ivillar. Second review: Routine."
+  },
+  "oeis-a116383": {
+   "date": "2026-11-28",
+   "pr": 24402,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A116383",
+    "https://oeis.org/A116383"
+   ],
+   "note": "Mathar's order-6 recurrence for n>=6 is transcribed correctly; the normalised g.f. equals Barry's g.f. as a series (checked to x^40), and the recurrence holds for n<40. The row-sum (A116382) interpretation is replaced by the entry's g.f., which is standard. Routine certificate proof; no prior proof found. The statement credits @vivanpoddar, the PR ivillar. Second review: Routine."
+  },
+  "oeis-a116637": {
+   "date": "2026-11-28",
+   "pr": 24237,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A116637",
+    "https://oeis.org/A116637"
+   ],
+   "note": "Mathar's recurrence is stated for n>=3, with the entry's explicit factorial formula (a(2k+1)=2*A006013(k), a(2k+2)=2*A001764(k+1), a(0)=1) as the definition; it reproduces the data. The n=2 exclusion is disclosed: the left side is 48 there because of the exceptional a(0)=1, and the recurrence holds for 3<=n<60. Given the closed form, the proof is a routine hypergeometric-ratio check; no prior proof found. Second review: Routine. Valid for n>=3 only; state that."
+  },
+  "oeis-a119012": {
+   "date": "2026-11-28",
+   "pr": 23904,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A119012",
+    "https://oeis.org/A119012"
+   ],
+   "note": "Mathar's recurrence for n>=3 (offset 1) is stated with correctly expanded coefficients, and a(n) = [x^n] of Deutsch's g.f. (the normalised form agrees with the g.f. as a series and reproduces 0,0,1,5,23,...). It holds for 3<=n<43. Routine certificate proof; no prior proof found. The statement credits @vivanpoddar, the PR ivillar. Second review: Routine."
+  },
+  "oeis-a119936": {
+   "date": "2026-11-28",
+   "pr": 7231,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A119936",
+    "https://oeis.org/A027451",
+    "https://oeis.org/A002944",
+    "https://oeis.org/A119936",
+    "https://oeis.org/A027451",
+    "https://oeis.org/A002944"
+   ],
+   "note": "Lang's conjectured a(n)/n^3 = A002944(n)^2 is formalized as lcm_j den(M^3(n,j)) = n*lcm(1..n)^2, with M^3(n,j) = (1/n) Sum_{i=j..n} (1/i) Sum_{k=j..i} 1/k, which matches the cube of the mean matrix. I checked it exactly for n <= 150; it reproduces the data 1,8,108,576,18000,... The proof needs an exact p-adic valuation argument (a lower bound from a column j = p^e). No prior proof found; Meijer's formula in A027451 is a related unproved statement. Second review: Correct and apparently new as a proof. The announcement should note Meijer's 2009 unproved formula in A027451."
+  },
+  "oeis-a121580": {
+   "date": "2026-11-28",
+   "pr": 24305,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121580",
+    "https://oeis.org/A121580"
+   ],
+   "note": "Mathar's recurrence for n>=5 is stated faithfully. The definition is Deutsch's first-order recurrence a(n) = a(n-1) + (n-1)!(1+n(n-1)/2) from the entry, which reproduces the data. The proof is a linear combination of four instances of that recurrence, which is routine; I checked it for n<30. No prior proof found. Second review: Routine consequence of a formula already in the entry."
   }
  },
  "flagged": {
@@ -15962,6 +16326,25 @@
     "https://zenodo.org/records/23112421"
    ],
    "reason": "Second review: Already proved by Blanco Gomez (Zenodo, Oct 2 2026), about eight weeks before the site proof. Not new."
+  },
+  "Green39.green_39.variant_101": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://people.maths.ox.ac.uk/greenbj/papers/open-problems.pdf#problem.39",
+    "https://conjectures.io/results/4c981fff-af7e-4fc8-bb2e-9fe13fd7f632",
+    "https://conjectures.io/problems/green39-green-39"
+   ],
+   "reason": "Second review: The 1.01 variant is an immediate corollary of the September 2026 conjectures.io disproof of Green 39 itself (cover probability -> 0 even with 100*sqrt(p) translates). The site's 391 KB proof is an independent formalization, but the result is not new."
+  },
+  "oeis-a003161": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A003161",
+    "https://github.com/google-deepmind/formal-conjectures/pull/7107",
+    "https://github.com/VictorLiwentao/lean-oeis-proofs/blob/41f7b2ba762827a74f1651e76a2ad6d77be6a021/proofs/new-formalization/A003161/PROOF.md",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/main/FormalConjectures/OEIS/3161.lean"
+   ],
+   "reason": "Second review: Already proved and accepted upstream about seven weeks before the site's proof. Not new."
   }
  },
  "reviewed": "2026-11-28"
