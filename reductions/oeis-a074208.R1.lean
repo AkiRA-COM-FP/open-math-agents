@@ -41,8 +41,12 @@ private theorem harmonic_square_bound {X : ℕ} {δ : ℝ} (hX : 1 ≤ X) (hδ :
     (∑ t ∈ Finset.Icc 1 (X ^ 2), (t : ℝ)⁻¹) ≤ (1 + 2 / δ) * (X : ℝ) ^ δ := by
   have hXR : (1 : ℝ) ≤ X := by exact_mod_cast hX
   have hsum : (∑ t ∈ Finset.Icc 1 (X ^ 2), (t : ℝ)⁻¹) ≤ 1 + 2 * Real.log (X : ℝ) := by
-    simpa only [harmonic_eq_sum_Icc, Rat.cast_sum, Rat.cast_inv, Rat.cast_natCast,
-      Nat.cast_pow, Real.log_pow, Nat.cast_ofNat] using harmonic_le_one_add_log (X ^ 2)
+    calc
+      _ ≤ 1 + Real.log ((X ^ 2 : ℕ) : ℝ) := by
+        simpa only [harmonic_eq_sum_Icc, Rat.cast_sum, Rat.cast_inv, Rat.cast_natCast]
+          using harmonic_le_one_add_log (X ^ 2)
+      _ = 1 + 2 * Real.log (X : ℝ) := by
+        rw [Nat.cast_pow, Real.log_pow] <;> norm_num
   calc
     _ ≤ 1 + 2 * Real.log (X : ℝ) := hsum
     _ ≤ (X : ℝ) ^ δ + 2 * ((X : ℝ) ^ δ / δ) := by
