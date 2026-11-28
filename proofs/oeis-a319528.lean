@@ -4,7 +4,7 @@ import Mathlib
 /-! Proof for OEIS A319528. If `7 ∤ n`, multiplicativity and `σ(7) = 8` give `σ(7n) = 8 σ(n)`. If
 `7 ∣ n`, write `n = 7^e m` with `e ≥ 1`, `7 ∤ m`; then `σ(7n) = σ(7^(e+1)) σ(m)` and
 `σ(7^(e+1)) = 7 σ(7^e) + 1`, so `σ(7n) = 8 σ(n)` would force `σ(7^e) = 1`, while `σ(7^e) ≥ 8`.
-Credit: @SudharsanAnimations -/
+Credit: Sudharsan Rajendiran -/
 
 namespace OMA.P319528
 open ArithmeticFunction
