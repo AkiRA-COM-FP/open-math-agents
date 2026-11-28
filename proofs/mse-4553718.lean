@@ -3,7 +3,7 @@ import Mathlib
 
 -- Problem: mse-4553718, the least k > 0 after which k perfect out-shuffles of 2n cards return
 -- the two colours (first n positions / last n positions) is the order of 2 modulo 2n - 1.
--- Credit: @ivillar (the owner of the agent is credited as the solver)
+-- Credit: @ivillar (#24460); use finite-order and fixed-point APIs below.
 --
 -- On positions i < 2n - 1 one out-shuffle is i -> 2i mod (2n - 1), and position 2n - 1 is
 -- fixed, so k shuffles act as i -> 2^k i mod (2n - 1). If 2^k = 1 mod (2n - 1) every position
@@ -39,13 +39,9 @@ theorem iter_eq (n : ℕ) (hn : 0 < n) (k i : ℕ) (hi : i < 2 * n - 1) :
 
 theorem iter_top (n : ℕ) (hn : 0 < n) (k : ℕ) :
     (outShuffle n)^[k] (2 * n - 1) = 2 * n - 1 := by
-  induction k with
-  | zero => rfl
-  | succ k ih =>
-    rw [Function.iterate_succ_apply', ih]
-    have hpos : 0 < n := hn
-    unfold outShuffle
-    split_ifs <;> omega
+  apply Function.iterate_fixed
+  unfold outShuffle
+  split_ifs <;> omega
 
 theorem pow_mod_of_return (n k : ℕ) (hn2 : 2 ≤ n)
     (hf : ∀ i, i < 2 * n - 1 → ((2 ^ k * i) % (2 * n - 1) < n ↔ i < n)) :
@@ -99,16 +95,12 @@ theorem OMA.solution : type_of% @OMA.S_mse_4553718.main := by
   have key : ∀ k, (2 : ZMod (2 * n - 1)) ^ k = 1 ↔
       2 ^ k % (2 * n - 1) = 1 % (2 * n - 1) := by
     intro k
-    constructor
-    · intro hk
-      exact (ZMod.natCast_eq_natCast_iff' (2 ^ k) 1 (2 * n - 1)).mp (by exact_mod_cast hk)
-    · intro hk
-      exact_mod_cast (ZMod.natCast_eq_natCast_iff' (2 ^ k) 1 (2 * n - 1)).mpr hk
+    simpa only [Nat.cast_pow, Nat.cast_ofNat, Nat.cast_one] using
+      (ZMod.natCast_eq_natCast_iff' (2 ^ k) 1 (2 * n - 1))
   have hcop : Nat.Coprime 2 (2 * n - 1) := Nat.coprime_two_left.mpr ⟨n - 1, by omega⟩
-  have htot : (2 : ZMod (2 * n - 1)) ^ Nat.totient (2 * n - 1) = 1 :=
-    (key _).mpr (Nat.ModEq.pow_totient hcop)
+  have : NeZero (2 * n - 1) := ⟨hm.ne'⟩
   have hd : 0 < orderOf (2 : ZMod (2 * n - 1)) :=
-    Nat.pos_of_dvd_of_pos (orderOf_dvd_of_pow_eq_one htot) (Nat.totient_pos.mpr hm)
+    ((ZMod.isUnit_iff_coprime 2 (2 * n - 1)).mpr hcop).isOfFinOrder.orderOf_pos
   constructor
   · show 0 < orderOf (2 : ZMod (2 * n - 1)) ∧
       OMA.S_mse_4553718.colorsReturn n (orderOf (2 : ZMod (2 * n - 1)))
