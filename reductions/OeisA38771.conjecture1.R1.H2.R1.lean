@@ -8,38 +8,26 @@ namespace OMA.R_OeisA38771_conjecture1_R1_H2_R1
 
 open Filter Finset
 
-private noncomputable def nextPrime (n : ℕ) : ℕ := Nat.nth Nat.Prime n
-private noncomputable def primorial (n : ℕ) : ℕ := ∏ i ∈ range n, nextPrime i
-
-private def admissible (n q r : ℕ) : Prop :=
-  q.Prime ∧ r.Prime ∧ nextPrime n ≤ q ∧ nextPrime n ≤ r ∧ (primorial n + q * r).Prime
-
-theorem admissible_iff (n q r : ℕ) :
-    admissible n q r ↔ q.Prime ∧ r.Prime ∧ Nat.nth Nat.Prime n ≤ q ∧
-      Nat.nth Nat.Prime n ≤ r ∧
-      ((∏ i ∈ range n, Nat.nth Nat.Prime i) + q * r).Prime := Iff.rfl
-
 private theorem factor_ge_next {n c q : ℕ} (hq : q.Prime) (d : q ∣ c)
-    (cp : 0 < c) (hc : (primorial n + c).Prime) : nextPrime n ≤ q := by
+    (cp : 0 < c) (hc : ((∏ i ∈ range n, Nat.nth Nat.Prime i) + c).Prime) : Nat.nth Nat.Prime n ≤ q := by
   by_contra! lt
   have below : Nat.count Nat.Prime q < n := by
     have hcount := (Nat.count_le_iff_le_nth (p := Nat.Prime)
       Nat.infinite_setOfPred_prime).mpr (show q < Nat.nth Nat.Prime n from lt)
     rw [Nat.count_succ, if_pos hq] at hcount
     omega
-  have dvdP : q ∣ primorial n := by
-    unfold primorial
+  have dvdP : q ∣ (∏ i ∈ range n, Nat.nth Nat.Prime i) := by
     rw [← Nat.nth_count hq]
-    exact Finset.dvd_prod_of_mem (fun i ↦ nextPrime i) (mem_range.mpr below)
+    exact Finset.dvd_prod_of_mem (fun i ↦ Nat.nth Nat.Prime i) (mem_range.mpr below)
   have eq := (Nat.prime_dvd_prime_iff_eq hq hc).mp (dvd_add dvdP d)
-  have Qpos : 0 < primorial n := Finset.prod_pos fun j _ ↦ (Nat.prime_nth_prime j).pos
+  have Qpos : 0 < (∏ i ∈ range n, Nat.nth Nat.Prime i) := Finset.prod_pos fun j _ ↦ (Nat.prime_nth_prime j).pos
   have qle := Nat.le_of_dvd cp d
   omega
 
 private theorem least_admissible (n : ℕ) :
     1 < OeisA38771.a n ∧ ¬ (OeisA38771.a n).Prime ∧
-      (primorial n + OeisA38771.a n).Prime := by
-  let S : Set ℕ := {c | (c > 1 ∧ ¬ c.Prime) ∧ (primorial n + c).Prime}
+      ((∏ i ∈ range n, Nat.nth Nat.Prime i) + OeisA38771.a n).Prime := by
+  let S : Set ℕ := {c | (c > 1 ∧ ¬ c.Prime) ∧ ((∏ i ∈ range n, Nat.nth Nat.Prime i) + c).Prime}
   have nonempty : S.Nonempty := by
     by_contra h
     have he := Set.not_nonempty_iff_eq_empty.mp h
@@ -49,12 +37,13 @@ private theorem least_admissible (n : ℕ) :
     exact (OeisA38771.a_n_exists n) hz
   have h := Nat.sInf_mem nonempty
   change (OeisA38771.a n > 1 ∧ ¬ (OeisA38771.a n).Prime) ∧
-    (primorial n + OeisA38771.a n).Prime at h
+    ((∏ i ∈ range n, Nat.nth Nat.Prime i) + OeisA38771.a n).Prime at h
   exact ⟨h.1.1, h.1.2, h.2⟩
 
 private theorem below_cube {n c : ℕ} (hc : 1 < c) (hnp : ¬ c.Prime)
-    (hQ : (primorial n + c).Prime) (hsize : c < nextPrime n ^ 3) :
-    ∃ q r : ℕ, admissible n q r ∧ c = q * r := by
+    (hQ : ((∏ i ∈ range n, Nat.nth Nat.Prime i) + c).Prime) (hsize : c < Nat.nth Nat.Prime n ^ 3) :
+    ∃ q r : ℕ, (q.Prime ∧ r.Prime ∧ Nat.nth Nat.Prime n ≤ q ∧ Nat.nth Nat.Prime n ≤ r ∧
+      ((∏ i ∈ range n, Nat.nth Nat.Prime i) + q * r).Prime) ∧ c = q * r := by
   let q := c.minFac
   let r := c / q
   have hq : q.Prime := Nat.minFac_prime (by omega)
@@ -75,16 +64,17 @@ private theorem below_cube {n c : ℕ} (hc : 1 < c) (hnp : ¬ c.Prime)
     by_contra h
     have hrmin : r.minFac.Prime := Nat.minFac_prime (by omega)
     have lb := factor_ge_next hrmin ((Nat.minFac_dvd r).trans dr) (by omega) hQ
-    have rlb : nextPrime n ^ 2 ≤ r :=
+    have rlb : Nat.nth Nat.Prime n ^ 2 ≤ r :=
       (Nat.pow_le_pow_left lb 2).trans (by simpa [pow_two] using
         (Nat.minFac_sq_le_self (show 0 < r by omega) h))
-    have hbig : nextPrime n ^ 3 ≤ c := by
-      rw [fac, pow_succ, mul_comm (nextPrime n ^ 2)]
+    have hbig : Nat.nth Nat.Prime n ^ 3 ≤ c := by
+      rw [fac, pow_succ, mul_comm (Nat.nth Nat.Prime n ^ 2)]
       exact Nat.mul_le_mul qlb rlb
     omega
   exact ⟨q, r, ⟨hq, hr, qlb, factor_ge_next hr dr (by omega) hQ, fac ▸ hQ⟩, fac⟩
 
-private theorem min_le_pair {n q r : ℕ} (h : admissible n q r) :
+private theorem min_le_pair {n q r : ℕ} (h : (q.Prime ∧ r.Prime ∧ Nat.nth Nat.Prime n ≤ q ∧ Nat.nth Nat.Prime n ≤ r ∧
+      ((∏ i ∈ range n, Nat.nth Nat.Prime i) + q * r).Prime)) :
     OeisA38771.a n ≤ q * r := by
   obtain ⟨hq, hr, _, _, hp⟩ := h
   have hpq : 1 < q * r := (by decide : 1 < 2 * 2).trans_le
@@ -102,24 +92,28 @@ private theorem min_le_pair {n q r : ℕ} (h : admissible n q r) :
 
 /-- Infinitely often there is an admissible semiprime just above the lower endpoint. -/
 def H1 : Prop := ∀ ε : ℝ, 0 < ε → ∃ᶠ n : ℕ in atTop, ∃ q r : ℕ,
-  admissible n q r ∧ (q * r : ℝ) ≤ (1 + ε) * (nextPrime n : ℝ) ^ 2
+  (q.Prime ∧ r.Prime ∧ Nat.nth Nat.Prime n ≤ q ∧ Nat.nth Nat.Prime n ≤ r ∧
+      ((∏ i ∈ range n, Nat.nth Nat.Prime i) + q * r).Prime) ∧ (q * r : ℝ) ≤ (1 + ε) * (Nat.nth Nat.Prime n : ℝ) ^ 2
 
 /-- Eventually there is always an admissible semiprime below the upper endpoint with slack. -/
 def H2 : Prop := ∀ ε : ℝ, 0 < ε → ∀ᶠ n : ℕ in atTop, ∃ q r : ℕ,
-  admissible n q r ∧ (q * r : ℝ) ≤ (2 + ε) * (nextPrime n : ℝ) ^ 2
+  (q.Prime ∧ r.Prime ∧ Nat.nth Nat.Prime n ≤ q ∧ Nat.nth Nat.Prime n ≤ r ∧
+      ((∏ i ∈ range n, Nat.nth Nat.Prime i) + q * r).Prime) ∧ (q * r : ℝ) ≤ (2 + ε) * (Nat.nth Nat.Prime n : ℝ) ^ 2
 
 /-- Infinitely often every admissible semiprime is near the upper endpoint or higher. -/
 def H3 : Prop := ∀ ε : ℝ, 0 < ε → ∃ᶠ n : ℕ in atTop, ∀ q r : ℕ,
-  admissible n q r → (2 - ε) * (nextPrime n : ℝ) ^ 2 ≤ (q * r : ℝ)
+  (q.Prime ∧ r.Prime ∧ Nat.nth Nat.Prime n ≤ q ∧ Nat.nth Nat.Prime n ≤ r ∧
+      ((∏ i ∈ range n, Nat.nth Nat.Prime i) + q * r).Prime) → (2 - ε) * (Nat.nth Nat.Prime n : ℝ) ^ 2 ≤ (q * r : ℝ)
 
 theorem main : H1 → H2 → H3 → OMA.R_OeisA38771_conjecture1_R1.H2 := by
   intro lower endpoint exclusion
-  let s (n : ℕ) : ℝ := (OeisA38771.a n : ℝ) / (nextPrime n : ℝ) ^ 2
+  let s (n : ℕ) : ℝ := (OeisA38771.a n : ℝ) / (Nat.nth Nat.Prime n : ℝ) ^ 2
   change liminf s atTop ≤ 1 ∧ limsup s atTop = 2
-  have pos (n : ℕ) : 0 < (nextPrime n : ℝ) := by exact_mod_cast (Nat.prime_nth_prime n).pos
-  have sqpos (n : ℕ) : 0 < (nextPrime n : ℝ) ^ 2 := pow_pos (pos n) 2
-  have pair_bound {n q r : ℕ} {B : ℝ} (h : admissible n q r)
-      (hb : (q * r : ℝ) ≤ B * (nextPrime n : ℝ) ^ 2) : s n ≤ B := by
+  have pos (n : ℕ) : 0 < (Nat.nth Nat.Prime n : ℝ) := by exact_mod_cast (Nat.prime_nth_prime n).pos
+  have sqpos (n : ℕ) : 0 < (Nat.nth Nat.Prime n : ℝ) ^ 2 := pow_pos (pos n) 2
+  have pair_bound {n q r : ℕ} {B : ℝ} (h : (q.Prime ∧ r.Prime ∧ Nat.nth Nat.Prime n ≤ q ∧ Nat.nth Nat.Prime n ≤ r ∧
+      ((∏ i ∈ range n, Nat.nth Nat.Prime i) + q * r).Prime))
+      (hb : (q * r : ℝ) ≤ B * (Nat.nth Nat.Prime n : ℝ) ^ 2) : s n ≤ B := by
     apply (div_le_iff₀ (sqpos n)).2
     exact (by exact_mod_cast min_le_pair h : (OeisA38771.a n : ℝ) ≤ (q * r : ℝ)).trans hb
   have evUpper (ε : ℝ) (hε : 0 < ε) : ∀ᶠ n : ℕ in atTop, s n ≤ 2 + ε :=
@@ -145,14 +139,14 @@ theorem main : H1 → H2 → H3 → OMA.R_OeisA38771_conjecture1_R1.H2 := by
     apply near.trans_le
     by_contra! small
     have hsmall := (div_lt_iff₀ (sqpos n)).1 small
-    have h₂ : (2 : ℝ) ≤ nextPrime n := by exact_mod_cast (Nat.prime_nth_prime n).two_le
-    have hsc : (2 - (2 - y) / 2) * (nextPrime n : ℝ) ^ 2 ≤
-        (nextPrime n : ℝ) ^ (3 : ℕ) := by
+    have h₂ : (2 : ℝ) ≤ Nat.nth Nat.Prime n := by exact_mod_cast (Nat.prime_nth_prime n).two_le
+    have hsc : (2 - (2 - y) / 2) * (Nat.nth Nat.Prime n : ℝ) ^ 2 ≤
+        (Nat.nth Nat.Prime n : ℝ) ^ (3 : ℕ) := by
       calc
-        _ ≤ (nextPrime n : ℝ) * (nextPrime n : ℝ) ^ 2 :=
+        _ ≤ (Nat.nth Nat.Prime n : ℝ) * (Nat.nth Nat.Prime n : ℝ) ^ 2 :=
           mul_le_mul_of_nonneg_right (by linarith) (sq_nonneg _)
         _ = _ := by ring
-    have hn : OeisA38771.a n < nextPrime n ^ 3 := by
+    have hn : OeisA38771.a n < Nat.nth Nat.Prime n ^ 3 := by
       exact_mod_cast hsmall.trans_le hsc
     obtain ⟨hp, hnP, hQ⟩ := least_admissible n
     obtain ⟨q, r, hr, heq⟩ := below_cube hp hnP hQ hn
