@@ -590,6 +590,18 @@ lemma good_leaf (ts : List Table) (h : (bounds (ts.map tableMark)).1 ≤ 4) : Go
   | nil => constructor
   | cons p ts ih => exact .cons (mark_fits p x y v w hx hy hv hw) ih
 
+
+def all6 (f : ℕ → Bool) : Bool := f 0 && f 1 && f 2 && f 3 && f 4 && f 5
+
+lemma all6_at (f : ℕ → Bool) (h : all6 f = true) (i : Fin 6) : f i = true := by
+  simp only [all6,Bool.and_eq_true] at h; fin_cases i <;> tauto
+
+def all11 (f : ℕ → Bool) : Bool := f 0 && f 1 && f 2 && f 3 && f 4 && f 5 && f 6 && f 7 && f 8 && f 9 && f 10
+
+lemma all11_at (f : ℕ → Bool) (h : all11 f = true) (i : Fin 11) : f i = true := by
+  simp only [all11,Bool.and_eq_true] at h; fin_cases i <;> tauto
+
+
 def table0 : Table := #[
   #[800,74752,2099432,16773992,51531712,53789312],
   #[8000,700352,18394416,138390800,400264544,392949888],
@@ -1084,180 +1096,521 @@ def cf33 (_L _M : ℝ) : ℝ := 32*(136)
 def cf34 (_L _M : ℝ) : ℝ := 32*(4)
 def coeffs (L M : ℝ) : Fin 35 → ℝ := ![cf0 L M, cf1 L M, cf2 L M, cf3 L M, cf4 L M, cf5 L M, cf6 L M, cf7 L M, cf8 L M, cf9 L M, cf10 L M, cf11 L M, cf12 L M, cf13 L M, cf14 L M, cf15 L M, cf16 L M, cf17 L M, cf18 L M, cf19 L M, cf20 L M, cf21 L M, cf22 L M, cf23 L M, cf24 L M, cf25 L M, cf26 L M, cf27 L M, cf28 L M, cf29 L M, cf30 L M, cf31 L M, cf32 L M, cf33 L M, cf34 L M]
 
-set_option maxHeartbeats 1000000 in
+def cfSpec0 : Array ℤ := #[69984,-53784,-467856,-80400,81000,392112,65000,751680,321600,0,-324000,-707904,-260000,0]
+def cfSpec1 : Array ℤ := #[746496,-111024,-4881600,-1526912,572400,2107488,916400,7582464,6107648,0,-2289600,-6653568,-3665600,0]
+def cfSpec2 : Array ℤ := #[3359232,2836296,-25724304,-11767824,1467720,-2422800,6579144,44682816,50106432,-665600,-10478880,-36172864,-25419552,0]
+def cfSpec3 : Array ℤ := #[7464960,23858496,-92810016,-55595744,659232,-73499136,36472032,194756736,259597184,-9530368,-37504128,-142392320,-115088256,0]
+def cfSpec4 : Array ℤ := #[3732480,98643744,-263408112,-199789712,-5670864,-439068672,172647376,672715200,975705664,-64015872,-106919104,-430348800,-371700544,1703936]
+def cfSpec5 : Array ℤ := #[-27993600,274752000,-643935744,-621103680,-17742240,-1676901888,664081440,1901209344,2815848192,-277202176,-250548096,-1025537024,-866463360,24772608]
+def cfSpec6 : Array ℤ := #[-100590336,595766880,-1428705648,-1716822768,-28665360,-4875005856,2000088432,4496968128,6323559872,-905006592,-493514176,-1938077568,-1331187648,166166528]
+def cfSpec7 : Array ℤ := #[-192969216,1114108992,-2886070176,-4069073952,-30481920,-11588617344,4753561856,9042582912,10691299712,-2445138944,-816886272,-2818797568,-607302656,670302208]
+def cfSpec8 : Array ℤ := #[-254041920,1898068464,-5154481008,-7990783296,-22821912,-23272355520,9228324408,15563347008,11628630528,-5624128896,-1125060768,-2838420480,3577474080,1747378176]
+def cfSpec9 : Array ℤ := #[-246343680,2932836768,-7894556352,-12882023808,-12254544,-39921149952,15334737104,22916713152,279333504,-10609386560,-1279045184,-1178934016,13246583104,2772967424]
+def cfSpec10 : Array ℤ := #[-180652032,3966830064,-10188732528,-17257245424,-4666680,-58535513808,22750425288,28759499712,-33477438912,-14783518848,-1195391136,1860391488,26695068768,1273317376]
+def cfSpec11 : Array ℤ := #[-100776960,4551028416,-11008211040,-19797616608,-1205280,-73203132096,30554054304,30630523392,-92641975488,-10526122816,-915974784,4344146048,35482146048,-6436417536]
+def cfSpec12 : Array ℤ := #[-42363648,4353180192,-9943922448,-20376661888,-190080,-77932552416,36122397056,27583008768,-165500439552,12782441664,-573139840,3981400064,26874360832,-21329127424]
+def cfSpec13 : Array ℤ := #[-13063680,3445718400,-7507741824,-19811501696,-13824,-70547214336,35130484736,20921622720,-227596966336,60294335744,-290624896,321570688,-6881219072,-36664414208]
+def cfSpec14 : Array ℤ := #[-2799360,2248339680,-4728918672,-18706879440,0,-54234197568,24386243424,13301368896,-254881628544,122527502656,-117831168,-4570885376,-59325780096,-38124401664]
+def cfSpec15 : Array ℤ := #[-373248,1204155072,-2472578784,-16893920224,0,-35326252224,5583179328,7037788032,-238429891840,176108949888,-37355520,-7850065152,-110465136384,-12705796096]
+def cfSpec16 : Array ℤ := #[-23328,525396456,-1063134720,-14012239696,0,-19412901840,-14360067944,3065673024,-188758544768,197466408192,-8928896,-8159254592,-138913468384,39288236544]
+def cfSpec17 : Array ℤ := #[0,184333968,-370137600,-10283957376,0,-8935874784,-27627146544,1081698816,-127286824320,178789127040,-1512960,-6222415488,-135593150016,100542856704]
+def cfSpec18 : Array ℤ := #[0,50886792,-101855232,-6521920512,0,-3407226240,-30630945320,301653504,-73262060032,132172509312,-161792,-3678121472,-107614774624,146386374784]
+def cfSpec19 : Array ℤ := #[0,10665216,-21330432,-3526168256,0,-1058370816,-25401388896,64002048,-35935932288,79404891840,-8192,-1714060800,-70787896320,160248514304]
+def cfSpec20 : Array ℤ := #[0,1596672,-3193344,-1611187536,0,-261239040,-16856898696,9703680,-14948616000,37789951232,0,-628769152,-38856581088,142283723904]
+def cfSpec21 : Array ℤ := #[0,152064,-304128,-617116736,0,-49320576,-9182924112,935424,-5228672000,13204291072,0,-178691328,-17783895744,105823201024]
+def cfSpec22 : Array ℤ := #[0,6912,-13824,-196082688,0,-6690816,-4144532280,43008,-1518190464,2445585984,0,-38081152,-6737397408,67005959424]
+def cfSpec23 : Array ℤ := #[0,0,0,-50901504,0,-580608,-1549985664,0,-359244288,-638127104,0,-5737472,-2082713088,36423093504]
+def cfSpec24 : Array ℤ := #[0,0,0,-10545856,0,-24192,-477034368,0,-67462912,-815587200,0,-545280,-512767488,17056477568]
+def cfSpec25 : Array ℤ := #[0,0,0,-1680384,0,0,-119129856,0,-9666048,-421505344,0,-24576,-96476544,6879744256]
+def cfSpec26 : Array ℤ := #[0,0,0,-193536,0,0,-23584512,0,-992256,-149748096,0,0,-12809472,2381665536]
+def cfSpec27 : Array ℤ := #[0,0,0,-14336,0,0,-3566336,0,-65024,-39771904,0,0,-970240,702576896]
+def cfSpec28 : Array ℤ := #[0,0,0,-512,0,0,-387200,0,-2048,-7990464,0,0,1664,174575488]
+def cfSpec29 : Array ℤ := #[0,0,0,0,0,0,-26880,0,0,-1189376,0,0,7680,35907840]
+def cfSpec30 : Array ℤ := #[0,0,0,0,0,0,-896,0,0,-124416,0,0,512,5957888]
+def cfSpec31 : Array ℤ := #[0,0,0,0,0,0,0,0,0,-8192,0,0,0,766720]
+def cfSpec32 : Array ℤ := #[0,0,0,0,0,0,0,0,0,-256,0,0,0,71808]
+def cfSpec33 : Array ℤ := #[0,0,0,0,0,0,0,0,0,0,0,0,0,4352]
+def cfSpec34 : Array ℤ := #[0,0,0,0,0,0,0,0,0,0,0,0,0,128]
+
+def cfAt (c : Array ℤ) (i : ℕ) : ℤ := c.getD i 0
+
+def polyAM {R : Type*} [CommRing R] (c : Array ℤ) (A M : R) : R :=
+  (cfAt c 0 : R) * A^5 + (cfAt c 1 : R) * A^4 +
+  (cfAt c 2 : R) * A^3 * M + (cfAt c 3 : R) * A^3 +
+  (cfAt c 4 : R) * A^2 * M^2 + (cfAt c 5 : R) * A^2 * M + (cfAt c 6 : R) * A^2 +
+  (cfAt c 7 : R) * A * M^2 + (cfAt c 8 : R) * A * M + (cfAt c 9 : R) * A +
+  (cfAt c 10 : R) * M^3 + (cfAt c 11 : R) * M^2 + (cfAt c 12 : R) * M +
+  (cfAt c 13 : R)
+
+def valPoly {R : Type*} [CommRing R] (p : Table) (x v : R) : R :=
+  ∑ i : Fin 11, ∑ j : Fin 6, (entry p i j : R) * (x^(i:ℕ) * (1 - x)^(10 - (i:ℕ))) *
+    (v^(j:ℕ) * (1 - v)^(5 - (j:ℕ)))
+
+private lemma map_valPoly {R S : Type*} [CommRing R] [CommRing S] (h : R →+* S)
+    (p : Table) (x v : R) : h (valPoly p x v) = valPoly p (h x) (h v) := by
+  simp [valPoly]
+
+private lemma map_polyAM {R S : Type*} [CommRing R] [CommRing S] (h : R →+* S)
+    (c : Array ℤ) (A M : R) : h (polyAM c A M) = polyAM c (h A) (h M) := by
+  simp [polyAM]
+
+def ctrlDiff {R : Type*} [CommRing R] (p : Table) (c : Array ℤ) (x v : R) : R :=
+  valPoly p x v - polyAM c (1 + x^2 + v * (3 - 2*x - x^2)) (x^2)
+
+private lemma map_ctrlDiff {R S : Type*} [CommRing R] [CommRing S] (h : R →+* S)
+    (p : Table) (c : Array ℤ) (x v : R) : h (ctrlDiff p c x v) = ctrlDiff p c (h x) (h v) := by
+  simp [ctrlDiff, map_valPoly, map_polyAM, map_ofNat]
+
+private lemma nd_add {p q : Polynomial ℝ} {n : ℕ} (hp : p.natDegree ≤ n) (hq : q.natDegree ≤ n) :
+    (p + q).natDegree ≤ n :=
+  le_trans (Polynomial.natDegree_add_le p q) (max_le hp hq)
+
+private lemma nd_int (z : ℤ) : ((z : Polynomial ℝ)).natDegree ≤ 0 := by
+  have h : (z : Polynomial ℝ) = Polynomial.C (z : ℝ) := by simp
+  rw [h, Polynomial.natDegree_C]
+
+private lemma natDegree_bern_le (d : ℕ) (i : Fin (d + 1)) :
+    ((Polynomial.X : Polynomial ℝ) ^ (i : ℕ) * (1 - (Polynomial.X : Polynomial ℝ)) ^ (d - (i : ℕ))).natDegree ≤ d := by
+  have h1 : ((Polynomial.X : Polynomial ℝ) ^ (i : ℕ)).natDegree ≤ (i : ℕ) := by simp
+  have h1x : (1 - (Polynomial.X : Polynomial ℝ)).natDegree ≤ 1 := by compute_degree
+  have h2 : ((1 - (Polynomial.X : Polynomial ℝ)) ^ (d - (i : ℕ))).natDegree ≤ d - (i : ℕ) :=
+    Polynomial.natDegree_pow_le.trans (by simpa using Nat.mul_le_mul_left (d - (i : ℕ)) h1x)
+  exact Polynomial.natDegree_mul_le.trans (by omega)
+
+private lemma deg_x_valPoly (p : Table) (v : ℝ) :
+    (valPoly p Polynomial.X (Polynomial.C v)).natDegree ≤ 10 := by
+  unfold valPoly
+  refine Polynomial.natDegree_sum_le_of_forall_le _ _ fun i _ => ?_
+  refine Polynomial.natDegree_sum_le_of_forall_le _ _ fun j _ => ?_
+  have hc1 : ((entry p i j : Polynomial ℝ)).natDegree ≤ 0 := nd_int _
+  have hc2 : (Polynomial.C v ^ (j : ℕ) * (1 - Polynomial.C v) ^ (5 - (j : ℕ))).natDegree ≤ 0 := by
+    have h : Polynomial.C v ^ (j : ℕ) * (1 - Polynomial.C v) ^ (5 - (j : ℕ)) =
+        Polynomial.C (v ^ (j : ℕ) * (1 - v) ^ (5 - (j : ℕ))) := by simp
+    rw [h, Polynomial.natDegree_C]
+  have hb := natDegree_bern_le 10 i
+  have hm1 : ((entry p i j : Polynomial ℝ) *
+      ((Polynomial.X : Polynomial ℝ) ^ (i : ℕ) * (1 - (Polynomial.X : Polynomial ℝ)) ^ (10 - (i : ℕ)))).natDegree ≤ 10 :=
+    Polynomial.natDegree_mul_le.trans (by omega)
+  exact Polynomial.natDegree_mul_le.trans (by omega)
+
+private lemma deg_v_valPoly (p : Table) (x : ℝ) :
+    (valPoly p (Polynomial.C x) Polynomial.X).natDegree ≤ 5 := by
+  unfold valPoly
+  refine Polynomial.natDegree_sum_le_of_forall_le _ _ fun i _ => ?_
+  refine Polynomial.natDegree_sum_le_of_forall_le _ _ fun j _ => ?_
+  have hc1 : ((entry p i j : Polynomial ℝ) * (Polynomial.C x ^ (i : ℕ) * (1 - Polynomial.C x) ^ (10 - (i : ℕ)))).natDegree ≤ 0 := by
+    have h : (entry p i j : Polynomial ℝ) * (Polynomial.C x ^ (i : ℕ) * (1 - Polynomial.C x) ^ (10 - (i : ℕ))) =
+        Polynomial.C ((entry p i j : ℝ) * (x ^ (i : ℕ) * (1 - x) ^ (10 - (i : ℕ)))) := by simp
+    rw [h, Polynomial.natDegree_C]
+  have hb := natDegree_bern_le 5 j
+  exact Polynomial.natDegree_mul_le.trans (by omega)
+
+private lemma natDegree_term_le {A M : Polynomial ℝ} {dA dM : ℕ}
+    (hA : A.natDegree ≤ dA) (hM : M.natDegree ≤ dM) (c : Polynomial ℝ) (hc : c.natDegree ≤ 0)
+    (k l : ℕ) : (c * A ^ k * M ^ l).natDegree ≤ k * dA + l * dM := by
+  have hpA : (A ^ k).natDegree ≤ k * dA := Polynomial.natDegree_pow_le.trans (Nat.mul_le_mul_left k hA)
+  have hpM : (M ^ l).natDegree ≤ l * dM := Polynomial.natDegree_pow_le.trans (Nat.mul_le_mul_left l hM)
+  have h1 : (c * A ^ k).natDegree ≤ k * dA := Polynomial.natDegree_mul_le.trans (by omega)
+  exact Polynomial.natDegree_mul_le.trans (by omega)
+
+private lemma natDegree_polyAM_le {A M : Polynomial ℝ} {dA dM : ℕ}
+    (hA : A.natDegree ≤ dA) (hM : M.natDegree ≤ dM) (c : Array ℤ) (D : ℕ)
+    (hD1 : 5 * dA ≤ D) (hD2 : 3 * dA + dM ≤ D) (hD3 : 2 * dA + 2 * dM ≤ D) (hD4 : 3 * dM ≤ D) :
+    (polyAM c A M).natDegree ≤ D := by
+  unfold polyAM
+  have hA' (z : ℤ) (k : ℕ) (hk : k * dA ≤ D) : ((z : Polynomial ℝ) * A ^ k).natDegree ≤ D := by
+    have := natDegree_term_le hA hM (z : Polynomial ℝ) (nd_int z) k 0
+    simp only [pow_zero, mul_one, zero_mul, add_zero] at this; omega
+  have hM' (z : ℤ) (l : ℕ) (hl : l * dM ≤ D) : ((z : Polynomial ℝ) * M ^ l).natDegree ≤ D := by
+    have := natDegree_term_le hA hM (z : Polynomial ℝ) (nd_int z) 0 l
+    simp only [pow_zero, mul_one, zero_mul, zero_add] at this; omega
+  have hAM' (z : ℤ) (k l : ℕ) (hkl : k * dA + l * dM ≤ D) :
+      ((z : Polynomial ℝ) * A ^ k * M ^ l).natDegree ≤ D :=
+    (natDegree_term_le hA hM (z : Polynomial ℝ) (nd_int z) k l).trans hkl
+  refine nd_add ?_ ((nd_int _).trans (Nat.zero_le D))
+  refine nd_add ?_ (by simpa only [pow_one] using hM' _ 1 (by omega))
+  refine nd_add ?_ (hM' _ 2 (by omega))
+  refine nd_add ?_ (hM' _ 3 (by omega))
+  refine nd_add ?_ (by simpa only [pow_one] using hA' _ 1 (by omega))
+  refine nd_add ?_ (by simpa only [pow_one] using hAM' _ 1 1 (by omega))
+  refine nd_add ?_ (by simpa only [pow_one] using hAM' _ 1 2 (by omega))
+  refine nd_add ?_ (hA' _ 2 (by omega))
+  refine nd_add ?_ (by simpa only [pow_one] using hAM' _ 2 1 (by omega))
+  refine nd_add ?_ (hAM' _ 2 2 (by omega))
+  refine nd_add ?_ (hA' _ 3 (by omega))
+  refine nd_add ?_ (by simpa only [pow_one] using hAM' _ 3 1 (by omega))
+  refine nd_add (hA' _ 5 (by omega)) (hA' _ 4 (by omega))
+
+private lemma deg_x_ctrlDiff (p : Table) (c : Array ℤ) (v : ℝ) :
+    (ctrlDiff p c Polynomial.X (Polynomial.C v)).natDegree ≤ 10 := by
+  unfold ctrlDiff
+  refine le_trans (Polynomial.natDegree_sub_le _ _) (max_le (deg_x_valPoly p v) ?_)
+  have hA : (1 + Polynomial.X ^ 2 + Polynomial.C v * (3 - 2 * Polynomial.X - Polynomial.X ^ 2)).natDegree ≤ 2 := by
+    compute_degree!
+  have hM : (Polynomial.X ^ 2 : Polynomial ℝ).natDegree ≤ 2 := by simp
+  exact natDegree_polyAM_le hA hM c 10 (by omega) (by omega) (by omega) (by omega)
+
+private lemma deg_v_ctrlDiff (p : Table) (c : Array ℤ) (x : ℝ) :
+    (ctrlDiff p c (Polynomial.C x) Polynomial.X).natDegree ≤ 5 := by
+  unfold ctrlDiff
+  refine le_trans (Polynomial.natDegree_sub_le _ _) (max_le (deg_v_valPoly p x) ?_)
+  have hA : (1 + Polynomial.C x ^ 2 + Polynomial.X * (3 - 2 * Polynomial.C x - Polynomial.C x ^ 2)).natDegree ≤ 1 := by
+    compute_degree!
+  have hM : (Polynomial.C x ^ 2 : Polynomial ℝ).natDegree ≤ 0 := by rw [← map_pow, Polynomial.natDegree_C]
+  exact natDegree_polyAM_le hA hM c 5 (by omega) (by omega) (by omega) (by omega)
+
+private lemma fin_real_inj' {n : ℕ} : Function.Injective (fun i : Fin n => (i : ℝ)) := by
+  intro i j h; apply Fin.ext; change ((i : ℕ) : ℝ) = ((j : ℕ) : ℝ) at h; exact_mod_cast h
+
+private lemma array_getD_eq {α : Type*} (a : Array α) (i : ℕ) (d : α) :
+    a.getD i d = a[i]?.getD d := by
+  by_cases h : i < a.size
+  · simp [Array.getD, h]
+  · simp [Array.getD, h]
+
+private lemma getD_eq_entry (p : Table) (i j : ℕ) : (p.getD i #[]).getD j 0 = entry p i j := by
+  rw [array_getD_eq, array_getD_eq]; rfl
+
+private def evalRow6 (r : Array ℤ) (mv0 mv1 mv2 mv3 mv4 mv5 : ℤ) : ℤ :=
+  r.getD 0 0 * mv0 + r.getD 1 0 * mv1 + r.getD 2 0 * mv2 +
+  r.getD 3 0 * mv3 + r.getD 4 0 * mv4 + r.getD 5 0 * mv5
+
+private def evalValZ (p : Table) (x v : ℤ) : ℤ :=
+  let y := 1 - x
+  let w := 1 - v
+  let x1 := x; let x2 := x1*x; let x3 := x2*x; let x4 := x3*x; let x5 := x4*x
+  let x6 := x5*x; let x7 := x6*x; let x8 := x7*x; let x9 := x8*x; let x10 := x9*x
+  let y1 := y; let y2 := y1*y; let y3 := y2*y; let y4 := y3*y; let y5 := y4*y
+  let y6 := y5*y; let y7 := y6*y; let y8 := y7*y; let y9 := y8*y; let y10 := y9*y
+  let w1 := w; let w2 := w1*w; let w3 := w2*w; let w4 := w3*w; let w5 := w4*w
+  let v1 := v; let v2 := v1*v; let v3 := v2*v; let v4 := v3*v; let v5 := v4*v
+  let mv0 := w5; let mv1 := v1*w4; let mv2 := v2*w3; let mv3 := v3*w2; let mv4 := v4*w1; let mv5 := v5
+  evalRow6 (p.getD 0 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * y10 +
+  evalRow6 (p.getD 1 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x1*y9) +
+  evalRow6 (p.getD 2 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x2*y8) +
+  evalRow6 (p.getD 3 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x3*y7) +
+  evalRow6 (p.getD 4 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x4*y6) +
+  evalRow6 (p.getD 5 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x5*y5) +
+  evalRow6 (p.getD 6 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x6*y4) +
+  evalRow6 (p.getD 7 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x7*y3) +
+  evalRow6 (p.getD 8 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x8*y2) +
+  evalRow6 (p.getD 9 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * (x9*y1) +
+  evalRow6 (p.getD 10 #[]) mv0 mv1 mv2 mv3 mv4 mv5 * x10
+
+private lemma evalRow6_eq (p : Table) (i : Fin 11) (v : ℤ) :
+    evalRow6 (p.getD i #[]) ((1-v)^5) (v*(1-v)^4) (v^2*(1-v)^3) (v^3*(1-v)^2) (v^4*(1-v)) (v^5) =
+    ∑ j : Fin 6, entry p i j * (v^(j:ℕ) * (1 - v)^(5 - (j:ℕ))) := by
+  simp only [evalRow6, getD_eq_entry, Fin.sum_univ_succ, Fin.sum_univ_zero, Fin.val_zero, Fin.val_succ, add_zero]
+  ring
+
+private lemma evalValZ_eq (p : Table) (x v : ℤ) : evalValZ p x v = valPoly p x v := by
+  have hx : ∀ i : Fin 11,
+      (∑ j : Fin 6, entry p i j * (x^(i:ℕ) * (1 - x)^(10 - (i:ℕ))) * (v^(j:ℕ) * (1 - v)^(5 - (j:ℕ)))) =
+      (∑ j : Fin 6, entry p i j * (v^(j:ℕ) * (1 - v)^(5 - (j:ℕ)))) * (x^(i:ℕ) * (1 - x)^(10 - (i:ℕ))) := by
+    intro i; rw [Finset.sum_mul]; refine Finset.sum_congr rfl fun j _ => by ring
+  unfold valPoly
+  simp only [Int.cast_id]
+  simp_rw [hx, ← evalRow6_eq]
+  simp only [Fin.sum_univ_succ, Fin.sum_univ_zero, Fin.val_zero, Fin.val_succ, add_zero]
+  unfold evalValZ
+  dsimp only
+  have hm0 : (1 - v) * (1 - v) * (1 - v) * (1 - v) * (1 - v) = (1 - v)^5 := by ring
+  have hm1 : v * ((1 - v) * (1 - v) * (1 - v) * (1 - v)) = v * (1 - v)^4 := by ring
+  have hm2 : v * v * ((1 - v) * (1 - v) * (1 - v)) = v^2 * (1 - v)^3 := by ring
+  have hm3 : v * v * v * ((1 - v) * (1 - v)) = v^3 * (1 - v)^2 := by ring
+  have hm4 : v * v * v * v * (1 - v) = v^4 * (1 - v) := by ring
+  have hm5 : v * v * v * v * v = v^5 := by ring
+  rw [hm0, hm1, hm2, hm3, hm4, hm5]
+  ring
+
+private def checkCtrlOne (p : Table) (c : Array ℤ) : Bool :=
+  all11 fun i => all6 fun j =>
+    let x : ℤ := i
+    let v : ℤ := j
+    decide (evalValZ p x v = polyAM c (1 + x^2 + v * (3 - 2*x - x^2)) (x^2))
+
+private lemma ctrl_of_check (p : Table) (c : Array ℤ) (h : checkCtrlOne p c = true) (x v : ℝ) :
+    value p x (1 - x) v (1 - v) = polyAM c (1 + x^2 + v * (3 - 2*x - x^2)) (x^2) := by
+  have hgrid (i : Fin 11) (j : Fin 6) : ctrlDiff p c (i : ℤ) (j : ℤ) = 0 := by
+    have hij := of_decide_eq_true (all6_at _ (all11_at _ h i) j)
+    rw [evalValZ_eq] at hij
+    exact sub_eq_zero.mpr hij
+  have he (i : Fin 11) (j : Fin 6) : ctrlDiff p c (i : ℝ) (j : ℝ) = 0 := by
+    have hc := congrArg (Int.castRingHom ℝ) (hgrid i j)
+    rw [map_ctrlDiff] at hc; simpa using hc
+  have h1 (j : Fin 6) : ctrlDiff p c Polynomial.X (Polynomial.C (j : ℝ)) = 0 := by
+    refine Polynomial.eq_zero_of_natDegree_lt_card_of_eval_eq_zero _ (@fin_real_inj' 11) (fun i => ?_) ?_
+    · change (Polynomial.evalRingHom (i : ℝ)) _ = _
+      rw [map_ctrlDiff]; simpa using he i j
+    · simpa using Nat.lt_succ_of_le (deg_x_ctrlDiff p c j)
+  have h2 : ctrlDiff p c (Polynomial.C x) Polynomial.X = 0 := by
+    refine Polynomial.eq_zero_of_natDegree_lt_card_of_eval_eq_zero _ (@fin_real_inj' 6) (fun j => ?_) ?_
+    · have H := congrArg (Polynomial.evalRingHom x) (h1 j)
+      rw [map_ctrlDiff] at H
+      change (Polynomial.evalRingHom (j : ℝ)) _ = _
+      rw [map_ctrlDiff]; simpa using H
+    · simpa using Nat.lt_succ_of_le (deg_v_ctrlDiff p c x)
+  have H := congrArg (Polynomial.evalRingHom v) h2
+  rw [map_ctrlDiff] at H
+  have hz : ctrlDiff p c x v = 0 := by simpa using H
+  have hv : valPoly p x v = value p x (1 - x) v (1 - v) := rfl
+  rw [← hv]; exact sub_eq_zero.mp hz
+
+private lemma bL {a b : Bool} (h : (a && b) = true) : a = true := (Bool.and_eq_true a b ▸ h).1
+private lemma bR {a b : Bool} (h : (a && b) = true) : b = true := (Bool.and_eq_true a b ▸ h).2
+
+private def checkAllCtrl : Bool :=
+  (((((checkCtrlOne table0 cfSpec0 && checkCtrlOne table1 cfSpec1) && (checkCtrlOne table2 cfSpec2 && checkCtrlOne table3 cfSpec3)) && ((checkCtrlOne table4 cfSpec4 && checkCtrlOne table5 cfSpec5) && (checkCtrlOne table6 cfSpec6 && checkCtrlOne table7 cfSpec7))) && (((checkCtrlOne table8 cfSpec8 && checkCtrlOne table9 cfSpec9) && (checkCtrlOne table10 cfSpec10 && checkCtrlOne table11 cfSpec11)) && ((checkCtrlOne table12 cfSpec12 && checkCtrlOne table13 cfSpec13) && (checkCtrlOne table14 cfSpec14 && (checkCtrlOne table15 cfSpec15 && checkCtrlOne table16 cfSpec16))))) && ((((checkCtrlOne table17 cfSpec17 && checkCtrlOne table18 cfSpec18) && (checkCtrlOne table19 cfSpec19 && checkCtrlOne table20 cfSpec20)) && ((checkCtrlOne table21 cfSpec21 && checkCtrlOne table22 cfSpec22) && (checkCtrlOne table23 cfSpec23 && (checkCtrlOne table24 cfSpec24 && checkCtrlOne table25 cfSpec25)))) && (((checkCtrlOne table26 cfSpec26 && checkCtrlOne table27 cfSpec27) && (checkCtrlOne table28 cfSpec28 && checkCtrlOne table29 cfSpec29)) && ((checkCtrlOne table30 cfSpec30 && checkCtrlOne table31 cfSpec31) && (checkCtrlOne table32 cfSpec32 && (checkCtrlOne table33 cfSpec33 && checkCtrlOne table34 cfSpec34))))))
+
+set_option maxRecDepth 10000 in
+set_option maxHeartbeats 2000000 in
+private lemma allCtrl_ok : checkAllCtrl = true := by decide +kernel
+
 lemma ctrl0 (x v : ℝ) : value table0 x (1-x) v (1-v) =
     cf0 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table0,entry,Fin.sum_univ_succ,cf0]; ring
+  rw [ctrl_of_check table0 cfSpec0 (bL (bL (bL (bL (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec0, cf0]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl1 (x v : ℝ) : value table1 x (1-x) v (1-v) =
     cf1 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table1,entry,Fin.sum_univ_succ,cf1]; ring
+  rw [ctrl_of_check table1 cfSpec1 (bR (bL (bL (bL (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec1, cf1]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl2 (x v : ℝ) : value table2 x (1-x) v (1-v) =
     cf2 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table2,entry,Fin.sum_univ_succ,cf2]; ring
+  rw [ctrl_of_check table2 cfSpec2 (bL (bR (bL (bL (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec2, cf2]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl3 (x v : ℝ) : value table3 x (1-x) v (1-v) =
     cf3 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table3,entry,Fin.sum_univ_succ,cf3]; ring
+  rw [ctrl_of_check table3 cfSpec3 (bR (bR (bL (bL (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec3, cf3]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl4 (x v : ℝ) : value table4 x (1-x) v (1-v) =
     cf4 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table4,entry,Fin.sum_univ_succ,cf4]; ring
+  rw [ctrl_of_check table4 cfSpec4 (bL (bL (bR (bL (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec4, cf4]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl5 (x v : ℝ) : value table5 x (1-x) v (1-v) =
     cf5 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table5,entry,Fin.sum_univ_succ,cf5]; ring
+  rw [ctrl_of_check table5 cfSpec5 (bR (bL (bR (bL (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec5, cf5]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl6 (x v : ℝ) : value table6 x (1-x) v (1-v) =
     cf6 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table6,entry,Fin.sum_univ_succ,cf6]; ring
+  rw [ctrl_of_check table6 cfSpec6 (bL (bR (bR (bL (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec6, cf6]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl7 (x v : ℝ) : value table7 x (1-x) v (1-v) =
     cf7 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table7,entry,Fin.sum_univ_succ,cf7]; ring
+  rw [ctrl_of_check table7 cfSpec7 (bR (bR (bR (bL (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec7, cf7]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl8 (x v : ℝ) : value table8 x (1-x) v (1-v) =
     cf8 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table8,entry,Fin.sum_univ_succ,cf8]; ring
+  rw [ctrl_of_check table8 cfSpec8 (bL (bL (bL (bR (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec8, cf8]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl9 (x v : ℝ) : value table9 x (1-x) v (1-v) =
     cf9 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table9,entry,Fin.sum_univ_succ,cf9]; ring
+  rw [ctrl_of_check table9 cfSpec9 (bR (bL (bL (bR (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec9, cf9]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl10 (x v : ℝ) : value table10 x (1-x) v (1-v) =
     cf10 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table10,entry,Fin.sum_univ_succ,cf10]; ring
+  rw [ctrl_of_check table10 cfSpec10 (bL (bR (bL (bR (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec10, cf10]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl11 (x v : ℝ) : value table11 x (1-x) v (1-v) =
     cf11 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table11,entry,Fin.sum_univ_succ,cf11]; ring
+  rw [ctrl_of_check table11 cfSpec11 (bR (bR (bL (bR (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec11, cf11]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl12 (x v : ℝ) : value table12 x (1-x) v (1-v) =
     cf12 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table12,entry,Fin.sum_univ_succ,cf12]; ring
+  rw [ctrl_of_check table12 cfSpec12 (bL (bL (bR (bR (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec12, cf12]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl13 (x v : ℝ) : value table13 x (1-x) v (1-v) =
     cf13 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table13,entry,Fin.sum_univ_succ,cf13]; ring
+  rw [ctrl_of_check table13 cfSpec13 (bR (bL (bR (bR (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec13, cf13]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl14 (x v : ℝ) : value table14 x (1-x) v (1-v) =
     cf14 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table14,entry,Fin.sum_univ_succ,cf14]; ring
+  rw [ctrl_of_check table14 cfSpec14 (bL (bR (bR (bR (bL (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec14, cf14]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl15 (x v : ℝ) : value table15 x (1-x) v (1-v) =
     cf15 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table15,entry,Fin.sum_univ_succ,cf15]; ring
+  rw [ctrl_of_check table15 cfSpec15 (bL (bR (bR (bR (bR (bL (allCtrl_ok))))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec15, cf15]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl16 (x v : ℝ) : value table16 x (1-x) v (1-v) =
     cf16 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table16,entry,Fin.sum_univ_succ,cf16]; ring
+  rw [ctrl_of_check table16 cfSpec16 (bR (bR (bR (bR (bR (bL (allCtrl_ok))))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec16, cf16]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl17 (x v : ℝ) : value table17 x (1-x) v (1-v) =
     cf17 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table17,entry,Fin.sum_univ_succ,cf17]; ring
+  rw [ctrl_of_check table17 cfSpec17 (bL (bL (bL (bL (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec17, cf17]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl18 (x v : ℝ) : value table18 x (1-x) v (1-v) =
     cf18 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table18,entry,Fin.sum_univ_succ,cf18]; ring
+  rw [ctrl_of_check table18 cfSpec18 (bR (bL (bL (bL (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec18, cf18]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl19 (x v : ℝ) : value table19 x (1-x) v (1-v) =
     cf19 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table19,entry,Fin.sum_univ_succ,cf19]; ring
+  rw [ctrl_of_check table19 cfSpec19 (bL (bR (bL (bL (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec19, cf19]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl20 (x v : ℝ) : value table20 x (1-x) v (1-v) =
     cf20 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table20,entry,Fin.sum_univ_succ,cf20]; ring
+  rw [ctrl_of_check table20 cfSpec20 (bR (bR (bL (bL (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec20, cf20]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl21 (x v : ℝ) : value table21 x (1-x) v (1-v) =
     cf21 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table21,entry,Fin.sum_univ_succ,cf21]; ring
+  rw [ctrl_of_check table21 cfSpec21 (bL (bL (bR (bL (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec21, cf21]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl22 (x v : ℝ) : value table22 x (1-x) v (1-v) =
     cf22 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table22,entry,Fin.sum_univ_succ,cf22]; ring
+  rw [ctrl_of_check table22 cfSpec22 (bR (bL (bR (bL (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec22, cf22]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl23 (x v : ℝ) : value table23 x (1-x) v (1-v) =
     cf23 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table23,entry,Fin.sum_univ_succ,cf23]; ring
+  rw [ctrl_of_check table23 cfSpec23 (bL (bR (bR (bL (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec23, cf23]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl24 (x v : ℝ) : value table24 x (1-x) v (1-v) =
     cf24 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table24,entry,Fin.sum_univ_succ,cf24]; ring
+  rw [ctrl_of_check table24 cfSpec24 (bL (bR (bR (bR (bL (bR (allCtrl_ok))))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec24, cf24]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl25 (x v : ℝ) : value table25 x (1-x) v (1-v) =
     cf25 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table25,entry,Fin.sum_univ_succ,cf25]; ring
+  rw [ctrl_of_check table25 cfSpec25 (bR (bR (bR (bR (bL (bR (allCtrl_ok))))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec25, cf25]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl26 (x v : ℝ) : value table26 x (1-x) v (1-v) =
     cf26 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table26,entry,Fin.sum_univ_succ,cf26]; ring
+  rw [ctrl_of_check table26 cfSpec26 (bL (bL (bL (bR (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec26, cf26]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl27 (x v : ℝ) : value table27 x (1-x) v (1-v) =
     cf27 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table27,entry,Fin.sum_univ_succ,cf27]; ring
+  rw [ctrl_of_check table27 cfSpec27 (bR (bL (bL (bR (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec27, cf27]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl28 (x v : ℝ) : value table28 x (1-x) v (1-v) =
     cf28 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table28,entry,Fin.sum_univ_succ,cf28]; ring
+  rw [ctrl_of_check table28 cfSpec28 (bL (bR (bL (bR (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec28, cf28]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl29 (x v : ℝ) : value table29 x (1-x) v (1-v) =
     cf29 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table29,entry,Fin.sum_univ_succ,cf29]; ring
+  rw [ctrl_of_check table29 cfSpec29 (bR (bR (bL (bR (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec29, cf29]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl30 (x v : ℝ) : value table30 x (1-x) v (1-v) =
     cf30 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table30,entry,Fin.sum_univ_succ,cf30]; ring
+  rw [ctrl_of_check table30 cfSpec30 (bL (bL (bR (bR (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec30, cf30]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl31 (x v : ℝ) : value table31 x (1-x) v (1-v) =
     cf31 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table31,entry,Fin.sum_univ_succ,cf31]; ring
+  rw [ctrl_of_check table31 cfSpec31 (bR (bL (bR (bR (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec31, cf31]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl32 (x v : ℝ) : value table32 x (1-x) v (1-v) =
     cf32 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table32,entry,Fin.sum_univ_succ,cf32]; ring
+  rw [ctrl_of_check table32 cfSpec32 (bL (bR (bR (bR (bR (allCtrl_ok)))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec32, cf32]; ring
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl33 (x v : ℝ) : value table33 x (1-x) v (1-v) =
     cf33 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table33,entry,Fin.sum_univ_succ,cf33]; ring
+  rw [ctrl_of_check table33 cfSpec33 (bL (bR (bR (bR (bR (bR (allCtrl_ok))))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec33, cf33]
 
-set_option maxHeartbeats 1000000 in
 lemma ctrl34 (x v : ℝ) : value table34 x (1-x) v (1-v) =
     cf34 ((1+x^2 + v*(3-2*x-x^2))/2) (x^2) := by
-  norm_num [value,mon,table34,entry,Fin.sum_univ_succ,cf34]; ring
+  rw [ctrl_of_check table34 cfSpec34 (bR (bR (bR (bR (bR (bR (allCtrl_ok))))))) x v]
+  generalize (1+x^2 + v*(3-2*x-x^2)) = A
+  generalize x^2 = M
+  norm_num [polyAM, cfAt, Array.getD, cfSpec34, cf34]
+
 lemma table_values (x v : ℝ) : tables.map (fun p => value p x (1-x) v (1-v)) =
     (List.ofFn (coeffs ((1+x^2 + v*(3-2*x-x^2))/2) (x^2))).reverse := by
   simp only [tables,List.map_cons,List.map_nil,ctrl0,ctrl1,ctrl2,ctrl3,ctrl4,ctrl5,ctrl6,ctrl7,ctrl8,ctrl9,ctrl10,ctrl11,ctrl12,ctrl13,ctrl14,ctrl15,ctrl16,ctrl17,ctrl18,ctrl19,ctrl20,ctrl21,ctrl22,ctrl23,ctrl24,ctrl25,ctrl26,ctrl27,ctrl28,ctrl29,ctrl30,ctrl31,ctrl32,ctrl33,ctrl34]; rfl
@@ -1375,16 +1728,6 @@ lemma from_marks {n k m l : ℤ} {ms : List Mark}
   | nil => constructor
   | cons z _ ih => exact .cons (z _ _ _ _ hx hy hv hw) ih
 
-def all6 (f : ℕ → Bool) : Bool := f 0 && f 1 && f 2 && f 3 && f 4 && f 5
-
-lemma all6_at (f : ℕ → Bool) (h : all6 f = true) (i : Fin 6) : f i = true := by
-  simp only [all6,Bool.and_eq_true] at h; fin_cases i <;> tauto
-
-def all11 (f : ℕ → Bool) : Bool := f 0 && f 1 && f 2 && f 3 && f 4 && f 5 && f 6 && f 7 && f 8 && f 9 && f 10
-
-lemma all11_at (f : ℕ → Bool) (h : all11 f = true) (i : Fin 11) : f i = true := by
-  simp only [all11,Bool.and_eq_true] at h; fin_cases i <;> tauto
-
 def dot11 (U p : Table) (i j : ℕ) : ℤ :=
   entry U i 0 * entry p 0 j +
   entry U i 1 * entry p 1 j +
@@ -1411,11 +1754,109 @@ lemma projected_eq (U V p : Table) (i : Fin 11) (j : Fin 6) :
   rw [entry_ty]; simp_rw [entry_tx]
   simp [Fin.sum_univ_succ,projected,dot11,add_assoc]
 
+def rowDot11F (u0 u1 u2 u3 u4 u5 u6 u7 u8 u9 u10 : ℤ)
+    (p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 : Array ℤ) (j : ℕ) : ℤ :=
+  u0 * p0.getD j 0 + u1 * p1.getD j 0 + u2 * p2.getD j 0 +
+  u3 * p3.getD j 0 + u4 * p4.getD j 0 + u5 * p5.getD j 0 +
+  u6 * p6.getD j 0 + u7 * p7.getD j 0 + u8 * p8.getD j 0 +
+  u9 * p9.getD j 0 + u10 * p10.getD j 0
+
+private lemma rowDot11F_eq (U p : Table) (i j : ℕ) :
+    rowDot11F ((U.getD i #[]).getD 0 0) ((U.getD i #[]).getD 1 0)
+      ((U.getD i #[]).getD 2 0) ((U.getD i #[]).getD 3 0)
+      ((U.getD i #[]).getD 4 0) ((U.getD i #[]).getD 5 0)
+      ((U.getD i #[]).getD 6 0) ((U.getD i #[]).getD 7 0)
+      ((U.getD i #[]).getD 8 0) ((U.getD i #[]).getD 9 0)
+      ((U.getD i #[]).getD 10 0)
+      (p.getD 0 #[]) (p.getD 1 #[]) (p.getD 2 #[]) (p.getD 3 #[])
+      (p.getD 4 #[]) (p.getD 5 #[]) (p.getD 6 #[]) (p.getD 7 #[])
+      (p.getD 8 #[]) (p.getD 9 #[]) (p.getD 10 #[]) j = dot11 U p i j := by
+  simp only [rowDot11F, dot11, getD_eq_entry]
+
+def checkRow6Val (vj : Array ℤ) (d0 d1 d2 d3 d4 d5 : ℤ) (sg : Mark) : Bool :=
+  let val := vj.getD 0 0 * d0 + vj.getD 1 0 * d1 + vj.getD 2 0 * d2 +
+             vj.getD 3 0 * d3 + vj.getD 4 0 * d4 + vj.getD 5 0 * d5
+  match sg with
+  | .up => decide (0 ≤ val)
+  | .down => decide (val ≤ 0)
+  | .both => true
+
+def checkRow6 (v0 v1 v2 v3 v4 v5 : Array ℤ) (d0 d1 d2 d3 d4 d5 : ℤ) (sg : Mark) : Bool :=
+  checkRow6Val v0 d0 d1 d2 d3 d4 d5 sg &&
+  checkRow6Val v1 d0 d1 d2 d3 d4 d5 sg &&
+  checkRow6Val v2 d0 d1 d2 d3 d4 d5 sg &&
+  checkRow6Val v3 d0 d1 d2 d3 d4 d5 sg &&
+  checkRow6Val v4 d0 d1 d2 d3 d4 d5 sg &&
+  checkRow6Val v5 d0 d1 d2 d3 d4 d5 sg
+
+def hasMarkRow (v0 v1 v2 v3 v4 v5 p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 ui : Array ℤ) (sg : Mark) : Bool :=
+  let u0 := ui.getD 0 0; let u1 := ui.getD 1 0; let u2 := ui.getD 2 0
+  let u3 := ui.getD 3 0; let u4 := ui.getD 4 0; let u5 := ui.getD 5 0
+  let u6 := ui.getD 6 0; let u7 := ui.getD 7 0; let u8 := ui.getD 8 0
+  let u9 := ui.getD 9 0; let u10 := ui.getD 10 0
+  let d0 := rowDot11F u0 u1 u2 u3 u4 u5 u6 u7 u8 u9 u10 p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 0
+  let d1 := rowDot11F u0 u1 u2 u3 u4 u5 u6 u7 u8 u9 u10 p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 1
+  let d2 := rowDot11F u0 u1 u2 u3 u4 u5 u6 u7 u8 u9 u10 p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 2
+  let d3 := rowDot11F u0 u1 u2 u3 u4 u5 u6 u7 u8 u9 u10 p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 3
+  let d4 := rowDot11F u0 u1 u2 u3 u4 u5 u6 u7 u8 u9 u10 p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 4
+  let d5 := rowDot11F u0 u1 u2 u3 u4 u5 u6 u7 u8 u9 u10 p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 5
+  checkRow6 v0 v1 v2 v3 v4 v5 d0 d1 d2 d3 d4 d5 sg
+
 def hasMark (U V p : Table) (sg : Mark) : Bool :=
-  all11 fun i => all6 fun j => match sg with
-    | .up => decide (0 ≤ projected U V p i j)
-    | .down => decide (projected U V p i j ≤ 0)
-    | .both => true
+  let v0 := V.getD 0 #[]; let v1 := V.getD 1 #[]; let v2 := V.getD 2 #[]
+  let v3 := V.getD 3 #[]; let v4 := V.getD 4 #[]; let v5 := V.getD 5 #[]
+  let p0 := p.getD 0 #[]; let p1 := p.getD 1 #[]; let p2 := p.getD 2 #[]
+  let p3 := p.getD 3 #[]; let p4 := p.getD 4 #[]; let p5 := p.getD 5 #[]
+  let p6 := p.getD 6 #[]; let p7 := p.getD 7 #[]; let p8 := p.getD 8 #[]
+  let p9 := p.getD 9 #[]; let p10 := p.getD 10 #[]
+  all11 fun i => hasMarkRow v0 v1 v2 v3 v4 v5 p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 (U.getD i #[]) sg
+
+private lemma checkRow6_spec (V : Table) (d0 d1 d2 d3 d4 d5 : ℤ) (sg : Mark)
+    (h : checkRow6 (V.getD 0 #[]) (V.getD 1 #[]) (V.getD 2 #[]) (V.getD 3 #[]) (V.getD 4 #[]) (V.getD 5 #[])
+           d0 d1 d2 d3 d4 d5 sg = true) (j : Fin 6) :
+    checkRow6Val (V.getD j #[]) d0 d1 d2 d3 d4 d5 sg = true := by
+  unfold checkRow6 at h
+  simp only [Bool.and_eq_true] at h
+  fin_cases j
+  · exact h.1.1.1.1.1
+  · exact h.1.1.1.1.2
+  · exact h.1.1.1.2
+  · exact h.1.1.2
+  · exact h.1.2
+  · exact h.2
+
+private def markCond (U V p : Table) (i j : ℕ) : Mark → Bool
+  | .up => decide (0 ≤ projected U V p i j)
+  | .down => decide (projected U V p i j ≤ 0)
+  | .both => true
+
+private lemma hasMarkRow_spec (U V p : Table) (i : Fin 11) (j : Fin 6) (sg : Mark)
+    (h : hasMarkRow (V.getD 0 #[]) (V.getD 1 #[]) (V.getD 2 #[]) (V.getD 3 #[]) (V.getD 4 #[]) (V.getD 5 #[])
+           (p.getD 0 #[]) (p.getD 1 #[]) (p.getD 2 #[]) (p.getD 3 #[]) (p.getD 4 #[]) (p.getD 5 #[])
+           (p.getD 6 #[]) (p.getD 7 #[]) (p.getD 8 #[]) (p.getD 9 #[]) (p.getD 10 #[])
+           (U.getD i #[]) sg = true) :
+    markCond U V p i j sg = true := by
+  unfold hasMarkRow at h
+  dsimp only at h
+  have H := checkRow6_spec V _ _ _ _ _ _ sg h j
+  rw [rowDot11F_eq, rowDot11F_eq, rowDot11F_eq, rowDot11F_eq, rowDot11F_eq, rowDot11F_eq] at H
+  unfold checkRow6Val at H
+  dsimp only at H
+  cases sg
+  · simp only [getD_eq_entry, decide_eq_true_eq] at H
+    simp only [markCond, projected]
+    exact decide_eq_true H
+  · simp only [getD_eq_entry, decide_eq_true_eq] at H
+    simp only [markCond, projected]
+    exact decide_eq_true H
+  · rfl
+
+private lemma hasMark_spec (U V p : Table) (sg : Mark) (h : hasMark U V p sg = true)
+    (i : Fin 11) (j : Fin 6) :
+    markCond U V p i j sg = true := by
+  unfold hasMark at h
+  dsimp only at h
+  exact hasMarkRow_spec U V p i j sg (all11_at _ h i)
 
 lemma signedValue (U V p : Table) (sg : Mark) (h : hasMark U V p sg = true)
     (x y v w : ℝ) (hx : 0 ≤ x) (hy : 0 ≤ y) (hv : 0 ≤ v) (hw : 0 ≤ w) :
@@ -1423,13 +1864,13 @@ lemma signedValue (U V p : Table) (sg : Mark) (h : hasMark U V p sg = true)
   cases sg with
   | up =>
     apply Finset.sum_nonneg; intro i _; apply Finset.sum_nonneg; intro j _
-    have H := all6_at _ (all11_at _ h i) j
+    have H := hasMark_spec U V p .up h i j
     have Hp : 0 ≤ projected U V p i j := of_decide_eq_true H
     rw [projected_eq]; have T : (0:ℝ) ≤ projected U V p i j := by exact_mod_cast Hp
     unfold mon; positivity
   | down =>
     apply Finset.sum_nonpos; intro i _; apply Finset.sum_nonpos; intro j _
-    have H := all6_at _ (all11_at _ h i) j
+    have H := hasMark_spec U V p .down h i j
     have Hp : projected U V p i j ≤ 0 := of_decide_eq_true H
     rw [projected_eq]; apply mul_nonpos_of_nonpos_of_nonneg _ (by unfold mon; positivity)
     apply mul_nonpos_of_nonpos_of_nonneg _ (by unfold mon; positivity); exact_mod_cast Hp
@@ -1455,7 +1896,6 @@ def mx5_1_0 : Table := #[
   #[0,0,0,1,0,0],
   #[0,0,0,0,1,0],
   #[0,0,0,0,0,1]]
-lemma mx5_1_0_eq : mx5_1_0 = transform5 1 0 0 1 := by decide +kernel
 def mx5_2_0 : Table := #[
   #[32,0,0,0,0,0],
   #[80,16,0,0,0,0],
@@ -1463,7 +1903,6 @@ def mx5_2_0 : Table := #[
   #[40,24,12,4,0,0],
   #[10,8,6,4,2,0],
   #[1,1,1,1,1,1]]
-lemma mx5_2_0_eq : mx5_2_0 = transform5 1 0 1 2 := by decide +kernel
 def mx5_2_1 : Table := #[
   #[1,1,1,1,1,1],
   #[0,2,4,6,8,10],
@@ -1471,7 +1910,6 @@ def mx5_2_1 : Table := #[
   #[0,0,0,8,32,80],
   #[0,0,0,0,16,80],
   #[0,0,0,0,0,32]]
-lemma mx5_2_1_eq : mx5_2_1 = transform5 2 1 0 1 := by decide +kernel
 def mx5_4_2 : Table := #[
   #[32,32,32,32,32,32],
   #[80,112,144,176,208,240],
@@ -1479,7 +1917,6 @@ def mx5_4_2 : Table := #[
   #[40,88,184,360,648,1080],
   #[10,26,66,162,378,810],
   #[1,3,9,27,81,243]]
-lemma mx5_4_2_eq : mx5_4_2 = transform5 3 2 1 2 := by decide +kernel
 def mx5_4_3 : Table := #[
   #[1,3,9,27,81,243],
   #[0,4,24,108,432,1620],
@@ -1487,7 +1924,6 @@ def mx5_4_3 : Table := #[
   #[0,0,0,64,768,5760],
   #[0,0,0,0,256,3840],
   #[0,0,0,0,0,1024]]
-lemma mx5_4_3_eq : mx5_4_3 = transform5 4 3 0 1 := by decide +kernel
 def mx5_8_6 : Table := #[
   #[32,96,288,864,2592,7776],
   #[80,304,1104,3888,13392,45360],
@@ -1495,7 +1931,6 @@ def mx5_8_6 : Table := #[
   #[40,216,1128,5656,27048,123480],
   #[10,62,378,2254,13034,72030],
   #[1,7,49,343,2401,16807]]
-lemma mx5_8_6_eq : mx5_8_6 = transform5 7 6 1 2 := by decide +kernel
 def mx5_8_7 : Table := #[
   #[1,7,49,343,2401,16807],
   #[0,8,112,1176,10976,96040],
@@ -1503,7 +1938,6 @@ def mx5_8_7 : Table := #[
   #[0,0,0,512,14336,250880],
   #[0,0,0,0,4096,143360],
   #[0,0,0,0,0,32768]]
-lemma mx5_8_7_eq : mx5_8_7 = transform5 8 7 0 1 := by decide +kernel
 def mx5_16_12 : Table := #[
   #[1024,3072,9216,27648,82944,248832],
   #[3840,12544,40704,131328,421632,1347840],
@@ -1511,7 +1945,6 @@ def mx5_16_12 : Table := #[
   #[4320,16416,61920,231712,859872,3163680],
   #[1620,6588,26676,107484,430612,1713660],
   #[243,1053,4563,19773,85683,371293]]
-lemma mx5_16_12_eq : mx5_16_12 = transform5 13 12 3 4 := by decide +kernel
 def mx5_16_14 : Table := #[
   #[32,224,1568,10976,76832,537824],
   #[80,688,5712,46256,367696,2881200],
@@ -1519,7 +1952,6 @@ def mx5_16_14 : Table := #[
   #[40,472,5416,60120,642600,6615000],
   #[10,134,1770,22950,290250,3543750],
   #[1,15,225,3375,50625,759375]]
-lemma mx5_16_14_eq : mx5_16_14 = transform5 15 14 1 2 := by decide +kernel
 def mx5_16_15 : Table := #[
   #[1,15,225,3375,50625,759375],
   #[0,16,480,10800,216000,4050000],
@@ -1527,7 +1959,6 @@ def mx5_16_15 : Table := #[
   #[0,0,0,4096,245760,9216000],
   #[0,0,0,0,65536,4915200],
   #[0,0,0,0,0,1048576]]
-lemma mx5_16_15_eq : mx5_16_15 = transform5 16 15 0 1 := by decide +kernel
 def mx5_32_24 : Table := #[
   #[32768,98304,294912,884736,2654208,7962624],
   #[143360,446464,1388544,4313088,13381632,41472000],
@@ -1535,7 +1966,6 @@ def mx5_32_24 : Table := #[
   #[219520,733824,2448768,8156800,27120000,90000000],
   #[96040,332024,1146600,3955000,13625000,46875000],
   #[16807,60025,214375,765625,2734375,9765625]]
-lemma mx5_32_24_eq : mx5_32_24 = transform5 25 24 7 8 := by decide +kernel
 def mx5_32_25 : Table := #[
   #[16807,60025,214375,765625,2734375,9765625],
   #[72030,268226,997150,3701250,13718750,50781250],
@@ -1543,7 +1973,6 @@ def mx5_32_25 : Table := #[
   #[105840,426384,1714032,6875024,27513200,109850000],
   #[45360,189648,791856,3301584,13744432,57122000],
   #[7776,33696,146016,632736,2741856,11881376]]
-lemma mx5_32_25_eq : mx5_32_25 = transform5 26 25 6 7 := by decide +kernel
 def mx5_32_26 : Table := #[
   #[7776,33696,146016,632736,2741856,11881376],
   #[32400,147312,668304,3025776,13674128,61691760],
@@ -1551,7 +1980,6 @@ def mx5_32_26 : Table := #[
   #[45000,223800,1109960,5489208,27066312,133057080],
   #[18750,97250,503550,2602530,13423806,69087330],
   #[3125,16875,91125,492075,2657205,14348907]]
-lemma mx5_32_26_eq : mx5_32_26 = transform5 27 26 5 6 := by decide +kernel
 def mx5_32_27 : Table := #[
   #[3125,16875,91125,492075,2657205,14348907],
   #[12500,71500,407700,2318220,13148244,74401740],
@@ -1559,7 +1987,6 @@ def mx5_32_27 : Table := #[
   #[16000,101760,644736,4068736,25570944,160030080],
   #[6400,42752,284928,1894144,12556544,82978560],
   #[1024,7168,50176,351232,2458624,17210368]]
-lemma mx5_32_27_eq : mx5_32_27 = transform5 28 27 4 5 := by decide +kernel
 def mx5_32_28 : Table := #[
   #[1024,7168,50176,351232,2458624,17210368],
   #[3840,28928,216832,1618176,12029696,89125120],
@@ -1567,7 +1994,6 @@ def mx5_32_28 : Table := #[
   #[4320,37152,317664,2699552,22794464,191209760],
   #[1620,14796,134676,1221132,11023828,99019340],
   #[243,2349,22707,219501,2121843,20511149]]
-lemma mx5_32_28_eq : mx5_32_28 = transform5 29 28 3 4 := by decide +kernel
 def mx5_32_29 : Table := #[
   #[243,2349,22707,219501,2121843,20511149],
   #[810,8694,92394,973878,10194602,106092150],
@@ -1575,7 +2001,6 @@ def mx5_32_29 : Table := #[
   #[720,9264,117968,1485360,18478800,227070000],
   #[240,3344,46320,637200,8694000,117450000],
   #[32,480,7200,108000,1620000,24300000]]
-lemma mx5_32_29_eq : mx5_32_29 = transform5 30 29 2 3 := by decide +kernel
 def mx5_32_30 : Table := #[
   #[32,480,7200,108000,1620000,24300000],
   #[80,1456,25680,442800,7506000,125550000],
@@ -1583,7 +2008,6 @@ def mx5_32_30 : Table := #[
   #[40,984,23592,548824,12339240,268119000],
   #[10,278,7626,205654,5421962,138528150],
   #[1,31,961,29791,923521,28629151]]
-lemma mx5_32_30_eq : mx5_32_30 = transform5 31 30 1 2 := by decide +kernel
 def mx5_32_31 : Table := #[
   #[1,31,961,29791,923521,28629151],
   #[0,32,1984,92256,3813248,147763360],
@@ -1591,7 +2015,6 @@ def mx5_32_31 : Table := #[
   #[0,0,0,32768,4063232,314900480],
   #[0,0,0,0,1048576,162529280],
   #[0,0,0,0,0,33554432]]
-lemma mx5_32_31_eq : mx5_32_31 = transform5 32 31 0 1 := by decide +kernel
 def mx5_64_50 : Table := #[
   #[537824,1920800,6860000,24500000,87500000,312500000],
   #[2497040,9093616,33104400,120470000,438250000,1593750000],
@@ -1599,7 +2022,6 @@ def mx5_64_50 : Table := #[
   #[4306120,16287544,61574344,232656696,878617800,3316275000],
   #[1999270,7702682,29666598,114220314,439605414,1691300250],
   #[371293,1456611,5714397,22418019,87947613,345025251]]
-lemma mx5_64_50_eq : mx5_64_50 = transform5 51 50 13 14 := by decide +kernel
 def mx5_64_51 : Table := #[
   #[371293,1456611,5714397,22418019,87947613,345025251],
   #[1713660,6863428,27477372,109959876,439870716,1758952260],
@@ -1607,7 +2029,6 @@ def mx5_64_51 : Table := #[
   #[2920320,12175488,50732928,211269760,879275904,3657214080],
   #[1347840,5730048,24350976,103444224,439259392,1864462080],
   #[248832,1078272,4672512,20247552,87739392,380204032]]
-lemma mx5_64_51_eq : mx5_64_51 = transform5 52 51 12 13 := by decide +kernel
 def mx5_64_52 : Table := #[
   #[248832,1078272,4672512,20247552,87739392,380204032],
   #[1140480,5052672,22374144,99031296,438134528,1937578240],
@@ -1615,7 +2036,6 @@ def mx5_64_52 : Table := #[
   #[1916640,8863008,40957664,189146400,872902368,4025634080],
   #[878460,4147396,19572476,92326212,435316348,2051525060],
   #[161051,775973,3738779,18014117,86795291,418195493]]
-lemma mx5_64_52_eq : mx5_64_52 = transform5 53 52 11 12 := by decide +kernel
 def mx5_64_53 : Table := #[
   #[161051,775973,3738779,18014117,86795291,418195493],
   #[732050,3612334,17815314,87814958,432636562,2130429870],
@@ -1623,7 +2043,6 @@ def mx5_64_53 : Table := #[
   #[1210000,6252400,32283280,166560624,858668688,4423163760],
   #[550000,2906000,15346800,81006480,427357296,2253309840],
   #[100000,540000,2916000,15746400,85030560,459165024]]
-lemma mx5_64_53_eq : mx5_64_53 = transform5 54 53 10 11 := by decide +kernel
 def mx5_64_54 : Table := #[
   #[100000,540000,2916000,15746400,85030560,459165024],
   #[450000,2494000,13813200,76457520,422948304,2338340400],
@@ -1631,7 +2050,6 @@ def mx5_64_54 : Table := #[
   #[729000,4247640,24727464,143818840,835698600,4851495000],
   #[328050,1958094,11681010,69641550,414939250,2470668750],
   #[59049,360855,2205225,13476375,82355625,503284375]]
-lemma mx5_64_54_eq : mx5_64_54 = transform5 55 54 9 10 := by decide +kernel
 def mx5_64_55 : Table := #[
   #[59049,360855,2205225,13476375,82355625,503284375],
   #[262440,1650456,10371240,65122200,408617000,2562175000],
@@ -1639,7 +2057,6 @@ def mx5_64_55 : Table := #[
   #[414720,2755584,18289664,121261056,803066880,5312384000],
   #[184320,1257472,8572928,58404864,397594624,2704486400],
   #[32768,229376,1605632,11239424,78675968,550731776]]
-lemma mx5_64_55_eq : mx5_64_55 = transform5 56 55 8 9 := by decide +kernel
 def mx5_64_56 : Table := #[
   #[32768,229376,1605632,11239424,78675968,550731776],
   #[143360,1036288,7483392,53989376,389165056,2802831360],
@@ -1647,7 +2064,6 @@ def mx5_64_56 : Table := #[
   #[219520,1687168,12949888,99262080,759798144,5807652480],
   #[96040,760088,6010536,47487384,374830632,2955680280],
   #[16807,136857,1114407,9074457,73892007,601692057]]
-lemma mx5_64_56_eq : mx5_64_56 = transform5 57 56 7 8 := by decide +kernel
 def mx5_64_57 : Table := #[
   #[16807,136857,1114407,9074457,73892007,601692057],
   #[72030,608482,5133534,43257186,364089438,3061240290],
@@ -1655,7 +2071,6 @@ def mx5_64_57 : Table := #[
   #[105840,958608,8667504,78232720,704865648,6339188880],
   #[45360,424656,3971376,37098192,346128688,3225201360],
   #[7776,75168,726624,7024032,67898976,656356768]]
-lemma mx5_64_57_eq : mx5_64_57 = transform5 58 57 6 7 := by decide +kernel
 def mx5_64_58 : Table := #[
   #[7776,75168,726624,7024032,67898976,656356768],
   #[32400,327024,3294864,33142128,332861072,3338366320],
@@ -1663,7 +2078,6 @@ def mx5_64_58 : Table := #[
   #[45000,492600,5380040,58620984,637190088,6908949560],
   #[18750,213250,2421950,27465090,310943806,3514034690],
   #[3125,36875,435125,5134475,60586805,714924299]]
-lemma mx5_64_58_eq : mx5_64_58 = transform5 59 58 5 6 := by decide +kernel
 def mx5_64_59 : Table := #[
   #[3125,36875,435125,5134475,60586805,714924299],
   #[12500,155500,1929300,23879660,294924244,3635208300],
@@ -1671,7 +2085,6 @@ def mx5_64_59 : Table := #[
   #[16000,219520,3001984,40913280,555638400,7518960000],
   #[6400,91904,1317120,18835200,268704000,3823200000],
   #[1024,15360,230400,3456000,51840000,777600000]]
-lemma mx5_64_59_eq : mx5_64_59 = transform5 60 59 4 5 := by decide +kernel
 def mx5_64_60 : Table := #[
   #[1024,15360,230400,3456000,51840000,777600000],
   #[3840,61696,986880,15724800,249696000,3952800000],
@@ -1679,7 +2092,6 @@ def mx5_64_60 : Table := #[
   #[4320,78624,1423584,25635616,459022560,8171316000],
   #[1620,31212,599508,11475564,218809684,4153752300],
   #[243,4941,100467,2042829,41537523,844596301]]
-lemma mx5_64_60_eq : mx5_64_60 = transform5 61 60 3 4 := by decide +kernel
 def mx5_64_61 : Table := #[
   #[243,4941,100467,2042829,41537523,844596301],
   #[810,18198,405162,8952726,196565546,4292210710],
@@ -1687,7 +2099,6 @@ def mx5_64_61 : Table := #[
   #[720,19248,509648,13354800,346098384,8868184880],
   #[240,6928,198896,5673744,160633072,4506782480],
   #[32,992,30752,953312,29552672,916132832]]
-lemma mx5_64_61_eq : mx5_64_61 = transform5 62 61 2 3 := by decide +kernel
 def mx5_128_102 : Table := #[
   #[11881376,46611552,182860704,717376608,2814323616,11040808032],
   #[57122000,226343728,896789712,3552799536,14073740496,55745256240],
@@ -1695,7 +2106,6 @@ def mx5_128_102 : Table := #[
   #[105625000,426855000,1724773800,6968216152,28148053416,113687317080],
   #[50781250,207218750,845501250,3449516350,14072138306,57400949310],
   #[9765625,40234375,165765625,682954375,2813772025,11592740743]]
-lemma mx5_128_102_eq : mx5_128_102 = transform5 103 102 25 26 := by decide +kernel
 def mx5_128_103 : Table := #[
   #[9765625,40234375,165765625,682954375,2813772025,11592740743],
   #[46875000,195125000,812155000,3380027400,14065581944,58526458120],
@@ -1703,7 +2113,6 @@ def mx5_128_103 : Table := #[
   #[86400000,367027200,1558895616,6620177408,28109659136,119336821760],
   #[41472000,177942528,763416576,3274911744,14047301632,60247715840],
   #[7962624,34504704,149520384,647921664,2807660544,12166529024]]
-lemma mx5_128_103_eq : mx5_128_103 = transform5 104 103 24 25 := by decide +kernel
 def mx5_128_104 : Table := #[
   #[7962624,34504704,149520384,647921664,2807660544,12166529024],
   #[38154240,167104512,731787264,3204304896,14029303808,61417574400],
@@ -1711,7 +2120,6 @@ def mx5_128_104 : Table := #[
   #[70081920,313438848,1401617792,6266655360,28013731200,125208720000],
   #[33580920,151746824,685647480,3097672200,13993371000,63206325000],
   #[6436343,29383305,134141175,612383625,2795664375,12762815625]]
-lemma mx5_128_104_eq : mx5_128_104 = transform5 105 104 23 24 := by decide +kernel
 def mx5_128_105 : Table := #[
   #[6436343,29383305,134141175,612383625,2795664375,12762815625],
   #[30782510,142086226,655764270,3026164050,13963272750,64421831250],
@@ -1719,7 +2127,6 @@ def mx5_128_105 : Table := #[
   #[56327920,265698576,1253082864,5908739344,27856965360,131309514000],
   #[26939440,128436176,612261936,2918348752,13908684848,66280040400],
   #[5153632,24831136,119640928,576451744,2777449312,13382255776]]
-lemma mx5_128_105_eq : mx5_128_105 = transform5 106 105 22 23 := by decide +kernel
 def mx5_128_106 : Table := #[
   #[5153632,24831136,119640928,576451744,2777449312,13382255776],
   #[24596880,119875184,584147344,2846168688,13865808272,67542517360],
@@ -1727,7 +2134,6 @@ def mx5_128_106 : Table := #[
   #[44823240,223417656,1113400008,5547582776,27635962568,137645831480],
   #[21392910,107816562,543311118,2737524594,13791534094,69472188530],
   #[4084101,20809467,106029189,540243963,2752671621,14025517307]]
-lemma mx5_128_106_eq : mx5_128_106 = transform5 107 106 21 22 := by decide +kernel
 def mx5_128_107 : Table := #[
   #[4084101,20809467,106029189,540243963,2752671621,14025517307],
   #[19448100,100278108,516980772,2664915036,13735182116,70782984540],
@@ -1735,7 +2141,6 @@ def mx5_128_107 : Table := #[
   #[35280000,186211200,982643840,5184404352,27347227776,144224426880],
   #[16800000,89696000,478828800,2555815680,13640161536,72786159360],
   #[3200000,17280000,93312000,503884800,2720977920,14693280768]]
-lemma mx5_128_107_eq : mx5_128_107 = transform5 108 107 20 21 := by decide +kernel
 def mx5_128_108 : Table := #[
   #[3200000,17280000,93312000,503884800,2720977920,14693280768],
   #[15200000,83104000,454291200,2483032320,13569617664,74146648320],
@@ -1743,7 +2148,6 @@ def mx5_128_108 : Table := #[
   #[27436000,153699360,860853216,4820489248,26987168736,151052182560],
   #[13032100,73885148,418830756,2373871324,13452761252,76225406940],
   #[2476099,14204989,81491779,467505469,2682005059,15386239549]]
-lemma mx5_128_108_eq : mx5_128_108 = transform5 109 108 19 20 := by decide +kernel
 def mx5_128_109 : Table := #[
   #[2476099,14204989,81491779,467505469,2682005059,15386239549],
   #[11728890,68164742,396087034,2301183366,13367289338,77636988550],
@@ -1751,7 +2155,6 @@ def mx5_128_109 : Table := #[
   #[21053520,125508528,748030032,4457190320,26552094800,158136110000],
   #[9972720,60197904,363314160,2192374800,13227478000,79793450000],
   #[1889568,11547360,70567200,431244000,2635380000,16105100000]]
-lemma mx5_128_109_eq : mx5_128_109 = transform5 110 109 18 19 := by decide +kernel
 def mx5_128_110 : Table := #[
   #[1889568,11547360,70567200,431244000,2635380000,16105100000],
   #[8922960,55275696,342357840,2120065200,13126322000,81257550000],
@@ -1759,7 +2162,6 @@ def mx5_128_110 : Table := #[
   #[15918120,101272536,644138024,4095929304,26038215720,165483351000],
   #[7516890,48452006,312256986,2012043942,12962406618,83493872550],
   #[1419857,9270831,60533073,395245359,2580719697,16850581551]]
-lemma mx5_128_110_eq : mx5_128_110 = transform5 111 110 17 18 := by decide +kernel
 def mx5_128_111 : Table := #[
   #[1419857,9270831,60533073,395245359,2580719697,16850581551],
   #[6681680,44256304,293073744,1940409648,12844790352,85011942960],
@@ -1767,7 +2169,6 @@ def mx5_128_111 : Table := #[
   #[11837440,80633856,549101568,3738198016,25441640448,173101178880],
   #[5570560,38469632,265617408,1833631744,12655591424,87330324480],
   #[1048576,7340032,51380224,359661568,2517630976,17623416832]]
-lemma mx5_128_111_eq : mx5_128_111 = transform5 112 111 16 17 := by decide +kernel
 def mx5_128_112 : Table := #[
   #[1048576,7340032,51380224,359661568,2517630976,17623416832],
   #[4915200,34930688,248184832,1762983936,12520718336,88903843840],
@@ -1775,7 +2176,6 @@ def mx5_128_112 : Table := #[
   #[8640000,63244800,462804480,3385559552,24758375936,180996999680],
   #[4050000,30078000,223333200,1657926960,12305025616,91306522160],
   #[759375,5720625,43095375,324651825,2445710415,18424351793]]
-lemma mx5_128_112_eq : mx5_128_112 = transform5 113 112 15 16 := by decide +kernel
 def mx5_128_113 : Table := #[
   #[759375,5720625,43095375,324651825,2445710415,18424351793],
   #[3543750,27128250,207620550,1588591290,12152078534,92936995770],
@@ -1783,7 +2183,6 @@ def mx5_128_113 : Table := #[
   #[6174000,48768720,385088816,3039649488,23984325936,189178353360],
   #[2881200,23109968,185321136,1485754704,11908650672,95426249040],
   #[537824,4379424,35661024,290382624,2364544224,19254145824]]
-lemma mx5_128_113_eq : mx5_128_113 = transform5 114 113 14 15 := by decide +kernel
 def mx5_128_114 : Table := #[
   #[537824,4379424,35661024,290382624,2364544224,19254145824],
   #[2497040,20684272,171289104,1418071536,11736791568,97115209200],
@@ -1791,7 +2190,6 @@ def mx5_128_114 : Table := #[
   #[4306120,36881208,315753672,2702177080,23115289800,197652915000],
   #[1999270,17404634,151476390,1317977050,11464355750,99693356250],
   #[371293,3284515,29055325,257027875,2273708125,20113571875]]
-lemma mx5_128_114_eq : mx5_128_114 = transform5 115 114 13 14 := by decide +kernel
 def mx5_128_115 : Table := #[
   #[371293,3284515,29055325,257027875,2273708125,20113571875],
   #[1713660,15440516,139076860,1252301700,11272725500,101442362500],
@@ -1799,7 +2197,6 @@ def mx5_128_115 : Table := #[
   #[2920320,27271296,254553984,2374926464,22146961280,206428496000],
   #[1347840,12807936,121671936,1155493632,10969977088,104111763200],
   #[248832,2405376,23251968,224769024,2172767232,21003416576]]
-lemma mx5_128_115_eq : mx5_128_115 = transform5 116 115 12 13 := by decide +kernel
 def mx5_128_118 : Table := #[
   #[100000,1180000,13924000,164303200,1938777760,22877577568],
   #[450000,5438000,65678800,792832560,9565732304,115357276720],
@@ -1807,7 +2204,6 @@ def mx5_128_118 : Table := #[
   #[729000,9224280,116629416,1473495128,18601549736,234641539160],
   #[328050,4244238,54884466,709381134,9163894642,118315013390],
   #[59049,780759,10323369,136497879,1804805289,23863536599]]
-lemma mx5_128_118_eq : mx5_128_118 = transform5 119 118 9 10 := by decide +kernel
 def mx5_128_119 : Table := #[
   #[59049,780759,10323369,136497879,1804805289,23863536599],
   #[262440,3563352,48349224,655597656,8884158248,120320352600],
@@ -1815,7 +2211,6 @@ def mx5_128_119 : Table := #[
   #[414720,5925888,84595712,1206512640,17190835200,244702080000],
   #[184320,2699264,39505920,577843200,8446464000,123379200000],
   #[32768,491520,7372800,110592000,1658880000,24883200000]]
-lemma mx5_128_119_eq : mx5_128_119 = transform5 120 119 8 9 := by decide +kernel
 def mx5_128_120 : Table := #[
   #[32768,491520,7372800,110592000,1658880000,24883200000],
   #[143360,2215936,34222080,528076800,8142336000,125452800000],
@@ -1823,7 +2218,6 @@ def mx5_128_120 : Table := #[
   #[219520,3593856,58767744,959837824,15657671040,255104784000],
   #[96040,1616216,27178536,456682072,7667316008,128615328600],
   #[16807,290521,5021863,86806489,1500512167,25937424601]]
-lemma mx5_128_120_eq : mx5_128_120 = transform5 121 120 7 8 := by decide +kernel
 def mx5_128_121 : Table := #[
   #[16807,290521,5021863,86806489,1500512167,25937424601],
   #[72030,1288994,23040094,411382818,7337805662,130758917410],
@@ -1831,7 +2225,6 @@ def mx5_128_121 : Table := #[
   #[105840,2023056,38610288,735729296,13997092208,265858305680],
   #[45360,894672,17629488,347035344,6823956784,134027740880],
   #[7776,158112,3214944,65370528,1329200736,27027081632]]
-lemma mx5_128_121_eq : mx5_128_121 = transform5 122 121 6 7 := by decide +kernel
 def mx5_256_226 : Table := #[
   #[24300000,183060000,1379052000,10388858400,78262733280,589579257376],
   #[117450000,891702000,6769558800,51389606640,390090089744,2960940075760],
@@ -1839,7 +2232,6 @@ def mx5_256_226 : Table := #[
   #[219501000,1692327480,13046510024,100569464376,775174656456,5974402113080],
   #[106092150,824201866,6402638966,49734657162,386307863158,3000418760330],
   #[20511149,160552787,1256740781,9837246803,77001897389,602738989907]]
-lemma mx5_256_226_eq : mx5_256_226 = transform5 227 226 29 30 := by decide +kernel
 def mx5_256_227 : Table := #[
   #[20511149,160552787,1256740781,9837246803,77001897389,602738989907],
   #[99019340,781326004,6164768844,48637810868,383711110732,3026971138740],
@@ -1847,7 +2239,6 @@ def mx5_256_227 : Table := #[
   #[184616320,1480022656,11863868800,95091956352,762114966912,6107398462080],
   #[89125120,720113408,5818020096,47002685184,379701948672,3067151650560],
   #[17210368,140141568,1141152768,9292243968,75665415168,616132666368]]
-lemma mx5_256_227_eq : mx5_256_227 = transform5 228 227 28 29 := by decide +kernel
 def mx5_256_242 : Table := #[
   #[537824,9296672,160699616,2777807648,48016389344,829997587232],
   #[2497040,43865584,770390544,13526644208,237445863952,4167136646640],
@@ -1855,7 +2246,6 @@ def mx5_256_242 : Table := #[
   #[4306120,78068536,1414845640,25632054072,464191747272,8403293895480],
   #[1999270,36808538,677523366,12467960154,229381627302,4219009125210],
   #[371293,6940323,129730653,2424965283,45328197213,847288609443]]
-lemma mx5_256_242_eq : mx5_256_242 = transform5 243 242 13 14 := by decide +kernel
 def mx5_256_243 : Table := #[
   #[371293,6940323,129730653,2424965283,45328197213,847288609443],
   #[1713660,32594692,619783164,11781692676,223900344828,4253876969220],
@@ -1863,7 +2253,6 @@ def mx5_256_243 : Table := #[
   #[2920320,57462912,1130221440,22220607616,436679413632,8577920684160],
   #[1347840,26963712,539267328,10782207744,215519367424,4306610384640],
   #[248832,5059584,102878208,2091856896,42534423552,864866612224]]
-lemma mx5_256_243_eq : mx5_256_243 = transform5 244 243 12 13 := by decide +kernel
 def mx10_1_0 : Table := #[
   #[1,0,0,0,0,0,0,0,0,0,0],
   #[0,1,0,0,0,0,0,0,0,0,0],
@@ -1876,7 +2265,6 @@ def mx10_1_0 : Table := #[
   #[0,0,0,0,0,0,0,0,1,0,0],
   #[0,0,0,0,0,0,0,0,0,1,0],
   #[0,0,0,0,0,0,0,0,0,0,1]]
-lemma mx10_1_0_eq : mx10_1_0 = transform10 1 0 0 1 := by decide +kernel
 def mx10_2_0 : Table := #[
   #[1024,0,0,0,0,0,0,0,0,0,0],
   #[5120,512,0,0,0,0,0,0,0,0,0],
@@ -1889,7 +2277,6 @@ def mx10_2_0 : Table := #[
   #[180,144,112,84,60,40,24,12,4,0,0],
   #[20,18,16,14,12,10,8,6,4,2,0],
   #[1,1,1,1,1,1,1,1,1,1,1]]
-lemma mx10_2_0_eq : mx10_2_0 = transform10 1 0 1 2 := by decide +kernel
 def mx10_2_1 : Table := #[
   #[1,1,1,1,1,1,1,1,1,1,1],
   #[0,2,4,6,8,10,12,14,16,18,20],
@@ -1902,7 +2289,6 @@ def mx10_2_1 : Table := #[
   #[0,0,0,0,0,0,0,0,256,2304,11520],
   #[0,0,0,0,0,0,0,0,0,512,5120],
   #[0,0,0,0,0,0,0,0,0,0,1024]]
-lemma mx10_2_1_eq : mx10_2_1 = transform10 2 1 0 1 := by decide +kernel
 def mx10_4_0 : Table := #[
   #[1048576,0,0,0,0,0,0,0,0,0,0],
   #[7864320,262144,0,0,0,0,0,0,0,0,0],
@@ -1915,7 +2301,6 @@ def mx10_4_0 : Table := #[
   #[4723920,1259712,326592,81648,19440,4320,864,144,16,0,0],
   #[787320,236196,69984,20412,5832,1620,432,108,24,4,0],
   #[59049,19683,6561,2187,729,243,81,27,9,3,1]]
-lemma mx10_4_0_eq : mx10_4_0 = transform10 1 0 3 4 := by decide +kernel
 def mx10_4_1 : Table := #[
   #[59049,19683,6561,2187,729,243,81,27,9,3,1],
   #[393660,157464,61236,23328,8748,3240,1188,432,156,56,20],
@@ -1928,7 +2313,6 @@ def mx10_4_1 : Table := #[
   #[103680,89856,77056,65280,54528,44800,36096,28416,21760,16128,11520],
   #[15360,14336,13312,12288,11264,10240,9216,8192,7168,6144,5120],
   #[1024,1024,1024,1024,1024,1024,1024,1024,1024,1024,1024]]
-lemma mx10_4_1_eq : mx10_4_1 = transform10 2 1 2 3 := by decide +kernel
 def mx10_4_2 : Table := #[
   #[1024,1024,1024,1024,1024,1024,1024,1024,1024,1024,1024],
   #[5120,6144,7168,8192,9216,10240,11264,12288,13312,14336,15360],
@@ -1941,7 +2325,6 @@ def mx10_4_2 : Table := #[
   #[180,468,1204,3060,7668,18900,45684,107892,247860,551124,1180980],
   #[20,56,156,432,1188,3240,8748,23328,61236,157464,393660],
   #[1,3,9,27,81,243,729,2187,6561,19683,59049]]
-lemma mx10_4_2_eq : mx10_4_2 = transform10 3 2 1 2 := by decide +kernel
 def mx10_4_3 : Table := #[
   #[1,3,9,27,81,243,729,2187,6561,19683,59049],
   #[0,4,24,108,432,1620,5832,20412,69984,236196,787320],
@@ -1954,7 +2337,6 @@ def mx10_4_3 : Table := #[
   #[0,0,0,0,0,0,0,0,65536,1769472,26542080],
   #[0,0,0,0,0,0,0,0,0,262144,7864320],
   #[0,0,0,0,0,0,0,0,0,0,1048576]]
-lemma mx10_4_3_eq : mx10_4_3 = transform10 4 3 0 1 := by decide +kernel
 def mx10_8_0 : Table := #[
   #[1073741824,0,0,0,0,0,0,0,0,0,0],
   #[9395240960,134217728,0,0,0,0,0,0,0,0,0],
@@ -1967,7 +2349,6 @@ def mx10_8_0 : Table := #[
   #[16602626880,1897443072,210827008,22588608,2304960,219520,18816,1344,64,0,0],
   #[3228288560,415065672,52706752,6588344,806736,96040,10976,1176,112,8,0],
   #[282475249,40353607,5764801,823543,117649,16807,2401,343,49,7,1]]
-lemma mx10_8_0_eq : mx10_8_0 = transform10 1 0 7 8 := by decide +kernel
 def mx10_8_1 : Table := #[
   #[282475249,40353607,5764801,823543,117649,16807,2401,343,49,7,1],
   #[2421216420,392006468,62589268,9882516,1546244,240100,37044,5684,868,132,20],
@@ -1980,7 +2361,6 @@ def mx10_8_1 : Table := #[
   #[3703553280,1093430016,320433408,93125376,26811648,7637760,2149632,596736,163072,43776,11520],
   #[705438720,221709312,69424128,21648384,6718464,2073600,635904,193536,58368,17408,5120],
   #[60466176,20155392,6718464,2239488,746496,248832,82944,27648,9216,3072,1024]]
-lemma mx10_8_1_eq : mx10_8_1 = transform10 2 1 6 7 := by decide +kernel
 def mx10_8_2 : Table := #[
   #[60466176,20155392,6718464,2239488,746496,248832,82944,27648,9216,3072,1024],
   #[503884800,181398528,64945152,23141376,8211456,2903040,1022976,359424,125952,44032,15360],
@@ -1993,7 +2373,6 @@ def mx10_8_2 : Table := #[
   #[632812500,345937500,188312500,102037500,55012500,29497500,15722100,8325180,4376916,2283228,1180980],
   #[117187500,67187500,38437500,21937500,12487500,7087500,4009500,2259900,1268460,708588,393660],
   #[9765625,5859375,3515625,2109375,1265625,759375,455625,273375,164025,98415,59049]]
-lemma mx10_8_2_eq : mx10_8_2 = transform10 3 2 5 6 := by decide +kernel
 def mx10_8_3 : Table := #[
   #[9765625,5859375,3515625,2109375,1265625,759375,455625,273375,164025,98415,59049],
   #[78125000,50000000,31875000,20250000,12825000,8100000,5103000,3207600,2012040,1259712,787320],
@@ -2006,7 +2385,6 @@ def mx10_8_3 : Table := #[
   #[73728000,67829760,62193664,56819712,51707904,46858240,42270720,37945344,33882112,30081024,26542080],
   #[13107200,12582912,12058624,11534336,11010048,10485760,9961472,9437184,8912896,8388608,7864320],
   #[1048576,1048576,1048576,1048576,1048576,1048576,1048576,1048576,1048576,1048576,1048576]]
-lemma mx10_8_3_eq : mx10_8_3 = transform10 4 3 4 5 := by decide +kernel
 def mx10_8_4 : Table := #[
   #[1048576,1048576,1048576,1048576,1048576,1048576,1048576,1048576,1048576,1048576,1048576],
   #[7864320,8388608,8912896,9437184,9961472,10485760,11010048,11534336,12058624,12582912,13107200],
@@ -2019,7 +2397,6 @@ def mx10_8_4 : Table := #[
   #[4723920,7243344,11069136,16854480,25563600,38610000,58050000,86850000,129250000,191250000,281250000],
   #[787320,1259712,2012040,3207600,5103000,8100000,12825000,20250000,31875000,50000000,78125000],
   #[59049,98415,164025,273375,455625,759375,1265625,2109375,3515625,5859375,9765625]]
-lemma mx10_8_4_eq : mx10_8_4 = transform10 5 4 3 4 := by decide +kernel
 def mx10_8_5 : Table := #[
   #[59049,98415,164025,273375,455625,759375,1265625,2109375,3515625,5859375,9765625],
   #[393660,708588,1268460,2259900,4009500,7087500,12487500,21937500,38437500,67187500,117187500],
@@ -2032,7 +2409,6 @@ def mx10_8_5 : Table := #[
   #[103680,283392,771328,2089728,5633280,15102720,40248576,106562304,280122624,730632960,1889568000],
   #[15360,44032,125952,359424,1022976,2903040,8211456,23141376,64945152,181398528,503884800],
   #[1024,3072,9216,27648,82944,248832,746496,2239488,6718464,20155392,60466176]]
-lemma mx10_8_5_eq : mx10_8_5 = transform10 6 5 2 3 := by decide +kernel
 def mx10_8_6 : Table := #[
   #[1024,3072,9216,27648,82944,248832,746496,2239488,6718464,20155392,60466176],
   #[5120,17408,58368,193536,635904,2073600,6718464,21648384,69424128,221709312,705438720],
@@ -2045,7 +2421,6 @@ def mx10_8_6 : Table := #[
   #[180,1116,6868,41916,253428,1516060,8960532,52236156,299769652,1689910236,9338977620],
   #[20,132,868,5684,37044,240100,1546244,9882516,62589268,392006468,2421216420],
   #[1,7,49,343,2401,16807,117649,823543,5764801,40353607,282475249]]
-lemma mx10_8_6_eq : mx10_8_6 = transform10 7 6 1 2 := by decide +kernel
 def mx10_8_7 : Table := #[
   #[1,7,49,343,2401,16807,117649,823543,5764801,40353607,282475249],
   #[0,8,112,1176,10976,96040,806736,6588344,52706752,415065672,3228288560],
@@ -2058,7 +2433,6 @@ def mx10_8_7 : Table := #[
   #[0,0,0,0,0,0,0,0,16777216,1056964608,36993761280],
   #[0,0,0,0,0,0,0,0,0,134217728,9395240960],
   #[0,0,0,0,0,0,0,0,0,0,1073741824]]
-lemma mx10_8_7_eq : mx10_8_7 = transform10 8 7 0 1 := by decide +kernel
 def mx10_16_0 : Table := #[
   #[1099511627776,0,0,0,0,0,0,0,0,0,0],
   #[10307921510400,68719476736,0,0,0,0,0,0,0,0,0],
@@ -2071,7 +2445,6 @@ def mx10_16_0 : Table := #[
   #[29524500000000,1574640000000,81648000000,4082400000,194400000,8640000,345600,11520,256,0,0],
   #[6150937500000,369056250000,21870000000,1275750000,72900000,4050000,216000,10800,480,16,0],
   #[576650390625,38443359375,2562890625,170859375,11390625,759375,50625,3375,225,15,1]]
-lemma mx10_16_0_eq : mx10_16_0 = transform10 1 0 15 16 := by decide +kernel
 def mx10_16_1 : Table := #[
   #[576650390625,38443359375,2562890625,170859375,11390625,759375,50625,3375,225,15,1],
   #[5382070312500,399810937500,29387812500,2141437500,154912500,11137500,796500,56700,4020,284,20],
@@ -2084,7 +2457,6 @@ def mx10_16_1 : Table := #[
   #[14942364192000,1906930287360,241818578176,30449443584,3804105984,471089920,57765120,7004928,838912,99072,11520],
   #[3099157017600,419124091904,56501638144,7589772288,1015411712,135224320,17912832,2358272,308224,39936,5120],
   #[289254654976,41322093568,5903156224,843308032,120472576,17210368,2458624,351232,50176,7168,1024]]
-lemma mx10_16_1_eq : mx10_16_1 = transform10 2 1 14 15 := by decide +kernel
 def mx10_16_2 : Table := #[
   #[289254654976,41322093568,5903156224,843308032,120472576,17210368,2458624,351232,50176,7168,1024],
   #[2685936081920,407317779456,61561486336,9276388352,1394039808,208983040,31259648,4666368,695296,103424,15360],
@@ -2097,7 +2469,6 @@ def mx10_16_2 : Table := #[
   #[7194744959220,1533824749548,326002679860,69064953516,14580847476,3066792300,642452148,134004780,27821556,5747436,1180980],
   #[1484629912220,329555211284,73039273788,16160156532,3568868316,786569940,172974204,37945908,8301852,1810836,393660],
   #[137858491849,31813498119,7341576489,1694209959,390971529,90224199,20820969,4804839,1108809,255879,59049]]
-lemma mx10_16_2_eq : mx10_16_2 = transform10 3 2 13 14 := by decide +kernel
 def mx10_16_3 : Table := #[
   #[137858491849,31813498119,7341576489,1694209959,390971529,90224199,20820969,4804839,1108809,255879,59049],
   #[1272539924760,306714751096,73792255992,17724042648,4250562264,1017914040,243445176,58150872,13874328,3306744,787320],
@@ -2110,7 +2481,6 @@ def mx10_16_3 : Table := #[
   #[3270010798080,1022926454784,319380848640,99516874752,30942756864,9599385600,2970943488,917176320,282394624,86704128,26542080],
   #[670771445760,216710774784,69943689216,22550151168,7261913088,2335703040,750256128,240648192,77070336,24641536,7864320],
   #[61917364224,20639121408,6879707136,2293235712,764411904,254803968,84934656,28311552,9437184,3145728,1048576]]
-lemma mx10_16_3_eq : mx10_16_3 = transform10 4 3 12 13 := by decide +kernel
 def mx10_16_4 : Table := #[
   #[61917364224,20639121408,6879707136,2293235712,764411904,254803968,84934656,28311552,9437184,3145728,1048576],
   #[567575838720,196071653376,67650453504,23314563072,8026324992,2760376320,948436992,325582848,111673344,38273024,13107200],
@@ -2123,7 +2493,6 @@ def mx10_16_4 : Table := #[
   #[1389045548880,597710508912,256833827536,110197536240,47208440400,20191270000,8621250000,3674550000,1563250000,663750000,281250000],
   #[282953722920,125185586504,55343565640,24447541800,10790417000,4758325000,2096325000,922625000,405625000,178125000,78125000],
   #[25937424601,11789738455,5358972025,2435896375,1107225625,503284375,228765625,103984375,47265625,21484375,9765625]]
-lemma mx10_16_4_eq : mx10_16_4 = transform10 5 4 11 12 := by decide +kernel
 def mx10_16_5 : Table := #[
   #[25937424601,11789738455,5358972025,2435896375,1107225625,503284375,228765625,103984375,47265625,21484375,9765625],
   #[235794769100,110609182596,51835874860,24270385700,11354095500,5307362500,2478987500,1157062500,539687500,251562500,117187500],
@@ -2136,7 +2505,6 @@ def mx10_16_5 : Table := #[
   #[544500000000,310860000000,177268000000,100965600000,57434400000,32628960000,18511545600,10487335680,5932590336,3350833920,1889568000],
   #[110000000000,64400000000,37680000000,22032000000,12873600000,7516800000,4385664000,2556748800,1489259520,866681856,503884800],
   #[10000000000,6000000000,3600000000,2160000000,1296000000,777600000,466560000,279936000,167961600,100776960,60466176]]
-lemma mx10_16_5_eq : mx10_16_5 = transform10 6 5 10 11 := by decide +kernel
 def mx10_16_6 : Table := #[
   #[10000000000,6000000000,3600000000,2160000000,1296000000,777600000,466560000,279936000,167961600,100776960,60466176],
   #[90000000000,55600000000,34320000000,21168000000,13046400000,8035200000,4945536000,3041971200,1869972480,1148857344,705438720],
@@ -2149,7 +2517,6 @@ def mx10_16_6 : Table := #[
   #[193710244500,143776048140,106604938836,78960086604,58419695124,43173115020,31867656660,23493564108,17297697172,12718798092,9338977620],
   #[38742048900,29443957164,22365163044,16978477068,12881421252,9766835820,7400391012,5603386572,4239599364,3205229356,2421216420],
   #[3486784401,2711943423,2109289329,1640558367,1275989841,992436543,771895089,600362847,466948881,363182463,282475249]]
-lemma mx10_16_6_eq : mx10_16_6 = transform10 7 6 9 10 := by decide +kernel
 def mx10_16_7 : Table := #[
   #[3486784401,2711943423,2109289329,1640558367,1275989841,992436543,771895089,600362847,466948881,363182463,282475249],
   #[30993639120,24794911296,19820623536,15832690272,12638375568,10081895040,8037510768,6403870368,5099378256,4058419904,3228288560],
@@ -2162,7 +2529,6 @@ def mx10_16_7 : Table := #[
   #[61152952320,58435043328,55784243200,53200551936,50683969536,48234496000,45852131328,43536875520,41288728576,39107690496,36993761280],
   #[12079595520,11811160064,11542724608,11274289152,11005853696,10737418240,10468982784,10200547328,9932111872,9663676416,9395240960],
   #[1073741824,1073741824,1073741824,1073741824,1073741824,1073741824,1073741824,1073741824,1073741824,1073741824,1073741824]]
-lemma mx10_16_7_eq : mx10_16_7 = transform10 8 7 8 9 := by decide +kernel
 def mx10_16_9 : Table := #[
   #[282475249,363182463,466948881,600362847,771895089,992436543,1275989841,1640558367,2109289329,2711943423,3486784401],
   #[2421216420,3205229356,4239599364,5603386572,7400391012,9766835820,12881421252,16978477068,22365163044,29443957164,38742048900],
@@ -2175,7 +2541,6 @@ def mx10_16_9 : Table := #[
   #[3703553280,5890413312,9359006976,14854337280,23550393600,37294560000,58989600000,93189600000,147028000000,231660000000,364500000000],
   #[705438720,1148857344,1869972480,3041971200,4945536000,8035200000,13046400000,21168000000,34320000000,55600000000,90000000000],
   #[60466176,100776960,167961600,279936000,466560000,777600000,1296000000,2160000000,3600000000,6000000000,10000000000]]
-lemma mx10_16_9_eq : mx10_16_9 = transform10 10 9 6 7 := by decide +kernel
 def mx10_16_10 : Table := #[
   #[60466176,100776960,167961600,279936000,466560000,777600000,1296000000,2160000000,3600000000,6000000000,10000000000],
   #[503884800,866681856,1489259520,2556748800,4385664000,7516800000,12873600000,22032000000,37680000000,64400000000,110000000000],
@@ -2188,7 +2553,6 @@ def mx10_16_10 : Table := #[
   #[632812500,1324687500,2769812500,5784487500,12065212500,25132607500,52281546900,108603131340,225264610516,466522873740,964614964500],
   #[117187500,251562500,539687500,1157062500,2478987500,5307362500,11354095500,24270385700,51835874860,110609182596,235794769100],
   #[9765625,21484375,47265625,103984375,228765625,503284375,1107225625,2435896375,5358972025,11789738455,25937424601]]
-lemma mx10_16_10_eq : mx10_16_10 = transform10 11 10 5 6 := by decide +kernel
 def mx10_16_11 : Table := #[
   #[9765625,21484375,47265625,103984375,228765625,503284375,1107225625,2435896375,5358972025,11789738455,25937424601],
   #[78125000,178125000,405625000,922625000,2096325000,4758325000,10790417000,24447541800,55343565640,125185586504,282953722920],
@@ -2201,7 +2565,6 @@ def mx10_16_11 : Table := #[
   #[73728000,209387520,593821696,1681588224,4754571264,13421445120,37822464000,106396581888,298741727232,837174362112,2341250334720],
   #[13107200,38273024,111673344,325582848,948436992,2760376320,8026324992,23314563072,67650453504,196071653376,567575838720],
   #[1048576,3145728,9437184,28311552,84934656,254803968,764411904,2293235712,6879707136,20639121408,61917364224]]
-lemma mx10_16_11_eq : mx10_16_11 = transform10 12 11 4 5 := by decide +kernel
 def mx10_32_0 : Table := #[
   #[1125899906842624,0,0,0,0,0,0,0,0,0,0],
   #[10907155347537920,35184372088832,0,0,0,0,0,0,0,0,0],
@@ -2214,7 +2577,6 @@ def mx10_32_0 : Table := #[
   #[39301219005281280,1014225006587904,25446505541632,615641263104,14185282560,305059840,5904384,95232,1024,0,0],
   #[8460679091414720,245632618783008,7043229212416,198800824544,5496796992,147763360,3813248,92256,1984,32,0],
   #[819628286980801,26439622160671,852891037441,27512614111,887503681,28629151,923521,29791,961,31,1]]
-lemma mx10_32_0_eq : mx10_32_0 = transform10 1 0 31 32 := by decide +kernel
 def mx10_32_1 : Table := #[
   #[819628286980801,26439622160671,852891037441,27512614111,887503681,28629151,923521,29791,961,31,1],
   #[7931886648201300,283159824430412,10014591536404,351451457676,12253276628,424819660,14657172,503564,17236,588,20],
@@ -2227,7 +2589,6 @@ def mx10_32_1 : Table := #[
   #[28373044500000000,1696280940000000,100814868000000,5952722400000,348948000000,20291040000,1169337600,66712320,3763456,209664,11520],
   #[6101730000000000,385786800000000,24319440000000,1527984000000,95644800000,5961600000,369792000,22809600,1397760,84992,5120],
   #[590490000000000,39366000000000,2624400000000,174960000000,11664000000,777600000,51840000,3456000,230400,15360,1024]]
-lemma mx10_32_1_eq : mx10_32_1 = transform10 2 1 30 31 := by decide +kernel
 def mx10_32_2 : Table := #[
   #[590490000000000,39366000000000,2624400000000,174960000000,11664000000,777600000,51840000,3456000,230400,15360,1024],
   #[5708070000000000,401533200000000,28168560000000,1971216000000,137635200000,9590400000,667008000,46310400,3210240,222208,15360],
@@ -2240,7 +2601,6 @@ def mx10_32_2 : Table := #[
   #[20259979724920500,1946821040233740,186586558624564,17833131341964,1699367083956,161425425420,15282265140,1441562508,135456948,12675852,1180980],
   #[4352143792760700,434213886450148,43262689782972,4304141550756,427534389756,42394423140,4195981116,414448164,40844412,4015332,393660],
   #[420707233300201,43521437927607,4502217716649,465746660343,48180689001,4984209207,515607849,53338743,5517801,570807,59049]]
-lemma mx10_32_2_eq : mx10_32_2 = transform10 3 2 29 30 := by decide +kernel
 def mx10_32_3 : Table := #[
   #[420707233300201,43521437927607,4502217716649,465746660343,48180689001,4984209207,515607849,53338743,5517801,570807,59049],
   #[4062000873243320,436214872101992,46781664550008,5010791656104,536079390264,57289761000,6116175864,652326696,69511608,7400808,787320],
@@ -2253,7 +2613,6 @@ def mx10_32_3 : Table := #[
   #[14297916627025920,1929866579214336,260089689997312,34996801437696,4701203791872,630419292160,84382384128,11272912896,1502937088,199950336,26542080],
   #[3067752226488320,426160654123008,59152998596608,8203700535296,1136710385664,157351936000,21759524864,3005743104,414711808,57147392,7864320],
   #[296196766695424,42313823813632,6044831973376,863547424768,123363917824,17623416832,2517630976,359661568,51380224,7340032,1048576]]
-lemma mx10_32_3_eq : mx10_32_3 = transform10 4 3 28 29 := by decide +kernel
 def mx10_32_4 : Table := #[
   #[296196766695424,42313823813632,6044831973376,863547424768,123363917824,17623416832,2517630976,359661568,51380224,7340032,1048576],
   #[2856183107420160,420115822149632,61743640870912,9067247960064,1330567970816,195116400640,28593094656,4187488256,612892672,89653248,13107200],
@@ -2266,7 +2625,6 @@ def mx10_32_4 : Table := #[
   #[9964114047049680,1760854016780208,310860001645776,54820860127920,9657133275600,1699233390000,298634850000,52419150000,9189250000,1608750000,281250000],
   #[2135167295796360,386363605906008,69875159396040,12629907941400,2281476213000,411866775000,74303325000,13395375000,2413125000,434375000,78125000],
   #[205891132094649,38127987424935,7060738412025,1307544150375,242137805625,44840334375,8303765625,1537734375,284765625,52734375,9765625]]
-lemma mx10_32_4_eq : mx10_32_4 = transform10 5 4 27 28 := by decide +kernel
 def mx10_32_5 : Table := #[
   #[205891132094649,38127987424935,7060738412025,1307544150375,242137805625,44840334375,8303765625,1537734375,284765625,52734375,9765625],
   #[1982655346096620,376196142592692,71339608844460,13520975066100,2561279899500,484939912500,91771987500,17359312500,3282187500,620312500,117187500],
@@ -2279,7 +2637,6 @@ def mx10_32_5 : Table := #[
   #[6850571853415680,1518445841013504,336314134004992,74430927477504,16459361568000,3636738743040,802857878784,177084340992,39023265024,8591235840,1889568000],
   #[1465965993323520,331617378546688,74984979803136,16948355134464,3829034806272,864671708160,195166153728,44029080576,9927650304,2237248512,503884800],
   #[141167095653376,32577022073856,7517774324736,1734870998016,400354845696,92389579776,21320672256,4920155136,1135420416,262020096,60466176]]
-lemma mx10_32_5_eq : mx10_32_5 = transform10 6 5 26 27 := by decide +kernel
 def mx10_32_6 : Table := #[
   #[141167095653376,32577022073856,7517774324736,1734870998016,400354845696,92389579776,21320672256,4920155136,1135420416,262020096,60466176],
   #[1357375919744000,319923062930432,75370506691584,17749064825856,4178062107648,983119887360,231247291392,54374022144,12780758016,3003153408,705438720],
@@ -2292,7 +2649,6 @@ def mx10_32_6 : Table := #[
   #[4641723632812500,1253979492187500,338567382812500,91355742187500,24635132812500,6638872187500,1787910652500,481172645100,129404958676,34776573804,9338977620],
   #[991821289062500,272827148437500,75024414062500,20624023437500,5667539062500,1556898437500,427528062500,117354877500,32200531300,8831675132,2421216420],
   #[95367431640625,26702880859375,7476806640625,2093505859375,586181640625,164130859375,45956640625,12867859375,3603000625,1008840175,282475249]]
-lemma mx10_32_6_eq : mx10_32_6 = transform10 7 6 25 26 := by decide +kernel
 def mx10_32_7 : Table := #[
   #[95367431640625,26702880859375,7476806640625,2093505859375,586181640625,164130859375,45956640625,12867859375,3603000625,1008840175,282475249],
   #[915527343750000,261230468750000,74511718750000,21246093750000,6056093750000,1725718750000,491604750000,140002310000,39859481200,11345128368,3228288560],
@@ -2305,7 +2661,6 @@ def mx10_32_7 : Table := #[
   #[3095868211200000,998933476147200,322165983412224,103849943629824,33458818646016,10774244229120,3467598888960,1115399651328,358579437568,115209142272,36993761280],
   #[660451885056000,216628218298368,71035269414912,23287044243456,7631888449536,2500476272640,818996576256,268167020544,87778394112,28722593792,9395240960],
   #[63403380965376,21134460321792,7044820107264,2348273369088,782757789696,260919263232,86973087744,28991029248,9663676416,3221225472,1073741824]]
-lemma mx10_32_7_eq : mx10_32_7 = transform10 8 7 24 25 := by decide +kernel
 def mx10_32_8 : Table := #[
   #[63403380965376,21134460321792,7044820107264,2348273369088,782757789696,260919263232,86973087744,28991029248,9663676416,3221225472,1073741824],
   #[607615734251520,206060988137472,69861132730368,23678423138304,8023267344384,2717908992000,920465178624,311653564416,105495134208,35701915648,12079595520],
@@ -2318,7 +2673,6 @@ def mx10_32_8 : Table := #[
   #[2029820738483520,770743526786496,292537865257792,110986445025216,42089035620672,15954184128960,6044802355008,2289215411136,866529430848,327843827136,123974556480],
   #[432276638751120,166645776677968,64228627232208,24749232066576,9534335103504,3672073602000,1413907992144,544272111504,209455778448,80583461712,30993639120],
   #[41426511213649,16210373953167,6343189807761,2482117750863,971263467729,380059617807,148718980881,58194383823,22771715409,8910671247,3486784401]]
-lemma mx10_32_8_eq : mx10_32_8 = transform10 9 8 23 24 := by decide +kernel
 def mx10_32_9 : Table := #[
   #[41426511213649,16210373953167,6343189807761,2482117750863,971263467729,380059617807,148718980881,58194383823,22771715409,8910671247,3486784401],
   #[396253585521860,157561702385372,62635168923012,24893122950684,9890934251076,3929118754140,1560471625476,619615564956,245978529732,97629963228,38742048900],
@@ -2331,7 +2685,6 @@ def mx10_32_9 : Table := #[
   #[1306320169524480,577259268588288,254996392811776,112599231824640,49701720710400,21929981920000,9672352800000,4264312800000,1879252000000,827820000000,364500000000],
   #[277671920092160,124458481179648,55773842375680,24988930841600,11193688704000,5013078400000,2244598400000,1004784000000,449680000000,201200000000,90000000000],
   #[26559922791424,12072692177920,5487587353600,2494357888000,1133799040000,515363200000,234256000000,106480000000,48400000000,22000000000,10000000000]]
-lemma mx10_32_9_eq : mx10_32_9 = transform10 10 9 22 23 := by decide +kernel
 def mx10_32_10 : Table := #[
   #[26559922791424,12072692177920,5487587353600,2494357888000,1133799040000,515363200000,234256000000,106480000000,48400000000,22000000000,10000000000],
   #[253526535736320,116995362378752,53977904696320,24898226918400,11482292096000,5294185600000,2440521600000,1124816000000,518320000000,238800000000,110000000000],
@@ -2344,7 +2697,6 @@ def mx10_32_10 : Table := #[
   #[823781876882580,420093095657004,214159033330452,109139447359404,55600472590740,28315445821740,14414953560084,7335752583852,3731764901524,1897660711980,964614964500],
   #[174741610247820,90320988154068,46677010628556,24117776289684,12459170883852,6435115685460,3323047096908,1715643448596,885574998924,457013134292,235794769100],
   #[16679880978201,8737080512391,4576565982681,2397248848071,1255701777561,657748550151,344534954841,180470690631,94532266521,49516901511,25937424601]]
-lemma mx10_32_10_eq : mx10_32_10 = transform10 11 10 21 22 := by decide +kernel
 def mx10_32_11 : Table := #[
   #[16679880978201,8737080512391,4576565982681,2397248848071,1255701777561,657748550151,344534954841,180470690631,94532266521,49516901511,25937424601],
   #[158856009316200,84420622093752,44854309025064,23827200671736,12654864667368,6719855317560,3567651999912,1893770364024,1005070331496,533324895928,282953722920],
@@ -2357,7 +2709,6 @@ def mx10_32_11 : Table := #[
   #[508032000000000,297077760000000,173667328000000,101492121600000,59293900800000,34629672960000,20218296729600,11800369889280,6884914692096,4015599058944,2341250334720],
   #[107520000000000,63692800000000,37724160000000,22339584000000,13226803200000,7829913600000,4634247168000,2742327705600,1622464266240,959719145472,567575838720],
   #[10240000000000,6144000000000,3686400000000,2211840000000,1327104000000,796262400000,477757440000,286654464000,171992678400,103195607040,61917364224]]
-lemma mx10_32_11_eq : mx10_32_11 = transform10 12 11 20 21 := by decide +kernel
 def mx10_32_13 : Table := #[
   #[6131066257801,4194940071127,2870222153929,1963836210583,1343677407241,919358226007,629034575689,430392078103,294478790281,201485488087,137858491849],
   #[58083785600220,40285011533252,27935279587228,19368036473604,13425894093404,9305245202500,6448241075484,4467713717636,3095007852508,2143740334788,1484629912220],
@@ -2370,7 +2721,6 @@ def mx10_32_13 : Table := #[
   #[179019259557120,135887133862656,103119213065472,78231425723136,59333639484672,44987976149760,34100852421888,25840735070976,19575498519808,14824722721536,11223375770880],
   #[37688265169920,28960456393728,22250524843008,17092639097856,13128355666944,10081895040000,7741103053824,5942791701504,4561453145088,3500571640832,2685936081920],
   #[3570467226624,2777030065152,2159912272896,1679931767808,1306613597184,1016255020032,790420571136,614771555328,478155654144,371898842112,289254654976]]
-lemma mx10_32_13_eq : mx10_32_13 = transform10 14 13 18 19 := by decide +kernel
 def mx10_32_16 : Table := #[
   #[1099511627776,1099511627776,1099511627776,1099511627776,1099511627776,1099511627776,1099511627776,1099511627776,1099511627776,1099511627776,1099511627776],
   #[10307921510400,10445360463872,10582799417344,10720238370816,10857677324288,10995116277760,11132555231232,11269994184704,11407433138176,11544872091648,11682311045120],
@@ -2383,7 +2733,6 @@ def mx10_32_16 : Table := #[
   #[29524500000000,32673780000000,36149652000000,39984775200000,44214919200000,48879240480000,54020580998400,59685790383360,65926073257216,72797363299584,80360725720320],
   #[6150937500000,6889050000000,7714642500000,8637921000000,9670257900000,10824321600000,12114219924000,13555658750400,15166117354080,16965042096512,18974060239520],
   #[576650390625,653537109375,740675390625,839432109375,951356390625,1078203909375,1221964430625,1384893021375,1569545424225,1778818147455,2015993900449]]
-lemma mx10_32_16_eq : mx10_32_16 = transform10 17 16 15 16 := by decide +kernel
 def mx10_32_17 : Table := #[
   #[576650390625,653537109375,740675390625,839432109375,951356390625,1078203909375,1221964430625,1384893021375,1569545424225,1778818147455,2015993900449],
   #[5382070312500,6181692187500,7098865312500,8150721187500,9356869912500,10739756587500,12325068688500,14142201677100,16224791130420,18611320852588,21345817769460],
@@ -2396,7 +2745,6 @@ def mx10_32_17 : Table := #[
   #[14942364192000,18756224766720,23537359654144,29529364402944,37036700257536,46439769035520,58213684972800,72951640167168,91393975012608,114464330502912,143314587290880],
   #[3099157017600,3937405201408,5001659937792,6352639405056,8067308368896,10243205360640,13003916276736,16505996258304,20947720614912,26580144909312,33721079362560],
   #[289254654976,371898842112,478155654144,614771555328,790420571136,1016255020032,1306613597184,1679931767808,2159912272896,2777030065152,3570467226624]]
-lemma mx10_32_17_eq : mx10_32_17 = transform10 18 17 14 15 := by decide +kernel
 def mx10_64_0 : Table := #[
   #[1152921504606846976,0,0,0,0,0,0,0,0,0,0],
   #[11349071060973649920,18014398509481984,0,0,0,0,0,0,0,0,0],
@@ -2409,7 +2757,6 @@ def mx10_64_0 : Table := #[
   #[45740073418909470720,580826329129009152,7170695421345792,85365421682688,967861923840,10241925120,97542144,774144,4096,0,0],
   #[10005641060386446720,142937729434092096,2016758087253504,28010528989632,381095632512,5040947520,64012032,762048,8064,64,0],
   #[984930291881790849,15633814156853823,248155780267521,3938980639167,62523502209,992436543,15752961,250047,3969,63,1]]
-lemma mx10_64_0_eq : mx10_64_0 = transform10 1 0 63 64 := by decide +kernel
 def mx10_64_1 : Table := #[
   #[984930291881790849,15633814156853823,248155780267521,3938980639167,62523502209,992436543,15752961,250047,3969,63,1],
   #[9692964777249370260,169738553702984364,2946357518096916,50769083793708,869374411668,14807783340,251047188,4238892,71316,1196,20],
@@ -2422,7 +2769,6 @@ def mx10_64_1 : Table := #[
   #[38996634557990350080,1130163602653483776,32567210275384576,932586577662720,26520095010048,748349920000,20936207616,580129536,15904000,430848,11520],
   #[8528364524146037760,261134766279535616,7972935468454912,242650606414848,7358378906624,222236093440,6680810496,199764992,5936128,175104,5120],
   #[839299365868340224,27074173092527104,873360422339584,28172916849664,908803769344,29316250624,945685504,30505984,984064,31744,1024]]
-lemma mx10_64_1_eq : mx10_64_1 = transform10 2 1 62 63 := by decide +kernel
 def mx10_64_2 : Table := #[
   #[839299365868340224,27074173092527104,873360422339584,28172916849664,908803769344,29316250624,945685504,30505984,984064,31744,1024],
   #[8257622793220766720,280348695571006464,9494272978336768,320807730578432,10817696480256,364088919040,12232899584,410354688,13745152,459776,15360],
@@ -2435,7 +2781,6 @@ def mx10_64_2 : Table := #[
   #[33161531002269667380,1518661335164755788,69379603010994484,3161408414273100,143659849396788,6509066042700,293999797044,13235219532,593712180,26532684,1180980],
   #[7250370577557167420,344306334143116676,16329691775965116,773423859907332,36577776603708,1727130206340,81410821308,3830203908,179832636,8424324,393660],
   #[713342911662882601,35082438278502423,1725365816975529,84854056572567,4173150323241,205236901143,10093618089,496407447,24413481,1200663,59049]]
-lemma mx10_64_2_eq : mx10_64_2 = transform10 3 2 61 62 := by decide +kernel
 def mx10_64_3 : Table := #[
   #[713342911662882601,35082438278502423,1725365816975529,84854056572567,4173150323241,205236901143,10093618089,496407447,24413481,1200663,59049],
   #[7016487655700484600,357342431426931784,18177624563545464,923657271544008,46885229861112,2377607816520,120461540472,6097945032,308436984,15588936,787320],
@@ -2448,7 +2793,6 @@ def mx10_64_3 : Table := #[
   #[28124330112000000000,1776597027840000000,112073683968000000,7059911270400000,444065587200000,27887984640000,1748547993600,109444792320,6838091776,426442752,26542080],
   #[6147394560000000000,399076761600000000,25888481280000000,1678123008000000,108689817600000,7033651200000,454754304000,29373235200,1895301120,122159104,7864320],
   #[604661760000000000,40310784000000000,2687385600000000,179159040000000,11943936000000,796262400000,53084160000,3538944000,235929600,15728640,1048576]]
-lemma mx10_64_3_eq : mx10_64_3 = transform10 4 3 60 61 := by decide +kernel
 def mx10_64_4 : Table := #[
   #[604661760000000000,40310784000000000,2687385600000000,179159040000000,11943936000000,796262400000,53084160000,3538944000,235929600,15728640,1048576],
   #[5945840640000000000,407138918400000000,27859230720000000,1905057792000000,130188902400000,8891596800000,606928896000,41405644800,2823290880,192413696,13107200],
@@ -2461,7 +2805,6 @@ def mx10_64_4 : Table := #[
   #[23786530891900002000,1929799907388045360,156426340285513936,12668058220672560,1024939709768400,82843727230000,6689263650000,539557950000,43473250000,3498750000,281250000],
   #[5197797491192963400,431094164806286456,35737035322000840,2961073461598200,245219034557000,20296579675000,1678973325000,138804875000,11468125000,946875000,78125000],
   #[511116753300641401,43314979093274695,3670760940108025,311081435602375,26362833525625,2234138434375,189333765625,16045234375,1359765625,115234375,9765625]]
-lemma mx10_64_4_eq : mx10_64_4 = transform10 5 4 59 60 := by decide +kernel
 def mx10_64_5 : Table := #[
   #[511116753300641401,43314979093274695,3670760940108025,311081435602375,26362833525625,2234138434375,189333765625,16045234375,1359765625,115234375,9765625],
   #[5024537574819864620,435205417059207444,37678183480159660,3260555250449300,282037635955500,24386189012500,2107701987500,182099812500,15727187500,1357812500,117187500],
@@ -2474,7 +2817,6 @@ def mx10_64_5 : Table := #[
   #[20060441435718616320,2000181945607011072,199308944363652352,19847425283635968,1975118744782080,196419749886720,19519602787584,1938390891264,192347571456,19072039680,1889568000],
   #[4382318656390507520,445147272051823616,45201851878124544,4588343374943232,465582735240192,47225095787520,4788254518272,485291824128,49163480064,4978381824,503884800],
   #[430804206899405824,44565952437869568,4610270941848576,476924580191232,49337025537024,5103830227968,527982437376,54618872832,5650228224,584506368,60466176]]
-lemma mx10_64_5_eq : mx10_64_5 = transform10 6 5 58 59 := by decide +kernel
 def mx10_64_6 : Table := #[
   #[430804206899405824,44565952437869568,4610270941848576,476924580191232,49337025537024,5103830227968,527982437376,54618872832,5650228224,584506368,60466176],
   #[4233765481597608960,446171776705567744,47003566958846976,4950148228881408,521157775500288,54851508771840,5771394229248,607085632512,63841084416,6711745536,705438720],
@@ -2487,7 +2829,6 @@ def mx10_64_6 : Table := #[
   #[16868145803614711380,2006217462184302636,238497631355334996,28338721143567660,3365589095199828,399503876870700,47397365659476,5620239085356,666065107540,78892125228,9338977620],
   #[3683847934122753060,445270911819555996,53806598602644132,6500274239997468,785070948596004,94790144419740,11441692448676,1380656662812,166550042148,20084566684,2421216420],
   #[362033331456891249,44460233687688399,5460028698488049,670529840165199,82345769844849,10112638401999,1241902961649,152514398799,18729838449,2300155599,282475249]]
-lemma mx10_64_6_eq : mx10_64_6 = transform10 7 6 57 58 := by decide +kernel
 def mx10_64_7 : Table := #[
   #[362033331456891249,44460233687688399,5460028698488049,670529840165199,82345769844849,10112638401999,1241902961649,152514398799,18729838449,2300155599,282475249],
   #[3556818695015071920,443933761934211984,55393975367116848,6910322563306512,861844448300976,107462623620240,13396366784304,1669631313168,208046726832,25918545296,3228288560],
@@ -2500,7 +2841,6 @@ def mx10_64_7 : Table := #[
   #[14140554538679009280,1963375241711321088,272507933739188224,37808573534699520,5243641232621568,726947961241600,100738944466944,13954399076352,1932148080640,267412045824,36993761280],
   #[3087216585442590720,434841032836775936,61235874985148416,8621657488883712,1213618976718848,170796085411840,24031147327488,3380407697408,475399192576,66840428544,9395240960],
   #[303305489096114176,43329355585159168,6189907940737024,884272562962432,126324651851776,18046378835968,2578054119424,368293445632,52613349376,7516192768,1073741824]]
-lemma mx10_64_7_eq : mx10_64_7 = transform10 8 7 56 57 := by decide +kernel
 def mx10_64_8 : Table := #[
   #[303305489096114176,43329355585159168,6189907940737024,884272562962432,126324651851776,18046378835968,2578054119424,368293445632,52613349376,7516192768,1073741824],
   #[2978893196479692800,431746078866407424,62562283829592064,9063793770364928,1312874060316672,190131491307520,27529935060992,3985461215232,576867794944,83483426816,12079595520],
@@ -2513,7 +2853,6 @@ def mx10_64_8 : Table := #[
   #[11816533315125000000,1884506871555000000,300451430917000000,47886936550200000,7629978529800000,1215318903480000,193515162350400,30803113978560,4901467588416,779662210752,123974556480],
   #[2579005287031250000,416660074943750000,67303816841250000,10869855405750000,1755222376050000,283375822950000,45741835458000,7382140642800,1191150599760,192160562544,30993639120],
   #[253295162119140625,41448299255859375,6782448969140625,1109855285859375,181612683140625,29718439059375,4863017300625,795766467375,130216331025,21308126895,3486784401]]
-lemma mx10_64_8_eq : mx10_64_8 = transform10 9 8 55 56 := by decide +kernel
 def mx10_64_9 : Table := #[
   #[253295162119140625,41448299255859375,6782448969140625,1109855285859375,181612683140625,29718439059375,4863017300625,795766467375,130216331025,21308126895,3486784401],
   #[2486897955351562500,412305910173437500,68345162541562500,11327250311437500,1877031286762500,310992958237500,51518510554500,8533188704700,1413176020740,234001975356,38742048900],
@@ -2526,7 +2865,6 @@ def mx10_64_9 : Table := #[
   #[9842104487289888000,1780194791438426880,321912234176322816,58196356702053120,10518174834105600,1900505449440000,343304762400000,61996946400000,11192788000000,2020140000000,364500000000],
   #[2147368251772339200,393033461839543296,71927062280340480,13161138915916800,2407861385856000,440458300800000,80558582400000,14731632000000,2693520000000,492400000000,90000000000],
   #[210832519264920576,39043059123133440,7230196133913600,1338925209984000,247949112960000,45916502400000,8503056000000,1574640000000,291600000000,54000000000,10000000000]]
-lemma mx10_64_9_eq : mx10_64_9 = transform10 10 9 54 55 := by decide +kernel
 def mx10_64_10 : Table := #[
   #[210832519264920576,39043059123133440,7230196133913600,1338925209984000,247949112960000,45916502400000,8503056000000,1574640000000,291600000000,54000000000,10000000000],
   #[2069282133526072320,387827720623125504,72676860397931520,13617365283763200,2551120873344000,477871747200000,89502537600000,16761168000000,3138480000000,587600000000,110000000000],
@@ -2539,7 +2877,6 @@ def mx10_64_10 : Table := #[
   #[8169716575778790420,1659063338170032492,336841282423976212,68374225408650348,13875947549017620,2815362575955820,571091597941524,115817778725484,23482317418516,4759936388460,964614964500],
   #[1781872339573151820,365837940857157236,75101632592059084,15415490480108532,3163817855524172,649247871644020,133215043723212,27329921150708,5606147301964,1149821037684,235794769100],
   #[174887470365513049,36297399509823463,7533422539774681,1563540527123047,324508411289689,67350802343143,13978468410841,2901191556967,602134096729,124971227623,25937424601]]
-lemma mx10_64_10_eq : mx10_64_10 = transform10 11 10 53 54 := by decide +kernel
 def mx10_64_11 : Table := #[
   #[174887470365513049,36297399509823463,7533422539774681,1563540527123047,324508411289689,67350802343143,13978468410841,2901191556967,602134096729,124971227623,25937424601],
   #[1715877067737109160,360110049339312024,75566818203434536,15855320062352408,3326350370269608,697768175218840,146354324493608,30693909988632,6436534632616,1349603514776,282953722920],
@@ -2552,7 +2889,6 @@ def mx10_64_11 : Table := #[
   #[6757576985018695680,1528055869761847296,345466571992662016,78089041561190400,17647780577476608,3987536692838400,900808579547136,203456780107776,45943305338880,10372448452608,2341250334720],
   #[1473350118326927360,336582450834046976,76883314201853952,17560097338687488,4010282630774784,915746563031040,209086912659456,47734083551232,10896309485568,2487014129664,567575838720],
   #[144555105949057024,33358870603628544,7698200908529664,1776507901968384,409963361992704,94606929690624,21832368390144,5038238859264,1162670505984,268308578304,61917364224]]
-lemma mx10_64_11_eq : mx10_64_11 = transform10 12 11 52 53 := by decide +kernel
 def mx10_64_14 : Table := #[
   #[97656250000000000,27343750000000000,7656250000000000,2143750000000000,600250000000000,168070000000000,47059600000000,13176688000000,3689472640000,1033052339200,289254654976],
   #[957031250000000000,270468750000000000,76431250000000000,21596750000000000,6101970000000000,1723918000000000,486999632000000,137564622720000,38855417574400,10973967420416,3099157017600],
@@ -2565,7 +2901,6 @@ def mx10_64_14 : Table := #[
   #[3738704689080112500,1124968610934636300,338455404046023796,101813068102023180,30622865610122100,9209319892447500,2769159045712500,832541756287500,250265563312500,75219814687500,22604695312500],
   #[814206798955224500,247120071715553036,74997907395642420,22759228544604300,6906096125176500,2095433103487500,635741371912500,192864376687500,58504300312500,17745454687500,5382070312500],
   #[79792266297612001,24426203968656735,7477409378160225,2289002870865375,700715164550625,214504642209375,65664686390625,20101434609375,6153500390625,1883724609375,576650390625]]
-lemma mx10_64_14_eq : mx10_64_14 = transform10 15 14 49 50 := by decide +kernel
 def mx10_64_15 : Table := #[
   #[79792266297612001,24426203968656735,7477409378160225,2289002870865375,700715164550625,214504642209375,65664686390625,20101434609375,6153500390625,1883724609375,576650390625],
   #[781638526997015520,241404007657581664,74550280167562080,23020828872703200,7108207165836000,2194659740700000,677552355900000,209164315500000,64565707500000,19929037500000,6150937500000],
@@ -2578,7 +2913,6 @@ def mx10_64_15 : Table := #[
   #[3044630353957355520,998307367760166912,327296080121167872,107291044718051328,35166698298408960,11525093767249920,3776603398078464,1237375783010304,405363308363776,132778913955840,43486543872000],
   #[662776675691397120,219122084616339456,72439536889626624,23946126302380032,7915246769405952,2616150479339520,864628456292352,285735584268288,94420561035264,31198642438144,10307921510400],
   #[64925062108545024,21641687369515008,7213895789838336,2404631929946112,801543976648704,267181325549568,89060441849856,29686813949952,9895604649984,3298534883328,1099511627776]]
-lemma mx10_64_15_eq : mx10_64_15 = transform10 16 15 48 49 := by decide +kernel
 def mx10_64_22 : Table := #[
   #[17080198121677824,8946770444688384,4686403566265344,2454782820424704,1285838620222464,673534515354624,352803793757184,184801987206144,96801040917504,50705307147264,26559922791424],
   #[166735267378283520,87957210735442944,46397424052159488,24473440846052352,12908483810804736,6808238499363840,3590656792740864,1893620362411008,998601214313472,526588882451456,277671920092160],
@@ -2591,7 +2925,6 @@ def mx10_64_22 : Table := #[
   #[633843364687624980,350859172601767788,194199860714407444,107480536830262380,59480582149804308,32914305630376300,18212011558657044,10076146997896812,5574347653932820,3083586975726444,1705613259420180],
   #[137500412445463620,76623342498645116,42697147988574916,23791239098553852,13256089026720068,7385733742569340,4114826141196228,2292390810515708,1277041070755396,711376990292604,396253585521860],
   #[13422659310152401,7529784491061103,4224025446205009,2369575250310127,1329273920905681,745690248312943,418314041736529,234663974632687,131640766257361,73847259119983,41426511213649]]
-lemma mx10_64_22_eq : mx10_64_22 = transform10 23 22 41 42 := by decide +kernel
 def mx10_64_23 : Table := #[
   #[13422659310152401,7529784491061103,4224025446205009,2369575250310127,1329273920905681,745690248312943,418314041736529,234663974632687,131640766257361,73847259119983,41426511213649],
   #[130952773757584400,73972347322576944,41783360935525264,23600265907648688,13329389391393552,7528071223689520,4251454693534352,2400888682138032,1355774254391824,765568192107056,432276638751120],
@@ -2604,7 +2937,6 @@ def mx10_64_23 : Table := #[
   #[495747072000000000,293578997760000000,173842628608000000,102932781465600000,60942031257600000,36078260060160000,21356955146649600,12641477150638080,7482051485761536,4427999663357952,2620342853959680],
   #[107479040000000000,64067993600000000,38189137920000000,22762487808000000,13566895718400000,8085779251200000,4818852642816000,2871742640947200,1711304217722880,1019737710526464,607615734251520],
   #[10485760000000000,6291456000000000,3774873600000000,2264924160000000,1358954496000000,815372697600000,489223618560000,293534171136000,176120502681600,105672301608960,63403380965376]]
-lemma mx10_64_23_eq : mx10_64_23 = transform10 24 23 40 41 := by decide +kernel
 def mx10_64_24 : Table := #[
   #[10485760000000000,6291456000000000,3774873600000000,2264924160000000,1358954496000000,815372697600000,489223618560000,293534171136000,176120502681600,105672301608960,63403380965376],
   #[102236160000000000,61761126400000000,37308334080000000,22535995392000000,13612194201600000,8221674700800000,4965619728384000,2998940781772800,1811105835909120,1093708321652736,660451885056000],
@@ -2617,7 +2949,6 @@ def mx10_64_24 : Table := #[
   #[385344666754632000,243854009628315840,154304289206773056,97632255352132800,61769707538760000,39077281035000000,24719482125000000,15635806875000000,9889328125000000,6254296875000000,3955078125000000],
   #[83491344463503600,53177564012139216,33868612448377200,21569899254930000,13736634297750000,8747698781250000,5570424843750000,3547019531250000,2258496093750000,1437988281250000,915527343750000],
   #[8140406085191601,5218209028968975,3345005787800625,2144234479359375,1374509281640625,881095693359375,564804931640625,362054443359375,232086181640625,148773193359375,95367431640625]]
-lemma mx10_64_24_eq : mx10_64_24 = transform10 25 24 39 40 := by decide +kernel
 def mx10_64_25 : Table := #[
   #[8140406085191601,5218209028968975,3345005787800625,2144234479359375,1374509281640625,881095693359375,564804931640625,362054443359375,232086181640625,148773193359375,95367431640625],
   #[79316777240328420,51186616567240284,33031503307635300,21314790332257500,13753551335062500,8874215085937500,5725673789062500,3694069335937500,2383227539062500,1537475585937500,991821289062500],
@@ -2630,7 +2961,6 @@ def mx10_64_25 : Table := #[
   #[297584632919358720,201040306665898752,135807647281806592,91734659643065088,61959871788023040,41846108709733120,28259654005849344,19082948223615744,12885184697072896,8699655192134400,5873261191200000],
   #[64434279492510720,43808353587485696,29783749135688704,20248089520069632,13764827199398912,9357056807787520,6360471651935232,4323352896232448,2938550198232064,1997222045604864,1357375919744000],
   #[6278211847988224,4295618632834048,2939107485623296,2010968279636992,1375925665014784,941422823431168,644131405505536,440721487977472,301546281247744,206321139801088,141167095653376]]
-lemma mx10_64_25_eq : mx10_64_25 = transform10 26 25 38 39 := by decide +kernel
 def mx10_128_46 : Table := #[
   #[13744803133596058624,7710499318846569472,4325402056913929216,2426445056317570048,1361176495007417344,763586814272453632,428353578738205696,240295910023871488,134800144647537664,75619593338862592,42420747482776576],
   #[135771835831863505920,76426338423392242688,43020091083558581248,24215561426303978496,13630529843430585344,7672306537891302400,4318512696780616704,2430734555374029824,1368157141486302208,770068881053125632,433429376454456320],
@@ -2643,7 +2973,6 @@ def mx10_128_46 : Table := #[
   #[560686848742790049780,323175780145573234956,186272443383378378228,107361789636907186956,61878838686726835188,35663651211509230860,20554203199901735412,11845861084357304076,6826902933094918132,3934339908369010956,2267310715932882420],
   #[123077600943539279220,71178211494176916492,41163310750249165428,23805026499277600524,13766456076543094644,7961056703230437900,4603777513384066164,2662275221684231436,1539524311970482548,890256385709920268,514800017627272820],
   #[12157665459056928801,7054447858958958687,4093321597173716769,2375137223051415903,1378166043005142561,799676592854835807,464009874866386209,269240297761977183,156225851787813921,90649568321324127,52599132235830049]]
-lemma mx10_128_46_eq : mx10_128_46 = transform10 47 46 81 82 := by decide +kernel
 def mx10_128_47 : Table := #[
   #[12157665459056928801,7054447858958958687,4093321597173716769,2375137223051415903,1378166043005142561,799676592854835807,464009874866386209,269240297761977183,156225851787813921,90649568321324127,52599132235830049],
   #[120075708237599296800,69910745685002257248,40703121193225169952,23697717961750717536,13796864783559756576,8032475153866278240,4676419983943658016,2722530733555312224,1584992723785795872,922734980716562272,537182627089328160],
@@ -2656,7 +2985,6 @@ def mx10_128_47 : Table := #[
   #[495338913792000000000,295246453800960000000,175978030563328000000,104887490288025600000,62514443531059200000,37258763446517760000,22205873092401561600,13234226846792417280,7887158288880500736,4700388513407827968,2801161371050311680],
   #[108716359680000000000,65015067443200000000,38880191447040000000,23250805456896000000,13904097627340800000,8314627188326400000,4972077480148992000,2973227188381286400,1777924733203906560,1063147892027424768,635724566479503360],
   #[10737418240000000000,6442450944000000000,3865470566400000000,2319282339840000000,1391569403904000000,834941642342400000,500964985405440000,300578991243264000,180347394745958400,108208436847575040,64925062108545024]]
-lemma mx10_128_47_eq : mx10_128_47 = transform10 48 47 80 81 := by decide +kernel
 def mx10_128_48 : Table := #[
   #[10737418240000000000,6442450944000000000,3865470566400000000,2319282339840000000,1391569403904000000,834941642342400000,500964985405440000,300578991243264000,180347394745958400,108208436847575040,64925062108545024],
   #[106032005120000000000,63833951436800000000,38429219880960000000,23134841339904000000,13927290450739200000,8384205658521600000,5047222227959808000,3038352636483993600,1829023161715261440,1101020844924076032,662776675691397120],
@@ -2669,7 +2997,6 @@ def mx10_128_48 : Table := #[
   #[436927337253089568000,269235731360511394560,165900553077896598784,102224404444461503232,62987289511204472064,38809923335870391040,23912453645972747520,14733195324292510464,9077393415081010432,5592638310282019584,3445590241456231680],
   #[95881276786094655200,59276475420669151392,36645974546291828704,22655074099081029536,14005543789366872288,8658241805060851360,5352475150859037152,3308832565934876064,2045455678297590496,1264446542312178848,781638526997015520],
   #[9468276082626847201,5872728203148297631,3642578252585652961,2259320688312620191,1401350806674916321,869192272494568351,539119257623213281,334390425614398111,207406719684879841,128644674234925471,79792266297612001]]
-lemma mx10_128_48_eq : mx10_128_48 = transform10 49 48 79 80 := by decide +kernel
 def mx10_128_49 : Table := #[
   #[9468276082626847201,5872728203148297631,3642578252585652961,2259320688312620191,1401350806674916321,869192272494568351,539119257623213281,334390425614398111,207406719684879841,128644674234925471,79792266297612001],
   #[93484244866442288820,58178088642296801228,36205590505421230516,22531339667171374284,14021472344131454132,8725603644830515660,5429910001605228468,3378975946353086156,2102678715400006324,1308446942386330572,814206798955224500],
@@ -2682,7 +3009,6 @@ def mx10_128_49 : Table := #[
   #[384789770434505329920,245061501962540200704,156069647793458171136,99392486455724716800,63296597476438560000,40308704324460000000,25668999076500000000,16345966747500000000,10408875812500000000,6628092187500000000,4220507812500000000],
   #[84426447521494840320,53944143002536430592,34467159207108326400,22022268952844160000,14070644282448000000,8990031726000000000,5743858770000000000,3669792750000000000,2344631250000000000,1497968750000000000,957031250000000000],
   #[8335775831236199424,5343446045664230400,3425285926707840000,2195696106864000000,1407497504400000000,902241990000000000,578360250000000000,370743750000000000,237656250000000000,152343750000000000,97656250000000000]]
-lemma mx10_128_49_eq : mx10_128_49 = transform10 50 49 78 79 := by decide +kernel
 def mx10_256_98 : Table := #[
   #[9695514708609891533824,6013673680023856774144,3730000130647708632064,2313544384832123075584,1434983226035114312704,890052887034437991424,552058119806170399744,342415795829143665664,212384480957316957184,131732146416563682304,81707280688754689024],
   #[96341506914667909544960,59855549784975246099456,37187262992014213184512,23103767833752359011328,14353909970370876079104,8917773501325413975040,5540404519852728974336,3442114663678498440192,2138493907071388023808,1328585566584619664384,825410284508848389120],
@@ -2695,7 +3021,6 @@ def mx10_256_98 : Table := #[
   #[414690328679850815155380,260636699846078291095884,163811786779319383306420,102956232043789737979212,64708009513354582815924,40668798702209240148300,25560099805660949035188,16064293819375392744780,10096215681686938942644,6345319322221015638348,3987918020378585088180],
   #[91570156965874230632060,57647190165358313925764,36291186054517230405756,22846675276077966230148,14382807948064273724028,9054472939781973547140,5700087026130247998588,3588381516957351882372,2258991232627436406396,1422097213264533341316,895246902533968081020],
   #[9099059901039401398249,5737623759254144830743,3617992052013760116201,2281409000951351920407,1438595484676330191849,907139827916921585943,572018108049523802601,360699316540782525207,227447339729538025449,143422207854931621143,90438207500880449001]]
-lemma mx10_256_98_eq : mx10_256_98 = transform10 99 98 157 158 := by decide +kernel
 def mx10_256_99 : Table := #[
   #[9099059901039401398249,5737623759254144830743,3617992052013760116201,2281409000951351920407,1438595484676330191849,907139827916921585943,572018108049523802601,360699316540782525207,227447339729538025449,143422207854931621143,90438207500880449001],
   #[90411041054913797332920,57105285019724582689096,36068654985757971918264,22781504742949072177992,14389101745462330112952,9088323618556458171720,5740275134860228053432,3625604813858298621768,2289955561963324102584,1446346943834099081544,913517247483640899000],
@@ -2708,1684 +3033,537 @@ def mx10_256_99 : Table := #[
   #[389052853896598493921280,248579548426306161672192,158825458523977192636416,101478203351091752140800,64837064631416463360000,41425889128565760000000,26467824449664000000000,16910737983360000000000,10804502608000000000000,6903111600000000000000,4410450000000000000000],
   #[85905513386934699294720,54977844971099512111104,35184649458783603916800,22517365770999889920000,14410557095141376000000,9222375232512000000000,5902060170240000000000,3777141888000000000000,2417251200000000000000,1546960000000000000000,990000000000000000000],
   #[8535834451185868210176,5471688750760171929600,3507492788948828160000,2248392813428736000000,1441277444505600000000,923895797760000000000,592240896000000000000,379641600000000000000,243360000000000000000,156000000000000000000,100000000000000000000]]
-lemma mx10_256_99_eq : mx10_256_99 = transform10 100 99 156 157 := by decide +kernel
 
-/- Signs certified once on each rectangle and inherited by its descendants. -/
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s0 : Pol 1 0 1 0 table0 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
 
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s1 : Pol 1 0 1 0 table1 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s2 : Pol 1 0 1 0 table7 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s3 : Pol 1 0 1 0 table8 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s4 : Pol 1 0 1 0 table9 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s5 : Pol 1 0 1 0 table23 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s6 : Pol 1 0 1 0 table24 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s7 : Pol 1 0 1 0 table25 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s8 : Pol 1 0 1 0 table26 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s9 : Pol 1 0 1 0 table27 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s10 : Pol 1 0 1 0 table28 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s11 : Pol 1 0 1 0 table29 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s12 : Pol 1 0 1 0 table30 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s13 : Pol 1 0 1 0 table31 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s14 : Pol 1 0 1 0 table32 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s15 : Pol 1 0 1 0 table33 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s16 : Pol 1 0 1 0 table34 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s17 : Pol 2 0 1 0 table2 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s18 : Pol 2 0 1 0 table3 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s19 : Pol 2 0 2 0 table10 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s20 : Pol 2 0 2 0 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s21 : Pol 2 0 2 0 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s22 : Pol 2 0 2 0 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s23 : Pol 2 0 2 0 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s24 : Pol 2 0 2 0 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s25 : Pol 2 0 2 0 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s26 : Pol 2 0 2 0 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s27 : Pol 2 0 2 0 table22 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s28 : Pol 4 0 2 0 table4 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s29 : Pol 4 0 2 0 table5 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s30 : Pol 4 0 2 0 table13 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s31 : Pol 4 0 2 0 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s32 : Pol 4 1 2 0 table6 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s33 : Pol 4 1 2 0 table11 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s34 : Pol 8 2 2 0 table4 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s35 : Pol 8 2 2 0 table13 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s36 : Pol 8 2 2 0 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s37 : Pol 8 3 2 0 table5 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s38 : Pol 8 3 2 0 table12 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s39 : Pol 2 0 2 1 table4 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_1_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s40 : Pol 2 0 2 1 table6 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_1_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s41 : Pol 2 0 4 2 table10 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s42 : Pol 2 0 4 2 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s43 : Pol 2 0 4 2 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s44 : Pol 2 0 4 2 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s45 : Pol 2 0 4 2 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s46 : Pol 2 0 4 2 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s47 : Pol 2 0 4 2 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s48 : Pol 2 0 4 2 table22 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s49 : Pol 4 0 4 2 table5 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s50 : Pol 4 0 4 2 table12 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s51 : Pol 4 0 4 2 table13 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s52 : Pol 4 0 4 2 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s53 : Pol 4 0 4 2 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s54 : Pol 4 1 4 2 table11 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s55 : Pol 8 2 4 2 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s56 : Pol 8 2 4 2 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s57 : Pol 8 3 4 2 table12 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_2_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s58 : Pol 4 0 4 3 table5 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s59 : Pol 4 0 4 3 table12 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s60 : Pol 4 0 4 3 table13 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s61 : Pol 4 0 4 3 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s62 : Pol 4 0 4 3 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s63 : Pol 8 0 4 3 table11 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s64 : Pol 8 0 8 6 table10 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s65 : Pol 8 0 8 6 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s66 : Pol 8 0 8 6 table22 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s67 : Pol 8 0 16 12 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_12_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s68 : Pol 8 0 16 12 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_12_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s69 : Pol 8 0 32 24 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_24_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s70 : Pol 8 0 32 24 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_24_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s71 : Pol 8 0 32 24 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_24_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s72 : Pol 16 0 64 50 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_64_50_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s73 : Pol 16 0 64 50 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_64_50_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s74 : Pol 32 0 128 102 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_0_eq mx5_128_102_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s75 : Pol 64 0 128 103 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_0_eq mx5_128_103_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s76 : Pol 64 1 128 103 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_1_eq mx5_128_103_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s77 : Pol 32 1 64 51 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_1_eq mx5_64_51_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s78 : Pol 32 1 64 51 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_1_eq mx5_64_51_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s79 : Pol 16 1 32 25 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_25_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s80 : Pol 16 1 32 25 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_25_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s81 : Pol 16 1 32 25 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_25_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s82 : Pol 8 0 32 26 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_26_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s83 : Pol 16 0 64 52 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_64_52_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s84 : Pol 32 0 64 52 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_0_eq mx5_64_52_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s85 : Pol 32 1 128 104 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_1_eq mx5_128_104_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s86 : Pol 64 2 128 105 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_2_eq mx5_128_105_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s87 : Pol 64 3 128 105 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_3_eq mx5_128_105_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s88 : Pol 16 0 64 53 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_64_53_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s89 : Pol 32 0 64 53 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_0_eq mx5_64_53_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s90 : Pol 32 0 64 53 table19 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_0_eq mx5_64_53_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s91 : Pol 32 1 64 53 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_1_eq mx5_64_53_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s92 : Pol 16 1 32 26 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_26_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s93 : Pol 16 1 64 52 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_64_52_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s94 : Pol 16 1 64 52 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_64_52_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s95 : Pol 32 2 128 106 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_2_eq mx5_128_106_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s96 : Pol 64 4 128 107 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_4_eq mx5_128_107_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s97 : Pol 64 5 128 107 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_5_eq mx5_128_107_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s98 : Pol 32 3 64 53 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_3_eq mx5_64_53_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s99 : Pol 32 3 64 53 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_3_eq mx5_64_53_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s100 : Pol 16 0 32 27 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_32_27_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s101 : Pol 16 0 32 27 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_32_27_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s102 : Pol 16 0 32 27 table19 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_32_27_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s103 : Pol 16 1 32 27 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_27_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s104 : Pol 16 1 64 54 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_64_54_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s105 : Pol 32 2 64 54 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_2_eq mx5_64_54_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s106 : Pol 32 3 128 108 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_3_eq mx5_128_108_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s107 : Pol 64 6 128 109 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_6_eq mx5_128_109_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s108 : Pol 64 7 128 109 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_7_eq mx5_128_109_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s109 : Pol 16 1 64 55 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_64_55_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s110 : Pol 32 2 64 55 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_2_eq mx5_64_55_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s111 : Pol 32 2 64 55 table19 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_2_eq mx5_64_55_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s112 : Pol 32 3 64 55 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_3_eq mx5_64_55_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s113 : Pol 8 0 8 7 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s114 : Pol 8 0 8 7 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s115 : Pol 8 0 8 7 table19 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s116 : Pol 8 0 16 14 table22 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s117 : Pol 16 0 16 14 table20 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s118 : Pol 16 1 16 14 table10 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s119 : Pol 16 1 32 28 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_28_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s120 : Pol 16 1 32 29 table20 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_29_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s121 : Pol 8 0 16 15 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s122 : Pol 8 0 16 15 table20 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s123 : Pol 8 0 32 30 table22 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_30_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s124 : Pol 8 0 32 31 table21 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s125 : Pol 8 1 4 3 table10 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s126 : Pol 8 1 4 3 table22 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s127 : Pol 8 1 8 6 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s128 : Pol 8 1 8 6 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s129 : Pol 8 1 8 6 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s130 : Pol 16 2 8 6 table11 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s131 : Pol 16 2 16 12 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_12_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s132 : Pol 16 2 16 12 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_12_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s133 : Pol 16 2 16 12 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_12_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s134 : Pol 16 2 32 26 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_26_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s135 : Pol 16 2 32 26 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_26_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s136 : Pol 16 2 32 26 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_26_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s137 : Pol 16 2 64 54 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_64_54_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s138 : Pol 16 2 64 54 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_64_54_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s139 : Pol 32 4 128 110 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_128_110_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s140 : Pol 64 8 128 111 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_8_eq mx5_128_111_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s141 : Pol 64 9 128 111 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_9_eq mx5_128_111_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s142 : Pol 32 5 64 55 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_64_55_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s143 : Pol 32 5 64 55 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_64_55_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s144 : Pol 16 3 8 6 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s145 : Pol 16 3 8 6 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s146 : Pol 16 3 8 6 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s147 : Pol 8 1 16 14 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s148 : Pol 16 2 16 14 table11 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s149 : Pol 16 2 32 28 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_28_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s150 : Pol 16 2 64 56 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_64_56_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s151 : Pol 32 4 64 56 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_64_56_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s152 : Pol 32 5 128 112 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_128_112_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s153 : Pol 64 10 128 113 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_10_eq mx5_128_113_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s154 : Pol 64 11 256 226 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_11_eq mx5_256_226_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s155 : Pol 64 11 256 226 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_11_eq mx5_256_226_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s156 : Pol 64 11 256 227 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_11_eq mx5_256_227_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s157 : Pol 16 2 64 57 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_64_57_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s158 : Pol 32 4 64 57 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_64_57_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s159 : Pol 32 4 64 57 table19 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_64_57_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s160 : Pol 32 5 64 57 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_64_57_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s161 : Pol 16 2 32 29 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_29_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s162 : Pol 16 2 32 29 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_29_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s163 : Pol 16 2 32 29 table19 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_29_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s164 : Pol 16 3 16 14 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s165 : Pol 16 3 16 14 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s166 : Pol 32 6 16 14 table11 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s167 : Pol 32 6 64 56 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_64_56_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s168 : Pol 32 6 64 56 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_64_56_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s169 : Pol 32 6 128 114 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_128_114_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s170 : Pol 32 6 128 115 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_128_115_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s171 : Pol 32 6 32 29 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_32_29_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s172 : Pol 32 7 32 28 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_7_eq mx5_32_28_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s173 : Pol 32 7 32 28 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_7_eq mx5_32_28_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s174 : Pol 64 14 32 29 table11 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_14_eq mx5_32_29_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s175 : Pol 64 14 32 29 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_14_eq mx5_32_29_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s176 : Pol 64 15 64 58 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_15_eq mx5_64_58_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s177 : Pol 64 15 64 59 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_15_eq mx5_64_59_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s178 : Pol 64 15 64 59 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_15_eq mx5_64_59_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s179 : Pol 8 1 16 15 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s180 : Pol 8 1 16 15 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s181 : Pol 8 1 16 15 table19 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s182 : Pol 16 2 16 15 table11 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s183 : Pol 32 4 16 15 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s184 : Pol 32 4 16 15 table20 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s185 : Pol 32 5 32 30 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_32_30_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s186 : Pol 32 5 32 31 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s187 : Pol 32 5 32 31 table20 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s188 : Pol 16 3 16 15 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s189 : Pol 4 1 4 3 table10 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s190 : Pol 4 1 4 3 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s191 : Pol 4 1 4 3 table22 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s192 : Pol 8 2 4 3 table5 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s193 : Pol 8 2 8 6 table11 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s194 : Pol 8 2 8 6 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s195 : Pol 8 2 8 6 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s196 : Pol 8 2 8 6 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s197 : Pol 8 2 8 6 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s198 : Pol 8 2 8 6 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s199 : Pol 8 2 8 6 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s200 : Pol 8 2 8 6 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s201 : Pol 16 4 8 7 table13 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s202 : Pol 16 4 8 7 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s203 : Pol 16 4 8 7 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s204 : Pol 16 4 16 14 table11 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s205 : Pol 16 4 16 14 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s206 : Pol 16 4 16 14 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s207 : Pol 16 4 32 28 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_28_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s208 : Pol 16 4 32 28 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_28_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s209 : Pol 16 4 32 28 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_28_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s210 : Pol 16 4 32 29 table12 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_29_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s211 : Pol 16 4 64 58 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_64_58_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s212 : Pol 32 8 128 118 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_8_eq mx5_128_118_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s213 : Pol 32 8 128 119 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_8_eq mx5_128_119_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s214 : Pol 32 8 128 119 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_8_eq mx5_128_119_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s215 : Pol 32 9 64 59 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_9_eq mx5_64_59_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s216 : Pol 16 4 16 15 table12 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s217 : Pol 16 4 16 15 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_15_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s218 : Pol 16 4 32 30 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_30_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s219 : Pol 16 4 64 60 table11 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s220 : Pol 16 4 64 60 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s221 : Pol 32 8 64 60 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_8_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s222 : Pol 32 9 128 120 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_9_eq mx5_128_120_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s223 : Pol 32 9 128 121 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_9_eq mx5_128_121_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s224 : Pol 16 4 64 61 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_64_61_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s225 : Pol 16 4 32 31 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s226 : Pol 16 4 32 31 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s227 : Pol 16 4 32 31 table19 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s228 : Pol 16 5 8 7 table11 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_5_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s229 : Pol 16 5 8 7 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_5_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s230 : Pol 32 10 8 7 table13 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s231 : Pol 32 10 8 7 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s232 : Pol 32 10 8 7 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s233 : Pol 32 10 16 14 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s234 : Pol 32 10 16 14 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s235 : Pol 32 10 16 14 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s236 : Pol 32 10 64 60 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s237 : Pol 32 10 64 60 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s238 : Pol 32 10 64 61 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_64_61_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s239 : Pol 32 10 64 61 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_64_61_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s240 : Pol 32 10 32 31 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s241 : Pol 32 10 32 31 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s242 : Pol 32 10 32 31 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s243 : Pol 32 11 8 7 table12 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s244 : Pol 32 11 16 14 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s245 : Pol 32 11 16 14 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s246 : Pol 32 11 16 14 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s247 : Pol 32 11 16 14 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s248 : Pol 32 11 16 14 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s249 : Pol 32 11 16 14 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s250 : Pol 32 11 32 30 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_30_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s251 : Pol 32 11 32 30 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_30_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s252 : Pol 64 22 32 30 table13 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_32_30_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s253 : Pol 64 22 32 30 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_32_30_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s254 : Pol 64 22 128 120 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_128_120_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s255 : Pol 64 22 128 120 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_128_120_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s256 : Pol 64 22 128 121 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_128_121_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s257 : Pol 64 22 64 61 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_64_61_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s258 : Pol 64 23 64 60 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_23_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s259 : Pol 64 23 64 60 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_23_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s260 : Pol 64 23 64 61 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_23_eq mx5_64_61_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s261 : Pol 64 23 64 61 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_23_eq mx5_64_61_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s262 : Pol 32 11 32 31 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s263 : Pol 32 11 32 31 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s264 : Pol 32 11 32 31 table18 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s265 : Pol 64 22 32 31 table13 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s266 : Pol 64 22 32 31 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s267 : Pol 128 46 32 31 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_128_46_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s268 : Pol 128 47 32 31 table13 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_128_47_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s269 : Pol 128 47 32 31 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_128_47_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s270 : Pol 8 3 4 3 table11 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s271 : Pol 8 3 4 3 table12 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s272 : Pol 8 3 4 3 table13 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s273 : Pol 8 3 4 3 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s274 : Pol 8 3 4 3 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s275 : Pol 8 3 8 6 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s276 : Pol 8 3 8 6 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_8_6_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s277 : Pol 16 6 16 14 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s278 : Pol 16 6 16 14 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_16_14_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s279 : Pol 16 6 64 60 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s280 : Pol 64 24 64 60 table5 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_24_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s281 : Pol 128 48 64 60 table14 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_128_48_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s282 : Pol 128 48 64 60 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_128_48_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s283 : Pol 128 49 128 120 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_128_49_eq mx5_128_120_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s284 : Pol 128 49 128 120 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_128_49_eq mx5_128_120_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s285 : Pol 256 98 256 242 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_256_98_eq mx5_256_242_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s286 : Pol 256 98 256 243 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_256_98_eq mx5_256_243_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s287 : Pol 256 98 256 243 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_256_98_eq mx5_256_243_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s288 : Pol 256 99 128 121 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_256_99_eq mx5_128_121_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s289 : Pol 256 99 128 121 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_256_99_eq mx5_128_121_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s290 : Pol 64 25 64 60 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_64_25_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s291 : Pol 32 13 64 60 table5 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_13_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s292 : Pol 32 13 64 60 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_13_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s293 : Pol 32 13 64 60 table15 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_13_eq mx5_64_60_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s294 : Pol 16 6 64 61 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_64_61_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s295 : Pol 16 6 64 61 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_64_61_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s296 : Pol 16 6 32 31 table15 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s297 : Pol 16 6 32 31 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s298 : Pol 16 6 32 31 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_32_31_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s299 : Pol 16 7 8 7 table5 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_7_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s300 : Pol 16 7 8 7 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_7_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s301 : Pol 16 7 8 7 table15 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_7_eq mx5_8_7_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s302 : Pol 2 1 1 0 table5 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s303 : Pol 2 1 1 0 table6 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s304 : Pol 2 1 1 0 table10 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s305 : Pol 2 1 1 0 table11 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s306 : Pol 2 1 1 0 table12 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s307 : Pol 2 1 1 0 table13 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s308 : Pol 2 1 1 0 table19 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s309 : Pol 2 1 1 0 table20 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s310 : Pol 2 1 1 0 table21 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s311 : Pol 2 1 1 0 table22 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s312 : Pol 4 2 1 0 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s313 : Pol 4 2 2 0 table17 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s314 : Pol 8 4 2 0 table2 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_4_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s315 : Pol 8 4 2 0 table16 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_4_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s316 : Pol 32 16 2 0 table3 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_16_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s317 : Pol 32 16 2 0 table15 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_16_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s318 : Pol 32 17 2 0 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_32_17_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s319 : Pol 16 9 2 0 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_9_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s320 : Pol 8 5 2 0 table4 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_5_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s321 : Pol 8 5 2 0 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_5_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s322 : Pol 16 10 2 0 table2 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_10_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s323 : Pol 16 11 2 0 table15 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_16_11_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s324 : Pol 4 2 2 1 table2 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_2_1_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s325 : Pol 4 2 2 1 table3 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_2_1_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s326 : Pol 4 2 2 1 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_2_1_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s327 : Pol 4 3 1 0 table4 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_3_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s328 : Pol 4 3 1 0 table14 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_3_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s329 : Pol 4 3 1 0 table15 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_3_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s330 : Pol 4 3 1 0 table16 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_4_3_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s331 : Pol 8 6 2 0 table18 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_6_eq mx5_2_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s332 : Pol 8 6 2 1 table2 .up :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_6_eq mx5_2_1_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s333 : Pol 8 7 1 0 table3 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_7_eq mx5_1_0_eq (by decide +kernel)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 2000000 in
-lemma s334 : Pol 8 7 1 0 table17 .down :=
-  signFast _ _ _ _ _ _ _ _ mx10_8_7_eq mx5_1_0_eq (by decide +kernel)
-
+private def mx5Chk0 : Bool := ((((decide (mx5_1_0 = transform5 1 0 0 1) && decide (mx5_2_0 = transform5 1 0 1 2)) && (decide (mx5_2_1 = transform5 2 1 0 1) && decide (mx5_4_2 = transform5 3 2 1 2))) && ((decide (mx5_4_3 = transform5 4 3 0 1) && decide (mx5_8_6 = transform5 7 6 1 2)) && (decide (mx5_8_7 = transform5 8 7 0 1) && decide (mx5_16_12 = transform5 13 12 3 4)))) && (((decide (mx5_16_14 = transform5 15 14 1 2) && decide (mx5_16_15 = transform5 16 15 0 1)) && (decide (mx5_32_24 = transform5 25 24 7 8) && decide (mx5_32_25 = transform5 26 25 6 7))) && ((decide (mx5_32_26 = transform5 27 26 5 6) && decide (mx5_32_27 = transform5 28 27 4 5)) && (decide (mx5_32_28 = transform5 29 28 3 4) && decide (mx5_32_29 = transform5 30 29 2 3)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 2000000 in
+private lemma mx5Ok0 : mx5Chk0 = true := by decide +kernel
+private def mx5Chk1 : Bool := ((((decide (mx5_32_30 = transform5 31 30 1 2) && decide (mx5_32_31 = transform5 32 31 0 1)) && (decide (mx5_64_50 = transform5 51 50 13 14) && decide (mx5_64_51 = transform5 52 51 12 13))) && ((decide (mx5_64_52 = transform5 53 52 11 12) && decide (mx5_64_53 = transform5 54 53 10 11)) && (decide (mx5_64_54 = transform5 55 54 9 10) && decide (mx5_64_55 = transform5 56 55 8 9)))) && (((decide (mx5_64_56 = transform5 57 56 7 8) && decide (mx5_64_57 = transform5 58 57 6 7)) && (decide (mx5_64_58 = transform5 59 58 5 6) && decide (mx5_64_59 = transform5 60 59 4 5))) && ((decide (mx5_64_60 = transform5 61 60 3 4) && decide (mx5_64_61 = transform5 62 61 2 3)) && (decide (mx5_128_102 = transform5 103 102 25 26) && decide (mx5_128_103 = transform5 104 103 24 25)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 2000000 in
+private lemma mx5Ok1 : mx5Chk1 = true := by decide +kernel
+private def mx5Chk2 : Bool := ((((decide (mx5_128_104 = transform5 105 104 23 24) && decide (mx5_128_105 = transform5 106 105 22 23)) && (decide (mx5_128_106 = transform5 107 106 21 22) && decide (mx5_128_107 = transform5 108 107 20 21))) && ((decide (mx5_128_108 = transform5 109 108 19 20) && decide (mx5_128_109 = transform5 110 109 18 19)) && (decide (mx5_128_110 = transform5 111 110 17 18) && decide (mx5_128_111 = transform5 112 111 16 17)))) && (((decide (mx5_128_112 = transform5 113 112 15 16) && decide (mx5_128_113 = transform5 114 113 14 15)) && (decide (mx5_128_114 = transform5 115 114 13 14) && decide (mx5_128_115 = transform5 116 115 12 13))) && ((decide (mx5_128_118 = transform5 119 118 9 10) && decide (mx5_128_119 = transform5 120 119 8 9)) && (decide (mx5_128_120 = transform5 121 120 7 8) && decide (mx5_128_121 = transform5 122 121 6 7)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 2000000 in
+private lemma mx5Ok2 : mx5Chk2 = true := by decide +kernel
+private def mx5Chk3 : Bool := ((decide (mx5_256_226 = transform5 227 226 29 30) && decide (mx5_256_227 = transform5 228 227 28 29)) && (decide (mx5_256_242 = transform5 243 242 13 14) && decide (mx5_256_243 = transform5 244 243 12 13)))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 2000000 in
+private lemma mx5Ok3 : mx5Chk3 = true := by decide +kernel
+private def mx10Chk0 : Bool := ((((decide (mx10_1_0 = transform10 1 0 0 1) && decide (mx10_2_0 = transform10 1 0 1 2)) && (decide (mx10_2_1 = transform10 2 1 0 1) && decide (mx10_4_0 = transform10 1 0 3 4))) && ((decide (mx10_4_1 = transform10 2 1 2 3) && decide (mx10_4_2 = transform10 3 2 1 2)) && (decide (mx10_4_3 = transform10 4 3 0 1) && decide (mx10_8_0 = transform10 1 0 7 8)))) && (((decide (mx10_8_1 = transform10 2 1 6 7) && decide (mx10_8_2 = transform10 3 2 5 6)) && (decide (mx10_8_3 = transform10 4 3 4 5) && decide (mx10_8_4 = transform10 5 4 3 4))) && ((decide (mx10_8_5 = transform10 6 5 2 3) && decide (mx10_8_6 = transform10 7 6 1 2)) && (decide (mx10_8_7 = transform10 8 7 0 1) && decide (mx10_16_0 = transform10 1 0 15 16)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 3000000 in
+private lemma mx10Ok0 : mx10Chk0 = true := by decide +kernel
+private def mx10Chk1 : Bool := ((((decide (mx10_16_1 = transform10 2 1 14 15) && decide (mx10_16_2 = transform10 3 2 13 14)) && (decide (mx10_16_3 = transform10 4 3 12 13) && decide (mx10_16_4 = transform10 5 4 11 12))) && ((decide (mx10_16_5 = transform10 6 5 10 11) && decide (mx10_16_6 = transform10 7 6 9 10)) && (decide (mx10_16_7 = transform10 8 7 8 9) && decide (mx10_16_9 = transform10 10 9 6 7)))) && (((decide (mx10_16_10 = transform10 11 10 5 6) && decide (mx10_16_11 = transform10 12 11 4 5)) && (decide (mx10_32_0 = transform10 1 0 31 32) && decide (mx10_32_1 = transform10 2 1 30 31))) && ((decide (mx10_32_2 = transform10 3 2 29 30) && decide (mx10_32_3 = transform10 4 3 28 29)) && (decide (mx10_32_4 = transform10 5 4 27 28) && decide (mx10_32_5 = transform10 6 5 26 27)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 3000000 in
+private lemma mx10Ok1 : mx10Chk1 = true := by decide +kernel
+private def mx10Chk2 : Bool := ((((decide (mx10_32_6 = transform10 7 6 25 26) && decide (mx10_32_7 = transform10 8 7 24 25)) && (decide (mx10_32_8 = transform10 9 8 23 24) && decide (mx10_32_9 = transform10 10 9 22 23))) && ((decide (mx10_32_10 = transform10 11 10 21 22) && decide (mx10_32_11 = transform10 12 11 20 21)) && (decide (mx10_32_13 = transform10 14 13 18 19) && decide (mx10_32_16 = transform10 17 16 15 16)))) && (((decide (mx10_32_17 = transform10 18 17 14 15) && decide (mx10_64_0 = transform10 1 0 63 64)) && (decide (mx10_64_1 = transform10 2 1 62 63) && decide (mx10_64_2 = transform10 3 2 61 62))) && ((decide (mx10_64_3 = transform10 4 3 60 61) && decide (mx10_64_4 = transform10 5 4 59 60)) && (decide (mx10_64_5 = transform10 6 5 58 59) && decide (mx10_64_6 = transform10 7 6 57 58)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 3000000 in
+private lemma mx10Ok2 : mx10Chk2 = true := by decide +kernel
+private def mx10Chk3 : Bool := ((((decide (mx10_64_7 = transform10 8 7 56 57) && decide (mx10_64_8 = transform10 9 8 55 56)) && (decide (mx10_64_9 = transform10 10 9 54 55) && decide (mx10_64_10 = transform10 11 10 53 54))) && ((decide (mx10_64_11 = transform10 12 11 52 53) && decide (mx10_64_14 = transform10 15 14 49 50)) && (decide (mx10_64_15 = transform10 16 15 48 49) && decide (mx10_64_22 = transform10 23 22 41 42)))) && (((decide (mx10_64_23 = transform10 24 23 40 41) && decide (mx10_64_24 = transform10 25 24 39 40)) && (decide (mx10_64_25 = transform10 26 25 38 39) && decide (mx10_128_46 = transform10 47 46 81 82))) && ((decide (mx10_128_47 = transform10 48 47 80 81) && decide (mx10_128_48 = transform10 49 48 79 80)) && (decide (mx10_128_49 = transform10 50 49 78 79) && decide (mx10_256_98 = transform10 99 98 157 158)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 3000000 in
+private lemma mx10Ok3 : mx10Chk3 = true := by decide +kernel
+private def mx10Chk4 : Bool := decide (mx10_256_99 = transform10 100 99 156 157)
+set_option maxRecDepth 10000 in set_option maxHeartbeats 3000000 in
+private lemma mx10Ok4 : mx10Chk4 = true := by decide +kernel
+lemma mx5_1_0_eq : mx5_1_0 = transform5 1 0 0 1 := of_decide_eq_true (bL (bL (bL (bL (mx5Ok0)))))
+lemma mx5_2_0_eq : mx5_2_0 = transform5 1 0 1 2 := of_decide_eq_true (bR (bL (bL (bL (mx5Ok0)))))
+lemma mx5_2_1_eq : mx5_2_1 = transform5 2 1 0 1 := of_decide_eq_true (bL (bR (bL (bL (mx5Ok0)))))
+lemma mx5_4_2_eq : mx5_4_2 = transform5 3 2 1 2 := of_decide_eq_true (bR (bR (bL (bL (mx5Ok0)))))
+lemma mx5_4_3_eq : mx5_4_3 = transform5 4 3 0 1 := of_decide_eq_true (bL (bL (bR (bL (mx5Ok0)))))
+lemma mx5_8_6_eq : mx5_8_6 = transform5 7 6 1 2 := of_decide_eq_true (bR (bL (bR (bL (mx5Ok0)))))
+lemma mx5_8_7_eq : mx5_8_7 = transform5 8 7 0 1 := of_decide_eq_true (bL (bR (bR (bL (mx5Ok0)))))
+lemma mx5_16_12_eq : mx5_16_12 = transform5 13 12 3 4 := of_decide_eq_true (bR (bR (bR (bL (mx5Ok0)))))
+lemma mx5_16_14_eq : mx5_16_14 = transform5 15 14 1 2 := of_decide_eq_true (bL (bL (bL (bR (mx5Ok0)))))
+lemma mx5_16_15_eq : mx5_16_15 = transform5 16 15 0 1 := of_decide_eq_true (bR (bL (bL (bR (mx5Ok0)))))
+lemma mx5_32_24_eq : mx5_32_24 = transform5 25 24 7 8 := of_decide_eq_true (bL (bR (bL (bR (mx5Ok0)))))
+lemma mx5_32_25_eq : mx5_32_25 = transform5 26 25 6 7 := of_decide_eq_true (bR (bR (bL (bR (mx5Ok0)))))
+lemma mx5_32_26_eq : mx5_32_26 = transform5 27 26 5 6 := of_decide_eq_true (bL (bL (bR (bR (mx5Ok0)))))
+lemma mx5_32_27_eq : mx5_32_27 = transform5 28 27 4 5 := of_decide_eq_true (bR (bL (bR (bR (mx5Ok0)))))
+lemma mx5_32_28_eq : mx5_32_28 = transform5 29 28 3 4 := of_decide_eq_true (bL (bR (bR (bR (mx5Ok0)))))
+lemma mx5_32_29_eq : mx5_32_29 = transform5 30 29 2 3 := of_decide_eq_true (bR (bR (bR (bR (mx5Ok0)))))
+lemma mx5_32_30_eq : mx5_32_30 = transform5 31 30 1 2 := of_decide_eq_true (bL (bL (bL (bL (mx5Ok1)))))
+lemma mx5_32_31_eq : mx5_32_31 = transform5 32 31 0 1 := of_decide_eq_true (bR (bL (bL (bL (mx5Ok1)))))
+lemma mx5_64_50_eq : mx5_64_50 = transform5 51 50 13 14 := of_decide_eq_true (bL (bR (bL (bL (mx5Ok1)))))
+lemma mx5_64_51_eq : mx5_64_51 = transform5 52 51 12 13 := of_decide_eq_true (bR (bR (bL (bL (mx5Ok1)))))
+lemma mx5_64_52_eq : mx5_64_52 = transform5 53 52 11 12 := of_decide_eq_true (bL (bL (bR (bL (mx5Ok1)))))
+lemma mx5_64_53_eq : mx5_64_53 = transform5 54 53 10 11 := of_decide_eq_true (bR (bL (bR (bL (mx5Ok1)))))
+lemma mx5_64_54_eq : mx5_64_54 = transform5 55 54 9 10 := of_decide_eq_true (bL (bR (bR (bL (mx5Ok1)))))
+lemma mx5_64_55_eq : mx5_64_55 = transform5 56 55 8 9 := of_decide_eq_true (bR (bR (bR (bL (mx5Ok1)))))
+lemma mx5_64_56_eq : mx5_64_56 = transform5 57 56 7 8 := of_decide_eq_true (bL (bL (bL (bR (mx5Ok1)))))
+lemma mx5_64_57_eq : mx5_64_57 = transform5 58 57 6 7 := of_decide_eq_true (bR (bL (bL (bR (mx5Ok1)))))
+lemma mx5_64_58_eq : mx5_64_58 = transform5 59 58 5 6 := of_decide_eq_true (bL (bR (bL (bR (mx5Ok1)))))
+lemma mx5_64_59_eq : mx5_64_59 = transform5 60 59 4 5 := of_decide_eq_true (bR (bR (bL (bR (mx5Ok1)))))
+lemma mx5_64_60_eq : mx5_64_60 = transform5 61 60 3 4 := of_decide_eq_true (bL (bL (bR (bR (mx5Ok1)))))
+lemma mx5_64_61_eq : mx5_64_61 = transform5 62 61 2 3 := of_decide_eq_true (bR (bL (bR (bR (mx5Ok1)))))
+lemma mx5_128_102_eq : mx5_128_102 = transform5 103 102 25 26 := of_decide_eq_true (bL (bR (bR (bR (mx5Ok1)))))
+lemma mx5_128_103_eq : mx5_128_103 = transform5 104 103 24 25 := of_decide_eq_true (bR (bR (bR (bR (mx5Ok1)))))
+lemma mx5_128_104_eq : mx5_128_104 = transform5 105 104 23 24 := of_decide_eq_true (bL (bL (bL (bL (mx5Ok2)))))
+lemma mx5_128_105_eq : mx5_128_105 = transform5 106 105 22 23 := of_decide_eq_true (bR (bL (bL (bL (mx5Ok2)))))
+lemma mx5_128_106_eq : mx5_128_106 = transform5 107 106 21 22 := of_decide_eq_true (bL (bR (bL (bL (mx5Ok2)))))
+lemma mx5_128_107_eq : mx5_128_107 = transform5 108 107 20 21 := of_decide_eq_true (bR (bR (bL (bL (mx5Ok2)))))
+lemma mx5_128_108_eq : mx5_128_108 = transform5 109 108 19 20 := of_decide_eq_true (bL (bL (bR (bL (mx5Ok2)))))
+lemma mx5_128_109_eq : mx5_128_109 = transform5 110 109 18 19 := of_decide_eq_true (bR (bL (bR (bL (mx5Ok2)))))
+lemma mx5_128_110_eq : mx5_128_110 = transform5 111 110 17 18 := of_decide_eq_true (bL (bR (bR (bL (mx5Ok2)))))
+lemma mx5_128_111_eq : mx5_128_111 = transform5 112 111 16 17 := of_decide_eq_true (bR (bR (bR (bL (mx5Ok2)))))
+lemma mx5_128_112_eq : mx5_128_112 = transform5 113 112 15 16 := of_decide_eq_true (bL (bL (bL (bR (mx5Ok2)))))
+lemma mx5_128_113_eq : mx5_128_113 = transform5 114 113 14 15 := of_decide_eq_true (bR (bL (bL (bR (mx5Ok2)))))
+lemma mx5_128_114_eq : mx5_128_114 = transform5 115 114 13 14 := of_decide_eq_true (bL (bR (bL (bR (mx5Ok2)))))
+lemma mx5_128_115_eq : mx5_128_115 = transform5 116 115 12 13 := of_decide_eq_true (bR (bR (bL (bR (mx5Ok2)))))
+lemma mx5_128_118_eq : mx5_128_118 = transform5 119 118 9 10 := of_decide_eq_true (bL (bL (bR (bR (mx5Ok2)))))
+lemma mx5_128_119_eq : mx5_128_119 = transform5 120 119 8 9 := of_decide_eq_true (bR (bL (bR (bR (mx5Ok2)))))
+lemma mx5_128_120_eq : mx5_128_120 = transform5 121 120 7 8 := of_decide_eq_true (bL (bR (bR (bR (mx5Ok2)))))
+lemma mx5_128_121_eq : mx5_128_121 = transform5 122 121 6 7 := of_decide_eq_true (bR (bR (bR (bR (mx5Ok2)))))
+lemma mx5_256_226_eq : mx5_256_226 = transform5 227 226 29 30 := of_decide_eq_true (bL (bL (mx5Ok3)))
+lemma mx5_256_227_eq : mx5_256_227 = transform5 228 227 28 29 := of_decide_eq_true (bR (bL (mx5Ok3)))
+lemma mx5_256_242_eq : mx5_256_242 = transform5 243 242 13 14 := of_decide_eq_true (bL (bR (mx5Ok3)))
+lemma mx5_256_243_eq : mx5_256_243 = transform5 244 243 12 13 := of_decide_eq_true (bR (bR (mx5Ok3)))
+lemma mx10_1_0_eq : mx10_1_0 = transform10 1 0 0 1 := of_decide_eq_true (bL (bL (bL (bL (mx10Ok0)))))
+lemma mx10_2_0_eq : mx10_2_0 = transform10 1 0 1 2 := of_decide_eq_true (bR (bL (bL (bL (mx10Ok0)))))
+lemma mx10_2_1_eq : mx10_2_1 = transform10 2 1 0 1 := of_decide_eq_true (bL (bR (bL (bL (mx10Ok0)))))
+lemma mx10_4_0_eq : mx10_4_0 = transform10 1 0 3 4 := of_decide_eq_true (bR (bR (bL (bL (mx10Ok0)))))
+lemma mx10_4_1_eq : mx10_4_1 = transform10 2 1 2 3 := of_decide_eq_true (bL (bL (bR (bL (mx10Ok0)))))
+lemma mx10_4_2_eq : mx10_4_2 = transform10 3 2 1 2 := of_decide_eq_true (bR (bL (bR (bL (mx10Ok0)))))
+lemma mx10_4_3_eq : mx10_4_3 = transform10 4 3 0 1 := of_decide_eq_true (bL (bR (bR (bL (mx10Ok0)))))
+lemma mx10_8_0_eq : mx10_8_0 = transform10 1 0 7 8 := of_decide_eq_true (bR (bR (bR (bL (mx10Ok0)))))
+lemma mx10_8_1_eq : mx10_8_1 = transform10 2 1 6 7 := of_decide_eq_true (bL (bL (bL (bR (mx10Ok0)))))
+lemma mx10_8_2_eq : mx10_8_2 = transform10 3 2 5 6 := of_decide_eq_true (bR (bL (bL (bR (mx10Ok0)))))
+lemma mx10_8_3_eq : mx10_8_3 = transform10 4 3 4 5 := of_decide_eq_true (bL (bR (bL (bR (mx10Ok0)))))
+lemma mx10_8_4_eq : mx10_8_4 = transform10 5 4 3 4 := of_decide_eq_true (bR (bR (bL (bR (mx10Ok0)))))
+lemma mx10_8_5_eq : mx10_8_5 = transform10 6 5 2 3 := of_decide_eq_true (bL (bL (bR (bR (mx10Ok0)))))
+lemma mx10_8_6_eq : mx10_8_6 = transform10 7 6 1 2 := of_decide_eq_true (bR (bL (bR (bR (mx10Ok0)))))
+lemma mx10_8_7_eq : mx10_8_7 = transform10 8 7 0 1 := of_decide_eq_true (bL (bR (bR (bR (mx10Ok0)))))
+lemma mx10_16_0_eq : mx10_16_0 = transform10 1 0 15 16 := of_decide_eq_true (bR (bR (bR (bR (mx10Ok0)))))
+lemma mx10_16_1_eq : mx10_16_1 = transform10 2 1 14 15 := of_decide_eq_true (bL (bL (bL (bL (mx10Ok1)))))
+lemma mx10_16_2_eq : mx10_16_2 = transform10 3 2 13 14 := of_decide_eq_true (bR (bL (bL (bL (mx10Ok1)))))
+lemma mx10_16_3_eq : mx10_16_3 = transform10 4 3 12 13 := of_decide_eq_true (bL (bR (bL (bL (mx10Ok1)))))
+lemma mx10_16_4_eq : mx10_16_4 = transform10 5 4 11 12 := of_decide_eq_true (bR (bR (bL (bL (mx10Ok1)))))
+lemma mx10_16_5_eq : mx10_16_5 = transform10 6 5 10 11 := of_decide_eq_true (bL (bL (bR (bL (mx10Ok1)))))
+lemma mx10_16_6_eq : mx10_16_6 = transform10 7 6 9 10 := of_decide_eq_true (bR (bL (bR (bL (mx10Ok1)))))
+lemma mx10_16_7_eq : mx10_16_7 = transform10 8 7 8 9 := of_decide_eq_true (bL (bR (bR (bL (mx10Ok1)))))
+lemma mx10_16_9_eq : mx10_16_9 = transform10 10 9 6 7 := of_decide_eq_true (bR (bR (bR (bL (mx10Ok1)))))
+lemma mx10_16_10_eq : mx10_16_10 = transform10 11 10 5 6 := of_decide_eq_true (bL (bL (bL (bR (mx10Ok1)))))
+lemma mx10_16_11_eq : mx10_16_11 = transform10 12 11 4 5 := of_decide_eq_true (bR (bL (bL (bR (mx10Ok1)))))
+lemma mx10_32_0_eq : mx10_32_0 = transform10 1 0 31 32 := of_decide_eq_true (bL (bR (bL (bR (mx10Ok1)))))
+lemma mx10_32_1_eq : mx10_32_1 = transform10 2 1 30 31 := of_decide_eq_true (bR (bR (bL (bR (mx10Ok1)))))
+lemma mx10_32_2_eq : mx10_32_2 = transform10 3 2 29 30 := of_decide_eq_true (bL (bL (bR (bR (mx10Ok1)))))
+lemma mx10_32_3_eq : mx10_32_3 = transform10 4 3 28 29 := of_decide_eq_true (bR (bL (bR (bR (mx10Ok1)))))
+lemma mx10_32_4_eq : mx10_32_4 = transform10 5 4 27 28 := of_decide_eq_true (bL (bR (bR (bR (mx10Ok1)))))
+lemma mx10_32_5_eq : mx10_32_5 = transform10 6 5 26 27 := of_decide_eq_true (bR (bR (bR (bR (mx10Ok1)))))
+lemma mx10_32_6_eq : mx10_32_6 = transform10 7 6 25 26 := of_decide_eq_true (bL (bL (bL (bL (mx10Ok2)))))
+lemma mx10_32_7_eq : mx10_32_7 = transform10 8 7 24 25 := of_decide_eq_true (bR (bL (bL (bL (mx10Ok2)))))
+lemma mx10_32_8_eq : mx10_32_8 = transform10 9 8 23 24 := of_decide_eq_true (bL (bR (bL (bL (mx10Ok2)))))
+lemma mx10_32_9_eq : mx10_32_9 = transform10 10 9 22 23 := of_decide_eq_true (bR (bR (bL (bL (mx10Ok2)))))
+lemma mx10_32_10_eq : mx10_32_10 = transform10 11 10 21 22 := of_decide_eq_true (bL (bL (bR (bL (mx10Ok2)))))
+lemma mx10_32_11_eq : mx10_32_11 = transform10 12 11 20 21 := of_decide_eq_true (bR (bL (bR (bL (mx10Ok2)))))
+lemma mx10_32_13_eq : mx10_32_13 = transform10 14 13 18 19 := of_decide_eq_true (bL (bR (bR (bL (mx10Ok2)))))
+lemma mx10_32_16_eq : mx10_32_16 = transform10 17 16 15 16 := of_decide_eq_true (bR (bR (bR (bL (mx10Ok2)))))
+lemma mx10_32_17_eq : mx10_32_17 = transform10 18 17 14 15 := of_decide_eq_true (bL (bL (bL (bR (mx10Ok2)))))
+lemma mx10_64_0_eq : mx10_64_0 = transform10 1 0 63 64 := of_decide_eq_true (bR (bL (bL (bR (mx10Ok2)))))
+lemma mx10_64_1_eq : mx10_64_1 = transform10 2 1 62 63 := of_decide_eq_true (bL (bR (bL (bR (mx10Ok2)))))
+lemma mx10_64_2_eq : mx10_64_2 = transform10 3 2 61 62 := of_decide_eq_true (bR (bR (bL (bR (mx10Ok2)))))
+lemma mx10_64_3_eq : mx10_64_3 = transform10 4 3 60 61 := of_decide_eq_true (bL (bL (bR (bR (mx10Ok2)))))
+lemma mx10_64_4_eq : mx10_64_4 = transform10 5 4 59 60 := of_decide_eq_true (bR (bL (bR (bR (mx10Ok2)))))
+lemma mx10_64_5_eq : mx10_64_5 = transform10 6 5 58 59 := of_decide_eq_true (bL (bR (bR (bR (mx10Ok2)))))
+lemma mx10_64_6_eq : mx10_64_6 = transform10 7 6 57 58 := of_decide_eq_true (bR (bR (bR (bR (mx10Ok2)))))
+lemma mx10_64_7_eq : mx10_64_7 = transform10 8 7 56 57 := of_decide_eq_true (bL (bL (bL (bL (mx10Ok3)))))
+lemma mx10_64_8_eq : mx10_64_8 = transform10 9 8 55 56 := of_decide_eq_true (bR (bL (bL (bL (mx10Ok3)))))
+lemma mx10_64_9_eq : mx10_64_9 = transform10 10 9 54 55 := of_decide_eq_true (bL (bR (bL (bL (mx10Ok3)))))
+lemma mx10_64_10_eq : mx10_64_10 = transform10 11 10 53 54 := of_decide_eq_true (bR (bR (bL (bL (mx10Ok3)))))
+lemma mx10_64_11_eq : mx10_64_11 = transform10 12 11 52 53 := of_decide_eq_true (bL (bL (bR (bL (mx10Ok3)))))
+lemma mx10_64_14_eq : mx10_64_14 = transform10 15 14 49 50 := of_decide_eq_true (bR (bL (bR (bL (mx10Ok3)))))
+lemma mx10_64_15_eq : mx10_64_15 = transform10 16 15 48 49 := of_decide_eq_true (bL (bR (bR (bL (mx10Ok3)))))
+lemma mx10_64_22_eq : mx10_64_22 = transform10 23 22 41 42 := of_decide_eq_true (bR (bR (bR (bL (mx10Ok3)))))
+lemma mx10_64_23_eq : mx10_64_23 = transform10 24 23 40 41 := of_decide_eq_true (bL (bL (bL (bR (mx10Ok3)))))
+lemma mx10_64_24_eq : mx10_64_24 = transform10 25 24 39 40 := of_decide_eq_true (bR (bL (bL (bR (mx10Ok3)))))
+lemma mx10_64_25_eq : mx10_64_25 = transform10 26 25 38 39 := of_decide_eq_true (bL (bR (bL (bR (mx10Ok3)))))
+lemma mx10_128_46_eq : mx10_128_46 = transform10 47 46 81 82 := of_decide_eq_true (bR (bR (bL (bR (mx10Ok3)))))
+lemma mx10_128_47_eq : mx10_128_47 = transform10 48 47 80 81 := of_decide_eq_true (bL (bL (bR (bR (mx10Ok3)))))
+lemma mx10_128_48_eq : mx10_128_48 = transform10 49 48 79 80 := of_decide_eq_true (bR (bL (bR (bR (mx10Ok3)))))
+lemma mx10_128_49_eq : mx10_128_49 = transform10 50 49 78 79 := of_decide_eq_true (bL (bR (bR (bR (mx10Ok3)))))
+lemma mx10_256_98_eq : mx10_256_98 = transform10 99 98 157 158 := of_decide_eq_true (bR (bR (bR (bR (mx10Ok3)))))
+lemma mx10_256_99_eq : mx10_256_99 = transform10 100 99 156 157 := of_decide_eq_true (mx10Ok4)
+
+/- Signs certified in bounded chunks and inherited by descendants. -/
+private def sgChk0 : Bool := ((((hasMark mx10_1_0 mx5_1_0 table0 .up && hasMark mx10_1_0 mx5_1_0 table1 .up) && (hasMark mx10_1_0 mx5_1_0 table7 .down && (hasMark mx10_1_0 mx5_1_0 table8 .down && hasMark mx10_1_0 mx5_1_0 table9 .down))) && ((hasMark mx10_1_0 mx5_1_0 table23 .up && (hasMark mx10_1_0 mx5_1_0 table24 .up && hasMark mx10_1_0 mx5_1_0 table25 .up)) && (hasMark mx10_1_0 mx5_1_0 table26 .up && (hasMark mx10_1_0 mx5_1_0 table27 .up && hasMark mx10_1_0 mx5_1_0 table28 .up)))) && (((hasMark mx10_1_0 mx5_1_0 table29 .up && hasMark mx10_1_0 mx5_1_0 table30 .up) && (hasMark mx10_1_0 mx5_1_0 table31 .up && (hasMark mx10_1_0 mx5_1_0 table32 .up && hasMark mx10_1_0 mx5_1_0 table33 .up))) && ((hasMark mx10_1_0 mx5_1_0 table34 .up && (hasMark mx10_2_0 mx5_1_0 table2 .up && hasMark mx10_2_0 mx5_1_0 table3 .up)) && (hasMark mx10_2_0 mx5_2_0 table10 .down && (hasMark mx10_2_0 mx5_2_0 table15 .up && hasMark mx10_2_0 mx5_2_0 table16 .up)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk0 : sgChk0 = true := by decide +kernel
+private def sgChk1 : Bool := ((((hasMark mx10_2_0 mx5_2_0 table17 .up && hasMark mx10_2_0 mx5_2_0 table18 .up) && (hasMark mx10_2_0 mx5_2_0 table19 .up && (hasMark mx10_2_0 mx5_2_0 table20 .up && hasMark mx10_2_0 mx5_2_0 table21 .up))) && ((hasMark mx10_2_0 mx5_2_0 table22 .up && (hasMark mx10_4_0 mx5_2_0 table4 .up && hasMark mx10_4_0 mx5_2_0 table5 .up)) && (hasMark mx10_4_0 mx5_2_0 table13 .up && (hasMark mx10_4_0 mx5_2_0 table14 .up && hasMark mx10_4_1 mx5_2_0 table6 .down)))) && (((hasMark mx10_4_1 mx5_2_0 table11 .down && hasMark mx10_8_2 mx5_2_0 table4 .up) && (hasMark mx10_8_2 mx5_2_0 table13 .up && (hasMark mx10_8_2 mx5_2_0 table14 .up && hasMark mx10_8_3 mx5_2_0 table5 .down))) && ((hasMark mx10_8_3 mx5_2_0 table12 .down && (hasMark mx10_2_0 mx5_2_1 table4 .up && hasMark mx10_2_0 mx5_2_1 table6 .down)) && (hasMark mx10_2_0 mx5_4_2 table10 .down && (hasMark mx10_2_0 mx5_4_2 table16 .up && hasMark mx10_2_0 mx5_4_2 table17 .up)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk1 : sgChk1 = true := by decide +kernel
+private def sgChk2 : Bool := ((((hasMark mx10_2_0 mx5_4_2 table18 .up && hasMark mx10_2_0 mx5_4_2 table19 .up) && (hasMark mx10_2_0 mx5_4_2 table20 .up && (hasMark mx10_2_0 mx5_4_2 table21 .up && hasMark mx10_2_0 mx5_4_2 table22 .up))) && ((hasMark mx10_4_0 mx5_4_2 table5 .up && (hasMark mx10_4_0 mx5_4_2 table12 .up && hasMark mx10_4_0 mx5_4_2 table13 .up)) && (hasMark mx10_4_0 mx5_4_2 table14 .up && (hasMark mx10_4_0 mx5_4_2 table15 .up && hasMark mx10_4_1 mx5_4_2 table11 .down)))) && (((hasMark mx10_8_2 mx5_4_2 table14 .up && hasMark mx10_8_2 mx5_4_2 table15 .up) && (hasMark mx10_8_3 mx5_4_2 table12 .down && (hasMark mx10_4_0 mx5_4_3 table5 .up && hasMark mx10_4_0 mx5_4_3 table12 .up))) && ((hasMark mx10_4_0 mx5_4_3 table13 .up && (hasMark mx10_4_0 mx5_4_3 table14 .up && hasMark mx10_4_0 mx5_4_3 table15 .up)) && (hasMark mx10_8_0 mx5_4_3 table11 .up && (hasMark mx10_8_0 mx5_8_6 table10 .down && hasMark mx10_8_0 mx5_8_6 table21 .up)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk2 : sgChk2 = true := by decide +kernel
+private def sgChk3 : Bool := ((((hasMark mx10_8_0 mx5_8_6 table22 .up && hasMark mx10_8_0 mx5_16_12 table16 .up) && (hasMark mx10_8_0 mx5_16_12 table20 .up && (hasMark mx10_8_0 mx5_32_24 table17 .up && hasMark mx10_8_0 mx5_32_24 table18 .up))) && ((hasMark mx10_8_0 mx5_32_24 table19 .up && (hasMark mx10_16_0 mx5_64_50 table17 .up && hasMark mx10_16_0 mx5_64_50 table19 .up)) && (hasMark mx10_32_0 mx5_128_102 table17 .up && (hasMark mx10_64_0 mx5_128_103 table18 .down && hasMark mx10_64_1 mx5_128_103 table17 .up)))) && (((hasMark mx10_32_1 mx5_64_51 table17 .up && hasMark mx10_32_1 mx5_64_51 table19 .up) && (hasMark mx10_16_1 mx5_32_25 table17 .up && (hasMark mx10_16_1 mx5_32_25 table18 .up && hasMark mx10_16_1 mx5_32_25 table19 .up))) && ((hasMark mx10_8_0 mx5_32_26 table16 .up && (hasMark mx10_16_0 mx5_64_52 table20 .up && hasMark mx10_32_0 mx5_64_52 table18 .down)) && (hasMark mx10_32_1 mx5_128_104 table17 .up && (hasMark mx10_64_2 mx5_128_105 table18 .down && hasMark mx10_64_3 mx5_128_105 table17 .up)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk3 : sgChk3 = true := by decide +kernel
+private def sgChk4 : Bool := ((((hasMark mx10_16_0 mx5_64_53 table18 .down && hasMark mx10_32_0 mx5_64_53 table17 .down) && (hasMark mx10_32_0 mx5_64_53 table19 .down && (hasMark mx10_32_1 mx5_64_53 table20 .up && hasMark mx10_16_1 mx5_32_26 table20 .up))) && ((hasMark mx10_16_1 mx5_64_52 table17 .up && (hasMark mx10_16_1 mx5_64_52 table19 .up && hasMark mx10_32_2 mx5_128_106 table17 .up)) && (hasMark mx10_64_4 mx5_128_107 table18 .down && (hasMark mx10_64_5 mx5_128_107 table17 .up && hasMark mx10_32_3 mx5_64_53 table17 .up)))) && (((hasMark mx10_32_3 mx5_64_53 table19 .up && hasMark mx10_16_0 mx5_32_27 table17 .down) && (hasMark mx10_16_0 mx5_32_27 table18 .down && (hasMark mx10_16_0 mx5_32_27 table19 .down && hasMark mx10_16_1 mx5_32_27 table16 .up))) && ((hasMark mx10_16_1 mx5_64_54 table20 .up && (hasMark mx10_32_2 mx5_64_54 table18 .down && hasMark mx10_32_3 mx5_128_108 table17 .up)) && (hasMark mx10_64_6 mx5_128_109 table18 .down && (hasMark mx10_64_7 mx5_128_109 table17 .up && hasMark mx10_16_1 mx5_64_55 table18 .down)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk4 : sgChk4 = true := by decide +kernel
+private def sgChk5 : Bool := ((((hasMark mx10_32_2 mx5_64_55 table17 .down && hasMark mx10_32_2 mx5_64_55 table19 .down) && (hasMark mx10_32_3 mx5_64_55 table20 .up && (hasMark mx10_8_0 mx5_8_7 table17 .down && hasMark mx10_8_0 mx5_8_7 table18 .down))) && ((hasMark mx10_8_0 mx5_8_7 table19 .down && (hasMark mx10_8_0 mx5_16_14 table22 .up && hasMark mx10_16_0 mx5_16_14 table20 .down)) && (hasMark mx10_16_1 mx5_16_14 table10 .down && (hasMark mx10_16_1 mx5_32_28 table21 .up && hasMark mx10_16_1 mx5_32_29 table20 .down)))) && (((hasMark mx10_8_0 mx5_16_15 table16 .down && hasMark mx10_8_0 mx5_16_15 table20 .down) && (hasMark mx10_8_0 mx5_32_30 table22 .up && (hasMark mx10_8_0 mx5_32_31 table21 .down && hasMark mx10_8_1 mx5_4_3 table10 .down))) && ((hasMark mx10_8_1 mx5_4_3 table22 .up && (hasMark mx10_8_1 mx5_8_6 table16 .up && hasMark mx10_8_1 mx5_8_6 table20 .up)) && (hasMark mx10_8_1 mx5_8_6 table21 .up && (hasMark mx10_16_2 mx5_8_6 table11 .up && hasMark mx10_16_2 mx5_16_12 table17 .up)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk5 : sgChk5 = true := by decide +kernel
+private def sgChk6 : Bool := ((((hasMark mx10_16_2 mx5_16_12 table18 .up && hasMark mx10_16_2 mx5_16_12 table19 .up) && (hasMark mx10_16_2 mx5_32_26 table17 .up && (hasMark mx10_16_2 mx5_32_26 table18 .up && hasMark mx10_16_2 mx5_32_26 table19 .up))) && ((hasMark mx10_16_2 mx5_64_54 table17 .up && (hasMark mx10_16_2 mx5_64_54 table19 .up && hasMark mx10_32_4 mx5_128_110 table17 .up)) && (hasMark mx10_64_8 mx5_128_111 table18 .down && (hasMark mx10_64_9 mx5_128_111 table17 .up && hasMark mx10_32_5 mx5_64_55 table17 .up)))) && (((hasMark mx10_32_5 mx5_64_55 table19 .up && hasMark mx10_16_3 mx5_8_6 table17 .up) && (hasMark mx10_16_3 mx5_8_6 table18 .up && (hasMark mx10_16_3 mx5_8_6 table19 .up && hasMark mx10_8_1 mx5_16_14 table21 .up))) && ((hasMark mx10_16_2 mx5_16_14 table11 .up && (hasMark mx10_16_2 mx5_32_28 table16 .up && hasMark mx10_16_2 mx5_64_56 table20 .up)) && (hasMark mx10_32_4 mx5_64_56 table18 .down && (hasMark mx10_32_5 mx5_128_112 table17 .up && hasMark mx10_64_10 mx5_128_113 table18 .down)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk6 : sgChk6 = true := by decide +kernel
+private def sgChk7 : Bool := ((((hasMark mx10_64_11 mx5_256_226 table17 .up && hasMark mx10_64_11 mx5_256_226 table19 .up) && (hasMark mx10_64_11 mx5_256_227 table18 .down && (hasMark mx10_16_2 mx5_64_57 table18 .down && hasMark mx10_32_4 mx5_64_57 table17 .down))) && ((hasMark mx10_32_4 mx5_64_57 table19 .down && (hasMark mx10_32_5 mx5_64_57 table20 .up && hasMark mx10_16_2 mx5_32_29 table17 .down)) && (hasMark mx10_16_2 mx5_32_29 table18 .down && (hasMark mx10_16_2 mx5_32_29 table19 .down && hasMark mx10_16_3 mx5_16_14 table16 .up)))) && (((hasMark mx10_16_3 mx5_16_14 table20 .up && hasMark mx10_32_6 mx5_16_14 table11 .up) && (hasMark mx10_32_6 mx5_64_56 table17 .up && (hasMark mx10_32_6 mx5_64_56 table19 .up && hasMark mx10_32_6 mx5_128_114 table19 .up))) && ((hasMark mx10_32_6 mx5_128_115 table18 .down && (hasMark mx10_32_6 mx5_32_29 table18 .down && hasMark mx10_32_7 mx5_32_28 table17 .up)) && (hasMark mx10_32_7 mx5_32_28 table19 .up && (hasMark mx10_64_14 mx5_32_29 table11 .up && hasMark mx10_64_14 mx5_32_29 table18 .down)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk7 : sgChk7 = true := by decide +kernel
+private def sgChk8 : Bool := ((((hasMark mx10_64_15 mx5_64_58 table19 .up && hasMark mx10_64_15 mx5_64_59 table17 .down) && (hasMark mx10_64_15 mx5_64_59 table18 .down && (hasMark mx10_8_1 mx5_16_15 table17 .down && hasMark mx10_8_1 mx5_16_15 table18 .down))) && ((hasMark mx10_8_1 mx5_16_15 table19 .down && (hasMark mx10_16_2 mx5_16_15 table11 .up && hasMark mx10_32_4 mx5_16_15 table16 .down)) && (hasMark mx10_32_4 mx5_16_15 table20 .down && (hasMark mx10_32_5 mx5_32_30 table21 .up && hasMark mx10_32_5 mx5_32_31 table16 .down)))) && (((hasMark mx10_32_5 mx5_32_31 table20 .down && hasMark mx10_16_3 mx5_16_15 table21 .up) && (hasMark mx10_4_1 mx5_4_3 table10 .down && (hasMark mx10_4_1 mx5_4_3 table21 .up && hasMark mx10_4_1 mx5_4_3 table22 .up))) && ((hasMark mx10_8_2 mx5_4_3 table5 .up && (hasMark mx10_8_2 mx5_8_6 table11 .down && hasMark mx10_8_2 mx5_8_6 table14 .up)) && (hasMark mx10_8_2 mx5_8_6 table15 .up && (hasMark mx10_8_2 mx5_8_6 table16 .up && hasMark mx10_8_2 mx5_8_6 table17 .up)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk8 : sgChk8 = true := by decide +kernel
+private def sgChk9 : Bool := ((((hasMark mx10_8_2 mx5_8_6 table18 .up && hasMark mx10_8_2 mx5_8_6 table19 .up) && (hasMark mx10_8_2 mx5_8_6 table20 .up && (hasMark mx10_16_4 mx5_8_7 table13 .up && hasMark mx10_16_4 mx5_8_7 table14 .up))) && ((hasMark mx10_16_4 mx5_8_7 table15 .up && (hasMark mx10_16_4 mx5_16_14 table11 .down && hasMark mx10_16_4 mx5_16_14 table16 .up)) && (hasMark mx10_16_4 mx5_16_14 table20 .up && (hasMark mx10_16_4 mx5_32_28 table17 .up && hasMark mx10_16_4 mx5_32_28 table18 .up)))) && (((hasMark mx10_16_4 mx5_32_28 table19 .up && hasMark mx10_16_4 mx5_32_29 table12 .up) && (hasMark mx10_16_4 mx5_64_58 table19 .up && (hasMark mx10_32_8 mx5_128_118 table19 .up && hasMark mx10_32_8 mx5_128_119 table17 .down))) && ((hasMark mx10_32_8 mx5_128_119 table18 .down && (hasMark mx10_32_9 mx5_64_59 table19 .up && hasMark mx10_16_4 mx5_16_15 table12 .up)) && (hasMark mx10_16_4 mx5_16_15 table17 .down && (hasMark mx10_16_4 mx5_32_30 table20 .up && hasMark mx10_16_4 mx5_64_60 table11 .down)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk9 : sgChk9 = true := by decide +kernel
+private def sgChk10 : Bool := ((((hasMark mx10_16_4 mx5_64_60 table16 .up && hasMark mx10_32_8 mx5_64_60 table18 .down) && (hasMark mx10_32_9 mx5_128_120 table19 .up && (hasMark mx10_32_9 mx5_128_121 table18 .down && hasMark mx10_16_4 mx5_64_61 table18 .down))) && ((hasMark mx10_16_4 mx5_32_31 table16 .down && (hasMark mx10_16_4 mx5_32_31 table18 .down && hasMark mx10_16_4 mx5_32_31 table19 .down)) && (hasMark mx10_16_5 mx5_8_7 table11 .down && (hasMark mx10_16_5 mx5_8_7 table20 .up && hasMark mx10_32_10 mx5_8_7 table13 .up)))) && (((hasMark mx10_32_10 mx5_8_7 table14 .up && hasMark mx10_32_10 mx5_8_7 table15 .up) && (hasMark mx10_32_10 mx5_16_14 table16 .up && (hasMark mx10_32_10 mx5_16_14 table18 .up && hasMark mx10_32_10 mx5_16_14 table19 .up))) && ((hasMark mx10_32_10 mx5_64_60 table16 .up && (hasMark mx10_32_10 mx5_64_60 table19 .up && hasMark mx10_32_10 mx5_64_61 table17 .down)) && (hasMark mx10_32_10 mx5_64_61 table18 .down && (hasMark mx10_32_10 mx5_32_31 table16 .down && hasMark mx10_32_10 mx5_32_31 table17 .down)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk10 : sgChk10 = true := by decide +kernel
+private def sgChk11 : Bool := ((((hasMark mx10_32_10 mx5_32_31 table18 .down && hasMark mx10_32_11 mx5_8_7 table12 .down) && (hasMark mx10_32_11 mx5_16_14 table14 .up && (hasMark mx10_32_11 mx5_16_14 table15 .up && hasMark mx10_32_11 mx5_16_14 table16 .up))) && ((hasMark mx10_32_11 mx5_16_14 table17 .up && (hasMark mx10_32_11 mx5_16_14 table18 .up && hasMark mx10_32_11 mx5_16_14 table19 .up)) && (hasMark mx10_32_11 mx5_32_30 table14 .up && (hasMark mx10_32_11 mx5_32_30 table19 .up && hasMark mx10_64_22 mx5_32_30 table13 .up)))) && (((hasMark mx10_64_22 mx5_32_30 table15 .up && hasMark mx10_64_22 mx5_128_120 table16 .up) && (hasMark mx10_64_22 mx5_128_120 table18 .up && (hasMark mx10_64_22 mx5_128_121 table17 .down && hasMark mx10_64_22 mx5_64_61 table17 .down))) && ((hasMark mx10_64_23 mx5_64_60 table15 .up && (hasMark mx10_64_23 mx5_64_60 table18 .up && hasMark mx10_64_23 mx5_64_61 table16 .down)) && (hasMark mx10_64_23 mx5_64_61 table17 .down && (hasMark mx10_32_11 mx5_32_31 table16 .down && hasMark mx10_32_11 mx5_32_31 table17 .down)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk11 : sgChk11 = true := by decide +kernel
+private def sgChk12 : Bool := ((((hasMark mx10_32_11 mx5_32_31 table18 .down && hasMark mx10_64_22 mx5_32_31 table13 .up) && (hasMark mx10_64_22 mx5_32_31 table14 .up && (hasMark mx10_128_46 mx5_32_31 table14 .up && hasMark mx10_128_47 mx5_32_31 table13 .down))) && ((hasMark mx10_128_47 mx5_32_31 table19 .up && (hasMark mx10_8_3 mx5_4_3 table11 .down && hasMark mx10_8_3 mx5_4_3 table12 .down)) && (hasMark mx10_8_3 mx5_4_3 table13 .down && (hasMark mx10_8_3 mx5_4_3 table19 .up && hasMark mx10_8_3 mx5_4_3 table20 .up)))) && (((hasMark mx10_8_3 mx5_8_6 table17 .up && hasMark mx10_8_3 mx5_8_6 table18 .up) && (hasMark mx10_16_6 mx5_16_14 table17 .up && (hasMark mx10_16_6 mx5_16_14 table18 .up && hasMark mx10_16_6 mx5_64_60 table18 .up))) && ((hasMark mx10_64_24 mx5_64_60 table5 .up && (hasMark mx10_128_48 mx5_64_60 table14 .up && hasMark mx10_128_48 mx5_64_60 table15 .up)) && (hasMark mx10_128_49 mx5_128_120 table15 .up && (hasMark mx10_128_49 mx5_128_120 table17 .up && hasMark mx10_256_98 mx5_256_242 table15 .up)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk12 : sgChk12 = true := by decide +kernel
+private def sgChk13 : Bool := ((((hasMark mx10_256_98 mx5_256_243 table16 .down && hasMark mx10_256_98 mx5_256_243 table17 .down) && (hasMark mx10_256_99 mx5_128_121 table14 .down && (hasMark mx10_256_99 mx5_128_121 table16 .down && hasMark mx10_64_25 mx5_64_60 table14 .down))) && ((hasMark mx10_32_13 mx5_64_60 table5 .down && (hasMark mx10_32_13 mx5_64_60 table14 .down && hasMark mx10_32_13 mx5_64_60 table15 .down)) && (hasMark mx10_16_6 mx5_64_61 table16 .down && (hasMark mx10_16_6 mx5_64_61 table17 .down && hasMark mx10_16_6 mx5_32_31 table15 .down)))) && (((hasMark mx10_16_6 mx5_32_31 table16 .down && hasMark mx10_16_6 mx5_32_31 table17 .down) && (hasMark mx10_16_7 mx5_8_7 table5 .down && (hasMark mx10_16_7 mx5_8_7 table14 .down && hasMark mx10_16_7 mx5_8_7 table15 .down))) && ((hasMark mx10_2_1 mx5_1_0 table5 .down && (hasMark mx10_2_1 mx5_1_0 table6 .down && hasMark mx10_2_1 mx5_1_0 table10 .down)) && (hasMark mx10_2_1 mx5_1_0 table11 .down && (hasMark mx10_2_1 mx5_1_0 table12 .down && hasMark mx10_2_1 mx5_1_0 table13 .down)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk13 : sgChk13 = true := by decide +kernel
+private def sgChk14 : Bool := ((((hasMark mx10_2_1 mx5_1_0 table19 .up && hasMark mx10_2_1 mx5_1_0 table20 .up) && (hasMark mx10_2_1 mx5_1_0 table21 .up && (hasMark mx10_2_1 mx5_1_0 table22 .up && hasMark mx10_4_2 mx5_1_0 table18 .up))) && ((hasMark mx10_4_2 mx5_2_0 table17 .up && (hasMark mx10_8_4 mx5_2_0 table2 .up && hasMark mx10_8_4 mx5_2_0 table16 .up)) && (hasMark mx10_32_16 mx5_2_0 table3 .up && (hasMark mx10_32_16 mx5_2_0 table15 .up && hasMark mx10_32_17 mx5_2_0 table14 .down)))) && (((hasMark mx10_16_9 mx5_2_0 table14 .down && hasMark mx10_8_5 mx5_2_0 table4 .down) && (hasMark mx10_8_5 mx5_2_0 table14 .down && (hasMark mx10_16_10 mx5_2_0 table2 .up && hasMark mx10_16_11 mx5_2_0 table15 .down))) && ((hasMark mx10_4_2 mx5_2_1 table2 .up && (hasMark mx10_4_2 mx5_2_1 table3 .up && hasMark mx10_4_2 mx5_2_1 table14 .down)) && (hasMark mx10_4_3 mx5_1_0 table4 .down && (hasMark mx10_4_3 mx5_1_0 table14 .down && hasMark mx10_4_3 mx5_1_0 table15 .down)))))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk14 : sgChk14 = true := by decide +kernel
+private def sgChk15 : Bool := ((hasMark mx10_4_3 mx5_1_0 table16 .down && hasMark mx10_8_6 mx5_2_0 table18 .up) && (hasMark mx10_8_6 mx5_2_1 table2 .up && (hasMark mx10_8_7 mx5_1_0 table3 .down && hasMark mx10_8_7 mx5_1_0 table17 .down)))
+set_option maxRecDepth 10000 in set_option maxHeartbeats 4000000 in
+private lemma sgOk15 : sgChk15 = true := by decide +kernel
+lemma s0 : Pol 1 0 1 0 table0 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bL (bL (bL (sgOk0)))))
+lemma s1 : Pol 1 0 1 0 table1 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bR (bL (bL (bL (sgOk0)))))
+lemma s2 : Pol 1 0 1 0 table7 .down := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bR (bL (bL (sgOk0)))))
+lemma s3 : Pol 1 0 1 0 table8 .down := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bR (bR (bL (bL (sgOk0))))))
+lemma s4 : Pol 1 0 1 0 table9 .down := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bR (bR (bR (bL (bL (sgOk0))))))
+lemma s5 : Pol 1 0 1 0 table23 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bL (bR (bL (sgOk0)))))
+lemma s6 : Pol 1 0 1 0 table24 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bR (bL (bR (bL (sgOk0))))))
+lemma s7 : Pol 1 0 1 0 table25 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bR (bR (bL (bR (bL (sgOk0))))))
+lemma s8 : Pol 1 0 1 0 table26 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bR (bR (bL (sgOk0)))))
+lemma s9 : Pol 1 0 1 0 table27 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bR (bR (bR (bL (sgOk0))))))
+lemma s10 : Pol 1 0 1 0 table28 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bR (bR (bR (bR (bL (sgOk0))))))
+lemma s11 : Pol 1 0 1 0 table29 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bL (bL (bR (sgOk0)))))
+lemma s12 : Pol 1 0 1 0 table30 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bR (bL (bL (bR (sgOk0)))))
+lemma s13 : Pol 1 0 1 0 table31 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bR (bL (bR (sgOk0)))))
+lemma s14 : Pol 1 0 1 0 table32 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bR (bR (bL (bR (sgOk0))))))
+lemma s15 : Pol 1 0 1 0 table33 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bR (bR (bR (bL (bR (sgOk0))))))
+lemma s16 : Pol 1 0 1 0 table34 .up := signFast _ _ _ _ _ _ _ _ mx10_1_0_eq mx5_1_0_eq (bL (bL (bR (bR (sgOk0)))))
+lemma s17 : Pol 2 0 1 0 table2 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_1_0_eq (bL (bR (bL (bR (bR (sgOk0))))))
+lemma s18 : Pol 2 0 1 0 table3 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_1_0_eq (bR (bR (bL (bR (bR (sgOk0))))))
+lemma s19 : Pol 2 0 2 0 table10 .down := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bL (bR (bR (bR (sgOk0)))))
+lemma s20 : Pol 2 0 2 0 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bL (bR (bR (bR (bR (sgOk0))))))
+lemma s21 : Pol 2 0 2 0 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bR (bR (bR (bR (bR (sgOk0))))))
+lemma s22 : Pol 2 0 2 0 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bL (bL (bL (bL (sgOk1)))))
+lemma s23 : Pol 2 0 2 0 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bR (bL (bL (bL (sgOk1)))))
+lemma s24 : Pol 2 0 2 0 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bL (bR (bL (bL (sgOk1)))))
+lemma s25 : Pol 2 0 2 0 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bL (bR (bR (bL (bL (sgOk1))))))
+lemma s26 : Pol 2 0 2 0 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bR (bR (bR (bL (bL (sgOk1))))))
+lemma s27 : Pol 2 0 2 0 table22 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_0_eq (bL (bL (bR (bL (sgOk1)))))
+lemma s28 : Pol 4 0 2 0 table4 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_2_0_eq (bL (bR (bL (bR (bL (sgOk1))))))
+lemma s29 : Pol 4 0 2 0 table5 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_2_0_eq (bR (bR (bL (bR (bL (sgOk1))))))
+lemma s30 : Pol 4 0 2 0 table13 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_2_0_eq (bL (bR (bR (bL (sgOk1)))))
+lemma s31 : Pol 4 0 2 0 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_2_0_eq (bL (bR (bR (bR (bL (sgOk1))))))
+lemma s32 : Pol 4 1 2 0 table6 .down := signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_2_0_eq (bR (bR (bR (bR (bL (sgOk1))))))
+lemma s33 : Pol 4 1 2 0 table11 .down := signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_2_0_eq (bL (bL (bL (bR (sgOk1)))))
+lemma s34 : Pol 8 2 2 0 table4 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_2_0_eq (bR (bL (bL (bR (sgOk1)))))
+lemma s35 : Pol 8 2 2 0 table13 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_2_0_eq (bL (bR (bL (bR (sgOk1)))))
+lemma s36 : Pol 8 2 2 0 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_2_0_eq (bL (bR (bR (bL (bR (sgOk1))))))
+lemma s37 : Pol 8 3 2 0 table5 .down := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_2_0_eq (bR (bR (bR (bL (bR (sgOk1))))))
+lemma s38 : Pol 8 3 2 0 table12 .down := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_2_0_eq (bL (bL (bR (bR (sgOk1)))))
+lemma s39 : Pol 2 0 2 1 table4 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_1_eq (bL (bR (bL (bR (bR (sgOk1))))))
+lemma s40 : Pol 2 0 2 1 table6 .down := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_2_1_eq (bR (bR (bL (bR (bR (sgOk1))))))
+lemma s41 : Pol 2 0 4 2 table10 .down := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (bL (bR (bR (bR (sgOk1)))))
+lemma s42 : Pol 2 0 4 2 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (bL (bR (bR (bR (bR (sgOk1))))))
+lemma s43 : Pol 2 0 4 2 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (bR (bR (bR (bR (bR (sgOk1))))))
+lemma s44 : Pol 2 0 4 2 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (bL (bL (bL (bL (sgOk2)))))
+lemma s45 : Pol 2 0 4 2 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (bR (bL (bL (bL (sgOk2)))))
+lemma s46 : Pol 2 0 4 2 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (bL (bR (bL (bL (sgOk2)))))
+lemma s47 : Pol 2 0 4 2 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (bL (bR (bR (bL (bL (sgOk2))))))
+lemma s48 : Pol 2 0 4 2 table22 .up := signFast _ _ _ _ _ _ _ _ mx10_2_0_eq mx5_4_2_eq (bR (bR (bR (bL (bL (sgOk2))))))
+lemma s49 : Pol 4 0 4 2 table5 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (bL (bL (bR (bL (sgOk2)))))
+lemma s50 : Pol 4 0 4 2 table12 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (bL (bR (bL (bR (bL (sgOk2))))))
+lemma s51 : Pol 4 0 4 2 table13 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (bR (bR (bL (bR (bL (sgOk2))))))
+lemma s52 : Pol 4 0 4 2 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (bL (bR (bR (bL (sgOk2)))))
+lemma s53 : Pol 4 0 4 2 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_2_eq (bL (bR (bR (bR (bL (sgOk2))))))
+lemma s54 : Pol 4 1 4 2 table11 .down := signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_4_2_eq (bR (bR (bR (bR (bL (sgOk2))))))
+lemma s55 : Pol 8 2 4 2 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_4_2_eq (bL (bL (bL (bR (sgOk2)))))
+lemma s56 : Pol 8 2 4 2 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_4_2_eq (bR (bL (bL (bR (sgOk2)))))
+lemma s57 : Pol 8 3 4 2 table12 .down := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_2_eq (bL (bR (bL (bR (sgOk2)))))
+lemma s58 : Pol 4 0 4 3 table5 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (bL (bR (bR (bL (bR (sgOk2))))))
+lemma s59 : Pol 4 0 4 3 table12 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (bR (bR (bR (bL (bR (sgOk2))))))
+lemma s60 : Pol 4 0 4 3 table13 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (bL (bL (bR (bR (sgOk2)))))
+lemma s61 : Pol 4 0 4 3 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (bL (bR (bL (bR (bR (sgOk2))))))
+lemma s62 : Pol 4 0 4 3 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_4_0_eq mx5_4_3_eq (bR (bR (bL (bR (bR (sgOk2))))))
+lemma s63 : Pol 8 0 4 3 table11 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_4_3_eq (bL (bR (bR (bR (sgOk2)))))
+lemma s64 : Pol 8 0 8 6 table10 .down := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_6_eq (bL (bR (bR (bR (bR (sgOk2))))))
+lemma s65 : Pol 8 0 8 6 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_6_eq (bR (bR (bR (bR (bR (sgOk2))))))
+lemma s66 : Pol 8 0 8 6 table22 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_6_eq (bL (bL (bL (bL (sgOk3)))))
+lemma s67 : Pol 8 0 16 12 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_12_eq (bR (bL (bL (bL (sgOk3)))))
+lemma s68 : Pol 8 0 16 12 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_12_eq (bL (bR (bL (bL (sgOk3)))))
+lemma s69 : Pol 8 0 32 24 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_24_eq (bL (bR (bR (bL (bL (sgOk3))))))
+lemma s70 : Pol 8 0 32 24 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_24_eq (bR (bR (bR (bL (bL (sgOk3))))))
+lemma s71 : Pol 8 0 32 24 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_24_eq (bL (bL (bR (bL (sgOk3)))))
+lemma s72 : Pol 16 0 64 50 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_64_50_eq (bL (bR (bL (bR (bL (sgOk3))))))
+lemma s73 : Pol 16 0 64 50 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_64_50_eq (bR (bR (bL (bR (bL (sgOk3))))))
+lemma s74 : Pol 32 0 128 102 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_0_eq mx5_128_102_eq (bL (bR (bR (bL (sgOk3)))))
+lemma s75 : Pol 64 0 128 103 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_0_eq mx5_128_103_eq (bL (bR (bR (bR (bL (sgOk3))))))
+lemma s76 : Pol 64 1 128 103 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_64_1_eq mx5_128_103_eq (bR (bR (bR (bR (bL (sgOk3))))))
+lemma s77 : Pol 32 1 64 51 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_1_eq mx5_64_51_eq (bL (bL (bL (bR (sgOk3)))))
+lemma s78 : Pol 32 1 64 51 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_1_eq mx5_64_51_eq (bR (bL (bL (bR (sgOk3)))))
+lemma s79 : Pol 16 1 32 25 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_25_eq (bL (bR (bL (bR (sgOk3)))))
+lemma s80 : Pol 16 1 32 25 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_25_eq (bL (bR (bR (bL (bR (sgOk3))))))
+lemma s81 : Pol 16 1 32 25 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_25_eq (bR (bR (bR (bL (bR (sgOk3))))))
+lemma s82 : Pol 8 0 32 26 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_26_eq (bL (bL (bR (bR (sgOk3)))))
+lemma s83 : Pol 16 0 64 52 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_64_52_eq (bL (bR (bL (bR (bR (sgOk3))))))
+lemma s84 : Pol 32 0 64 52 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_0_eq mx5_64_52_eq (bR (bR (bL (bR (bR (sgOk3))))))
+lemma s85 : Pol 32 1 128 104 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_1_eq mx5_128_104_eq (bL (bR (bR (bR (sgOk3)))))
+lemma s86 : Pol 64 2 128 105 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_2_eq mx5_128_105_eq (bL (bR (bR (bR (bR (sgOk3))))))
+lemma s87 : Pol 64 3 128 105 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_64_3_eq mx5_128_105_eq (bR (bR (bR (bR (bR (sgOk3))))))
+lemma s88 : Pol 16 0 64 53 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_64_53_eq (bL (bL (bL (bL (sgOk4)))))
+lemma s89 : Pol 32 0 64 53 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_32_0_eq mx5_64_53_eq (bR (bL (bL (bL (sgOk4)))))
+lemma s90 : Pol 32 0 64 53 table19 .down := signFast _ _ _ _ _ _ _ _ mx10_32_0_eq mx5_64_53_eq (bL (bR (bL (bL (sgOk4)))))
+lemma s91 : Pol 32 1 64 53 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_32_1_eq mx5_64_53_eq (bL (bR (bR (bL (bL (sgOk4))))))
+lemma s92 : Pol 16 1 32 26 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_26_eq (bR (bR (bR (bL (bL (sgOk4))))))
+lemma s93 : Pol 16 1 64 52 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_64_52_eq (bL (bL (bR (bL (sgOk4)))))
+lemma s94 : Pol 16 1 64 52 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_64_52_eq (bL (bR (bL (bR (bL (sgOk4))))))
+lemma s95 : Pol 32 2 128 106 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_2_eq mx5_128_106_eq (bR (bR (bL (bR (bL (sgOk4))))))
+lemma s96 : Pol 64 4 128 107 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_4_eq mx5_128_107_eq (bL (bR (bR (bL (sgOk4)))))
+lemma s97 : Pol 64 5 128 107 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_64_5_eq mx5_128_107_eq (bL (bR (bR (bR (bL (sgOk4))))))
+lemma s98 : Pol 32 3 64 53 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_3_eq mx5_64_53_eq (bR (bR (bR (bR (bL (sgOk4))))))
+lemma s99 : Pol 32 3 64 53 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_3_eq mx5_64_53_eq (bL (bL (bL (bR (sgOk4)))))
+lemma s100 : Pol 16 0 32 27 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_32_27_eq (bR (bL (bL (bR (sgOk4)))))
+lemma s101 : Pol 16 0 32 27 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_32_27_eq (bL (bR (bL (bR (sgOk4)))))
+lemma s102 : Pol 16 0 32 27 table19 .down := signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_32_27_eq (bL (bR (bR (bL (bR (sgOk4))))))
+lemma s103 : Pol 16 1 32 27 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_27_eq (bR (bR (bR (bL (bR (sgOk4))))))
+lemma s104 : Pol 16 1 64 54 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_64_54_eq (bL (bL (bR (bR (sgOk4)))))
+lemma s105 : Pol 32 2 64 54 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_2_eq mx5_64_54_eq (bL (bR (bL (bR (bR (sgOk4))))))
+lemma s106 : Pol 32 3 128 108 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_3_eq mx5_128_108_eq (bR (bR (bL (bR (bR (sgOk4))))))
+lemma s107 : Pol 64 6 128 109 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_6_eq mx5_128_109_eq (bL (bR (bR (bR (sgOk4)))))
+lemma s108 : Pol 64 7 128 109 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_64_7_eq mx5_128_109_eq (bL (bR (bR (bR (bR (sgOk4))))))
+lemma s109 : Pol 16 1 64 55 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_64_55_eq (bR (bR (bR (bR (bR (sgOk4))))))
+lemma s110 : Pol 32 2 64 55 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_32_2_eq mx5_64_55_eq (bL (bL (bL (bL (sgOk5)))))
+lemma s111 : Pol 32 2 64 55 table19 .down := signFast _ _ _ _ _ _ _ _ mx10_32_2_eq mx5_64_55_eq (bR (bL (bL (bL (sgOk5)))))
+lemma s112 : Pol 32 3 64 55 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_32_3_eq mx5_64_55_eq (bL (bR (bL (bL (sgOk5)))))
+lemma s113 : Pol 8 0 8 7 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_7_eq (bL (bR (bR (bL (bL (sgOk5))))))
+lemma s114 : Pol 8 0 8 7 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_7_eq (bR (bR (bR (bL (bL (sgOk5))))))
+lemma s115 : Pol 8 0 8 7 table19 .down := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_8_7_eq (bL (bL (bR (bL (sgOk5)))))
+lemma s116 : Pol 8 0 16 14 table22 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_14_eq (bL (bR (bL (bR (bL (sgOk5))))))
+lemma s117 : Pol 16 0 16 14 table20 .down := signFast _ _ _ _ _ _ _ _ mx10_16_0_eq mx5_16_14_eq (bR (bR (bL (bR (bL (sgOk5))))))
+lemma s118 : Pol 16 1 16 14 table10 .down := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_16_14_eq (bL (bR (bR (bL (sgOk5)))))
+lemma s119 : Pol 16 1 32 28 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_28_eq (bL (bR (bR (bR (bL (sgOk5))))))
+lemma s120 : Pol 16 1 32 29 table20 .down := signFast _ _ _ _ _ _ _ _ mx10_16_1_eq mx5_32_29_eq (bR (bR (bR (bR (bL (sgOk5))))))
+lemma s121 : Pol 8 0 16 15 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_15_eq (bL (bL (bL (bR (sgOk5)))))
+lemma s122 : Pol 8 0 16 15 table20 .down := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_16_15_eq (bR (bL (bL (bR (sgOk5)))))
+lemma s123 : Pol 8 0 32 30 table22 .up := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_30_eq (bL (bR (bL (bR (sgOk5)))))
+lemma s124 : Pol 8 0 32 31 table21 .down := signFast _ _ _ _ _ _ _ _ mx10_8_0_eq mx5_32_31_eq (bL (bR (bR (bL (bR (sgOk5))))))
+lemma s125 : Pol 8 1 4 3 table10 .down := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_4_3_eq (bR (bR (bR (bL (bR (sgOk5))))))
+lemma s126 : Pol 8 1 4 3 table22 .up := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_4_3_eq (bL (bL (bR (bR (sgOk5)))))
+lemma s127 : Pol 8 1 8 6 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_8_6_eq (bL (bR (bL (bR (bR (sgOk5))))))
+lemma s128 : Pol 8 1 8 6 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_8_6_eq (bR (bR (bL (bR (bR (sgOk5))))))
+lemma s129 : Pol 8 1 8 6 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_8_6_eq (bL (bR (bR (bR (sgOk5)))))
+lemma s130 : Pol 16 2 8 6 table11 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_8_6_eq (bL (bR (bR (bR (bR (sgOk5))))))
+lemma s131 : Pol 16 2 16 12 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_12_eq (bR (bR (bR (bR (bR (sgOk5))))))
+lemma s132 : Pol 16 2 16 12 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_12_eq (bL (bL (bL (bL (sgOk6)))))
+lemma s133 : Pol 16 2 16 12 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_12_eq (bR (bL (bL (bL (sgOk6)))))
+lemma s134 : Pol 16 2 32 26 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_26_eq (bL (bR (bL (bL (sgOk6)))))
+lemma s135 : Pol 16 2 32 26 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_26_eq (bL (bR (bR (bL (bL (sgOk6))))))
+lemma s136 : Pol 16 2 32 26 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_26_eq (bR (bR (bR (bL (bL (sgOk6))))))
+lemma s137 : Pol 16 2 64 54 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_64_54_eq (bL (bL (bR (bL (sgOk6)))))
+lemma s138 : Pol 16 2 64 54 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_64_54_eq (bL (bR (bL (bR (bL (sgOk6))))))
+lemma s139 : Pol 32 4 128 110 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_128_110_eq (bR (bR (bL (bR (bL (sgOk6))))))
+lemma s140 : Pol 64 8 128 111 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_8_eq mx5_128_111_eq (bL (bR (bR (bL (sgOk6)))))
+lemma s141 : Pol 64 9 128 111 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_64_9_eq mx5_128_111_eq (bL (bR (bR (bR (bL (sgOk6))))))
+lemma s142 : Pol 32 5 64 55 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_64_55_eq (bR (bR (bR (bR (bL (sgOk6))))))
+lemma s143 : Pol 32 5 64 55 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_64_55_eq (bL (bL (bL (bR (sgOk6)))))
+lemma s144 : Pol 16 3 8 6 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_8_6_eq (bR (bL (bL (bR (sgOk6)))))
+lemma s145 : Pol 16 3 8 6 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_8_6_eq (bL (bR (bL (bR (sgOk6)))))
+lemma s146 : Pol 16 3 8 6 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_8_6_eq (bL (bR (bR (bL (bR (sgOk6))))))
+lemma s147 : Pol 8 1 16 14 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_16_14_eq (bR (bR (bR (bL (bR (sgOk6))))))
+lemma s148 : Pol 16 2 16 14 table11 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_14_eq (bL (bL (bR (bR (sgOk6)))))
+lemma s149 : Pol 16 2 32 28 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_28_eq (bL (bR (bL (bR (bR (sgOk6))))))
+lemma s150 : Pol 16 2 64 56 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_64_56_eq (bR (bR (bL (bR (bR (sgOk6))))))
+lemma s151 : Pol 32 4 64 56 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_64_56_eq (bL (bR (bR (bR (sgOk6)))))
+lemma s152 : Pol 32 5 128 112 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_128_112_eq (bL (bR (bR (bR (bR (sgOk6))))))
+lemma s153 : Pol 64 10 128 113 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_10_eq mx5_128_113_eq (bR (bR (bR (bR (bR (sgOk6))))))
+lemma s154 : Pol 64 11 256 226 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_64_11_eq mx5_256_226_eq (bL (bL (bL (bL (sgOk7)))))
+lemma s155 : Pol 64 11 256 226 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_64_11_eq mx5_256_226_eq (bR (bL (bL (bL (sgOk7)))))
+lemma s156 : Pol 64 11 256 227 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_11_eq mx5_256_227_eq (bL (bR (bL (bL (sgOk7)))))
+lemma s157 : Pol 16 2 64 57 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_64_57_eq (bL (bR (bR (bL (bL (sgOk7))))))
+lemma s158 : Pol 32 4 64 57 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_64_57_eq (bR (bR (bR (bL (bL (sgOk7))))))
+lemma s159 : Pol 32 4 64 57 table19 .down := signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_64_57_eq (bL (bL (bR (bL (sgOk7)))))
+lemma s160 : Pol 32 5 64 57 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_64_57_eq (bL (bR (bL (bR (bL (sgOk7))))))
+lemma s161 : Pol 16 2 32 29 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_29_eq (bR (bR (bL (bR (bL (sgOk7))))))
+lemma s162 : Pol 16 2 32 29 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_29_eq (bL (bR (bR (bL (sgOk7)))))
+lemma s163 : Pol 16 2 32 29 table19 .down := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_32_29_eq (bL (bR (bR (bR (bL (sgOk7))))))
+lemma s164 : Pol 16 3 16 14 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_16_14_eq (bR (bR (bR (bR (bL (sgOk7))))))
+lemma s165 : Pol 16 3 16 14 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_16_14_eq (bL (bL (bL (bR (sgOk7)))))
+lemma s166 : Pol 32 6 16 14 table11 .up := signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_16_14_eq (bR (bL (bL (bR (sgOk7)))))
+lemma s167 : Pol 32 6 64 56 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_64_56_eq (bL (bR (bL (bR (sgOk7)))))
+lemma s168 : Pol 32 6 64 56 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_64_56_eq (bL (bR (bR (bL (bR (sgOk7))))))
+lemma s169 : Pol 32 6 128 114 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_128_114_eq (bR (bR (bR (bL (bR (sgOk7))))))
+lemma s170 : Pol 32 6 128 115 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_128_115_eq (bL (bL (bR (bR (sgOk7)))))
+lemma s171 : Pol 32 6 32 29 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_6_eq mx5_32_29_eq (bL (bR (bL (bR (bR (sgOk7))))))
+lemma s172 : Pol 32 7 32 28 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_7_eq mx5_32_28_eq (bR (bR (bL (bR (bR (sgOk7))))))
+lemma s173 : Pol 32 7 32 28 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_7_eq mx5_32_28_eq (bL (bR (bR (bR (sgOk7)))))
+lemma s174 : Pol 64 14 32 29 table11 .up := signFast _ _ _ _ _ _ _ _ mx10_64_14_eq mx5_32_29_eq (bL (bR (bR (bR (bR (sgOk7))))))
+lemma s175 : Pol 64 14 32 29 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_14_eq mx5_32_29_eq (bR (bR (bR (bR (bR (sgOk7))))))
+lemma s176 : Pol 64 15 64 58 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_64_15_eq mx5_64_58_eq (bL (bL (bL (bL (sgOk8)))))
+lemma s177 : Pol 64 15 64 59 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_64_15_eq mx5_64_59_eq (bR (bL (bL (bL (sgOk8)))))
+lemma s178 : Pol 64 15 64 59 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_64_15_eq mx5_64_59_eq (bL (bR (bL (bL (sgOk8)))))
+lemma s179 : Pol 8 1 16 15 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_16_15_eq (bL (bR (bR (bL (bL (sgOk8))))))
+lemma s180 : Pol 8 1 16 15 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_16_15_eq (bR (bR (bR (bL (bL (sgOk8))))))
+lemma s181 : Pol 8 1 16 15 table19 .down := signFast _ _ _ _ _ _ _ _ mx10_8_1_eq mx5_16_15_eq (bL (bL (bR (bL (sgOk8)))))
+lemma s182 : Pol 16 2 16 15 table11 .up := signFast _ _ _ _ _ _ _ _ mx10_16_2_eq mx5_16_15_eq (bL (bR (bL (bR (bL (sgOk8))))))
+lemma s183 : Pol 32 4 16 15 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_16_15_eq (bR (bR (bL (bR (bL (sgOk8))))))
+lemma s184 : Pol 32 4 16 15 table20 .down := signFast _ _ _ _ _ _ _ _ mx10_32_4_eq mx5_16_15_eq (bL (bR (bR (bL (sgOk8)))))
+lemma s185 : Pol 32 5 32 30 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_32_30_eq (bL (bR (bR (bR (bL (sgOk8))))))
+lemma s186 : Pol 32 5 32 31 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_32_31_eq (bR (bR (bR (bR (bL (sgOk8))))))
+lemma s187 : Pol 32 5 32 31 table20 .down := signFast _ _ _ _ _ _ _ _ mx10_32_5_eq mx5_32_31_eq (bL (bL (bL (bR (sgOk8)))))
+lemma s188 : Pol 16 3 16 15 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_16_3_eq mx5_16_15_eq (bR (bL (bL (bR (sgOk8)))))
+lemma s189 : Pol 4 1 4 3 table10 .down := signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_4_3_eq (bL (bR (bL (bR (sgOk8)))))
+lemma s190 : Pol 4 1 4 3 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_4_3_eq (bL (bR (bR (bL (bR (sgOk8))))))
+lemma s191 : Pol 4 1 4 3 table22 .up := signFast _ _ _ _ _ _ _ _ mx10_4_1_eq mx5_4_3_eq (bR (bR (bR (bL (bR (sgOk8))))))
+lemma s192 : Pol 8 2 4 3 table5 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_4_3_eq (bL (bL (bR (bR (sgOk8)))))
+lemma s193 : Pol 8 2 8 6 table11 .down := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (bL (bR (bL (bR (bR (sgOk8))))))
+lemma s194 : Pol 8 2 8 6 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (bR (bR (bL (bR (bR (sgOk8))))))
+lemma s195 : Pol 8 2 8 6 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (bL (bR (bR (bR (sgOk8)))))
+lemma s196 : Pol 8 2 8 6 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (bL (bR (bR (bR (bR (sgOk8))))))
+lemma s197 : Pol 8 2 8 6 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (bR (bR (bR (bR (bR (sgOk8))))))
+lemma s198 : Pol 8 2 8 6 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (bL (bL (bL (bL (sgOk9)))))
+lemma s199 : Pol 8 2 8 6 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (bR (bL (bL (bL (sgOk9)))))
+lemma s200 : Pol 8 2 8 6 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_8_2_eq mx5_8_6_eq (bL (bR (bL (bL (sgOk9)))))
+lemma s201 : Pol 16 4 8 7 table13 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_8_7_eq (bL (bR (bR (bL (bL (sgOk9))))))
+lemma s202 : Pol 16 4 8 7 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_8_7_eq (bR (bR (bR (bL (bL (sgOk9))))))
+lemma s203 : Pol 16 4 8 7 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_8_7_eq (bL (bL (bR (bL (sgOk9)))))
+lemma s204 : Pol 16 4 16 14 table11 .down := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_14_eq (bL (bR (bL (bR (bL (sgOk9))))))
+lemma s205 : Pol 16 4 16 14 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_14_eq (bR (bR (bL (bR (bL (sgOk9))))))
+lemma s206 : Pol 16 4 16 14 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_14_eq (bL (bR (bR (bL (sgOk9)))))
+lemma s207 : Pol 16 4 32 28 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_28_eq (bL (bR (bR (bR (bL (sgOk9))))))
+lemma s208 : Pol 16 4 32 28 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_28_eq (bR (bR (bR (bR (bL (sgOk9))))))
+lemma s209 : Pol 16 4 32 28 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_28_eq (bL (bL (bL (bR (sgOk9)))))
+lemma s210 : Pol 16 4 32 29 table12 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_29_eq (bR (bL (bL (bR (sgOk9)))))
+lemma s211 : Pol 16 4 64 58 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_64_58_eq (bL (bR (bL (bR (sgOk9)))))
+lemma s212 : Pol 32 8 128 118 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_8_eq mx5_128_118_eq (bL (bR (bR (bL (bR (sgOk9))))))
+lemma s213 : Pol 32 8 128 119 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_32_8_eq mx5_128_119_eq (bR (bR (bR (bL (bR (sgOk9))))))
+lemma s214 : Pol 32 8 128 119 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_8_eq mx5_128_119_eq (bL (bL (bR (bR (sgOk9)))))
+lemma s215 : Pol 32 9 64 59 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_9_eq mx5_64_59_eq (bL (bR (bL (bR (bR (sgOk9))))))
+lemma s216 : Pol 16 4 16 15 table12 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_15_eq (bR (bR (bL (bR (bR (sgOk9))))))
+lemma s217 : Pol 16 4 16 15 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_16_15_eq (bL (bR (bR (bR (sgOk9)))))
+lemma s218 : Pol 16 4 32 30 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_30_eq (bL (bR (bR (bR (bR (sgOk9))))))
+lemma s219 : Pol 16 4 64 60 table11 .down := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_64_60_eq (bR (bR (bR (bR (bR (sgOk9))))))
+lemma s220 : Pol 16 4 64 60 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_64_60_eq (bL (bL (bL (bL (sgOk10)))))
+lemma s221 : Pol 32 8 64 60 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_8_eq mx5_64_60_eq (bR (bL (bL (bL (sgOk10)))))
+lemma s222 : Pol 32 9 128 120 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_9_eq mx5_128_120_eq (bL (bR (bL (bL (sgOk10)))))
+lemma s223 : Pol 32 9 128 121 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_9_eq mx5_128_121_eq (bL (bR (bR (bL (bL (sgOk10))))))
+lemma s224 : Pol 16 4 64 61 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_64_61_eq (bR (bR (bR (bL (bL (sgOk10))))))
+lemma s225 : Pol 16 4 32 31 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_31_eq (bL (bL (bR (bL (sgOk10)))))
+lemma s226 : Pol 16 4 32 31 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_31_eq (bL (bR (bL (bR (bL (sgOk10))))))
+lemma s227 : Pol 16 4 32 31 table19 .down := signFast _ _ _ _ _ _ _ _ mx10_16_4_eq mx5_32_31_eq (bR (bR (bL (bR (bL (sgOk10))))))
+lemma s228 : Pol 16 5 8 7 table11 .down := signFast _ _ _ _ _ _ _ _ mx10_16_5_eq mx5_8_7_eq (bL (bR (bR (bL (sgOk10)))))
+lemma s229 : Pol 16 5 8 7 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_16_5_eq mx5_8_7_eq (bL (bR (bR (bR (bL (sgOk10))))))
+lemma s230 : Pol 32 10 8 7 table13 .up := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_8_7_eq (bR (bR (bR (bR (bL (sgOk10))))))
+lemma s231 : Pol 32 10 8 7 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_8_7_eq (bL (bL (bL (bR (sgOk10)))))
+lemma s232 : Pol 32 10 8 7 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_8_7_eq (bR (bL (bL (bR (sgOk10)))))
+lemma s233 : Pol 32 10 16 14 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_16_14_eq (bL (bR (bL (bR (sgOk10)))))
+lemma s234 : Pol 32 10 16 14 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_16_14_eq (bL (bR (bR (bL (bR (sgOk10))))))
+lemma s235 : Pol 32 10 16 14 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_16_14_eq (bR (bR (bR (bL (bR (sgOk10))))))
+lemma s236 : Pol 32 10 64 60 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_64_60_eq (bL (bL (bR (bR (sgOk10)))))
+lemma s237 : Pol 32 10 64 60 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_64_60_eq (bL (bR (bL (bR (bR (sgOk10))))))
+lemma s238 : Pol 32 10 64 61 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_64_61_eq (bR (bR (bL (bR (bR (sgOk10))))))
+lemma s239 : Pol 32 10 64 61 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_64_61_eq (bL (bR (bR (bR (sgOk10)))))
+lemma s240 : Pol 32 10 32 31 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_32_31_eq (bL (bR (bR (bR (bR (sgOk10))))))
+lemma s241 : Pol 32 10 32 31 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_32_31_eq (bR (bR (bR (bR (bR (sgOk10))))))
+lemma s242 : Pol 32 10 32 31 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_10_eq mx5_32_31_eq (bL (bL (bL (bL (sgOk11)))))
+lemma s243 : Pol 32 11 8 7 table12 .down := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_8_7_eq (bR (bL (bL (bL (sgOk11)))))
+lemma s244 : Pol 32 11 16 14 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (bL (bR (bL (bL (sgOk11)))))
+lemma s245 : Pol 32 11 16 14 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (bL (bR (bR (bL (bL (sgOk11))))))
+lemma s246 : Pol 32 11 16 14 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (bR (bR (bR (bL (bL (sgOk11))))))
+lemma s247 : Pol 32 11 16 14 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (bL (bL (bR (bL (sgOk11)))))
+lemma s248 : Pol 32 11 16 14 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (bL (bR (bL (bR (bL (sgOk11))))))
+lemma s249 : Pol 32 11 16 14 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_16_14_eq (bR (bR (bL (bR (bL (sgOk11))))))
+lemma s250 : Pol 32 11 32 30 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_30_eq (bL (bR (bR (bL (sgOk11)))))
+lemma s251 : Pol 32 11 32 30 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_30_eq (bL (bR (bR (bR (bL (sgOk11))))))
+lemma s252 : Pol 64 22 32 30 table13 .up := signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_32_30_eq (bR (bR (bR (bR (bL (sgOk11))))))
+lemma s253 : Pol 64 22 32 30 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_32_30_eq (bL (bL (bL (bR (sgOk11)))))
+lemma s254 : Pol 64 22 128 120 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_128_120_eq (bR (bL (bL (bR (sgOk11)))))
+lemma s255 : Pol 64 22 128 120 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_128_120_eq (bL (bR (bL (bR (sgOk11)))))
+lemma s256 : Pol 64 22 128 121 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_128_121_eq (bL (bR (bR (bL (bR (sgOk11))))))
+lemma s257 : Pol 64 22 64 61 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_64_61_eq (bR (bR (bR (bL (bR (sgOk11))))))
+lemma s258 : Pol 64 23 64 60 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_64_23_eq mx5_64_60_eq (bL (bL (bR (bR (sgOk11)))))
+lemma s259 : Pol 64 23 64 60 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_64_23_eq mx5_64_60_eq (bL (bR (bL (bR (bR (sgOk11))))))
+lemma s260 : Pol 64 23 64 61 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_64_23_eq mx5_64_61_eq (bR (bR (bL (bR (bR (sgOk11))))))
+lemma s261 : Pol 64 23 64 61 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_64_23_eq mx5_64_61_eq (bL (bR (bR (bR (sgOk11)))))
+lemma s262 : Pol 32 11 32 31 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_31_eq (bL (bR (bR (bR (bR (sgOk11))))))
+lemma s263 : Pol 32 11 32 31 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_31_eq (bR (bR (bR (bR (bR (sgOk11))))))
+lemma s264 : Pol 32 11 32 31 table18 .down := signFast _ _ _ _ _ _ _ _ mx10_32_11_eq mx5_32_31_eq (bL (bL (bL (bL (sgOk12)))))
+lemma s265 : Pol 64 22 32 31 table13 .up := signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_32_31_eq (bR (bL (bL (bL (sgOk12)))))
+lemma s266 : Pol 64 22 32 31 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_64_22_eq mx5_32_31_eq (bL (bR (bL (bL (sgOk12)))))
+lemma s267 : Pol 128 46 32 31 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_128_46_eq mx5_32_31_eq (bL (bR (bR (bL (bL (sgOk12))))))
+lemma s268 : Pol 128 47 32 31 table13 .down := signFast _ _ _ _ _ _ _ _ mx10_128_47_eq mx5_32_31_eq (bR (bR (bR (bL (bL (sgOk12))))))
+lemma s269 : Pol 128 47 32 31 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_128_47_eq mx5_32_31_eq (bL (bL (bR (bL (sgOk12)))))
+lemma s270 : Pol 8 3 4 3 table11 .down := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (bL (bR (bL (bR (bL (sgOk12))))))
+lemma s271 : Pol 8 3 4 3 table12 .down := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (bR (bR (bL (bR (bL (sgOk12))))))
+lemma s272 : Pol 8 3 4 3 table13 .down := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (bL (bR (bR (bL (sgOk12)))))
+lemma s273 : Pol 8 3 4 3 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (bL (bR (bR (bR (bL (sgOk12))))))
+lemma s274 : Pol 8 3 4 3 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_4_3_eq (bR (bR (bR (bR (bL (sgOk12))))))
+lemma s275 : Pol 8 3 8 6 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_8_6_eq (bL (bL (bL (bR (sgOk12)))))
+lemma s276 : Pol 8 3 8 6 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_8_3_eq mx5_8_6_eq (bR (bL (bL (bR (sgOk12)))))
+lemma s277 : Pol 16 6 16 14 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_16_14_eq (bL (bR (bL (bR (sgOk12)))))
+lemma s278 : Pol 16 6 16 14 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_16_14_eq (bL (bR (bR (bL (bR (sgOk12))))))
+lemma s279 : Pol 16 6 64 60 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_64_60_eq (bR (bR (bR (bL (bR (sgOk12))))))
+lemma s280 : Pol 64 24 64 60 table5 .up := signFast _ _ _ _ _ _ _ _ mx10_64_24_eq mx5_64_60_eq (bL (bL (bR (bR (sgOk12)))))
+lemma s281 : Pol 128 48 64 60 table14 .up := signFast _ _ _ _ _ _ _ _ mx10_128_48_eq mx5_64_60_eq (bL (bR (bL (bR (bR (sgOk12))))))
+lemma s282 : Pol 128 48 64 60 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_128_48_eq mx5_64_60_eq (bR (bR (bL (bR (bR (sgOk12))))))
+lemma s283 : Pol 128 49 128 120 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_128_49_eq mx5_128_120_eq (bL (bR (bR (bR (sgOk12)))))
+lemma s284 : Pol 128 49 128 120 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_128_49_eq mx5_128_120_eq (bL (bR (bR (bR (bR (sgOk12))))))
+lemma s285 : Pol 256 98 256 242 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_256_98_eq mx5_256_242_eq (bR (bR (bR (bR (bR (sgOk12))))))
+lemma s286 : Pol 256 98 256 243 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_256_98_eq mx5_256_243_eq (bL (bL (bL (bL (sgOk13)))))
+lemma s287 : Pol 256 98 256 243 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_256_98_eq mx5_256_243_eq (bR (bL (bL (bL (sgOk13)))))
+lemma s288 : Pol 256 99 128 121 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_256_99_eq mx5_128_121_eq (bL (bR (bL (bL (sgOk13)))))
+lemma s289 : Pol 256 99 128 121 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_256_99_eq mx5_128_121_eq (bL (bR (bR (bL (bL (sgOk13))))))
+lemma s290 : Pol 64 25 64 60 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_64_25_eq mx5_64_60_eq (bR (bR (bR (bL (bL (sgOk13))))))
+lemma s291 : Pol 32 13 64 60 table5 .down := signFast _ _ _ _ _ _ _ _ mx10_32_13_eq mx5_64_60_eq (bL (bL (bR (bL (sgOk13)))))
+lemma s292 : Pol 32 13 64 60 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_32_13_eq mx5_64_60_eq (bL (bR (bL (bR (bL (sgOk13))))))
+lemma s293 : Pol 32 13 64 60 table15 .down := signFast _ _ _ _ _ _ _ _ mx10_32_13_eq mx5_64_60_eq (bR (bR (bL (bR (bL (sgOk13))))))
+lemma s294 : Pol 16 6 64 61 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_64_61_eq (bL (bR (bR (bL (sgOk13)))))
+lemma s295 : Pol 16 6 64 61 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_64_61_eq (bL (bR (bR (bR (bL (sgOk13))))))
+lemma s296 : Pol 16 6 32 31 table15 .down := signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_32_31_eq (bR (bR (bR (bR (bL (sgOk13))))))
+lemma s297 : Pol 16 6 32 31 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_32_31_eq (bL (bL (bL (bR (sgOk13)))))
+lemma s298 : Pol 16 6 32 31 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_16_6_eq mx5_32_31_eq (bR (bL (bL (bR (sgOk13)))))
+lemma s299 : Pol 16 7 8 7 table5 .down := signFast _ _ _ _ _ _ _ _ mx10_16_7_eq mx5_8_7_eq (bL (bR (bL (bR (sgOk13)))))
+lemma s300 : Pol 16 7 8 7 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_16_7_eq mx5_8_7_eq (bL (bR (bR (bL (bR (sgOk13))))))
+lemma s301 : Pol 16 7 8 7 table15 .down := signFast _ _ _ _ _ _ _ _ mx10_16_7_eq mx5_8_7_eq (bR (bR (bR (bL (bR (sgOk13))))))
+lemma s302 : Pol 2 1 1 0 table5 .down := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bL (bL (bR (bR (sgOk13)))))
+lemma s303 : Pol 2 1 1 0 table6 .down := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bL (bR (bL (bR (bR (sgOk13))))))
+lemma s304 : Pol 2 1 1 0 table10 .down := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bR (bR (bL (bR (bR (sgOk13))))))
+lemma s305 : Pol 2 1 1 0 table11 .down := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bL (bR (bR (bR (sgOk13)))))
+lemma s306 : Pol 2 1 1 0 table12 .down := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bL (bR (bR (bR (bR (sgOk13))))))
+lemma s307 : Pol 2 1 1 0 table13 .down := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bR (bR (bR (bR (bR (sgOk13))))))
+lemma s308 : Pol 2 1 1 0 table19 .up := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bL (bL (bL (bL (sgOk14)))))
+lemma s309 : Pol 2 1 1 0 table20 .up := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bR (bL (bL (bL (sgOk14)))))
+lemma s310 : Pol 2 1 1 0 table21 .up := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bL (bR (bL (bL (sgOk14)))))
+lemma s311 : Pol 2 1 1 0 table22 .up := signFast _ _ _ _ _ _ _ _ mx10_2_1_eq mx5_1_0_eq (bL (bR (bR (bL (bL (sgOk14))))))
+lemma s312 : Pol 4 2 1 0 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_1_0_eq (bR (bR (bR (bL (bL (sgOk14))))))
+lemma s313 : Pol 4 2 2 0 table17 .up := signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_2_0_eq (bL (bL (bR (bL (sgOk14)))))
+lemma s314 : Pol 8 4 2 0 table2 .up := signFast _ _ _ _ _ _ _ _ mx10_8_4_eq mx5_2_0_eq (bL (bR (bL (bR (bL (sgOk14))))))
+lemma s315 : Pol 8 4 2 0 table16 .up := signFast _ _ _ _ _ _ _ _ mx10_8_4_eq mx5_2_0_eq (bR (bR (bL (bR (bL (sgOk14))))))
+lemma s316 : Pol 32 16 2 0 table3 .up := signFast _ _ _ _ _ _ _ _ mx10_32_16_eq mx5_2_0_eq (bL (bR (bR (bL (sgOk14)))))
+lemma s317 : Pol 32 16 2 0 table15 .up := signFast _ _ _ _ _ _ _ _ mx10_32_16_eq mx5_2_0_eq (bL (bR (bR (bR (bL (sgOk14))))))
+lemma s318 : Pol 32 17 2 0 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_32_17_eq mx5_2_0_eq (bR (bR (bR (bR (bL (sgOk14))))))
+lemma s319 : Pol 16 9 2 0 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_16_9_eq mx5_2_0_eq (bL (bL (bL (bR (sgOk14)))))
+lemma s320 : Pol 8 5 2 0 table4 .down := signFast _ _ _ _ _ _ _ _ mx10_8_5_eq mx5_2_0_eq (bR (bL (bL (bR (sgOk14)))))
+lemma s321 : Pol 8 5 2 0 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_8_5_eq mx5_2_0_eq (bL (bR (bL (bR (sgOk14)))))
+lemma s322 : Pol 16 10 2 0 table2 .up := signFast _ _ _ _ _ _ _ _ mx10_16_10_eq mx5_2_0_eq (bL (bR (bR (bL (bR (sgOk14))))))
+lemma s323 : Pol 16 11 2 0 table15 .down := signFast _ _ _ _ _ _ _ _ mx10_16_11_eq mx5_2_0_eq (bR (bR (bR (bL (bR (sgOk14))))))
+lemma s324 : Pol 4 2 2 1 table2 .up := signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_2_1_eq (bL (bL (bR (bR (sgOk14)))))
+lemma s325 : Pol 4 2 2 1 table3 .up := signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_2_1_eq (bL (bR (bL (bR (bR (sgOk14))))))
+lemma s326 : Pol 4 2 2 1 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_4_2_eq mx5_2_1_eq (bR (bR (bL (bR (bR (sgOk14))))))
+lemma s327 : Pol 4 3 1 0 table4 .down := signFast _ _ _ _ _ _ _ _ mx10_4_3_eq mx5_1_0_eq (bL (bR (bR (bR (sgOk14)))))
+lemma s328 : Pol 4 3 1 0 table14 .down := signFast _ _ _ _ _ _ _ _ mx10_4_3_eq mx5_1_0_eq (bL (bR (bR (bR (bR (sgOk14))))))
+lemma s329 : Pol 4 3 1 0 table15 .down := signFast _ _ _ _ _ _ _ _ mx10_4_3_eq mx5_1_0_eq (bR (bR (bR (bR (bR (sgOk14))))))
+lemma s330 : Pol 4 3 1 0 table16 .down := signFast _ _ _ _ _ _ _ _ mx10_4_3_eq mx5_1_0_eq (bL (bL (sgOk15)))
+lemma s331 : Pol 8 6 2 0 table18 .up := signFast _ _ _ _ _ _ _ _ mx10_8_6_eq mx5_2_0_eq (bR (bL (sgOk15)))
+lemma s332 : Pol 8 6 2 1 table2 .up := signFast _ _ _ _ _ _ _ _ mx10_8_6_eq mx5_2_1_eq (bL (bR (sgOk15)))
+lemma s333 : Pol 8 7 1 0 table3 .down := signFast _ _ _ _ _ _ _ _ mx10_8_7_eq mx5_1_0_eq (bL (bR (bR (sgOk15))))
+lemma s334 : Pol 8 7 1 0 table17 .down := signFast _ _ _ _ _ _ _ _ mx10_8_7_eq mx5_1_0_eq (bR (bR (bR (sgOk15))))
 lemma gLeaf0 : BoxGood 4 0 2 0 := by
   apply from_marks (ms := [.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.up,.both,.both,.down,.down,.down,.down,.both,.up,.up,.up,.up,.up,.up])
   · exact .cons (carry s16 4 0 2 0) <| .cons (carry s15 4 0 2 0) <| .cons (carry s14 4 0 2 0) <| .cons (carry s13 4 0 2 0) <|
