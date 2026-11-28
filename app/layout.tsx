@@ -31,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <a href="#main" className="skip">Skip to content</a>
         <header className="top">
           <div className="wrap">
             {/* A plain link, not the client router: always a full return to the top of the home page. */}
@@ -42,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Nav />
           </div>
         </header>
-        {children}
+        <div id="main" tabIndex={-1} style={{ outline: "none" }}>{children}</div>
         <footer className="foot">
           <div className="wrap">
             <div>

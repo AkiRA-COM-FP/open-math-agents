@@ -7,6 +7,8 @@ const BSD: Record<string, string> = {
   "WeierstrassCurve.Affine.Rat.weakBSD": "rank only, over ℚ",
   "WeierstrassCurve.Affine.NumberField.strongBSD": "strong form, over a number field",
   "WeierstrassCurve.Affine.NumberField.weakBSD": "rank only, over a number field",
+  "NavierStokes.navier_stokes_existence_and_smoothness_R3": "on ℝ³",
+  "NavierStokes.navier_stokes_existence_and_smoothness_periodic": "periodic, on the torus",
 };
 
 export function splitTitle(id: string, title: string): { main: string; variant: string | null } {
