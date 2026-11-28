@@ -8,9 +8,9 @@ generated list. Usage: python3 tools/batch_check_yml.py > .github/workflows/batc
 """
 SHARDS = 96         # parallel jobs; a pull request goes to shard crc32(its file) % SHARDS (tools/batch_verdicts.sh reads this line)
 MAX_SHARDS = 96     # the census reads the artifacts bv-0 .. bv-<MAX_SHARDS - 1>: keep it >= every shard count used so far
-LANES = 1           # one check at a time: 3 overran the 16 GB runner (shards killed, exit 143); with 2, most checks ended
-                    # without a verdict beside the other and were redone alone (memory-capped Mathlib pages thrash)
-CHECK_MEM = "12G"   # memory cap of one check (cgroup): a heavy proof fails alone instead of taking the runner down
+LANES = 2           # checks at once in a job; 3 overran the 16 GB runner (shards killed, exit 143); 2 with the cap: no deaths,
+                    # ~29 verdicts per shard-hour, about 1 in 10 checks redone alone
+CHECK_MEM = "6G"    # memory cap of one check (cgroup): a heavy proof fails alone instead of taking the runner down
 ROUNDS = 100        # publish rounds per job: new verdicts go out at most once a minute, a round waits 2 minutes at most
 JOB_MINUTES = 45    # no new check starts after this; the job then publishes and ends (the next run takes over).
                     # Short runs: a dead shard loses less and the next run (same concurrency group) starts sooner

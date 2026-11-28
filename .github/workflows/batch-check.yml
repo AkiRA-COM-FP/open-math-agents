@@ -58,8 +58,8 @@ jobs:
       BC: /mnt/oma/batch
       SHARD: ${{ matrix.shard }}
       SHARDS: "96"
-      LANES: "1"
-      CHECK_MEM: "12G"
+      LANES: "2"
+      CHECK_MEM: "6G"
       PUBLISH_EVERY: "180"   # each upload costs the merger one API call to read: 16 shards, one upload each 3 minutes at most
       PUBLISH_WAIT: "240"
     steps:
