@@ -6048,6 +6048,517 @@
     "https://github.com/mxym/math/pull/137"
    ],
    "note": "Keough-Shane Conjecture 1.2 (for every n-vertex G, the number of dominating sets of G plus that of its complement is at most 2(2^floor(n/2)-1)(2^ceil(n/2)-1)+2) is stated faithfully for all n, with the empty set counting as dominating only when n = 0. The paper proves only a weaker bound (verified for n <= 10), and Sanh's 2026 follow-up handles only bipartite graphs and still calls the general case open. I found no earlier proof. The 130 KB proof is a structural argument built on Seinsche's characterization of P4-free graphs. Substantive. Second review: Faithful; the site proof (Nov 28 2026) covers every n, which goes beyond the two partial results it cites (bipartite case; n>=160). It credits them openly; the proof method (induced-path/trace counting with a kernel-checked finite part) is its own, so the full result appears new, but the announcement should mention the n>=160 result from nine days earlier."
+  },
+  "oeis-a280367": {
+   "date": "2026-11-28",
+   "pr": 23254,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A280367",
+    "https://oeis.org/A280367",
+    "https://oeis.org/A280367/b280367.txt"
+   ],
+   "note": "Barker's four conjectures (2D Rule 259, x-axis left edge to origin, binary digits read in base 10) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. Closed forms, recurrence and g.f. all hold numerically to n = 34. The pattern is eventually periodic, so the proof is a finite certificate plus periodicity. No prior proof was found in trureturing, thatnealpatel/proofs, openai/math, Epoch, Palomar, Zenodo or formal-conjectures. Second review: Faithful and true. Barker/Wu's conjectured formulas for A280367 (Rule 259) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a278758": {
+   "date": "2026-11-28",
+   "pr": 23176,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A278758",
+    "https://oeis.org/A278758",
+    "https://oeis.org/A278758/b278758.txt"
+   ],
+   "note": "Wu's 2020 recurrence (n > 7) and g.f. for 2D Rule 73 (x-axis, origin to right edge, binary read in base 10) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. Both hold numerically to n = 34. The pattern is eventually periodic, and no prior proof was found. Second review: Faithful and true. Barker/Wu's conjectured formulas for A278758 (Rule 73) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a278759": {
+   "date": "2026-11-28",
+   "pr": 23041,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A278759",
+    "https://oeis.org/A278759",
+    "https://oeis.org/A278759/b278759.txt"
+   ],
+   "note": "Wu's 2020 recurrence (n > 7) and g.f. for 2D Rule 73 (decimal value of the left half of the x-axis) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. Both hold to n = 34. Eventually periodic, so routine; no prior proof found. Second review: Faithful and true. Barker/Wu's conjectured formulas for A278759 (Rule 73) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a290837": {
+   "date": "2026-11-28",
+   "pr": 22997,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290837",
+    "https://oeis.org/A290837",
+    "https://oeis.org/A290837/b290837.txt"
+   ],
+   "note": "Barker's g.f., closed form 2^(n+1)-1 (n > 4) and recurrence (n > 6) for 2D Rule 969 (diagonal, origin to corner, decimal) are stated faithfully, with the diagonal reading matching the data. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. All three hold to n = 34. Routine; no prior proof found. Second review: Faithful and true. Barker/Wu's conjectured formulas for A290837 (Rule 969) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a290680": {
+   "date": "2026-11-28",
+   "pr": 22961,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290680",
+    "https://oeis.org/A290680",
+    "https://oeis.org/A290680/b290680.txt"
+   ],
+   "note": "Barker's g.f., closed form (10^(n+1)-1)/9 (n > 3) and recurrence (n > 5) for 2D Rule 929 (diagonal, corner to origin) are stated faithfully, with the diagonal reading matching the data. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. All three hold to n = 34. Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A290680 (Rule 929) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a022028": {
+   "date": "2026-11-28",
+   "pr": 17122,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A022028",
+    "https://oeis.org/A022028",
+    "https://oeis.org/A022028/b022028.txt",
+    "https://arxiv.org/abs/1609.05570"
+   ],
+   "note": "Barker's recurrence a(n) = 16a(n-1) - 8a(n-3) and g.f. for T(2,32) are stated faithfully, using Hasler's equivalent rule a(n+1) = ceil(a(n)^2/a(n-1)) - 1. The proof uses the standard Boyd-type error bound 0 < D(n) <= b(n). This matches the sibling A022027, which was confirmed as routine. No prior proof of this member was found. Second review: Faithful and true. Ekhad-Sloane-Zeilberger (arXiv:1609.05570) explicitly exclude the r=0 T(x,y) case, and their output files have only E(x,y), so this is not covered by their proofs. The proof is a standard model-sequence/error-bound argument, so routine."
+  },
+  "oeis-a200039": {
+   "date": "2026-11-28",
+   "pr": 22593,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A200039",
+    "https://oeis.org/A200039",
+    "https://oeis.org/A200039/b200039.txt"
+   ],
+   "note": "Barker's g.f. and the two parity closed forms are stated faithfully (offset 1, arrays in [-n,n]^3 with zero sum and all six differences nonzero). Brute force for n < 30 matches the data and both closed forms. The proof is a short count, giving a(n) = 3n^2 - 3n - 4 floor(n/2). Routine. Second review: Faithful and true. This is an elementary lattice-point count, so routine."
+  },
+  "oeis-a232950": {
+   "date": "2026-11-28",
+   "pr": 22783,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A232950",
+    "https://oeis.org/A232950",
+    "https://oeis.org/A232950/b232950.txt"
+   ],
+   "note": "Barker's g.f. 3x(3-2x)/(1-15x+6x^2) and Binet closed form are stated faithfully. Horizontal, diagonal and antidiagonal neighbours may not sum to 3, vertical pairs are free, and the top-left cell is 0. Controls proved in Lean reproduce all 9 data terms. A transfer-matrix argument, so routine; no prior proof found. Second review: Faithful and true. It is a finite transfer-matrix computation followed by Binet, so routine."
+  },
+  "oeis-a266979": {
+   "date": "2026-11-28",
+   "pr": 22733,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266979",
+    "https://oeis.org/A266979",
+    "https://oeis.org/A266979/b266979.txt",
+    "https://oeis.org/history?seq=A266979"
+   ],
+   "note": "Barker's recurrence (n > 5) and g.f. for Rule 79 (cells -n..n as binary digits read in base 10, background evolving) are stated faithfully. My ECA simulation reproduces all 17 terms, and both claims hold to n = 60. Eventually periodic structure, so routine. Second review: Faithful and true. Barker/Keller's formulas for A266979 (Rule 79) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a266668": {
+   "date": "2026-11-28",
+   "pr": 22702,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266668",
+    "https://oeis.org/A266668",
+    "https://oeis.org/A266668/b266668.txt",
+    "https://oeis.org/history?seq=A266668"
+   ],
+   "note": "Barker's closed form and g.f. and Keller's odd and even closed forms for Rule 51 (decimal value of the cells -n..n) are stated faithfully. My ECA simulation matches all 29 terms, and all four claims hold to n = 60. Rule 51 is complementation, so this is trivial in substance and routine. Second review: Faithful and true. Barker/Keller's formulas for A266668 (Rule 51) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a285360": {
+   "date": "2026-11-28",
+   "pr": 22657,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A285360",
+    "https://arxiv.org/abs/2402.08331",
+    "https://oeis.org/A285360",
+    "https://oeis.org/A285360/b285360.txt",
+    "https://arxiv.org/abs/2510.11318",
+    "https://arxiv.org/abs/2610.04842"
+   ],
+   "note": "Kimberling's bound 0 < n sqrt2 - a(n) < 2 for the positions of 1 in the fixed point of 0->10, 1->1101 is stated faithfully. Lean controls reproduce the data. I checked about 2.1 million positions: the observed range is [0.0007, 1.4126]. A standard self-similarity discrepancy argument for a Pisot morphism. No prior proof was found (the Walnut Beatty-sequence paper arXiv:2402.08331 does not cover it). Second review: Faithful and numerically sound (Kimberling 2017). Dvořáková-Pelantová-Shallit (arXiv:2510.11318) and the recent Wythoff/Fibonacci-word proof paper (arXiv:2610.04842) settle other Kimberling conjectures, not A285360. I found no earlier proof. Not routine."
+  },
+  "oeis-a284507": {
+   "date": "2026-11-28",
+   "pr": 22599,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A284507",
+    "https://oeis.org/A284507",
+    "https://oeis.org/A284507/b284507.txt",
+    "https://arxiv.org/abs/2510.11318",
+    "https://arxiv.org/abs/2610.04842"
+   ],
+   "note": "Kimberling's bound -2 < n sqrt3 - a(n) < 4 for the fixed point of 0->1, 1->1100 is stated faithfully. Data controls are proved, and over 2.78 million positions the observed range is [-1.548, 3.133]. Routine discrepancy argument; no prior proof found. Second review: Faithful and numerically sound (Kimberling 2017). Dvořáková-Pelantová-Shallit (arXiv:2510.11318) and the recent Wythoff/Fibonacci-word proof paper (arXiv:2610.04842) settle other Kimberling conjectures, not A284507. I found no earlier proof. Not routine."
+  },
+  "oeis-a266448": {
+   "date": "2026-11-28",
+   "pr": 22506,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266448",
+    "https://oeis.org/A266448",
+    "https://oeis.org/A266448/b266448.txt",
+    "https://oeis.org/history?seq=A266448"
+   ],
+   "note": "Barker's closed form (n > 2), recurrence (n > 7) and g.f. for the cumulative ON count of Rule 25 are stated faithfully. Cells are counted in -t..t, as the program's Total does, since the background turns ON at odd steps. My simulation matches all 53 terms, and all three claims hold to n = 60. Routine. Second review: Faithful and true. Barker/Keller's formulas for A266448 (Rule 25) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a289763": {
+   "date": "2026-11-28",
+   "pr": 22361,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A289763",
+    "https://oeis.org/A289763",
+    "https://oeis.org/A289763/b289763.txt"
+   ],
+   "note": "Barker's g.f. for 2D Rule 597 (diagonal, origin to corner, base-10 digits) is stated faithfully, following the name and the data rather than the middle-row program. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. The g.f. identity holds to n = 34. Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A289763 (Rule 597) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a177200": {
+   "date": "2026-11-28",
+   "pr": 22251,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A177200",
+    "https://oeis.org/A177200",
+    "https://oeis.org/A177200/b177200.txt",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's order-5 P-recurrence is stated for n >= 5, with k = -1 and l = 1. The definition matches the data, and the recurrence holds for n = 5..59 (it fails at n = 4, so the range is right). The quadratic g.f. makes this a routine holonomic derivation. Second review: Faithful and true. Ekhad-Yang-Zeilberger (arXiv:1707.04654) call such algebraic-g.f. recurrences 'provable conjectures', but their output proves 33 other entries, not this one. Routine."
+  },
+  "oeis-a266460": {
+   "date": "2026-11-28",
+   "pr": 22049,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266460",
+    "https://oeis.org/A266460",
+    "https://oeis.org/A266460/b266460.txt",
+    "https://oeis.org/history?seq=A266460"
+   ],
+   "note": "Barker's recurrence and g.f. and Keller's odd and even closed forms for Rule 27 (cells -n..n as binary digits read in base 10) are stated faithfully. My ECA simulation matches all 18 terms, and all four claims hold to n = 60. Routine. Second review: Faithful and true. Barker/Keller's formulas for A266460 (Rule 27) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a284235": {
+   "date": "2026-11-28",
+   "pr": 22538,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284235",
+    "https://oeis.org/A284235",
+    "https://oeis.org/A284235/b284235.txt"
+   ],
+   "note": "Rule 833 left x-axis, binary digits read in base 10 with the left edge most significant, as in the program. Wu's order-3 recurrence (n>5) and g.f. are stated faithfully; my simulation matches all listed terms and the claims to n=70. No prior proof found; routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A284235 (Rule 833) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a290232": {
+   "date": "2026-11-28",
+   "pr": 22440,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290232",
+    "https://oeis.org/A290232",
+    "https://oeis.org/A290232/b290232.txt"
+   ],
+   "note": "The statement follows the name and the data (diagonal (k,k) from the corner to the origin, base-10 digits). The entry's Mathematica program actually reads the x-axis, which gives different values (1,1,101,...), and the statement notes this. Barker's g.f., both parity closed forms and the order-5 recurrence hold; my simulation matches all 20 listed terms and the claims to n=70. Routine; no prior proof found. Second review: Faithful and true. Barker/Wu's conjectured formulas for A290232 (Rule 773) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a278755": {
+   "date": "2026-11-28",
+   "pr": 22347,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A278755",
+    "https://oeis.org/A278755",
+    "https://oeis.org/A278755/b278755.txt"
+   ],
+   "note": "Rule 65 left x-axis read in binary with the left edge most significant. Wu's order-6 recurrence (n>5) and g.f. are stated as in the entry; my simulation matches 37 listed terms and the claims to n=70. No prior proof found; routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A278755 (Rule 65) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a182614": {
+   "date": "2026-11-28",
+   "pr": 22139,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A182614",
+    "https://oeis.org/A182614",
+    "https://oeis.org/A182614/b182614.txt"
+   ],
+   "note": "a(n) = least k with floor(k/phi^n) = n is ceil(n*phi^n) = n*L(n) + [n odd], since |n*psi^n| < 1. Wu's order-6 recurrence (n>6) and g.f. follow from this closed form. The statement is faithful (sInf over naturals, real floor) and matches the 16 listed terms. Routine; no prior proof found. Second review: Faithful and true. a(n) = n*Lucas(n) + (n mod 2) makes Wu's recurrence immediate, so routine."
+  },
+  "oeis-a027481": {
+   "date": "2026-11-28",
+   "pr": 23220,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A027481",
+    "https://oeis.org/A027477",
+    "https://oeis.org/A027481",
+    "https://oeis.org/A027481/b027481.txt"
+   ],
+   "note": "Wu's degree-6 recurrence and g.f. x^3(-13x^2-54x-23)/(x-1)^7 are stated faithfully, with T(i,j) = i!^2 (A.A)(i,j) as in A027477's Mathematica program and a(n) = T(n,n-2) (offset 3, matching the data 23, 215, 1035, ...). I checked the definition and both claims numerically for n < 40. The proof is routine: only three terms survive, so a(n) is a polynomial of degree 6. No prior proof was found. Second review: Faithful and true. A subdiagonal of a Stirling-matrix product is polynomial in n, so routine."
+  },
+  "oeis-a278757": {
+   "date": "2026-11-28",
+   "pr": 23153,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A278757",
+    "https://oeis.org/A278757",
+    "https://oeis.org/A278757/b278757.txt"
+   ],
+   "note": "Wu's recurrence (n > 7) and g.f. for 2D Rule 73 are stated faithfully (plane model with evolving background, cells (-n..0) read in base 10, data reproduced in the proof). I checked both numerically for n <= 40 by direct simulation. This is a routine eventual-pattern CA argument, and no prior proof was found. Second review: Faithful and true. Barker/Wu's conjectured formulas for A278757 (Rule 73) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a233106": {
+   "date": "2026-11-28",
+   "pr": 23026,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A233106",
+    "https://oeis.org/A233106",
+    "https://oeis.org/A233106/b233106.txt"
+   ],
+   "note": "Barker's g.f. and closed form are stated faithfully (n X 1 column, sums of adjacent entries not equal to 5, top entry 0, the first-appearance order constraints). I checked by brute force that the definition gives the data for n <= 7, and the closed form matches. This is a routine transfer-matrix count, and no prior proof was found. Second review: Faithful and true. It is a small automaton count, so routine. A related n x 2 version, oeis-a233107, is a separate open problem on the site, not a duplicate."
+  },
+  "oeis-a192249": {
+   "date": "2026-11-28",
+   "pr": 22937,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A192249",
+    "https://oeis.org/A192069",
+    "https://oeis.org/A192249",
+    "https://oeis.org/A192249/b192249.txt",
+    "https://oeis.org/A192069"
+   ],
+   "note": "Mathar's g.f. is stated faithfully: p(n,x) = Sum B(k+4,4) x^k reduced mod x^2-x-1, the coefficient of x, offset 1, data 0, 5, 20, 90, ... I checked it numerically for 58 terms. The same conjecture (scaled by 1/5) remains unproved in A192069, and no prior proof was found. Routine Fibonacci-weighted sum manipulation. Second review: Faithful and true, and routine (a Fibonacci-binomial convolution). Duplicate warning: the open site id oeis-a192069 (A192069 = A192249/5, the same g.f. divided by 5) is the same mathematical statement. It should be closed by this proof, but this proof came first, so the novelty is unaffected."
+  },
+  "oeis-a267158": {
+   "date": "2026-11-28",
+   "pr": 22884,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267158",
+    "https://oeis.org/A267158",
+    "https://oeis.org/A267158/b267158.txt",
+    "https://oeis.org/history?seq=A267158"
+   ],
+   "note": "Barker's recurrence (n > 12) and g.f. for the ON-cell count of elementary Rule 107 (cells -n..n, background evolving) are stated faithfully, and the data is reproduced. I checked both numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true. Barker/Keller's formulas for A267158 (Rule 107) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a285353": {
+   "date": "2026-11-28",
+   "pr": 22838,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A285353",
+    "https://oeis.org/A285347",
+    "https://oeis.org/A285353",
+    "https://oeis.org/A285353/b285353.txt",
+    "https://arxiv.org/abs/2510.11318",
+    "https://arxiv.org/abs/2610.04842",
+    "https://oeis.org/A285346"
+   ],
+   "note": "Kimberling's conjecture (3n-2-a(n) in {0,1}) is stated faithfully through A285345 -> A285346 -> A285351, with the data reproduced. I checked it numerically for all zeros within the first 400000 letters. The proof shows that A285351 is a morphic image of the fixed point and counts blocks. Dekking's proof in A285347 does not cover this, and no prior proof was found. Second review: Faithful and numerically sound (Kimberling 2017). Dvořáková-Pelantová-Shallit (arXiv:2510.11318) and the recent Wythoff/Fibonacci-word proof paper (arXiv:2610.04842) settle other Kimberling conjectures, not A285353. I found no earlier proof. Not routine. A related site id, oeis-a285346 (2n+1-A285346(n) in {0,1}), is a different and weaker statement, not a duplicate."
+  },
+  "oeis-a350878": {
+   "date": "2026-11-28",
+   "pr": 16799,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A350878",
+    "https://oeis.org/A350878",
+    "https://oeis.org/A350878/b350878.txt"
+   ],
+   "note": "Singh's conjecture (the sum equals m only for m = 5) is stated faithfully from the programs (pairs d*p with d | m, p prime, d*p < m, d*p not dividing m). I checked it numerically for m < 400. The proof is a clean Bertrand-postulate argument showing the sum exceeds m for m >= 6. It is elementary, and no prior proof was found. Second review: Faithful and true, with an elementary argument (a short prime-sum estimate plus a finite check), so routine."
+  },
+  "oeis-a211715": {
+   "date": "2026-11-28",
+   "pr": 18938,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211715",
+    "https://oeis.org/A211715",
+    "https://oeis.org/A211715/b211715.txt"
+   ],
+   "note": "Barker's closed form 10 + 3*2^(n+2) and g.f. are stated faithfully: symmetric (n+1)x(n+1) matrices over -11..11, every 2x2 block of consecutive rows and columns summing to 0 with 2 or 4 distinct values. Brute force at n = 1 gives 34, and the diagonal parametrization from the entry's comment gives 58, 106, 202, 394 for n = 2..5. The proof is a routine diagonal classification, and no prior proof was found. Second review: Faithful and true. It is a finite structural classification, so routine."
+  },
+  "oeis-a284931": {
+   "date": "2026-11-28",
+   "pr": 22623,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A284931",
+    "https://oeis.org/A284929",
+    "https://oeis.org/A284931",
+    "https://oeis.org/A284931/b284931.txt",
+    "https://arxiv.org/abs/2510.11318",
+    "https://arxiv.org/abs/2610.04842"
+   ],
+   "note": "Kimberling's bound -1 < n*sqrt(2) - a(n) < 1 for the 1s of the fixed point of 0->01, 1->1011 is stated faithfully, with the data reproduced. I checked it for all 1s within the first 400000 letters (max |deviation| = 0.998). The proof is a standard Pisot-substitution discrepancy argument (E is multiplied by the second eigenvalue). No prior proof was found, and the sibling A284930 conjecture is still open. Second review: Faithful and numerically sound (Kimberling 2017). Dvořáková-Pelantová-Shallit (arXiv:2510.11318) and the recent Wythoff/Fibonacci-word proof paper (arXiv:2610.04842) settle other Kimberling conjectures, not A284931. I found no earlier proof. Not routine."
+  },
+  "oeis-a174808": {
+   "date": "2026-11-28",
+   "pr": 22584,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A174808",
+    "https://oeis.org/A174808",
+    "https://oeis.org/A174808/b174808.txt",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated faithfully for a(n) = Sum C(k,n-k) A006318(k) (Mathlib largeSchroder), n >= 5, and I checked it numerically for n < 60. Deriving a recurrence from the algebraic g.f. is routine. No prior proof was found. Second review: Faithful and true. It follows from the algebraic g.f. via the standard ODE-to-recurrence method; not in the 1707.04654 output. Routine."
+  },
+  "oeis-a269760": {
+   "date": "2026-11-28",
+   "pr": 22480,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269760",
+    "https://oeis.org/A269760",
+    "https://oeis.org/A269760/b269760.txt"
+   ],
+   "note": "The empirical recurrence and Barker's g.f. and closed form 6*5^(n-2)*(n-1) are stated faithfully (n X 1 columns with exactly one adjacent pair summing to 5). I checked them by brute force for n <= 7. The proof is an elementary count, and no prior proof was found. Second review: Faithful and true, with a short combinatorial argument, so routine."
+  },
+  "oeis-a177203": {
+   "date": "2026-11-28",
+   "pr": 22385,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A177203",
+    "https://oeis.org/A177203",
+    "https://oeis.org/A177203/b177203.txt",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated faithfully for the sequence with a(1)=10, k=-1, l=1. The file is identical to oeis-a177199 apart from the parameters and coefficients, so it is a different sequence, not a duplicate. I checked it numerically for n < 60. Routine, and no prior proof was found. Second review: Faithful and true. The 1707.04654 output does not cover A177203. Routine."
+  },
+  "oeis-a177169": {
+   "date": "2026-11-28",
+   "pr": 22226,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A177169",
+    "https://oeis.org/A177169",
+    "https://oeis.org/A177169/b177169.txt",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's order-4 D-finite recurrence is stated faithfully for Choulet's sequence (a(0)=1, a(1)=7, k=0, l=-2), with the data reproduced. I checked it numerically for n < 60. Routine, and no prior proof was found. Second review: Faithful and true. It is not in the 1707.04654 output. Routine."
+  },
+  "oeis-a159807": {
+   "date": "2026-11-28",
+   "pr": 22090,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A159807",
+    "https://oeis.org/A159807",
+    "https://oeis.org/A159807/b159807.txt"
+   ],
+   "note": "Librandi's e.g.f. exp(3x - 121x^2) and the recurrence are stated faithfully for the numerators of physicists' H_n(3/22), and I checked them for 60 terms. The e.g.f. follows from the classical Hermite generating function once one shows 11 does not divide 11^n H_n(3/22). That holds because the recurrence gives b(n) = 3^n mod 11, so the proof is routine. Second review: Faithful and true. It is a two-line consequence of the classical Hermite generating function, so routine and barely a conjecture. The recurrence half is DLMF-standard, as the entry itself notes."
+  },
+  "oeis-a290836": {
+   "date": "2026-11-28",
+   "pr": 22953,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290836",
+    "https://oeis.org/A290836/b290836.txt",
+    "https://oeis.org/A290836",
+    "https://oeis.org/A290836/b290836.txt"
+   ],
+   "note": "Barker's g.f., closed form (n>4) and recurrence (n>6) for the diagonal (corner first, binary) of 2D Rule 969; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry and follow the name and data rather than the printed middle-row program. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A290836 (Rule 969) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a277927": {
+   "date": "2026-11-28",
+   "pr": 23199,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277927",
+    "https://oeis.org/A277927/b277927.txt",
+    "https://oeis.org/A277927",
+    "https://oeis.org/A277927/b277927.txt"
+   ],
+   "note": "Barker's parity closed forms, recurrence (n>5) and g.f. for the right x-axis of 2D Rule 5 read in base 10; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A277927 (Rule 5) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a277926": {
+   "date": "2026-11-28",
+   "pr": 23107,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277926",
+    "https://oeis.org/A277926/b277926.txt",
+    "https://oeis.org/A277926",
+    "https://oeis.org/A277926/b277926.txt"
+   ],
+   "note": "Barker's parity closed forms, recurrence (n>5) and g.f. for the left x-axis of 2D Rule 5 read in base 10 (left edge most significant); conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A277926 (Rule 5) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a277928": {
+   "date": "2026-11-28",
+   "pr": 22908,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277928",
+    "https://oeis.org/A277928/b277928.txt",
+    "https://oeis.org/A277928",
+    "https://oeis.org/A277928/b277928.txt"
+   ],
+   "note": "Barker's parity closed forms, recurrence (n>5) and g.f. for the left x-axis of 2D Rule 5 read in binary; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A277928 (Rule 5) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a283217": {
+   "date": "2026-11-28",
+   "pr": 22330,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A283217",
+    "https://oeis.org/A283217/b283217.txt",
+    "https://oeis.org/A283217",
+    "https://oeis.org/A283217/b283217.txt"
+   ],
+   "note": "Barker's g.f. (stated as A*D = N) and recurrence (n>5) for the right x-axis of 2D Rule 597 read in binary; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A283217 (Rule 597) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
+  },
+  "oeis-a266723": {
+   "date": "2026-11-28",
+   "pr": 22830,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266723",
+    "https://oeis.org/A266723/b266723.txt",
+    "https://oeis.org/A266723",
+    "https://oeis.org/A266723/b266723.txt",
+    "https://oeis.org/history?seq=A266723"
+   ],
+   "note": "Barker's closed form, order-5 recurrence and g.f. for the cumulative ON-cell count (cells -t..t at stage t) of Rule 59; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A266723 (Rule 59) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a267055": {
+   "date": "2026-11-28",
+   "pr": 22773,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267055",
+    "https://oeis.org/A267055/b267055.txt",
+    "https://oeis.org/A267055",
+    "https://oeis.org/A267055/b267055.txt",
+    "https://oeis.org/history?seq=A267055"
+   ],
+   "note": "Barker's recurrence (n>5) and g.f. for the binary value of row n of Rule 93; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A267055 (Rule 93) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a266980": {
+   "date": "2026-11-28",
+   "pr": 22727,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266980",
+    "https://oeis.org/A266980/b266980.txt",
+    "https://oeis.org/A266980",
+    "https://oeis.org/A266980/b266980.txt",
+    "https://oeis.org/history?seq=A266980"
+   ],
+   "note": "Barker's recurrence (n>5) and g.f. for the binary value of row n of Rule 79; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A266980 (Rule 79) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a266446": {
+   "date": "2026-11-28",
+   "pr": 22555,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266446",
+    "https://oeis.org/A266446/b266446.txt",
+    "https://oeis.org/A266446",
+    "https://oeis.org/A266446/b266446.txt",
+    "https://oeis.org/history?seq=A266446"
+   ],
+   "note": "Barker's closed form (n>10) and g.f., plus Keller's floor formula floor(6661*2^n/6144) for all n, for the Rule 25 middle column read in binary; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A266446 (Rule 25) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
   }
  },
  "flagged": {
