@@ -13,9 +13,13 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
       7 ≤ N.ncard ∧ (∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d ∧
       let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
       (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
-      let jump (u v : P) := 3 * C [(x,u)] < C [] ∧ 2 * C [] < 3 * C [(x,v)] ∧
-        C [] < 3 * C [(u,x),(x,v)];
-      2 * C [] < 3 * C [(x,a)] ∨ 2 * C [] < 3 * C [(d,x)] ∨ jump a b ∨ jump b c ∨ jump c d)) →
+      let blocked (l : List (P × P)) (i j : P) := ∃ (r : P ≃ Fin (Fintype.card P)) (z : P),
+        StrictMono r ∧ (∀ p ∈ l, r p.1 < r p.2) ∧ r i < r z ∧ r z < r j ∧ (i < z ∨ z < j);
+      let jump (u v : P) := let l := [(u,x),(x,v)];
+        3 * C [(x,u)] < C [] ∧ 2 * C [] < 3 * C [(x,v)] ∧
+        C [] < 3 * C l ∧ blocked l u x ∧ blocked l x v;
+      (2 * C [] < 3 * C [(x,a)] ∧ blocked [(x,a)] x a) ∨
+      (2 * C [] < 3 * C [(d,x)] ∧ blocked [(d,x)] d x) ∨ jump a b ∨ jump b c ∨ jump c d)) →
     (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
       (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
       (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
@@ -204,6 +208,104 @@ lemma four_chain_slots (P : Type) [PartialOrder P] [Fintype P] :
     · exact Or.inr (Or.inr (Or.inl (middle a b xa ab la hb)))
   · exact Or.inl ha
 
+-- If no relation crosses the interval of the swap, the exchange sends
+-- each extension satisfying l to a distinct extension with j before i.
+lemma obstruction_of_count_excess (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∀ (l : List (P × P)) (i j : P), ¬ i ≤ j → (i,j) ∈ l →
+      C [(j,i)] < C l →
+      ∃ (r : P ≃ Fin (Fintype.card P)) (z : P), StrictMono r ∧
+        (∀ p ∈ l, r p.1 < r p.2) ∧ r i < r z ∧ r z < r j ∧ (i < z ∨ z < j) := by
+  classical
+  intro C l i j ij ordered excess
+  by_contra absent
+  let ranks (cs : List (P × P)) := {r : P ≃ Fin (Fintype.card P) //
+    (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ cs, r p.1 < r p.2}
+  let swap := Equiv.swap i j
+  have valid (r : ranks l) : StrictMono (swap.trans r.val) := by
+    have mono : StrictMono r.val := fun _ _ h => r.property.1 _ _ h
+    have before := r.property.2 (i,j) ordered
+    intro a b ab
+    change r.val (swap a) < r.val (swap b)
+    by_cases ai : a = i
+    · subst a
+      have bj : b ≠ j := fun h => ij (h ▸ ab.le)
+      simp only [swap, Equiv.swap_apply_left, Equiv.swap_apply_of_ne_of_ne ab.ne.symm bj]
+      by_contra! h
+      exact absent ⟨r.val, b, mono, r.property.2, mono ab,
+        lt_of_le_of_ne h (r.val.injective.ne bj), Or.inl ab⟩
+    by_cases bj : b = j
+    · subst b
+      simp only [swap, Equiv.swap_apply_right, Equiv.swap_apply_of_ne_of_ne ai ab.ne]
+      by_contra! h
+      exact absent ⟨r.val, a, mono, r.property.2,
+        lt_of_le_of_ne h (r.val.injective.ne (Ne.symm ai)), mono ab, Or.inr ab⟩
+    have left : r.val (swap a) ≤ r.val a := by
+      by_cases aj : a = j
+      · simpa [aj,swap] using before.le
+      · simp [swap, Equiv.swap_apply_of_ne_of_ne ai aj]
+    have right : r.val b ≤ r.val (swap b) := by
+      by_cases bi : b = i
+      · simpa [bi,swap] using before.le
+      · simp [swap, Equiv.swap_apply_of_ne_of_ne bi bj]
+    exact lt_of_le_of_lt left (lt_of_lt_of_le (mono ab) right)
+  let move (r : ranks l) : ranks [(j,i)] := ⟨swap.trans r.val, fun _ _ h => valid r h, by
+    intro p hp
+    obtain rfl : p = (j,i) := by simpa using hp
+    simpa [swap] using r.property.2 (i,j) ordered⟩
+  have inj : Function.Injective move := by
+    intro r s h
+    apply Subtype.ext
+    apply Equiv.ext
+    intro a
+    have eq := congrArg (fun t : ranks [(j,i)] => t.val (swap.symm a)) h
+    change r.val (swap (swap.symm a)) = s.val (swap (swap.symm a)) at eq
+    simpa using eq
+  exact (not_le_of_gt excess) (Nat.card_le_card_of_injective move inj)
+
+lemma four_chain_obstructions (P : Type) [PartialOrder P] [Fintype P] :
+    let C (l : List (P × P)) := Nat.card {r : P ≃ Fin (Fintype.card P) //
+      (∀ a b : P, a < b → r a < r b) ∧ ∀ p ∈ l, r p.1 < r p.2}
+    ∀ x a b c d : P, (∀ y ∈ [a,b,c,d], ¬ x ≤ y ∧ ¬ y ≤ x) → a < b → b < c → c < d →
+    (∃ y ∈ [a,b,c,d], C [] ≤ 3 * C [(x,y)] ∧ 3 * C [(x,y)] ≤ 2 * C []) ∨
+    (let blocked (l : List (P × P)) (i j : P) := ∃ (r : P ≃ Fin (Fintype.card P)) (z : P),
+        StrictMono r ∧ (∀ p ∈ l, r p.1 < r p.2) ∧ r i < r z ∧ r z < r j ∧ (i < z ∨ z < j);
+      let jump (u v : P) := let l := [(u,x),(x,v)];
+        3 * C [(x,u)] < C [] ∧ 2 * C [] < 3 * C [(x,v)] ∧
+        C [] < 3 * C l ∧ blocked l u x ∧ blocked l x v;
+      (2 * C [] < 3 * C [(x,a)] ∧ blocked [(x,a)] x a) ∨
+      (2 * C [] < 3 * C [(d,x)] ∧ blocked [(d,x)] d x) ∨ jump a b ∨ jump b c ∨ jump c d) := by
+  classical
+  intro C x a b c d inc ab bc cd
+  have neq (y : P) (hy : y ∈ [a,b,c,d]) : x ≠ y := fun h => (inc y hy).1 h.le
+  obtain ⟨_, _, split, _⟩ := OMA.R_wp_1_3_2_3_conjecture_R1.comparison_counts P
+  rcases four_chain_slots P x a b c d (neq _ (by simp)) (neq _ (by simp))
+    (neq _ (by simp)) (neq _ (by simp)) ab bc cd with ok | gap
+  · exact Or.inl ok
+  right
+  intro blocked jump
+  have endSlot (i j : P) (ij : ¬ i ≤ j) (big : 2 * C [] < 3 * C [(i,j)]) :
+      blocked [(i,j)] i j := by
+    have part : C [(i,j)] + C [(j,i)] = C [] := split [] i j (fun h => ij h.le)
+    have excess : C [(j,i)] < C [(i,j)] := by omega
+    exact obstruction_of_count_excess P _ i j ij (by simp) excess
+  have middle (u v : P) (hu : u ∈ [a,b,c,d]) (hv : v ∈ [a,b,c,d])
+      (lo : 3 * C [(x,u)] < C []) (hi : 2 * C [] < 3 * C [(x,v)])
+      (mass : C [] < 3 * C [(u,x),(x,v)]) : jump u v := by
+    have part : C [(x,v)] + C [(v,x)] = C [] := split [] x v (neq v hv)
+    have left : C [(x,u)] < C [(u,x),(x,v)] := by omega
+    have right : C [(v,x)] < C [(u,x),(x,v)] := by omega
+    exact ⟨lo, hi, mass,
+      obstruction_of_count_excess P _ u x (inc u hu).2 (by simp) left,
+      obstruction_of_count_excess P _ x v (inc v hv).1 (by simp) right⟩
+  rcases gap with first | last | ⟨lo,hi,mass⟩ | ⟨lo,hi,mass⟩ | ⟨lo,hi,mass⟩
+  · exact Or.inl ⟨first, endSlot x a (inc _ (by simp)).1 first⟩
+  · exact Or.inr (Or.inl ⟨last, endSlot d x (inc _ (by simp)).2 last⟩)
+  · exact Or.inr (Or.inr (Or.inl (middle a b (by simp) (by simp) lo hi mass)))
+  · exact Or.inr (Or.inr (Or.inr (Or.inl (middle b c (by simp) (by simp) lo hi mass))))
+  · exact Or.inr (Or.inr (Or.inr (Or.inr (middle c d (by simp) (by simp) lo hi mass))))
+
 theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
   intro chainCase antichainCase P _ _ nonchain indecomp rigid three wide up down noGold
   obtain ⟨x, hx⟩ := wide
@@ -211,7 +313,10 @@ theorem main : H1 → H2 → OMA.R_wp_1_3_2_3_conjecture_R1.H2 := by
   by_cases chain : ∃ a ∈ N, ∃ b ∈ N, ∃ c ∈ N, ∃ d ∈ N, a < b ∧ b < c ∧ c < d
   · obtain ⟨a, ha, b, hb, c, hc, d, hd, ab, bc, cd⟩ := chain
     have ne (y : P) (hy : y ∈ N) : x ≠ y := fun h => hy.1 h.le
-    rcases four_chain_slots P x a b c d (ne a ha) (ne b hb) (ne c hc) (ne d hd) ab bc cd with ok | gap
+    have inc (y : P) (hy : y ∈ [a,b,c,d]) : ¬ x ≤ y ∧ ¬ y ≤ x := by
+      simp only [List.mem_cons, List.not_mem_nil, or_false] at hy
+      rcases hy with rfl | rfl | rfl | rfl <;> assumption
+    rcases four_chain_obstructions P x a b c d inc ab bc cd with ok | gap
     · obtain ⟨y, hy, lo, hi⟩ := ok
       have yn : y ∈ N := by
         simp only [List.mem_cons, List.not_mem_nil, or_false] at hy
