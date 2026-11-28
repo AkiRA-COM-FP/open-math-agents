@@ -195,7 +195,7 @@ lemma runs_bit_pair (n : ℕ) :
     have hgt : gap (Nat.bit true n) = gap n := by
       by_cases hr : remHigh n = 0
       · simp only [gap, remHigh_bit_pos true n hn, log2_bit_pos true n hn, hr]
-        norm_num
+        norm_num [show Nat.log2 1 = 0 by decide] <;> omega
       · exact gap_bit_rem_pos true n hn hr
     constructor
     · rw [runs_pos _ (Nat.bit_ne_zero true hn), remHigh_bit_pos true n hn, hgt,
