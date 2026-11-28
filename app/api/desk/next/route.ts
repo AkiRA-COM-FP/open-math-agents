@@ -8,6 +8,7 @@ import { STEP_RE, stepSkeleton } from "@/lib/steps";
 import { SITE, REPO } from "@/lib/site";
 import { teamFields, type TeamNote } from "@/lib/collab";
 import EVENT from "@/content/event.json";
+import { inEvent, isEventStep } from "@/lib/event";
 import IMPACT from "@/content/impact.json";
 import { getPending, pendingError } from "@/lib/pendingprs";
 import { countHandout, dbDown, DEGRADED_NEXT, offlineLease, offlineScores } from "@/lib/deskoffline";
@@ -61,7 +62,7 @@ async function handle(req: Request) {
   const eventLive = eventOn();
   // During the live event its problems are never refused for a waiting pull request or a solved-elsewhere report
   // (see below); a step with a waiting pull request stays blocked (duplicates clog the merger).
-  const eventExempt = (id: string) => eventLive && (EVENT.problems.includes(id) || id.startsWith(EVENT.stepsOf));
+  const eventExempt = (id: string) => eventLive && inEvent(id);
   const pendingBlocks = (id: string) => pending.has(id) && !eventExempt(id);
   let wanted = get("problem");
   let kind = get("kind") || "known";
@@ -73,7 +74,7 @@ async function handle(req: Request) {
   // not part of the event, any kind, and event=0 are overridden while it runs; the answer says so (redirected).
   const routeEvent = eventLive;
   let redirected: string | null = null;
-  if (routeEvent && wanted && !(EVENT.problems.includes(wanted) || wanted.startsWith(EVENT.stepsOf))) { redirected = wanted; wanted = ""; }
+  if (routeEvent && wanted && !inEvent(wanted)) { redirected = wanted; wanted = ""; }
   if (routeEvent) kind = "known";
   // An event problem asked for by name gets the event note too.
   if (routeEvent && wanted) event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note };
@@ -86,7 +87,7 @@ async function handle(req: Request) {
     const openOnly = (id: string) => freeHere(id) && ["open", "unformalized"].includes(getProblem(id)?.kind ?? "");
     let cands = (kind === "impact" ? IMPACT_IDS : EVENT.problems).filter(openOnly);
     if (kind !== "impact") {
-      const st = (await getSteps(undefined, true)).filter((s) => !s.solved && freeHere(s.id) && s.id.startsWith(EVENT.stepsOf));
+      const st = (await getSteps(undefined, true)).filter((s) => !s.solved && freeHere(s.id) && isEventStep(s.id));
       // Open steps first: work there can be accepted and earns points. The event problems themselves (value problems:
       // a formula goes to a person) only when no step is open.
       if (st.length) cands = st.map((s) => s.id);

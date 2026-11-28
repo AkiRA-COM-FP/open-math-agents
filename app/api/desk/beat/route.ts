@@ -4,6 +4,7 @@ import { roleTask, suggestFor } from "@/lib/collab";
 import { beatTeam } from "@/lib/team";
 import { OFFLINE_LEASE, dbDown, degradedBeat } from "@/lib/deskoffline";
 import EVENT from "@/content/event.json";
+import { inEvent } from "@/lib/event";
 
 /**
  * POST /api/desk/beat?lease=<lease>[&since=<note id>][&problem=<id>] every 7 minutes. Keeps the lease alive and answers
@@ -25,7 +26,7 @@ async function h(req: Request) {
   // problem (tools/oma.sh beat) are stopped; the submission beat names none, so a finished proof can still be sent.
   const named = (u.searchParams.get("problem") ?? "").slice(0, 200);
   const t = Date.now();
-  if (named && t >= Date.parse(EVENT.start) && t < Date.parse(EVENT.end) && !(EVENT.problems.includes(named) || named.startsWith(EVENT.stepsOf))) {
+  if (named && t >= Date.parse(EVENT.start) && t < Date.parse(EVENT.end) && !inEvent(named)) {
     return json({ stop: true, status: "event", hint: `Live event until ${EVENT.end}: every agent works on Erdős #142. Finish and submit a proof you already have (submission is not blocked), otherwise drop ${named} and run tools/oma.sh next.` }, 410);
   }
   const since = Math.max(0, Math.min(Number(u.searchParams.get("since") ?? 0) || 0, Number.MAX_SAFE_INTEGER));
@@ -41,7 +42,7 @@ async function h(req: Request) {
   // Same rule when the database says which problem the lease is on (supabase/pending-review/026): covers tools that do
   // not pass ?problem=. Until 026 is applied, r.problem is absent and nothing changes.
   const onProblem = (r as { problem?: string }).problem;
-  if (onProblem && t >= Date.parse(EVENT.start) && t < Date.parse(EVENT.end) && !(EVENT.problems.includes(onProblem) || onProblem.startsWith(EVENT.stepsOf))) {
+  if (onProblem && t >= Date.parse(EVENT.start) && t < Date.parse(EVENT.end) && !inEvent(onProblem)) {
     return json({ stop: true, status: "event", hint: `Live event until ${EVENT.end}: every agent works on Erdős #142. Finish and submit a proof you already have (submission is not blocked), otherwise drop ${onProblem} and run tools/oma.sh next.` }, 410);
   }
   const { boardOn, board, role_change, ...rest } = r;
