@@ -7969,6 +7969,23 @@
     "https://oeis.org/A163250"
    ],
    "reason": "Trivial. a(n) is defined by its closed form F(n+6) - (n^2+4n+8), and McEachen's recurrence a(n) = (n-1)^2 + a(n-1) + a(n-2) follows by the Fibonacci recurrence plus the polynomial identity (n-1)^2 - (n^2+2n+5) - (n^2+4) = -(n^2+4n+8). The statement is faithful; there is no content beyond the definition."
+  },
+  "oeis-a196079": {
+   "date": "2026-11-28",
+   "pr": 23583,
+   "evidence": [
+    "https://oeis.org/A196079"
+   ],
+   "reason": "Trivial. The statement assumes Carmichael's conjecture, that every totient value has a second preimage, and concludes that each nonempty fiber has max - min > 0. This is the entry's remark 'no terms are zero if Carmichael's conjecture is true', and it is immediate from the hypothesis. The only extra work is that fibers are bounded (x <= phi(x)*prod p), which is needed for sSup in N. Nothing about Carmichael's conjecture itself is proved."
+  },
+  "oeis-a199126": {
+   "date": "2026-11-28",
+   "pr": 23591,
+   "evidence": [
+    "https://oeis.org/A199126",
+    "https://oeis.org/A190917"
+   ],
+   "reason": "Trivial. For length 3n, three counts that are within one of each other and sum to 3n must all equal n. So the A199126 words of length 3n are by definition the A190917 words (n copies of each value, values introduced in order, no equal neighbours). My brute force gives a(3),a(6),a(9),a(12) = 1,5,29,182 = A190917(1..4). Mathar's 'conjecture' follows directly from the definitions."
   }
  },
  "known": {
@@ -15223,6 +15240,51 @@
     "https://oeis.org/A177122"
    ],
    "reason": "Statement faithful (a(1)=6, k=1, l=1; recurrence verified numerically). The OEIS entry itself records 'Conjecture verified using differential equation ... satisfied by the g.f. - Robert Israel, Jan 07 2026', i.e. the conjecture was settled in the source before this proof (2026-11-28)."
+  },
+  "oeis-a188464": {
+   "date": "2026-11-28",
+   "pr": 23422,
+   "evidence": [
+    "https://oeis.org/A188464",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "Mathar's recurrence (n+4)a(n)-(4n+9)a(n-1)+(2n-1)a(n-2)-a(n-3)+(n-3)a(n-4)=0 for n>=4, with a(n) defined by the entry's algebraic g.f., is faithful; I checked the data and the recurrence to n=40. But it is exactly Proposition 10.27 of Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo 23112421, 2026-10-02), which proves it from the same g.f. That predates the site merge (2026-11-27)."
+  },
+  "oeis-a188516": {
+   "date": "2026-11-28",
+   "pr": 24074,
+   "evidence": [
+    "https://zenodo.org/records/20424378",
+    "https://oeis.org/A188516",
+    "https://oeis.org/A000071",
+    "https://oeis.org/A188523"
+   ],
+   "reason": "Kimberling's a(n) = (F(n+3)-1)^2 is stated faithfully, and my brute force of the Lean definition matches the data for n<=8. With 2 columns only the vertical pattern can occur, so the columns are independent and a(n) is the square of the number of 110-avoiding words, which is F(n+3)-1 (A000071's 001-avoiding comment; A188523 lists column 1 as A000071(n+3)). A Zenodo record, 'A Direct Proof of the Fibonacci-Square Formula for OEIS A188516' (Xinjun Wang, 2026-05-28), already proves it."
+  },
+  "oeis-a192754": {
+   "date": "2026-11-28",
+   "pr": 10596,
+   "evidence": [
+    "https://oeis.org/A192754"
+   ],
+   "reason": "Mathar's g.f. (1+4x)/((x-1)(x^2+x-1)), the partial sums of A022095 and a(n)=A000071(n+3)+4A000071(n+2) are stated faithfully, and the reduction definition reproduces the data. But the entry already has Greg Dresden's unconditional formula a(n) = 8F(n)+3L(n)-5 (Oct 2020). Since F(n+3)+4F(n+2) = 6F(n+1)+5F(n) = 8F(n)+3L(n), it gives Mathar's closed form at once, and the other two claims follow. Settled in the entry by 2020 (it is otherwise routine)."
+  },
+  "oeis-a192984": {
+   "date": "2026-11-28",
+   "pr": 23957,
+   "evidence": [
+    "https://oeis.org/A192984"
+   ],
+   "reason": "The claim is that if the trajectory of n under m->m/3 or 4m+a has a maximum M, then 9 | M. It is stated faithfully, with the map and the orbit including n. The entry's own comment already gives the complete proof: if 3 does not divide M, the next value 4M+a is larger; if M=3x with 3 not dividing x, then x -> 4x+a > 3x. The Lean proof is that argument, so there is nothing new (and it is near-trivial)."
+  },
+  "oeis-a193351": {
+   "date": "2026-11-28",
+   "pr": 23978,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a193351-alternating-divisor-sum-prime-square.md",
+    "https://oeis.org/A193351"
+   ],
+   "reason": "Lagneau's conjecture is stated faithfully: for k>3, if the alternating divisor sum A071324(k) is prime, then k is a square or twice a square. But trureturing already proved exactly this claim in Lean (commit 9681e8245a, 2026-09-13, theorem lagneau_a193351, Problems/oeis-a193351-...). Its route is T(k) = sigma(k) mod 2 plus 2T(k) >= k. That is well before the site merge on 2026-11-28."
   }
  },
  "reviewed": "2026-11-28"
