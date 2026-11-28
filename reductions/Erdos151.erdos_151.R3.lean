@@ -5,7 +5,9 @@ import Mathlib
 Credit: @ellisjr. The guarded deletion and Ramsey bounds are due to @sun-jiao
 in the preceding reduction. The extension works for maximal cliques of every size.
 The seven-vertex link test is finite after adjoining the isolated vertices to the
-chosen set. Eight is the first link order for which an extension can fail. -/
+chosen set. Eight is the first link order for which an extension can fail.
+The threshold-ten case is discharged by overlapping guards, refining
+Patrick White’s observation on deleting an independent set with its guards. -/
 
 namespace OMA.R_Erdos151_erdos_151_R3
 
@@ -25,6 +27,7 @@ def H1 : Prop := ∀ (n : ℕ) (G R : SimpleGraph (Fin n)) (N : Finset (Fin n)),
 of U has a link inside U with at least eight nonisolated vertices and a
 triangle-free choice of edges which cannot be extended over that vertex. -/
 def H2 : Prop := ∀ (m : ℕ) (G : SimpleGraph (Fin (m+1))),
+  Erdos151.H (m+1) ≠ 10 →
   Erdos151.H m < Erdos151.H (m+1) →
   (∀ v, (univ.filter (G.Adj v)).card < Erdos151.H (m+1)) →
   (∀ A B : Finset (Fin (m+1)), B.Nonempty → A ⊆ B →
@@ -40,6 +43,26 @@ def H2 : Prop := ∀ (m : ℕ) (G : SimpleGraph (Fin (m+1))),
             t ⊆ N ∧ G.IsClique (t : Set (Fin (m+1)))) q →
           (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y) →
   G.cliqueTransversalNumber ≤ (m+1) - Erdos151.H (m+1)
+
+/-- A finite local assertion. Only edges inside the at most nine vertices of N
+matter. I is any choice of at least eight nonisolated vertices there. -/
+def H3 : Prop := ∀ (n : ℕ) (G : SimpleGraph (Fin n)) (N I : Finset (Fin n)),
+  N.card ≤ 9 → I ⊆ N → 8 ≤ I.card → (∀ x ∈ I, ∃ y ∈ N, G.Adj x y) →
+  let Guard := fun D : Finset (Fin n) => D ⊆ N ∧
+    ∀ q : Finset (Fin n), q.Nonempty →
+      Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
+      ∃ x ∈ q, x ∈ D
+  (∃ D, Guard D ∧ D.card ≤ 5) ∨
+    ((∀ a ∈ N, ∀ b ∈ N, a ≠ b → ∃ D, Guard D ∧ D.card ≤ 6 ∧ a ∈ D ∧ b ∈ D) ∧
+     ∀ X ⊆ I, G.IsClique (X : Set (Fin n)) →
+       ∃ x ∈ I, x ∉ X ∧ ∃ y ∈ I, y ∉ X ∧ x ≠ y ∧ ¬ G.Adj x y ∧
+         ∃ a ∈ N, G.Adj x a ∧ G.Adj y a)
+
+/-- Ramsey inputs: R(3,8) is at most 28, and Exoo's 39-vertex graph has
+independence number nine. Restriction gives the displayed inequalities. -/
+def H4 : Prop := (∀ m, 28 ≤ m → 8 ≤ Erdos151.H m) ∧
+  (∀ m, Erdos151.H m = 10 → 40 ≤ m)
+
 
 /- The following Ramsey and deletion lemmas are reproduced from reduction R2. -/
 
@@ -303,8 +326,203 @@ lemma bad_core (hsmall : H1) {n : ℕ} (G : SimpleGraph (Fin n))
     by_contra! h
     exact blocked (hsmall n G R N sub tf (by omega)), R,sub,tf,blocked⟩
 
-theorem main : H1 → H2 → type_of% @Erdos151.erdos_151 := by
-  intro h1 h2 m
+/-- Complementing an open neighborhood gives a transversal of this exact size. -/
+lemma bound_by_degree {n : ℕ} (G : SimpleGraph (Fin n)) (v : Fin n) :
+    G.cliqueTransversalNumber ≤ n - (univ.filter (G.Adj v)).card := by
+  classical
+  let N := univ.filter (G.Adj v)
+  have hhit : G.IsCliqueTransversal Nᶜ := by
+    intro t ht
+    by_contra! h
+    have hAdj (w : Fin n) (hw : w ∈ t) : G.Adj v w :=
+      (mem_filter.mp (not_not.mp (by simpa only [mem_compl] using h w hw))).2
+    have hc : G.IsClique (↑(insert v t) : Set (Fin n)) := by
+      rw [coe_insert]
+      exact ht.1.1.insert (fun w hw _ => hAdj w hw)
+    have hv : v ∈ t := ht.1.2 hc (subset_insert _ _) (mem_insert_self _ _)
+    exact G.irrefl (hAdj v hv)
+  exact csInf_le' ⟨Nᶜ, hhit, by rw [card_compl, Fintype.card_fin]⟩
+
+/-- The seven-vertex extension calculation suffices for a free eight-set
+as soon as the triangle-free Ramsey bound guarantees an independent eight-set. -/
+lemma bound_eight (hsmall : H1) {n : ℕ} (G : SimpleGraph (Fin n))
+    (hRam : 8 ≤ Erdos151.H n) : G.cliqueTransversalNumber ≤ n - 8 := by
+  classical
+  by_cases hit : ∃ F : SimpleGraph (Fin n), F.CliqueFree 3 ∧
+      ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y
+  · obtain ⟨F, tf, meets⟩ := hit
+    exact (bound_of_hitting G F tf meets).trans (Nat.sub_le_sub_left hRam n)
+  obtain ⟨U, nonempty, core⟩ := bad_core hsmall G hit
+  obtain ⟨v, hv⟩ := nonempty
+  have eight := (core v hv).1
+  have sub : ((U.filter (G.Adj v)).filter
+      fun x => ∃ y ∈ U.filter (G.Adj v), G.Adj x y) ⊆ univ.filter (G.Adj v) := by
+    intro x hx
+    exact mem_filter.mpr ⟨mem_univ _, (mem_filter.mp (mem_filter.mp hx).1).2⟩
+  exact (bound_by_degree G v).trans (Nat.sub_le_sub_left (eight.trans (card_le_card sub)) n)
+
+/-- If two nonadjacent centers have guards with small union, the rest contains
+eight free vertices, which can be combined with the two centers. -/
+lemma two_guards (hsmall : H1) (hRam : ∀ m, 28 ≤ m → 8 ≤ Erdos151.H m)
+    {n : ℕ} (G : SimpleGraph (Fin n)) (hn : 40 ≤ n) {x y : Fin n}
+    (hne : x ≠ y) (hxy : ¬ G.Adj x y) {D E : Finset (Fin n)}
+    (hD : D ⊆ univ.filter (G.Adj x)) (hE : E ⊆ univ.filter (G.Adj y))
+    (gx : ∀ t, G.IsBigMaximalClique t → x ∈ t → ∃ z ∈ t, z ∈ D)
+    (gy : ∀ t, G.IsBigMaximalClique t → y ∈ t → ∃ z ∈ t, z ∈ E)
+    (price : (D ∪ E).card ≤ 10) : G.cliqueTransversalNumber ≤ n - 10 := by
+  classical
+  let A : Finset (Fin n) := {x,y}
+  let B := A ∪ (D ∪ E)
+  have ca : A.card = 2 := by simp [A, hne]
+  have hab : A ⊆ B := subset_union_left
+  have cb : B.card ≤ 12 := by
+    have h := card_union_le A (D ∪ E)
+    change (A ∪ (D ∪ E)).card ≤ 12
+    omega
+  have avoid (z) (hz : z ∈ D ∪ E) : z ∉ A := by
+    rcases mem_union.mp hz with hz | hz
+    · have e := (mem_filter.mp (hD hz)).2
+      intro h
+      rcases mem_insert.mp h with rfl | h
+      · exact G.irrefl e
+      · rw [mem_singleton.mp h] at e
+        exact hxy e
+    · have e := (mem_filter.mp (hE hz)).2
+      intro h
+      rcases mem_insert.mp h with rfl | h
+      · exact hxy e.symm
+      · rw [mem_singleton.mp h] at e
+        exact G.irrefl e
+  have guarded (t) (ht : G.IsBigMaximalClique t) (meet : ∃ z ∈ t, z ∈ A) :
+      ∃ z ∈ t, z ∈ B \ A := by
+    obtain ⟨z, htZ, hz⟩ := meet
+    have hit : ∃ w ∈ t, w ∈ D ∪ E := by
+      rcases mem_insert.mp hz with rfl | hz
+      · obtain ⟨w, hw, hd⟩ := gx t ht htZ
+        exact ⟨w, hw, mem_union_left _ hd⟩
+      · rw [mem_singleton.mp hz] at htZ
+        obtain ⟨w, hw, he⟩ := gy t ht htZ
+        exact ⟨w, hw, mem_union_right _ he⟩
+    obtain ⟨w, hw, hu⟩ := hit
+    exact ⟨w, hw, mem_sdiff.mpr ⟨mem_union_right _ hu, avoid w hu⟩⟩
+  let W := Bᶜ
+  have hW : Fintype.card (↥W) = n - B.card := by simp [W]
+  let f := Fintype.equivFinOfCardEq hW
+  let e := f.symm.toEmbedding.trans (Function.Embedding.subtype (· ∈ W))
+  have cover (z : Fin n) (hz : z ∉ B) : ∃ i, e i = z := by
+    let a : ↥W := ⟨z, mem_compl.mpr hz⟩
+    exact ⟨f a, by simp [e, a]⟩
+  have d := delete_block G A B hab guarded e cover
+  have r := bound_eight hsmall (G.comap e) (hRam _ (by omega))
+  have lower := card_le_card hab
+  calc
+    G.cliqueTransversalNumber ≤ (G.comap e).cliqueTransversalNumber + (B.card - A.card) := d
+    _ ≤ (n - B.card - 8) + (B.card - A.card) := Nat.add_le_add_right r _
+    _ = n - 10 := by omega
+
+/-- The unrestricted threshold-ten case follows from the two local finite
+assertions and the classical Ramsey inputs. No residual jump hypothesis is used. -/
+lemma threshold_ten (hsmall : H1) (classify : H3) (ram : H4) {n : ℕ}
+    (G : SimpleGraph (Fin n)) (hTen : Erdos151.H n = 10) :
+    G.cliqueTransversalNumber ≤ n - Erdos151.H n := by
+  classical
+  by_contra failed
+  have hn := ram.2 n hTen
+  have fail10 : ¬ G.cliqueTransversalNumber ≤ n - 10 := by simpa [hTen] using failed
+  let N (v : Fin n) := univ.filter (G.Adj v)
+  have deg (v) : (N v).card ≤ 9 := by
+    by_contra! h
+    exact failed (neighborhood_bound G v (by change Erdos151.H n ≤ (N v).card; omega))
+  have nohit : ¬ ∃ F : SimpleGraph (Fin n), F.CliqueFree 3 ∧
+      ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y :=
+    fun ⟨F, ht, h⟩ => failed (bound_of_hitting G F ht h)
+  obtain ⟨U, nonempty, core⟩ := bad_core hsmall G nohit
+  let W (v : Fin n) := U.filter (G.Adj v)
+  let I (v : Fin n) := (W v).filter fun x => ∃ y ∈ W v, G.Adj x y
+  have wSub (v) : W v ⊆ N v := by
+    intro x hx
+    exact mem_filter.mpr ⟨mem_univ _, (mem_filter.mp hx).2⟩
+  have iSub (v) : I v ⊆ W v := filter_subset _ _
+  have inU (v) : I v ⊆ U := (iSub v).trans (filter_subset _ _)
+  have inN (v) : I v ⊆ N v := (iSub v).trans (wSub v)
+  have noniso (v) (x) (hx : x ∈ I v) : ∃ y ∈ N v, G.Adj x y := by
+    obtain ⟨y, hy, e⟩ := (mem_filter.mp hx).2
+    exact ⟨y, wSub v hy, e⟩
+  have notClique : ¬ G.IsClique (U : Set (Fin n)) := by
+    intro hc
+    obtain ⟨v, hv⟩ := nonempty
+    obtain ⟨eight, R, _, _, blocked⟩ := core v hv
+    change 8 ≤ (I v).card at eight
+    obtain ⟨a, ha⟩ := card_pos.mp (show 0 < (I v).card by omega)
+    have haw := iSub v ha
+    apply blocked
+    refine ⟨{a}, singleton_subset_iff.mpr haw, ?_, ?_⟩
+    · intro i hi j hj hij
+      have hi' : i = a := mem_singleton.mp hi
+      have hj' : j = a := mem_singleton.mp hj
+      exact (hij (hi'.trans hj'.symm)).elim
+    · intro q _ hq
+      have wc : G.IsClique (W v : Set (Fin n)) := fun i hi j hj h =>
+        hc (mem_filter.mp hi).1 (mem_filter.mp hj).1 h
+      have hs : W v ⊆ q := hq.2 ⟨Subset.rfl, wc⟩ hq.1.1
+      exact Or.inl ⟨a, hs haw, mem_singleton_self _⟩
+  let Guard (v : Fin n) (D : Finset (Fin n)) := D ⊆ N v ∧
+    ∀ q : Finset (Fin n), q.Nonempty →
+      Maximal (fun t : Finset (Fin n) => t ⊆ N v ∧ G.IsClique (t : Set (Fin n))) q →
+      ∃ z ∈ q, z ∈ D
+  have meets {v D} (h : Guard v D) (t) (ht : G.IsBigMaximalClique t) (hv : v ∈ t) :
+      ∃ z ∈ t, z ∈ D := by
+    obtain ⟨ne, mx⟩ := erase_in_link G univ t v hv ht (subset_univ _)
+    obtain ⟨z, hz, hd⟩ := h.2 (t.erase v) ne mx
+    exact ⟨z, mem_of_mem_erase hz, hd⟩
+  have expensive {x y : Fin n} (hne : x ≠ y) (hxy : ¬ G.Adj x y) {D E}
+      (hd : Guard x D) (he : Guard y E) : 10 < (D ∪ E).card := by
+    by_contra! low
+    exact fail10 (two_guards hsmall ram.1 G hn hne hxy hd.1 he.1 (meets hd) (meets he) low)
+  let Cheap (v : Fin n) := ∃ D, Guard v D ∧ D.card ≤ 5
+  have cheapClique {x y : Fin n} (hx : Cheap x) (hy : Cheap y) (hne : x ≠ y) :
+      G.Adj x y := by
+    by_contra hxy
+    obtain ⟨D, hd, cd⟩ := hx
+    obtain ⟨E, he, ce⟩ := hy
+    have hp := expensive hne hxy hd he
+    have hu := card_union_le D E
+    omega
+  obtain ⟨v, hv, ordinary⟩ : ∃ v ∈ U, ¬ Cheap v := by
+    by_contra! allCheap
+    exact notClique (fun x hx y hy hxy => cheapClique (allCheap x hx) (allCheap y hy) hxy)
+  have localCase (z) (hz : z ∈ U) (h : ¬ Cheap z) :=
+    (classify n G (N z) (I z) (deg z) (inN z) (core z hz).1 (noniso z)).resolve_left h
+  let X := (I v).filter Cheap
+  have xc : G.IsClique (X : Set (Fin n)) := fun x hx y hy hxy =>
+    cheapClique (mem_filter.mp hx).2 (mem_filter.mp hy).2 hxy
+  obtain ⟨x, hxi, hxx, y, hyi, hyx, hne, hxy, a, ha, exa, eya⟩ :=
+    (localCase v hv ordinary).2 X (filter_subset _ _) xc
+  have xOrd : ¬ Cheap x := fun h => hxx (mem_filter.mpr ⟨hxi, h⟩)
+  have yOrd : ¬ Cheap y := fun h => hyx (mem_filter.mpr ⟨hyi, h⟩)
+  have xv : v ∈ N x := mem_filter.mpr ⟨mem_univ _, (mem_filter.mp (inN v hxi)).2.symm⟩
+  have yv : v ∈ N y := mem_filter.mpr ⟨mem_univ _, (mem_filter.mp (inN v hyi)).2.symm⟩
+  have va : v ≠ a := (mem_filter.mp ha).2.ne
+  obtain ⟨D, hd, cd, dv, da⟩ := (localCase x (inU v hxi) xOrd).1 v xv a
+    (mem_filter.mpr ⟨mem_univ _, exa⟩) va
+  obtain ⟨E, he, ce, ev, ea⟩ := (localCase y (inU v hyi) yOrd).1 v yv a
+    (mem_filter.mpr ⟨mem_univ _, eya⟩) va
+  have sub : ({v,a} : Finset (Fin n)) ⊆ D ∩ E := by
+    intro b hb
+    rcases mem_insert.mp hb with rfl | hb
+    · exact mem_inter.mpr ⟨dv, ev⟩
+    · rw [mem_singleton.mp hb]
+      exact mem_inter.mpr ⟨da, ea⟩
+  have two := card_le_card sub
+  rw [card_pair va] at two
+  have sum := card_union_add_card_inter D E
+  have hp := expensive hne hxy hd he
+  omega
+
+
+
+theorem main : H1 → H2 → H3 → H4 → type_of% @Erdos151.erdos_151 := by
+  intro h1 h2 h3 h4 m
   induction m using Nat.strong_induction_on with
   | h m ih =>
     intro G
@@ -352,6 +570,8 @@ theorem main : H1 → H2 → type_of% @Erdos151.erdos_151 := by
           ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y
       · obtain ⟨F,ht,hit⟩ := hgood
         exact bound_of_hitting G F ht hit
-      exact h2 n G hjump hdeg hstrict (bad_core h1 G hgood)
+      by_cases hten : Erdos151.H (n + 1) = 10
+      · exact threshold_ten h1 h3 h4 G hten
+      exact h2 n G hten hjump hdeg hstrict (bad_core h1 G hgood)
 
 end OMA.R_Erdos151_erdos_151_R3
