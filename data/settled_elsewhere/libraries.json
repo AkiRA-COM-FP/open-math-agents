@@ -2910,6 +2910,966 @@
    "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 849 = Rule 833, c833 = c131 for n>=2, and 3*4^n-4*2^n+1 for n>=2 (g.f./recurrence follow from it plus the first few terms).",
    "source": "https://doi.org/10.5281/zenodo.24384895",
    "date": "2026-11-28"
+  },
+  "oeis-a294413": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
+  },
+  "oeis-a294425": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
+  },
+  "oeis-a294426": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
+  },
+  "oeis-a284676": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284492": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: morphism 0->1,1->0011 has Perron root 1+sqrt3 and the frequency of 1 gives a(n)/n -> sqrt(3), not (1+sqrt13)/2; OEIS data agree (a(64)/64 ~ 1.75).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a347171": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Doche-Mendes France root count proved by a Chebyshev/phase argument with explicit root localization, plus exact Sturm checks to n=300; looks sound.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285569": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285658": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a174171": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Recurrence certified from the explicit algebraic g.f. (L(A) reduces to a polynomial); also verified by R. Israel in the entry; data check passes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a027174": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Inhomogeneous order-2 recurrence certified from the one-radical closed-form g.f.; data check passes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026363": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a358360": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All five Oudra formulas proved from published theorems of Alekseyev-Amdeberhan-Shallit-Vukusic (Th. 4 and 6).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a036766": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Recurrence certified from A=1+xA+...+(xA)^4: L(A)=8328+6660x, so it holds for n>=2 (site asks n>=5); coefficient 346618 matches data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284774": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a257388": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Recurrence certified from the explicit algebraic g.f. (exact reduction in Q(x)[Y]/(P)); data check passes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a371176": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved: terms are Schreier sets, s(m)=F_m sets with max m, so log a(n)/log n -> log2/log(phi) (limit, hence limsup).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a078841": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved: a(n)=2^n t_{n+1} with t the sorted values u/2^Omega(u), and t_{k+1}/t_k -> 1 by PNT; argument checks out.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284534": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285082": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285207": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284902": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285129": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=4, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285593": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit 1+sqrt5/2 resp. 1+2/sqrt5 proved from exact run frequencies of the limiting words of 0->11,1->0110 (Perron eigenvector of the block substitution).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284505": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved under the positions reading (exact inf/sup inside the bounds); the literal counting-function form u(n)=#0's<=n is trivially false (paper notes this), so the statement is resolved either way.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285531": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285532": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285974": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a225132": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Ratio limit proved via certified argument principle: 1/h(x) has a unique simple dominant pole x0=-0.71165; the entry's '1/(1+g(x))' does not match its data, but the conjectured constant is that of the data's sequence.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285032": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284959": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285076": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): a(n)=A285073(n) for n>=3 proved by hand: both are fixed by a contracting map G(w)=010 psi(010 psi(w)), so the tails coincide; also Walnut.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285598": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a088538": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved: u(n)=sqrt2 prod cos(pi/2^(k+2)) e^(i pi/2^(n+2)), Viete's product gives 4/pi.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a283966": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved under the positions reading (exact inf/sup inside the bounds); the literal counting-function form u(n)=#0's<=n is trivially false (paper notes this), so the statement is resolved either way.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a090079": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Yanev formula proved: a(n) is the alternating word 1010... of length A005811(n).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285423": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency. (Site text 'r=(1+sqrt(3))2' is a typo for /2.)",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285535": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285502": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a287723": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Bound -1<n(7+sqrt5)/4-a(n)<1 proved with Walnut in Fibonacci numeration (block-position formula, integer comparison with floor(n*phi)).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a059906": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Both Yanev formulas proved (alternating-sum cancellation and summation by parts); numerically confirmed for n<3000.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285135": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(1)=4, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284934": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026368": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285130": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=3, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285359": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285670": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285137": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(3)=6, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285980": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a286053": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284948": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Mathar's equality a(n)=A096268(n-2), n>=2, proved with Walnut (both automatic).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a190171": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Order-8 recurrence certified from the closed-form g.f. with one radical (same g.f. as the site's Lean); data check passes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a297469": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Sloane's formulas for bb proved with Walnut (candidate automata shown to satisfy the greedy rules, then induction); the 'mixed' tag refers to Kimberling's bounds, not this claim.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285209": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285594": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit 1+sqrt5/2 resp. 1+2/sqrt5 proved from exact run frequencies of the limiting words of 0->11,1->0110 (Perron eigenvector of the block substitution).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285619": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285134": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=2, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a298468": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Sloane's formulas for aa proved with Walnut in the same theorem as A297469; the false part is Kimberling's bounds, not on the site.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026364": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285138": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=3, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284955": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a079267": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Poisson(1) limit proved by dominated convergence from the entry's inclusion-exclusion formula.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285597": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284015": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284386": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved under the positions reading (exact inf/sup inside the bounds); the literal counting-function form u(n)=#0's<=n is trivially false (paper notes this), so the statement is resolved either way. Also the entry's r=(5+sqrt3)/2 is a typo for (5+sqrt13)/2, which the paper uses.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285035": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284489": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: morphism 0->1,1->0011 has Perron root 1+sqrt3 and the frequency of 1 gives a(n)/n -> sqrt(3), not (1+sqrt13)/2; OEIS data agree (a(64)/64 ~ 1.75).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284590": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285091": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284589": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285036": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a283963": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved under the positions reading (exact inf/sup inside the bounds); the literal counting-function form u(n)=#0's<=n is trivially false (paper notes this), so the statement is resolved either way.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285144": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=3, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a363308": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Parity proved in GF(2)[[x]]: C(xC^3) = 1+sum x^(2^k) mod 2; algebra checked.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285419": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a287727": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Bound -1<n(15-sqrt5)/10-a(n)<1 proved with Walnut in Fibonacci numeration.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285302": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a070864": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Layman's closed form proved by strong induction (a(k^2-i)=2k-2-(-1)^i); the repo's K,d match the site's k+1,d.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284473": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284529": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a003157": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value. Limit 4 also follows from the classical identity a(n)=2*A003159(n)+n with A003159 of density 2/3.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285534": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a004123": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Both parts proved: for any G in Z[[x]], a(n) mod k reduces to sum_{i<k} c_i i^n, eventually periodic with period dividing lambda(k)|phi(k).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284469": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284514": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284513": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a006165": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All seven Bala identities proved (Walnut plus explicit iterate formula), (vi) for all k>=2 and (vii) for all k>=1 incl. counts 2^m+1 (35 typo for 33), matching the site's reading.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285976": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284657": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285663": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit phi proved: incidence matrix [[0,2],[2,2]] primitive, frequency of 1 is 1/phi (Perron-Frobenius); only the limit, not bounds, is claimed.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a073089": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Yanev parity formula proved via multiplicativity of sum d*phi(d) mod 4; numerically confirmed for n<20000.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285591": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit 1+sqrt5/2 resp. 1+2/sqrt5 proved from exact run frequencies of the limiting words of 0->11,1->0110 (Perron eigenvector of the block substitution).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284681": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284752": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284472": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285275": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285092": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284654": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285420": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285516": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit (3+sqrt5)/2; A285515 is a word of 0->11,1->0101 and the Perron frequency gives it (non-Pisot, so only the limit, which is all that is claimed).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a287724": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound 0<n(4-sqrt5)-a(n)<3; proved by Walnut in Fibonacci numeration (repo fibtransform/fib.wal); my numerics on 1.7e6 terms agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285422": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284790": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284853": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285127": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: non-Pisot morphism 0->10,1->0000, counterexample in the data (b(2)=11, 2s-11=-3.876<-3) and discrepancy unbounded.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284679": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285623": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; morphism with incidence matrix [[0,2],[2,2]] is primitive, Perron frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284956": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a003278": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same identities; with c=A005836 one has A003278=c+1, A191107=1+3c, A055246=1+6c (order-preserving), which gives both quotients; elementary and correct.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a357097": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same conjecture; proved by embedding Wythoff rows in Z[phi] (theta multiplicative for Knuth's Fibonacci product, conjugate-interval argument); argument checks out.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285143": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: with the stated r=(3+sqrt3)/3, n=12, a(12)=20 gives D=-8+4sqrt3<-1 (checked against the data).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284491": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: exact limit is (3+sqrt3)/2=2.366 (Perron, morphism 0->1,1->0011), not (7+sqrt13)/6=1.768; the data already show a(n)/n~2.366.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285126": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: counterexample in the data (a(3)=3, 3r-3=1.171>1) for the non-Pisot word; discrepancy unbounded.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284958": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285429": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: 0->11,1->100 is primitive, so the limit exists and equals (3+sqrt17)/4=1.78078, which differs from (82+sqrt3)/47=1.78153 (non-Pisot, slow convergence explains the fitted constant).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284678": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound (2,4); exact extremes (1+sqrt13)/2 and (3+sqrt13)/2; the accompanying remark a(n)=A284675(n) is then immediate.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a287676": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Both claims (bounds -1<n(4-sqrt5)-a(n)<2 and Liu's formula 5n+2-2floor((n+1)phi)) proved by Walnut in Fibonacci numeration; numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285140": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: with the stated r=(3+sqrt3)/3, n=2, a(2)=2 gives D=2sqrt3/3>1 (checked against the data).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285085": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; exact inf -1 and sup 1 are not attained since n*phi is irrational; numerics on 1.8e6 terms agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284791": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a174169": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same recurrence, proved by exact holonomic reduction from the entry's algebraic g.f. (A=(1+x^2A^2)/(1-x+3x^2)); I confirmed it on 400 terms.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026743": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same order-8 recurrence, proved from Callan's one-radical g.f. by exact reduction; I confirmed it for 8<=n<400.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284930": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284528": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284773": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a367865": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same identity; both sides are multiplicative and equal prod_{p|n}(p^2-p+1) (CRT on k mod rad n); verified n<300.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284370": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285659": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284368": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Site text uses counting functions u(n), v(n), which read literally is trivially false (n*r-u(n) grows); the intended position reading is proved with exact inf/sup (1+sqrt13)/3,(4+sqrt13)/3 and (-5+sqrt13)/3,(-2+sqrt13)/3, which my numerics match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a080253": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same statement; a(n)=sum g_j j! S(n,j) with integer g_j, so a(n) mod k is a combination of i^n, periodic from n>=log2 k with period dividing lambda(k)|phi(k); classical and correct.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285141": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: with the stated r=1+sqrt3, n=6, a(6)=15 gives D=-9+6sqrt3>1 (checked against the data).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a072939": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All three claims proved: c(k)->inf iff n-1 in A036554 (case analysis on differences), giving A036554+1, the 0s of A285384 and the 1s of A328979; I checked the letter-exchange step.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285084": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound 0<nr-a(n)<r; exact inf 0 and sup r, neither attained (r irrational); numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285033": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a170941": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit 1/e; inclusion-exclusion plus dominated convergence with t_h(n)<=1/h!; argument holds.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285958": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284526": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285567": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; incidence matrix [[0,2],[2,2]] primitive, frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284685": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a007413": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same conjecture; reduced to A007413(j+1)=o(j+1)-o(j) for odious o and proved by Walnut (block tiling by mu), with a FALSE control.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285517": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; A285515 is the pair-reading of A285501 (matrix [[0,2],[2,2]]), frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285428": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: 0->11,1->100 is primitive, so the limit exists and equals (5+sqrt17)/4=2.28078, which differs from (61-sqrt3)/26=2.27954.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285503": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; incidence matrix [[0,2],[2,2]] primitive, frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285590": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit 1+sqrt(5)/2; repo computes run-length frequencies of the 0->11,1->0110 word exactly via Perron on block substitution; numerics agree (2.11803).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284369": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Site text uses counting functions u(n), v(n) (literally trivially false); the intended position reading is proved with exact extremes -(3+sqrt3)/2,2+sqrt3 and -2,1+sqrt3 inside (-3,4),(-2,3); numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284675": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285081": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound 0<nr-a(n)<r; exact inf 0 and sup r, neither attained (r irrational); numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284852": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284509": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a368281": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same conjecture for every n; partial sums of the fixed point of 0->1^n,1->1^n0 satisfy b(k)=k-b(floor(b(k-1)/n)) by a block-counting argument that holds.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285506": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285279": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: stated r=2+sqrt2 is not the inverse frequency (which is sqrt2), so n*r-a(n) grows linearly; first violation n=4, a(4)=6.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a088617": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same asymptotic; T(n,k+1)/T(n,k) is decreasing with crossing at k~n/sqrt2, giving concentration of the mean; argument holds.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285342": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a361190": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same exponent; Denisov-Wachtel applied after centring (weights give probabilities 1/4,1/4,1/2, cone angle arctan sqrt2), exponent 1+pi/arctan sqrt2 - standard argument, relies on a published theorem (repo writes b=0 where b=a is meant, harmless).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a257178": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same recurrence, proved from the algebraic g.f. A=1/(1-3x)+x^2A^2 by exact reduction; I confirmed it on 400 terms.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a283967": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284525": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285413": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: positions of 1 in the 0->11,1->010 word have limit (3+sqrt17)/4=1.781 (data agree), far from the stated (61-sqrt3)/26=2.279.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a055246": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All claims (generation rules 1,3x-2,3x+4 and the three formulas) follow from a(n)=1+6*A005836(n); short correct argument.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a143013": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same recurrence, proved from the algebraic g.f. A=1+x+xA+x^2A^2 by exact reduction; I confirmed it on 400 terms.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285385": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same identity; follows from the characterisation of A072939 (complement of A036554+1) and A096268(m-1)=nu2(m) mod 2; I verified it on 2e5 terms.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285206": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284470": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285210": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284510": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a120160": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All three Hadjicostas conjectures handled: Josephus characterisation proved for every k, digit-count conjectures proved (conj. 1 holds up to the convention for the digit length of 0).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285601": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284682": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a304451": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Resolved (mixed): limit 5/2 proved; the inequality -1<=5/2-a(n)/n is false at n=1,2 (a(1)=4,a(2)=8 give -3/2) and true for n>=3.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a014664": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same statement (ord_{p^k}(2)=ord_p(2)p^{k-1} for non-Wieferich p); classical lifting-the-exponent argument.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a118006": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): The Somos-corrected Hebisch-Rubey functional equation is proved by Walnut (pair word is the fixed point of A->AAB,B->ABB); I verified it on 1e5 coefficients.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284506": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026367": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; a(n) = positions of 1 in a limiting word of 0->11,1->110 (Shallit's identification, data match), exact inf/sup -(3+sqrt3)/6 and 1+sqrt3/3 lie in (-1,2).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a286045": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285627": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; incidence matrix [[0,2],[2,2]] primitive, frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285278": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a295070": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit a(n)/a(n-1)->1; a grows quadratically while a(n)-a(n-1)<=4n by the counting lemma; elementary and correct.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285964": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: stated limit 4/5 is impossible since a(n)>=n; the true limit is 5/4 (TM transform frequency, data agree).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a283964": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285505": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284894": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound (2,6); exact inf 1+sqrt2 (at n=1) and sup 3+2sqrt2, Pisot morphism; numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284903": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a112310": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same claim; groups are the lazy representations of length k-1 and the count of 1s satisfies the A023610 recursion; I checked the first 9 group sums against A023610.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284933": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284488": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: exact limit is (3+sqrt3)/2=2.366 (Perron, morphism 0->1,1->0011), not (7+sqrt13)/6=1.768; the data already show a(n)/n~2.366.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a022344": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved via the norm form of Z[phi] and Morrison's theorem; caveat: F3 is negative for half of the j (e.g. F1=F2=Fibonacci, j=2), so 'F3 appears in a row' holds only up to sign, which the repo does not mention.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284535": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285566": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a304452": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Resolved (mixed): limits 5/2 and 5/3 proved; the stated inequalities fail at small n (b(1)=3 gives -4/3, a(1)=4 gives -3/2) and hold from n=3.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284684": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a161580": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same statement for all odd k at once; first-order in (k,n,m) over Thue-Morse, proved by Walnut (FALSE without 'k odd').",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284945": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
   }
  }
 }
