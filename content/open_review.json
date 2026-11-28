@@ -11581,6 +11581,24 @@
     "https://github.com/the-omega-institute/trureturing/pull/10219"
    ],
    "reason": "Already proved in Lean in trureturing PR #10219 (merged 2026-09-26), which covers the x, y and z series of the helix (A400216-A400218)."
+  },
+  "oeis-a285375": {
+   "date": "2026-11-28",
+   "pr": 22607,
+   "evidence": [
+    "https://oeis.org/A285373",
+    "https://oeis.org/A284941",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/proofs/oeis-a284941.lean"
+   ],
+   "reason": "Kimberling's bound 0 < n*sqrt2 - a(n) < 3 is stated faithfully for the 1-positions of the fixed point of 0->10, 1->1110. Dekking's proof in A285373 (2018) gives A285373(n) = A284939(n+1), so A285375(n) = A284941(n) - 1. The conjecture is therefore exactly equivalent to the A284941 bound -1 < n*sqrt2 - a(n) < 2, which this site merged as oeis-a284941 a few minutes before this solve (both Nov 28 2026). This is a duplicate of an earlier site solve via a published identity."
+  },
+  "oeis-a029858": {
+   "date": "2026-11-28",
+   "pr": 22023,
+   "evidence": [
+    "https://oeis.org/A029858"
+   ],
+   "reason": "Wajnberg's 2005 'conjecture' counts integers below 10^(n-1) whose digits all lie in {7,8,9}; that count is sum_{j=1}^{n-1} 3^j = (3^n-3)/2. The entry itself already says 'This is easily verified to be true' (Renzo Benedetti, 2008). The statement is faithful (0 excluded), but the claim was settled in the source and is a one-line count."
   }
  },
  "reviewed": "2026-11-28"
