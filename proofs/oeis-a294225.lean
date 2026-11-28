@@ -1082,7 +1082,7 @@ structure Coupled (m : ℕ) : Prop where
   right : Profile baseB (2*m+1)
   dleft : 103 ∣ m
   dright : 101 ∣ 2*m+1
-  pos : 0<m
+  pos : 0 < m
 
 theorem initial : Coupled startM := by
   have a₀ : Profile baseA baseA := .seed
@@ -1097,7 +1097,7 @@ theorem initial : Coupled startM := by
 
 def nextM (m : ℕ) := m*(1+102*(2*m+1))
 
-theorem lt_next {m : ℕ} (hm : 0<m) : m<nextM m := by
+theorem lt_next {m : ℕ} (hm : 0 < m) : m < nextM m := by
   unfold nextM
   nlinarith
 
