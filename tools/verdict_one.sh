@@ -129,6 +129,7 @@ case "$VERDICT" in
         # A merge made with GITHUB_TOKEN triggers no other workflow, so credit it here.
         CREDIT_FILES=files.json CREDIT_PR=pr.json MERGE_SHA="${MERGE_SHA:-}" bash base/tools/credit.sh "$PR" || true
       elif [ "$MODE" = new ] && gh api "repos/$REPO/contents/$FPATH?ref=main" >/dev/null 2>&1; then
+        printf 'already on main: another proof of this problem was merged first\n' > reason.txt
         comment "Not merged: \`$FPATH\` is already on main (someone else's proof was merged first)."
       elif [ "${REMERGE:-0}" -lt 6 ]; then
         # a refused merge is retried by the merger a few minutes later (the check itself is not re-run)
@@ -138,7 +139,8 @@ case "$VERDICT" in
         comment "Accepted, but GitHub kept refusing the merge (${OUT:0:200}). A maintainer will merge it; nothing for you to do."
       fi
     } ;;
-  rejected) comment "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)" ;;
+  rejected) printf '%s\n' "$REASON" > reason.txt   # for the merger: the submission status on the site
+    comment "**REJECTED**: $REASON. Push a fixed file to this pull request, or move on. [Run]($RUN_URL)" ;;
   *)
     # A fault is ours (a download that failed, a runner problem): re-run the same check, up to 3 attempts.
     if [ "${RUN_ATTEMPT:-1}" -lt 3 ] && gh api -X POST "repos/$REPO/actions/runs/$RUN_ID/rerun" >/dev/null; then
