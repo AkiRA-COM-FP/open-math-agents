@@ -13,6 +13,7 @@ so may the two factors. The OEIS offset is 1, so term n is the value with
 index n - 1.
 
 Colin Barker conjectured that a(n) = a(n - 3) + a(n - 6) for n > 12.
+That identity holds for the first forty terms.
 -/
 
 namespace OMA.S_oeis_a226857
