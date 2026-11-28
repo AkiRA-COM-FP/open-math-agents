@@ -1,7 +1,8 @@
 import OMAStatements.S_mo_487192
 
 /-!
-The square-zero obstruction in statement PR 9503 gives a concrete counterexample over ℂ.
+The existing complex square-zero counterexample. The Jacobson radical API
+replaces the semisimple-module complement argument, and nilpotence gives the unit.
 -/
 
 namespace OMA.MO487192
@@ -9,19 +10,17 @@ namespace OMA.MO487192
 -- A central square-zero element vanishes in a semisimple ring.
 theorem central_square_zero {R : Type} [Ring R] [IsSemisimpleRing R]
     (x : R) (central : ∀ y : R, y * x = x * y) (hx : x * x = 0) : x = 0 := by
-  let I : Submodule R R := Submodule.span R {x}
-  have hxI : x ∈ I := Submodule.mem_span_singleton_self x
-  obtain ⟨J, hIJ⟩ := exists_isCompl I
-  have h1 : (1 : R) ∈ I ⊔ J := by rw [hIJ.sup_eq_top]; trivial
-  obtain ⟨a, ha, b, hb, hab⟩ := Submodule.mem_sup.mp h1
-  have hxa : x * a = 0 := by
-    obtain ⟨r, rfl⟩ := Submodule.mem_span_singleton.mp ha
-    change x * (r * x) = 0
-    rw [← mul_assoc, ← central r, mul_assoc, hx, mul_zero]
-  have hxb : x = x * b := calc
-    x = x * (a + b) := by rw [hab, mul_one]
-    _ = x * b := by rw [mul_add, hxa, zero_add]
-  exact (Submodule.disjoint_def.mp hIJ.disjoint) x hxI (hxb ▸ J.smul_mem x hb)
+  have hj : x ∈ Ideal.jacobson (⊥ : Ideal R) := by
+    apply Ideal.mem_jacobson_iff.mpr
+    intro y
+    refine ⟨1 - y * x, ?_⟩
+    have hh : y * x * (y * x) = 0 := by
+      rw [mul_assoc y x, ← mul_assoc x y, ← central y, mul_assoc y x, hx, mul_zero, mul_zero]
+    change (1 - y * x) * y * x + (1 - y * x) - 1 = 0
+    calc
+      _ = -(y * x * (y * x)) := by noncomm_ring
+      _ = 0 := by rw [hh, neg_zero]
+  simpa only [Ideal.jacobson_bot, IsSemisimpleRing.jacobson_eq_bot, Submodule.mem_bot] using hj
 
 abbrev Mat := Matrix (Fin 2) (Fin 2) ℂ
 
@@ -48,14 +47,7 @@ open OMA.MO487192 OMA.S_mo_487192
 theorem OMA.disproof : ¬ (type_of% @OMA.S_mo_487192.main) := by
   intro h
   let A : Mat := 1 + nilpotent
-  have hA : IsUnit A := by
-    refine ⟨⟨A, 1 - nilpotent, ?_, ?_⟩, rfl⟩
-    · calc
-        A * (1 - nilpotent) = 1 - nilpotent * nilpotent := by dsimp [A]; noncomm_ring
-        _ = 1 := by rw [nilpotent_sq, sub_zero]
-    · calc
-        (1 - nilpotent) * A = 1 - nilpotent * nilpotent := by dsimp [A]; noncomm_ring
-        _ = 1 := by rw [nilpotent_sq, sub_zero]
+  have hA : IsUnit A := IsNilpotent.isUnit_one_add ⟨2, by simpa [pow_two] using nilpotent_sq⟩
   have hAt : A.transpose = A := by simp [A, nilpotent_transpose]
   let S := jointCentralizer ℂ A
   have hS : nilpotent ∈ S := by
@@ -75,6 +67,6 @@ theorem OMA.disproof : ¬ (type_of% @OMA.S_mo_487192.main) := by
     dsimp only [A] at hyA
     rw [add_mul, mul_add, one_mul, mul_one] at hyA
     exact (add_left_cancel hyA).symm
-  letI : IsSemisimpleRing S := h.2.2 ℂ 2 (by decide) A hA
+  let : IsSemisimpleRing S := h.2.2 ℂ 2 (by decide) A hA
   have hxZero := central_square_zero x hxCenter hxSq
   exact nilpotent_ne_zero (congrArg Subtype.val hxZero)
