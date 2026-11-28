@@ -1,5 +1,8 @@
 import OMAStatements.S_oeis_a166588
 
+/- Successive differences isolate the Catalan coefficients at odd indices.
+   The Catalan convolution then gives the claimed identity. -/
+
 open OMA.S_oeis_a166588
 
 namespace OMA.P_a166588
