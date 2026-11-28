@@ -331,10 +331,25 @@ fast_poll() {
   done
 }
 slow_poll() {
-  local LAST_SCAN=0 LAST_BATCH=0 LAST_OLD=0 OLDJOBS=1 LAST_CREDIT=0 LAST_PENDING=0 LAST_SUCC=0 SUCC_N="" REQ_SHA="" CPID="" NOW REM B
+  local LAST_SCAN=0 LAST_BATCH=0 LAST_OLD=0 OLDJOBS=1 LAST_CREDIT=0 LAST_PENDING=0 LAST_SUCC=0 SUCC_N="" LAST_LAT=0 LAT="" LATS="" LATC="" REQ_SHA="" CPID="" NOW REM B
   while [ "$(date -u +%s)" -lt "$END" ]; do
     NOW=$(date -u +%s)
     if [ $(( NOW - LAST_SCAN )) -ge 600 ]; then LAST_SCAN=$NOW; scan 10800 | spool; fi
+    # Latency watch (28 Nov: /solved was slow again): every 30 minutes one cold render of /solved (a random _lat
+    # parameter bypasses the page cache). Over 3 s: a line in the vlog and one GitHub issue "Slow page: /solved" (a new
+    # one only when none is open). No paging, no retry storm: one GET per half hour.
+    if [ -n "${GITHUB_RUN_ID:-}" ] && [ $(( NOW - LAST_LAT )) -ge 1800 ]; then
+      LAST_LAT=$NOW
+      LAT=$(curl -s -o /dev/null -m 30 -w '%{http_code} %{time_total}' "${OMA_SITE:-https://lefttosolve.com}/solved?_lat=$RANDOM$RANDOM" 2>/dev/null || echo "000 30")
+      LATS=${LAT#* }; LATC=${LAT%% *}
+      if [ "$LATC" != 200 ] || awk -v t="$LATS" 'BEGIN { exit !(t > 3) }'; then
+        echo "$(date -u +%H:%M:%S) latency watch: /solved cold render $LATS s (HTTP $LATC)" >> "$ROOT/vlog.txt"
+        SUCC_N=$(GH_TOKEN="$GH_TOKEN_BASE" timeout 60 "$GH_BIN" api "repos/$REPO/issues?state=open&creator=github-actions%5Bbot%5D&per_page=100" \
+          --jq '[.[] | select(.pull_request == null and .title == "Slow page: /solved")] | length' 2>/dev/null)
+        [ "$SUCC_N" = 0 ] && GH_TOKEN="$GH_TOKEN_BASE" timeout 60 "$GH_BIN" api -X POST "repos/$REPO/issues" -f title="Slow page: /solved" \
+          -f body="The merger's latency watch measured a cold render of https://lefttosolve.com/solved (page cache bypassed) at ${LATS} s, HTTP ${LATC}, at $(date -u +%FT%TZ) (threshold 3 s). It checks every 30 minutes and opens no new issue while this one is open." >/dev/null 2>&1 || true
+      fi
+    fi
     # The successor: GitHub's schedule (*/20) can stay silent for hours under load (none from 10:35 to 15:20 on
     # 28 November, so the merger that ended at 15:08 had no successor and nothing merged until one was started by hand).
     # In its last 65 minutes this merger asks for one itself (workflow_dispatch, with the workflow's own token), every 15
