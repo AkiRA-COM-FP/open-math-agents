@@ -15,6 +15,9 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
       (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
       (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
+    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
+      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
+      (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
     (let count (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
@@ -38,6 +41,9 @@ def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
       (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
       (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
+    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) ∧
+      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
+      (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a)) →
     (let count (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
@@ -1260,6 +1266,105 @@ lemma common_lower_covers_gold (P : Type) [PartialOrder P] [Fintype P] :
   have yx : ¬ y ≤ x := fun h => (lt_irrefl y) ((pred y).1 (lt_of_le_of_ne h ne.symm))
   exact two_upper_chains_gold P x y xy yx pred cx cy
 
+-- Reverse every rank and both entries of each prescribed comparison.
+-- This extends Schlesinger's single-comparison duality to arbitrary lists.
+lemma dual_comparison_counts (P : Type) [PartialOrder P] [Fintype P] :
+    let count (P : Type) [PartialOrder P] [Fintype P] (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ l : List (P × P), count Pᵒᵈ l = count P (l.map Prod.swap) := by
+  intro count l
+  let ranks (A : Type) [PartialOrder A] [Fintype A] (cs : List (A × A)) :=
+    {σ : A ≃ Fin (Fintype.card A) //
+      (∀ a b : A, a < b → σ a < σ b) ∧ ∀ c ∈ cs, σ c.1 < σ c.2}
+  let forward (r : ranks Pᵒᵈ l) : ranks P (l.map Prod.swap) :=
+    ⟨r.val.trans Fin.revPerm, fun a b h => Fin.rev_lt_rev.mpr (r.property.1 b a h), by
+      intro p hp
+      obtain ⟨q, hq, rfl⟩ := List.mem_map.mp hp
+      exact Fin.rev_lt_rev.mpr (r.property.2 q hq)⟩
+  let backward (r : ranks P (l.map Prod.swap)) : ranks Pᵒᵈ l :=
+    ⟨r.val.trans Fin.revPerm, fun a b h => Fin.rev_lt_rev.mpr (r.property.1 b a h), by
+      intro p hp
+      exact Fin.rev_lt_rev.mpr (r.property.2 p.swap (List.mem_map.mpr ⟨p, hp, rfl⟩))⟩
+  apply Nat.card_congr (show ranks Pᵒᵈ l ≃ ranks P (l.map Prod.swap) from
+    ⟨forward, backward, ?_, ?_⟩)
+  all_goals
+    intro r
+    apply Subtype.ext
+    apply Equiv.ext
+    intro a
+    exact Fin.rev_rev _
+
+lemma gold_of_dual (P : Type) [PartialOrder P] [Fintype P] :
+    let count (P : Type) [PartialOrder P] [Fintype P] (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    (∃ x y u v : Pᵒᵈ, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count Pᵒᵈ [p] + count Pᵒᵈ [p, q] ≤ count Pᵒᵈ []) → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count P [p] + count P [p, q] ≤ count P [] := by
+  intro count cert
+  obtain ⟨x, y, u, v, xy, uv, gold⟩ := cert
+  have rev (l : List (P × P)) : count Pᵒᵈ l = count P (l.map Prod.swap) :=
+    dual_comparison_counts P l
+  refine ⟨y, x, v, u, xy.symm, uv.symm, ?_⟩
+  intro p hp q hq
+  have swap_mem (a b : P) (c : P × P) (hc : c ∈ [(b, a), (a, b)]) :
+      c.swap ∈ [(a, b), (b, a)] := by
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at hc
+    rcases hc with rfl | rfl <;> simp
+  have cell := gold p.swap (swap_mem x y p hp) q.swap (swap_mem u v q hq)
+  have row : count Pᵒᵈ [p.swap] = count P [p] := rev [p.swap]
+  have both : count Pᵒᵈ [p.swap, q.swap] = count P [p, q] := rev [p.swap, q.swap]
+  exact (congrArg₂ Nat.add row both).symm.trans_le (cell.trans_eq (rev []))
+
+lemma gold_dual_iff (P : Type) [PartialOrder P] [Fintype P] :
+    let count (P : Type) [PartialOrder P] [Fintype P] (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    (∃ x y u v : Pᵒᵈ, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count Pᵒᵈ [p] + count Pᵒᵈ [p, q] ≤ count Pᵒᵈ []) ↔ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count P [p] + count P [p, q] ≤ count P []) := by
+  intro count
+  exact ⟨gold_of_dual P, gold_of_dual Pᵒᵈ⟩
+
+lemma lower_chain_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y : P, ¬ y ≤ x → (∀ a, y < a → x < a) →
+      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) →
+      count [] ≤ 2 * count [(y, x)] → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  intro count x y inc succ chain majority
+  apply gold_of_dual P
+  apply upper_chain_gold Pᵒᵈ x y inc succ
+  · exact fun a b ha hb => (chain a b ha hb).symm
+  · exact (dual_comparison_counts P []).trans_le
+      (majority.trans_eq (congrArg (2 * ·) (dual_comparison_counts P [(x, y)])).symm)
+
+lemma common_upper_covers_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y : P, x ≠ y → (∀ c : P, (x ⋖ c) ↔ (y ⋖ c)) →
+      (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) →
+      (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a) → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  intro count x y ne covers cx cy
+  apply gold_of_dual P
+  apply common_lower_covers_gold Pᵒᵈ x y ne
+  · intro c
+    exact (toDual_covBy_toDual_iff (a := x) (b := OrderDual.ofDual c)).trans
+      ((covers (OrderDual.ofDual c)).trans (toDual_covBy_toDual_iff (a := y) (b := OrderDual.ofDual c)).symm)
+  · exact fun a b ha hb => (cx a b ha hb).symm
+  · exact fun a b ha hb => (cy a b ha hb).symm
+
 -- The six-thin gold-partition theorem would discharge the existing H1.
 lemma six_thin_gold_suffices (sixThin : ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∃ a b : P, ¬ a ≤ b ∧ ¬ b ≤ a) →
@@ -1270,7 +1375,7 @@ lemma six_thin_gold_suffices (sixThin : ∀ (P : Type) [PartialOrder P] [Fintype
     ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
       ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
         count [p] + count [p, q] ≤ count []) : H1 := by
-  intro P _ _ _ _ _ three thin _ noGold
+  intro P _ _ _ _ _ three thin _ _ noGold
   obtain ⟨x, y, _, xy, _, _⟩ := three
   exact (noGold (sixThin P ⟨x, y, xy⟩ thin)).elim
 
@@ -1310,10 +1415,15 @@ theorem main : H1 → H2 → type_of% @OMA.S_wp_1_3_2_3_conjecture.main := by
           (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a) := by
         rintro ⟨x, y, ne, covers, cx, cy⟩
         exact noGold (common_lower_covers_gold Q x y ne covers cx cy)
+      have noLowerChains : ¬ ∃ x y : Q, x ≠ y ∧ (∀ c : Q, (x ⋖ c) ↔ (y ⋖ c)) ∧
+          (∀ a b, a ≤ x → b ≤ x → a ≤ b ∨ b ≤ a) ∧
+          (∀ a b, a ≤ y → b ≤ y → a ≤ b ∨ b ≤ a) := by
+        rintro ⟨x, y, ne, covers, cx, cy⟩
+        exact noGold (common_upper_covers_gold Q x y ne covers cx cy)
       by_cases thin : ∀ x : Q, ({y : Q | ¬ x ≤ y ∧ ¬ y ≤ x} : Set Q).ncard ≤ 6
-      · exact noPair (thinCase Q hn hi rigid three thin noChains noGold)
+      · exact noPair (thinCase Q hn hi rigid three thin noChains noLowerChains noGold)
       · obtain ⟨x, hx⟩ := not_forall.mp thin
-        exact noPair (remaining Q hn hi rigid three ⟨x, by omega⟩ noChains noGold)
+        exact noPair (remaining Q hn hi rigid three ⟨x, by omega⟩ noChains noLowerChains noGold)
   obtain ⟨x, y, hxy, hbounds⟩ := core S hS hcut
   have eqProb := (hprob x y).trans (count_transport e x.val y.val)
   exact ⟨e x.val, e y.val, fun h => hxy (Subtype.ext (e.injective h)),
