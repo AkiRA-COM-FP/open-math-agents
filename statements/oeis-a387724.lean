@@ -9,6 +9,7 @@ whose shifted divisor sum is strictly less than twice their divisor sum.
 A003973 gives the shifted divisor sum as the Euler product used below.
 
 Sources: https://oeis.org/A387724, https://oeis.org/A337382, https://oeis.org/A003973
+OEIS text, CC BY-SA 4.0.
 Credit: @pmaster, assisted by Codex.
 -/
 
