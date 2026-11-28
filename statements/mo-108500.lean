@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # Convex hull of doubly normalized pairs of real matrices
 
-Source: jo1, https://mathoverflow.net/questions/108500 (CC BY-SA 4.0).
+Source: jo1, https://mathoverflow.net/questions/108500 (CC BY-SA 3.0).
 Credit: @connoranderson.
 
 In every dimension the hull is a linear projection of a two-equation affine
