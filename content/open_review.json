@@ -13516,6 +13516,444 @@
     "https://oeis.org/A118974"
    ],
    "note": "Mathar's D-finite recurrence for an algebraic g.f.; the rationalized g.f. equals the entry's z^2*C*F*(1+C-zC)/(1-z) as a series (checked) and reproduces the data. The coefficients are exactly Mathar's expanded. The statement starts at n=4 because at n=3 the left side is -144. That is the usual 'for n large' reading of Mathar's recurrences, not a weakening. No prior proof found. Second review: Faithful (with the necessary n>=4 range, stated openly) and true; no earlier proof found. Routine."
+  },
+  "oeis-a269686": {
+   "date": "2026-11-28",
+   "pr": 26525,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269686",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269686",
+    "https://oeis.org/A269690",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Barker's 2019 g.f. 5x(1-3x-2x^2)/((1-4x)(1-4x-3x^2)) and his closed form with sqrt(7) are stated faithfully for column 4 of A269690 (length-n words over Z/5 whose consecutive repeat values never differ by +-1). The repeat-list definition reproduces all 22 terms by my DP. No prior proof is in the entry, A269690 or the libraries. Routine transfer-matrix argument. Second review: Faithful statement of Barker's conjecture for column 4 (alphabet 0..4). The nearby family theorem (Ma-Zhang 2026, loopless constant-indegree relations) does not cover this relation because repeated equal labels are allowed, so I found no prior proof. Transfer-matrix g.f. identity."
+  },
+  "oeis-a269689": {
+   "date": "2026-11-28",
+   "pr": 27711,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269689",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269689",
+    "https://oeis.org/A269690",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Barker's 2019 g.f. 8x(1-6x-5x^2)/((1-7x)(1-7x-6x^2)) and the sqrt(73) closed form are stated faithfully for column 7 of A269690 (alphabet Z/8). The definition reproduces all 19 terms by my DP. No prior proof is in the entry, A269690 or the libraries. Routine transfer-matrix argument. Second review: Faithful statement of Barker's conjecture for column 7 (alphabet 0..7). The nearby family theorem (Ma-Zhang 2026, loopless constant-indegree relations) does not cover this relation because repeated equal labels are allowed, so I found no prior proof. Transfer-matrix g.f. identity."
+  },
+  "oeis-a269691": {
+   "date": "2026-11-28",
+   "pr": 27534,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269691",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269691",
+    "https://oeis.org/A269690",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Barker's 2019 g.f. and order-6 recurrence for row 5 of Hardin's table A269690 are stated faithfully, with the repeat-chain reading (repeats are x(i)=x(i+1), each repeat compared with the previous one, mod n+1; here no repeat may differ from the previous one by +-1). My transfer-matrix count of that reading reproduces all listed terms, and brute force agrees with it for small cases. No prior proof is in the entry, the parent table, the Lean libraries or the proof collections. Routine: the proof derives Hardin's degree-5 polynomial n^5+5n^4+10n^3+4n^2-3n-1 for n>1 by summing out the coordinates. Second review: Faithful statement of Barker's conjecture for row 5. The nearby family theorem (Ma-Zhang 2026, loopless constant-indegree relations) does not cover this relation because repeated equal labels are allowed, so I found no prior proof. Transfer-matrix g.f. identity."
+  },
+  "oeis-a269692": {
+   "date": "2026-11-28",
+   "pr": 27537,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269692",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269692",
+    "https://oeis.org/A269690",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Barker's 2019 g.f. and order-7 recurrence for row 6 of Hardin's table A269690 are stated faithfully, with the repeat-chain reading (repeats are x(i)=x(i+1), each repeat compared with the previous one, mod n+1; here no repeat may differ from the previous one by +-1). My transfer-matrix count of that reading reproduces all listed terms, and brute force agrees with it for small cases. No prior proof is in the entry, the parent table, the Lean libraries or the proof collections. Routine: the proof derives Hardin's degree-6 polynomial n^6+6n^5+15n^4+8n^3-7n^2-4n+1 for n>1 by summing out the coordinates. Second review: Faithful statement of Barker's conjecture for row 6. The nearby family theorem (Ma-Zhang 2026, loopless constant-indegree relations) does not cover this relation because repeated equal labels are allowed, so I found no prior proof. Transfer-matrix g.f. identity."
+  },
+  "oeis-a269693": {
+   "date": "2026-11-28",
+   "pr": 27546,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269693",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269693",
+    "https://oeis.org/A269690",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Barker's 2019 g.f. and order-8 recurrence for row 7 of Hardin's table A269690 are stated faithfully, with the repeat-chain reading (repeats are x(i)=x(i+1), each repeat compared with the previous one, mod n+1; here no repeat may differ from the previous one by +-1). My transfer-matrix count of that reading reproduces all listed terms, and brute force agrees with it for small cases. No prior proof is in the entry, the parent table, the Lean libraries or the proof collections. Routine: the proof derives Hardin's degree-7 polynomial n^7+7n^6+21n^5+15n^4-13n^3-11n^2+3n+1 for n>1 by summing out the coordinates. Second review: Faithful statement of Barker's conjecture for row 7. The nearby family theorem (Ma-Zhang 2026, loopless constant-indegree relations) does not cover this relation because repeated equal labels are allowed, so I found no prior proof. Transfer-matrix g.f. identity."
+  },
+  "oeis-a269778": {
+   "date": "2026-11-28",
+   "pr": 27575,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269778",
+    "https://oeis.org/A269776",
+    "https://oeis.org/A269778",
+    "https://oeis.org/A269776",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Barker's 2019 g.f. and order-7 recurrence for row 6 of Hardin's table A269776 are stated faithfully, with the repeat-chain reading (repeats are x(i)=x(i+1), each repeat compared with the previous one, mod n+1; here c != p+1). My transfer-matrix count of that reading reproduces all listed terms, and brute force agrees with it for small cases. No prior proof is in the entry, the parent table, the Lean libraries or the proof collections. Routine: the proof derives Hardin's degree-6 polynomial n^6+6n^5+15n^4+14n^3+4n^2 by summing out the coordinates. Second review: Faithful statement of Barker's conjecture for row 6 of A269776. The nearby family theorem (Ma-Zhang 2026, loopless constant-indegree relations) does not cover this relation because repeated equal labels are allowed, so I found no prior proof. Transfer-matrix g.f. identity."
+  },
+  "oeis-a269779": {
+   "date": "2026-11-28",
+   "pr": 27582,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269779",
+    "https://oeis.org/A269776",
+    "https://oeis.org/A269779",
+    "https://oeis.org/A269776",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Barker's 2019 g.f. and order-8 recurrence for row 7 of Hardin's table A269776 are stated faithfully, with the repeat-chain reading (repeats are x(i)=x(i+1), each repeat compared with the previous one, mod n+1; here c != p+1). My transfer-matrix count of that reading reproduces all listed terms, and brute force agrees with it for small cases. No prior proof is in the entry, the parent table, the Lean libraries or the proof collections. Routine: the proof derives Hardin's degree-7 polynomial n^7+7n^6+21n^5+25n^4+11n^3+n^2 by summing out the coordinates. Second review: Faithful statement of Barker's conjecture for row 7 of A269776. The nearby family theorem (Ma-Zhang 2026, loopless constant-indegree relations) does not cover this relation because repeated equal labels are allowed, so I found no prior proof. Transfer-matrix g.f. identity."
+  },
+  "oeis-a269729": {
+   "date": "2026-11-28",
+   "pr": 23328,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269729",
+    "https://oeis.org/A035513",
+    "https://oeis.org/A269729",
+    "https://oeis.org/A035513"
+   ],
+   "note": "Mathar's 2019 conjecture that the sequence is an involution is stated faithfully. W(r,k) = F(k+1) floor((r+1)phi) + r F(k) on all integer columns matches the entry's program, and 'contains, up to shift and sign' is a faithful reading of 'adjusting signs'. My search reproduces all 71 terms and a(a(n)) = n for n < 400. No proof is in the entry or its links. Routine: it follows from uniqueness of rows (each Fibonacci-type sequence lies in exactly one row), and the proof derives that uniqueness. Second review: Faithful. The involution is essentially immediate (reversing twice is the identity, plus uniqueness of the row containing a Fibonacci-type sequence), so routine, but I found no written proof."
+  },
+  "oeis-a269811": {
+   "date": "2026-11-28",
+   "pr": 27585,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A269811",
+    "https://oeis.org/A269811",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Barker's conjectures for the 2D outer-totalistic Rule 33 (closed forms for n > 1, parity forms and g.f., at stages 2^n - 1; checked to n = 10) are stated faithfully: bit c+2k of the rule number, single seed, background evolving, and a count over the central (2t+1)^2 square as in Price's program. My numpy simulation reproduces all listed terms and every conjunct over the tested range, starting from the stated thresholds. No prior proof: Rule 33 is not in Cohen's 50-entry Lean paper (aixiv 2611.02474), trureturing or thatnealpatel/proofs, and the entry has none. Routine: an explicit eventual pattern proved by induction. Second review: Faithful; Rule 33 is not among Cohen's 67 certified tables or 173 rules, so the stage-2^n-1 closed form appears new."
+  },
+  "oeis-a272010": {
+   "date": "2026-11-28",
+   "pr": 26917,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A272010",
+    "https://oeis.org/A269909",
+    "https://oeis.org/A272010",
+    "https://oeis.org/A269909",
+    "https://oeis.org/A272007",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Barker's conjectures for the 2D outer-totalistic Rule 413 (Mathar: first differences equal A269909, the Rule 1 differences, for n > 0; checked to n = 299) are stated faithfully: bit c+2k of the rule number, single seed, background evolving, and a count over the central (2t+1)^2 square as in Price's program. My numpy simulation reproduces all listed terms and every conjunct over the tested range, starting from the stated thresholds. No prior proof: Rule 413 is not in Cohen's 50-entry Lean paper (aixiv 2611.02474), trureturing or thatnealpatel/proofs, and the entry has none. Routine: an explicit eventual pattern proved by induction. Second review: Faithful; no prior proof of the Rule 413 = Rule 1 per-stage identity found. Rule 1's evolution is certified by Cohen but Rule 413's is not."
+  },
+  "oeis-a272762": {
+   "date": "2026-11-28",
+   "pr": 27163,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A272762",
+    "https://oeis.org/A272762",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Barker's conjectures for the 2D outer-totalistic Rule 822 (Wu's recurrence for n > 4, g.f., Barker's closed form for all n, and Blomberg's claim that Rule 886 gives the same counts, at stages 2^n - 1; checked to n = 10 (886 to n = 8)) are stated faithfully: bit c+2k of the rule number, single seed, background evolving, and a count over the central (2t+1)^2 square as in Price's program. My numpy simulation reproduces all listed terms and every conjunct over the tested range, starting from the stated thresholds. No prior proof: Rule 822 is not in Cohen's 50-entry Lean paper (aixiv 2611.02474), trureturing or thatnealpatel/proofs, and the entry has none. Routine: an explicit eventual pattern proved by induction. Second review: Faithful; neither rule appears in Cohen's artifact or the Lean CA libraries, so this looks new."
+  },
+  "oeis-a273384": {
+   "date": "2026-11-28",
+   "pr": 16646,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A273384",
+    "https://oeis.org/A273384",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Barker's conjectures for the 2D outer-totalistic Rule 659 (per-stage count (2n+1)^2 for n > 2, recurrence for n > 5, g.f.; checked to n = 300. Cohen's paper treats A273385, the 2^n - 1 readout, not this one) are stated faithfully: bit c+2k of the rule number, single seed, background evolving, and a count over the central (2t+1)^2 square as in Price's program. My numpy simulation reproduces all listed terms and every conjunct over the tested range, starting from the stated thresholds. No prior proof: Rule 659 is not in Cohen's 50-entry Lean paper (aixiv 2611.02474), trureturing or thatnealpatel/proofs, and the entry has none. Routine: an explicit eventual pattern proved by induction. Second review: Faithful; Cohen's result is the special case n=2^k-1 of this per-stage formula, so the full statement appears new. Mild overlap worth mentioning when announcing."
+  },
+  "oeis-a273389": {
+   "date": "2026-11-28",
+   "pr": 25246,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A273389",
+    "https://oeis.org/A273389",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Barker's conjectures for the 2D outer-totalistic Rule 662 (Blomberg's closed form 5*4^(n-1) - 2^(n-1) - 51 for n > 5 at stages 2^n - 1; checked to n = 10; the range is tight, since a(5) = 1201 is not 1213) are stated faithfully: bit c+2k of the rule number, single seed, background evolving, and a count over the central (2t+1)^2 square as in Price's program. My numpy simulation reproduces all listed terms and every conjunct over the tested range, starting from the stated thresholds. No prior proof: Rule 662 is not in Cohen's 50-entry Lean paper (aixiv 2611.02474), trureturing or thatnealpatel/proofs, and the entry has none. Routine: an explicit eventual pattern proved by induction. Second review: Faithful (range 6<=n matches 'n>5'); no prior proof found."
+  },
+  "oeis-a270111": {
+   "date": "2026-11-28",
+   "pr": 24490,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A270111",
+    "https://oeis.org/A270118",
+    "https://oeis.org/A270111",
+    "https://oeis.org/A270118"
+   ],
+   "note": "Hardin's recurrence and Barker's g.f. 8x^2/(1-7x)^2 and a(n) = 8*7^(n-2)*(n-1) are stated faithfully for n X 1 arrays over 0..7 with exactly one adjacent pair summing to 7 (a(1) = 0, offset 1). Elementary: choose the position of the pair; each later entry either completes it or avoids the complement of its predecessor (7 ways). It matches the data. No prior proof in the entry or A270118. Routine and close to trivial. Second review: Faithful; elementary count (n-1)*8*7^(n-2). Routine."
+  },
+  "oeis-a270363": {
+   "date": "2026-11-28",
+   "pr": 24066,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A270363",
+    "https://oeis.org/A270363"
+   ],
+   "note": "Mathar's D-finite recurrence is stated faithfully, with coefficients expanded correctly and the range set by the lowest index. a(n) is defined as the coefficient of Kruchinin's g.f. (put in normal form with sqrt(1-4x)), and I checked exactly that its coefficients equal the name's binomial sum for n < 60 and match the data. I checked the recurrence on 60+ exact terms. No prior proof is in the entry, the Lean libraries or the proof collections. Routine: holonomic closure / creative telescoping. Second review: Faithful; holonomic recurrence for an algebraic g.f. No prior proof found. Not in joaquimmj's 18 Mathar P-recurrence entries."
+  },
+  "oeis-a270530": {
+   "date": "2026-11-28",
+   "pr": 21996,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A270530",
+    "https://oeis.org/A270530"
+   ],
+   "note": "Mathar's D-finite recurrence is stated faithfully, with coefficients expanded correctly and the range set by the lowest index. This is the first of Mathar's two conjectures, with a(n) defined by the name's sum Sum C(2k,k)/(k+1) C(2n+2,n-k), which reproduces the data. I checked the recurrence on 60+ exact terms. No prior proof is in the entry, the Lean libraries or the proof collections. Routine: holonomic closure / creative telescoping. Second review: Faithful for Mathar's first recurrence (the second order-3 conjecture is a separate claim, not stated). Routine holonomic identity."
+  },
+  "oeis-a270724": {
+   "date": "2026-11-28",
+   "pr": 24914,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A270724",
+    "https://oeis.org/A270724"
+   ],
+   "note": "Mathar's D-finite recurrence is stated faithfully, with coefficients expanded correctly and the range set by the lowest index. a(n) is the coefficient of x^(n+2) of the entry's g.f., rewritten with radicand (1-x)(1-x-4x^2-4x^3), and I checked exactly that it equals the name's double sum for n < 78 and matches the data. I checked the recurrence on 60+ exact terms. No prior proof is in the entry, the Lean libraries or the proof collections. Routine: holonomic closure / creative telescoping. Second review: Faithful; routine holonomic identity; no prior proof found."
+  },
+  "oeis-a271217": {
+   "date": "2026-11-28",
+   "pr": 25255,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A271217",
+    "https://oeis.org/A271217"
+   ],
+   "note": "Mathar's D-finite recurrence is stated faithfully, with coefficients expanded correctly and the range set by the lowest index. a(n) is defined by the entry's (unconjectured) parity recurrences a(2k+1) = 2a(2k)+a(2k-1), a(2k) = (2k-1)a(2k-1)+(2k-2)a(2k-3), which reproduce all 27 terms; the conjecture merges them into one order-4 recurrence. I checked the recurrence on 60+ exact terms. No prior proof is in the entry, the Lean libraries or the proof collections. Routine: holonomic closure / creative telescoping. Second review: Faithful relative to the entry's own recurrence (from Burns's preprint, not marked conjecture). The proof is an algebraic elimination, so routine."
+  },
+  "oeis-a273351": {
+   "date": "2026-11-28",
+   "pr": 24915,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273351",
+    "https://oeis.org/A273351"
+   ],
+   "note": "Mathar's D-finite recurrence is stated faithfully, with coefficients expanded correctly and the range set by the lowest index. This is the first of Mathar's two conjectures. a(n) is the coefficient of the Deutsch-Elizalde bargraph g.f. (1-z-z^2-z^3-(1+z)h)/(2h) with h = sqrt(1-4z+2z^2+z^4), normalized exactly, and it reproduces the data from n = 2. I checked the recurrence on 60+ exact terms. No prior proof is in the entry, the Lean libraries or the proof collections. Routine: holonomic closure / creative telescoping. Second review: Faithful; routine holonomic recurrence for an algebraic g.f."
+  },
+  "oeis-a271035": {
+   "date": "2026-11-28",
+   "pr": 27206,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A271035",
+    "https://oeis.org/A271034",
+    "https://oeis.org/A271035",
+    "https://oeis.org/A271034"
+   ],
+   "note": "Barker's g.f. 2x(5+x)/(1-x)^7 and the order-7 recurrence for n > 7 are stated faithfully: 6-cell triangle, (cell, w/nw/ne neighbour) pairs, and exactly one pair with cell < neighbour. Brute force reproduces a(1..8), and Hardin's sextic matches all 30 terms. No prior proof is in the entry or A271034. Routine polynomial counting. Second review: Faithful; polynomial count. Routine."
+  },
+  "oeis-a272917": {
+   "date": "2026-11-28",
+   "pr": 25370,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A272917",
+    "https://oeis.org/A272916",
+    "https://www.fq.math.ca/Papers1/42-1/quartkimberling01_2004.pdf",
+    "https://oeis.org/A049998",
+    "https://oeis.org/A272917",
+    "https://oeis.org/A272916"
+   ],
+   "note": "Kimberling's 2016 conjecture (the same as in A272916) is stated faithfully: consecutive elements of {F_iF_j} union {L_iL_j} (i, j >= 1) differ by an element of the set. I checked it for all elements up to 1e30. Only the Fibonacci-only case is known (Kimberling, Fib. Quart. 42 (2004); Reble's proof in A049998). No proof of the mixed Fibonacci/Lucas union was found, and the site's A272911 solve is a different (Lucas-only) claim. The 877-line proof is a genuine case analysis. Second review: Faithful and nontrivial; no prior proof found."
+  },
+  "oeis-a239844": {
+   "date": "2026-11-28",
+   "pr": 25941,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239844",
+    "https://oeis.org/A239849",
+    "https://oeis.org/A239844",
+    "https://oeis.org/A239849"
+   ],
+   "note": "Barker's 2018 g.f. and recurrence for Hardin's mod-4 running/diagonal-sum array count are stated faithfully (left, above and NW-diagonal offsets and the orientation match the name). My independent transfer-matrix count reproduces the first 25 data terms, and the proof's controls match too. The proof is a finite-state transfer argument whose recurrence is checked state by state with the kernel. Neither the entry nor the parent table A239849 has a proof, and no library or registry hit turned up. Second review: Faithful; transfer-matrix count with eventually polynomial growth. No prior proof found."
+  },
+  "oeis-a239987": {
+   "date": "2026-11-28",
+   "pr": 25974,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239987",
+    "https://oeis.org/A239986",
+    "https://oeis.org/A239987",
+    "https://oeis.org/A239986"
+   ],
+   "note": "Barker's 2018 g.f. and recurrence for Hardin's mod-4 running/diagonal-sum array count are stated faithfully (left, above and NW-diagonal offsets and the orientation match the name). My independent transfer-matrix count reproduces the first 25 data terms, and the proof's controls match too. The proof is a finite-state transfer argument whose recurrence is checked state by state with the kernel. Neither the entry nor the parent table A239986 has a proof, and no library or registry hit turned up. Second review: Faithful; transfer-matrix count with eventually polynomial growth. No prior proof found."
+  },
+  "oeis-a240001": {
+   "date": "2026-11-28",
+   "pr": 25717,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A240001",
+    "https://oeis.org/A240000",
+    "https://oeis.org/A240001",
+    "https://oeis.org/A240000"
+   ],
+   "note": "Barker's 2018 g.f. and recurrence for Hardin's mod-4 running/diagonal-sum array count are stated faithfully (left, above and NW-diagonal offsets and the orientation match the name). My independent transfer-matrix count reproduces the first 25 data terms, and the proof's controls match too. The proof is a finite-state transfer argument whose recurrence is checked state by state with the kernel. Neither the entry nor the parent table A240000 has a proof, and no library or registry hit turned up. Second review: Faithful; transfer-matrix count with eventually polynomial growth. No prior proof found."
+  },
+  "oeis-a240002": {
+   "date": "2026-11-28",
+   "pr": 26013,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A240002",
+    "https://oeis.org/A240000",
+    "https://oeis.org/A240002",
+    "https://oeis.org/A240000"
+   ],
+   "note": "Barker's 2018 g.f. and recurrence for Hardin's mod-4 running/diagonal-sum array count are stated faithfully (left, above and NW-diagonal offsets and the orientation match the name). My independent transfer-matrix count reproduces the first 25 data terms, and the proof's controls match too. The proof is a finite-state transfer argument whose recurrence is checked state by state with the kernel. Neither the entry nor the parent table A240000 has a proof, and no library or registry hit turned up. Second review: Faithful; transfer-matrix count with eventually polynomial growth. No prior proof found."
+  },
+  "oeis-a240333": {
+   "date": "2026-11-28",
+   "pr": 25945,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A240333",
+    "https://oeis.org/A240338",
+    "https://oeis.org/A240333",
+    "https://oeis.org/A240338"
+   ],
+   "note": "Barker's 2018 g.f. and recurrence for Hardin's mod-4 running/diagonal-sum array count are stated faithfully (left, above and NW-diagonal offsets and the orientation match the name). My independent transfer-matrix count reproduces the first 25 data terms, and the proof's controls match too. The proof is a finite-state transfer argument whose recurrence is checked state by state with the kernel. Neither the entry nor the parent table A240338 has a proof, and no library or registry hit turned up. Second review: Faithful; transfer-matrix count with eventually polynomial growth. No prior proof found."
+  },
+  "oeis-a240359": {
+   "date": "2026-11-28",
+   "pr": 25953,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A240359",
+    "https://oeis.org/A240364",
+    "https://oeis.org/A240359",
+    "https://oeis.org/A240364"
+   ],
+   "note": "Barker's 2018 g.f. and recurrence for Hardin's mod-4 running/diagonal-sum array count are stated faithfully (left, above and NW-diagonal offsets and the orientation match the name). My independent transfer-matrix count reproduces the first 25 data terms, and the proof's controls match too. The proof is a finite-state transfer argument whose recurrence is checked state by state with the kernel. Neither the entry nor the parent table A240364 has a proof, and no library or registry hit turned up. Second review: Faithful; transfer-matrix count with eventually polynomial growth. No prior proof found."
+  },
+  "oeis-a240395": {
+   "date": "2026-11-28",
+   "pr": 25985,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A240395",
+    "https://oeis.org/A240394",
+    "https://oeis.org/A240395",
+    "https://oeis.org/A240394"
+   ],
+   "note": "Barker's 2018 g.f. and recurrence for Hardin's mod-4 running/diagonal-sum array count are stated faithfully (left, above and NW-diagonal offsets and the orientation match the name). My independent transfer-matrix count reproduces the first 25 data terms, and the proof's controls match too. The proof is a finite-state transfer argument whose recurrence is checked state by state with the kernel. Neither the entry nor the parent table A240394 has a proof, and no library or registry hit turned up. Second review: Faithful; transfer-matrix count with eventually polynomial growth. No prior proof found."
+  },
+  "oeis-a240434": {
+   "date": "2026-11-28",
+   "pr": 26034,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A240434",
+    "https://oeis.org/A002492",
+    "https://oeis.org/A240434",
+    "https://oeis.org/A002492"
+   ],
+   "note": "Barker's closed form 2^(n-1) n (n^2+6n+5)/3 and g.f. 4x(1-x)/(1-2x)^4 for the binomial transform of A002492 are stated faithfully (the sign is normalized, and the n=0 case is 0 either way). I checked them for n<30. Summing a binomial transform of a cubic polynomial is a routine computation, and I found no earlier proof. Second review: Faithful; binomial transform of a cubic. Routine."
+  },
+  "oeis-a240998": {
+   "date": "2026-11-28",
+   "pr": 25171,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A240998",
+    "https://oeis.org/A240998",
+    "https://arxiv.org/abs/2506.02903"
+   ],
+   "note": "The parity conjecture (for n>0, a(n) is odd iff n is a power of 2) is stated for every integer series A with A(0)=1 and A^2 = x + A(x+2x^2), which is at least as strong as the entry. Mod 2, A(x+2x^2) = A(x) and A^2 = A(x^2), so A(x) = x + A(x^2), which gives 1 + sum x^(2^k). It is a short Frobenius argument. I checked 40 terms. I found no earlier written proof. Second review: Faithful. The proof is a three-line mod-2 argument, so routine, but I found no earlier write-up."
+  },
+  "oeis-a241937": {
+   "date": "2026-11-28",
+   "pr": 25660,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A241937",
+    "https://oeis.org/A241936",
+    "https://oeis.org/A241937",
+    "https://oeis.org/A241936"
+   ],
+   "note": "Barker's g.f. and recurrence for row 1 of Hardin's A241936 (window sums bounded by a multiple of n) are stated faithfully. Window, length and bound match the name, and my DP reproduces the data for n<=9. The count is the Ehrhart polynomial of an interval-matrix (totally unimodular) polytope, and the proof evaluates it by iterated summation, which is routine. Israel's Ehrhart remark in A241619 covers only that other table. A241936 and the entry have no proof, and I found no library or registry hit. Second review: Faithful; Ehrhart-type polynomial count. No prior proof found."
+  },
+  "oeis-a241939": {
+   "date": "2026-11-28",
+   "pr": 26232,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A241939",
+    "https://oeis.org/A241936",
+    "https://oeis.org/A241939",
+    "https://oeis.org/A241936"
+   ],
+   "note": "Barker's g.f. and recurrence for row 3 of Hardin's A241936 (window sums bounded by a multiple of n) are stated faithfully. Window, length and bound match the name, and my DP reproduces the data for n<=9. The count is the Ehrhart polynomial of an interval-matrix (totally unimodular) polytope, and the proof evaluates it by iterated summation, which is routine. Israel's Ehrhart remark in A241619 covers only that other table. A241936 and the entry have no proof, and I found no library or registry hit. Second review: Faithful; Ehrhart-type polynomial count. No prior proof found."
+  },
+  "oeis-a241966": {
+   "date": "2026-11-28",
+   "pr": 26245,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A241966",
+    "https://oeis.org/A241964",
+    "https://oeis.org/A241966",
+    "https://oeis.org/A241964"
+   ],
+   "note": "Barker's g.f. and recurrence for row 3 of Hardin's A241964 (window sums bounded by a multiple of n) are stated faithfully. Window, length and bound match the name, and my DP reproduces the data for n<=9. The count is the Ehrhart polynomial of an interval-matrix (totally unimodular) polytope, and the proof evaluates it by iterated summation, which is routine. Israel's Ehrhart remark in A241619 covers only that other table. A241964 and the entry have no proof, and I found no library or registry hit. Second review: Faithful; Ehrhart-type polynomial count. No prior proof found."
+  },
+  "oeis-a242145": {
+   "date": "2026-11-28",
+   "pr": 25489,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A242145",
+    "https://oeis.org/A242144",
+    "https://oeis.org/A242145",
+    "https://oeis.org/A242144"
+   ],
+   "note": "Barker's g.f. and recurrence for row 1 of Hardin's A242144 (window sums bounded by a multiple of n) are stated faithfully. Window, length and bound match the name, and my DP reproduces the data for n<=9. The count is the Ehrhart polynomial of an interval-matrix (totally unimodular) polytope, and the proof evaluates it by iterated summation, which is routine. Israel's Ehrhart remark in A241619 covers only that other table. A242144 and the entry have no proof, and I found no library or registry hit. Second review: Faithful; Ehrhart-type polynomial count. No prior proof found."
+  },
+  "oeis-a242146": {
+   "date": "2026-11-28",
+   "pr": 26092,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A242146",
+    "https://oeis.org/A242144",
+    "https://oeis.org/A242146",
+    "https://oeis.org/A242144"
+   ],
+   "note": "Barker's g.f. and recurrence for row 2 of Hardin's A242144 (window sums bounded by a multiple of n) are stated faithfully. Window, length and bound match the name, and my DP reproduces the data for n<=9. The count is the Ehrhart polynomial of an interval-matrix (totally unimodular) polytope, and the proof evaluates it by iterated summation, which is routine. Israel's Ehrhart remark in A241619 covers only that other table. A242144 and the entry have no proof, and I found no library or registry hit. Second review: Faithful; Ehrhart-type polynomial count. No prior proof found."
+  },
+  "oeis-a242429": {
+   "date": "2026-11-28",
+   "pr": 25208,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A242429",
+    "https://arxiv.org/abs/1501.06394",
+    "https://oeis.org/A242429",
+    "https://arxiv.org/abs/1501.06394"
+   ],
+   "note": "Mathar's 2015 holonomic recurrence (n>=5) is stated for Coserea's closed form C(2n,n)/2 + 3*2^(n-1) - n - 2. That form follows from Theorem 7.2 of Cameron-Gadouleau-Mitchell-Peresse for POI_n (n_i = C(n,i-1), trivial groups), so using it as the definition is faithful, and it reproduces all data terms. I checked the recurrence for n<200. It is routine verification of a recurrence for a hypergeometric-plus-geometric closed form, and I found no earlier proof. Second review: Faithful; holonomic identity for a binomial-plus-exponential closed form. Routine."
+  },
+  "oeis-a242781": {
+   "date": "2026-11-28",
+   "pr": 15739,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A242781",
+    "https://oeis.org/A242781"
+   ],
+   "note": "Mathar's 2020 D-finite recurrence (n>=5) is stated for the unique series G with G*(4x^2+S(3x+1)-5x+1) = 1-2x-S, S = sqrt(1-4x). The denominator has constant term 2, so G is the entry's g.f. It holds on all data terms. Deriving a recurrence for an explicit algebraic g.f. is routine, and I found no earlier proof. Second review: Faithful; routine holonomic recurrence."
   }
  },
  "flagged": {
@@ -29391,6 +29829,36 @@
     "https://oeis.org/A299068"
    ],
    "reason": "The claim 'for n>7, a(n)>=7' is Robert Israel's 2018 comment, which already contains its proof: it lists seven explicit pairs of divisors of n^2(n^2-1) differing by n ((1,n+1), (n,2n), (2n,3n), ((n^2-n)/2,(n^2+n)/2), (n^2-n,n^2), (n^2,n^2+n), and (3n,4n) or (n/2,3n/2)). The formalization is faithful and the Lean proof just checks those pairs. Nothing open remained."
+  },
+  "oeis-a269680": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A269680",
+    "https://oeis.org/A269678",
+    "https://zenodo.org/records/24410605",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Patterns/BarkerRegularRelationCounting.lean"
+   ],
+   "reason": "Second review: Barker's g.f./recurrence for row 5 of A269678 is a coefficient extraction from Ma-Zhang's Corollary 4 (Zenodo 24410605, 21 Nov 2026; also a Lean theorem in trureturing), which covers every alphabet size q>=3 at once (d=2). The paper never names A269678, but the family coverage is exact (successive repeat labels related by a loopless indegree-2 relation), and it predates the site proof (28 Nov). The site proof is still independent and faithful."
+  },
+  "oeis-a269681": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A269681",
+    "https://oeis.org/A269678",
+    "https://zenodo.org/records/24410605",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Patterns/BarkerRegularRelationCounting.lean"
+   ],
+   "reason": "Second review: Barker's g.f./recurrence for row 6 of A269678 is a coefficient extraction from Ma-Zhang's Corollary 4 (Zenodo 24410605, 21 Nov 2026; also a Lean theorem in trureturing), which covers every alphabet size q>=3 at once (d=2). The paper never names A269678, but the family coverage is exact (successive repeat labels related by a loopless indegree-2 relation), and it predates the site proof (28 Nov). The site proof is still independent and faithful."
+  },
+  "oeis-a269682": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A269682",
+    "https://oeis.org/A269678",
+    "https://zenodo.org/records/24410605",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Patterns/BarkerRegularRelationCounting.lean"
+   ],
+   "reason": "Second review: Barker's g.f./recurrence for row 7 of A269678 is a coefficient extraction from Ma-Zhang's Corollary 4 (Zenodo 24410605, 21 Nov 2026; also a Lean theorem in trureturing), which covers every alphabet size q>=3 at once (d=2). The paper never names A269678, but the family coverage is exact (successive repeat labels related by a loopless indegree-2 relation), and it predates the site proof (28 Nov). The site proof is still independent and faithful."
   }
  },
  "reviewed": "2026-11-28"
