@@ -79,7 +79,15 @@ for (let i = mo.length - 1; i >= 0; i--) if (statements[mo[i].id]) { const [p] =
 // data/status_overrides.json) is not an open problem: with a Lean statement it becomes a known result (formalize the
 // existing proof; work already merged on it keeps its page), without one it is not listed at all.
 const REVIEW_KNOWN = new Set(Object.keys(JSON.parse(fs.readFileSync(path.join(ROOT, "content", "open_review.json"), "utf8")).known ?? {}));
-const ELSEWHERE = fs.existsSync(path.join(ROOT, "data", "settled_elsewhere.json")) ? D("settled_elsewhere.json").entries ?? {} : {};
+// data/settled_elsewhere.json plus one file per scan in data/settled_elsewhere/ (each {"entries": {id: {reason, source, ...}}}).
+const ELSEWHERE = Object.assign(
+  {},
+  fs.existsSync(path.join(ROOT, "data", "settled_elsewhere.json")) ? D("settled_elsewhere.json").entries ?? {} : {},
+  ...(fs.existsSync(path.join(ROOT, "data", "settled_elsewhere"))
+    ? fs.readdirSync(path.join(ROOT, "data", "settled_elsewhere")).filter((f) => f.endsWith(".json")).sort()
+        .map((f) => JSON.parse(fs.readFileSync(path.join(ROOT, "data", "settled_elsewhere", f), "utf8")).entries ?? {})
+    : []),
+);
 const OVERRIDE_SOLVED = new Set(overrides.filter((o) => o.status === "solved").map((o) => o.id));
 const settledElsewhere = (id) => REVIEW_KNOWN.has(id) || id in ELSEWHERE || OVERRIDE_SOLVED.has(id);
 let dropped = 0, relabelled = 0;
