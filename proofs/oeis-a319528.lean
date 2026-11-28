@@ -22,7 +22,6 @@ end OMA.P319528
 theorem OMA.solution : type_of% @OMA.S_oeis_a319528.main := by
   intro n hn
   open ArithmeticFunction in
-  unfold OMA.S_oeis_a319528.a
   constructor
   · intro h h7
     obtain ⟨e, m, hm, rfl⟩ := Nat.exists_eq_pow_mul_and_not_dvd (by omega : n ≠ 0) 7 (by norm_num)
@@ -47,7 +46,7 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a319528.main := by
       omega
     have : 8 * ArithmeticFunction.sigma 1 (7 ^ e) = 7 * ArithmeticFunction.sigma 1 (7 ^ e) + 1 := by
       rw [← mul_assoc] at h
-      exact Nat.eq_of_mul_eq_mul_right hsm h
+      exact Nat.eq_of_mul_eq_mul_right hsm h.symm
     omega
   · intro h7
     have hcop : Nat.Coprime 7 n := (Nat.Prime.coprime_iff_not_dvd (by norm_num)).mpr h7
