@@ -8,6 +8,8 @@ cubes minus a positive cube with subtracted base at most 2347. The bit masks for
 interval offset and records any supplementary witnesses in packed radix
 digits. The signed problem outside the finite range and two infinite
 families reduces to a quadratic representation condition for each residue.
+The explicit example and reproducible search at `window_bound_witness`
+show where the uniform bound is attained.
 -/
 
 namespace OMA.R_mse_2751881_R2
@@ -5721,6 +5723,53 @@ theorem bases_of_four {n a b c d : ℤ} (hn : n % 9 = 4)
   obtain ⟨ed,s,pd,ld,ud,hd,hcd⟩ := cube_residue d
   have esum : ea+eb+ec+ed=4 := by omega
   exact ⟨p,q,r,s,by omega,by omega,by omega,by omega⟩
+
+/-- For a target congruent to five modulo nine, this gives the complete
+finite search ranges when the next cube exceeds the largest possible total. -/
+theorem search_bounds_of_five {n D d x y z : ℕ} (hn : n % 9 = 5) (hd : d ≤ D)
+    (hgap : n + D^3 < (D + 1)^3) (h : n + d^3 = x^3 + y^3 + z^3) :
+    d % 3 = 1 ∧ x % 3 = 2 ∧ y % 3 = 2 ∧ z % 3 = 2 ∧ x ≤ D ∧ y ≤ D ∧ z ≤ D := by
+  have hcast : (n : ℤ) + (d : ℤ)^3 = (x : ℤ)^3 + (y : ℤ)^3 + (z : ℤ)^3 := by
+    exact_mod_cast h
+  have hmod : (n : ℤ) % 9 = 5 := by exact_mod_cast hn
+  have hsigned : -(n : ℤ) = (-(x : ℤ))^3 + (-(y : ℤ))^3 + (-(z : ℤ))^3 + (d : ℤ)^3 := by
+    linarith only [hcast]
+  obtain ⟨a, b, c, k, hx, hy, hz, hk⟩ :=
+    bases_of_four (show (-(n : ℤ)) % 9 = 4 by omega) hsigned
+  have hsum : x^3 + y^3 + z^3 < (D + 1)^3 := calc
+    _ = n + d^3 := h.symm
+    _ ≤ n + D^3 := Nat.add_le_add_left (Nat.pow_le_pow_left hd 3) n
+    _ < _ := hgap
+  have bound (w : ℕ) (hw : w^3 ≤ x^3 + y^3 + z^3) : w ≤ D := by
+    by_contra! hlarge
+    have := Nat.pow_le_pow_left (show D + 1 ≤ w by omega) 3
+    omega
+  exact ⟨by omega, by omega, by omega, by omega,
+    bound x (by omega), bound y (by omega), bound z (by omega)⟩
+
+/-- An explicit representation attaining the window's uniform bound.
+For this input, the following independent Python computation rules out every
+smaller positive subtracted base. `search_bounds_of_five` proves completeness
+of the residue and size restrictions used in the search.
+
+```python
+n, D = 4_469_756, 2347
+assert n % 9 == 5 and n + D**3 < (D + 1)**3
+cubes = [b**3 for b in range(2, D + 1, 3)]
+pairs = {u + v for i, u in enumerate(cubes) for v in cubes[:i + 1]}
+
+def represents(d):
+    total = n + d**3
+    return any(total - z in pairs for z in cubes if z < total)
+
+least = next(d for d in range(1, D + 1, 3) if represents(d))
+assert least == D
+assert n + D**3 == 500**3 + 1400**3 + 2159**3
+print(least)
+```
+-/
+theorem window_bound_witness :
+    4469756 + (2347 : ℕ)^3 = 500^3 + 1400^3 + 2159^3 := by decide
 
 /-- Pair sums s,t and one third of the pair differences u,v give an exact
 criterion. The two divisibility conditions ensure integral recovery of the bases. -/
