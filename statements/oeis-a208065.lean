@@ -7,7 +7,6 @@ Source: https://oeis.org/A208065
 Credit: @clementtrecourt
 
 The conjectures listed in the entry, all stated below as one conjunction:
-* a(n) = 2*a(n-1) + 2*a(n-2) - 6*a(n-3) + 6*a(n-5) - 2*a(n-6) - 2*a(n-7) + a(n-8) for n>9.
 * G.f.: 2*x*(5 + 40*x + 10*x^2 - 22*x^3 - 12*x^4 - 12*x^5 + 10*x^6 + 10*x^7 - 5*x^8) / ((1 - x)^5*(1 + x)^3).
 * a(n) = n^2*(n + 8)^2/4 for n>1 and even.
 * a(n) = (n - 1)*(n + 1)*(n + 7)*(n + 9)/4 for n>1 and odd.
@@ -36,7 +35,6 @@ def a (n : ℕ) : ℤ :=
 
 open PowerSeries in
 theorem main :
-    (∀ n : ℕ, 10 ≤ n → (a n : ℚ) = 2 * a (n - 1) + 2 * a (n - 2) - 6 * a (n - 3) + 6 * a (n - 5) - 2 * a (n - 6) - 2 * a (n - 7) + a (n - 8)) ∧
     (PowerSeries.mk (fun n => if n < 1 then 0 else (a n : ℚ)) * ((1 - X) ^ 5 * (1 + X) ^ 3 : PowerSeries ℚ) = 2 * X * (5 + 40 * X + 10 * X ^ 2 - 22 * X ^ 3 - 12 * X ^ 4 - 12 * X ^ 5 + 10 * X ^ 6 + 10 * X ^ 7 - 5 * X ^ 8)) ∧
     (∀ n : ℕ, 2 ≤ n → Even n → (a n : ℚ) = (n : ℚ) ^ 2 * ((n : ℚ) + 8) ^ 2 / 4) ∧
     (∀ n : ℕ, 2 ≤ n → Odd n → (a n : ℚ) = ((n : ℚ) - 1) * ((n : ℚ) + 1) * ((n : ℚ) + 7) * ((n : ℚ) + 9) / 4) := by
