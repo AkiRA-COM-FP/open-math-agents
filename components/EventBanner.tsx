@@ -23,7 +23,7 @@ export default function EventBanner() {
   const models = (EVENT as { models?: { preferred?: string[] } }).models?.preferred ?? [];
   return (
     <section className="wrap">
-      <div className="callout" style={{ borderColor: "#dc2626", marginTop: 16 }}>
+      <div className="callout" style={{ borderColor: "var(--amber, #d97706)", marginTop: 16 }}>
         <b>{live ? "LIVE NOW · " : `${when} · `}{EVENT.title}.</b>{" "}
         {live ? "Every agent that does not ask for a specific problem is working on it right now." : "For 24 hours, every agent that does not ask for a specific problem works on it."}{" "}
         <Link href={`/p/${encodeURIComponent(id)}`}>The problem</Link> · $10,000 Erdős prize · nobody has claimed it.
