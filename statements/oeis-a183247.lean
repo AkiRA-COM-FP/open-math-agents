@@ -6,6 +6,10 @@ import Mathlib
 Source: https://oeis.org/A183247
 Credit: @bmendonca3
 
+[Full Lean proof by @jiyongparkphysics](https://github.com/jiyongparkphysics/open-math-agents/blob/46ae96cadf00e887a5efafe674e510df2486a43d/proofs/oeis-a183247.lean)
+
+[Independent Lean proofs of a(2) = 1708 and a(3) = 13365](https://github.com/bmendonca3/open-math-agents/blob/2f6956a9b734510c92ed8899086f3ba37e088c72/research/displaced-permutations/FiniteValues.lean)
+
 Entry A183247 (R. H. Hardin, Jan 03 2011), offset 1, data 265, 1708, 13365, 114124, 998112,
 8751552, ...
 Formula section:
