@@ -22,7 +22,7 @@ def IsGrundy (g : ℕ → ℕ → ℕ) : Prop :=
     (∀ m : ℕ, m < g a b → ∃ c d : ℕ, Move a b c d ∧ g c d = m)
 
 /-- The row indexed by 4, with the recurrence interpreted over the integers. -/
-def a (g : ℕ → ℕ → ℕ) (n : ℕ) : ℤ := g 4 n
+def a (g : ℕ → ℕ → ℕ) (n : ℕ) : ℤ := Int.ofNat (g 4 n)
 
 /-- Numerator of the conjectured ordinary generating function. -/
 def numerator (x : PowerSeries ℤ) : PowerSeries ℤ :=
@@ -30,12 +30,13 @@ def numerator (x : PowerSeries ℤ) : PowerSeries ℤ :=
     x^14 + 4 * x^13 - 5 * x^12 - x^11 + 5 * x^10 + 7 * x^9 + x^8 -
     9 * x^7 + 3 * x^6 - x^5 + 5 * x^4 - x^3 - 2 * x^2 + x + 4
 
+def x : PowerSeries ℤ := PowerSeries.X
+
 /-- The generating-function identity is written with its denominator cleared.
 The denominator has constant coefficient 1. -/
 theorem main : ∀ (g : ℕ → ℕ → ℕ), IsGrundy g →
     (∀ n : ℕ, 21 < n → a g n = a g (n - 1) + a g (n - 12) - a g (n - 13)) ∧
-    (let x : PowerSeries ℤ := PowerSeries.X
-     (x^13 - x^12 - x + 1) * PowerSeries.mk (a g) = numerator x) := by
+    ((x^13 - x^12 - x + 1) * PowerSeries.mk (a g) = numerator x) := by
   sorry
 
 end OMA.S_oeis_a004485
