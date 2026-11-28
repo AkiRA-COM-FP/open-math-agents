@@ -9,23 +9,14 @@ squares. Credit: Sudharsan Rajendiran -/
 namespace OMA.P061101
 open OMA.S_oeis_a061101
 
-lemma digitSum_lt {m : ℕ} (h : 10 ≤ m) : (Nat.digits 10 m).sum < m := by
-  rw [Nat.digits_def' (by norm_num) (by omega), List.sum_cons]
-  have := Nat.digit_sum_le 10 (m / 10)
-  omega
-
-lemma dr_spec (m : ℕ) : digitalRoot m < 10 ∧ digitalRoot m % 9 = m % 9 := by
-  induction m using Nat.strong_induction_on with
-  | _ m ih =>
-    rw [digitalRoot]
-    split_ifs with h
-    · exact ⟨h, rfl⟩
-    · obtain ⟨h1, h2⟩ := ih _ (digitSum_lt (by omega))
-      exact ⟨h1, h2.trans (Nat.modEq_nine_digits_sum m).symm⟩
+/-- the squares with digital root 7 (the predicate of the statement). -/
+def P (m : ℕ) : Prop := IsSquare m ∧ digitalRoot m = 7
 
 lemma dr_eq_iff (m r : ℕ) (hr : r < 9) (hr0 : 0 < r) : digitalRoot m = r ↔ m % 9 = r := by
-  obtain ⟨h1, h2⟩ := dr_spec m
-  constructor <;> intro h <;> omega
+  unfold digitalRoot
+  split_ifs with h
+  · subst h; omega
+  · omega
 
 lemma sq_mod (x : ℕ) : x ^ 2 % 9 = 7 ↔ x % 9 = 4 ∨ x % 9 = 5 := by
   rw [Nat.pow_mod]
@@ -72,18 +63,20 @@ end OMA.P061101
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a061101.main := by
   intro n hn
-  unfold OMA.S_oeis_a061101.a
+  change (Even n → 4 * ((Nat.nth OMA.P061101.P (n - 1) : ℕ) : ℤ) = (9 * n - 8) ^ 2) ∧
+    (Odd n → 4 * ((Nat.nth OMA.P061101.P (n - 1) : ℕ) : ℤ) = (9 * n - 1) ^ 2)
   rw [OMA.P061101.nth_eq]
   unfold OMA.P061101.g
   obtain ⟨m, rfl⟩ : ∃ m, n = m + 1 := ⟨n - 1, by omega⟩
   simp only [Nat.add_sub_cancel]
   refine ⟨fun he => ?_, fun ho => ?_⟩
   · obtain ⟨j, hj⟩ := he
-    have h1 : 9 * (m / 2) + 4 + m % 2 = 9 * j - 4 := by omega
-    have h2 : 9 * (m + 1) - 8 = 2 * (9 * j - 4) := by omega
-    rw [h1, h2, mul_pow]; norm_num
+    have hz : 2 * (((9 * (m / 2) + 4 + m % 2 : ℕ)) : ℤ) = 9 * ((m + 1 : ℕ) : ℤ) - 8 := by omega
+    push_cast at hz ⊢
+    rw [show (4 : ℤ) * ((9 * ((m : ℤ) / 2) + 4 + (m : ℤ) % 2) ^ 2) =
+      (2 * (9 * ((m : ℤ) / 2) + 4 + (m : ℤ) % 2)) ^ 2 by ring, hz]
   · obtain ⟨j, hj⟩ := ho
-    have h1 : 9 * (m / 2) + 4 + m % 2 = 9 * j + 4 := by omega
-    have h2 : 9 * (m + 1) - 1 = 2 * (9 * j + 4) := by omega
-    rw [h1, h2, mul_pow]; norm_num
-
+    have hz : 2 * (((9 * (m / 2) + 4 + m % 2 : ℕ)) : ℤ) = 9 * ((m + 1 : ℕ) : ℤ) - 1 := by omega
+    push_cast at hz ⊢
+    rw [show (4 : ℤ) * ((9 * ((m : ℤ) / 2) + 4 + (m : ℤ) % 2) ^ 2) =
+      (2 * (9 * ((m : ℤ) / 2) + 4 + (m : ℤ) % 2)) ^ 2 by ring, hz]
