@@ -44,7 +44,7 @@ theorem squarefree_square_unique {a b c d : ℕ}
     have e := congrArg (fun z : ℕ => z.factorization p) eq
     simpa only [Nat.factorization_mul (pow_ne_zero _ hb) ha.ne_zero,
       Nat.factorization_mul (pow_ne_zero _ hd) hc.ne_zero,
-      Nat.factorization_pow, Finsupp.add_apply, Finsupp.smul_apply, nsmul_eq_mul] using e
+      Nat.factorization_pow, Finsupp.add_apply, Finsupp.smul_apply, nsmul_eq_mul, Nat.cast_id] using e
   constructor
   · apply factorization_injective ha.ne_zero hc.ne_zero
     ext p
@@ -63,7 +63,7 @@ def squarePairs (N m : ℕ) : Finset (ℕ × ℕ) :=
   ((Icc 1 N) ×ˢ (Icc 1 N)).filter fun p => p.2 ^ 2 * p.1 = m
 
 theorem sum_moebius_squarePairs {N m : ℕ} (hm : 0 < m) (hle : m ≤ N) :
-    ∑ p ∈ squarePairs N m, μ p.1 = sign m := by
+    ∑ p ∈ squarePairs N m, ArithmeticFunction.moebius p.1 = sign m := by
   obtain ⟨a, b, ha, hb, eq, sf⟩ := Nat.sq_mul_squarefree_of_pos hm
   have am : a ≤ m := Nat.le_of_dvd hm ⟨b ^ 2, by rw [← eq, mul_comm]⟩
   have bm : b ≤ m := Nat.le_of_dvd hm ⟨b * a, by rw [← eq, pow_two, mul_assoc]⟩
@@ -159,7 +159,7 @@ private theorem cyclo_divisor_product (z : R) (hz : IsNilpotent z) {n : ℕ} (hn
 
 theorem cyclo_moebius (z : R) (hz : IsNilpotent z) {n : ℕ} (hn : 0 < n) :
     cycloUnit z hz n =
-      ∏ p ∈ n.divisorsAntidiagonal, minusUnit z hz p.2 ^ μ p.1 := by
+      ∏ p ∈ n.divisorsAntidiagonal, minusUnit z hz p.2 ^ ArithmeticFunction.moebius p.1 := by
   exact ((prod_eq_iff_prod_pow_moebius_eq).1
     (fun m hm => cyclo_divisor_product z hz hm.ne') n hn).symm
 
@@ -249,7 +249,7 @@ theorem cyclos_as_sign (z : R) (hz : IsNilpotent z) {N : ℕ} (h : z ^ (N + 1) =
     ∏ n ∈ Icc 1 N, diagonalUnit z hz n = ∏ m ∈ Icc 1 N, minusUnit z hz m ^ sign m := by
   classical
   let index (p : ℕ × ℕ) := p.2 ^ 2 * p.1
-  let f (p : ℕ × ℕ) := minusUnit z hz (index p) ^ μ p.1
+  let f (p : ℕ × ℕ) := minusUnit z hz (index p) ^ ArithmeticFunction.moebius p.1
   have one (n : ℕ) (hn : n ∈ Icc 1 N) :
       diagonalUnit z hz n = ∏ p ∈ n.divisorsAntidiagonal, f p := by
     have hp : 0 < n := (mem_Icc.1 hn).1
@@ -294,7 +294,7 @@ theorem cyclos_as_sign (z : R) (hz : IsNilpotent z) {N : ℕ} (h : z ^ (N + 1) =
       have ⟨mp,mb⟩ := mem_Icc.1 hm
       rw [fibre m mb]
       calc
-        _ = ∏ p ∈ squarePairs N m, minusUnit z hz m ^ μ p.1 := by
+        _ = ∏ p ∈ squarePairs N m, minusUnit z hz m ^ ArithmeticFunction.moebius p.1 := by
           apply prod_congr rfl
           intro p hp
           have eq : index p = m := (mem_filter.1 hp).2
