@@ -4290,6 +4290,271 @@
     "https://oeis.org/A297402"
    ],
    "note": "Jackson's conjecture that the gcd over the first n odd primes equals the gcd over all odd primes. It is stated faithfully as initialGcd n | (p^n-1)/2 for every odd prime p (the reverse divisibility is automatic). Corneth's comments already show the gcd is a power of 2 and settle odd n. The even case is lifting-the-exponent with p = 3 among the first n primes. Routine."
+  },
+  "oeis-a195334": {
+   "date": "2026-11-28",
+   "pr": 21584,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A195334"
+   ],
+   "note": "Mathar's conjecture a(n) = 2*A023194(n). Odd k have even-divisor sum 0, and the even-divisor sum of 2m is 2*sigma(m), so the two sets correspond under k = 2m and Nat.nth matches. The statement is faithful (offset 1, Nat.nth at n-1). No prior public solution was found, but the argument is a two-line observation."
+  },
+  "oeis-a024719": {
+   "date": "2026-11-28",
+   "pr": 21480,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A024719"
+   ],
+   "note": "Mathar's P-recurrence for the partial sums of C(3k,k), stated faithfully (offset 0, n >= 2, over Q). It follows from the hypergeometric ratio of C(3k,k) by telescoping. I checked it numerically for n <= 40. No earlier public proof was found, but this kind of holonomic recurrence is routine."
+  },
+  "oeis-a243927": {
+   "date": "2026-11-28",
+   "pr": 21067,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A243927",
+    "https://oeis.org/A243925"
+   ],
+   "note": "Kimberling's conjecture that every rational occurs exactly once in the x+1, -2/x array. The Lean row construction matches the entry: my recomputation reproduces the data 1,2,2,3,3,5,8,11,... through row 20. Uniqueness is built into the construction. Existence comes from an elementary descent (p/q = f(g(2q/(q-p))), and so on). No prior solution was found."
+  },
+  "oeis-a265942": {
+   "date": "2026-11-28",
+   "pr": 21165,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A265942"
+   ],
+   "note": "Hanna's conjecture a(n) = 2 (mod 4) for n > 2, using the entry's own recursion with a(0) = 1. The definition reproduces the data, and I checked the congruence for n < 40. The proof is a short strong induction mod 4."
+  },
+  "oeis-a211440": {
+   "date": "2026-11-28",
+   "pr": 21134,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211440"
+   ],
+   "note": "Barker's g.f. and order-7 recurrence for counting solutions of 2w+3x+3y = 0 in [-n,n]^3, stated faithfully (offset 0). The proof derives the closed form by n mod 3, the same form R. Israel gave in the entry (2019, without proof), and checks both claims. This is an elementary counting exercise."
+  },
+  "oeis-a226187": {
+   "date": "2026-11-28",
+   "pr": 21063,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A226187",
+    "https://oeis.org/A002387"
+   ],
+   "note": "The conjecture is that a(n+1)/a(n) tends to exp(1/3), where a(n) is the least k with H_k > n/3. It follows from H_k = ln k + gamma + O(1/k), and the proof formalizes Hickerson-type bounds from A002387. The statement is faithful (firstAbove 0 = 1 only shifts one irrelevant term). This is standard asymptotics."
+  },
+  "oeis-a247173": {
+   "date": "2026-11-28",
+   "pr": 16283,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A247173"
+   ],
+   "note": "Mathar's conjectured D-finite recurrence. The power-series encoding (S^2 = P with S(0) = 1, and G*(2x^2+2x)*S = 1-3x^2-2x^3-S) determines G uniquely and matches the g.f. I checked the polynomial coefficients term by term against the entry. The proof derives an ODE from the algebraic g.f., the standard holonomic method."
+  },
+  "oeis-a371898": {
+   "date": "2026-11-28",
+   "pr": 20566,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A371898"
+   ],
+   "note": "Schulte's two conjectures: the column e.g.f. is k! t^k exp(t)/prod(1-it), and the signed row sums give the derangement numbers. The definition matches the name and the PARI rule. The proof converts the recurrence into E(k+1)(1-(k+1)t) = (k+1)t E(k) and telescopes the signed sum into d(n+1) = (n+1)d(n) - (-1)^n. These are standard generating-function manipulations."
+  },
+  "arxiv-1804.09594": {
+   "date": "2026-11-28",
+   "pr": 20738,
+   "routine": false,
+   "evidence": [
+    "https://arxiv.org/abs/1804.09594",
+    "https://github.com/Mapika/open-math-agents/tree/e394e79cf5a2af4160d853b5ae632b3c44abe4bb/research/arxiv-1804.09594"
+   ],
+   "note": "This is Kuca's Conjecture 3.1 (2018): for n = 2^k+1 >= 5, the even terms of V(2,n) are exactly 2, 2n and 2n^2+2. The Lean greedy definition (unordered, not necessarily distinct, exactly one representation) matches the paper, and I recomputed n = 5, 9, 17, 33 up to 40000 ([2,10,52], [2,18,164], [2,34,580], [2,66,2180]). No prior proof turned up on arXiv, Zenodo (the 2026 Funayama note covers only U-sequences), trureturing, thatnealpatel/proofs, openai/math or Palomar. The proof is a substantial 3277-line argument via Sierpinski-type dyadic rows, marked 'STATUS: NEW'."
+  },
+  "oeis-a179648": {
+   "date": "2026-11-28",
+   "pr": 14152,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A179648"
+   ],
+   "note": "Mathar's conjectured order-4 recurrence. The power-series encoding (T^2(1+4x-2x^2) = 1-2x^2, 2xG = 1-T) reproduces the OEIS data, and the Lean coefficients satisfy the recurrence on all listed terms (checked with sympy). The proof uses the standard algebraic-to-holonomic ODE method."
+  },
+  "oeis-a162481": {
+   "date": "2026-11-28",
+   "pr": 14061,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A162481"
+   ],
+   "note": "Mathar's conjectured order-4 recurrence for c(x/(1-x)^3)/(1-x)^3. The encoding reproduces the data, and the recurrence holds on all listed terms (checked). This is a standard holonomic derivation from an algebraic g.f."
+  },
+  "oeis-a172062": {
+   "date": "2026-11-28",
+   "pr": 15104,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A172062"
+   ],
+   "note": "Mathar's conjectured order-2 recurrence (k = 5). I checked the expanded cubic coefficients against the OEIS formula and the encoding against the data, and the recurrence holds on all terms. This is the standard D-finite derivation."
+  },
+  "oeis-a129147": {
+   "date": "2026-11-28",
+   "pr": 14488,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A129147"
+   ],
+   "note": "Mathar's conjectured recurrence for c(x(1+2x)). The encoding 2x(1+2x)G = 1-S with S^2 = 1-4x-8x^2 matches the data, and the recurrence holds on the data. The method is the routine holonomic one."
+  },
+  "oeis-a071264": {
+   "date": "2026-11-28",
+   "pr": 15962,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A071264"
+   ],
+   "note": "Mathar's conjectured order-2 recurrence with large cubic coefficients. The expanded coefficients match the entry, the encoding G = (1+xc^4)c^3 matches the data, and the recurrence holds on all listed terms. This is a routine D-finite derivation."
+  },
+  "oeis-a154623": {
+   "date": "2026-11-28",
+   "pr": 13930,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154623"
+   ],
+   "note": "Mathar's conjectured recurrence for 1+(x/(1-5x))c(x/(1-5x)). The encoding 2G = 3-T with T^2(1-5x) = 1-9x matches the data, and the recurrence was checked on the data. Routine."
+  },
+  "oeis-a132864": {
+   "date": "2026-11-28",
+   "pr": 13807,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A132864"
+   ],
+   "note": "Mathar's conjectured recurrence for 1/(1-4x c(5x)). The encoding (10xc = 1-S, S^2 = 1-20x) matches the data, and the recurrence holds on the data. This is a routine holonomic derivation."
+  },
+  "oeis-a085267": {
+   "date": "2026-11-28",
+   "pr": 20080,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A085267"
+   ],
+   "note": "Greathouse's conjecture a(n) = n+11 for n > 50 (every m >= 62 has at least 2 representations as a nonzero square plus a squarefree number, and exactly 50 terms are <= 61). The statement is faithful (k > 0, n-k^2 squarefree, so >= 1). I confirmed it numerically to 2*10^5. The proof is a large but elementary sieve plus a kernel check below 1.2*10^7; I found no prior proof."
+  },
+  "oeis-a059992": {
+   "date": "2026-11-28",
+   "pr": 19945,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A059992",
+    "https://oeis.org/A002182"
+   ],
+   "note": "De Vlieger's conjecture (Jan 2025) is that every highly composite number other than 2 and 6 is a record for the number of nonprime divisors (d(n) - omega(n), counting 1). The statement is faithful, and I checked it for all 42 HCNs up to 3*10^6. The 1133-line proof uses exponent-vector exchange arguments, a central-binomial estimate for large supports, and certificates for ten residual cases. No prior proof was found in trureturing, thatnealpatel/proofs, Palomar or the OEIS entry."
+  },
+  "oeis-a391613": {
+   "date": "2026-11-28",
+   "pr": 17869,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A391613"
+   ],
+   "note": "The conjecture is that every n > 5 equals x^2+y+z with x >= 1, y >= z >= 1 and lcm(x^2,y,z) a square. The statement is faithful and reproduces the data a(1..25); I checked n < 3000, and the entry reports n <= 150000. The 2651-line proof combines elementary square-scaling families with Legendre's three-square theorem (formalized via Ankeny), a Minkowski determinant-1 lemma, CRT and a genus pigeonhole step. No prior proof was found; the conjecture dates from Jan 2026."
+  },
+  "oeis-a192748": {
+   "date": "2026-11-28",
+   "pr": 19507,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A192748",
+    "https://oeis.org/A154691"
+   ],
+   "note": "This is Mathar's rational g.f. for the listed terms. The name says 'constant term', but the data and the Mathematica program use the x-coefficient of the reduction; the statement follows the data and notes this explicitly (I checked a(1..3) = 0, 1, 4). The proof tracks the remainder pair through a linear recurrence and compares coefficients. This is a routine linear-recurrence verification."
+  },
+  "oeis-a060212": {
+   "date": "2026-11-28",
+   "pr": 19455,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A060212"
+   ],
+   "note": "It disproves White's 2023 heuristic a(n) ~ n log n log(n log n) log log n. A Selberg upper-bound sieve gives #{q <= x} << x/log^3 x, which forces a(n) >> n log^3 n, incompatible with the conjectured order n log^2 n log log n; if the sequence is finite the equivalence fails trivially. The sieve code is reused, with credit, from site PR 2394 (Enamakel). This is a standard sieve argument against an obviously mis-scaled conjecture."
+  },
+  "oeis-a275027": {
+   "date": "2026-11-28",
+   "pr": 19429,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A275027",
+    "https://arxiv.org/abs/1610.03384",
+    "https://arxiv.org/abs/1201.6152"
+   ],
+   "note": "Sun's 2016 conjecture: for p > 5, (a(pn)-a(n))/(pn)^3 is a p-adic integer, where a(n) = Sum C(n,k)^2 C(n-k,k). The entry notes that Sun proved only the p^3 n^2 version. The statement is faithful (p does not divide the denominator of the rational quotient), and I spot-checked p = 7, 11, 13, 17. The 1300-line q-analogue proof uses cyclotomic root multiplicities and a q-WZ identity of Tauraso, reusing Gaussian-binomial lemmas from the site's A179524 proof. No prior proof of the full (pn)^3 statement was found."
+  },
+  "oeis-a192255": {
+   "date": "2026-11-28",
+   "pr": 19378,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A192255",
+    "https://oeis.org/A192254"
+   ],
+   "note": "Dresden's formula a = Sum i^2 F(i-1). Read at the entry's offset 1 it is off by one, so the statement asserts it in the index form that matches the data, a(n+1) = Sum_{i=1..n+1} i^2 F(i-1), which is a defensible reading that covers every term. It follows directly from x^n = F(n) x + F(n-1) modulo x^2-x-1. Routine."
+  },
+  "oeis-a334603": {
+   "date": "2026-11-28",
+   "pr": 19382,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A334603"
+   ],
+   "note": "The statement is that the multiplicative order of 10 mod 11^n is 2*11^(n-1). It is textbook: 10 = -1 (mod 11) and 10^2 = 1 + 9*11 with 11 not dividing 9, so lifting the exponent gives the order. The statement covers only the p = 11 case, not the authors' general (false in general) p^n conjecture, and is faithful."
+  },
+  "oeis-a027116": {
+   "date": "2026-11-28",
+   "pr": 19369,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A027116",
+    "https://oeis.org/A027113"
+   ],
+   "note": "Barker's order-5 recurrence for the triangle diagonal T(n,n+3) of A027113, for n > 7. The Lean triangle reproduces the OEIS data, and the recurrence holds numerically to n = 60. The proof expresses the diagonal through tribonacci numbers, a routine linear-recurrence verification."
+  },
+  "oeis-a193661": {
+   "date": "2026-11-28",
+   "pr": 19361,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A193661",
+    "https://oeis.org/A193673"
+   ],
+   "note": "Mathar's rational g.f. for the Q-residue sequence. The statement follows A193673's data and formula, binomial(n,k)(1+3^(n-k))/2 as the coefficient of x^k, rather than its inconsistent name, and says so; that reading reproduces the data. The proof shows 2*residue(p) = p(2)+p(0), giving 4a(n) = 7^n+3^n+2, which I checked on all listed terms. Routine."
+  },
+  "oeis-a372561": {
+   "date": "2026-11-28",
+   "pr": 19800,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A372561",
+    "https://oeis.org/A372555",
+    "https://oeis.org/A372560"
+   ],
+   "note": "Karttunen's three conjectures, stated faithfully: A372555 = 7 on the 13th antidiagonal from 933 on, A372555 = 9 on the 30th from 58325 on, and A372555(A372560(n,k)) symmetric for n,k > 1. The grid construction reproduces A372560 (27,165,41,...; 233,933,... and 911,58325,...), and minCoins matches the least-Jacobsthal-count definition. An exact DP confirms the small entries (933 and 14933 give 7; 58325 and 933205 give 9; symmetric pairs agree). The 372-line proof uses base-4 digit-sum lower bounds and explicit representations. No prior proof was found."
+  },
+  "arxiv-2603.08876": {
+   "date": "2026-11-28",
+   "pr": 19334,
+   "routine": false,
+   "evidence": [
+    "https://arxiv.org/abs/2603.08876",
+    "https://github.com/nevmaric/lexicut"
+   ],
+   "note": "Maric's Conjecture 5.1: for n >= 7 and 1 < r < 2, an isolated cut C_k (k <= n/2) is a global maximum. The weights r^(N-i) match Definition 2.3. The existential form is equivalent to the conjecture on every threshold interval via the paper's proved Theorem 4.10, and ties at the thresholds are harmless. The paper (Mar 2026) gives only computational evidence and asks for a proof, and I found no follow-up. The 4565-line proof (prefix-score propagation plus interval certificates for n = 7..11) settles it."
   }
  },
  "flagged": {
@@ -4868,6 +5133,63 @@
     "https://arxiv.org/abs/1805.10646"
    ],
    "reason": "Second review: Proves the binary-alphabet version (the abstract's reading). The body's conjecture P(3,n)=4n-2 is over all alphabets and remains formally open; any announcement must say 'binary alphabet'."
+  },
+  "oeis-a085785": {
+   "date": "2026-11-28",
+   "pr": 21607,
+   "evidence": [
+    "https://oeis.org/A085785"
+   ],
+   "reason": "OEIS A085785 has offset 2 (n >= 2), but the statement quantifies over n >= 1. The disproof uses only n = 1: (2*1+1)/4 = 3/4 has ceiling 1 and is a fixed point, so its denominator never drops. This off-by-one is exactly what the proof exploits; the genuine conjecture (n >= 2) is untouched."
+  },
+  "oeis-a308707": {
+   "date": "2026-11-28",
+   "pr": 21256,
+   "evidence": [
+    "https://oeis.org/A308707"
+   ],
+   "reason": "The statement bundles Gerasimov's conjecture (i) (a prime m with a(m-1) = 1 is i^2+1) with Schott's conjecture (iv) (a(m^2) = 1). The disproof refutes only (iv), using m = 14: a(196) = gcd(196, 84+399) = 7, a small counterexample. Conjecture (i) is untouched; it holds numerically for primes below 3*10^5, so marking the entry disproved overstates the result."
+  },
+  "oeis-a157931": {
+   "date": "2026-11-28",
+   "pr": 21180,
+   "evidence": [
+    "https://oeis.org/A157931"
+   ],
+   "reason": "This is not an open conjecture. Sloane's comment is a remark conditional on Goldbach, and the comment itself gives the one-line reason: an odd sum of two primes must use 2. Under Goldbach as a hypothesis, the second part follows directly from the definitions. The statement is faithful, but the 'open problem' is trivial and already justified in the source."
+  },
+  "oeis-a401759": {
+   "date": "2026-11-28",
+   "pr": 20391,
+   "evidence": [
+    "https://oeis.org/A401759"
+   ],
+   "reason": "The comment states its own claim: a(n) is defined iff 2n is a sum of two primes, so it is defined for all n >= 2 iff Goldbach holds, and the entry calls this equivalence 'immediate'. The formal statement is faithful, but it is a tautological unfolding of the definition (Goldbach appears as a hypothesis on both sides), not an open problem."
+  },
+  "opg-dings-tau-r-vs-tau-conjecture": {
+   "date": "2026-11-28",
+   "pr": 20005,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/dings_tau_r_vs_tau_conjecture"
+   ],
+   "reason": "The 'counterexample' (the edge clutter of the 9-cycle, r = 2) uses the statement's literal Lehman property, which requires every edge of H and every minimal transversal in b(H) to have the uniform sizes r and s; C9 has minimal transversals of sizes 5 and 6. In Lehman's theorem these conditions concern the minimum-cardinality members (the cores), and odd holes are the textbook clutters that do have Lehman's property. The Garden page itself says Ding proved the conjecture for r = 2, so the disproof refutes a mis-formalization, not Ding's conjecture."
+  },
+  "oeis-a326326": {
+   "date": "2026-11-28",
+   "pr": 16928,
+   "evidence": [
+    "https://oeis.org/A326326",
+    "https://oeis.org/A132393"
+   ],
+   "reason": "Schulte's 'conjecture' T(n,k) = Sum_i c(i,k) is immediate: the unsigned Stirling numbers of the first kind are by definition (or by the most standard identity) the coefficients of the rising factorial, and T is the coefficientwise sum of the rising factorials. The proof is a 48-line induction re-deriving that identity. The statement is faithful, but trivial."
+  },
+  "oeis-a330700": {
+   "date": "2026-11-28",
+   "pr": 19379,
+   "evidence": [
+    "https://oeis.org/A330700"
+   ],
+   "reason": "The disproof refutes Spezia's comment as literally printed: at n = 2, e2(M(2)) = 0 but a(2) = 5. The statement header itself says the printed text has an index shift and that |e2(M(n))| = a(n-1) holds numerically. So this exploits an off-by-one typo; the intended shifted conjecture is untouched."
   }
  },
  "known": {
@@ -10370,6 +10692,186 @@
     "https://github.com/rbajaj5/a183068-supercongruence/blob/main/verification/related/verify_a049505_symmetric_plane_partitions.py"
    ],
    "reason": "Second review: Same three Bala congruences as the site's conjunction: a(p) == 2^((p+1)/2) mod p^3 (odd p), a(p^2) == (-1)^((p^2-1)/8) a(p)^(p^2-p+1) mod p^3 (odd p), a(p^3) == a(p^2)^((p^3-p^2+2)/2) mod p^3 (every prime, p=2 handled as a finite boundary case), with the same product over 1<=i<=j<=N. Proved via the stronger a(p^r) == 2^((p^r+1)/2) mod p^3 in PR #77 (commit 7de15fe); informal Markdown proof + 229 exact checks, no Lean, priority unclaimed, not peer-reviewed. Site proof merged ~4 months later (#11276)."
+  },
+  "oeis-a113256": {
+   "date": "2026-11-28",
+   "pr": 21542,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/dement-2005-a113249-odd-index-squares.md",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A113254FamilyFormPerfect.lean",
+    "https://oeis.org/A113254"
+   ],
+   "reason": "The statement is the whole-family conjecture from A113249 (a(m,2n+1) is a square for all m, n), stated faithfully. The full family was already proved in trureturing (Oct 20 2026) and thatnealpatel/proofs (A113254FamilyFormPerfect, Oct 21 2026), and A113254 records an AI proof for m = 8 (May 2026). An earlier solve on this site, oeis-a113249 (PR #7849, Nov 27), has the same statement."
+  },
+  "oeis-a113254": {
+   "date": "2026-11-28",
+   "pr": 21513,
+   "evidence": [
+    "https://oeis.org/A113254",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A113254FamilyFormPerfect.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/dement-2005-a113249-odd-index-squares.md"
+   ],
+   "reason": "This is the same whole-family square conjecture (A113249-A113256). The OEIS entry itself records a proof for m = 8 (Ralf Stephan, May 25 2026). The full family is proved in thatnealpatel/proofs (A113254FamilyFormPerfect) and in trureturing, and it duplicates the earlier site solve oeis-a113249."
+  },
+  "oeis-a113253": {
+   "date": "2026-11-28",
+   "pr": 21506,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/dement-2005-a113249-odd-index-squares.md",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A113254FamilyFormPerfect.lean",
+    "https://oeis.org/A113254"
+   ],
+   "reason": "This is the same whole-family square conjecture as A113249-A113256, stated faithfully. Proofs for all m are in trureturing (Oct 2026) and thatnealpatel/proofs (Oct 2026), and it duplicates the earlier site solve oeis-a113249 (PR #7849)."
+  },
+  "OeisA229232.conjecture_4": {
+   "date": "2026-11-28",
+   "pr": 4607,
+   "evidence": [
+    "https://arxiv.org/abs/2610.06289",
+    "https://evidencepress.org/releases/sun-circular-primitive-permutation/",
+    "https://oeis.org/A229232"
+   ],
+   "reason": "Sun's finite-field conjecture with offset -1. Luo and She (arXiv:2610.06289, Oct 5 2026) proved it for q > 18,888,871, and the Evidence Press release (Oct 12 2026) classified all remaining (q, a0), the only failure being (11, 2), so a0 = -1 holds for every q > 7. The proof header says it follows Luo-She and cites that prior classification. It is a faithful formalization of an already-settled result."
+  },
+  "OeisA229232.conjecture_5": {
+   "date": "2026-11-28",
+   "pr": 4972,
+   "evidence": [
+    "https://arxiv.org/abs/2610.06289",
+    "https://evidencepress.org/releases/sun-circular-primitive-permutation/",
+    "https://oeis.org/A229232"
+   ],
+   "reason": "This is the offset +1 version. Luo-She (arXiv:2610.06289) prove it for q > 18,888,871, and the Evidence Press computational classification of all offsets (Oct 12 2026) settles the remaining fields. The proof header states it follows Luo-She and cites that classification. The formal statement is faithful (an equivalence Fin (q-1) to the units, cyclic, IsPrimitiveRoot of order q-1)."
+  },
+  "oeis-a222955": {
+   "date": "2026-11-28",
+   "pr": 21356,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/least-squares-zero-slope-binary-words.md",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Combinatorics/A222955BinaryWordCounted.lean",
+    "https://oeis.org/A222955"
+   ],
+   "reason": "Wiseman's conjecture characterizing the counted words by palindromic position sums is stated faithfully. It was already proved in trureturing (LeastSquaresBinaryFit, Sep 2026) and in thatnealpatel/proofs (A222955BinaryWordCounted, Oct 21 2026), both before this solve (Nov 28)."
+  },
+  "oeis-a350532": {
+   "date": "2026-11-28",
+   "pr": 21070,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/kagey350532-perfectpowers.md",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/kagey350532-trinomials.md",
+    "https://oeis.org/A350532"
+   ],
+   "reason": "The statement bundles Kagey's three conjectures. The disproof uses n = 15 (1+x+...+x^15 = ((x+1)^5)^3 over GF(2)) against conjecture 1; that counterexample was already recorded in the trureturing experiment (Nov 2 2026). trureturing also kernel-proved conjectures 2 and 3 (T(2n,2) = n, T(2n,3) = (n^2-n)/2), so 'disproved' applies only to the first conjecture."
+  },
+  "oeis-a389472": {
+   "date": "2026-11-28",
+   "pr": 21243,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a389472-square-cube-substitution-odd-index-parity.md",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/h3894-square-cube-three-index.md",
+    "https://oeis.org/A389472"
+   ],
+   "reason": "Hanna's two congruences (a(2n-1) even and a(3n-1) divisible by 3 for n > 1) are stated faithfully, with a(2) = 1 fixed by the data. Both were already kernel-proved in trureturing (SquareCubeSubstitutionOddIndexParity, Sep 2026, and SquareCubeSubstitutionThreeIndexModThree, Nov 6 2026) before this solve (Nov 28)."
+  },
+  "mo-271503": {
+   "date": "2026-11-28",
+   "pr": 21036,
+   "evidence": [
+    "https://mathoverflow.net/questions/271503"
+   ],
+   "reason": "The statement's own header says the claim (median < mean for a sample mean of i.i.d. lognormals) follows from Kwapien 1994: Med f(Z) <= E f(Z) for convex f of a Gaussian vector, via Ehrhard. The proof header likewise credits Kwapien and the Gozlan-Madiman-Roberto-Samson and Barthe-Huet methods. It is a substantial formalization of a known theorem, not a new result."
+  },
+  "opg-general-position-subsets": {
+   "date": "2026-11-28",
+   "pr": 20915,
+   "evidence": [
+    "https://arxiv.org/abs/2610.34254",
+    "https://www.openproblemgarden.org/op/general_position_subsets"
+   ],
+   "reason": "The statement (f(n) = O(n^2): C n^2 points force n collinear or n in general position) faithfully renders the Garden conjecture. The proof header says it formalizes Theorems 1 and 3 of Pham, Quang-Ham and Xue, arXiv:2610.34254 (Oct 25 2026), whose abstract claims exactly this optimal quadratic bound, proving the Payne-Wood conjecture. It formalizes a published prior solution."
+  },
+  "oeis-a237048": {
+   "date": "2026-11-28",
+   "pr": 20661,
+   "evidence": [
+    "https://oeis.org/A067742",
+    "https://oeis.org/A237048"
+   ],
+   "reason": "These are Pol's Conjectures 1, 3, 4 and 6 on A237048. A067742 contains Sloane's Jan 2021 comment 'Theorem 1 (iii): a(n) = Sum (-1)^(k+1) A237048(n,k) ... The proofs are straightforward. These results were conjectured by Omar E. Pol in 2017', which covers Conjecture 1. Conjectures 3, 4 and 6 follow at once from Hoft's characterization in the entry, so the result is known and elementary."
+  },
+  "oeis-a128057": {
+   "date": "2026-11-28",
+   "pr": 14779,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a128057-three-term-recurrence.md",
+    "https://oeis.org/A128057"
+   ],
+   "reason": "This is the same statement (Mathar's three-term recurrence for (1+x)/sqrt(1+4x^2), Q[[X]] encoding, n >= 2). It was already kernel-proved in trureturing (MatharA128057ThreeTermRecurrence, merged around Nov 15 2026 via PR #30499), before this solve (Nov 27). It is also routine."
+  },
+  "oeis-a188648": {
+   "date": "2026-11-28",
+   "pr": 20375,
+   "evidence": [
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A188648SumYanev.lean",
+    "https://oeis.org/A188648"
+   ],
+   "reason": "Yanev's terminating 4F3 identity is stated faithfully (rising factorials, 1/16, offset 0). It was already proved in thatnealpatel/proofs (A188648SumYanev, Oct 2026) by the same argument (k-th term = C(n+k,2k)^2, then reindex)."
+  },
+  "oeis-a360068": {
+   "date": "2026-11-28",
+   "pr": 20243,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/6b8f1ff6eb515521a66fda777485229ddc416106/D5/S3/Combinatorics/SquarefreeMeanPartition.lean",
+    "https://github.com/thatnealpatel/proofs/blob/f67b10cb3a27db47551e76c4897a959417f3521c/Proofs/Combinatorics/A360070GusWisemanSquarefree.lean",
+    "https://oeis.org/A360068"
+   ],
+   "reason": "'a(n) = 0 for squarefree n >= 2' is exactly Wiseman's A360070 conjecture (no squarefree term > 1). That was proved in trureturing (Sep 23 2026) and thatnealpatel/proofs (Oct 21 2026) with the same n*k = L^2 argument, and it duplicates the earlier site solve oeis-a360070. Excluding n = 1 is correct, since a(1) = 1."
+  },
+  "oeis-a082381": {
+   "date": "2026-11-28",
+   "pr": 20119,
+   "evidence": [
+    "https://oeis.org/A080709",
+    "https://oeis.org/A007770",
+    "https://oeis.org/A082381"
+   ],
+   "reason": "Every positive integer under the sum-of-squared-digits map reaches 1 or the 8-cycle 4,16,37,58,89,145,42,20. This is the classical happy-number theorem (Porges 1945, 'A set of eight numbers', cited in A080709; standard in El-Sedy and Siksek). The proof is the textbook descent plus a finite check, so the 'conjecture' is long settled."
+  },
+  "erdos-1151": {
+   "date": "2026-11-28",
+   "pr": 19928,
+   "evidence": [
+    "https://www.erdosproblems.com/forum/thread/1151",
+    "https://github.com/AllenGrahamHart/FormalConjectures-Bench/tree/main/formalizations/erdos1151",
+    "https://www.erdosproblems.com/1151"
+   ],
+   "reason": "The statement follows Erdős's [Er43] reading (x = cos(pi p/q), p and q odd; limit points equal any nonempty closed A in [-1,1]). On the forum, Przemek Chojecki posted an elementary 'primitive row' solution (Apr 30 2026), which Nat Sothanaphan checked, and Allen Hart posted a partial Lean formalization (May 2026). This proof uses the same 'primitive-row block-spike construction', so it formalizes a public solution."
+  },
+  "oeis-a389100": {
+   "date": "2026-11-28",
+   "pr": 17567,
+   "evidence": [
+    "https://oeis.org/A389100"
+   ],
+   "reason": "'A387054 is a subsequence of A389100' is answered in the entry itself: Pontus von Bromssen (Sep 26 2025) notes it 'follows easily from the definitions', since a term of A388654 not in A070003 cannot come from a singleton interval. The 16-line proof is exactly that unfolding, so it is trivial and already settled in the source."
+  },
+  "oeis-a140869": {
+   "date": "2026-11-28",
+   "pr": 17450,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a140869-sundaram-triangle-complement-prime.md",
+    "https://oeis.org/A140869"
+   ],
+   "reason": "Librandi's Sundaram-type claim: if h is not a T(m,n) then 4h+5 is prime. The contrapositive is immediate, since a composite 4h+5 = (2n+1)(2m+1) gives T(m,n) = h. It was already kernel-proved in trureturing (LibrandiSundaramTriangleComplementPrime, around Sep 13 2026), well before this solve (Nov 27). It is also elementary."
+  },
+  "oeis-a175254": {
+   "date": "2026-11-28",
+   "pr": 19355,
+   "evidence": [
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A175254Refutation.lean",
+    "https://oeis.org/A175254"
+   ],
+   "reason": "Mathar's formula a(n) = Sum A006218(n-k) fails at n = 2 (5 vs 4), the same counterexample thatnealpatel/proofs recorded in A175254Refutation (Oct 2026), which also proves the intended identity with A024916. The formula is evidently a slip (A006218 written for A024916), so this refutes a typo, and the refutation was already public."
   }
  },
  "reviewed": "2026-11-28"
