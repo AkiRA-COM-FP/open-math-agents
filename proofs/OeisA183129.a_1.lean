@@ -1,16 +1,10 @@
 import FormalConjectures.OEIS.«183129»
 
-/-! The first-coefficient formula for powers eliminates every substitution term except the linear one. -/
+/-! Only the linear term survives: the substituted series has zero constant coefficient. -/
 
 open OeisA183129 PowerSeries in
 theorem OMA.solution : type_of% @OeisA183129.a_1 := by
   change coeff 1 (subst _ (exp ℚ)) = 1
-  rw [coeff_subst' (HasSubst.of_constantCoeff_zero' (by simp [hannaLog]))]
-  rw [finsum_eq_single _ 1]
+  rw [coeff_subst' (HasSubst.of_constantCoeff_zero' (by simp [hannaLog])), finsum_eq_single _ 1]
   · simp [coeff_exp, hannaLog, coeff_mk]
-  · intro d hd
-    cases d with
-    | zero => simp
-    | succ d =>
-      have : d ≠ 0 := by omega
-      simp [coeff_one_pow, hannaLog, this]
+  · rintro (_ | _ | d) hd <;> simp_all [coeff_one_pow, hannaLog]
