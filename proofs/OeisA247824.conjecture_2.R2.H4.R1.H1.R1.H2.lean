@@ -7,6 +7,7 @@ import Mathlib
 The finite tables in this file are proved correct by
 induction. A square-cutoff form of Legendre's recurrence and a Meissel
 semiprime correction reduce the numerical calculation to checked rows.
+A period of 2,310 computes the survivor count through the first five primes.
 The Meissel identity comes from Physbuzz's published reduction for A247824.
 The Legendre recursion adapts Daniel Veljjanoski's Palomar proof as formalized
 by rleshner in OeisA100475.conjecture (Apache-2.0).
@@ -15,6 +16,145 @@ Reference: https://github.com/GuillaumeBAUD-coder/open-math-agents/pull/9315
 -/
 
 /- Certified wheel indices for counting primes using the eight reduced classes modulo thirty. -/
+namespace ShortPeriod
+
+open Finset
+
+def cop (n : ℕ) : Bool := decide (n%2≠0 ∧ n%3≠0 ∧ n%5≠0 ∧ n%7≠0 ∧ n%11≠0)
+
+private def pop (x : ℕ) : ℕ :=
+  let a := x - ((x >>> 1) &&& 0x5555555555555555)
+  let b := (a &&& 0x3333333333333333) + ((a >>> 2) &&& 0x3333333333333333)
+  let c := (b+(b >>> 4)) &&& 0x0f0f0f0f0f0f0f0f
+  ((c*0x0101010101010101) >>> 56)%256
+
+private def withinPeriod (n : ℕ) : ℕ :=
+  let word := (0x1df000000000000002001d10228828228820a0801c4a08820228a20008801b628028208a20a00a201aa8008028a20a08820019c828228220808a208018f08200a20a082288201828228200a00a288200176228800a08a088200016828a2020882882820015a0a20a08a28028028014c820a082208282282013f20808a08808220a201330808228028228a000124a00a28808228820a011808808820228a2020010a8820828208a20a0800fba28028028220a08a00ef20820228200808a200e38808020a2020822800d5828220a00a00a28800c728228820a082088200ba0228a2020880882800ad208a20808a280280009f28a20a00a2080822009382208088288082200084a20a08220828208a007700a00a2882822802006a0a08a08820228a00005d208828828008a202005008a28028020a20a000438a208282280208080035228808220a20a082002808828228a00800a2001b8028228820a00a08000e800228a202088288000028208a20a08a2002 >>> (80*(n/64)))%(2^80)
+  (word >>> 64)+pop (word%(2^(n%64+1)))
+
+def wheel (n : ℕ) : ℕ := (n/2310)*480+withinPeriod (n%2310)
+
+private def check (r : ℕ) : Bool :=
+  wheel (r+1) == wheel r + (if cop (r+1) then 1 else 0)
+
+private def valid (lo len : ℕ) : Prop := (List.range' lo len).all check=true
+private theorem glue {lo a b : ℕ} (u : valid lo a) (v : valid (lo+a) b) : valid lo (a+b) := by
+  unfold valid at *
+  rw [← List.range'_append_1,List.all_append,u,v]
+  rfl
+
+private theorem b0 : valid 0 72 := by unfold valid; decide +kernel
+
+private theorem b72 : valid 72 72 := by unfold valid; decide +kernel
+
+private theorem b144 : valid 144 72 := by unfold valid; decide +kernel
+
+private theorem b216 : valid 216 72 := by unfold valid; decide +kernel
+
+private theorem b288 : valid 288 72 := by unfold valid; decide +kernel
+
+private theorem b360 : valid 360 72 := by unfold valid; decide +kernel
+
+private theorem b432 : valid 432 72 := by unfold valid; decide +kernel
+
+private theorem b504 : valid 504 73 := by unfold valid; decide +kernel
+
+private theorem b577 : valid 577 72 := by unfold valid; decide +kernel
+
+private theorem b649 : valid 649 72 := by unfold valid; decide +kernel
+
+private theorem b721 : valid 721 72 := by unfold valid; decide +kernel
+
+private theorem b793 : valid 793 73 := by unfold valid; decide +kernel
+
+private theorem b866 : valid 866 72 := by unfold valid; decide +kernel
+
+private theorem b938 : valid 938 72 := by unfold valid; decide +kernel
+
+private theorem b1010 : valid 1010 72 := by unfold valid; decide +kernel
+
+private theorem b1082 : valid 1082 73 := by unfold valid; decide +kernel
+
+private theorem b1155 : valid 1155 72 := by unfold valid; decide +kernel
+
+private theorem b1227 : valid 1227 72 := by unfold valid; decide +kernel
+
+private theorem b1299 : valid 1299 72 := by unfold valid; decide +kernel
+
+private theorem b1371 : valid 1371 72 := by unfold valid; decide +kernel
+
+private theorem b1443 : valid 1443 72 := by unfold valid; decide +kernel
+
+private theorem b1515 : valid 1515 72 := by unfold valid; decide +kernel
+
+private theorem b1587 : valid 1587 72 := by unfold valid; decide +kernel
+
+private theorem b1659 : valid 1659 73 := by unfold valid; decide +kernel
+
+private theorem b1732 : valid 1732 72 := by unfold valid; decide +kernel
+
+private theorem b1804 : valid 1804 72 := by unfold valid; decide +kernel
+
+private theorem b1876 : valid 1876 72 := by unfold valid; decide +kernel
+
+private theorem b1948 : valid 1948 73 := by unfold valid; decide +kernel
+
+private theorem b2021 : valid 2021 72 := by unfold valid; decide +kernel
+
+private theorem b2093 : valid 2093 72 := by unfold valid; decide +kernel
+
+private theorem b2165 : valid 2165 72 := by unfold valid; decide +kernel
+
+private theorem b2237 : valid 2237 73 := by unfold valid; decide +kernel
+
+private theorem allrows : valid 0 2310 := (glue (lo:=0) (a:=1155) (b:=1155) (glue (lo:=0) (a:=577) (b:=578) (glue (lo:=0) (a:=288) (b:=289) (glue (lo:=0) (a:=144) (b:=144) (glue (lo:=0) (a:=72) (b:=72) b0 b72) (glue (lo:=144) (a:=72) (b:=72) b144 b216)) (glue (lo:=288) (a:=144) (b:=145) (glue (lo:=288) (a:=72) (b:=72) b288 b360) (glue (lo:=432) (a:=72) (b:=73) b432 b504))) (glue (lo:=577) (a:=289) (b:=289) (glue (lo:=577) (a:=144) (b:=145) (glue (lo:=577) (a:=72) (b:=72) b577 b649) (glue (lo:=721) (a:=72) (b:=73) b721 b793)) (glue (lo:=866) (a:=144) (b:=145) (glue (lo:=866) (a:=72) (b:=72) b866 b938) (glue (lo:=1010) (a:=72) (b:=73) b1010 b1082)))) (glue (lo:=1155) (a:=577) (b:=578) (glue (lo:=1155) (a:=288) (b:=289) (glue (lo:=1155) (a:=144) (b:=144) (glue (lo:=1155) (a:=72) (b:=72) b1155 b1227) (glue (lo:=1299) (a:=72) (b:=72) b1299 b1371)) (glue (lo:=1443) (a:=144) (b:=145) (glue (lo:=1443) (a:=72) (b:=72) b1443 b1515) (glue (lo:=1587) (a:=72) (b:=73) b1587 b1659))) (glue (lo:=1732) (a:=289) (b:=289) (glue (lo:=1732) (a:=144) (b:=145) (glue (lo:=1732) (a:=72) (b:=72) b1732 b1804) (glue (lo:=1876) (a:=72) (b:=73) b1876 b1948)) (glue (lo:=2021) (a:=144) (b:=145) (glue (lo:=2021) (a:=72) (b:=72) b2021 b2093) (glue (lo:=2165) (a:=72) (b:=73) b2165 b2237)))))
+
+private theorem wheel_shift (q r : ℕ) : wheel (2310*q+r)=q*480+wheel r := by
+  simp [wheel,Nat.mul_add_div (by decide : 0<2310),Nat.add_mul,Nat.add_assoc]
+
+private theorem cop_shift (q r : ℕ) : cop (2310*q+r)=cop r := by
+  have m2 : (2310*q+r)%2 = r%2 := by rw [show 2310*q=2*(1155*q) by ring,Nat.mul_add_mod]
+  have m3 : (2310*q+r)%3 = r%3 := by rw [show 2310*q=3*(770*q) by ring,Nat.mul_add_mod]
+  have m5 : (2310*q+r)%5 = r%5 := by rw [show 2310*q=5*(462*q) by ring,Nat.mul_add_mod]
+  have m7 : (2310*q+r)%7 = r%7 := by rw [show 2310*q=7*(330*q) by ring,Nat.mul_add_mod]
+  have m11 : (2310*q+r)%11 = r%11 := by rw [show 2310*q=11*(210*q) by ring,Nat.mul_add_mod]
+  simp only [cop,m2,m3,m5,m7,m11]
+
+theorem wheel_succ (t : ℕ) :
+    wheel (t+1)=wheel t+(if cop (t+1) then 1 else 0) := by
+  let r := t%2310
+  let q := t/2310
+  have split : t=2310*q+r := (Nat.div_add_mod t 2310).symm
+  have h : (List.range 2310).all check=true := by rw [List.range_eq_range'];exact allrows
+  have item := List.all_eq_true.mp h r (List.mem_range.mpr (Nat.mod_lt t (by decide)))
+  have step : wheel (r+1)=wheel r+(if cop (r+1) then 1 else 0) := beq_iff_eq.mp item
+  rw [split,Nat.add_assoc,wheel_shift,wheel_shift,cop_shift,step,Nat.add_assoc]
+
+private theorem cop_iff (n : ℕ) : cop n=true ↔ ∀ p ∈ Nat.primesLE 11, ¬ p ∣ n := by
+  have ps : Nat.primesLE 11 = ({2,3,5,7,11} : Finset ℕ) := by decide +kernel
+  rw [ps]
+  simp [cop,Nat.dvd_iff_mod_eq_zero]
+
+theorem count_rough (t : ℕ) :
+    ((Icc 1 t).filter (fun n => ∀ p ∈ Nat.primesLE 11, ¬ p ∣ n)).card = wheel t := by
+  induction t with
+  | zero => decide +kernel
+  | succ n ih =>
+    have interval : Icc 1 (n+1) = insert (n+1) (Icc 1 n) := by
+      ext k
+      simp only [mem_Icc,mem_insert]
+      omega
+    have fresh : n+1 ∉ Icc 1 n := by simp
+    rw [interval,Finset.filter_insert,wheel_succ,←ih]
+    by_cases hp : ∀ p ∈ Nat.primesLE 11, ¬p ∣ n+1
+    · rw [if_pos hp,(cop_iff _).mpr hp]
+      exact Finset.card_insert_of_notMem (fun mem => fresh (Finset.mem_filter.mp mem).1)
+    · have no : cop (n+1)=false := Bool.eq_false_iff.mpr (mt (cop_iff _).mp hp)
+      rw [if_neg hp,no]
+      simp
+
+end ShortPeriod
+
 namespace WheelTableA590
 
 def index (n : ℕ) : ℕ := 8*(n/30) + ((703383147439395582067753010374709520 : ℕ) >>> (4*(n%30)))%16
@@ -2022,7 +2162,7 @@ def advance (p : ℕ) (f : ℕ → ℕ) (x : ℕ) :=
 
 private def evalPhi (table : ℕ → ℕ) : List ℕ → ℕ → ℕ
   | [], t => t
-  | p :: ps, t => if t < p then (if t=0 then 0 else 1) else
+  | p :: ps, t => if p=11 then ShortPeriod.wheel t else if t < p then (if t=0 then 0 else 1) else
       if t < (p+1)^2 then 1 + table t - table p else
         evalPhi table ps t - evalPhi table ps (t/p)
 
@@ -2047,14 +2187,20 @@ private theorem refine_row {bound p : ℕ} (tab : ℕ → ℕ) (ok : ∀ t, t �
     (pos : 0 < p) (cap : (p+1)^2 ≤ bound+1) : ∀ t,
     (p::ps).foldr advance id t = evalPhi tab (p::ps) t := by
   intro t
+  by_cases hbase : p=11
+  · subst p
+    have val : (11::ps).foldr advance id t = ShortPeriod.wheel t := by
+      rw [←lst]
+      exact (legendre_range 11 t).trans (ShortPeriod.count_rough t)
+    simpa [evalPhi] using val
   by_cases sm : t < p
-  · simp [List.foldr_cons,advance,evalPhi,sm]
+  · simp [List.foldr_cons,advance,evalPhi,hbase,sm]
   · by_cases short : t < (p+1)^2
     · have h := square_cut pos (by omega : p ≤ t) short
       rw [lst] at h
-      rw [evalPhi,if_neg sm,if_pos short,ok t (by omega),ok p (by omega)]
+      rw [evalPhi,if_neg hbase,if_neg sm,if_pos short,ok t (by omega),ok p (by omega)]
       omega
-    · simp only [List.foldr_cons,advance,evalPhi,if_neg sm,if_neg short,prev]
+    · simp only [List.foldr_cons,advance,evalPhi,if_neg hbase,if_neg sm,if_neg short,prev]
 
 private def primeBit (tab : ℕ → ℕ) (n : ℕ) : Bool :=
   if n=0 then false else decide (tab (n-1) < tab n)
@@ -2085,10 +2231,10 @@ private theorem merge_filter (f : ℕ → Bool) (lo a b : ℕ) (l r : List ℕ)
   rw [←List.range'_append_1,List.filter_append,hl,hr]
 
 private theorem eval_delta (tab : ℕ → ℕ) (ps : List ℕ) (p n q old dec ans : ℕ)
-    (le : p ≤ n) (sq : (p+1)^2 ≤ n) (div : n/p = q)
+    (notWheel : p≠11) (le : p ≤ n) (sq : (p+1)^2 ≤ n) (div : n/p = q)
     (base : evalPhi tab ps n = old) (cut : evalPhi tab ps q = dec) (sub : old-dec=ans) :
     evalPhi tab (p::ps) n = ans := by
-  rw [evalPhi,if_neg (not_lt.mpr le),if_neg (not_lt.mpr sq),div,base,cut,sub]
+  rw [evalPhi,if_neg notWheel,if_neg (not_lt.mpr le),if_neg (not_lt.mpr sq),div,base,cut,sub]
 
 private theorem assemble {x y z a b r : ℕ} (hx : 1 ≤ x) (hy : y ≤ x) (cube : x < (y+1)^3)
     (sq : x < (z+1)^2) (zs : z*z ≤ x)
@@ -2115,7 +2261,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut1 : evalPhi WheelTableA590.fast ps0 295118880 = 295118880 := by decide +kernel
 private theorem value1 : evalPhi WheelTableA590.fast ps1 590237761 = 295118881 :=
   eval_delta WheelTableA590.fast ps0 2 590237761 295118880 590237761 295118880 295118881
-    (by decide) (by decide) rfl value0 cut1 rfl
+    (by decide) (by decide) (by decide) rfl value0 cut1 rfl
 
 private def ps2 : List ℕ := 3 :: ps1
 private theorem row2 :
@@ -2129,7 +2275,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut2 : evalPhi WheelTableA590.fast ps1 196745920 = 98372960 := by decide +kernel
 private theorem value2 : evalPhi WheelTableA590.fast ps2 590237761 = 196745921 :=
   eval_delta WheelTableA590.fast ps1 3 590237761 196745920 295118881 98372960 196745921
-    (by decide) (by decide) rfl value1 cut2 rfl
+    (by decide) (by decide) (by decide) rfl value1 cut2 rfl
 
 private def ps3 : List ℕ := 5 :: ps2
 private theorem row3 :
@@ -2143,7 +2289,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut3 : evalPhi WheelTableA590.fast ps2 118047552 = 39349184 := by decide +kernel
 private theorem value3 : evalPhi WheelTableA590.fast ps3 590237761 = 157396737 :=
   eval_delta WheelTableA590.fast ps2 5 590237761 118047552 196745921 39349184 157396737
-    (by decide) (by decide) rfl value2 cut3 rfl
+    (by decide) (by decide) (by decide) rfl value2 cut3 rfl
 
 private def ps4 : List ℕ := 7 :: ps3
 private theorem row4 :
@@ -2157,7 +2303,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut4 : evalPhi WheelTableA590.fast ps3 84319680 = 22485248 := by decide +kernel
 private theorem value4 : evalPhi WheelTableA590.fast ps4 590237761 = 134911489 :=
   eval_delta WheelTableA590.fast ps3 7 590237761 84319680 157396737 22485248 134911489
-    (by decide) (by decide) rfl value3 cut4 rfl
+    (by decide) (by decide) (by decide) rfl value3 cut4 rfl
 
 private def ps5 : List ℕ := 11 :: ps4
 private theorem row5 :
@@ -2166,12 +2312,7 @@ private theorem row5 :
   decide +kernel
 private theorem agree5 : ∀ t, ps5.foldr advance id t = evalPhi WheelTableA590.fast ps5 t :=
   refine_row WheelTableA590.fast WheelTableA590.fast_correct _ row5 agree4 (by decide) (by decide)
-set_option maxRecDepth 7000 in
-set_option maxHeartbeats 4000000 in
-private theorem cut5 : evalPhi WheelTableA590.fast ps4 53657978 = 12264681 := by decide +kernel
-private theorem value5 : evalPhi WheelTableA590.fast ps5 590237761 = 122646808 :=
-  eval_delta WheelTableA590.fast ps4 11 590237761 53657978 134911489 12264681 122646808
-    (by decide) (by decide) rfl value4 cut5 rfl
+private theorem value5 : evalPhi WheelTableA590.fast ps5 590237761 = 122646808 := by decide +kernel
 
 private def ps6 : List ℕ := 13 :: ps5
 private theorem row6 :
@@ -2185,7 +2326,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut6 : evalPhi WheelTableA590.fast ps5 45402904 = 9434370 := by decide +kernel
 private theorem value6 : evalPhi WheelTableA590.fast ps6 590237761 = 113212438 :=
   eval_delta WheelTableA590.fast ps5 13 590237761 45402904 122646808 9434370 113212438
-    (by decide) (by decide) rfl value5 cut6 rfl
+    (by decide) (by decide) (by decide) rfl value5 cut6 rfl
 
 private def ps7 : List ℕ := 17 :: ps6
 private theorem row7 :
@@ -2199,7 +2340,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut7 : evalPhi WheelTableA590.fast ps6 34719868 = 6659554 := by decide +kernel
 private theorem value7 : evalPhi WheelTableA590.fast ps7 590237761 = 106552884 :=
   eval_delta WheelTableA590.fast ps6 17 590237761 34719868 113212438 6659554 106552884
-    (by decide) (by decide) rfl value6 cut7 rfl
+    (by decide) (by decide) (by decide) rfl value6 cut7 rfl
 
 private def ps8 : List ℕ := 19 :: ps7
 private theorem row8 :
@@ -2213,7 +2354,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut8 : evalPhi WheelTableA590.fast ps7 31065145 = 5608047 := by decide +kernel
 private theorem value8 : evalPhi WheelTableA590.fast ps8 590237761 = 100944837 :=
   eval_delta WheelTableA590.fast ps7 19 590237761 31065145 106552884 5608047 100944837
-    (by decide) (by decide) rfl value7 cut8 rfl
+    (by decide) (by decide) (by decide) rfl value7 cut8 rfl
 
 private def ps9 : List ℕ := 23 :: ps8
 private theorem row9 :
@@ -2227,7 +2368,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut9 : evalPhi WheelTableA590.fast ps8 25662511 = 4388904 := by decide +kernel
 private theorem value9 : evalPhi WheelTableA590.fast ps9 590237761 = 96555933 :=
   eval_delta WheelTableA590.fast ps8 23 590237761 25662511 100944837 4388904 96555933
-    (by decide) (by decide) rfl value8 cut9 rfl
+    (by decide) (by decide) (by decide) rfl value8 cut9 rfl
 
 private def ps10 : List ℕ := 29 :: ps9
 private theorem row10 :
@@ -2241,7 +2382,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut10 : evalPhi WheelTableA590.fast ps9 20353026 = 3329515 := by decide +kernel
 private theorem value10 : evalPhi WheelTableA590.fast ps10 590237761 = 93226418 :=
   eval_delta WheelTableA590.fast ps9 29 590237761 20353026 96555933 3329515 93226418
-    (by decide) (by decide) rfl value9 cut10 rfl
+    (by decide) (by decide) (by decide) rfl value9 cut10 rfl
 
 private def ps11 : List ℕ := 31 :: ps10
 private theorem row11 :
@@ -2255,7 +2396,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut11 : evalPhi WheelTableA590.fast ps10 19039927 = 3007306 := by decide +kernel
 private theorem value11 : evalPhi WheelTableA590.fast ps11 590237761 = 90219112 :=
   eval_delta WheelTableA590.fast ps10 31 590237761 19039927 93226418 3007306 90219112
-    (by decide) (by decide) rfl value10 cut11 rfl
+    (by decide) (by decide) (by decide) rfl value10 cut11 rfl
 
 private def ps12 : List ℕ := 37 :: ps11
 private theorem row12 :
@@ -2269,7 +2410,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut12 : evalPhi WheelTableA590.fast ps11 15952371 = 2438362 := by decide +kernel
 private theorem value12 : evalPhi WheelTableA590.fast ps12 590237761 = 87780750 :=
   eval_delta WheelTableA590.fast ps11 37 590237761 15952371 90219112 2438362 87780750
-    (by decide) (by decide) rfl value11 cut12 rfl
+    (by decide) (by decide) (by decide) rfl value11 cut12 rfl
 
 private def ps13 : List ℕ := 41 :: ps12
 private theorem row13 :
@@ -2283,7 +2424,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut13 : evalPhi WheelTableA590.fast ps12 14396042 = 2141003 := by decide +kernel
 private theorem value13 : evalPhi WheelTableA590.fast ps13 590237761 = 85639747 :=
   eval_delta WheelTableA590.fast ps12 41 590237761 14396042 87780750 2141003 85639747
-    (by decide) (by decide) rfl value12 cut13 rfl
+    (by decide) (by decide) (by decide) rfl value12 cut13 rfl
 
 private def ps14 : List ℕ := 43 :: ps13
 private theorem row14 :
@@ -2297,7 +2438,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut14 : evalPhi WheelTableA590.fast ps13 13726459 = 1991607 := by decide +kernel
 private theorem value14 : evalPhi WheelTableA590.fast ps14 590237761 = 83648140 :=
   eval_delta WheelTableA590.fast ps13 43 590237761 13726459 85639747 1991607 83648140
-    (by decide) (by decide) rfl value13 cut14 rfl
+    (by decide) (by decide) (by decide) rfl value13 cut14 rfl
 
 private def ps15 : List ℕ := 47 :: ps14
 private theorem row15 :
@@ -2311,7 +2452,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut15 : evalPhi WheelTableA590.fast ps14 12558250 = 1779707 := by decide +kernel
 private theorem value15 : evalPhi WheelTableA590.fast ps15 590237761 = 81868433 :=
   eval_delta WheelTableA590.fast ps14 47 590237761 12558250 83648140 1779707 81868433
-    (by decide) (by decide) rfl value14 cut15 rfl
+    (by decide) (by decide) (by decide) rfl value14 cut15 rfl
 
 private def ps16 : List ℕ := 53 :: ps15
 private theorem row16 :
@@ -2325,7 +2466,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut16 : evalPhi WheelTableA590.fast ps15 11136561 = 1544589 := by decide +kernel
 private theorem value16 : evalPhi WheelTableA590.fast ps16 590237761 = 80323844 :=
   eval_delta WheelTableA590.fast ps15 53 590237761 11136561 81868433 1544589 80323844
-    (by decide) (by decide) rfl value15 cut16 rfl
+    (by decide) (by decide) (by decide) rfl value15 cut16 rfl
 
 private def ps17 : List ℕ := 59 :: ps16
 private theorem row17 :
@@ -2339,7 +2480,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut17 : evalPhi WheelTableA590.fast ps16 10004029 = 1361244 := by decide +kernel
 private theorem value17 : evalPhi WheelTableA590.fast ps17 590237761 = 78962600 :=
   eval_delta WheelTableA590.fast ps16 59 590237761 10004029 80323844 1361244 78962600
-    (by decide) (by decide) rfl value16 cut17 rfl
+    (by decide) (by decide) (by decide) rfl value16 cut17 rfl
 
 private def ps18 : List ℕ := 61 :: ps17
 private theorem row18 :
@@ -2353,7 +2494,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut18 : evalPhi WheelTableA590.fast ps17 9676028 = 1294241 := by decide +kernel
 private theorem value18 : evalPhi WheelTableA590.fast ps18 590237761 = 77668359 :=
   eval_delta WheelTableA590.fast ps17 61 590237761 9676028 78962600 1294241 77668359
-    (by decide) (by decide) rfl value17 cut18 rfl
+    (by decide) (by decide) (by decide) rfl value17 cut18 rfl
 
 private def ps19 : List ℕ := 67 :: ps18
 private theorem row19 :
@@ -2367,7 +2508,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut19 : evalPhi WheelTableA590.fast ps18 8809518 = 1158977 := by decide +kernel
 private theorem value19 : evalPhi WheelTableA590.fast ps19 590237761 = 76509382 :=
   eval_delta WheelTableA590.fast ps18 67 590237761 8809518 77668359 1158977 76509382
-    (by decide) (by decide) rfl value18 cut19 rfl
+    (by decide) (by decide) (by decide) rfl value18 cut19 rfl
 
 private def ps20 : List ℕ := 71 :: ps19
 private theorem row20 :
@@ -2381,7 +2522,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut20 : evalPhi WheelTableA590.fast ps19 8313207 = 1077343 := by decide +kernel
 private theorem value20 : evalPhi WheelTableA590.fast ps20 590237761 = 75432039 :=
   eval_delta WheelTableA590.fast ps19 71 590237761 8313207 76509382 1077343 75432039
-    (by decide) (by decide) rfl value19 cut20 rfl
+    (by decide) (by decide) (by decide) rfl value19 cut20 rfl
 
 private def ps21 : List ℕ := 73 :: ps20
 private theorem row21 :
@@ -2395,7 +2536,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut21 : evalPhi WheelTableA590.fast ps20 8085448 = 1033122 := by decide +kernel
 private theorem value21 : evalPhi WheelTableA590.fast ps21 590237761 = 74398917 :=
   eval_delta WheelTableA590.fast ps20 73 590237761 8085448 75432039 1033122 74398917
-    (by decide) (by decide) rfl value20 cut21 rfl
+    (by decide) (by decide) (by decide) rfl value20 cut21 rfl
 
 private def ps22 : List ℕ := 79 :: ps21
 private theorem row22 :
@@ -2409,7 +2550,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut22 : evalPhi WheelTableA590.fast ps21 7471364 = 941670 := by decide +kernel
 private theorem value22 : evalPhi WheelTableA590.fast ps22 590237761 = 73457247 :=
   eval_delta WheelTableA590.fast ps21 79 590237761 7471364 74398917 941670 73457247
-    (by decide) (by decide) rfl value21 cut22 rfl
+    (by decide) (by decide) (by decide) rfl value21 cut22 rfl
 
 private def ps23 : List ℕ := 83 :: ps22
 private theorem row23 :
@@ -2423,7 +2564,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut23 : evalPhi WheelTableA590.fast ps22 7111298 = 885085 := by decide +kernel
 private theorem value23 : evalPhi WheelTableA590.fast ps23 590237761 = 72572162 :=
   eval_delta WheelTableA590.fast ps22 83 590237761 7111298 73457247 885085 72572162
-    (by decide) (by decide) rfl value22 cut23 rfl
+    (by decide) (by decide) (by decide) rfl value22 cut23 rfl
 
 private def ps24 : List ℕ := 89 :: ps23
 private theorem row24 :
@@ -2437,7 +2578,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut24 : evalPhi WheelTableA590.fast ps23 6631884 = 815635 := by decide +kernel
 private theorem value24 : evalPhi WheelTableA590.fast ps24 590237761 = 71756527 :=
   eval_delta WheelTableA590.fast ps23 89 590237761 6631884 72572162 815635 71756527
-    (by decide) (by decide) rfl value23 cut24 rfl
+    (by decide) (by decide) (by decide) rfl value23 cut24 rfl
 
 private def ps25 : List ℕ := 97 :: ps24
 private theorem row25 :
@@ -2451,7 +2592,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut25 : evalPhi WheelTableA590.fast ps24 6084925 = 740181 := by decide +kernel
 private theorem value25 : evalPhi WheelTableA590.fast ps25 590237761 = 71016346 :=
   eval_delta WheelTableA590.fast ps24 97 590237761 6084925 71756527 740181 71016346
-    (by decide) (by decide) rfl value24 cut25 rfl
+    (by decide) (by decide) (by decide) rfl value24 cut25 rfl
 
 private def ps26 : List ℕ := 101 :: ps25
 private theorem row26 :
@@ -2465,7 +2606,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut26 : evalPhi WheelTableA590.fast ps25 5843938 = 703756 := by decide +kernel
 private theorem value26 : evalPhi WheelTableA590.fast ps26 590237761 = 70312590 :=
   eval_delta WheelTableA590.fast ps25 101 590237761 5843938 71016346 703756 70312590
-    (by decide) (by decide) rfl value25 cut26 rfl
+    (by decide) (by decide) (by decide) rfl value25 cut26 rfl
 
 private def ps27 : List ℕ := 103 :: ps26
 private theorem row27 :
@@ -2479,7 +2620,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut27 : evalPhi WheelTableA590.fast ps26 5730463 = 683459 := by decide +kernel
 private theorem value27 : evalPhi WheelTableA590.fast ps27 590237761 = 69629131 :=
   eval_delta WheelTableA590.fast ps26 103 590237761 5730463 70312590 683459 69629131
-    (by decide) (by decide) rfl value26 cut27 rfl
+    (by decide) (by decide) (by decide) rfl value26 cut27 rfl
 
 private def ps28 : List ℕ := 107 :: ps27
 private theorem row28 :
@@ -2493,7 +2634,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut28 : evalPhi WheelTableA590.fast ps27 5516240 = 651777 := by decide +kernel
 private theorem value28 : evalPhi WheelTableA590.fast ps28 590237761 = 68977354 :=
   eval_delta WheelTableA590.fast ps27 107 590237761 5516240 69629131 651777 68977354
-    (by decide) (by decide) rfl value27 cut28 rfl
+    (by decide) (by decide) (by decide) rfl value27 cut28 rfl
 
 private def ps29 : List ℕ := 109 :: ps28
 private theorem row29 :
@@ -2507,7 +2648,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut29 : evalPhi WheelTableA590.fast ps28 5415025 = 634058 := by decide +kernel
 private theorem value29 : evalPhi WheelTableA590.fast ps29 590237761 = 68343296 :=
   eval_delta WheelTableA590.fast ps28 109 590237761 5415025 68977354 634058 68343296
-    (by decide) (by decide) rfl value28 cut29 rfl
+    (by decide) (by decide) (by decide) rfl value28 cut29 rfl
 
 private def ps30 : List ℕ := 113 :: ps29
 private theorem row30 :
@@ -2521,7 +2662,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut30 : evalPhi WheelTableA590.fast ps29 5223343 = 606263 := by decide +kernel
 private theorem value30 : evalPhi WheelTableA590.fast ps30 590237761 = 67737033 :=
   eval_delta WheelTableA590.fast ps29 113 590237761 5223343 68343296 606263 67737033
-    (by decide) (by decide) rfl value29 cut30 rfl
+    (by decide) (by decide) (by decide) rfl value29 cut30 rfl
 
 private def ps31 : List ℕ := 127 :: ps30
 private theorem row31 :
@@ -2535,7 +2676,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut31 : evalPhi WheelTableA590.fast ps30 4647541 = 534957 := by decide +kernel
 private theorem value31 : evalPhi WheelTableA590.fast ps31 590237761 = 67202076 :=
   eval_delta WheelTableA590.fast ps30 127 590237761 4647541 67737033 534957 67202076
-    (by decide) (by decide) rfl value30 cut31 rfl
+    (by decide) (by decide) (by decide) rfl value30 cut31 rfl
 
 private def ps32 : List ℕ := 131 :: ps31
 private theorem row32 :
@@ -2549,7 +2690,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut32 : evalPhi WheelTableA590.fast ps31 4505631 = 514737 := by decide +kernel
 private theorem value32 : evalPhi WheelTableA590.fast ps32 590237761 = 66687339 :=
   eval_delta WheelTableA590.fast ps31 131 590237761 4505631 67202076 514737 66687339
-    (by decide) (by decide) rfl value31 cut32 rfl
+    (by decide) (by decide) (by decide) rfl value31 cut32 rfl
 
 private def ps33 : List ℕ := 137 :: ps32
 private theorem row33 :
@@ -2563,7 +2704,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut33 : evalPhi WheelTableA590.fast ps32 4308304 = 488615 := by decide +kernel
 private theorem value33 : evalPhi WheelTableA590.fast ps33 590237761 = 66198724 :=
   eval_delta WheelTableA590.fast ps32 137 590237761 4308304 66687339 488615 66198724
-    (by decide) (by decide) rfl value32 cut33 rfl
+    (by decide) (by decide) (by decide) rfl value32 cut33 rfl
 
 private def ps34 : List ℕ := 139 :: ps33
 private theorem row34 :
@@ -2577,7 +2718,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut34 : evalPhi WheelTableA590.fast ps33 4246314 = 478222 := by decide +kernel
 private theorem value34 : evalPhi WheelTableA590.fast ps34 590237761 = 65720502 :=
   eval_delta WheelTableA590.fast ps33 139 590237761 4246314 66198724 478222 65720502
-    (by decide) (by decide) rfl value33 cut34 rfl
+    (by decide) (by decide) (by decide) rfl value33 cut34 rfl
 
 private def ps35 : List ℕ := 149 :: ps34
 private theorem row35 :
@@ -2591,7 +2732,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut35 : evalPhi WheelTableA590.fast ps34 3961327 = 443063 := by decide +kernel
 private theorem value35 : evalPhi WheelTableA590.fast ps35 590237761 = 65277439 :=
   eval_delta WheelTableA590.fast ps34 149 590237761 3961327 65720502 443063 65277439
-    (by decide) (by decide) rfl value34 cut35 rfl
+    (by decide) (by decide) (by decide) rfl value34 cut35 rfl
 
 private def ps36 : List ℕ := 151 :: ps35
 private theorem row36 :
@@ -2605,7 +2746,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut36 : evalPhi WheelTableA590.fast ps35 3908859 = 434355 := by decide +kernel
 private theorem value36 : evalPhi WheelTableA590.fast ps36 590237761 = 64843084 :=
   eval_delta WheelTableA590.fast ps35 151 590237761 3908859 65277439 434355 64843084
-    (by decide) (by decide) rfl value35 cut36 rfl
+    (by decide) (by decide) (by decide) rfl value35 cut36 rfl
 
 private def ps37 : List ℕ := 157 :: ps36
 private theorem row37 :
@@ -2619,7 +2760,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut37 : evalPhi WheelTableA590.fast ps36 3759476 = 415019 := by decide +kernel
 private theorem value37 : evalPhi WheelTableA590.fast ps37 590237761 = 64428065 :=
   eval_delta WheelTableA590.fast ps36 157 590237761 3759476 64843084 415019 64428065
-    (by decide) (by decide) rfl value36 cut37 rfl
+    (by decide) (by decide) (by decide) rfl value36 cut37 rfl
 
 private def ps38 : List ℕ := 163 :: ps37
 private theorem row38 :
@@ -2633,7 +2774,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut38 : evalPhi WheelTableA590.fast ps37 3621090 = 397209 := by decide +kernel
 private theorem value38 : evalPhi WheelTableA590.fast ps38 590237761 = 64030856 :=
   eval_delta WheelTableA590.fast ps37 163 590237761 3621090 64428065 397209 64030856
-    (by decide) (by decide) rfl value37 cut38 rfl
+    (by decide) (by decide) (by decide) rfl value37 cut38 rfl
 
 private def ps39 : List ℕ := 167 :: ps38
 private theorem row39 :
@@ -2647,7 +2788,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut39 : evalPhi WheelTableA590.fast ps38 3534357 = 385294 := by decide +kernel
 private theorem value39 : evalPhi WheelTableA590.fast ps39 590237761 = 63645562 :=
   eval_delta WheelTableA590.fast ps38 167 590237761 3534357 64030856 385294 63645562
-    (by decide) (by decide) rfl value38 cut39 rfl
+    (by decide) (by decide) (by decide) rfl value38 cut39 rfl
 
 private def ps40 : List ℕ := 173 :: ps39
 private theorem row40 :
@@ -2661,7 +2802,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut40 : evalPhi WheelTableA590.fast ps39 3411778 = 369653 := by decide +kernel
 private theorem value40 : evalPhi WheelTableA590.fast ps40 590237761 = 63275909 :=
   eval_delta WheelTableA590.fast ps39 173 590237761 3411778 63645562 369653 63275909
-    (by decide) (by decide) rfl value39 cut40 rfl
+    (by decide) (by decide) (by decide) rfl value39 cut40 rfl
 
 private def ps41 : List ℕ := 179 :: ps40
 private theorem row41 :
@@ -2675,7 +2816,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut41 : evalPhi WheelTableA590.fast ps40 3297417 = 355121 := by decide +kernel
 private theorem value41 : evalPhi WheelTableA590.fast ps41 590237761 = 62920788 :=
   eval_delta WheelTableA590.fast ps40 179 590237761 3297417 63275909 355121 62920788
-    (by decide) (by decide) rfl value40 cut41 rfl
+    (by decide) (by decide) (by decide) rfl value40 cut41 rfl
 
 private def ps42 : List ℕ := 181 :: ps41
 private theorem row42 :
@@ -2689,7 +2830,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut42 : evalPhi WheelTableA590.fast ps41 3260982 = 349139 := by decide +kernel
 private theorem value42 : evalPhi WheelTableA590.fast ps42 590237761 = 62571649 :=
   eval_delta WheelTableA590.fast ps41 181 590237761 3260982 62920788 349139 62571649
-    (by decide) (by decide) rfl value41 cut42 rfl
+    (by decide) (by decide) (by decide) rfl value41 cut42 rfl
 
 private def ps43 : List ℕ := 191 :: ps42
 private theorem row43 :
@@ -2703,7 +2844,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut43 : evalPhi WheelTableA590.fast ps42 3090250 = 328845 := by decide +kernel
 private theorem value43 : evalPhi WheelTableA590.fast ps43 590237761 = 62242804 :=
   eval_delta WheelTableA590.fast ps42 191 590237761 3090250 62571649 328845 62242804
-    (by decide) (by decide) rfl value42 cut43 rfl
+    (by decide) (by decide) (by decide) rfl value42 cut43 rfl
 
 private def ps44 : List ℕ := 193 :: ps43
 private theorem row44 :
@@ -2717,7 +2858,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut44 : evalPhi WheelTableA590.fast ps43 3058226 = 323578 := by decide +kernel
 private theorem value44 : evalPhi WheelTableA590.fast ps44 590237761 = 61919226 :=
   eval_delta WheelTableA590.fast ps43 193 590237761 3058226 62242804 323578 61919226
-    (by decide) (by decide) rfl value43 cut44 rfl
+    (by decide) (by decide) (by decide) rfl value43 cut44 rfl
 
 private def ps45 : List ℕ := 197 :: ps44
 private theorem row45 :
@@ -2731,7 +2872,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut45 : evalPhi WheelTableA590.fast ps44 2996130 = 315207 := by decide +kernel
 private theorem value45 : evalPhi WheelTableA590.fast ps45 590237761 = 61604019 :=
   eval_delta WheelTableA590.fast ps44 197 590237761 2996130 61919226 315207 61604019
-    (by decide) (by decide) rfl value44 cut45 rfl
+    (by decide) (by decide) (by decide) rfl value44 cut45 rfl
 
 private def ps46 : List ℕ := 199 :: ps45
 private theorem row46 :
@@ -2745,7 +2886,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut46 : evalPhi WheelTableA590.fast ps45 2966018 = 310323 := by decide +kernel
 private theorem value46 : evalPhi WheelTableA590.fast ps46 590237761 = 61293696 :=
   eval_delta WheelTableA590.fast ps45 199 590237761 2966018 61604019 310323 61293696
-    (by decide) (by decide) rfl value45 cut46 rfl
+    (by decide) (by decide) (by decide) rfl value45 cut46 rfl
 
 private def ps47 : List ℕ := 211 :: ps46
 private theorem row47 :
@@ -2759,7 +2900,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut47 : evalPhi WheelTableA590.fast ps46 2797335 = 290929 := by decide +kernel
 private theorem value47 : evalPhi WheelTableA590.fast ps47 590237761 = 61002767 :=
   eval_delta WheelTableA590.fast ps46 211 590237761 2797335 61293696 290929 61002767
-    (by decide) (by decide) rfl value46 cut47 rfl
+    (by decide) (by decide) (by decide) rfl value46 cut47 rfl
 
 private def ps48 : List ℕ := 223 :: ps47
 private theorem row48 :
@@ -2773,7 +2914,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut48 : evalPhi WheelTableA590.fast ps47 2646806 = 273711 := by decide +kernel
 private theorem value48 : evalPhi WheelTableA590.fast ps48 590237761 = 60729056 :=
   eval_delta WheelTableA590.fast ps47 223 590237761 2646806 61002767 273711 60729056
-    (by decide) (by decide) rfl value47 cut48 rfl
+    (by decide) (by decide) (by decide) rfl value47 cut48 rfl
 
 private def ps49 : List ℕ := 227 :: ps48
 private theorem row49 :
@@ -2787,7 +2928,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut49 : evalPhi WheelTableA590.fast ps48 2600166 = 267496 := by decide +kernel
 private theorem value49 : evalPhi WheelTableA590.fast ps49 590237761 = 60461560 :=
   eval_delta WheelTableA590.fast ps48 227 590237761 2600166 60729056 267496 60461560
-    (by decide) (by decide) rfl value48 cut49 rfl
+    (by decide) (by decide) (by decide) rfl value48 cut49 rfl
 
 private def ps50 : List ℕ := 229 :: ps49
 private theorem row50 :
@@ -2801,7 +2942,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut50 : evalPhi WheelTableA590.fast ps49 2577457 = 263806 := by decide +kernel
 private theorem value50 : evalPhi WheelTableA590.fast ps50 590237761 = 60197754 :=
   eval_delta WheelTableA590.fast ps49 229 590237761 2577457 60461560 263806 60197754
-    (by decide) (by decide) rfl value49 cut50 rfl
+    (by decide) (by decide) (by decide) rfl value49 cut50 rfl
 
 private def ps51 : List ℕ := 233 :: ps50
 private theorem row51 :
@@ -2815,7 +2956,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut51 : evalPhi WheelTableA590.fast ps50 2533209 = 257932 := by decide +kernel
 private theorem value51 : evalPhi WheelTableA590.fast ps51 590237761 = 59939822 :=
   eval_delta WheelTableA590.fast ps50 233 590237761 2533209 60197754 257932 59939822
-    (by decide) (by decide) rfl value50 cut51 rfl
+    (by decide) (by decide) (by decide) rfl value50 cut51 rfl
 
 private def ps52 : List ℕ := 239 :: ps51
 private theorem row52 :
@@ -2829,7 +2970,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut52 : evalPhi WheelTableA590.fast ps51 2469614 = 250142 := by decide +kernel
 private theorem value52 : evalPhi WheelTableA590.fast ps52 590237761 = 59689680 :=
   eval_delta WheelTableA590.fast ps51 239 590237761 2469614 59939822 250142 59689680
-    (by decide) (by decide) rfl value51 cut52 rfl
+    (by decide) (by decide) (by decide) rfl value51 cut52 rfl
 
 private def ps53 : List ℕ := 241 :: ps52
 private theorem row53 :
@@ -2843,7 +2984,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut53 : evalPhi WheelTableA590.fast ps52 2449119 = 246839 := by decide +kernel
 private theorem value53 : evalPhi WheelTableA590.fast ps53 590237761 = 59442841 :=
   eval_delta WheelTableA590.fast ps52 241 590237761 2449119 59689680 246839 59442841
-    (by decide) (by decide) rfl value52 cut53 rfl
+    (by decide) (by decide) (by decide) rfl value52 cut53 rfl
 
 private def ps54 : List ℕ := 251 :: ps53
 private theorem row54 :
@@ -2857,7 +2998,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut54 : evalPhi WheelTableA590.fast ps53 2351544 = 235731 := by decide +kernel
 private theorem value54 : evalPhi WheelTableA590.fast ps54 590237761 = 59207110 :=
   eval_delta WheelTableA590.fast ps53 251 590237761 2351544 59442841 235731 59207110
-    (by decide) (by decide) rfl value53 cut54 rfl
+    (by decide) (by decide) (by decide) rfl value53 cut54 rfl
 
 private def ps55 : List ℕ := 257 :: ps54
 private theorem row55 :
@@ -2871,7 +3012,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut55 : evalPhi WheelTableA590.fast ps54 2296644 = 229090 := by decide +kernel
 private theorem value55 : evalPhi WheelTableA590.fast ps55 590237761 = 58978020 :=
   eval_delta WheelTableA590.fast ps54 257 590237761 2296644 59207110 229090 58978020
-    (by decide) (by decide) rfl value54 cut55 rfl
+    (by decide) (by decide) (by decide) rfl value54 cut55 rfl
 
 private def ps56 : List ℕ := 263 :: ps55
 private theorem row56 :
@@ -2885,7 +3026,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut56 : evalPhi WheelTableA590.fast ps55 2244250 = 222773 := by decide +kernel
 private theorem value56 : evalPhi WheelTableA590.fast ps56 590237761 = 58755247 :=
   eval_delta WheelTableA590.fast ps55 263 590237761 2244250 58978020 222773 58755247
-    (by decide) (by decide) rfl value55 cut56 rfl
+    (by decide) (by decide) (by decide) rfl value55 cut56 rfl
 
 private def ps57 : List ℕ := 269 :: ps56
 private theorem row57 :
@@ -2899,7 +3040,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut57 : evalPhi WheelTableA590.fast ps56 2194192 = 216760 := by decide +kernel
 private theorem value57 : evalPhi WheelTableA590.fast ps57 590237761 = 58538487 :=
   eval_delta WheelTableA590.fast ps56 269 590237761 2194192 58755247 216760 58538487
-    (by decide) (by decide) rfl value56 cut57 rfl
+    (by decide) (by decide) (by decide) rfl value56 cut57 rfl
 
 private def ps58 : List ℕ := 271 :: ps57
 private theorem row58 :
@@ -2913,7 +3054,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut58 : evalPhi WheelTableA590.fast ps57 2177999 = 214180 := by decide +kernel
 private theorem value58 : evalPhi WheelTableA590.fast ps58 590237761 = 58324307 :=
   eval_delta WheelTableA590.fast ps57 271 590237761 2177999 58538487 214180 58324307
-    (by decide) (by decide) rfl value57 cut58 rfl
+    (by decide) (by decide) (by decide) rfl value57 cut58 rfl
 
 private def ps59 : List ℕ := 277 :: ps58
 private theorem row59 :
@@ -2927,7 +3068,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut59 : evalPhi WheelTableA590.fast ps58 2130822 = 208532 := by decide +kernel
 private theorem value59 : evalPhi WheelTableA590.fast ps59 590237761 = 58115775 :=
   eval_delta WheelTableA590.fast ps58 277 590237761 2130822 58324307 208532 58115775
-    (by decide) (by decide) rfl value58 cut59 rfl
+    (by decide) (by decide) (by decide) rfl value58 cut59 rfl
 
 private def ps60 : List ℕ := 281 :: ps59
 private theorem row60 :
@@ -2941,7 +3082,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut60 : evalPhi WheelTableA590.fast ps59 2100490 = 204594 := by decide +kernel
 private theorem value60 : evalPhi WheelTableA590.fast ps60 590237761 = 57911181 :=
   eval_delta WheelTableA590.fast ps59 281 590237761 2100490 58115775 204594 57911181
-    (by decide) (by decide) rfl value59 cut60 rfl
+    (by decide) (by decide) (by decide) rfl value59 cut60 rfl
 
 private def ps61 : List ℕ := 283 :: ps60
 private theorem row61 :
@@ -2955,7 +3096,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut61 : evalPhi WheelTableA590.fast ps60 2085645 = 202250 := by decide +kernel
 private theorem value61 : evalPhi WheelTableA590.fast ps61 590237761 = 57708931 :=
   eval_delta WheelTableA590.fast ps60 283 590237761 2085645 57911181 202250 57708931
-    (by decide) (by decide) rfl value60 cut61 rfl
+    (by decide) (by decide) (by decide) rfl value60 cut61 rfl
 
 private def ps62 : List ℕ := 293 :: ps61
 private theorem row62 :
@@ -2969,7 +3110,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut62 : evalPhi WheelTableA590.fast ps61 2014463 = 194391 := by decide +kernel
 private theorem value62 : evalPhi WheelTableA590.fast ps62 590237761 = 57514540 :=
   eval_delta WheelTableA590.fast ps61 293 590237761 2014463 57708931 194391 57514540
-    (by decide) (by decide) rfl value61 cut62 rfl
+    (by decide) (by decide) (by decide) rfl value61 cut62 rfl
 
 private def ps63 : List ℕ := 307 :: ps62
 private theorem row63 :
@@ -2983,7 +3124,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut63 : evalPhi WheelTableA590.fast ps62 1922598 = 184589 := by decide +kernel
 private theorem value63 : evalPhi WheelTableA590.fast ps63 590237761 = 57329951 :=
   eval_delta WheelTableA590.fast ps62 307 590237761 1922598 57514540 184589 57329951
-    (by decide) (by decide) rfl value62 cut63 rfl
+    (by decide) (by decide) (by decide) rfl value62 cut63 rfl
 
 private def ps64 : List ℕ := 311 :: ps63
 private theorem row64 :
@@ -2997,7 +3138,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut64 : evalPhi WheelTableA590.fast ps63 1897870 = 181425 := by decide +kernel
 private theorem value64 : evalPhi WheelTableA590.fast ps64 590237761 = 57148526 :=
   eval_delta WheelTableA590.fast ps63 311 590237761 1897870 57329951 181425 57148526
-    (by decide) (by decide) rfl value63 cut64 rfl
+    (by decide) (by decide) (by decide) rfl value63 cut64 rfl
 
 private def ps65 : List ℕ := 313 :: ps64
 private theorem row65 :
@@ -3011,7 +3152,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut65 : evalPhi WheelTableA590.fast ps64 1885743 = 179513 := by decide +kernel
 private theorem value65 : evalPhi WheelTableA590.fast ps65 590237761 = 56969013 :=
   eval_delta WheelTableA590.fast ps64 313 590237761 1885743 57148526 179513 56969013
-    (by decide) (by decide) rfl value64 cut65 rfl
+    (by decide) (by decide) (by decide) rfl value64 cut65 rfl
 
 private def ps66 : List ℕ := 317 :: ps65
 private theorem row66 :
@@ -3025,7 +3166,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut66 : evalPhi WheelTableA590.fast ps65 1861948 = 176486 := by decide +kernel
 private theorem value66 : evalPhi WheelTableA590.fast ps66 590237761 = 56792527 :=
   eval_delta WheelTableA590.fast ps65 317 590237761 1861948 56969013 176486 56792527
-    (by decide) (by decide) rfl value65 cut66 rfl
+    (by decide) (by decide) (by decide) rfl value65 cut66 rfl
 
 private def ps67 : List ℕ := 331 :: ps66
 private theorem row67 :
@@ -3039,7 +3180,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut67 : evalPhi WheelTableA590.fast ps66 1783195 = 168203 := by decide +kernel
 private theorem value67 : evalPhi WheelTableA590.fast ps67 590237761 = 56624324 :=
   eval_delta WheelTableA590.fast ps66 331 590237761 1783195 56792527 168203 56624324
-    (by decide) (by decide) rfl value66 cut67 rfl
+    (by decide) (by decide) (by decide) rfl value66 cut67 rfl
 
 private def ps68 : List ℕ := 337 :: ps67
 private theorem row68 :
@@ -3053,7 +3194,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut68 : evalPhi WheelTableA590.fast ps67 1751447 = 164519 := by decide +kernel
 private theorem value68 : evalPhi WheelTableA590.fast ps68 590237761 = 56459805 :=
   eval_delta WheelTableA590.fast ps67 337 590237761 1751447 56624324 164519 56459805
-    (by decide) (by decide) rfl value67 cut68 rfl
+    (by decide) (by decide) (by decide) rfl value67 cut68 rfl
 
 private def ps69 : List ℕ := 347 :: ps68
 private theorem row69 :
@@ -3067,7 +3208,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut69 : evalPhi WheelTableA590.fast ps68 1700973 = 159089 := by decide +kernel
 private theorem value69 : evalPhi WheelTableA590.fast ps69 590237761 = 56300716 :=
   eval_delta WheelTableA590.fast ps68 347 590237761 1700973 56459805 159089 56300716
-    (by decide) (by decide) rfl value68 cut69 rfl
+    (by decide) (by decide) (by decide) rfl value68 cut69 rfl
 
 private def ps70 : List ℕ := 349 :: ps69
 private theorem row70 :
@@ -3081,7 +3222,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut70 : evalPhi WheelTableA590.fast ps69 1691225 = 157562 := by decide +kernel
 private theorem value70 : evalPhi WheelTableA590.fast ps70 590237761 = 56143154 :=
   eval_delta WheelTableA590.fast ps69 349 590237761 1691225 56300716 157562 56143154
-    (by decide) (by decide) rfl value69 cut70 rfl
+    (by decide) (by decide) (by decide) rfl value69 cut70 rfl
 
 private def ps71 : List ℕ := 353 :: ps70
 private theorem row71 :
@@ -3095,7 +3236,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut71 : evalPhi WheelTableA590.fast ps70 1672061 = 155181 := by decide +kernel
 private theorem value71 : evalPhi WheelTableA590.fast ps71 590237761 = 55987973 :=
   eval_delta WheelTableA590.fast ps70 353 590237761 1672061 56143154 155181 55987973
-    (by decide) (by decide) rfl value70 cut71 rfl
+    (by decide) (by decide) (by decide) rfl value70 cut71 rfl
 
 private def ps72 : List ℕ := 359 :: ps71
 private theorem row72 :
@@ -3109,7 +3250,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut72 : evalPhi WheelTableA590.fast ps71 1644116 = 151962 := by decide +kernel
 private theorem value72 : evalPhi WheelTableA590.fast ps72 590237761 = 55836011 :=
   eval_delta WheelTableA590.fast ps71 359 590237761 1644116 55987973 151962 55836011
-    (by decide) (by decide) rfl value71 cut72 rfl
+    (by decide) (by decide) (by decide) rfl value71 cut72 rfl
 
 private def ps73 : List ℕ := 367 :: ps72
 private theorem row73 :
@@ -3123,7 +3264,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut73 : evalPhi WheelTableA590.fast ps72 1608277 = 148044 := by decide +kernel
 private theorem value73 : evalPhi WheelTableA590.fast ps73 590237761 = 55687967 :=
   eval_delta WheelTableA590.fast ps72 367 590237761 1608277 55836011 148044 55687967
-    (by decide) (by decide) rfl value72 cut73 rfl
+    (by decide) (by decide) (by decide) rfl value72 cut73 rfl
 
 private def ps74 : List ℕ := 373 :: ps73
 private theorem row74 :
@@ -3137,7 +3278,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut74 : evalPhi WheelTableA590.fast ps73 1582406 = 145097 := by decide +kernel
 private theorem value74 : evalPhi WheelTableA590.fast ps74 590237761 = 55542870 :=
   eval_delta WheelTableA590.fast ps73 373 590237761 1582406 55687967 145097 55542870
-    (by decide) (by decide) rfl value73 cut74 rfl
+    (by decide) (by decide) (by decide) rfl value73 cut74 rfl
 
 private def ps75 : List ℕ := 379 :: ps74
 private theorem row75 :
@@ -3151,7 +3292,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut75 : evalPhi WheelTableA590.fast ps74 1557355 = 142270 := by decide +kernel
 private theorem value75 : evalPhi WheelTableA590.fast ps75 590237761 = 55400600 :=
   eval_delta WheelTableA590.fast ps74 379 590237761 1557355 55542870 142270 55400600
-    (by decide) (by decide) rfl value74 cut75 rfl
+    (by decide) (by decide) (by decide) rfl value74 cut75 rfl
 
 private def ps76 : List ℕ := 383 :: ps75
 private theorem row76 :
@@ -3165,7 +3306,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut76 : evalPhi WheelTableA590.fast ps75 1541090 = 140264 := by decide +kernel
 private theorem value76 : evalPhi WheelTableA590.fast ps76 590237761 = 55260336 :=
   eval_delta WheelTableA590.fast ps75 383 590237761 1541090 55400600 140264 55260336
-    (by decide) (by decide) rfl value75 cut76 rfl
+    (by decide) (by decide) (by decide) rfl value75 cut76 rfl
 
 private def ps77 : List ℕ := 389 :: ps76
 private theorem row77 :
@@ -3179,7 +3320,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut77 : evalPhi WheelTableA590.fast ps76 1517320 = 137595 := by decide +kernel
 private theorem value77 : evalPhi WheelTableA590.fast ps77 590237761 = 55122741 :=
   eval_delta WheelTableA590.fast ps76 389 590237761 1517320 55260336 137595 55122741
-    (by decide) (by decide) rfl value76 cut77 rfl
+    (by decide) (by decide) (by decide) rfl value76 cut77 rfl
 
 private def ps78 : List ℕ := 397 :: ps77
 private theorem row78 :
@@ -3193,7 +3334,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut78 : evalPhi WheelTableA590.fast ps77 1486744 = 134290 := by decide +kernel
 private theorem value78 : evalPhi WheelTableA590.fast ps78 590237761 = 54988451 :=
   eval_delta WheelTableA590.fast ps77 397 590237761 1486744 55122741 134290 54988451
-    (by decide) (by decide) rfl value77 cut78 rfl
+    (by decide) (by decide) (by decide) rfl value77 cut78 rfl
 
 private def ps79 : List ℕ := 401 :: ps78
 private theorem row79 :
@@ -3207,7 +3348,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut79 : evalPhi WheelTableA590.fast ps78 1471914 = 132475 := by decide +kernel
 private theorem value79 : evalPhi WheelTableA590.fast ps79 590237761 = 54855976 :=
   eval_delta WheelTableA590.fast ps78 401 590237761 1471914 54988451 132475 54855976
-    (by decide) (by decide) rfl value78 cut79 rfl
+    (by decide) (by decide) (by decide) rfl value78 cut79 rfl
 
 private def ps80 : List ℕ := 409 :: ps79
 private theorem row80 :
@@ -3221,7 +3362,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut80 : evalPhi WheelTableA590.fast ps79 1443124 = 129401 := by decide +kernel
 private theorem value80 : evalPhi WheelTableA590.fast ps80 590237761 = 54726575 :=
   eval_delta WheelTableA590.fast ps79 409 590237761 1443124 54855976 129401 54726575
-    (by decide) (by decide) rfl value79 cut80 rfl
+    (by decide) (by decide) (by decide) rfl value79 cut80 rfl
 
 private def ps81 : List ℕ := 419 :: ps80
 private theorem row81 :
@@ -3235,7 +3376,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut81 : evalPhi WheelTableA590.fast ps80 1408682 = 125853 := by decide +kernel
 private theorem value81 : evalPhi WheelTableA590.fast ps81 590237761 = 54600722 :=
   eval_delta WheelTableA590.fast ps80 419 590237761 1408682 54726575 125853 54600722
-    (by decide) (by decide) rfl value80 cut81 rfl
+    (by decide) (by decide) (by decide) rfl value80 cut81 rfl
 
 private def ps82 : List ℕ := 421 :: ps81
 private theorem row82 :
@@ -3249,7 +3390,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut82 : evalPhi WheelTableA590.fast ps81 1401989 = 124865 := by decide +kernel
 private theorem value82 : evalPhi WheelTableA590.fast ps82 590237761 = 54475857 :=
   eval_delta WheelTableA590.fast ps81 421 590237761 1401989 54600722 124865 54475857
-    (by decide) (by decide) rfl value81 cut82 rfl
+    (by decide) (by decide) (by decide) rfl value81 cut82 rfl
 
 private def ps83 : List ℕ := 431 :: ps82
 private theorem row83 :
@@ -3263,7 +3404,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut83 : evalPhi WheelTableA590.fast ps82 1369461 = 121508 := by decide +kernel
 private theorem value83 : evalPhi WheelTableA590.fast ps83 590237761 = 54354349 :=
   eval_delta WheelTableA590.fast ps82 431 590237761 1369461 54475857 121508 54354349
-    (by decide) (by decide) rfl value82 cut83 rfl
+    (by decide) (by decide) (by decide) rfl value82 cut83 rfl
 
 private def ps84 : List ℕ := 433 :: ps83
 private theorem row84 :
@@ -3277,7 +3418,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut84 : evalPhi WheelTableA590.fast ps83 1363135 = 120565 := by decide +kernel
 private theorem value84 : evalPhi WheelTableA590.fast ps84 590237761 = 54233784 :=
   eval_delta WheelTableA590.fast ps83 433 590237761 1363135 54354349 120565 54233784
-    (by decide) (by decide) rfl value83 cut84 rfl
+    (by decide) (by decide) (by decide) rfl value83 cut84 rfl
 
 private def ps85 : List ℕ := 439 :: ps84
 private theorem row85 :
@@ -3291,7 +3432,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut85 : evalPhi WheelTableA590.fast ps84 1344505 = 118544 := by decide +kernel
 private theorem value85 : evalPhi WheelTableA590.fast ps85 590237761 = 54115240 :=
   eval_delta WheelTableA590.fast ps84 439 590237761 1344505 54233784 118544 54115240
-    (by decide) (by decide) rfl value84 cut85 rfl
+    (by decide) (by decide) (by decide) rfl value84 cut85 rfl
 
 private def ps86 : List ℕ := 443 :: ps85
 private theorem row86 :
@@ -3305,7 +3446,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut86 : evalPhi WheelTableA590.fast ps85 1332365 = 117089 := by decide +kernel
 private theorem value86 : evalPhi WheelTableA590.fast ps86 590237761 = 53998151 :=
   eval_delta WheelTableA590.fast ps85 443 590237761 1332365 54115240 117089 53998151
-    (by decide) (by decide) rfl value85 cut86 rfl
+    (by decide) (by decide) (by decide) rfl value85 cut86 rfl
 
 private def ps87 : List ℕ := 449 :: ps86
 private theorem row87 :
@@ -3319,7 +3460,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut87 : evalPhi WheelTableA590.fast ps86 1314560 = 115154 := by decide +kernel
 private theorem value87 : evalPhi WheelTableA590.fast ps87 590237761 = 53882997 :=
   eval_delta WheelTableA590.fast ps86 449 590237761 1314560 53998151 115154 53882997
-    (by decide) (by decide) rfl value86 cut87 rfl
+    (by decide) (by decide) (by decide) rfl value86 cut87 rfl
 
 private def ps88 : List ℕ := 457 :: ps87
 private theorem row88 :
@@ -3333,7 +3474,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut88 : evalPhi WheelTableA590.fast ps87 1291548 = 112783 := by decide +kernel
 private theorem value88 : evalPhi WheelTableA590.fast ps88 590237761 = 53770214 :=
   eval_delta WheelTableA590.fast ps87 457 590237761 1291548 53882997 112783 53770214
-    (by decide) (by decide) rfl value87 cut88 rfl
+    (by decide) (by decide) (by decide) rfl value87 cut88 rfl
 
 private def ps89 : List ℕ := 461 :: ps88
 private theorem row89 :
@@ -3347,7 +3488,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut89 : evalPhi WheelTableA590.fast ps88 1280342 = 111454 := by decide +kernel
 private theorem value89 : evalPhi WheelTableA590.fast ps89 590237761 = 53658760 :=
   eval_delta WheelTableA590.fast ps88 461 590237761 1280342 53770214 111454 53658760
-    (by decide) (by decide) rfl value88 cut89 rfl
+    (by decide) (by decide) (by decide) rfl value88 cut89 rfl
 
 private def ps90 : List ℕ := 463 :: ps89
 private theorem row90 :
@@ -3361,7 +3502,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut90 : evalPhi WheelTableA590.fast ps89 1274811 = 110645 := by decide +kernel
 private theorem value90 : evalPhi WheelTableA590.fast ps90 590237761 = 53548115 :=
   eval_delta WheelTableA590.fast ps89 463 590237761 1274811 53658760 110645 53548115
-    (by decide) (by decide) rfl value89 cut90 rfl
+    (by decide) (by decide) (by decide) rfl value89 cut90 rfl
 
 private def ps91 : List ℕ := 467 :: ps90
 private theorem row91 :
@@ -3375,7 +3516,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut91 : evalPhi WheelTableA590.fast ps90 1263892 = 109369 := by decide +kernel
 private theorem value91 : evalPhi WheelTableA590.fast ps91 590237761 = 53438746 :=
   eval_delta WheelTableA590.fast ps90 467 590237761 1263892 53548115 109369 53438746
-    (by decide) (by decide) rfl value90 cut91 rfl
+    (by decide) (by decide) (by decide) rfl value90 cut91 rfl
 
 private def ps92 : List ℕ := 479 :: ps91
 private theorem row92 :
@@ -3389,7 +3530,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut92 : evalPhi WheelTableA590.fast ps91 1232229 = 106300 := by decide +kernel
 private theorem value92 : evalPhi WheelTableA590.fast ps92 590237761 = 53332446 :=
   eval_delta WheelTableA590.fast ps91 479 590237761 1232229 53438746 106300 53332446
-    (by decide) (by decide) rfl value91 cut92 rfl
+    (by decide) (by decide) (by decide) rfl value91 cut92 rfl
 
 private def ps93 : List ℕ := 487 :: ps92
 private theorem row93 :
@@ -3403,7 +3544,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut93 : evalPhi WheelTableA590.fast ps92 1211987 = 104241 := by decide +kernel
 private theorem value93 : evalPhi WheelTableA590.fast ps93 590237761 = 53228205 :=
   eval_delta WheelTableA590.fast ps92 487 590237761 1211987 53332446 104241 53228205
-    (by decide) (by decide) rfl value92 cut93 rfl
+    (by decide) (by decide) (by decide) rfl value92 cut93 rfl
 
 private def ps94 : List ℕ := 491 :: ps93
 private theorem row94 :
@@ -3417,7 +3558,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut94 : evalPhi WheelTableA590.fast ps93 1202113 = 103119 := by decide +kernel
 private theorem value94 : evalPhi WheelTableA590.fast ps94 590237761 = 53125086 :=
   eval_delta WheelTableA590.fast ps93 491 590237761 1202113 53228205 103119 53125086
-    (by decide) (by decide) rfl value93 cut94 rfl
+    (by decide) (by decide) (by decide) rfl value93 cut94 rfl
 
 private def ps95 : List ℕ := 499 :: ps94
 private theorem row95 :
@@ -3431,7 +3572,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut95 : evalPhi WheelTableA590.fast ps94 1182841 = 101166 := by decide +kernel
 private theorem value95 : evalPhi WheelTableA590.fast ps95 590237761 = 53023920 :=
   eval_delta WheelTableA590.fast ps94 499 590237761 1182841 53125086 101166 53023920
-    (by decide) (by decide) rfl value94 cut95 rfl
+    (by decide) (by decide) (by decide) rfl value94 cut95 rfl
 
 private def ps96 : List ℕ := 503 :: ps95
 private theorem row96 :
@@ -3445,7 +3586,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut96 : evalPhi WheelTableA590.fast ps95 1173434 = 100074 := by decide +kernel
 private theorem value96 : evalPhi WheelTableA590.fast ps96 590237761 = 52923846 :=
   eval_delta WheelTableA590.fast ps95 503 590237761 1173434 53023920 100074 52923846
-    (by decide) (by decide) rfl value95 cut96 rfl
+    (by decide) (by decide) (by decide) rfl value95 cut96 rfl
 
 private def ps97 : List ℕ := 509 :: ps96
 private theorem row97 :
@@ -3459,7 +3600,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut97 : evalPhi WheelTableA590.fast ps96 1159602 = 98624 := by decide +kernel
 private theorem value97 : evalPhi WheelTableA590.fast ps97 590237761 = 52825222 :=
   eval_delta WheelTableA590.fast ps96 509 590237761 1159602 52923846 98624 52825222
-    (by decide) (by decide) rfl value96 cut97 rfl
+    (by decide) (by decide) (by decide) rfl value96 cut97 rfl
 
 private def ps98 : List ℕ := 521 :: ps97
 private theorem row98 :
@@ -3473,7 +3614,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut98 : evalPhi WheelTableA590.fast ps97 1132893 = 96085 := by decide +kernel
 private theorem value98 : evalPhi WheelTableA590.fast ps98 590237761 = 52729137 :=
   eval_delta WheelTableA590.fast ps97 521 590237761 1132893 52825222 96085 52729137
-    (by decide) (by decide) rfl value97 cut98 rfl
+    (by decide) (by decide) (by decide) rfl value97 cut98 rfl
 
 private def ps99 : List ℕ := 523 :: ps98
 private theorem row99 :
@@ -3487,7 +3628,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut99 : evalPhi WheelTableA590.fast ps98 1128561 = 95472 := by decide +kernel
 private theorem value99 : evalPhi WheelTableA590.fast ps99 590237761 = 52633665 :=
   eval_delta WheelTableA590.fast ps98 523 590237761 1128561 52729137 95472 52633665
-    (by decide) (by decide) rfl value98 cut99 rfl
+    (by decide) (by decide) (by decide) rfl value98 cut99 rfl
 
 private def ps100 : List ℕ := 541 :: ps99
 private theorem row100 :
@@ -3501,7 +3642,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut100 : evalPhi WheelTableA590.fast ps99 1091012 = 92014 := by decide +kernel
 private theorem value100 : evalPhi WheelTableA590.fast ps100 590237761 = 52541651 :=
   eval_delta WheelTableA590.fast ps99 541 590237761 1091012 52633665 92014 52541651
-    (by decide) (by decide) rfl value99 cut100 rfl
+    (by decide) (by decide) (by decide) rfl value99 cut100 rfl
 
 private def ps101 : List ℕ := 547 :: ps100
 private theorem row101 :
@@ -3515,7 +3656,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut101 : evalPhi WheelTableA590.fast ps100 1079045 = 90792 := by decide +kernel
 private theorem value101 : evalPhi WheelTableA590.fast ps101 590237761 = 52450859 :=
   eval_delta WheelTableA590.fast ps100 547 590237761 1079045 52541651 90792 52450859
-    (by decide) (by decide) rfl value100 cut101 rfl
+    (by decide) (by decide) (by decide) rfl value100 cut101 rfl
 
 private def ps102 : List ℕ := 557 :: ps101
 private theorem row102 :
@@ -3529,7 +3670,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut102 : evalPhi WheelTableA590.fast ps101 1059672 = 88954 := by decide +kernel
 private theorem value102 : evalPhi WheelTableA590.fast ps102 590237761 = 52361905 :=
   eval_delta WheelTableA590.fast ps101 557 590237761 1059672 52450859 88954 52361905
-    (by decide) (by decide) rfl value101 cut102 rfl
+    (by decide) (by decide) (by decide) rfl value101 cut102 rfl
 
 private def ps103 : List ℕ := 563 :: ps102
 private theorem row103 :
@@ -3543,7 +3684,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut103 : evalPhi WheelTableA590.fast ps102 1048379 = 87816 := by decide +kernel
 private theorem value103 : evalPhi WheelTableA590.fast ps103 590237761 = 52274089 :=
   eval_delta WheelTableA590.fast ps102 563 590237761 1048379 52361905 87816 52274089
-    (by decide) (by decide) rfl value102 cut103 rfl
+    (by decide) (by decide) (by decide) rfl value102 cut103 rfl
 
 private def ps104 : List ℕ := 569 :: ps103
 private theorem row104 :
@@ -3557,7 +3698,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut104 : evalPhi WheelTableA590.fast ps103 1037324 = 86705 := by decide +kernel
 private theorem value104 : evalPhi WheelTableA590.fast ps104 590237761 = 52187384 :=
   eval_delta WheelTableA590.fast ps103 569 590237761 1037324 52274089 86705 52187384
-    (by decide) (by decide) rfl value103 cut104 rfl
+    (by decide) (by decide) (by decide) rfl value103 cut104 rfl
 
 private def ps105 : List ℕ := 571 :: ps104
 private theorem row105 :
@@ -3571,7 +3712,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut105 : evalPhi WheelTableA590.fast ps104 1033691 = 86231 := by decide +kernel
 private theorem value105 : evalPhi WheelTableA590.fast ps105 590237761 = 52101153 :=
   eval_delta WheelTableA590.fast ps104 571 590237761 1033691 52187384 86231 52101153
-    (by decide) (by decide) rfl value104 cut105 rfl
+    (by decide) (by decide) (by decide) rfl value104 cut105 rfl
 
 private def ps106 : List ℕ := 577 :: ps105
 private theorem row106 :
@@ -3585,7 +3726,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut106 : evalPhi WheelTableA590.fast ps105 1022942 = 85154 := by decide +kernel
 private theorem value106 : evalPhi WheelTableA590.fast ps106 590237761 = 52015999 :=
   eval_delta WheelTableA590.fast ps105 577 590237761 1022942 52101153 85154 52015999
-    (by decide) (by decide) rfl value105 cut106 rfl
+    (by decide) (by decide) (by decide) rfl value105 cut106 rfl
 
 private def ps107 : List ℕ := 587 :: ps106
 private theorem row107 :
@@ -3599,7 +3740,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut107 : evalPhi WheelTableA590.fast ps106 1005515 = 83511 := by decide +kernel
 private theorem value107 : evalPhi WheelTableA590.fast ps107 590237761 = 51932488 :=
   eval_delta WheelTableA590.fast ps106 587 590237761 1005515 52015999 83511 51932488
-    (by decide) (by decide) rfl value106 cut107 rfl
+    (by decide) (by decide) (by decide) rfl value106 cut107 rfl
 
 private def ps108 : List ℕ := 593 :: ps107
 private theorem row108 :
@@ -3613,7 +3754,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut108 : evalPhi WheelTableA590.fast ps107 995341 = 82479 := by decide +kernel
 private theorem value108 : evalPhi WheelTableA590.fast ps108 590237761 = 51850009 :=
   eval_delta WheelTableA590.fast ps107 593 590237761 995341 51932488 82479 51850009
-    (by decide) (by decide) rfl value107 cut108 rfl
+    (by decide) (by decide) (by decide) rfl value107 cut108 rfl
 
 private def ps109 : List ℕ := 599 :: ps108
 private theorem row109 :
@@ -3627,7 +3768,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut109 : evalPhi WheelTableA590.fast ps108 985371 = 81503 := by decide +kernel
 private theorem value109 : evalPhi WheelTableA590.fast ps109 590237761 = 51768506 :=
   eval_delta WheelTableA590.fast ps108 599 590237761 985371 51850009 81503 51768506
-    (by decide) (by decide) rfl value108 cut109 rfl
+    (by decide) (by decide) (by decide) rfl value108 cut109 rfl
 
 private def ps110 : List ℕ := 601 :: ps109
 private theorem row110 :
@@ -3641,7 +3782,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut110 : evalPhi WheelTableA590.fast ps109 982092 = 81088 := by decide +kernel
 private theorem value110 : evalPhi WheelTableA590.fast ps110 590237761 = 51687418 :=
   eval_delta WheelTableA590.fast ps109 601 590237761 982092 51768506 81088 51687418
-    (by decide) (by decide) rfl value109 cut110 rfl
+    (by decide) (by decide) (by decide) rfl value109 cut110 rfl
 
 private def ps111 : List ℕ := 607 :: ps110
 private theorem row111 :
@@ -3655,7 +3796,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut111 : evalPhi WheelTableA590.fast ps110 972385 = 80163 := by decide +kernel
 private theorem value111 : evalPhi WheelTableA590.fast ps111 590237761 = 51607255 :=
   eval_delta WheelTableA590.fast ps110 607 590237761 972385 51687418 80163 51607255
-    (by decide) (by decide) rfl value110 cut111 rfl
+    (by decide) (by decide) (by decide) rfl value110 cut111 rfl
 
 private def ps112 : List ℕ := 613 :: ps111
 private theorem row112 :
@@ -3669,7 +3810,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut112 : evalPhi WheelTableA590.fast ps111 962867 = 79219 := by decide +kernel
 private theorem value112 : evalPhi WheelTableA590.fast ps112 590237761 = 51528036 :=
   eval_delta WheelTableA590.fast ps111 613 590237761 962867 51607255 79219 51528036
-    (by decide) (by decide) rfl value111 cut112 rfl
+    (by decide) (by decide) (by decide) rfl value111 cut112 rfl
 
 private def ps113 : List ℕ := 617 :: ps112
 private theorem row113 :
@@ -3683,7 +3824,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut113 : evalPhi WheelTableA590.fast ps112 956625 = 78560 := by decide +kernel
 private theorem value113 : evalPhi WheelTableA590.fast ps113 590237761 = 51449476 :=
   eval_delta WheelTableA590.fast ps112 617 590237761 956625 51528036 78560 51449476
-    (by decide) (by decide) rfl value112 cut113 rfl
+    (by decide) (by decide) (by decide) rfl value112 cut113 rfl
 
 private def ps114 : List ℕ := 619 :: ps113
 private theorem row114 :
@@ -3697,7 +3838,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut114 : evalPhi WheelTableA590.fast ps113 953534 = 78185 := by decide +kernel
 private theorem value114 : evalPhi WheelTableA590.fast ps114 590237761 = 51371291 :=
   eval_delta WheelTableA590.fast ps113 619 590237761 953534 51449476 78185 51371291
-    (by decide) (by decide) rfl value113 cut114 rfl
+    (by decide) (by decide) (by decide) rfl value113 cut114 rfl
 
 private def ps115 : List ℕ := 631 :: ps114
 private theorem row115 :
@@ -3711,7 +3852,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut115 : evalPhi WheelTableA590.fast ps114 935400 = 76591 := by decide +kernel
 private theorem value115 : evalPhi WheelTableA590.fast ps115 590237761 = 51294700 :=
   eval_delta WheelTableA590.fast ps114 631 590237761 935400 51371291 76591 51294700
-    (by decide) (by decide) rfl value114 cut115 rfl
+    (by decide) (by decide) (by decide) rfl value114 cut115 rfl
 
 private def ps116 : List ℕ := 641 :: ps115
 private theorem row116 :
@@ -3725,7 +3866,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut116 : evalPhi WheelTableA590.fast ps115 920807 = 75278 := by decide +kernel
 private theorem value116 : evalPhi WheelTableA590.fast ps116 590237761 = 51219422 :=
   eval_delta WheelTableA590.fast ps115 641 590237761 920807 51294700 75278 51219422
-    (by decide) (by decide) rfl value115 cut116 rfl
+    (by decide) (by decide) (by decide) rfl value115 cut116 rfl
 
 private def ps117 : List ℕ := 643 :: ps116
 private theorem row117 :
@@ -3739,7 +3880,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut117 : evalPhi WheelTableA590.fast ps116 917943 = 74936 := by decide +kernel
 private theorem value117 : evalPhi WheelTableA590.fast ps117 590237761 = 51144486 :=
   eval_delta WheelTableA590.fast ps116 643 590237761 917943 51219422 74936 51144486
-    (by decide) (by decide) rfl value116 cut117 rfl
+    (by decide) (by decide) (by decide) rfl value116 cut117 rfl
 
 private def ps118 : List ℕ := 647 :: ps117
 private theorem row118 :
@@ -3753,7 +3894,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut118 : evalPhi WheelTableA590.fast ps117 912268 = 74384 := by decide +kernel
 private theorem value118 : evalPhi WheelTableA590.fast ps118 590237761 = 51070102 :=
   eval_delta WheelTableA590.fast ps117 647 590237761 912268 51144486 74384 51070102
-    (by decide) (by decide) rfl value117 cut118 rfl
+    (by decide) (by decide) (by decide) rfl value117 cut118 rfl
 
 private def ps119 : List ℕ := 653 :: ps118
 private theorem row119 :
@@ -3767,7 +3908,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut119 : evalPhi WheelTableA590.fast ps118 903886 = 73576 := by decide +kernel
 private theorem value119 : evalPhi WheelTableA590.fast ps119 590237761 = 50996526 :=
   eval_delta WheelTableA590.fast ps118 653 590237761 903886 51070102 73576 50996526
-    (by decide) (by decide) rfl value118 cut119 rfl
+    (by decide) (by decide) (by decide) rfl value118 cut119 rfl
 
 private def ps120 : List ℕ := 659 :: ps119
 private theorem row120 :
@@ -3781,7 +3922,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut120 : evalPhi WheelTableA590.fast ps119 895656 = 72827 := by decide +kernel
 private theorem value120 : evalPhi WheelTableA590.fast ps120 590237761 = 50923699 :=
   eval_delta WheelTableA590.fast ps119 659 590237761 895656 50996526 72827 50923699
-    (by decide) (by decide) rfl value119 cut120 rfl
+    (by decide) (by decide) (by decide) rfl value119 cut120 rfl
 
 private def ps121 : List ℕ := 661 :: ps120
 private theorem row121 :
@@ -3795,7 +3936,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut121 : evalPhi WheelTableA590.fast ps120 892946 = 72509 := by decide +kernel
 private theorem value121 : evalPhi WheelTableA590.fast ps121 590237761 = 50851190 :=
   eval_delta WheelTableA590.fast ps120 661 590237761 892946 50923699 72509 50851190
-    (by decide) (by decide) rfl value120 cut121 rfl
+    (by decide) (by decide) (by decide) rfl value120 cut121 rfl
 
 private def ps122 : List ℕ := 673 :: ps121
 private theorem row122 :
@@ -3809,7 +3950,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut122 : evalPhi WheelTableA590.fast ps121 877024 = 71129 := by decide +kernel
 private theorem value122 : evalPhi WheelTableA590.fast ps122 590237761 = 50780061 :=
   eval_delta WheelTableA590.fast ps121 673 590237761 877024 50851190 71129 50780061
-    (by decide) (by decide) rfl value121 cut122 rfl
+    (by decide) (by decide) (by decide) rfl value121 cut122 rfl
 
 private def ps123 : List ℕ := 677 :: ps122
 private theorem row123 :
@@ -3823,7 +3964,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut123 : evalPhi WheelTableA590.fast ps122 871843 = 70623 := by decide +kernel
 private theorem value123 : evalPhi WheelTableA590.fast ps123 590237761 = 50709438 :=
   eval_delta WheelTableA590.fast ps122 677 590237761 871843 50780061 70623 50709438
-    (by decide) (by decide) rfl value122 cut123 rfl
+    (by decide) (by decide) (by decide) rfl value122 cut123 rfl
 
 private def ps124 : List ℕ := 683 :: ps123
 private theorem row124 :
@@ -3837,7 +3978,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut124 : evalPhi WheelTableA590.fast ps123 864184 = 69925 := by decide +kernel
 private theorem value124 : evalPhi WheelTableA590.fast ps124 590237761 = 50639513 :=
   eval_delta WheelTableA590.fast ps123 683 590237761 864184 50709438 69925 50639513
-    (by decide) (by decide) rfl value123 cut124 rfl
+    (by decide) (by decide) (by decide) rfl value123 cut124 rfl
 
 private def ps125 : List ℕ := 691 :: ps124
 private theorem row125 :
@@ -3851,7 +3992,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut125 : evalPhi WheelTableA590.fast ps124 854179 = 69046 := by decide +kernel
 private theorem value125 : evalPhi WheelTableA590.fast ps125 590237761 = 50570467 :=
   eval_delta WheelTableA590.fast ps124 691 590237761 854179 50639513 69046 50570467
-    (by decide) (by decide) rfl value124 cut125 rfl
+    (by decide) (by decide) (by decide) rfl value124 cut125 rfl
 
 private def ps126 : List ℕ := 701 :: ps125
 private theorem row126 :
@@ -3865,7 +4006,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut126 : evalPhi WheelTableA590.fast ps125 841993 = 68009 := by decide +kernel
 private theorem value126 : evalPhi WheelTableA590.fast ps126 590237761 = 50502458 :=
   eval_delta WheelTableA590.fast ps125 701 590237761 841993 50570467 68009 50502458
-    (by decide) (by decide) rfl value125 cut126 rfl
+    (by decide) (by decide) (by decide) rfl value125 cut126 rfl
 
 private def ps127 : List ℕ := 709 :: ps126
 private theorem row127 :
@@ -3879,7 +4020,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut127 : evalPhi WheelTableA590.fast ps126 832493 = 67206 := by decide +kernel
 private theorem value127 : evalPhi WheelTableA590.fast ps127 590237761 = 50435252 :=
   eval_delta WheelTableA590.fast ps126 709 590237761 832493 50502458 67206 50435252
-    (by decide) (by decide) rfl value126 cut127 rfl
+    (by decide) (by decide) (by decide) rfl value126 cut127 rfl
 
 private def ps128 : List ℕ := 719 :: ps127
 private theorem row128 :
@@ -3893,7 +4034,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut128 : evalPhi WheelTableA590.fast ps127 820914 = 66213 := by decide +kernel
 private theorem value128 : evalPhi WheelTableA590.fast ps128 590237761 = 50369039 :=
   eval_delta WheelTableA590.fast ps127 719 590237761 820914 50435252 66213 50369039
-    (by decide) (by decide) rfl value127 cut128 rfl
+    (by decide) (by decide) (by decide) rfl value127 cut128 rfl
 
 private def ps129 : List ℕ := 727 :: ps128
 private theorem row129 :
@@ -3907,7 +4048,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut129 : evalPhi WheelTableA590.fast ps128 811881 = 65445 := by decide +kernel
 private theorem value129 : evalPhi WheelTableA590.fast ps129 590237761 = 50303594 :=
   eval_delta WheelTableA590.fast ps128 727 590237761 811881 50369039 65445 50303594
-    (by decide) (by decide) rfl value128 cut129 rfl
+    (by decide) (by decide) (by decide) rfl value128 cut129 rfl
 
 private def ps130 : List ℕ := 733 :: ps129
 private theorem row130 :
@@ -3921,7 +4062,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut130 : evalPhi WheelTableA590.fast ps129 805235 = 64872 := by decide +kernel
 private theorem value130 : evalPhi WheelTableA590.fast ps130 590237761 = 50238722 :=
   eval_delta WheelTableA590.fast ps129 733 590237761 805235 50303594 64872 50238722
-    (by decide) (by decide) rfl value129 cut130 rfl
+    (by decide) (by decide) (by decide) rfl value129 cut130 rfl
 
 private def ps131 : List ℕ := 739 :: ps130
 private theorem row131 :
@@ -3935,7 +4076,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut131 : evalPhi WheelTableA590.fast ps130 798697 = 64307 := by decide +kernel
 private theorem value131 : evalPhi WheelTableA590.fast ps131 590237761 = 50174415 :=
   eval_delta WheelTableA590.fast ps130 739 590237761 798697 50238722 64307 50174415
-    (by decide) (by decide) rfl value130 cut131 rfl
+    (by decide) (by decide) (by decide) rfl value130 cut131 rfl
 
 private def ps132 : List ℕ := 743 :: ps131
 private theorem row132 :
@@ -3949,7 +4090,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut132 : evalPhi WheelTableA590.fast ps131 794398 = 63919 := by decide +kernel
 private theorem value132 : evalPhi WheelTableA590.fast ps132 590237761 = 50110496 :=
   eval_delta WheelTableA590.fast ps131 743 590237761 794398 50174415 63919 50110496
-    (by decide) (by decide) rfl value131 cut132 rfl
+    (by decide) (by decide) (by decide) rfl value131 cut132 rfl
 
 private def ps133 : List ℕ := 751 :: ps132
 private theorem row133 :
@@ -3963,7 +4104,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut133 : evalPhi WheelTableA590.fast ps132 785935 = 63214 := by decide +kernel
 private theorem value133 : evalPhi WheelTableA590.fast ps133 590237761 = 50047282 :=
   eval_delta WheelTableA590.fast ps132 751 590237761 785935 50110496 63214 50047282
-    (by decide) (by decide) rfl value132 cut133 rfl
+    (by decide) (by decide) (by decide) rfl value132 cut133 rfl
 
 private def ps134 : List ℕ := 757 :: ps133
 private theorem row134 :
@@ -3977,7 +4118,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut134 : evalPhi WheelTableA590.fast ps133 779706 = 62680 := by decide +kernel
 private theorem value134 : evalPhi WheelTableA590.fast ps134 590237761 = 49984602 :=
   eval_delta WheelTableA590.fast ps133 757 590237761 779706 50047282 62680 49984602
-    (by decide) (by decide) rfl value133 cut134 rfl
+    (by decide) (by decide) (by decide) rfl value133 cut134 rfl
 
 private def ps135 : List ℕ := 761 :: ps134
 private theorem row135 :
@@ -3991,7 +4132,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut135 : evalPhi WheelTableA590.fast ps134 775608 = 62321 := by decide +kernel
 private theorem value135 : evalPhi WheelTableA590.fast ps135 590237761 = 49922281 :=
   eval_delta WheelTableA590.fast ps134 761 590237761 775608 49984602 62321 49922281
-    (by decide) (by decide) rfl value134 cut135 rfl
+    (by decide) (by decide) (by decide) rfl value134 cut135 rfl
 
 private def ps136 : List ℕ := 769 :: ps135
 private theorem row136 :
@@ -4005,7 +4146,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut136 : evalPhi WheelTableA590.fast ps135 767539 = 61671 := by decide +kernel
 private theorem value136 : evalPhi WheelTableA590.fast ps136 590237761 = 49860610 :=
   eval_delta WheelTableA590.fast ps135 769 590237761 767539 49922281 61671 49860610
-    (by decide) (by decide) rfl value135 cut136 rfl
+    (by decide) (by decide) (by decide) rfl value135 cut136 rfl
 
 private def ps137 : List ℕ := 773 :: ps136
 private theorem row137 :
@@ -4019,7 +4160,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut137 : evalPhi WheelTableA590.fast ps136 763567 = 61325 := by decide +kernel
 private theorem value137 : evalPhi WheelTableA590.fast ps137 590237761 = 49799285 :=
   eval_delta WheelTableA590.fast ps136 773 590237761 763567 49860610 61325 49799285
-    (by decide) (by decide) rfl value136 cut137 rfl
+    (by decide) (by decide) (by decide) rfl value136 cut137 rfl
 
 private def ps138 : List ℕ := 787 :: ps137
 private theorem row138 :
@@ -4033,7 +4174,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut138 : evalPhi WheelTableA590.fast ps137 749984 = 60252 := by decide +kernel
 private theorem value138 : evalPhi WheelTableA590.fast ps138 590237761 = 49739033 :=
   eval_delta WheelTableA590.fast ps137 787 590237761 749984 49799285 60252 49739033
-    (by decide) (by decide) rfl value137 cut138 rfl
+    (by decide) (by decide) (by decide) rfl value137 cut138 rfl
 
 private def ps139 : List ℕ := 797 :: ps138
 private theorem row139 :
@@ -4047,7 +4188,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut139 : evalPhi WheelTableA590.fast ps138 740574 = 59548 := by decide +kernel
 private theorem value139 : evalPhi WheelTableA590.fast ps139 590237761 = 49679485 :=
   eval_delta WheelTableA590.fast ps138 797 590237761 740574 49739033 59548 49679485
-    (by decide) (by decide) rfl value138 cut139 rfl
+    (by decide) (by decide) (by decide) rfl value138 cut139 rfl
 
 private def ps140 : List ℕ := 809 :: ps139
 private theorem row140 :
@@ -4061,7 +4202,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut140 : evalPhi WheelTableA590.fast ps139 729589 = 58694 := by decide +kernel
 private theorem value140 : evalPhi WheelTableA590.fast ps140 590237761 = 49620791 :=
   eval_delta WheelTableA590.fast ps139 809 590237761 729589 49679485 58694 49620791
-    (by decide) (by decide) rfl value139 cut140 rfl
+    (by decide) (by decide) (by decide) rfl value139 cut140 rfl
 
 private def ps141 : List ℕ := 811 :: ps140
 private theorem row141 :
@@ -4075,7 +4216,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut141 : evalPhi WheelTableA590.fast ps140 727790 = 58543 := by decide +kernel
 private theorem value141 : evalPhi WheelTableA590.fast ps141 590237761 = 49562248 :=
   eval_delta WheelTableA590.fast ps140 811 590237761 727790 49620791 58543 49562248
-    (by decide) (by decide) rfl value140 cut141 rfl
+    (by decide) (by decide) (by decide) rfl value140 cut141 rfl
 
 private def ps142 : List ℕ := 821 :: ps141
 private theorem row142 :
@@ -4089,7 +4230,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut142 : evalPhi WheelTableA590.fast ps141 718925 = 57842 := by decide +kernel
 private theorem value142 : evalPhi WheelTableA590.fast ps142 590237761 = 49504406 :=
   eval_delta WheelTableA590.fast ps141 821 590237761 718925 49562248 57842 49504406
-    (by decide) (by decide) rfl value141 cut142 rfl
+    (by decide) (by decide) (by decide) rfl value141 cut142 rfl
 
 private def ps143 : List ℕ := 823 :: ps142
 private theorem row143 :
@@ -4103,7 +4244,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut143 : evalPhi WheelTableA590.fast ps142 717178 = 57719 := by decide +kernel
 private theorem value143 : evalPhi WheelTableA590.fast ps143 590237761 = 49446687 :=
   eval_delta WheelTableA590.fast ps142 823 590237761 717178 49504406 57719 49446687
-    (by decide) (by decide) rfl value142 cut143 rfl
+    (by decide) (by decide) (by decide) rfl value142 cut143 rfl
 
 private def ps144 : List ℕ := 827 :: ps143
 private theorem row144 :
@@ -4117,7 +4258,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut144 : evalPhi WheelTableA590.fast ps143 713709 = 57455 := by decide +kernel
 private theorem value144 : evalPhi WheelTableA590.fast ps144 590237761 = 49389232 :=
   eval_delta WheelTableA590.fast ps143 827 590237761 713709 49446687 57455 49389232
-    (by decide) (by decide) rfl value143 cut144 rfl
+    (by decide) (by decide) (by decide) rfl value143 cut144 rfl
 
 private def ps145 : List ℕ := 829 :: ps144
 private theorem row145 :
@@ -4131,7 +4272,7 @@ set_option maxHeartbeats 4000000 in
 private theorem cut145 : evalPhi WheelTableA590.fast ps144 711987 = 57322 := by decide +kernel
 private theorem value145 : evalPhi WheelTableA590.fast ps145 590237761 = 49331910 :=
   eval_delta WheelTableA590.fast ps144 829 590237761 711987 49389232 57322 49331910
-    (by decide) (by decide) rfl value144 cut145 rfl
+    (by decide) (by decide) (by decide) rfl value144 cut145 rfl
 
 private theorem last_row :
     ((List.range (838+1)).filter (fun n => decide n.Prime)).reverse = ps145 := by
