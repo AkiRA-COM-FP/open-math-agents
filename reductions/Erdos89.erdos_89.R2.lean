@@ -17,8 +17,10 @@ def H1 : Prop :=
 k points and the family covers at most exp(k²) points, bound the number
 of blocks by a constant times the number of distances in their union plus one.
 Assume that any collection of at most k lines or circles contains fewer than
-half the points of the union. At each pin, assume that ordered equidistant
-target pairs in two other distinct blocks exceed k times the number of targets. After deleting any target pairs
+half the points of the union. At each pin the shell-weighted count below must
+exceed k times the number of remaining targets. Each anchor contributes the
+integer part of t(t−1)/(s−2), or zero for shells of size at most two.
+After deleting any target pairs
 with at most k² deletions per distinct pin pair and discarding up to k target
 directions at each first endpoint, rich bisectors must still
 contribute more than twice k times the square of the union size. Equal-length
@@ -35,7 +37,10 @@ def H2 : Prop :=
     (∀ T ∈ F, ∀ p ∈ T,
       let G := F.erase T
       let B := G.biUnion id
-      k*B.card < ∑ U ∈ G, ∑ x ∈ U, ((B \ U).filter fun y => dist p y = dist p x).card) →
+      k*B.card < ∑ U ∈ G, ∑ x ∈ U,
+        let s := (B.filter fun y => dist p y = dist p x).card
+        let t := ((B \ U).filter fun y => dist p y = dist p x).card
+        t*(t-1)/(s-2)) →
     (let S := F.biUnion id
       let W := fun x y : ℝ² => S.filter fun p => dist p y = dist p x
       ∀ G : ℝ² → Finset ℝ², (∀ x ∈ S, G x ⊆ S.erase x) →
@@ -279,15 +284,35 @@ private theorem curve_packing (k : ℕ) (hk : 0 < k) (F G : Finset (Finset ℝ²
     _ ≤ 2*(k*(2*D+1)) := Nat.mul_le_mul_left _ hcov
     _ = _ := by ring
 
-/-- One pin with few ordered equidistant target pairs across different blocks
-bounds the number of blocks, independently of their locations. -/
-private theorem cross_pin_packing (k : ℕ) (hk : 0 < k) (F : Finset (Finset ℝ²))
+/-- The row bound after discounting repeated intermediates. Nat division
+rounds down and gives zero on shells of size at most two. -/
+private theorem shell_row (s t k : ℕ) (hk : 0 < k) (hs : s ≤ k+t) :
+    s ≤ 2*k + t*(t-1)/(s-2) := by
+  by_cases small : s ≤ 2*k
+  · exact small.trans (Nat.le_add_right _ _)
+  obtain ⟨u,hu⟩ := Nat.exists_eq_add_of_le (show 2*k+1 ≤ s by omega)
+  have ht : k+1+u ≤ t := by omega
+  have ht' : k+u ≤ t-1 := by omega
+  have hd : 0 < s-2 := by omega
+  have hb : (u+1)*(s-2) ≤ t*(t-1) := by
+    apply le_trans _ (Nat.mul_le_mul ht ht')
+    have h := Nat.sub_add_cancel (show 2 ≤ s by omega)
+    nlinarith [congrArg (fun a : ℕ => a*u) h,congrArg (fun a : ℕ => a*u) hu,
+      Nat.mul_le_mul_right k hk]
+  have := (Nat.le_div_iff_mul_le hd).mpr hb
+  omega
+
+/-- A low shell-weighted count at one pin bounds the total number of blocks. -/
+private theorem weighted_pin_packing (k : ℕ) (hk : 0 < k) (F : Finset (Finset ℝ²))
     (hdis : (F : Set (Finset ℝ²)).PairwiseDisjoint id) (hsize : ∀ T ∈ F, T.card = k)
     (T : Finset ℝ²) (hT : T ∈ F) (p : ℝ²) (hp : p ∈ T) :
     let G := F.erase T
     let B := G.biUnion id
-    (∑ U ∈ G, ∑ x ∈ U, ((B \ U).filter fun y => dist p y = dist p x).card) ≤ k*B.card →
-    F.card ≤ 2*distinctDistances (F.biUnion id)+1 := by
+    (∑ U ∈ G, ∑ x ∈ U,
+        let s := (B.filter fun y => dist p y = dist p x).card
+        let t := ((B \ U).filter fun y => dist p y = dist p x).card
+        t*(t-1)/(s-2)) ≤ k*B.card →
+    F.card ≤ 3*distinctDistances (F.biUnion id)+1 := by
   classical
   intro G B hlow
   let S := F.biUnion id
@@ -316,34 +341,39 @@ private theorem cross_pin_packing (k : ℕ) (hk : 0 < k) (F : Finset (Finset ℝ
       · exact mem_union_left _ h
       · exact mem_union_right _ (mem_filter.mpr ⟨mem_sdiff.mpr ⟨hy,h⟩,he⟩)
     exact (card_le_card hs).trans ((card_union_le _ _).trans_eq (by rw [hsize U (mem_of_mem_erase hU)]))
-  have energy : (∑ x ∈ B, (B.filter (same x)).card) ≤ 2*k*B.card := by
+  let weight := fun (U : Finset ℝ²) (x : ℝ²) =>
+    let s := (B.filter (same x)).card
+    let t := ((B \ U).filter (same x)).card
+    t*(t-1)/(s-2)
+  change (∑ U ∈ G, ∑ x ∈ U, weight U x) ≤ k*B.card at hlow
+  have energy : (∑ x ∈ B, (B.filter (same x)).card) ≤ 3*k*B.card := by
     rw [show B = G.biUnion id from rfl, sum_biUnion hG]
     calc
-      _ ≤ ∑ U ∈ G, ∑ x ∈ U, (k+((B \ U).filter (same x)).card) :=
-        sum_le_sum fun U hU => sum_le_sum fun x _ => row U hU x
-      _ = B.card*k + ∑ U ∈ G, ∑ x ∈ U, ((B \ U).filter (same x)).card := by
+      _ ≤ ∑ U ∈ G, ∑ x ∈ U, (2*k+weight U x) :=
+        sum_le_sum fun U hU => sum_le_sum fun x _ => shell_row _ _ k hk (row U hU x)
+      _ = B.card*(2*k) + ∑ U ∈ G, ∑ x ∈ U, weight U x := by
         simp only [sum_add_distrib]
         congr 1
-        simpa [B] using (sum_biUnion hG (f := fun _ : ℝ² => k)).symm
-      _ ≤ B.card*k + k*B.card := Nat.add_le_add_left hlow _
+        simpa [B] using (sum_biUnion hG (f := fun _ : ℝ² => 2*k)).symm
+      _ ≤ B.card*(2*k) + k*B.card := Nat.add_le_add_left hlow _
       _ = _ := by ring
   have hc := pin_count B D (dist p) hmap
   simp only [sum_boole, Nat.cast_id] at hc
   change B.card^2 ≤ D.card * (∑ x ∈ B, (B.filter (same x)).card) at hc
-  have hblocks : G.card ≤ 2*D.card := by
+  have hblocks : G.card ≤ 3*D.card := by
     by_cases hb : B.card = 0
     · have hz := hcard.symm.trans hb
       exact ((mul_eq_zero.mp hz).resolve_right hk.ne').le.trans (Nat.zero_le _)
-    have he : B.card*B.card ≤ (2*k*D.card)*B.card := by
+    have he : B.card*B.card ≤ (3*k*D.card)*B.card := by
       calc
         _ = B.card^2 := by ring
         _ ≤ _ := hc.trans (Nat.mul_le_mul_left _ energy)
         _ = _ := by ring
     have h := Nat.le_of_mul_le_mul_right he (Nat.pos_of_ne_zero hb)
-    rw [hcard, Nat.mul_right_comm 2 k] at h
+    rw [hcard, Nat.mul_right_comm 3 k] at h
     exact Nat.le_of_mul_le_mul_right h hk
   have hF : G.card+1 = F.card := card_erase_add_one hT
-  change F.card ≤ 2*D.card+1
+  change F.card ≤ 3*D.card+1
   omega
 
 /-- Sum pinned collision counts, charging distinct ordered target pairs only
@@ -583,7 +613,10 @@ private theorem packing_from_curves (packing : H2) :
   · by_cases many : (∀ T ∈ F, ∀ p ∈ T,
       let G := F.erase T
       let B := G.biUnion id
-      k*B.card < ∑ U ∈ G, ∑ x ∈ U, ((B \ U).filter fun y => dist p y = dist p x).card)
+      k*B.card < ∑ U ∈ G, ∑ x ∈ U,
+        let s := (B.filter fun y => dist p y = dist p x).card
+        let t := ((B \ U).filter fun y => dist p y = dist p x).card
+        t*(t-1)/(s-2))
     · by_cases persistent : (let S := F.biUnion id
       let W := fun x y : ℝ² => S.filter fun p => dist p y = dist p x
       ∀ G : ℝ² → Finset ℝ², (∀ x ∈ S, G x ⊆ S.erase x) →
@@ -648,9 +681,9 @@ private theorem packing_from_curves (packing : H2) :
         (Nat.mul_le_mul_right _ (le_max_right C 6))
     push Not at many
     obtain ⟨T,hT,p,hp,hlow⟩ := many
-    have h := cross_pin_packing k hk F hdis (fun U hU => (hline U hU).1) T hT p hp
+    have h := weighted_pin_packing k hk F hdis (fun U hU => (hline U hU).1) T hT p hp
     have hh := h (by simpa using hlow)
-    exact hh.trans ((by omega : 2*distinctDistances (F.biUnion id)+1 ≤
+    exact hh.trans ((by omega : 3*distinctDistances (F.biUnion id)+1 ≤
       4*(distinctDistances (F.biUnion id)+1)).trans (Nat.mul_le_mul_right _ (by omega : 4 ≤ max C 6)))
   push Not at spread
   obtain ⟨G,hg,hpieces,hhalf⟩ := spread
