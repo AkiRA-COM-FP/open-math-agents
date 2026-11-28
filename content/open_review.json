@@ -22044,6 +22044,30 @@
     "https://github.com/connoranderson/open-math-agents/blob/4d9bbd36051eb80aed01bf8ef6218dd85c06d7d3/proofs/mo-443664.lean"
    ],
    "reason": "Roberson asks for a characterization (e.g. the extreme points) of M_Gamma = {M doubly stochastic, chi* M chi doubly stochastic}. The formal 'characterization' (identity row/column plus PSD of (x,y) -> M(x1-y1, x2-y2)) is a Bochner/Fourier restatement of entrywise nonnegativity of chi*Mchi, which the asker already identified as the hard part. Only the permutation-matrix part (exactly the automorphisms) is a small real statement. The proof file is also an unchanged port of connoranderson's earlier public proof ('not a claim of a new mathematical discovery')."
+  },
+  "oeis-a084091": {
+   "date": "2026-11-28",
+   "pr": 23569,
+   "evidence": [
+    "https://oeis.org/A084091"
+   ],
+   "reason": "Trivial. The g.f. is Sum_k G(x^(2^k)) with G(x)=x/(1+x+x^2)=x(1-x)/(1-x^3), whose coefficients are exactly chi_3(m); so a(n)=Sum_{2^k|n} chi(n/2^k), which is Stephan's Dirichlet g.f. L(chi,s)/(1-2^-s) by direct rearrangement. The formal statement is literally this reindexing (sum over k with 2^k|n versus divisors d with n/d a power of 2). It also follows at once from Somos's 2004 multiplicative formula in the entry."
+  },
+  "oeis-a223907": {
+   "date": "2026-11-28",
+   "pr": 27750,
+   "evidence": [
+    "https://oeis.org/A223907"
+   ],
+   "reason": "Trivial from the definition: hat c_4^(-n) = Sum_m |s(4,m)|(m+1)^n with |s(4,m)| = 0,6,11,6,1, i.e. 6*2^n+11*3^n+6*4^n+5^n, which is Barker's closed form verbatim; the g.f. follows by summing four geometric series. Statement is faithful (offset 1, sign (-1)^4) but there is nothing open here."
+  },
+  "oeis-a200216": {
+   "date": "2026-11-28",
+   "pr": 30174,
+   "evidence": [
+    "https://oeis.org/A200216"
+   ],
+   "reason": "Trivial from the definition. The statement defines a(n) by the entry program's explicit closed form 5^5 t^2 - 3000 t + 719 with t = ((-1)^n E(2n-1)+57)/125 and E from powers of 682+61*sqrt125, so a(n) is a fixed linear combination of 1, (-1)^n lambda^{+-n}, lambda^{+-2n}; Mathar's order-5 recurrence is just the product of the corresponding characteristic factors (the proof is a 60-line polynomial identity). Jasinski's 2011 Lucas-number closed form in the entry gives the same immediately."
   }
  },
  "known": {
@@ -39889,6 +39913,180 @@
     "https://isitsolved.com/journal"
    ],
    "reason": "Mathar's recurrence is stated for n>=3; it fails at n=2 (left side -96), which the statement notes, and it holds for 3<=n<200 in my check. Settled in iis:2611.00219 (Mathar P-recurrence batch), filed 2026-11-28 03:18 UTC, before the site proof commit (12:18 UTC). Routine holonomic identity in any case."
+  },
+  "oeis-a135953": {
+   "date": "2026-11-28",
+   "pr": 23016,
+   "evidence": [
+    "https://oeis.org/A135953",
+    "https://oeis.org/A050937"
+   ],
+   "reason": "The statement (both factors >1, semiprime F(p), p prime) is a faithful reading. But it is an immediate corollary of classical facts: for p odd F(p)=F(k)^2+F(k+1)^2 with gcd(F(k),F(k+1))=1, so every prime factor of F(p) is a sum of two squares (Euler/Fermat; Lucas's classical result that odd prime divisors of odd-index Fibonacci numbers are 1 mod 4). The Lean proof is exactly this three-line argument."
+  },
+  "oeis-a202330": {
+   "date": "2026-11-28",
+   "pr": 22536,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/3fe303d426ff72bfc902c69963b1db4065659313/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA202330.lean"
+   ],
+   "reason": "Statement (Barker's g.f. and order-5 recurrence for n>5, Hardin's (n+1)x4 arrays with nondecreasing overlapping 2-bit windows) is faithful. trureturing's HardinA202330.lean (first committed 2026-11-12, sorry-free, theorem result : claim) proves the same g.f., the quartic closed form and the recurrence for n>=6 with the same window definition, 16 days before the site proof (2026-11-28 07:22 UTC)."
+  },
+  "oeis-a127154": {
+   "date": "2026-11-28",
+   "pr": 19674,
+   "evidence": [
+    "https://isitsolved.com/journal",
+    "https://oeis.org/A127154"
+   ],
+   "reason": "Statement (Mathar's order-5 P-recurrence for n>=5, with the entry's algebraic g.f. as definition) is faithful. isitsolved iis:2611.00219 (submitted 2026-11-28 03:18 UTC) decides it exactly from the g.f. by the differential-operator method and lists A127154 'true, all n>=5', about 11.5 hours before the site proof (2026-11-28 14:45 UTC)."
+  },
+  "arxiv-2302.08394": {
+   "date": "2026-11-28",
+   "pr": 16507,
+   "evidence": [
+    "https://arxiv.org/abs/2302.08394"
+   ],
+   "reason": "The formal statement (the invariant A of rooted trees is not complete) is a result of the source paper itself, not an open problem: Burghart's abstract says 'For A, we provide counterexamples showing that it is not complete', and the Lean proof uses exactly the two nine-vertex trees of Remark 16. The open question in the paper (completeness of M) is not addressed."
+  },
+  "oeis-a176755": {
+   "date": "2026-11-28",
+   "pr": 16119,
+   "evidence": [
+    "https://www.mdpi.com/2227-7390/14/12/2177",
+    "https://oeis.org/A176755"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,3,0,-2); the statement is Mathar's order-4 P-recurrence for n>=4 with the correct quadratic-convolution definition (data reproduced). Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 4 (k=0) proves it and names A176749-A176757 explicitly; checked numerically to n=59."
+  },
+  "oeis-a176753": {
+   "date": "2026-11-28",
+   "pr": 16253,
+   "evidence": [
+    "https://www.mdpi.com/2227-7390/14/12/2177",
+    "https://oeis.org/A176753"
+   ],
+   "reason": "Choulet sequence (1,1,0,-2); statement is Mathar's order-4 recurrence for n>=4, definition reproduces the data. Dubickas, Mathematics 14 (2026) 2177 (2026-06-17), Theorem 4 covers k=0 and explicitly lists A176749-A176757; recurrence checked to n=59."
+  },
+  "oeis-a176754": {
+   "date": "2026-11-28",
+   "pr": 16235,
+   "evidence": [
+    "https://www.mdpi.com/2227-7390/14/12/2177",
+    "https://oeis.org/A176754"
+   ],
+   "reason": "Choulet sequence (1,2,0,-2); statement is Mathar's order-4 recurrence for n>=4, definition reproduces the data. Dubickas, Mathematics 14 (2026) 2177 (2026-06-17), Theorem 4 (k=0) proves it and explicitly lists A176749-A176757; checked to n=59."
+  },
+  "oeis-a176612": {
+   "date": "2026-11-28",
+   "pr": 16130,
+   "evidence": [
+    "https://www.mdpi.com/2227-7390/14/12/2177",
+    "https://oeis.org/A176612"
+   ],
+   "reason": "Choulet sequence (1,2,1,1); statement is Mathar's order-5 recurrence for n>=5 with a(n+1)=sum+ (n+1)+1. Dubickas, Mathematics 14 (2026) 2177 (2026-06-17), Section 3 treats A176612 by name and gets 'exactly the same formula as it was conjectured'; checked to n=59."
+  },
+  "oeis-a176828": {
+   "date": "2026-11-28",
+   "pr": 16022,
+   "evidence": [
+    "https://www.mdpi.com/2227-7390/14/12/2177",
+    "https://oeis.org/A176828"
+   ],
+   "reason": "Choulet sequence (1,2,1,-1); statement is Mathar's order-5 recurrence for n>=5 (definition reproduces data). Dubickas's Theorem 3 (Mathematics 14 (2026) 2177, 2026-06-17) gives such a recurrence for every (a0,a1,k,l); I checked that the order-5 recurrence with linear coefficients and leading (n+1) is unique for this sequence, so it is Mathar's. (iis:2611.00226 is later than the site proof and irrelevant.)"
+  },
+  "oeis-a059100": {
+   "date": "2026-11-28",
+   "pr": 16135,
+   "evidence": [
+    "https://oeis.org/A059100",
+    "https://doi.org/10.1016/0022-314X(79)90040-4"
+   ],
+   "reason": "Statement (for n>=2 the largest partial quotient of s(n)=Sum_{k>=1} n^(-2^k) is n^2+2) is a faithful reading of Cloitre's 2002 remark. It follows from Shallit's 1979 theorem (J. Number Theory 11, 'Simple continued fractions for some irrational numbers'; also Kmosek 1979) giving the explicit continued fraction of Sum_k u^(-2^k), here with u=n^2. The joaquimmj OEIS paper (draft of 2026-11-19, Section 'Entries settled by others') already records that Cloitre's conjecture follows from Shallit's theorem."
+  },
+  "oeis-a179077": {
+   "date": "2026-11-28",
+   "pr": 16234,
+   "evidence": [
+    "https://oeis.org/A179077",
+    "https://oeis.org/A036968"
+   ],
+   "reason": "Fröhlich's conjecture (((2^p-2)/p) mod p equals the Genocchi number G(p-1) mod p) is stated faithfully, including p=2. As the statement file itself says, it is an immediate corollary of von Staudt-Clausen (pB_{p-1} = -1 mod p) and the formula G(n)=2(1-2^n)B_n given in A036968: G(p-1) = 2(2^(p-1)-1)/p * (-pB_{p-1}) = (2^p-2)/p mod p. Classical; not open."
+  },
+  "oeis-a002190": {
+   "date": "2026-11-28",
+   "pr": 16052,
+   "evidence": [
+    "https://dmtcs.episciences.org/12792/pdf",
+    "https://oeis.org/A002190"
+   ],
+   "reason": "Statement (Hanna's 2010 identity 1 = Sum a(n+1)C_n x^n Sum_k C(2n+k,k)^2(-x)^k, coefficientwise, with a defined from -log J0(2 sqrt x)) is faithful; I checked it to x^22. Aval, Boussicault, Bouvel, Silimbani, 'Combinatorics of non-ambiguous trees', FPSAC 2013 (DMTCS proc. AS), Proposition 11 proves exactly Sum_k (-1)^k b_k C_k C(n+k,n-k)^2 = 0 for n>=1 and says it 'settles a conjecture of P. Hanna (see A002190)'; the entry already cites Aval et al."
+  },
+  "mo-244114": {
+   "date": "2026-11-28",
+   "pr": 16217,
+   "evidence": [
+    "https://mathoverflow.net/questions/244114"
+   ],
+   "reason": "Disproof of 'radical after every one-variable specialization implies radical' for n>=2. The question was answered in 2016: Jason Starr's comment and answer give the counterexample <x1-x2, x1^2, x1x2, x2^2> (a length-2 point thickened along the diagonal), with Gro-Tsen's comment explaining it. The Lean proof uses the same construction along the antidiagonal, <x1+x2, x1^2>."
+  },
+  "mo-315934": {
+   "date": "2026-11-28",
+   "pr": 16188,
+   "evidence": [
+    "https://mathoverflow.net/questions/315934"
+   ],
+   "reason": "The statement (some group A represents the finite-order-elements functor Grp->Set, naturally) is faithfully negated. The question has no answer, but a 2018 comment (score 8) already states 'It is not' (the functor is a filtered colimit colim_n Hom(C_n,-) and is not representable). The Lean disproof is the standard one-line argument: the universal element has some finite order m, so it cannot map to a generator of Z/(m+1)."
+  },
+  "oeis-a075245": {
+   "date": "2026-11-28",
+   "pr": 15697,
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.24163511",
+    "https://oeis.org/A075245/b075245.txt"
+   ],
+   "reason": "Disproof of Hasler's formula a(n)=floor(n/4)+d, d in {1,2}, at n=409 with the maximal triple (105,3906,7987770). The counterexample is already in the entry's own b-file (n=3..2000, by Hasler), and the Athanor OEIS notebook (Kudriashov, Zenodo 24163511, published 2026-11-12, task 2026-11-12-A075245) refuted it with exactly n=409 and the same triple, listing ten failures below 2000. The statement's tie-tolerant 'exists a maximizing triple' reading is faithful."
+  },
+  "oeis-a287183": {
+   "date": "2026-11-28",
+   "pr": 30212,
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.23407381",
+    "https://oeis.org/A287183"
+   ],
+   "reason": "Statement (limit m in [1.22,1.23) and -2 < m - a(n)/n < 1 for the zeros of the 00->0010, 1->00 word A288106) is faithful. Ashburn, 'Iterated string replacements from 00' (Zenodo 23407381, 16 Oct 2026) treats this map as M11 and lists 'A287183 M11 A288106 0 1.2266815 -2 < m - a(n)/n < 1 true', with m the root of x^3+3x^2-6x+1 as in the Lean proof. A previous batch already marked the sister A287185 known from the same paper."
+  },
+  "oeis-a004138": {
+   "date": "2026-11-28",
+   "pr": 30215,
+   "evidence": [
+    "https://oeis.org/A004138"
+   ],
+   "reason": "The entry itself records Plouffe's g.f. as 'Conjectured (correctly)', and the statement file says 'Status: known result'. With Rawlins's recurrence a(n)=a(n-1)+a(n-2)-a(n-3)+2a(n-4)+2 (n>=5) taken as the definition, the g.f. follows by multiplying out (trivial). Nothing open is settled."
+  },
+  "oeis-a209532": {
+   "date": "2026-11-28",
+   "pr": 30169,
+   "evidence": [
+    "https://oeis.org/A209534",
+    "https://oeis.org/A209534/a209534.pdf"
+   ],
+   "reason": "Statement (Barker's g.f. and parity closed forms for column 6 of A209534) is faithful. Sela Fried, 'On Sequence A209534' (2026, linked from the parent table, formula added Mar 10 2026) proves T(n,k) = 2^((k+1)(n+1)/2)+1 or 3*2^(((k+1)(n+1)-3)/2)+1 for the whole table, which for k=6 gives exactly Barker's closed forms and hence the g.f., months before the site proof."
+  },
+  "oeis-a268967": {
+   "date": "2026-11-28",
+   "pr": 30196,
+   "evidence": [
+    "https://isitsolved.com/journal",
+    "https://oeis.org/A268967"
+   ],
+   "reason": "Statement (Hardin's recurrence n>3, Barker's g.f. and closed form 16*3^(2n-3)(8n+3)) is faithful. isitsolved iis:2611.00271 (submitted 2026-11-28 09:04 UTC) lists A268967 'Barker g.f. proved; Hardin recurrence (n>3) proved', about 4 hours before the site proof (2026-11-28 13:04 UTC); the closed form follows from the g.f."
+  },
+  "mo-162723": {
+   "date": "2026-11-28",
+   "pr": 30182,
+   "evidence": [
+    "https://mathoverflow.net/a/163566"
+   ],
+   "reason": "The statement formalizes Suvrit's 2014 answer (score 2): the squared Frobenius norm of a principal submatrix is the binary quadratic form in b_ij=|a_ij|^2, and max-clique reduces to the problem (here as an exact clique equivalence with PSD-shifted adjacency inputs). The proof file says it ports that reduction, credited to Suvrit and S. Jegelka; nothing beyond the accepted-style answer is proved (no complexity class is formalized)."
   }
  },
  "reviewed": "2026-11-28"
