@@ -6,20 +6,13 @@ import OMAReductions.R_oeis_a000215_R1
 namespace OMA.R_oeis_a000215_R1_H3_R1
 open OMA.R_oeis_a000215_R1
 
-/-- Hasler's converse for x = 4 mod 8, with every family and witness condition that H3 carries. -/
-def H1 : Prop := ∀ x : ℕ, 4 < x → x % 8 = 4 → ¬ (x - 1).Prime →
-    (∀ p k : ℕ, p.Prime → p ≠ 2 → k ≠ 0 → x ≠ 4 * p ^ k ∧ x ≠ 12 * p ^ k) →
-    (∀ p r a : ℕ, p.Prime → r.Prime → p ≠ 2 → r ≠ 2 → a ≠ 0 →
-      p^a < r → x = 4*p^a*r → p = 3 ∧ 1 < a ∧ 5 ∣ x-1) →
-    (∀ k : ℕ, k ≠ 0 → x ≠ 36*11^k ∧ x ≠ 36*71^k) →
-    (∃ q r : ℕ, q.Prime ∧ r.Prime ∧ q ≠ r ∧ q ∣ x ^ 2 + 1 ∧
-      r ∣ x ^ 2 + 1 ∧ q % 16 ≠ 1 ∧ r % 16 ≠ 1 ∧ jacobiSym (x + 1 : ℕ) q = -1) →
-    (∀ m : ℕ, m ∣ x ^ 2 + 1 → m < 2 ^ (m.primeFactors.lcm fun q => x.gcd (q - 1))) →
-    (∀ q e h : ℕ, q.Prime → 0 < e → q ^ e * (2 ^ h + 1) ≠ x ^ 2 + 1) →
-    ¬ (x ^ 4 - 1 ∣ 2 ^ x - 1)
+/-- The case x = 4t with t odd (x ≡ 4 mod 8), using only the factor x² + 1 = 16t² + 1.
+    Python finds no odd t > 1 with 16t² + 1 ∣ 2^(4t) - 1 for 4t < 10^8. -/
+def H1 : Prop := ∀ t : ℕ, Odd t → 1 < t → ¬ (16 * t ^ 2 + 1 ∣ 2 ^ (4 * t) - 1)
 
-/-- Hasler's converse for 8 | x. The family x = 8 p^k is now fully excluded
-    (R1 left p = 3, k = 3 mod 4 open; it is closed below by the test modulo 9). -/
+/-- The case 8 ∣ x. The hypotheses of H3 about 4p^k, 12p^k, 4p^a r, 36·11^k, 36·71^k and
+    x % 8 = 4 are automatic or vacuous here. The family x = 8 p^k is now fully excluded:
+    R1 left p = 3, k = 3 mod 4 open, and `eight_three_fails` below closes it modulo 9. -/
 def H2 : Prop := ∀ x : ℕ, 4 < x → 8 ∣ x → ¬ (x - 1).Prime →
     (¬ ∃ s : ℕ, x = 2 ^ s) →
     (∀ p k : ℕ, p.Prime → p ≠ 2 → k ≠ 0 → x ≠ 8 * p ^ k) →
@@ -164,13 +157,17 @@ theorem eight_prime_power_fails (p k : ℕ) (hp : p.Prime) (odd : p ≠ 2) (hk :
   exact eight_three_fails k hk test
 
 theorem main : H1 → H2 → OMA.R_oeis_a000215_R1.H3 := by
-  intro h1 h2 x big four np npow fam fam2 fam3 jac mbound cof test
-  by_cases h8 : x % 8 = 4
-  · exact h1 x big h8 np (fun p k hp hp2 hk => ⟨(fam p k hp hp2 hk).1, (fam p k hp hp2 hk).2.2⟩)
-      fam2 fam3 (jac h8) mbound (cof h8) test
-  · have d8 : 8 ∣ x := by omega
-    refine h2 x big d8 np npow ?_ mbound test
+  intro h1 h2 x big four np npow _ _ _ _ mbound _ test
+  have hmod : x % 8 = 0 ∨ x % 8 = 4 := by omega
+  rcases hmod with h0 | h4
+  · refine h2 x big (by omega) np npow ?_ mbound test
     rintro p k hp hp2 hk rfl
     exact eight_prime_power_fails p k hp hp2 hk test
+  · obtain ⟨t, rfl⟩ : ∃ t, x = 4 * t := ⟨x / 4, by omega⟩
+    have todd : Odd t := ⟨t / 2, by omega⟩
+    apply h1 t todd (by omega)
+    have hsq : 16 * t ^ 2 + 1 = (4 * t) ^ 2 + 1 := by ring
+    rw [hsq]
+    exact dvd_trans (square_add_one_dvd (4 * t) (by omega)) test
 
 end OMA.R_oeis_a000215_R1_H3_R1
