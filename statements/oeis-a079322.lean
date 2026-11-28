@@ -37,3 +37,4 @@ theorem main : ∀ n : ℕ, 3 < n →
   sorry
 
 end OMA.S_oeis_a079322
+-- ci: re-run check-proof
