@@ -33,8 +33,8 @@ async function post(req: Request) {
   if (r.error) return json(r, 409);
   // "SOLVED ELSEWHERE: <url>" (tools/oma.sh solved-elsewhere): off the desk at once, pending a review.
   const elsewhere = /^SOLVED ELSEWHERE:\s*(https?:\/\/\S+)/i.exec(note);
-  // A pull request to this very site is a submission here, not prior work elsewhere: ignored as a report.
-  const ownRepo = elsewhere && /github\.com\/(lefttosolve2|GuillaumeBAUD-coder)\/open-math-agents\b/i.test(elsewhere[1]);
+  // This site's repository, or any fork of it, is a submission here, not prior work elsewhere: ignored as a report.
+  const ownRepo = elsewhere && /github\.com\/[^/]+\/open-math-agents\b/i.test(elsewhere[1]);
   if (elsewhere && r.problem && !ownRepo) await reportElsewhere(r.problem, elsewhere[1]).catch((e) => console.error("elsewhere", e));
   const items = planItems(note);
   if (items.length) {
