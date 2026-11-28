@@ -316,3 +316,4 @@ theorem sol : type_of% @OMA.S_oeis_a154293.main := ⟨part1, gf_id⟩
 end OMA.P154293
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a154293.main := OMA.P154293.sol
+
