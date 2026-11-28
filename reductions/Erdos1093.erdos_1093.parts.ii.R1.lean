@@ -15,11 +15,18 @@ is `k`-smooth.
 Proved below, with no hypothesis:
 
 * `smooth_term_dvd`: a `k`-smooth term `n - i` of `n (n - 1) ⋯ (n - k + 1) = k! C(n, k)` is coprime
-  to `C(n, k)`, so it divides `k!`. Two such terms are distinct factors of that product, so their
-  product divides `k!` (`two_terms_dvd`).
-* `bound`: an exceptional `C(n, k)` of deficiency at least `2` has `(n + 1 - k)^2 ≤ k!`. So each `k`
-  occurs with only finitely many `n` (at most `k + √(k!)`).
-* `five_le`: no exceptional `C(n, k)` of deficiency at least `2` has `k ≤ 4`.
+  to `C(n, k)`, so it divides `k!`. All the `k`-smooth terms are distinct factors of that product,
+  so their product divides `k!` (`smooth_terms_prod_dvd`).
+* `pow_deficiency_le`: hence an exceptional `C(n, k)` of deficiency `d` has `(n + 1 - k) ^ d ≤ k!`,
+  and `succ_pow_deficiency_le`: `(k + 1) ^ d ≤ k!`, which bounds the deficiency by
+  `log k! / log (k + 1) < k`.
+* `bound`: deficiency at least `2` gives `(n + 1 - k)^2 ≤ k!`. So each `k` occurs with only finitely
+  many `n` (at most `k + √(k!)`, and at most `k + (k!)^(1/d)` for deficiency `d`).
+* `five_le`, `six_le`, `seven_le`: no exceptional `C(n, k)` of deficiency at least `2`, `3`, `4`
+  has `k ≤ 4`, `k ≤ 5`, `k ≤ 6` respectively.
+* `eight_le`: with the tables `table5`, `table6`, `table7` (for `k = 5, 6, 7` every `n` left by
+  `bound` gives a `C(n, k)` with a prime factor at most `k`), no exceptional `C(n, k)` of
+  deficiency at least `2` has `k ≤ 7`. This is sharp: `C(44, 8)` is exceptional of deficiency `2`.
 
 So the finiteness of the pairs is the finiteness of the set of `k` that occur. The two
 hypotheses split that set by the deficiency; each is a special case of the target.
@@ -63,31 +70,48 @@ lemma smooth_term_dvd {n k i : ℕ} (hi : i < k)
   rw [← descFactorial_eq_prod_range, descFactorial_eq_factorial_mul_choose] at hprod
   exact (coprime_smooth hs hC).dvd_of_dvd_mul_right hprod
 
-/-- Two distinct `k`-smooth terms of an exceptional `C(n, k)`: their product divides `k!`. -/
-lemma two_terms_dvd {n k i j : ℕ} (hi : i < k) (hj : j < k) (hij : i ≠ j)
-    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p)
-    (hsi : n - i ∈ smoothNumbers (k + 1)) (hsj : n - j ∈ smoothNumbers (k + 1)) :
-    (n - i) * (n - j) ∣ k ! := by
-  have hprod : (n - i) * (n - j) ∣ ∏ t ∈ range k, (n - t) := by
-    rw [← Finset.mul_prod_erase (range k) (fun t => n - t) (mem_range.2 hi)]
-    exact mul_dvd_mul_left _
-      (Finset.dvd_prod_of_mem (fun t => n - t) (mem_erase.2 ⟨hij.symm, mem_range.2 hj⟩))
+/-- All the `k`-smooth terms `n - i` (`i < k`) of an exceptional `C(n, k)` together: their
+product divides `k!`. -/
+lemma smooth_terms_prod_dvd {n k : ℕ} (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) :
+    (∏ i ∈ (range k).filter (fun i => n - i ∈ smoothNumbers (k + 1)), (n - i)) ∣ k ! := by
+  have hprod : (∏ i ∈ (range k).filter (fun i => n - i ∈ smoothNumbers (k + 1)), (n - i)) ∣
+      ∏ t ∈ range k, (n - t) :=
+    Finset.prod_dvd_prod_of_subset _ _ _ (Finset.filter_subset _ _)
   rw [← descFactorial_eq_prod_range, descFactorial_eq_factorial_mul_choose] at hprod
-  have hcop : Nat.Coprime ((n - i) * (n - j)) (choose n k) :=
-    Nat.Coprime.mul_left (coprime_smooth hsi hC) (coprime_smooth hsj hC)
+  have hcop : Nat.Coprime
+      (∏ i ∈ (range k).filter (fun i => n - i ∈ smoothNumbers (k + 1)), (n - i)) (choose n k) := by
+    apply Nat.Coprime.prod_left
+    intro i hi
+    exact coprime_smooth (Finset.mem_filter.1 hi).2 hC
   exact hcop.dvd_of_dvd_mul_right hprod
+
+/-- An exceptional `C(n, k)` (`2 k ≤ n`) of deficiency `d` has `(n + 1 - k) ^ d ≤ k!`. -/
+lemma pow_deficiency_le {n k : ℕ} (hk : 2 * k ≤ n)
+    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) :
+    (n + 1 - k) ^ deficiency n k ≤ k ! := by
+  unfold deficiency
+  calc (n + 1 - k) ^ ((range k).filter (fun i => n - i ∈ smoothNumbers (k + 1))).card
+      ≤ ∏ i ∈ (range k).filter (fun i => n - i ∈ smoothNumbers (k + 1)), (n - i) := by
+        apply Finset.pow_card_le_prod
+        intro i hi
+        have hik := mem_range.1 (Finset.mem_filter.1 hi).1
+        omega
+    _ ≤ k ! := Nat.le_of_dvd (Nat.factorial_pos k) (smooth_terms_prod_dvd hC)
+
+/-- The deficiency `d` of an exceptional `C(n, k)` satisfies `(k + 1) ^ d ≤ k!`. -/
+lemma succ_pow_deficiency_le {n k : ℕ} (hk : 2 * k ≤ n)
+    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) :
+    (k + 1) ^ deficiency n k ≤ k ! :=
+  (Nat.pow_le_pow_left (by omega) _).trans (pow_deficiency_le hk hC)
 
 /-- An exceptional `C(n, k)` of deficiency at least `2` has `(n + 1 - k)^2 ≤ k!`. -/
 lemma bound {n k : ℕ} (hk : 2 * k ≤ n) (hd : 1 < deficiency n k)
     (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) :
     (n + 1 - k) * (n + 1 - k) ≤ k ! := by
-  unfold deficiency at hd
-  obtain ⟨i, hi, j, hj, hij⟩ := Finset.one_lt_card.1 hd
-  rw [Finset.mem_filter, Finset.mem_range] at hi hj
-  have hle := Nat.le_of_dvd (Nat.factorial_pos k) (two_terms_dvd hi.1 hj.1 hij hC hi.2 hj.2)
-  have h1 : n + 1 - k ≤ n - i := by omega
-  have h2 : n + 1 - k ≤ n - j := by omega
-  exact (Nat.mul_le_mul h1 h2).trans hle
+  have h1 : 0 < n + 1 - k := by omega
+  calc (n + 1 - k) * (n + 1 - k) = (n + 1 - k) ^ 2 := (sq _).symm
+    _ ≤ (n + 1 - k) ^ deficiency n k := Nat.pow_le_pow_right h1 hd
+    _ ≤ k ! := pow_deficiency_le hk hC
 
 /-- No exceptional `C(n, k)` of deficiency at least `2` has `k ≤ 4`. -/
 lemma five_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 1 < deficiency n k)
@@ -100,6 +124,89 @@ lemma five_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 1 < deficiency n k)
   · have hk1 : k + 1 ≤ n + 1 - k := by omega
     have h3 := (Nat.mul_le_mul hk1 hk1).trans (bound hk hd hC)
     interval_cases k <;> simp [Nat.factorial] at h3
+
+/-- `t * t ≤ c < (m + 1) * (m + 1)` forces `t ≤ m`. -/
+lemma le_of_mul_self_le {t m c : ℕ} (h : t * t ≤ c) (hc : c < (m + 1) * (m + 1)) : t ≤ m := by
+  by_contra hlt
+  have h1 : m + 1 ≤ t := by omega
+  exact absurd (hc.trans_le ((Nat.mul_le_mul h1 h1).trans h)) (lt_irrefl c)
+
+/-- Table for `k = 5`: for `10 ≤ n ≤ 14`, `C(n, 5)` has a prime factor at most `5`. -/
+lemma table5 : ∀ n, n ≤ 14 → 10 ≤ n →
+    (n.descFactorial 5 / 5 !) % 2 = 0 ∨ (n.descFactorial 5 / 5 !) % 3 = 0 ∨
+      (n.descFactorial 5 / 5 !) % 5 = 0 := by
+  decide
+
+/-- Table for `k = 6`: for `12 ≤ n ≤ 31`, `C(n, 6)` has a prime factor at most `5`. -/
+lemma table6 : ∀ n, n ≤ 31 → 12 ≤ n →
+    (n.descFactorial 6 / 6 !) % 2 = 0 ∨ (n.descFactorial 6 / 6 !) % 3 = 0 ∨
+      (n.descFactorial 6 / 6 !) % 5 = 0 := by
+  decide
+
+/-- Table for `k = 7`: for `14 ≤ n ≤ 76`, `C(n, 7)` has a prime factor at most `7`. -/
+lemma table7 : ∀ n, n ≤ 76 → 14 ≤ n →
+    (n.descFactorial 7 / 7 !) % 2 = 0 ∨ (n.descFactorial 7 / 7 !) % 3 = 0 ∨
+      (n.descFactorial 7 / 7 !) % 5 = 0 ∨ (n.descFactorial 7 / 7 !) % 7 = 0 := by
+  decide
+
+/-- No exceptional `C(n, k)` of deficiency at least `2` has `k ≤ 7`. This is sharp: `C(44, 8)`
+is exceptional of deficiency `2` (the first example of Erdős, Lacampagne and Selfridge; a
+computation, not used here). -/
+lemma eight_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 1 < deficiency n k)
+    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) : 8 ≤ k := by
+  have h5 := five_le hk hd hC
+  have hb := bound hk hd hC
+  by_contra h
+  have hk7 : k ≤ 7 := by omega
+  have hch : choose n k = n.descFactorial k / k ! := Nat.choose_eq_descFactorial_div_factorial n k
+  have small : ∀ p, p.Prime → p ≤ k → (n.descFactorial k / k !) % p = 0 → False := by
+    intro p hp hpk hmod
+    have hdvd : p ∣ choose n k := by
+      rw [hch]
+      exact Nat.dvd_of_mod_eq_zero hmod
+    have := hC p hp hdvd
+    omega
+  interval_cases k
+  · have hn : n + 1 - 5 ≤ 10 := le_of_mul_self_le hb (by decide)
+    rcases table5 n (by omega) (by omega) with h' | h' | h'
+    · exact small 2 Nat.prime_two (by norm_num) h'
+    · exact small 3 Nat.prime_three (by norm_num) h'
+    · exact small 5 Nat.prime_five (by norm_num) h'
+  · have hn : n + 1 - 6 ≤ 26 := le_of_mul_self_le hb (by decide)
+    rcases table6 n (by omega) (by omega) with h' | h' | h'
+    · exact small 2 Nat.prime_two (by norm_num) h'
+    · exact small 3 Nat.prime_three (by norm_num) h'
+    · exact small 5 Nat.prime_five (by norm_num) h'
+  · have hn : n + 1 - 7 ≤ 70 := le_of_mul_self_le hb (by decide)
+    rcases table7 n (by omega) (by omega) with h' | h' | h' | h'
+    · exact small 2 Nat.prime_two (by norm_num) h'
+    · exact small 3 Nat.prime_three (by norm_num) h'
+    · exact small 5 Nat.prime_five (by norm_num) h'
+    · exact small 7 (by norm_num) (by norm_num) h'
+
+/-- No exceptional `C(n, k)` of deficiency at least `3` has `k ≤ 5`. -/
+lemma six_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 2 < deficiency n k)
+    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) : 6 ≤ k := by
+  by_contra h
+  have h5 : k ≤ 5 := by omega
+  have h3 : (k + 1) ^ 3 ≤ k ! :=
+    (Nat.pow_le_pow_right (by omega) hd).trans (succ_pow_deficiency_le hk hC)
+  rcases Nat.eq_zero_or_pos k with h0 | h0
+  · subst h0
+    simp [deficiency] at hd
+  · interval_cases k <;> simp [Nat.factorial] at h3
+
+/-- No exceptional `C(n, k)` of deficiency at least `4` has `k ≤ 6`. -/
+lemma seven_le {n k : ℕ} (hk : 2 * k ≤ n) (hd : 3 < deficiency n k)
+    (hC : ∀ p, p.Prime → p ∣ choose n k → k < p) : 7 ≤ k := by
+  by_contra h
+  have h6 : k ≤ 6 := by omega
+  have h4 : (k + 1) ^ 4 ≤ k ! :=
+    (Nat.pow_le_pow_right (by omega) hd).trans (succ_pow_deficiency_le hk hC)
+  rcases Nat.eq_zero_or_pos k with h0 | h0
+  · subst h0
+    simp [deficiency] at hd
+  · interval_cases k <;> simp [Nat.factorial] at h4
 
 theorem main : H1 → H2 → type_of% @Erdos1093.erdos_1093.parts.ii := by
   intro h1 h2
