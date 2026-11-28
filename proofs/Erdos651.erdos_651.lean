@@ -6086,7 +6086,5 @@ theorem msl_parent_from_pohoata
 
 end OMA
 
-end OMA
-
 theorem OMA.solution : type_of% @Erdos651.erdos_651 := by
   exact OMA.msl_parent_from_pohoata OMA.msl_pohoata
