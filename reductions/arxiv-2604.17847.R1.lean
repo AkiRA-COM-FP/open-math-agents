@@ -10,7 +10,7 @@ open OMA.S_arxiv_2604_17847
 
 -- It suffices to find a finite cover in the case of a recurring prime-index rank family.
 def H1 : Prop :=
-  ∀ q r : ℕ, q.Prime → 41 < q → q ≠ 53 → r ∈ S q →
+  ∀ q r : ℕ, q.Prime → 53 < q → r ∈ S q →
     (∃ e : ℕ, e ∣ r.gcd (pisano q) ∧ ∀ B : ℕ, ∃ l > B, ∃ p > B,
       l.Prime ∧ r.gcd (pisano q) * l ≡ r [MOD pisano q] ∧
       p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p = e * l) →
@@ -20,7 +20,7 @@ def H1 : Prop :=
 
 -- Isolate the exceptional square-divisibility case at the period.
 def H2 : Prop :=
-  ∀ q : ℕ, q.Prime → 41 < q → q ≠ 53 → q ^ 2 ∣ Nat.fib (pisano q) →
+  ∀ q : ℕ, q.Prime → 53 < q → q ^ 2 ∣ Nat.fib (pisano q) →
     ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p ∣ pisano q
 
 -- The gcd argument follows the proof for OEIS A000032 (project PR 9447).
@@ -360,7 +360,7 @@ lemma prime_of_predecessor_factors (p a : ℕ) (factors : List ℕ)
 set_option maxRecDepth 4000 in
 set_option maxHeartbeats 3000000 in
 lemma small_empty_classes {q : ℕ} (hq : q.Prime)
-    (hcase : q ∈ ([7, 11, 13, 17, 19, 29, 31, 37, 41] : List ℕ)) : S q = ∅ := by
+    (hcase : q ∈ ([7, 11, 13, 17, 19, 29, 31, 37, 41, 43, 47] : List ℕ)) : S q = ∅ := by
   have hp0 : Nat.Prime 14736206161 := by
     apply prime_of_predecessor_factors _ 7 [2, 2, 2, 2, 3, 3, 5, 13, 29, 233, 233] (by decide)
     · norm_num [List.forall_mem_cons]
@@ -382,23 +382,76 @@ lemma small_empty_classes {q : ℕ} (hq : q.Prime)
     · simp only [List.forall_mem_cons]
       repeat' apply And.intro
       all_goals (reduce_mod_char; decide)
+  have hp3 : Nat.Prime 414988698461 := by
+    apply prime_of_predecessor_factors _ 2 [2, 2, 5, 7, 131, 22627519] (by decide)
+    · norm_num [List.forall_mem_cons]
+    · reduce_mod_char
+    · simp only [List.forall_mem_cons]
+      repeat' apply And.intro
+      all_goals (reduce_mod_char; decide)
+  have hp4 : Nat.Prime 5477332620091 := by
+    apply prime_of_predecessor_factors _ 12 [2, 3, 5, 131, 2707, 514859] (by decide)
+    · norm_num [List.forall_mem_cons]
+    · reduce_mod_char
+    · simp only [List.forall_mem_cons]
+      repeat' apply And.intro
+      all_goals (reduce_mod_char; decide)
+  have hp5 : Nat.Prime 92180471494753 := by
+    apply prime_of_predecessor_factors _ 5 [2, 2, 2, 2, 2, 3, 3, 137, 179, 13051873] (by decide)
+    · norm_num [List.forall_mem_cons]
+    · reduce_mod_char
+    · simp only [List.forall_mem_cons]
+      repeat' apply And.intro
+      all_goals (reduce_mod_char; decide)
+  have hp6 : Nat.Prime 99194853094755497 := by
+    apply prime_of_predecessor_factors _ 3 [2, 2, 2, 13, 29, 211, 421, 370248451] (by decide)
+    · norm_num [List.forall_mem_cons]
+    · reduce_mod_char
+    · simp only [List.forall_mem_cons]
+      repeat' apply And.intro
+      all_goals (reduce_mod_char; decide)
+  have hp7 : Nat.Prime 110568632979499 := by
+    apply prime_of_predecessor_factors _ 2 [2, 3, 307, 1597, 1699, 22123] (by decide)
+    · norm_num [List.forall_mem_cons]
+    · reduce_mod_char
+    · simp only [List.forall_mem_cons]
+      repeat' apply And.intro
+      all_goals (reduce_mod_char; decide)
+  have hp8 : Nat.Prime 17231203730201189308301 := by
+    apply prime_of_predecessor_factors _ 2 [2, 2, 5, 5, 7, 127, 1753, 110568632979499] (by decide)
+    · simp only [List.forall_mem_cons, hp7, true_and]
+      norm_num
+    · reduce_mod_char
+    · simp only [List.forall_mem_cons]
+      repeat' apply And.intro
+      all_goals (reduce_mod_char; decide)
+  have hp9 : Nat.Prime 1066340417491710595814572169 := by
+    apply prime_of_predecessor_factors _ 3 [2, 2, 2, 11, 89, 131, 199, 521, 2081, 9901, 19801, 24571] (by decide)
+    · norm_num [List.forall_mem_cons]
+    · reduce_mod_char
+    · simp only [List.forall_mem_cons]
+      repeat' apply And.intro
+      all_goals (reduce_mod_char; decide)
   let primes : List ℕ :=
     [2, 3, 5, 7, 11, 13, 17, 19, 23,
       29, 31, 37, 41, 43, 47, 53, 59, 61,
-      67, 71, 73, 79, 89, 97, 101, 107, 109,
-      113, 137, 139, 149, 151, 199, 211, 233, 269,
-      281, 307, 331, 353, 421, 461, 521, 557, 661,
-      677, 797, 829, 859, 911, 953, 1087, 1103, 1597,
-      2161, 2207, 2221, 2417, 2521, 2789, 3001, 3571, 4481,
-      4513, 5779, 6673, 9349, 9901, 12301, 14503, 18077, 18451,
-      19489, 19801, 28657, 39161, 54833, 59369, 63443, 90481, 103681,
-      109441, 116849, 135721, 141961, 474541, 514229, 1429913, 3010349, 6168709,
-      6376021, 9375829, 29134601, 35239681, 55945741, 86020717, 230686501, 433494437, 555003497,
-      2710260697, 2971215073, 14736206161, 46165371073, 272602401466814027129]
+      67, 71, 73, 79, 83, 89, 97, 101, 107,
+      109, 113, 137, 139, 149, 151, 157, 199, 211,
+      233, 263, 269, 281, 307, 331, 353, 421, 461,
+      521, 557, 661, 677, 701, 797, 829, 859, 881,
+      911, 953, 967, 1049, 1087, 1103, 1427, 1597, 1601,
+      2161, 2207, 2221, 2269, 2417, 2521, 2789, 3001, 3041,
+      3571, 4373, 4481, 4513, 5779, 6673, 9349, 9521, 9901,
+      12301, 14503, 18077, 18451, 19441, 19489, 19801, 28657, 39161,
+      54833, 59369, 63443, 90481, 103681, 109441, 116849, 135721, 141961,
+      474541, 514229, 988681, 1429913, 3010349, 4832521, 6168709, 6376021, 9375829,
+      29134601, 35239681, 54018521, 55945741, 86020717, 230686501, 370248451, 433494437, 555003497,
+      2710260697, 2971215073, 3415914041, 14736206161, 46165371073, 414988698461, 5477332620091, 92180471494753, 99194853094755497,
+      272602401466814027129, 17231203730201189308301, 1066340417491710595814572169]
   have prime_entries : ∀ a ∈ primes, Nat.Prime a := by
-    simp only [primes, List.forall_mem_cons, hp0, hp1, hp2, true_and]
+    simp only [primes, List.forall_mem_cons, hp0, hp1, hp3, hp4, hp5, hp6, hp2, hp8, hp9, true_and]
     norm_num
-  let rows : List (ℕ × ℕ) := [(7, 16), (11, 10), (13, 28), (17, 36), (19, 18), (29, 14), (31, 30), (37, 76), (41, 40)]
+  let rows : List (ℕ × ℕ) := [(7, 16), (11, 10), (13, 28), (17, 36), (19, 18), (29, 14), (31, 30), (37, 76), (41, 40), (43, 88), (47, 32)]
   have data : ∀ row ∈ rows, let Q := row.1
       let P := row.2
       let safe := primes.filter (fun a => decide (¬ a ≡ 1 [MOD Q]))
@@ -486,6 +539,31 @@ lemma good_residues_three : S 3 = {0} := by
   · rintro rfl
     exact (small_positive_classes (Or.inl rfl)).1
 
+-- The witness 11 covers the two multiples of ten. An exception table leaves
+-- residue 15 as the only other candidate modulo the period 20.
+lemma good_residue_bounds_five :
+    ({0, 10} : Set ℕ) ⊆ S 5 ∧ S 5 ⊆ ({0, 10, 15} : Set ℕ) := by
+  have hP : pisano 5 = 20 := pisano_eq_of_certificate (by decide) (by decide) (by decide)
+  constructor
+  · intro r hr
+    change r = 0 ∨ r = 10 at hr
+    rcases hr with rfl | rfl
+    · exact (small_positive_classes (Or.inr (Or.inl rfl))).1
+    · apply good_residue_of_common_index (p := 11) (d := 10) <;> first | decide | (rw [hP]; decide)
+  · intro r hr
+    change r = 0 ∨ r = 10 ∨ r = 15
+    by_contra hn
+    let safe : List ℕ := [2, 3, 5, 7, 13, 17, 19, 29, 37, 47, 89, 113, 233, 1597]
+    have table : ∀ j : Fin 20, ¬ (j.val = 0 ∨ j.val = 10 ∨ j.val = 15) →
+        ∃ t : Fin 4, let n := j.val + t.val * 20
+        0 < n ∧ ¬ 5 ^ 2 ∣ Nat.fib n ∧ Nat.fib n ∣ safe.prod ^ 6 := by decide
+    have limit : r < 20 := hP ▸ hr.1
+    obtain ⟨t, hpos, hs, hd⟩ := table ⟨r, limit⟩ hn
+    have hpr : ∀ a ∈ safe, Nat.Prime a ∧ ¬ a ≡ 1 [MOD 5] := by
+      norm_num [safe, List.forall_mem_cons, Nat.ModEq]
+    have bad := totient_exception_of_factors (by decide : Nat.Prime 5) hpos safe hpr hs hd
+    exact bad (hr.2 _ (by rw [hP]; exact Nat.add_mul_modulus_modEq_iff.mpr rfl))
+
 lemma period_fifty_three : pisano 53 = 108 :=
   pisano_eq_of_certificate (by decide) (by decide) (by decide)
 
@@ -516,7 +594,7 @@ lemma nonempty_through_41 {q : ℕ} (hq : q.Prime) (hodd : q ≠ 2) (hbound : q 
     by_contra h
     have classify : ∀ t : Fin 42, t.val.Prime → t.val ≠ 2 →
         ¬ (t.val = 3 ∨ t.val = 5 ∨ t.val = 23) →
-        t.val ∈ ([7, 11, 13, 17, 19, 29, 31, 37, 41] : List ℕ) := by decide
+        t.val ∈ ([7, 11, 13, 17, 19, 29, 31, 37, 41, 43, 47] : List ℕ) := by decide
     rw [small_empty_classes hq (classify ⟨q, by omega⟩ hq hodd h)] at hS
     exact hS.elim fun _ he => he.elim
   · exact fun h => ⟨0, (small_positive_classes h).1⟩
@@ -535,22 +613,42 @@ lemma converse_through_31 {q : ℕ} (hq : q.Prime) (hodd : q ≠ 2) (hbound : q 
     ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p ∣ pisano q :=
   converse_through_41 hq hodd (by omega) hS
 
+lemma nonempty_through_53 {q : ℕ} (hq : q.Prime) (hodd : q ≠ 2) (hbound : q ≤ 53) :
+    (S q).Nonempty ↔ q = 3 ∨ q = 5 ∨ q = 23 ∨ q = 53 := by
+  by_cases low : q ≤ 41
+  · rw [nonempty_through_41 hq hodd low]
+    omega
+  by_cases eq : q = 53
+  · subst q
+    exact ⟨fun _ => by simp, fun _ => ⟨0, good_residues_fifty_three (by decide)⟩⟩
+  have table : ∀ j : Fin 54, j.val.Prime → 41 < j.val → j.val ≠ 53 →
+      j.val ∈ ([7, 11, 13, 17, 19, 29, 31, 37, 41, 43, 47] : List ℕ) := by decide
+  rw [small_empty_classes hq (table ⟨q, by omega⟩ hq (Nat.lt_of_not_ge low) eq)]
+  simp only [Set.not_nonempty_empty, false_iff]
+  omega
+
+lemma converse_through_53 {q : ℕ} (hq : q.Prime) (hodd : q ≠ 2) (hbound : q ≤ 53)
+    (hS : (S q).Nonempty) :
+    ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p ∣ pisano q := by
+  by_cases low : q ≤ 41
+  · exact converse_through_41 hq hodd low hS
+  have cases := (nonempty_through_53 hq hodd hbound).mp hS
+  have eq : q = 53 := by omega
+  exact eq ▸ converse_fifty_three
+
 theorem main : H1 → H2 → type_of% @OMA.S_arxiv_2604_17847.main := by
   intro finiteCover exceptional q hq hodd hS
-  by_cases hsmall : q ≤ 41
-  · exact converse_through_41 hq hodd hsmall hS
-  by_cases h53 : q = 53
-  · subst q
-    exact converse_fifty_three
-  have hlarge : 41 < q := by omega
+  by_cases hsmall : q ≤ 53
+  · exact converse_through_53 hq hodd hsmall hS
+  have hlarge : 53 < q := by omega
   obtain ⟨r, hr⟩ := hS
   have hP : 0 < pisano q := Nat.zero_lt_of_lt hr.1
   have descend : q ∣ Nat.totient (Nat.fib (pisano q)) := by
     by_contra hbad
     exact hbad ((finite_prime_cover_iff hq hP).mp
-      (finiteCover q r hq hlarge h53 hr (fixed_rank_family hq hr hbad)))
+      (finiteCover q r hq hlarge hr (fixed_rank_family hq hr hbad)))
   rcases totient_fib_witness hq descend with hsquare | hwitness
-  · exact exceptional q hq hlarge h53 hsquare
+  · exact exceptional q hq hlarge hsquare
   · exact hwitness
 
 end OMA.R_arxiv_2604_17847_R1
