@@ -10916,6 +10916,51 @@
     "https://arxiv.org/abs/1304.0070"
    ],
    "reason": "Second review: Mismatch: the statement replaces the sequence's definition (P_n(-1)) with a g.f. that is itself an unproved conjecture in the source paper, so Mathar's conjecture for A226302 is not established. What is proved is only that the g.f.'s coefficients satisfy the recurrence."
+  },
+  "oeis-a172499": {
+   "date": "2026-11-28",
+   "pr": 26159,
+   "evidence": [
+    "https://oeis.org/A172499",
+    "https://oeis.org/A172498"
+   ],
+   "reason": "Krizek's 'conjecture' says that the denominators of (n).(1)(2)...(n) repeating differ from A172498, the denominators of 0.(1)(2)...(n) repeating. Adding the integer n does not change a reduced denominator, so the two sequences agree by definition, and the listed A172498 data equals the listed denominators. The disproof is the one-line fact Rat.natCast_add_den. It is trivial, so I flag it."
+  },
+  "oeis-a172505": {
+   "date": "2026-11-28",
+   "pr": 25624,
+   "evidence": [
+    "https://oeis.org/A172505",
+    "https://oeis.org/A172498"
+   ],
+   "reason": "This is the same Krizek conjecture as in A172499, now for C(n).C(n)C(n)... . x(n) = C(n) + C(n)/(10^L - 1) has the same reduced denominator as C(n)/(10^L - 1), which is A172498(n) by definition. The disproof follows immediately from the definitions (an integer shift preserves the denominator). It is trivial, so I flag it."
+  },
+  "oeis-a173526": {
+   "date": "2026-11-28",
+   "pr": 24981,
+   "evidence": [
+    "https://oeis.org/A173526",
+    "https://oeis.org/A000120",
+    "https://oeis.org/A173523"
+   ],
+   "reason": "Arndt's conjecture says 1 + (base-6 digit sum of n-1) is the fixed point of j -> j..j+5. As formalized, this is a(1)=1 and a(6i+j+1) = a(i+1)+j. That is exactly the defining recursion s(6i+j) = s(i)+j of the digit sum (Nat.digits_def'), the same fact behind the b=2 and b=3 fixed-point comments in A000120 and A173523. It follows from the definition, so I flag it as trivial."
+  },
+  "oeis-a173527": {
+   "date": "2026-11-28",
+   "pr": 22972,
+   "evidence": [
+    "https://oeis.org/A173527",
+    "https://oeis.org/A000120"
+   ],
+   "reason": "This is the b=7 case of Arndt's morphism conjecture: 1 + (base-7 digit sum of n-1) is the fixed point of j -> j..j+6. Stated with List.flatMap on prefixes, it is faithful. It comes down to the digit-sum recursion s(7i+j) = s(i)+j, which is the definition of base-7 digit sum. It is trivial, so I flag it."
+  },
+  "oeis-a178984": {
+   "date": "2026-11-28",
+   "pr": 26973,
+   "evidence": [
+    "https://oeis.org/A178984"
+   ],
+   "reason": "The claim is the entry's remark 'If Goldbach's conjecture is true, this sequence is defined for all n'. Formally: under binary Goldbach, sInf of {p prime : prime(n)+1-p prime} is attained for n >= 3. prime(n)+1 is even and > 2, so Goldbach makes the set nonempty, and sInf of a nonempty set of naturals is its least element. The statement is an immediate consequence of its hypothesis, so I flag it as trivial."
   }
  },
  "known": {
@@ -20527,6 +20572,97 @@
     "https://oeis.org/A384531/a384531.pdf"
    ],
    "reason": "Proved before this site's proof (found by the OEIS sweep): David Radcliffe's 'Notes on two arithmetical functions' (Jun 1 2025) proves b(n)=Sum gcd(k,n)gcd(k+1,n) is multiplicative with b(p^e)=2a(p^e)-p^e = p^(e-1)((2e+1)p-2e), which is exactly the site's product formula."
+  },
+  "oeis-a173195": {
+   "date": "2026-11-28",
+   "pr": 26084,
+   "evidence": [
+    "https://oeis.org/A173195",
+    "https://oeis.org/A263132",
+    "https://oeis.org/A384688"
+   ],
+   "reason": "George Beck's 2021 conjecture is a(n) = 3*A263132(n). In June 2025 Vandecasteele added a(n) = 2^A384688(n-1) + 2^A000267(n-1) (terms are exactly the numbers with two 1 bits an odd distance apart) to A173195. Kevin Ryde added A263132(n) = (2^A000267(n-1) + 2^A384688(n-1))/3 to A263132, and Bala's set description there is 2^n(2^(2k+1)+1)/3. Together these sister-entry formulas state the result. The encoding (integer exponents via 4^h) is faithful."
+  },
+  "oeis-a173524": {
+   "date": "2026-11-28",
+   "pr": 27393,
+   "evidence": [
+    "https://oeis.org/A173524",
+    "https://oeis.org/A173525"
+   ],
+   "reason": "There are three claims: a(n) is the limit of A053737(4^k+n-1), the rows of A053737 are initial segments, and Arndt's morphism fixed point for b=4. A173525 contains M. F. Hasler's Dec 2010 proof for the triangle rows: a leading 1 plus the digits of 0..b^r-1. A173524 itself says the A173525 comments apply with b=4. The morphism part is just s(4i+j) = s(i)+j for the digit sum, which follows from the definition. The statement is faithful but adds nothing new."
+  },
+  "oeis-a173528": {
+   "date": "2026-11-28",
+   "pr": 27388,
+   "evidence": [
+    "https://oeis.org/A173528",
+    "https://oeis.org/A173525",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/statements/oeis-a053829.lean"
+   ],
+   "reason": "The claim that the rows of A053829 as a triangle converge to 1 + s_8(n-1) is stated faithfully. Hasler's proof in A173525 covers it generically: entries b^r..2b^r-1 are a leading 1 plus the digits of 0..b^r-1. A173528 points to A173525 for these common aspects. This site also solved the identical statement as oeis-a053829, merged about 30 minutes earlier."
+  },
+  "oeis-a178534": {
+   "date": "2026-11-28",
+   "pr": 27517,
+   "evidence": [
+    "https://oeis.org/A178534",
+    "https://oeis.org/A129713"
+   ],
+   "reason": "Mathar's 2017 'by extrapolating' conjecture is that column k has g.f. x^k(1-x^2)/((1-x-x^2)(1-x^k)). It is stated faithfully. But the entry already gives Howroyd's formula (Feb 2024) T(n,k) = [k|n] + Sum_{j=1..n/k} F(n-jk), and Granvik's T = A129713*A051731. The column g.f. follows from either in one line: x^k/(1-x^k) * (1 + x/(1-x-x^2)). I checked Howroyd's formula for n < 80. The result is effectively recorded in the source."
+  },
+  "oeis-a180291": {
+   "date": "2026-11-28",
+   "pr": 24888,
+   "evidence": [
+    "https://oeis.org/A180291"
+   ],
+   "reason": "Nicholson's conjecture is a(n) = 2*A000217(n+1) for n > 2. As printed it contradicts the data (it would give 20 for a(3) = 6). The statement formalizes the corrected form a(n) = n(n-1) = 2*A000217(n-1). The entry already contains Luca Ferrigno's Jul 2023 proof (choose the box with n-1 balls, then the box of the last ball). The proof file follows Ferrigno's idea. Known."
+  },
+  "oeis-a184031": {
+   "date": "2026-11-28",
+   "pr": 24776,
+   "evidence": [
+    "https://oeis.org/A184031",
+    "https://oeis.org/A184039"
+   ],
+   "reason": "Barker's 2018 g.f. and even/odd closed forms for column 1 of A184039 are stated faithfully (1/16 of the count, with equal multisets in all 2x2 blocks). In Mar 2024 Andrew Howroyd added to A184039 'The above empirical formula is correct' and T(n,k) = -14 + 9(2^(n-1)+2^(k-1)) + 3(2^floor((n-1)/2) + 2^floor(n/2) + 2^floor((k-1)/2) + 2^floor(k/2)). Fixing k = 1 gives exactly Barker's formulas, so the result is known."
+  },
+  "oeis-a184032": {
+   "date": "2026-11-28",
+   "pr": 24778,
+   "evidence": [
+    "https://oeis.org/A184032",
+    "https://oeis.org/A184039"
+   ],
+   "reason": "Barker's 2018 g.f. and even/odd closed forms for column 2 of A184039 are stated faithfully (1/16 of the count, with equal multisets in all 2x2 blocks). In Mar 2024 Andrew Howroyd added to A184039 'The above empirical formula is correct' and T(n,k) = -14 + 9(2^(n-1)+2^(k-1)) + 3(2^floor((n-1)/2) + 2^floor(n/2) + 2^floor((k-1)/2) + 2^floor(k/2)). Fixing k = 2 gives exactly Barker's formulas, so the result is known."
+  },
+  "oeis-a184033": {
+   "date": "2026-11-28",
+   "pr": 24780,
+   "evidence": [
+    "https://oeis.org/A184033",
+    "https://oeis.org/A184039"
+   ],
+   "reason": "Barker's 2018 g.f. and even/odd closed forms for column 3 of A184039 are stated faithfully (1/16 of the count, with equal multisets in all 2x2 blocks). In Mar 2024 Andrew Howroyd added to A184039 'The above empirical formula is correct' and T(n,k) = -14 + 9(2^(n-1)+2^(k-1)) + 3(2^floor((n-1)/2) + 2^floor(n/2) + 2^floor((k-1)/2) + 2^floor(k/2)). Fixing k = 3 gives exactly Barker's formulas, so the result is known."
+  },
+  "oeis-a184034": {
+   "date": "2026-11-28",
+   "pr": 24784,
+   "evidence": [
+    "https://oeis.org/A184034",
+    "https://oeis.org/A184039"
+   ],
+   "reason": "Barker's 2018 g.f. and even/odd closed forms for column 4 of A184039 are stated faithfully (1/16 of the count, with equal multisets in all 2x2 blocks). In Mar 2024 Andrew Howroyd added to A184039 'The above empirical formula is correct' and T(n,k) = -14 + 9(2^(n-1)+2^(k-1)) + 3(2^floor((n-1)/2) + 2^floor(n/2) + 2^floor((k-1)/2) + 2^floor(k/2)). Fixing k = 4 gives exactly Barker's formulas, so the result is known."
+  },
+  "oeis-a184035": {
+   "date": "2026-11-28",
+   "pr": 24789,
+   "evidence": [
+    "https://oeis.org/A184035",
+    "https://oeis.org/A184039"
+   ],
+   "reason": "Barker's 2018 g.f. and even/odd closed forms for column 5 of A184039 are stated faithfully (1/16 of the count, with equal multisets in all 2x2 blocks). In Mar 2024 Andrew Howroyd added to A184039 'The above empirical formula is correct' and T(n,k) = -14 + 9(2^(n-1)+2^(k-1)) + 3(2^floor((n-1)/2) + 2^floor(n/2) + 2^floor((k-1)/2) + 2^floor(k/2)). Fixing k = 5 gives exactly Barker's formulas, so the result is known."
   }
  },
  "reviewed": "2026-11-28"
