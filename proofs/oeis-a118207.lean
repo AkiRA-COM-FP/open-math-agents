@@ -1,5 +1,4 @@
 import OMAStatements.S_oeis_a118207
-import Mathlib.NumberTheory.ArithmeticFunction
 import Mathlib.Data.Nat.Squarefree
 import Mathlib.Tactic.NormNum
 import Mathlib.RingTheory.Polynomial.Cyclotomic.Basic
