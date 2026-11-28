@@ -15,7 +15,8 @@ The primitive-window comparison uses the condition reported by @Jwolf52 in note 
 Both certificates start with 52 seed values. The first adds 124 values through
 index 2200 and the second adds another 80 through index 6200. Each translation
 overlaps or touches the preceding interval, as in PR #17774. Each upper endpoint
-is the sum of the selected values minus 20301.
+is the sum of the selected values minus 20301. The 256-value base also supports
+49 further values from indices 6201 through 6261 simultaneously.
 -/
 -- uses note #92063
 
@@ -1403,7 +1404,7 @@ theorem triple_iff (P Q M : ℕ) (hP : 0 < P) (hM : 0 < M) :
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 /-- The three coefficient lists are certified separately from the subset-sum and divisibility checks. -/
-theorem chain_coefficients (withNext : Bool := false) :
+theorem chain_coefficients (withNext : Bool := false) (withBand : Bool := false) :
     let initial : List ℕ := [40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 60, 61, 62, 63, 64, 65, 66, 67, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95]
     let seed : List ℕ := [1113, 1260, 1426, 1610, 1816, 2048, 2304, 2590, 2910, 3264, 3658, 4097, 4582, 5120, 5718, 6378, 7108, 7917, 8808, 10880, 12076, 13394, 14848, 16444, 18200, 20132, 22250, 27130, 29927, 32992, 36352, 44046, 48446, 53250, 58499, 64234, 70488, 77312, 84756, 92864, 101698, 111322, 121792, 133184, 145578, 159046, 173682, 189586, 225585, 245920, 267968, 291874]
     let earlier : List ℕ := [
@@ -1503,17 +1504,68 @@ theorem chain_coefficients (withNext : Bool := false) :
       1003113894477255641067400169773941102873618276709313952704, 1993739284306144150513398921604885165270907946761272515584,
       3949401902475447407037832941792146338306246285580941557752, 7797588330336638168452762081945635097782585000359481952640,
       15521982489439769174201559480094487075251892984927646423036, 28760948436164145408705288538638349951127885748752914972416]
+    let bandIndices : List ℕ := [6201, 6203, 6205, 6206, 6208, 6210, 6211, 6212, 6213, 6214, 6215, 6216, 6218, 6219, 6221, 6222, 6223, 6224,
+      6225, 6227, 6228, 6229, 6230, 6231, 6233, 6234, 6235, 6236, 6237, 6238, 6239, 6240, 6241, 6242, 6243,
+      6244, 6246, 6247, 6248, 6250, 6252, 6253, 6254, 6256, 6257, 6258, 6259, 6260, 6261]
+    let bandValues : List ℕ := [29090594252516759840173920707699110105324342633332184909690, 29761182806267740289667025854829485253070097408043849074622,
+      30447118915337484819268115873819572709850816159625875801134,
+      30795950979378113838974545112378767154719622459708373270340,
+      31505564762534328157487149720590388221167914207231328655232,
+      32231412760276493606870317419424021318876934304740377378968,
+      32600539498790010133764627084322099804004275611121921311776,
+      32973863714497093280614246765986265429962539344117347491960,
+      33351432800879501757088845428670416398013059982086774153562,
+      33733294682752522189862524354051823117839178986984359356700,
+      34119497822179703146169873432433753831961852713856224771934,
+      34510091224452965981182041008234275517752539434548312173700,
+      35304647591191337482758380313008272320590737030898421673976,
+      35708711337132831190899209168759372807202177307652751041866,
+      36530666157175027341128421198110425459656015498964052092160,
+      36948661438747021301572431525711803152198530342498357480128,
+      37371405746996563979152621657289651114782906980048553793024,
+      37798952656412202105820095929606464150800092263558495821218,
+      38231356341594820683625089079870110276909404597951248377954,
+      39110953778347911932385462726042540358717789010819989795640,
+      39558258940123174941479362282948888998266594293227006546944,
+      40010643711796133128936762264092826587853242539524768890394,
+      40468165370135737163576838105219530905883341778483117652118,
+      40930881833193251048046679564171241106427826147113435659552,
+      41872134094932811397907138479759648486763634382825407346944,
+      42350789000686528175097125544104078959284760167289458596096,
+      42834876939956938671922018285475747884835198131103398683976,
+      43324459145732532397942010125003804138783999937976666215168,
+      43819597536257455986322949067090688737450330635711693200850,
+      44320354722646075699418480060885187335681656525822113543958,
+      44826794016581556250544938982581728865028321268192943520904,
+      45338979438099376412751327562468252757848099538201903459656,
+      45856975723456711898879711073347908995792614155071467444520,
+      46380848333088626118870706379583876513290166389879536667072,
+      46910663459652019651254562303316536046747828908488665521580,
+      47446488036158299607253229244922064979306694450097462854080,
+      48536437022242518950136538665320382606783484887615290286720,
+      49090699074071414704731357186761256855794750828052097699328,
+      49651245877247182310839560306849198411928561771280701827078,
+      50791477568499273325792125974992210013717081784184763637174,
+      51957707721192530853739133513249376691697490694264994249920,
+      52550755633999940987327983462598703529689136705424268474208,
+      53150524900961482840607671116297253932412945422729242554474,
+      54370530902718733297983762568588136777548923736162164717628,
+      54990921462656669813328105570294719805302557917567023496398,
+      55618341045893339257989154961235183711771677261775542139086,
+      56252868730073477517004666754606784561885040564751121060802,
+      56894584476211126396793937148764911733695276333794849631960,
+      57543569138488182544503530867339359792600248483006991925504]
     initial.map strictPartitionCount = seed ∧ earlier.map strictPartitionCount = middle ∧
-      (if withNext then (extension ++ [6261]).map strictPartitionCount =
+      (if withBand then bandIndices.map strictPartitionCount = bandValues else if withNext then (extension ++ [6261]).map strictPartitionCount =
         last ++ [57543569138488182544503530867339359792600248483006991925504]
        else extension.map strictPartitionCount = last) := by
-  intro initial seed earlier middle extension last
+  intro initial seed earlier middle extension last bandIndices bandValues
   let mask := (2^(197*6262)-1)/(2^197-1)*2^196
   let row := Nat.rec (motive := fun _ => ℕ) (2^((196+1)*6261)) (fun k b =>
     let c := b + (b >>> (197*(k+1)))
     if c &&& mask == 0 then c else 0)
   let d (j : ℕ) := (row 6261 >>> (197*(6261-j))) % 2^197
-  have checked : row 6261 ≠ 0 ∧ initial.map d = seed ∧ earlier.map d = middle ∧ extension.map d = last ∧ d 6261 = 57543569138488182544503530867339359792600248483006991925504 := by
+  have checked : row 6261 ≠ 0 ∧ initial.map d = seed ∧ earlier.map d = middle ∧ extension.map d = last ∧ d 6261 = 57543569138488182544503530867339359792600248483006991925504 ∧ bandIndices.map d = bandValues := by
     decide +kernel
   have digit (j : ℕ) (hj : j ≤ 6261) : strictPartitionCount j = d j :=
     strictPartitionCount_of_reverse 196 6261 (by decide) row mask (guard_mask_eq 197 6262 (2^196) (by decide)).symm
@@ -1522,11 +1574,13 @@ theorem chain_coefficients (withNext : Bool := false) :
       ms.map strictPartitionCount = vs :=
     (List.map_congr_left fun i hi => digit i (limits i hi)).trans eq
   have old := decode extension last (by decide +kernel) checked.2.2.2.1
-  have next := (digit 6261 le_rfl).trans checked.2.2.2.2
+  have next := (digit 6261 le_rfl).trans checked.2.2.2.2.1
   refine ⟨decode _ _ (by decide +kernel) checked.2.1,decode _ _ (by decide +kernel) checked.2.2.1,?_⟩
-  cases withNext
-  · exact old
-  · simp only [if_true,List.map_append,List.map_cons,List.map_nil,old,next]
+  cases withBand
+  · cases withNext
+    · exact old
+    · simp only [Bool.false_eq_true,if_false,if_true,List.map_append,List.map_cons,List.map_nil,old,next]
+  · exact decode bandIndices bandValues (by decide +kernel) checked.2.2.2.2.2
 
 /-- Test each unordered pair once. For positive unequal values only the smaller
 can divide the larger; equality itself fails the remainder test. -/
@@ -1825,48 +1879,161 @@ theorem bounded_base (n : ℕ) (lo : 20301 ≤ n) (hi : n ≤ 600418015475393771
   obtain ⟨T,good,anti,total⟩ := bounded_base_choice true (fun _ => True) (fun _ _ => trivial) n lo hi
   exact ⟨T,fun s hs => ⟨(good s hs).1,(good s hs).2.2⟩,anti,total⟩
 
+/-- Translate a whole list against the original interval. The remainder stays
+in that interval and each selected translation is used at most once. -/
+theorem band_subsum (xs : List ℕ) (L U : ℕ) (nd : xs.Nodup)
+    (fit : ∀ x ∈ xs, x+L ≤ U+1) :
+    ∀ n, L ≤ n → n ≤ U + xs.sum → ∃ A ⊆ xs.toFinset, ∃ r, L ≤ r ∧ r ≤ U ∧
+      (∑ x ∈ A, x) + r = n := by
+  induction xs with
+  | nil =>
+    intro n lo hi
+    exact ⟨∅,by simp,n,lo,by simpa using hi,by simp⟩
+  | cons a xs ih =>
+    intro n lo hi
+    have prev := ih (List.nodup_cons.mp nd).2 (fun x hx => fit x (List.mem_cons_of_mem _ hx))
+    rw [List.sum_cons] at hi
+    by_cases covered : n ≤ U+xs.sum
+    · obtain ⟨A,sub,r,rl,ru,total⟩ := prev n lo covered
+      exact ⟨A,sub.trans (by simp),r,rl,ru,total⟩
+    · have bound := fit a List.mem_cons_self
+      obtain ⟨A,sub,r,rl,ru,total⟩ := prev (n-a) (by omega) (by omega)
+      have fresh : a ∉ A := fun h => (List.nodup_cons.mp nd).1 (List.mem_toFinset.mp (sub h))
+      refine ⟨insert a A,?_,r,rl,ru,?_⟩
+      · simpa only [List.toFinset_cons] using Finset.insert_subset_insert a sub
+      · rw [sum_insert fresh]; omega
+
+/-- In a factor-two band only cross-divisibility against the original
+representation needs checking. The new upper endpoint increases by the band's sum. -/
+theorem cover_by_band (Q : ℕ → Prop) (xs : List ℕ) (L U b : ℕ) (nd : xs.Nodup)
+    (values : ∀ x ∈ xs, Q x ∧ 0 < x ∧ b ≤ x ∧ x < 2*b ∧ x+L ≤ U+1)
+    (base : ∀ r, L ≤ r → r ≤ U → ∃ T : Finset ℕ,
+      (∀ s ∈ T, Q s ∧ ∀ z ∈ xs, ¬ s ∣ z ∧ ¬ z ∣ s) ∧
+      (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ x ∈ T, x) = r) :
+    ∀ n, L ≤ n → n ≤ U + xs.sum → ∃ T : Finset ℕ, (∀ s ∈ T, Q s) ∧
+      (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ x ∈ T, x) = n := by
+  intro n lo hi
+  obtain ⟨A,sub,r,rl,ru,total⟩ := band_subsum xs L U nd (fun x h => (values x h).2.2.2.2) n lo hi
+  obtain ⟨T,good,anti,ts⟩ := base r rl ru
+  have mem {x : ℕ} (h : x ∈ A) := List.mem_toFinset.mp (sub h)
+  have dis : Disjoint A T := disjoint_left.mpr fun x hx ht => ((good x ht).2 x (mem hx)).1 dvd_rfl
+  refine ⟨A ∪ T,?_,?_,by rw [sum_union dis,ts,total]⟩
+  · intro x hx
+    exact (mem_union.mp hx).elim (fun h => (values x (mem h)).1) (fun h => (good x h).1)
+  · intro x hx y hy ne
+    rcases mem_union.mp hx with xa | xt <;> rcases mem_union.mp hy with ya | yt
+    · have h := values x (mem xa)
+      have k := values y (mem ya)
+      exact band_nondiv k.2.1 (by omega) ne
+    · exact ((good y yt).2 x (mem xa)).2
+    · exact ((good x xt).2 y (mem ya)).1
+    · exact anti x xt y yt ne
+
+/-- A family of admissible lists closed under one compatible extension from
+each member supplies chains reaching every cap. -/
+theorem H1_of_local_extensions (seed : List ℕ) (P : List ℕ → Prop) (init : P [])
+    (nd : seed.Nodup)
+    (terms : ∀ s ∈ seed, 1000 ≤ s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m)
+    (anti : ∀ x ∈ seed, ∀ y ∈ seed, x ≠ y → ¬ x ∣ y)
+    (start : ((seed.foldr (fun a b => b ||| b <<< a) 1) >>> 20301) % 2^3048881 = 2^3048881-1)
+    (more : ∀ xs, P xs → ∃ a, P (a::xs) ∧
+      (1000 ≤ a ∧ ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧
+      a+20301 ≤ 3069181+xs.sum+1 ∧ ∀ b ∈ xs++seed, ¬ a ∣ b ∧ ¬ b ∣ a) : H1 := by
+  apply H1_of_cumulative_chains
+  intro cap
+  have grow (k : ℕ) : ∃ xs : List ℕ, P xs ∧ (xs++seed).Nodup ∧
+      (∀ s ∈ xs++seed, 1000 ≤ s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
+      (∀ x ∈ xs++seed, ∀ y ∈ xs++seed, x ≠ y → ¬ x ∣ y) ∧
+      (xs.foldr (fun a (v : ℕ × Bool) => (v.1+a,v.2 && decide (a ≤ v.1+1-20301))) (3069181,true)).2 = true ∧
+      k ≤ xs.sum := by
+    induction k with
+    | zero => exact ⟨[],init,nd,terms,anti,rfl,le_rfl⟩
+    | succ k ih =>
+      obtain ⟨xs,p,prev,good,inc,fitted,reach⟩ := ih
+      obtain ⟨a,p',ga,fit,cross⟩ := more xs p
+      have fresh : a ∉ xs++seed := fun h => (cross a h).1 dvd_rfl
+      refine ⟨a::xs,p',List.nodup_cons.mpr ⟨fresh,prev⟩,?_,?_,?_,?_⟩
+      · intro s hs
+        rcases List.mem_cons.mp hs with rfl | h
+        · exact ga
+        · exact good s h
+      · intro x hx y hy ne
+        rcases List.mem_cons.mp hx with ex | xt <;> rcases List.mem_cons.mp hy with ey | yt
+        · exact (ne (ex.trans ey.symm)).elim
+        · rw [ex]; exact (cross y yt).1
+        · rw [ey]; exact (cross x xt).2
+        · exact inc x xt y yt ne
+      · simp only [List.foldr_cons,Bool.and_eq_true,decide_eq_true_eq]
+        exact ⟨fitted,by rw [chain_endpoint]; omega⟩
+      · simp only [List.sum_cons]
+        have := ga.1
+        omega
+  obtain ⟨xs,_,nd',g,h,f,reach⟩ := grow cap
+  exact ⟨seed,xs,nd',g,h,start,f,by omega⟩
+
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-/-- One more compatible value fits the full interval even though it fails the
-last-witness spacing test. -/
+/-- Simultaneously translate by the compatible terminal band through index 6261. -/
+theorem terminal_band_6261 (n : ℕ) (lo : 20301 ≤ n)
+    (hi : n ≤ 2129818274671752911527586538199627191846904355313687681409069) :
+    ∃ T : Finset ℕ, (∀ s ∈ T, 1000 ≤ s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
+      (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n := by
+  let ids : List ℕ := [6201, 6203, 6205, 6206, 6208, 6210, 6211, 6212, 6213, 6214, 6215, 6216, 6218, 6219, 6221, 6222, 6223, 6224,
+      6225, 6227, 6228, 6229, 6230, 6231, 6233, 6234, 6235, 6236, 6237, 6238, 6239, 6240, 6241, 6242, 6243,
+      6244, 6246, 6247, 6248, 6250, 6252, 6253, 6254, 6256, 6257, 6258, 6259, 6260, 6261]
+  let xs := ids.map strictPartitionCount
+  let b := 29090594252516759840173920707699110105324342633332184909690
+  let U := 60041801547539377118140226416919083619432043396280785479393
+  have eqs : ids.map strictPartitionCount = _ := (chain_coefficients false true).2.2
+  have checks : xs.Nodup ∧ ∀ x ∈ xs, 1000 ≤ x ∧ 0 < x ∧ b ≤ x ∧ x < 2*b ∧ x+20301 ≤ U+1 := by
+    dsimp only [xs]; rw [eqs]; decide +kernel
+  have positive : ∀ i ∈ ids, 0 < i := by decide +kernel
+  have endpoint : U + xs.sum = 2129818274671752911527586538199627191846904355313687681409069 := by
+    dsimp only [xs]; rw [eqs]; decide +kernel
+  have approved (first mid last x y z : List ℕ)
+      (h₁ : first.map strictPartitionCount = x) (h₂ : mid.map strictPartitionCount = y)
+      (h₃ : last.map strictPartitionCount = z)
+      (ok : (x++y++z).all (fun s => xs.all (fun t => s % t != 0 && t % s != 0)) = true)
+      (i : ℕ) (hi : i ∈ (first++mid)++last) (t : ℕ) (ht : t ∈ xs) :
+      ¬ strictPartitionCount i ∣ t ∧ ¬ t ∣ strictPartitionCount i := by
+    have h : strictPartitionCount i ∈ ((first++mid)++last).map strictPartitionCount :=
+      List.mem_map.mpr ⟨i,hi,rfl⟩
+    rw [List.map_append,List.map_append,h₁,h₂,h₃] at h
+    have pair := List.all_eq_true.mp (List.all_eq_true.mp ok _ h) t ht
+    simp only [Bool.and_eq_true,bne_iff_ne] at pair
+    exact ⟨fun e => pair.2 (Nat.mod_eq_zero_of_dvd e),fun e => pair.1 (Nat.mod_eq_zero_of_dvd e)⟩
+  apply cover_by_band _ xs 20301 U b checks.1 _ _ n lo (endpoint.symm ▸ hi)
+  · intro x hx
+    obtain ⟨m,hm,e⟩ := List.mem_map.mp hx
+    exact ⟨⟨(checks.2 x hx).1,m,positive m hm,e.symm⟩,(checks.2 x hx).2⟩
+  · intro r rl ru
+    obtain ⟨T,g,anti,total⟩ := bounded_base_choice true
+      (fun s => ∀ t ∈ xs, ¬ s ∣ t ∧ ¬ t ∣ s)
+      (approved _ _ _ _ _ _ chain_coefficients.1 chain_coefficients.2.1 chain_coefficients.2.2
+        (by dsimp only [xs]; rw [eqs]; decide +kernel)) r rl ru
+    exact ⟨T,fun s h => ⟨⟨(g s h).1,(g s h).2.2⟩,(g s h).2.1⟩,anti,total⟩
+
 theorem cumulative_6261 (n : ℕ) (lo : 20301 ≤ n)
     (hi : n ≤ 117585370686027559662643757284258443412032291879287777404897) :
     ∃ T : Finset ℕ, (∀ s ∈ T, 1000 ≤ s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
       (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n := by
-  let U := 60041801547539377118140226416919083619432043396280785479393
-  by_cases small : n ≤ U
-  · exact bounded_base n lo small
-  let a := strictPartitionCount 6261
-  have last_value (xs vs : List ℕ) (i v : ℕ) (h : xs.map strictPartitionCount = vs)
-      (he : (xs ++ [i]).map strictPartitionCount = vs ++ [v]) : strictPartitionCount i = v := by
-    rw [List.map_append,h] at he
-    simpa using he
-  have val : a = 57543569138488182544503530867339359792600248483006991925504 :=
-    last_value _ _ _ _ (chain_coefficients false).2.2 (chain_coefficients true).2.2
-  have approved (first mid last x y z : List ℕ)
-      (h₁ : first.map strictPartitionCount = x) (h₂ : mid.map strictPartitionCount = y)
-      (h₃ : last.map strictPartitionCount = z)
-      (ok : ∀ b ∈ x ++ y ++ z, ¬ b ∣ 57543569138488182544503530867339359792600248483006991925504 ∧ ¬ 57543569138488182544503530867339359792600248483006991925504 ∣ b)
-      (i : ℕ) (hi : i ∈ (first ++ mid) ++ last) : ¬ strictPartitionCount i ∣ a ∧ ¬ a ∣ strictPartitionCount i := by
-    have h : strictPartitionCount i ∈ ((first ++ mid) ++ last).map strictPartitionCount :=
-      List.mem_map.mpr ⟨i,hi,rfl⟩
-    rw [List.map_append,List.map_append,h₁,h₂,h₃] at h
-    rw [val]; exact ok _ h
-  obtain ⟨T,good,anti,total⟩ := bounded_base_choice true (fun s => ¬ s ∣ a ∧ ¬ a ∣ s)
-    (approved _ _ _ _ _ _ chain_coefficients.1 chain_coefficients.2.1 chain_coefficients.2.2 (by decide +kernel)) (n-a) (by dsimp only [U] at small; omega)
-    (by change n-a ≤ 60041801547539377118140226416919083619432043396280785479393; omega)
-  have fresh : a ∉ T := fun h => (good a h).2.1.1 dvd_rfl
-  refine ⟨insert a T,?_,?_,by rw [sum_insert fresh,total]; dsimp only [U] at small; omega⟩
-  · intro s hs
-    rcases mem_insert.mp hs with eq | ht
-    · rw [eq]; exact ⟨by omega,6261,by decide,rfl⟩
-    · exact ⟨(good s ht).1,(good s ht).2.2⟩
-  · intro x hx y hy ne
-    rcases mem_insert.mp hx with ex | xt <;> rcases mem_insert.mp hy with ey | yt
-    · exact (ne (ex.trans ey.symm)).elim
-    · rw [ex]; exact (good y yt).2.1.2
-    · rw [ey]; exact (good x xt).2.1.1
-    · exact anti x xt y yt ne
+  exact terminal_band_6261 n lo (by omega)
+
+/-- Every positive target through the certified endpoint satisfies the first conjecture. -/
+theorem representation_through_6261 (n : ℕ) (hn : 0 < n)
+    (hi : n ≤ 2129818274671752911527586538199627191846904355313687681409069) :
+    ∃ k : ℕ, ∃ terms : Fin k → ℕ,
+      (∀ i, ∃ m : ℕ, 0 < m ∧ terms i = strictPartitionCount m) ∧
+      (∑ i, terms i) = n ∧ (∀ i j, i ≠ j → ¬ terms i ∣ terms j) := by
+  have rep : ∃ T : Finset ℕ, (∀ x ∈ T, ∃ m : ℕ, 0 < m ∧ x = strictPartitionCount m) ∧
+      (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ x ∈ T, x) = n := by
+    by_cases h : n < 20301
+    · exact H1_le n hn (by omega)
+    · obtain ⟨T,g,anti,sum⟩ := terminal_band_6261 n (by omega) hi
+      exact ⟨T,fun x hx => (g x hx).2,anti,sum⟩
+  obtain ⟨T,g,anti,sum⟩ := rep
+  obtain ⟨k,t,good,total,incomp⟩ := rep_of_finset T g anti
+  exact ⟨k,t,good,total.trans sum,incomp⟩
 
 theorem main : H1 → H2 → type_of% @OMA.S_oeis_a000009.main := by
   intro localTail residual
