@@ -71,7 +71,9 @@ const ALL: Problem[] = cards.rows.map(([id, title, si, ki, fields, , difficulty,
   const key = fields.join("|");
   let f = FIELD_LISTS.get(key);
   if (!f) { f = fields; FIELD_LISTS.set(key, f); }
-  return { id, title, source: cards.sources[si], kind: cards.kinds[ki], fields: f, tags: NO_TAGS, difficulty, fame, prize, forumPosts, erdos, decl, shard };
+  // "$10000" → "$10,000" (prizeOf strips the commas again to read the amount)
+  const pz = prize ? prize.replace(/\d{4,}/g, (d: string) => Number(d).toLocaleString("en-US")) : prize;
+  return { id, title, source: cards.sources[si], kind: cards.kinds[ki], fields: f, tags: NO_TAGS, difficulty, fame, prize: pz, forumPosts, erdos, decl, shard };
 });
 export const MO_BUCKETS = cards.meta.moBuckets;
 // The parsed rows are not needed any more: let them be garbage-collected (only ALL is used from here on).

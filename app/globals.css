@@ -223,7 +223,7 @@ table.t td.n, table.t th.n { text-align: right; font-variant-numeric: tabular-nu
 @media (max-width: 400px) { .brand b { font-size: 0.98rem; } .drop summary { font-size: 0.86rem; padding: 7px 5px; } }
 .badge.unformalized { color: var(--muted); border-color: var(--line-2); border-style: dotted; }
 .stats.stats5 { grid-template-columns: repeat(5, 1fr); }
-@media (max-width: 960px) { .stats.stats5 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 960px) { .stats.stats5 { grid-template-columns: repeat(2, 1fr); } .stats.stats5 > .stat:last-child:nth-child(odd) { grid-column: 1 / -1; } }
 
 /* grid children must be allowed to shrink below their content (long Lean lines, file names) */
 .pgrid > * { min-width: 0; }
@@ -494,3 +494,8 @@ table.t td.nw { white-space: nowrap; }
 .hype-card-link:hover { border-color: var(--accent); box-shadow: 0 2px 14px rgba(20, 82, 184, .12); }
 .hype-card-link:hover .hype-link { text-decoration: underline; }
 .hype-card-link h2 { color: var(--text); }
+
+/* Lean variant of a problem: the variant name in grey after the title (components/Title.tsx) */
+.variant { color: var(--muted); font-weight: 400; font-size: .72em; font-family: var(--sans, inherit); letter-spacing: 0; white-space: normal; }
+.ptitle .variant { display: block; font-size: .45em; margin-top: 6px; }
+.more-feed summary { cursor: pointer; color: var(--muted); font-size: .85rem; margin-top: 6px; }
