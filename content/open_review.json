@@ -4221,16 +4221,6 @@
    ],
    "note": "Mathar's 2017 order-4 P-recurrence for 2^n+C(n,floor(n/2))-1, stated for n>=4 exactly as in the entry. The proof is a direct factorial computation split by parity. Routine holonomic identity."
   },
-  "oeis-a001076": {
-   "date": "2026-11-28",
-   "pr": 9472,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A001076",
-    "https://oeis.org/A001077"
-   ],
-   "note": "Dement's 2004 conjecture 2a(n+1)=a(n+2)-A001077(n+1), with both sequences defined by their recurrences and offsets (0,1,4,17 and 1,2,9,38). Two-step induction on a linear recurrence. Routine."
-  },
   "oeis-a278415": {
    "date": "2026-11-28",
    "pr": 19197,
@@ -11727,6 +11717,15 @@
     "https://oeis.org/A266989"
    ],
    "reason": "Papadopoulos's claim (average of the primitive roots < p/2 implies p = 3 mod 4) is stated faithfully. For p = 1 mod 4, -1 = g^((p-1)/2) makes g -> p-g a bijection of the primitive roots, so the average is exactly p/2; this is a classical textbook fact. A088144 already records it ('if prime(n) == 1 (mod 4), then a(n) = prime(n)*A008330(n)/2'), and the companion A266989 states the conclusion without the word conjecture."
+  },
+  "oeis-a001076": {
+   "date": "2026-11-28",
+   "pr": 9472,
+   "evidence": [
+    "https://oeis.org/A001076",
+    "https://oeis.org/A001077"
+   ],
+   "reason": "Second review: The 'conjecture' is a one-line linear-recurrence fact that the same contributor recorded as a plain formula in the companion entry A001077 in 2005, and that is standard continued-fraction theory. Not an open problem in any meaningful sense; at best confirmed-routine, I would not announce it."
   }
  },
  "reviewed": "2026-11-28"
