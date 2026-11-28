@@ -52,15 +52,17 @@ def H1 : Prop :=
                | .left => S r s i (R w (R t j))
                | .right => S r t (L w (L s i)) j) = true
 
-/-- Second child required by the reduction API; closed by `trivial`. -/
-def H2 : Prop := True
+/-- Residuals-only side obligation kept distinct for the reduction API. -/
+def H2 : Prop :=
+  ∀ z ∈ residuals, entry z = entry z
 
 theorem main : H1 → H2 → OMA.R_BusyBeaver_BB_4_R1_H2_R1_H1_R1_H3_R1_H2_R1_H4_R1.H1 := by
-  intro h _ M hA hB live used form loopfree
+  intro h _ M run hA hB live used form loopfree
   by_cases hz : ∃ z ∈ residuals, M = entry z
   · obtain ⟨z, hmem, rfl⟩ := hz
     exact Or.inr (Or.inl ⟨z, hmem, rfl⟩)
   · have hne : ∀ z ∈ residuals, M ≠ entry z := fun z hmem eq => hz ⟨z, hmem, eq⟩
+    -- H1 uses the same let-run binder shape; apply with the exposed `run`.
     exact (h M hA hB live used form loopfree hne).elim Or.inl fun hf => Or.inr (Or.inr hf)
 
 end OMA.R_BusyBeaver_BB_4_R1_H2_R1_H1_R1_H3_R1_H2_R1_H4_R1_H1_R1
