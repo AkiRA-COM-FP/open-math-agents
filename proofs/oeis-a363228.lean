@@ -1,161 +1,123 @@
 import OMAStatements.S_oeis_a363228
 import Mathlib
 
-namespace OMA.A363228P
-
+namespace R363228
 open OMA.S_oeis_a363228
 
-lemma pow4_dvd_iff {x : ℕ} (hx : x ≠ 0) (k : ℕ) :
-    4 ^ k ∣ x ↔ 2 * k ≤ padicValNat 2 x := by
-  have : (4 : ℕ) ^ k = 2 ^ (2 * k) := by rw [pow_mul]; norm_num
-  rw [this]
-  exact padicValNat_dvd_iff_le hx
+theorem lt2 (j : ℕ) : j < 2 ^ j := Nat.lt_two_pow_self
 
-lemma exp4_eq {x : ℕ} (hx : x ≠ 0) : exp4 x = padicValNat 2 x / 2 := by
-  unfold exp4
-  rw [Nat.findGreatest_eq_iff]
-  have hle : padicValNat 2 x < x := by
-    have h1 : 2 ^ padicValNat 2 x ∣ x := pow_padicValNat_dvd
-    have h2 : 2 ^ padicValNat 2 x ≤ x := Nat.le_of_dvd (Nat.pos_of_ne_zero hx) h1
-    have h3 : padicValNat 2 x < 2 ^ padicValNat 2 x := Nat.lt_two_pow_self
+theorem four_pow (k : ℕ) : (4 : ℕ) ^ k = 2 ^ (2 * k) := by
+  rw [pow_mul] <;> norm_num
+
+theorem exp4_pow (j u : ℕ) (hu : Odd u) : exp4 (2 ^ j * u) = j / 2 := by
+  have hu' : u % 2 = 1 := Nat.odd_iff.mp hu
+  unfold OMA.S_oeis_a363228.exp4
+  refine Nat.findGreatest_eq_iff.mpr ⟨?_, ?_, ?_⟩
+  · have h1 := lt2 j
+    have h2 : 2 ^ j * 1 ≤ 2 ^ j * u := Nat.mul_le_mul (le_refl _) (by omega)
     omega
-  refine ⟨by omega, fun _ => (pow4_dvd_iff hx _).2 (by omega), ?_⟩
-  intro n hn _ hP
-  rw [pow4_dvd_iff hx] at hP
-  omega
+  · intro _
+    show 4 ^ (j / 2) ∣ 2 ^ j * u
+    rw [four_pow]
+    exact dvd_mul_of_dvd_left (pow_dvd_pow 2 (by omega)) u
+  · intro k hk _ hd
+    have hd' : 4 ^ k ∣ 2 ^ j * u := hd
+    rw [four_pow] at hd'
+    have h3 : 2 ^ (j + 1) ∣ 2 ^ j * u := dvd_trans (pow_dvd_pow 2 (by omega)) hd'
+    obtain ⟨t, ht⟩ := h3
+    have h4 : 2 ^ j * u = 2 ^ j * (2 * t) := by rw [ht]; ring
+    have h5 := Nat.eq_of_mul_eq_mul_left (by positivity) h4
+    omega
 
-lemma v2_gen (f : ℕ → ℕ) (h1 : ∀ m, Odd m → f m % 16 = 8)
-    (h2 : ∀ n, ∃ g, f (2 * n) = f n * g ∧ g % 4 = 2) :
-    ∀ k m, Odd m → f (2 ^ k * m) ≠ 0 ∧ padicValNat 2 (f (2 ^ k * m)) = k + 3 := by
-  intro k m hm
-  induction k with
-  | zero =>
-    simp only [pow_zero, one_mul]
-    have h := h1 m hm
-    obtain ⟨q, hq⟩ : ∃ q, f m = 8 * (2 * q + 1) := ⟨f m / 16, by omega⟩
-    rw [hq]
-    refine ⟨by omega, ?_⟩
-    rw [padicValNat.mul (by norm_num) (by omega)]
-    have : padicValNat 2 (2 * q + 1) = 0 :=
-      padicValNat.eq_zero_of_not_dvd (by omega)
-    rw [this]
-    have : (8 : ℕ) = 2 ^ 3 := by norm_num
-    rw [this, padicValNat.prime_pow]
-  | succ k ih =>
-    obtain ⟨g, hg, hg2⟩ := h2 (2 ^ k * m)
-    have e : 2 ^ (k + 1) * m = 2 * (2 ^ k * m) := by ring
-    rw [e, hg]
-    obtain ⟨r, hr⟩ : ∃ r, g = 2 * (2 * r + 1) := ⟨g / 4, by omega⟩
-    rw [hr]
-    refine ⟨mul_ne_zero ih.1 (by omega), ?_⟩
-    rw [padicValNat.mul ih.1 (by omega), padicValNat.mul (by norm_num) (by omega), ih.2,
-      padicValNat.eq_zero_of_not_dvd (show ¬ 2 ∣ 2 * r + 1 by omega)]
-    simp
+theorem exp4_zero (x : ℕ) (hx : ¬ 4 ∣ x) : exp4 x = 0 := by
+  unfold OMA.S_oeis_a363228.exp4
+  refine Nat.findGreatest_eq_iff.mpr ⟨Nat.zero_le _, fun h => (h rfl).elim, ?_⟩
+  intro k hk _ hd
+  exact hx (dvd_trans (dvd_pow_self (4 : ℕ) (by omega)) hd)
 
-lemma fib_add6 (n : ℕ) : Nat.fib (n + 6) % 4 = Nat.fib n % 4 := by
-  have h : Nat.fib (5 + n + 1) = Nat.fib 5 * Nat.fib n + Nat.fib 6 * Nat.fib (n + 1) := by
-    rw [Nat.fib_add]
-  rw [show n + 6 = 5 + n + 1 by ring, h]
-  simp [Nat.fib_add_two, Nat.fib_one, Nat.fib_zero]
-  omega
-
-lemma fib_mod4 (n : ℕ) : Nat.fib n % 4 = Nat.fib (n % 6) % 4 := by
-  induction n using Nat.strong_induction_on with
-  | _ n ih =>
-    by_cases h : n < 6
-    · rw [Nat.mod_eq_of_lt h]
-    · obtain ⟨k, rfl⟩ : ∃ k, n = k + 6 := ⟨n - 6, by omega⟩
-      rw [fib_add6, ih k (by omega)]
-      congr 2
-      omega
-
-lemma fib_add24 (n : ℕ) : Nat.fib (n + 24) % 16 = Nat.fib n % 16 := by
-  have h : Nat.fib (23 + n + 1) = Nat.fib 23 * Nat.fib n + Nat.fib 24 * Nat.fib (n + 1) := by
-    rw [Nat.fib_add]
-  rw [show n + 24 = 23 + n + 1 by ring, h]
+theorem fib24 (m : ℕ) : Nat.fib (m + 24) % 16 = Nat.fib m % 16 := by
+  have h : Nat.fib (m + 24) = Nat.fib m * Nat.fib 23 + Nat.fib (m + 1) * Nat.fib 24 :=
+    Nat.fib_add m 23
   have e23 : Nat.fib 23 = 28657 := by decide
   have e24 : Nat.fib 24 = 46368 := by decide
-  rw [e23, e24]
+  rw [e23, e24] at h
   omega
 
-lemma fib_mod16 (n : ℕ) : Nat.fib n % 16 = Nat.fib (n % 24) % 16 := by
-  induction n using Nat.strong_induction_on with
-  | _ n ih =>
-    by_cases h : n < 24
-    · rw [Nat.mod_eq_of_lt h]
-    · obtain ⟨k, rfl⟩ : ∃ k, n = k + 24 := ⟨n - 24, by omega⟩
-      rw [fib_add24, ih k (by omega)]
-      congr 2
-      omega
+theorem fibmod (r q : ℕ) : Nat.fib (r + 24 * q) % 16 = Nat.fib r % 16 := by
+  induction q with
+  | zero => simp
+  | succ q ih => rw [show r + 24 * (q + 1) = r + 24 * q + 24 by ring, fib24, ih]
 
-lemma fib_v2 : ∀ k m, Odd m →
-    (fun n => Nat.fib (6 * n)) (2 ^ k * m) ≠ 0 ∧
-      padicValNat 2 ((fun n => Nat.fib (6 * n)) (2 ^ k * m)) = k + 3 := by
-  refine v2_gen (fun n => Nat.fib (6 * n)) ?_ ?_
-  · intro m hm
-    rw [fib_mod16]
-    obtain ⟨j, rfl⟩ := hm
-    have : 6 * (2 * j + 1) % 24 = 6 ∨ 6 * (2 * j + 1) % 24 = 18 := by omega
-    rcases this with h | h <;> rw [h] <;> decide
-  · intro n
-    refine ⟨2 * Nat.fib (6 * n + 1) - Nat.fib (6 * n), ?_, ?_⟩
-    · rw [show 6 * (2 * n) = 2 * (6 * n) by ring, Nat.fib_two_mul]
-    · have a1 := fib_mod4 (6 * n)
-      have a2 := fib_mod4 (6 * n + 1)
-      have b1 : 6 * n % 6 = 0 := by omega
-      have b2 : (6 * n + 1) % 6 = 1 := by omega
-      rw [b1] at a1
-      rw [b2] at a2
-      simp at a1 a2
-      have : Nat.fib (6 * n) ≤ Nat.fib (6 * n + 1) := Nat.fib_le_fib_succ
-      omega
+theorem fibmod' (m : ℕ) : Nat.fib m % 16 = Nat.fib (m % 24) % 16 := by
+  have h := fibmod (m % 24) (m / 24)
+  rw [Nat.mod_add_div] at h
+  exact h
 
-lemma pow9_mod16 (m : ℕ) (hm : Odd m) : 9 ^ m % 16 = 9 := by
-  obtain ⟨j, rfl⟩ := hm
-  rw [pow_succ, pow_mul, Nat.mul_mod, Nat.pow_mod]
-  norm_num
+theorem tab : ∀ r, r < 24 → (r % 6 = 0 → Nat.fib r % 8 = 0) ∧ (r % 6 = 1 → Nat.fib r % 2 = 1) ∧
+    (r % 12 = 6 → Nat.fib r % 16 = 8) ∧ (r % 6 ≠ 0 → Nat.fib r % 4 ≠ 0) := by
+  decide +kernel
 
-lemma nine_v2 : ∀ k m, Odd m →
-    (fun n => 9 ^ n - 1) (2 ^ k * m) ≠ 0 ∧
-      padicValNat 2 ((fun n => 9 ^ n - 1) (2 ^ k * m)) = k + 3 := by
-  refine v2_gen (fun n => 9 ^ n - 1) ?_ ?_
-  · intro m hm
-    have h := pow9_mod16 m hm
-    have : 1 ≤ 9 ^ m := Nat.one_le_pow _ _ (by norm_num)
+theorem fprop (m : ℕ) : (m % 6 = 0 → Nat.fib m % 8 = 0) ∧ (m % 6 = 1 → Nat.fib m % 2 = 1) ∧
+    (m % 12 = 6 → Nat.fib m % 16 = 8) ∧ (m % 6 ≠ 0 → Nat.fib m % 4 ≠ 0) := by
+  have h1 := fibmod' m
+  obtain ⟨t1, t2, t3, t4⟩ := tab (m % 24) (Nat.mod_lt _ (by norm_num))
+  refine ⟨fun h => ?_, fun h => ?_, fun h => ?_, fun h => ?_⟩
+  · have := t1 (by omega); omega
+  · have := t2 (by omega); omega
+  · have := t3 (by omega); omega
+  · have := t4 (by omega); omega
+
+theorem pow9 (k : ℕ) : 9 ^ (2 * k + 1) % 16 = 9 := by
+  induction k with
+  | zero => norm_num
+  | succ k ih =>
+    rw [show 2 * (k + 1) + 1 = 2 * k + 1 + 2 by ring, pow_add, show (9 : ℕ) ^ 2 = 81 by norm_num]
     omega
-  · intro n
-    refine ⟨9 ^ n + 1, ?_, ?_⟩
-    · obtain ⟨y, hy⟩ : ∃ y, 9 ^ n = y + 1 :=
-        ⟨9 ^ n - 1, by have := Nat.one_le_pow n 9 (by norm_num); omega⟩
-      rw [pow_mul', hy, Nat.add_sub_cancel]
-      have : (y + 1) ^ 2 = y * (y + 2) + 1 := by ring
-      rw [this, Nat.add_sub_cancel]
-    · rw [Nat.add_mod, Nat.pow_mod]
-      norm_num
 
-end OMA.A363228P
+theorem oddpart (X : ℕ) (h : X % 16 = 9) :
+    Odd ((X - 1) / 8) ∧ X - 1 = 2 ^ (0 + 3) * ((X - 1) / 8) := by
+  refine ⟨Nat.odd_iff.mpr (by omega), ?_⟩
+  rw [show (2 : ℕ) ^ (0 + 3) = 8 by norm_num]
+  omega
 
-open OMA.A363228P in
+theorem key : ∀ n : ℕ, 1 ≤ n → ∃ i u w : ℕ, Odd u ∧ Odd w ∧ 9 ^ n - 1 = 2 ^ (i + 3) * u ∧
+    Nat.fib (6 * n) = 2 ^ (i + 3) * w := by
+  intro n
+  refine Nat.strong_induction_on n ?_
+  intro n ih hn
+  rcases Nat.even_or_odd n with ⟨m, hm⟩ | ⟨k, hk⟩
+  · subst hm
+    obtain ⟨i, u, w, hu, hw, h9, hf⟩ := ih m (by omega) (by omega)
+    have hpos : 0 < 9 ^ m := by positivity
+    have hX : 9 ^ m = 2 ^ (i + 3) * u + 1 := by omega
+    have p8 : Nat.fib (6 * m) % 8 = 0 := (fprop (6 * m)).1 (by omega)
+    have p1 : Nat.fib (6 * m + 1) % 2 = 1 := (fprop (6 * m + 1)).2.1 (by omega)
+    have mono : Nat.fib (6 * m) ≤ Nat.fib (6 * m + 1) := Nat.fib_le_fib_succ
+    obtain ⟨q, hq, hqo⟩ : ∃ q, 2 * Nat.fib (6 * m + 1) - Nat.fib (6 * m) = 2 * q ∧ q % 2 = 1 :=
+      ⟨(2 * Nat.fib (6 * m + 1) - Nat.fib (6 * m)) / 2, by omega, by omega⟩
+    have hodd2 : Odd (2 ^ (i + 2) * u + 1) := ⟨2 ^ (i + 1) * u, by ring⟩
+    refine ⟨i + 1, u * (2 ^ (i + 2) * u + 1), w * q, hu.mul hodd2,
+      hw.mul (Nat.odd_iff.mpr hqo), ?_, ?_⟩
+    · rw [pow_add, hX]
+      apply Nat.sub_eq_of_eq_add
+      ring
+    · rw [show 6 * (m + m) = 2 * (6 * m) by ring, Nat.fib_two_mul, hq, hf]
+      ring
+  · subst hk
+    obtain ⟨o1, o2⟩ := oddpart (9 ^ (2 * k + 1)) (pow9 k)
+    have hf : Nat.fib (6 * (2 * k + 1)) % 16 = 8 := (fprop (6 * (2 * k + 1))).2.2.1 (by omega)
+    refine ⟨0, (9 ^ (2 * k + 1) - 1) / 8, Nat.fib (6 * (2 * k + 1)) / 8, o1, ?_, o2, ?_⟩
+    · rw [Nat.odd_iff]; omega
+    · rw [show (2 : ℕ) ^ (0 + 3) = 8 by norm_num]; omega
+
+end R363228
+
 theorem OMA.solution : type_of% @OMA.S_oeis_a363228.main := by
   refine ⟨?_, ?_⟩
   · intro n hn
-    obtain ⟨k, m, hm, rfl⟩ := Nat.exists_eq_two_pow_mul_odd (show n ≠ 0 by omega)
-    obtain ⟨h1, h2⟩ := nine_v2 k m hm
-    obtain ⟨h3, h4⟩ := fib_v2 k m hm
-    simp only at h1 h2 h3 h4
-    unfold OMA.S_oeis_a363228.a
-    rw [exp4_eq h1, exp4_eq h3, h2, h4]
+    obtain ⟨i, u, w, hu, hw, h9, hf⟩ := R363228.key n hn
+    show OMA.S_oeis_a363228.exp4 (9 ^ n - 1) = OMA.S_oeis_a363228.exp4 (Nat.fib (6 * n))
+    rw [h9, hf, R363228.exp4_pow _ _ hu, R363228.exp4_pow _ _ hw]
   · intro m hm h6
-    have h := fib_mod4 m
-    have hne : Nat.fib m ≠ 0 := by
-      have := Nat.fib_pos.2 (show 0 < m by omega)
-      omega
-    have hr : m % 6 = 1 ∨ m % 6 = 2 ∨ m % 6 = 3 ∨ m % 6 = 4 ∨ m % 6 = 5 := by omega
-    have h4 : ¬ 4 ∣ Nat.fib m := by
-      rw [Nat.dvd_iff_mod_eq_zero, h]
-      rcases hr with h | h | h | h | h <;> rw [h] <;> decide
-    unfold OMA.S_oeis_a363228.exp4
-    rw [Nat.findGreatest_eq_iff]
-    refine ⟨by omega, fun h0 => absurd rfl h0, ?_⟩
-    intro n hn _ hP
-    exact h4 (dvd_trans (dvd_pow_self 4 (by omega)) hP)
+    have h4 : Nat.fib m % 4 ≠ 0 := (R363228.fprop m).2.2.2 (by omega)
+    exact R363228.exp4_zero _ (by omega)

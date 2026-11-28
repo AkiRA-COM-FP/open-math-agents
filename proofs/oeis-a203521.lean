@@ -11,9 +11,5 @@ open OMA.S_oeis_a203521 in
 theorem OMA.disproof : ¬ (type_of% @OMA.S_oeis_a203521.main) := by
   intro H
   have h := H 2
-  have ha : a 2 = 5 := by
-    simp [a, Finset.prod_range_succ, Nat.nth_prime_zero_eq_two, Nat.nth_prime_one_eq_three]
-  have hs : sf 2 = 2 := by
-    simp [sf, Finset.prod_range_succ, Nat.factorial]
-  rw [ha, hs] at h
-  omega
+  norm_num [a, sf, Finset.prod_range_succ, Nat.nth_prime_zero_eq_two,
+    Nat.nth_prime_one_eq_three, Nat.factorial] at h
