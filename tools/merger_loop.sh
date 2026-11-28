@@ -89,17 +89,39 @@ scan() {  # completed runs created in the last $1 seconds, in 30-minute slices (
 publish_pending() {  # the open pull requests, by problem id (their title), to the site: the desk stops handing them out
   # only those opened in the last 12 hours and not rejected by this merger: an abandoned or rejected pull request must
   # not keep a problem away from everyone
-  local CUT; CUT=$(iso $(( $(date -u +%s) - 43200 )))
+  # Also (prs, queue) every open pull request with its author and what this merger knows of it (check running, checked
+  # and waiting for its verdict, rejected with the reason, labelled needs-human-review) and the size of GitHub's queue:
+  # the site shows each contributor where their submissions stand (/a/<handle>, /api/pending?handle=). Same single
+  # listing of the open pull requests as before, plus one call for the number of queued checks.
+  local CUT REJ PID; CUT=$(iso $(( $(date -u +%s) - 43200 )))
+  PID='def pid: .title | sub("^(proof|disproof|statement|reduction|reduce|step|formalize|Proof)\\s*:\\s*"; "") | gsub("^\\s+|\\s+$"; "");'
   gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" \
-    --jq ".[] | select(.created_at > \"$CUT\")" 2>/dev/null | jq -c --slurpfile rej <(sort -un "$ROOT/rejected.txt" 2>/dev/null | jq -s '.') \
-    'select((.number as $n | $rej[0] | index($n)) | not) | {id: (.title | sub("^(proof|disproof|statement|reduction|reduce|step|formalize|Proof)\\s*:\\s*"; "") | gsub("^\\s+|\\s+$"; "")), pr: .number, since: .created_at}' \
-    2>/dev/null | jq -s '.' > open_prs.json || return 0
+    --jq '.[] | {number, title, created_at, by: .user.login, review: any(.labels[]?; .name == "needs-human-review")}' > open_all.jsonl 2>/dev/null || return 0
+  REJ=$(sort -un "$ROOT/rejected.txt" 2>/dev/null | jq -cs '.'); [ -n "$REJ" ] || REJ='[]'
+  jq -c --arg cut "$CUT" --argjson rej "$REJ" "$PID"' select(.created_at > $cut and ((.number as $n | $rej | index($n)) | not)) | {id: pid, pr: .number, since: .created_at}' \
+    open_all.jsonl 2>/dev/null | jq -s '.' > open_prs.json || return 0
   [ -s open_prs.json ] || return 0
+  local CHK='$7 ~ /^(check-proof|batch) #[0-9]+$/ { sub(/^[a-z-]+ #/, "", $7); print $7 }' QUEUED RUNNING PERHOUR
+  awk -F'\t' "$CHK" prev_inprog.tsv 2>/dev/null | sort -un | jq -cs '.' > st_checking.json
+  awk -F'\t' "$CHK" "$ROOT/queue.tsv" 2>/dev/null | sort -un | jq -cs '.' > st_verdict.json
+  jq -cs 'map({key: (.pr | tostring), value: .reason}) | from_entries' "$ROOT/reasons.jsonl" > st_reasons.json 2>/dev/null || echo '{}' > st_reasons.json
+  jq -c --argjson rej "$REJ" --slurpfile chk st_checking.json --slurpfile ver st_verdict.json --slurpfile why st_reasons.json "$PID"'
+    .number as $n | {pr: $n, id: pid, by: .by, since: .created_at} +
+    (if ($chk[0] | index($n)) then {st: "checking"} elif ($ver[0] | index($n)) then {st: "verdict"}
+     elif ($rej | index($n)) then {st: "rejected"} + (if $why[0][$n | tostring] then {reason: $why[0][$n | tostring]} else {} end)
+     elif .review then {st: "review"} else {} end)' open_all.jsonl 2>/dev/null | jq -s '.' > open_states.json 2>/dev/null || echo '[]' > open_states.json
+  QUEUED=$(gh api "repos/$REPO/actions/workflows/check-proof.yml/runs?status=queued&per_page=1" --jq '.total_count' 2>/dev/null)
+  [[ "$QUEUED" =~ ^[0-9]+$ ]] || QUEUED=null
+  RUNNING=$(awk 'END { print NR }' prev_inprog.tsv 2>/dev/null); [[ "$RUNNING" =~ ^[0-9]+$ ]] || RUNNING=0
+  # verdicts given in the last hour (one done/pr.<n>.<head> per verdict): the pace that the site's wait estimates use
+  PERHOUR=$(find "$ROOT/done" -maxdepth 1 -name 'pr.*' -mmin -60 2>/dev/null | wc -l); [[ "$PERHOUR" =~ ^[0-9]+$ ]] || PERHOUR=0
   local OIDC=""
   if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
     OIDC=$(curl -sS -m 30 -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=lefttosolve.com" | jq -r '.value // ""')
   fi
-  jq -n --slurpfile items open_prs.json --arg oidc "$OIDC" '{oidc: $oidc, items: $items[0]}' > pending_post.json
+  jq -n --slurpfile items open_prs.json --slurpfile prs open_states.json --arg oidc "$OIDC" --argjson running "$RUNNING" --argjson queued "$QUEUED" --argjson perhour "$PERHOUR" \
+    '{oidc: $oidc, items: $items[0], prs: ($prs[0] // []), queue: {running: $running, queued: $queued, perHour: $perhour}}' > pending_post.json \
+    || jq -n --slurpfile items open_prs.json --arg oidc "$OIDC" '{oidc: $oidc, items: $items[0]}' > pending_post.json
   echo "merger: pending list $(jq length open_prs.json) open pull requests: $(curl -sS -m 60 -X POST "${OMA_SITE:-https://lefttosolve.com}/api/pending" -H 'Content-Type: application/json' --data @pending_post.json 2>&1 | head -c 120)"
 }
 verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot, $7 conclusion, $8 title, $9 mode
@@ -138,6 +160,12 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
       timeout 900 bash "$B/tools/verdict_one.sh" ) > "$W/log.txt" 2>&1
   echo "#$PR run $ID.$ATT: exit $? $(grep -m1 -oiE 'rate limit|ACCEPTED|REJECTED|FAULT|already on main' "$W/log.txt" || true)"
   grep -qE 'REJECTED|already on main' "$W/log.txt" && echo "$PR" >> "$ROOT/rejected.txt"
+  # A rejection: verdict_one.sh writes its reason to reason.txt (the grep above only sees what it prints; the verdict
+  # itself goes to a comment). The pull request leaves the pending list and its reason is published (publish_pending).
+  if [ -s "$W/reason.txt" ]; then
+    echo "$PR" >> "$ROOT/rejected.txt"
+    jq -nc --argjson pr "$PR" --arg r "$(head -c 300 "$W/reason.txt")" '{pr: $pr, reason: $r}' >> "$ROOT/reasons.jsonl" 2>/dev/null || true
+  fi
   [ -e "$W/rerun.flag" ] && echo "$ID" >> "$ROOT/watch.txt"   # a fault re-runs the check: same run id, next attempt
   if [ -e "$W/remerge.flag" ]; then                               # merge refused: try the same verdict again later
     echo $((RM + 1)) > "$ROOT/remerge/$PR"; rm -f "$ROOT/done/$ID.$ATT"
