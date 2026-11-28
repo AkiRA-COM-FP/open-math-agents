@@ -103,10 +103,17 @@ private noncomputable def pt (i : Fin 7) : ℝ² :=
 private def sq4 (i j : Fin 7) : ℤ :=
   ((xy i).1 - (xy j).1)^2 + 3 * ((xy i).2 - (xy j).2)^2
 private theorem wheel_enum : Erdos91.wheelSeven = Finset.univ.image pt := by
-  rw [show (Finset.univ : Finset (Fin 7)) = {0,1,2,3,4,5,6} by decide]
-  norm_num [Erdos91.wheelSeven, Finset.image_insert, Finset.image_singleton, pt, xy,
-    mul_comm (2 : ℝ)]
-
+  have hu : (Finset.univ : Finset (Fin 7)) = {0,1,2,3,4,5,6} := by decide
+  rw [hu]
+  simp only [Finset.image_insert, Finset.image_singleton]
+  have h0 : xy 0 = (2,1) := rfl
+  have h1 : xy 1 = (4,1) := rfl
+  have h2 : xy 2 = (3,2) := rfl
+  have h3 : xy 3 = (1,2) := rfl
+  have h4 : xy 4 = (0,1) := rfl
+  have h5 : xy 5 = (1,0) := rfl
+  have h6 : xy 6 = (3,0) := rfl
+  norm_num [Erdos91.wheelSeven, pt, h0, h1, h2, h3, h4, h5, h6, mul_comm (2 : ℝ)]
 private theorem pt_inj : Function.Injective pt := by
   have hxy : ∀ i j : Fin 7, xy i = xy j → i = j := by decide
   intro i j e
