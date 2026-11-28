@@ -16331,6 +16331,30 @@
     "https://oeis.org/A192232"
    ],
    "reason": "Second review: Deliberately weakened (n>=4) because the conjecture as written fails at n=3, and the sequence's name disagrees with its data; correct and documented, but it is a correction, not a proof of the stated conjecture."
+  },
+  "oeis-a302333": {
+   "date": "2026-11-28",
+   "pr": 26191,
+   "evidence": [
+    "https://oeis.org/A302333"
+   ],
+   "reason": "Triviality. With 3p=2^q+1 we have 3p-2=2^q-1 and 3p-1=2^q, so (3p-2)(3p-1)/2 = 2^(q-1)(2^q-1), which is perfect by Euclid's theorem once 2^q-1 is prime (primality of p is not even used). The c9 part is the definition of A060544. The entry's line is an observation, not a conjecture; the statement is faithful but has no open content."
+  },
+  "oeis-a295687": {
+   "date": "2026-11-28",
+   "pr": 25445,
+   "evidence": [
+    "https://oeis.org/A295687"
+   ],
+   "reason": "The two bisection recurrences formalized are stated as facts by Bala (Nov 2021) in the FORMULA section, not as conjectures; the only conjecture in the entry (Bala's series identity for a(2n+7)) is not formalized. They follow immediately from the order-4 recurrence (the proof notes that a(m+4)-3a(m+2)+a(m) is 4-periodic), and I checked them for n<39. Faithful but not an open problem."
+  },
+  "oeis-a301877": {
+   "date": "2026-11-28",
+   "pr": 23077,
+   "evidence": [
+    "https://oeis.org/A301877"
+   ],
+   "reason": "Barker's g.f. is correct (I checked A*D=N to 59 terms), but the printed order-7 recurrence a(n)=7a(n-1)-18a(n-2)+... (n>10) is inconsistent with it: the g.f. denominator has degree 9, and the listed data already fail the recurrence at n=11 (it gives 908, not 969) and every later n checked. So the stated package is false by the entry's own data. The disproof is correct but exploits an evident transcription error in the recurrence, a trivial refutation."
   }
  },
  "known": {
@@ -29331,6 +29355,42 @@
     "https://github.com/joaquimmj/oeis-conjectures"
    ],
    "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:A005121 proves that R(n,n) satisfies Lengyel's recursion a(n)=Sum S(n,m)a(m), the site's definition, using column sums W_t(j)=S(j+t,j) and telescoping. The site's R(n,n) is the same sum, and I checked each step."
+  },
+  "oeis-a295319": {
+   "date": "2026-11-28",
+   "pr": 27439,
+   "evidence": [
+    "https://oeis.org/A295319",
+    "https://artofproblemsolving.com/wiki/index.php?title=2014_AMC_12A_Problems/Problem_15"
+   ],
+   "reason": "Dale's 2023 conjecture (terms after a(1) are exactly 495*10^k with k mod 3 != 1) is an immediate corollary of the entry's own non-conjectural formula a(n) = (A050683(n)/2)*11*10^(n-1) for n>1, derived there (expected value times count), with A050683(n)=9*10^floor((n-1)/2); this gives exponent n-2+floor((n-1)/2), which runs over exactly the k with k mod 3 in {0,2}. Corneth's a(n)=1000a(n-2) and Wu's g.f. also state it. Statement is faithful; nothing open remained."
+  },
+  "oeis-a296806": {
+   "date": "2026-11-28",
+   "pr": 26687,
+   "evidence": [
+    "https://oeis.org/A296806",
+    "https://oeis.org/A067760",
+    "https://oeis.org/A033919"
+   ],
+   "reason": "The disproof (p=1777796, 2p+1=3555593, covering by 3,5,7,13,17,241 so 3555593+2^n is never prime) is correct and the statement is faithful. But Iachia's conjecture was already refuted in the OEIS: A067760 records a(39278)=0, i.e. 78557+2^k is composite for every k (the Selfridge covering), so p=39278 is a known counterexample; A033919 makes the same point. Erdos-style coverings for k+2^n are classical."
+  },
+  "oeis-a302864": {
+   "date": "2026-11-28",
+   "pr": 24570,
+   "evidence": [
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/NumberComplexity/A302864ThereBasePalindrome.lean",
+    "https://oeis.org/A302864"
+   ],
+   "reason": "Statement is faithful (a(n)>0: a decimal palindrome with 2-adic valuation exactly n exists for every n). It was already proved in Lean in thatnealpatel/proofs (Proofs/NumberComplexity/A302864ThereBasePalindrome.lean, commit 2026-10-25, digits-in-{1,2} construction plus mirrored palindrome), a month before this site's proof was merged (2026-11-28)."
+  },
+  "oeis-a299068": {
+   "date": "2026-11-28",
+   "pr": 25450,
+   "evidence": [
+    "https://oeis.org/A299068"
+   ],
+   "reason": "The claim 'for n>7, a(n)>=7' is Robert Israel's 2018 comment, which already contains its proof: it lists seven explicit pairs of divisors of n^2(n^2-1) differing by n ((1,n+1), (n,2n), (2n,3n), ((n^2-n)/2,(n^2+n)/2), (n^2-n,n^2), (n^2,n^2+n), and (3n,4n) or (n/2,3n/2)). The formalization is faithful and the Lean proof just checks those pairs. Nothing open remained."
   }
  },
  "reviewed": "2026-11-28"
