@@ -23,7 +23,9 @@ def H2 : Prop :=
 
 def H3 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q → q % 15 = 8 →
-    q ^ 2 ∣ Nat.fib (q+1) → (2*q+1).Prime → 2*q+1 ∣ Nat.fib ((pisano q).gcd (2*(q+1)))
+    q ^ 2 ∣ Nat.fib (q+1) → (2*q+1).Prime →
+    ∀ l : ℕ, l.Prime → 2 < l → l ∣ (2*(q+1) / pisano q) →
+      (rankOfApparition (2*q+1)).factorization l ≤ (pisano q).factorization l
 
 -- Consecutive values form a finite reversible orbit for every positive modulus.
 lemma fib_pair_iterate (q n : ℕ) :
@@ -382,8 +384,9 @@ lemma five_symbol_eq_one {q : ℕ} [Fact q.Prime] (large : 5 < q) :
       j.val = 0 ∨ j.val = 1 ∨ j.val = 4 := by decide
   exact (table ⟨q%5, Nat.mod_lt _ (by decide)⟩).trans (by simp [nonzero])
 
-lemma zero_at_selected_neighbor {p : ℕ} (hp : p.Prime) (large : 5 < p) :
-    if p % 5 = 1 ∨ p % 5 = 4 then p ∣ Nat.fib (p-1) else p ∣ Nat.fib (p+1) := by
+lemma selected_neighbor_pair {p : ℕ} (hp : p.Prime) (large : 5 < p) :
+    if p % 5 = 1 ∨ p % 5 = 4 then p ∣ Nat.fib (p-1) else
+      p ∣ Nat.fib (p+1) ∧ (Nat.fib (p+2) : ZMod p) = -1 := by
   have h2 : p ≠ 2 := by omega
   have h5 : p ≠ 5 := by omega
   let : Fact p.Prime := ⟨hp⟩
@@ -445,7 +448,25 @@ lemma zero_at_selected_neighbor {p : ℕ} (hp : p.Prime) (large : 5 < p) :
       dsimp only [b] at difference ⊢
       linear_combination difference
     have swapb : b ^ p = a := by rw [conjugate, swap]; dsimp [b]; ring
-    exact zero_of_equal _ (by rw [pow_succ, pow_succ, swap, swapb, mul_comm])
+    have prod : a*b = -1 := by dsimp only [b]; linear_combination -ha
+    have powers : a ^ (p+1) = -1 ∧ b ^ (p+1) = -1 := by
+      rw [pow_succ, pow_succ, swap, swapb, mul_comm b a]
+      exact ⟨prod, prod⟩
+    refine ⟨zero_of_equal _ (powers.1.trans powers.2.symm), ?_⟩
+    have coord : (Nat.fib (p+2) : K) = -1 := by
+      apply mul_right_cancel₀ diff
+      rw [fib_root_difference ha hb, pow_succ a (p+1), pow_succ b (p+1), powers.1, powers.2]
+      ring
+    apply (algebraMap (ZMod p) K).injective
+    simpa using coord
+
+lemma zero_at_selected_neighbor {p : ℕ} (hp : p.Prime) (large : 5 < p) :
+    if p % 5 = 1 ∨ p % 5 = 4 then p ∣ Nat.fib (p-1) else p ∣ Nat.fib (p+1) := by
+  have h := selected_neighbor_pair hp large
+  split <;> rename_i branch
+  · simpa [branch] using h
+  · rw [if_neg branch] at h
+    exact h.1
 
 -- The case p=3 is the small prime below the reciprocity test's range.
 lemma zero_at_neighbor {p : ℕ} (hp : p.Prime) (h2 : p ≠ 2) (h5 : p ≠ 5) :
@@ -608,6 +629,91 @@ lemma aligned_companion_residue {q : ℕ} (hq : q.Prime) (hl : 53 < q)
     (hp : (2*q+1).Prime) (aligned : 2*q+1 ∣ Nat.fib (pisano q)) : q % 15 = 8 :=
   upper_companion_residue hq (by omega) hp (aligned_companion_forces_upper hq hl hp aligned)
 
+-- In the nonsplit case the return at q+1 has scalar -1, so exactly doubling
+-- that index gives a return and the cofactor of the minimal period is odd.
+lemma nonsplit_period_cofactor {q : ℕ} (hq : q.Prime) (hl : 5 < q)
+    (ns : ¬ (q%5 = 1 ∨ q%5 = 4)) :
+    pisano q ∣ 2*(q+1) ∧ ¬ pisano q ∣ q+1 ∧ Odd (2*(q+1) / pisano q) := by
+  let : Fact q.Prime := ⟨hq⟩
+  let : NeZero q := ⟨hq.ne_zero⟩
+  have pair := selected_neighbor_pair hq hl
+  rw [if_neg ns] at pair
+  have odd := hq.eq_two_or_odd.resolve_left (by omega)
+  have even : Even (q+1) := even_iff_two_dvd.mpr (by omega)
+  have full : pisano q ∣ 2*(q+1) := (period_dvd_double_iff q (q+1)).mpr (by simpa [even] using pair.1)
+  have half : ¬ pisano q ∣ q+1 := by
+    intro h
+    have ret := ((period_and_returns q).2 _ |>.mp h).2
+    have one : (Nat.fib (q+2) : ZMod q) = 1 := by
+      simpa using (ZMod.natCast_eq_natCast_iff _ _ q).mpr ret
+    have two : (2 : ZMod q) = 0 := by linear_combination pair.2 - one
+    exact (CharP.cast_ne_zero_of_ne_of_prime (ZMod q) Nat.prime_two (show q ≠ 2 by omega)) two
+  refine ⟨full, half, Nat.not_even_iff_odd.mp ?_⟩
+  rintro ⟨t, ht⟩
+  apply half
+  refine ⟨t, ?_⟩
+  have prod := Nat.div_mul_cancel full
+  rw [ht, add_mul] at prod
+  rw [Nat.mul_comm (pisano q) t]
+  omega
+
+-- Comparing valuations is necessary only at primes of the missing cofactor.
+lemma dvd_iff_at_cofactor_primes {r a c : ℕ} (hr : r ≠ 0) (ha : a ≠ 0)
+    (hc : c ≠ 0) (odd : Odd c) (fits : r ∣ a*c) :
+    r ∣ a ↔ ∀ l : ℕ, l.Prime → 2 < l → l ∣ c →
+      r.factorization l ≤ a.factorization l := by
+  constructor
+  · intro h l _ _ _
+    exact (Nat.factorization_le_iff_dvd hr ha).mpr h l
+  · intro localTests
+    apply (Nat.factorization_le_iff_dvd hr ha).mp
+    intro l
+    by_cases prime : l.Prime
+    · by_cases divides : l ∣ c
+      · have big : 2 < l := by
+          have := prime.two_le
+          have noTwo : ¬ 2 ∣ c := fun h => (Nat.not_even_iff_odd.mpr odd) (even_iff_two_dvd.mpr h)
+          by_contra! small
+          exact noTwo (by rwa [show l = 2 by omega] at divides)
+        exact localTests l prime big divides
+      · have h := (Nat.factorization_le_iff_dvd hr (mul_ne_zero ha hc)).mpr fits l
+        simpa [Nat.factorization_mul ha hc, Nat.factorization_eq_zero_of_not_dvd divides] using h
+    · simp [Nat.factorization_eq_zero_of_not_prime _ prime]
+
+lemma companion_odd_tests_iff {q : ℕ} (hq : q.Prime) (hl : 5 < q)
+    (residue : q%15 = 8) (hp : (2*q+1).Prime) :
+    2*q+1 ∣ Nat.fib (pisano q) ↔ ∀ l : ℕ, l.Prime → 2 < l →
+      l ∣ (2*(q+1) / pisano q) →
+      (rankOfApparition (2*q+1)).factorization l ≤ (pisano q).factorization l := by
+  let : NeZero q := ⟨hq.ne_zero⟩
+  let c := 2*(q+1) / pisano q
+  obtain ⟨full, _, odd⟩ := nonsplit_period_cofactor hq hl (by omega)
+  have whole : pisano q * c = 2*(q+1) := Nat.mul_div_cancel' full
+  have nz : c ≠ 0 := by intro h; rw [h, mul_zero] at whole; omega
+  have neighbor := zero_at_selected_neighbor hp (by omega)
+  rw [if_neg (by omega)] at neighbor
+  have zero : 2*q+1 ∣ Nat.fib (2*(q+1)) := by convert neighbor using 2; omega
+  have first : 0 < rankOfApparition (2*q+1) ∧ 2*q+1 ∣ Nat.fib (rankOfApparition (2*q+1)) :=
+    Nat.sInf_mem (s := {k : ℕ | 0 < k ∧ 2*q+1 ∣ Nat.fib k}) ⟨2*(q+1), by omega, zero⟩
+  have pos := (period_and_returns q).1
+  have rankFits := rank_dvd_index (show 0 < 2*(q+1) by omega) zero
+  rw [← whole] at rankFits
+  rw [← dvd_iff_at_cofactor_primes first.1.ne' pos.ne' nz odd rankFits]
+  exact ⟨rank_dvd_index pos, fun h => first.2.trans (Nat.fib_dvd _ _ h)⟩
+
+
+-- If the cofactor and the companion rank are coprime, alignment is automatic.
+lemma alignment_of_coprime_cofactor {q : ℕ} (hq : q.Prime) (hl : 5 < q)
+    (residue : q%15 = 8) (hp : (2*q+1).Prime)
+    (cop : (rankOfApparition (2*q+1)).Coprime (2*(q+1) / pisano q)) :
+    2*q+1 ∣ Nat.fib (pisano q) := by
+  apply (companion_odd_tests_iff hq hl residue hp).mpr
+  intro l prime _ divides
+  have unit : ¬ l ∣ rankOfApparition (2*q+1) := by
+    intro hr
+    exact prime.not_dvd_one (cop.gcd_eq_one ▸ Nat.dvd_gcd hr divides)
+  simp [Nat.factorization_eq_zero_of_not_dvd unit]
+
 -- The bounded test uses Mathlib's proven binary Fibonacci evaluator.
 set_option maxRecDepth 6000 in
 set_option maxHeartbeats 2000000 in
@@ -638,7 +744,7 @@ lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
       exact exclude q hq large long h square
     rw [if_neg (by omega)] at square
     have hp := prime q hq large long residue square
-    exact ⟨hp, (companion_alignment_iff hq (by omega) hp).mpr (align q hq large long residue square hp)⟩
+    exact ⟨hp, (companion_odd_tests_iff hq (by omega) residue hp).mpr (align q hq large long residue square hp)⟩
   · intro canonical
     refine ⟨?_, ?_, ?_⟩
     · intro q hq large _ outside square
@@ -647,9 +753,9 @@ lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
       exact outside (aligned_companion_residue hq (by omega) hp aligned)
     · intro q hq large _ _ square
       exact (canonical q hq (by omega) ((stable_neighbor_iff hq (by omega)).mpr (Or.inr square))).1
-    · intro q hq large _ _ square hp
+    · intro q hq large _ residue square hp
       have stable := (stable_neighbor_iff hq (by omega)).mpr (Or.inr square)
-      exact (companion_alignment_iff hq (by omega) hp).mp (canonical q hq (by omega) stable).2
+      exact (companion_odd_tests_iff hq (by omega) residue hp).mp (canonical q hq (by omega) stable).2
 
 theorem main : H1 → H2 → H3 → OMA.R_arxiv_2604_17847_R1.H2 := by
   intro first second third q hq hlarge hs
