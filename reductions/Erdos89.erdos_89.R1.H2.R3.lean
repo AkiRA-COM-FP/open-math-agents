@@ -5,11 +5,15 @@ open Finset Filter EuclideanGeometry
 
 namespace OMA.R_Erdos89_erdos_89_R1_H2_R3
 
-/-- Uniform distance-value estimate on integer points for positive definite integral binary forms. -/
+/-- Squarefree diagonal counting in the remaining case. For every pin, any
+selection of at least half the targets has more than k occupied horizontal
+columns in some squared residue class modulo d. -/
 def H1 : Prop :=
-  ∃ C : ℕ, ∀ a b c : ℤ, 0 < a → b^2 < 4*a*c → ∀ (S : Finset (ℤ × ℤ)) (k : ℕ),
+  ∃ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
-    let q := fun v : ℤ × ℤ => a*v.1^2+b*v.1*v.2+c*v.2^2
+    (∀ p ∈ S, ∀ T ⊆ S, S.card ≤ 2*T.card → ∃ r : ℤ,
+      k < ((T.image Prod.fst).filter fun x => (x-p.1)^2 % (d:ℤ) = r).card) →
+    let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
     S.card ≤ k*C*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1)
 
 /-- The complementary finite estimate for minimizers without a binary quadratic
@@ -436,6 +440,140 @@ private theorem flat_count (T : Finset {p : ℝ² // ∀ i : Fin 2, IsIntegral �
   rw [← card_erase_add_one hp]
   exact Nat.add_le_add_right hc 1
 
+
+/-- A single integral linear embedding works for every finite subset. It preserves
+the entire set of form values on distinct pairs up to one common scaling. -/
+private theorem squarefree_model (a b c : ℤ) (ha : 0 < a) (hdisc : b^2 < 4*a*c) :
+    let values := fun (q : ℤ × ℤ → ℤ) (T : Finset (ℤ × ℤ)) => T.offDiag.image fun xy => q (xy.1-xy.2)
+    ∃ d : ℕ, 0 < d ∧ Squarefree d ∧ ∃ F : ℤ × ℤ → ℤ × ℤ, Function.Injective F ∧
+      ∀ S : Finset (ℤ × ℤ), (S.image F).card = S.card ∧
+        values (fun z => z.1^2 + (d : ℤ)*z.2^2) (S.image F) =
+          (values (fun z => a*z.1^2 + b*z.1*z.2 + c*z.2^2) S).image (4*a * ·) := by
+  intro values
+  have hp : 0 < 4*a*c - b^2 := by omega
+  obtain ⟨d,r,hd,hr,he,hsq⟩ := Nat.sq_mul_squarefree_of_pos (show 0 < (4*a*c-b^2).toNat by omega)
+  have he' : (r : ℤ)^2 * d = 4*a*c - b^2 := by
+    simpa only [Nat.cast_mul, Nat.cast_pow, Int.toNat_of_nonneg hp.le] using
+      congrArg (fun n : ℕ => (n : ℤ)) he
+  let F (p : ℤ × ℤ) : ℤ × ℤ := (2*a*p.1+b*p.2, (r:ℤ)*p.2)
+  have hinj : Function.Injective F := by
+    rintro ⟨x,y⟩ ⟨u,v⟩ h
+    have hxy := congrArg Prod.fst h
+    have hyv := congrArg Prod.snd h
+    change (r:ℤ)*y = (r:ℤ)*v at hyv
+    have : y = v := mul_left_cancel₀ (by exact_mod_cast hr.ne') hyv
+    subst v
+    change 2*a*x+b*y = 2*a*u+b*y at hxy
+    exact Prod.ext (mul_left_cancel₀ (by positivity : 2*a ≠ 0) (add_right_cancel hxy)) rfl
+  refine ⟨d, hd, hsq, F, hinj, fun S => ⟨Finset.card_image_of_injective _ hinj, ?_⟩⟩
+  let Q := fun z : ℤ × ℤ => a*z.1^2 + b*z.1*z.2 + c*z.2^2
+  let D := fun z : ℤ × ℤ => z.1^2 + (d:ℤ)*z.2^2
+  have hval (p t : ℤ × ℤ) : D (F p - F t) = 4*a*Q (p-t) := by
+    dsimp [D, F, Q]
+    linear_combination (p.2-t.2)^2 * he'
+  have mem_values (q : ℤ × ℤ → ℤ) (T : Finset (ℤ × ℤ)) (w : ℤ) :
+      w ∈ values q T ↔ ∃ p ∈ T, ∃ t ∈ T, p ≠ t ∧ q (p-t) = w := by
+    constructor
+    · intro h
+      obtain ⟨⟨p,t⟩, hpt, hval⟩ := Finset.mem_image.mp h
+      obtain ⟨hp, ht, hne⟩ := Finset.mem_offDiag.mp hpt
+      exact ⟨p,hp,t,ht,hne,hval⟩
+    · rintro ⟨p,hp,t,ht,hne,hval⟩
+      exact Finset.mem_image.mpr ⟨(p,t), Finset.mem_offDiag.mpr ⟨hp,ht,hne⟩, hval⟩
+  ext w
+  change w ∈ values D (S.image F) ↔ w ∈ (values Q S).image _
+  rw [mem_values, Finset.mem_image]
+  constructor
+  · rintro ⟨u, hu, v, hv, hne, rfl⟩
+    obtain ⟨p,hp,rfl⟩ := Finset.mem_image.mp hu
+    obtain ⟨t,ht,rfl⟩ := Finset.mem_image.mp hv
+    exact ⟨_, (mem_values ..).mpr ⟨p,hp,t,ht,fun e => hne (congrArg F e),rfl⟩,
+      (hval p t).symm⟩
+  · rintro ⟨w,hw,rfl⟩
+    obtain ⟨p,hp,t,ht,hne,rfl⟩ := (mem_values ..).mp hw
+    exact ⟨_,Finset.mem_image_of_mem F hp,_,Finset.mem_image_of_mem F ht,hinj.ne hne,hval p t⟩
+
+/-- Each pinned value fixes the horizontal square residue. Within each column its
+targets are determined by the sign of their vertical displacement. -/
+theorem residue_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
+    (p : ℤ × ℤ) (hp : p ∈ S) (hsub : T ⊆ S) (k : ℕ)
+    (hcap : ∀ r : ℤ, ((T.image Prod.fst).filter fun x => (x-p.1)^2 % (d:ℤ) = r).card ≤ k) :
+    let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
+    T.card ≤ 2*k*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  intro q
+  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
+  let f := fun x : ℤ × ℤ => q (x-p)
+  have hm : ∀ x ∈ T, f x ∈ insert 0 V := by
+    intro x hx
+    by_cases he : x=p
+    · simp [f,q,he]
+    · exact mem_insert_of_mem (mem_image.mpr ⟨(x,p),mem_offDiag.mpr ⟨hsub hx,hp,he⟩,rfl⟩)
+  have h := card_le_mul_card_image_of_maps_to hm (2*k) (by
+    intro r _
+    let U := T.filter fun x => f x=r
+    let C := (T.image Prod.fst).filter fun x => (x-p.1)^2 % (d:ℤ) = r % (d:ℤ)
+    let g := fun x : ℤ × ℤ => (x.1,decide (p.2 ≤ x.2))
+    have eqv (x) (hx : x ∈ U) : (x.1-p.1)^2+(d:ℤ)*(x.2-p.2)^2 = r := (mem_filter.mp hx).2
+    have sub : U.image g ⊆ C ×ˢ (univ : Finset Bool) := by
+      intro z hz
+      obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
+      apply mem_product.mpr
+      refine ⟨mem_filter.mpr ⟨mem_image_of_mem _ (mem_filter.mp hx).1,?_⟩,mem_univ _⟩
+      change (x.1-p.1)^2 % (d:ℤ) = r % (d:ℤ)
+      rw [← eqv x hx]
+      simp
+    have inj : Set.InjOn g (U : Set (ℤ × ℤ)) := by
+      intro x hx y hy he
+      have ex : x.1=y.1 := (congrArg Prod.fst he : (g x).1=(g y).1)
+      have e := (eqv x hx).trans (eqv y hy).symm
+      rw [ex] at e
+      have ey := sq_eq_sq_iff_eq_or_eq_neg.mp
+        (mul_left_cancel₀ (by exact_mod_cast hd.ne' : (d:ℤ) ≠ 0) (add_left_cancel e))
+      have sign := congrArg Prod.snd he
+      simp [g] at sign
+      exact Prod.ext ex (by omega)
+    have hc := card_le_card sub
+    rw [card_image_of_injOn inj,card_product] at hc
+    change U.card ≤ 2*k
+    exact hc.trans (by simpa [mul_comm] using Nat.mul_le_mul_right 2 (hcap (r % (d:ℤ)))))
+  exact h.trans (Nat.mul_le_mul_left _ (card_insert_le ..))
+
+/-- After squarefree normalization, either a pin certifies half of the
+points or the configuration satisfies the remaining arithmetic hypothesis. -/
+theorem integral_form_bound (arith : H1) :
+  ∃ C : ℕ, ∀ a b c : ℤ, 0 < a → b^2 < 4*a*c → ∀ (S : Finset (ℤ × ℤ)) (k : ℕ),
+    0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
+    let q := fun v : ℤ × ℤ => a*v.1^2+b*v.1*v.2+c*v.2^2
+    S.card ≤ k*C*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  obtain ⟨C,hard⟩ := arith
+  refine ⟨max C 4,?_⟩
+  intro a b c ha hdisc A k hk hsize Q
+  let V := fun (q : ℤ × ℤ → ℤ) (T : Finset (ℤ × ℤ)) => T.offDiag.image fun xy => q (xy.1-xy.2)
+  obtain ⟨d,hd,hsq,F,_,hF⟩ := squarefree_model a b c ha hdisc
+  obtain ⟨hc,hv⟩ := hF A
+  let S := A.image F
+  let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
+  change S.card = A.card at hc
+  change V q S = (V Q A).image (4*a * ·) at hv
+  have hvals := congrArg Finset.card hv
+  rw [card_image_of_injective _ (mul_right_injective₀ (by positivity : 4*a ≠ 0))] at hvals
+  change A.card ≤ k*max C 4*((V Q A).card+1)
+  rw [← hc,← hvals]
+  by_cases heavy : ∀ p ∈ S, ∀ T ⊆ S, S.card ≤ 2*T.card → ∃ r : ℤ,
+      k < ((T.image Prod.fst).filter fun x => (x-p.1)^2 % (d:ℤ) = r).card
+  · have h := hard d S k hd hsq hk (by rwa [hc]) heavy
+    exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (le_max_left ..)))
+  push Not at heavy
+  obtain ⟨p,hp,T,hsub,half,cap⟩ := heavy
+  have h := residue_pin_bound d hd S T p hp hsub k cap
+  calc
+    _ ≤ 2*T.card := half
+    _ ≤ 2*(2*k*((V q S).card+1)) := Nat.mul_le_mul_left _ h
+    _ = k*4*((V q S).card+1) := by ring
+    _ ≤ _ := Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (le_max_right ..))
+
 /-- The common-scale estimate follows from the integral-form estimate. -/
 theorem common_scale_bound (arith : H1) :
   let X := {p : ℝ² // ∀ i : Fin 2, IsIntegral ℤ (p i)}
@@ -443,7 +581,7 @@ theorem common_scale_bound (arith : H1) :
     (∃ L : ℝ, 0 < L ∧ ∀ x ∈ T, ∀ y ∈ T, ∃ t : ℚ, dist x y^2 = L*t) →
     T.card ≤ k*C*(distinctDistances T+1) := by
   classical
-  obtain ⟨C,bound⟩ := arith
+  obtain ⟨C,bound⟩ := integral_form_bound arith
   refine ⟨max C 2,?_⟩
   intro T k hk hsize scale
   obtain ⟨L,hL,rat⟩ := scale
