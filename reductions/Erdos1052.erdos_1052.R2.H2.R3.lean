@@ -40,7 +40,7 @@ def H2 : Prop :=
 
 
 /-- A constant jump permutes residues at the starting prime. -/
-private theorem constant_jump_impossible (f : ℕ → ℕ) (j : ℕ) (hj : 0<j)
+theorem constant_jump_impossible (f : ℕ → ℕ) (j : ℕ) (hj : 0<j)
     (hp : ∀ n, (f n).Prime) (hl : ∀ n, 5<f n)
     (step : ∀ n, f (n+1)+1=2^j*f n) : False := by
   let p := f 0
