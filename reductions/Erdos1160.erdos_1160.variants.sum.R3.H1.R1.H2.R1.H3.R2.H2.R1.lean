@@ -20,7 +20,7 @@ namespace OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2_H2_R1
 
 def H1 : Prop :=
   ∃ E : ℕ, ∀ q r : ℕ, Odd q → q < 2^r → ¬ IsPrimePow q →
-    ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ ¬ p ∣ l-1 ∧ 0 < a ∧ q = p^a*l) →
+    ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ (¬ p ∣ l-1 ∨ ∀ i, 0 < i → i ≤ a → ¬ Nat.ModEq l (p^i) 1) ∧ 0 < a ∧ q = p^a*l) →
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ ¬ Group.IsNilpotent G ∧ ¬ IsZGroup G ∧
         (∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P)}).ncard ≤
@@ -28,7 +28,7 @@ def H1 : Prop :=
 
 def H2 : Prop :=
   ∃ E : ℕ, ∀ q r : ℕ, Odd q → q < 2^r → ¬ IsPrimePow q →
-    ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ ¬ p ∣ l-1 ∧ 0 < a ∧ q = p^a*l) →
+    ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ (¬ p ∣ l-1 ∨ ∀ i, 0 < i → i ≤ a → ¬ Nat.ModEq l (p^i) 1) ∧ 0 < a ∧ q = p^a*l) →
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ ¬ Group.IsNilpotent G ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
@@ -343,19 +343,89 @@ theorem peel {k l : ℕ} (hk : 0 < k) (hl : l.Prime)
       simpa only [order] using cyclic_action_count H (K x)
     _ = _ := by simp [← Nat.card_eq_fintype_card, g, orderClasses]
 
-/-- The requested estimate with E = 1 for orders p^a l, for distinct primes with p not dividing l-1. -/
-theorem two_prime_bound {p l a r : ℕ} (hp : p.Prime) (hl : l.Prime) (hne : p ≠ l) (haut : ¬ p ∣ l-1)
+/-- Count the cyclic normal Sylow kernel by actions of a complement of order k. -/
+theorem normal_prime_count {k l : ℕ} (hk : 0 < k) (hl : l.Prime)
+    (unique_count : ∀ d : ℕ, d ∣ k → Nat.ModEq l d 1 → d = 1) (hcop : ¬ l ∣ k) :
+    g (k*l) ≤ g k * l^(Nat.log 2 k) := by
+  classical
+  let orderClasses (n : ℕ) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+    {G : FiniteGrp.{0} | Nat.card G = n}
+  let _ : NeZero l := ⟨hl.ne_zero⟩
+  let _ : Fact l.Prime := ⟨hl⟩
+  let H := FiniteGrp.of (Multiplicative (ZMod l))
+  let _ : IsCyclic H := inferInstanceAs (IsCyclic (Multiplicative (ZMod l)))
+  let K (x : orderClasses k) : FiniteGrp.{0} := x.property.choose
+  have rep (x : orderClasses k) : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (K x) = x.val :=
+    x.property.choose_spec.2
+  have order (x : orderClasses k) : Nat.card (K x) = k := x.property.choose_spec.1
+  let _ : Finite (orderClasses k) := (finite_classes _).to_subtype
+  let _ := Fintype.ofFinite (orderClasses k)
+  let A (x : orderClasses k) := K x →* MulAut H
+  let (x : orderClasses k) : Finite (A x) := by
+    let _ : Finite (MulAut H) := Finite.of_injective (fun a : MulAut H => (a : H → H))
+      (fun _ _ h => DFunLike.ext' h)
+    exact Finite.of_injective (fun a : A x => (a : K x → MulAut H)) (fun _ _ h => DFunLike.ext' h)
+  let decode (z : (x : orderClasses k) × A x) : Quotient (isIsomorphicSetoid FiniteGrp.{0}) := by
+    letI : Finite (SemidirectProduct H (K z.1) z.2) :=
+      Finite.of_equiv (H × K z.1) SemidirectProduct.equivProd.symm
+    exact Quotient.mk _ (FiniteGrp.of (SemidirectProduct H (K z.1) z.2))
+  have cover : orderClasses (k*l) ⊆ Set.range decode := by
+    rintro _ ⟨G, hG, rfl⟩
+    let P : Sylow l G := default
+    have hP : Nat.card P = l := by
+      rw [P.card_eq_multiplicity, hG, Nat.factorization_mul hk.ne' hl.ne_zero]
+      simp [Nat.factorization_eq_zero_of_not_dvd hcop, hl.factorization]
+    have hc : IsCyclic P := isCyclic_of_prime_card hP
+    have hindex : P.index = k := by
+      have h := (P : Subgroup G).index_mul_card
+      change P.index * Nat.card P = Nat.card G at h
+      rw [hP, hG] at h
+      exact Nat.eq_of_mul_eq_mul_right hl.pos h
+    have count_one := unique_count (Nat.card (Sylow l G))
+      (hindex ▸ P.card_dvd_index) (card_sylow_modEq_one l G)
+    let _ : Subsingleton (Sylow l G) := (Nat.card_eq_one_iff_unique.mp count_one).1
+    let _ : (P : Subgroup G).Normal := Sylow.normal_of_subsingleton P
+    have cop : (Nat.card P).Coprime P.index := by
+      rw [hP, hindex]
+      exact hl.coprime_iff_not_dvd.mpr hcop
+    obtain ⟨N, comp⟩ := Subgroup.exists_right_complement'_of_coprime cop
+    have hn : Nat.card N = k := comp.symm.index_eq_card.symm.trans hindex
+    let x : orderClasses k := ⟨Quotient.mk _ (FiniteGrp.of N), FiniteGrp.of N, hn, rfl⟩
+    let i := Classical.choice (Quotient.exact (rep x))
+    let fn : N ≃* K x := ((inducedFunctor FiniteGrp.toGrp).mapIso i).groupIsoToMulEquiv.symm
+    let fh : P ≃* H := mulEquivOfCyclicCardEq (hP.trans (Nat.card_zmod _).symm)
+    let e := SemidirectProduct.mulEquivSubgroup comp
+    let f := e.symm.trans (SemidirectProduct.congr' fh fn)
+    let a : N →* MulAut P := (P : Subgroup G).normalizerMonoidHom.comp
+      (Subgroup.inclusion ((P : Subgroup G).normalizer_eq_top ▸ le_top))
+    refine ⟨⟨x, MonoidHom.comp (MulAut.congr fh) (a.comp fn.symm)⟩, Quotient.sound ?_⟩
+    exact ⟨InducedCategory.isoMk (F := FiniteGrp.toGrp) f.symm.toGrpIso⟩
+  calc
+    _ ≤ (Set.range decode).ncard := Set.ncard_le_ncard cover (Set.finite_range _)
+    _ ≤ Nat.card ((x : orderClasses k) × A x) :=
+      Nat.card_le_card_of_surjective _ (Set.rangeFactorization_surjective (f := decode))
+    _ = ∑ x : orderClasses k, Nat.card (A x) := Nat.card_sigma
+    _ ≤ ∑ _x : orderClasses k, l^(Nat.log 2 k) := Finset.sum_le_sum fun x _ => by
+      let _ : Finite (MulAut H) := Finite.of_injective (fun a : MulAut H => (a : H → H))
+        (fun _ _ h => DFunLike.ext' h)
+      have bound := hom_count (K x) (MulAut H)
+      have cardH : Nat.card H = l := Nat.card_zmod _
+      rw [IsCyclic.card_mulAut H, cardH, order] at bound
+      exact bound.trans (Nat.pow_le_pow_left (Nat.totient_le _) _)
+    _ = _ := by simp [← Nat.card_eq_fintype_card, g, orderClasses]
+
+/-- The requested estimate with E = 1 for orders p^a l, under either normal-complement or normal-Sylow criterion. -/
+theorem two_prime_bound {p l a r : ℕ} (hp : p.Prime) (hl : l.Prime) (hne : p ≠ l) (criterion : ¬ p ∣ l-1 ∨ ∀ i, 0 < i → i ≤ a → ¬ Nat.ModEq l (p^i) 1)
     (ha : 0 < a) (hr : p^a*l < 2^r) :
     g (p^a*l) ≤ 2^((r+1)^2) *
       ∏ b ∈ (p^a*l).primeFactors, g (b^(p^a*l).factorization b) := by
   have hk : 0 < p^a := pow_pos hp.pos _
-  have hm : (p^a).Coprime (l-1) := (hp.coprime_iff_not_dvd.mpr haut).pow_left _
   have hcop : ¬ l ∣ p^a := fun h =>
     hne.symm ((Nat.prime_dvd_prime_iff_eq hl hp).mp (hl.dvd_of_dvd_pow h))
   have hkr := (Nat.le_mul_of_pos_right (p^a) hl.pos).trans_lt hr
-  have overhead : (p^a)^(Nat.log 2 (p^a)) ≤ 2^((r+1)^2) := by
+  have overhead (b : ℕ) (hb : b ≤ 2^r) : b^(Nat.log 2 (p^a)) ≤ 2^((r+1)^2) := by
     calc
-      _ ≤ (2^r)^(Nat.log 2 (p^a)) := Nat.pow_le_pow_left hkr.le _
+      _ ≤ (2^r)^(Nat.log 2 (p^a)) := Nat.pow_le_pow_left hb _
       _ ≤ (2^r)^r := Nat.pow_le_pow_right (by positivity) (Nat.log_lt_of_lt_pow hk.ne' hkr).le
       _ = 2^(r*r) := (pow_mul ..).symm
       _ ≤ _ := Nat.pow_le_pow_right (by decide) (by nlinarith)
@@ -369,7 +439,44 @@ theorem two_prime_bound {p l a r : ℕ} (hp : p.Prime) (hl : l.Prime) (hne : p �
     exact positive_count (pow_pos (Nat.prime_of_mem_primeFactors hb).pos _)
   have component := Finset.single_le_prod' positive hmem
   rw [hv] at component
-  exact (peel hk hl hm hcop).trans ((Nat.mul_comm ..).le.trans (Nat.mul_le_mul overhead component))
+  rcases criterion with haut | hres
+  · have hm := (hp.coprime_iff_not_dvd.mpr haut).pow_left a
+    exact (peel hk hl hm hcop).trans ((Nat.mul_comm ..).le.trans
+      (Nat.mul_le_mul (overhead _ hkr.le) component))
+  · have unique_count (d : ℕ) (hd : d ∣ p^a) (hmod : Nat.ModEq l d 1) : d = 1 := by
+      obtain ⟨i, hi, rfl⟩ := (Nat.dvd_prime_pow hp).mp hd
+      by_cases hz : i = 0
+      · simp [hz]
+      · exact (hres i (Nat.pos_of_ne_zero hz) hi hmod).elim
+    have hlr := (Nat.le_mul_of_pos_left l hk).trans hr.le
+    exact (normal_prime_count hk hl unique_count hcop).trans ((Nat.mul_comm ..).le.trans
+      (Nat.mul_le_mul (overhead _ hlr) component))
+
+/-- Every odd order p² l with distinct primes satisfies the desired estimate. -/
+theorem square_prime_bound {p l r : ℕ} (hp : p.Prime) (hl : l.Prime) (hne : p ≠ l)
+    (hop : Odd p) (hol : Odd l) (hr : p^2*l < 2^r) :
+    g (p^2*l) ≤ 2^((r+1)^2) *
+      ∏ b ∈ (p^2*l).primeFactors, g (b^(p^2*l).factorization b) := by
+  apply two_prime_bound hp hl hne _ (by decide) hr
+  rcases lt_or_gt_of_ne hne with hlt | hlt
+  · right
+    obtain ⟨u, hu⟩ := hop
+    obtain ⟨v, hv⟩ := hol
+    have gap : p+1 < l := by omega
+    have ppos := hp.one_lt
+    have small₁ : ¬ l ∣ p-1 := Nat.not_dvd_of_pos_of_lt (by omega) (by omega)
+    have small₂ : ¬ l ∣ p+1 := Nat.not_dvd_of_pos_of_lt (by omega) gap
+    intro i hi hle he
+    have hdvd := (Nat.modEq_iff_dvd' (Nat.one_le_pow _ _ hp.pos)).mp he.symm
+    interval_cases i
+    · exact small₁ (by simpa using hdvd)
+    · have factor : p^2-1 = (p-1)*(p+1) := by
+        have h := Nat.sub_add_cancel (show 1 ≤ p by omega)
+        have h' := Nat.sub_add_cancel (show 1 ≤ p^2 from Nat.pow_pos hp.pos)
+        nlinarith [congrArg (fun x : ℕ => x * (p+1)) h]
+      exact (hl.dvd_mul.mp (factor ▸ hdvd)).elim small₁ small₂
+  · left
+    exact Nat.not_dvd_of_pos_of_lt (Nat.sub_pos_of_lt hl.one_lt) (by omega)
 
 theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2.H2 := by
   classical
@@ -378,7 +485,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
   refine ⟨D+2, fun q r odd hr => ?_⟩
   by_cases hpp : IsPrimePow q
   · exact (prime_power_count hpp).trans (Nat.le_mul_of_pos_left _ (Nat.pow_pos (by decide)))
-  by_cases htwo : ∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ ¬ p ∣ l-1 ∧ 0 < a ∧ q = p^a*l
+  by_cases htwo : ∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ (¬ p ∣ l-1 ∨ ∀ i, 0 < i → i ≤ a → ¬ Nat.ModEq l (p^i) 1) ∧ 0 < a ∧ q = p^a*l
   · obtain ⟨p, l, a, hp, hl, hne, haut, ha, rfl⟩ := htwo
     have sub : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
         {G : FiniteGrp.{0} | Nat.card G = p^a*l ∧ Group.IsSolvable G} ⊆
