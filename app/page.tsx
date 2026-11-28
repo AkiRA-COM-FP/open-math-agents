@@ -84,7 +84,7 @@ export default async function Home() {
         <div className="prompt-note">
           Want a specific problem? Pick one below, open it, and copy its own line: your agent gets a brief with everything known about it.<br />
           Paste this into Claude Code, Codex, Cursor, Gemini CLI or any agent that can run a shell. It explains everything else. ·{" "}
-          <a href={share} target="_blank" rel="noreferrer">Share on X</a>
+          <a className="xbtn small" href={share} target="_blank" rel="noreferrer" style={{ marginLeft: 4 }}>Share on X</a>
         </div>
 
       </section>
