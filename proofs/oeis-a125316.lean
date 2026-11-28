@@ -182,25 +182,16 @@ private lemma gf :
     (PowerSeries.mk (fun n => (a n : ℚ)) *
       ((1 - X - X ^ 2) * (1 - 5 * X - X ^ 2 + 2 * X ^ 3) : PowerSeries ℚ)) =
       1 - 3 * X ^ 2 - 16 * X ^ 3 + 3 * X ^ 4 + 8 * X ^ 5 := by
-  let F : PowerSeries ℚ := PowerSeries.mk (fun n => (a n : ℚ))
+  let F := PowerSeries.mk (fun n => (a n : ℚ))
+  have h : F * ((1 - X - X ^ 2) * (1 - 5 * X - X ^ 2 + 2 * X ^ 3)) =
+      F - 6 * (X ^ 1 * F) + 3 * (X ^ 2 * F) + 8 * (X ^ 3 * F) -
+        X ^ 4 * F - 2 * (X ^ 5 * F) := by ring
   change F * _ = _
-  have hmul : F * ((1 - X - X ^ 2) * (1 - 5 * X - X ^ 2 + 2 * X ^ 3)) =
-      F - C 6 * (X ^ 1 * F) + C 3 * (X ^ 2 * F) + C 8 * (X ^ 3 * F) -
-        X ^ 4 * F - C 2 * (X ^ 5 * F) := by
-    simp only [map_ofNat]
-    ring
-  have hnum : (1 - 3 * X ^ 2 - 16 * X ^ 3 + 3 * X ^ 4 + 8 * X ^ 5 : PowerSeries ℚ) =
-      1 - C 3 * X ^ 2 - C 16 * X ^ 3 + C 3 * X ^ 4 + C 8 * X ^ 5 := by
-    simp only [map_ofNat]
-  rw [hmul, hnum]
+  rw [h]
   ext n
-  simp only [map_add, map_sub, coeff_C_mul, coeff_X_pow_mul', coeff_X_pow, coeff_one, F, coeff_mk]
+  simp only [map_add, map_sub, ← map_ofNat (C : ℚ →+* PowerSeries ℚ), coeff_C_mul, coeff_X_pow_mul', coeff_X_pow, coeff_one, F, coeff_mk]
   by_cases hn : 6 ≤ n
-  · simp only [if_pos (show 1 ≤ n by omega), if_pos (show 2 ≤ n by omega),
-      if_pos (show 3 ≤ n by omega), if_pos (show 4 ≤ n by omega), if_pos (show 5 ≤ n by omega),
-      if_neg (show n ≠ 0 by omega), if_neg (show n ≠ 2 by omega),
-      if_neg (show n ≠ 3 by omega), if_neg (show n ≠ 4 by omega),
-      if_neg (show n ≠ 5 by omega), mul_zero, sub_zero, add_zero]
+  · simp (disch := omega) only [if_pos, if_neg, mul_zero, sub_zero, add_zero]
     linarith [recurrence n hn]
   · interval_cases n <;> norm_num [v0, v1, v2, v3, v4, v5]
 
