@@ -27,7 +27,7 @@ def H1 : Prop := ∀ (n : ℕ) (G R : SimpleGraph (Fin n)) (N : Finset (Fin n)),
 of U has a link inside U with at least eight nonisolated vertices and a
 triangle-free choice of edges which cannot be extended over that vertex. -/
 def H2 : Prop := ∀ (m : ℕ) (G : SimpleGraph (Fin (m+1))),
-  Erdos151.H (m+1) ≠ 10 →
+  Erdos151.H (m+1) ≠ 10 → Erdos151.H (m+1) ≠ 11 →
   Erdos151.H m < Erdos151.H (m+1) →
   (∀ v, (univ.filter (G.Adj v)).card < Erdos151.H (m+1)) →
   (∀ A B : Finset (Fin (m+1)), B.Nonempty → A ⊆ B →
@@ -45,8 +45,9 @@ def H2 : Prop := ∀ (m : ℕ) (G : SimpleGraph (Fin (m+1))),
   G.cliqueTransversalNumber ≤ (m+1) - Erdos151.H (m+1)
 
 /-- A finite local assertion. Only edges inside the at most nine vertices of N
-matter. I is any choice of at least eight nonisolated vertices there. -/
-def H3 : Prop := ∀ (n : ℕ) (G : SimpleGraph (Fin n)) (N I : Finset (Fin n)),
+matter. I is a choice of eight or more nonisolated vertices. The second and third
+clauses select a pair in a blocked link and bound each exterior guard, using at most ten link vertices. -/
+def H3 : Prop := (∀ (n : ℕ) (G : SimpleGraph (Fin n)) (N I : Finset (Fin n)),
   N.card ≤ 9 → I ⊆ N → 8 ≤ I.card → (∀ x ∈ I, ∃ y ∈ N, G.Adj x y) →
   let Guard := fun D : Finset (Fin n) => D ⊆ N ∧
     ∀ q : Finset (Fin n), q.Nonempty →
@@ -56,12 +57,34 @@ def H3 : Prop := ∀ (n : ℕ) (G : SimpleGraph (Fin n)) (N I : Finset (Fin n)),
     ((∀ a ∈ N, ∀ b ∈ N, a ≠ b → ∃ D, Guard D ∧ D.card ≤ 6 ∧ a ∈ D ∧ b ∈ D) ∧
      ∀ X ⊆ I, G.IsClique (X : Set (Fin n)) →
        ∃ x ∈ I, x ∉ X ∧ ∃ y ∈ I, y ∉ X ∧ x ≠ y ∧ ¬ G.Adj x y ∧
-         ∃ a ∈ N, G.Adj x a ∧ G.Adj y a)
+         ∃ a ∈ N, G.Adj x a ∧ G.Adj y a))  ∧
+  (∀ (n : ℕ) (G R : SimpleGraph (Fin n)) (W N : Finset (Fin n)),
+    W ⊆ N → N.card ≤ 10 → R ≤ G → R.CliqueFree 3 →
+    (¬ ∃ A ⊆ W, R.IsIndepSet (A : Set (Fin n)) ∧
+      ∀ q : Finset (Fin n), q.Nonempty →
+        Maximal (fun t : Finset (Fin n) => t ⊆ W ∧ G.IsClique (t : Set (Fin n))) q →
+        (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y) →
+    let p := (N.filter fun a => ∃ b ∈ N, G.Adj a b).card
+    let k := fun a => (N.filter (G.Adj a)).card
+    let cost := fun a => if 4 ≤ k a then 3 else if 3 ≤ k a ∨ 9 ≤ p then 4 else 5
+    ∃ x ∈ W, ∃ y ∈ W, x ≠ y ∧ ¬ G.Adj x y ∧ 2 ≤ k x ∧ 2 ≤ k y ∧
+      cost x + cost y ≤ 8) ∧
+  (∀ (n : ℕ) (G : SimpleGraph (Fin n)) (N : Finset (Fin n)) (v : Fin n) (p : ℕ),
+    N.card ≤ 10 → v ∈ N → 8 ≤ p → p ≤ (N.filter fun a => ∃ b ∈ N, G.Adj a b).card →
+    let k := (N.filter (G.Adj v)).card
+    2 ≤ k →
+    ∃ D ⊆ (N.erase v).filter (fun z => ¬ G.Adj v z),
+      D.card ≤ (if 4 ≤ k then 3 else if 3 ≤ k ∨ 9 ≤ p then 4 else 5) ∧
+      ∀ q : Finset (Fin n), q.Nonempty →
+        Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
+          ∃ z ∈ q, z ∈ D ∨ G.Adj v z)
+
 
 /-- Ramsey inputs: R(3,8) is at most 28, and Exoo's 39-vertex graph has
-independence number nine. Restriction gives the displayed inequalities. -/
+independence number nine. Exoo also gives 46 vertices of independence
+number ten. Restriction gives the displayed inequalities. -/
 def H4 : Prop := (∀ m, 28 ≤ m → 8 ≤ Erdos151.H m) ∧
-  (∀ m, Erdos151.H m = 10 → 40 ≤ m)
+  (∀ m, Erdos151.H m = 10 → 40 ≤ m) ∧ (∀ m, Erdos151.H m = 11 → 47 ≤ m)
 
 
 /- The following Ramsey and deletion lemmas are reproduced from reduction R2. -/
@@ -427,7 +450,7 @@ lemma threshold_ten (hsmall : H1) (classify : H3) (ram : H4) {n : ℕ}
     G.cliqueTransversalNumber ≤ n - Erdos151.H n := by
   classical
   by_contra failed
-  have hn := ram.2 n hTen
+  have hn := ram.2.1 n hTen
   have fail10 : ¬ G.cliqueTransversalNumber ≤ n - 10 := by simpa [hTen] using failed
   let N (v : Fin n) := univ.filter (G.Adj v)
   have deg (v) : (N v).card ≤ 9 := by
@@ -492,7 +515,7 @@ lemma threshold_ten (hsmall : H1) (classify : H3) (ram : H4) {n : ℕ}
     by_contra! allCheap
     exact notClique (fun x hx y hy hxy => cheapClique (allCheap x hx) (allCheap y hy) hxy)
   have localCase (z) (hz : z ∈ U) (h : ¬ Cheap z) :=
-    (classify n G (N z) (I z) (deg z) (inN z) (core z hz).1 (noniso z)).resolve_left h
+    (classify.1 n G (N z) (I z) (deg z) (inN z) (core z hz).1 (noniso z)).resolve_left h
   let X := (I v).filter Cheap
   have xc : G.IsClique (X : Set (Fin n)) := fun x hx y hy hxy =>
     cheapClique (mem_filter.mp hx).2 (mem_filter.mp hy).2 hxy
@@ -519,6 +542,163 @@ lemma threshold_ten (hsmall : H1) (classify : H3) (ram : H4) {n : ℕ}
   have hp := expensive hne hxy hd he
   omega
 
+
+
+/-- Two nonadjacent nonisolated link vertices can both be retained at the hub. -/
+lemma omit_link_pair {V : Type} [DecidableEq V] (G : SimpleGraph V)
+    {N q : Finset V} {x y : V} (xy : ¬ G.Adj x y)
+    (wx : ∃ z ∈ N, G.Adj x z) (wy : ∃ z ∈ N, G.Adj y z)
+    (_ne : q.Nonempty)
+    (hq : Maximal (fun t : Finset V => t ⊆ N ∧ G.IsClique (t : Set V)) q) :
+    ∃ z ∈ q, z ≠ x ∧ z ≠ y := by
+  classical
+  by_contra! miss
+  have choices (z) (hz : z ∈ q) : z = x ∨ z = y := or_iff_not_imp_left.mpr (miss z hz)
+  have singleton_bad (a : V) (allEq : ∀ z ∈ q, z = a) (w : ∃ z ∈ N, G.Adj a z) : False := by
+    obtain ⟨b, hb, ab⟩ := w
+    have larger : G.IsClique (↑(insert b q) : Set V) := by
+      rw [coe_insert]
+      exact hq.1.2.insert (fun z hz _ => (allEq z hz) ▸ ab.symm)
+    have inq := hq.2 ⟨insert_subset hb hq.1.1, larger⟩ (subset_insert _ _) (mem_insert_self _ _)
+    exact ab.ne (allEq b inq).symm
+  by_cases hx : x ∈ q
+  · apply singleton_bad x _ wx
+    intro z hz
+    rcases choices z hz with e | rfl
+    · exact e
+    by_contra h
+    exact xy (hq.1.2 hx hz (fun eq => h eq.symm))
+  · apply singleton_bad y _ wy
+    intro z hz
+    exact (choices z hz).resolve_left (fun e => hx (e ▸ hz))
+
+/-- A guarded set of three costs at most nineteen vertices, leaving a free eight-set. -/
+lemma three_in_block (small : H1) (ram : ∀ m, 28 ≤ m → 8 ≤ Erdos151.H m)
+    {n : ℕ} (G : SimpleGraph (Fin n)) (hn : 47 ≤ n) (A B : Finset (Fin n))
+    (ab : A ⊆ B) (a3 : A.card = 3) (b19 : B.card ≤ 19)
+    (guarded : ∀ q, G.IsBigMaximalClique q → (∃ z ∈ q, z ∈ A) → ∃ z ∈ q, z ∈ B \ A) :
+    G.cliqueTransversalNumber ≤ n - 11 := by
+  classical
+  let W := Bᶜ
+  have hW : Fintype.card (↥W) = n - B.card := by simp [W]
+  let f := Fintype.equivFinOfCardEq hW
+  let e := f.symm.toEmbedding.trans (Function.Embedding.subtype (· ∈ W))
+  have cover (z : Fin n) (hz : z ∉ B) : ∃ i, e i = z := by
+    let a : ↥W := ⟨z, mem_compl.mpr hz⟩
+    exact ⟨f a, by simp [e, a]⟩
+  have d := delete_block G A B ab guarded e cover
+  have r := bound_eight small (G.comap e) (ram _ (by omega))
+  have lower := card_le_card ab
+  omega
+
+/-- The full threshold-eleven case uses a hub and two nonadjacent neighbors. -/
+lemma threshold_eleven (small : H1) (localFacts : H3) (ram : H4) {n : ℕ}
+    (G : SimpleGraph (Fin n)) (eleven : Erdos151.H n = 11) :
+    G.cliqueTransversalNumber ≤ n - Erdos151.H n := by
+  classical
+  by_contra fail
+  have hn := ram.2.2 n eleven
+  let N (v : Fin n) := univ.filter (G.Adj v)
+  let P (v : Fin n) := (N v).filter fun a => ∃ b ∈ N v, G.Adj a b
+  have deg (v) : (N v).card ≤ 10 := by
+    by_contra! h
+    exact fail (neighborhood_bound G v (by change Erdos151.H n ≤ (N v).card; omega))
+  have nohit : ¬ ∃ F : SimpleGraph (Fin n), F.CliqueFree 3 ∧
+      ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y :=
+    fun ⟨F, tf, hits⟩ => fail (bound_of_hitting G F tf hits)
+  obtain ⟨U, nonempty, core⟩ := bad_core small G nohit
+  obtain ⟨v, hv, minimum⟩ := U.exists_min_image (fun z => (P z).card) nonempty
+  let W := U.filter (G.Adj v)
+  have wsub : W ⊆ N v := by
+    intro z hz
+    exact mem_filter.mpr ⟨mem_univ _, (mem_filter.mp hz).2⟩
+  obtain ⟨size, R, sub, tf, blocked⟩ := core v hv
+  have p8 : 8 ≤ (P v).card := size.trans (card_le_card (by
+    intro z hz
+    obtain ⟨hw, y, hy, edge⟩ := mem_filter.mp hz
+    exact mem_filter.mpr ⟨wsub hw, y, wsub hy, edge⟩))
+  let k (a : Fin n) := ((N v).filter (G.Adj a)).card
+  let cost (a : Fin n) := if 4 ≤ k a then 3 else if 3 ≤ k a ∨ 9 ≤ (P v).card then 4 else 5
+  obtain ⟨x, hx, y, hy, distinct, xy, kx, ky, price⟩ :=
+    localFacts.2.1 n G R W (N v) wsub (deg v) sub tf blocked
+  change cost x + cost y ≤ 8 at price
+  have wing (a : Fin n) (ha : a ∈ W) (ka : 2 ≤ k a) :
+      ∃ D ⊆ ((N a).erase v).filter (fun z => ¬ G.Adj v z),
+        D.card ≤ cost a ∧ ∀ q, G.IsBigMaximalClique q → a ∈ q →
+          ∃ z ∈ q, z ≠ a ∧ (z ∈ D ∨ G.Adj v z) := by
+    have va : v ∈ N a := mem_filter.mpr ⟨mem_univ _, (mem_filter.mp ha).2.symm⟩
+    have swap : (N a).filter (G.Adj v) = (N v).filter (G.Adj a) := by
+      ext z
+      simp [N, and_comm]
+    have localGuard := localFacts.2.2 n G (N a) v (P v).card (deg a) va p8
+      (minimum a (mem_filter.mp ha).1)
+    dsimp only at localGuard
+    rw [swap] at localGuard
+    obtain ⟨D, ds, cd, hit⟩ := localGuard ka
+    refine ⟨D, ds, cd, ?_⟩
+    intro q hq aq
+    obtain ⟨hne, hmax⟩ := erase_in_link G univ q a aq hq (subset_univ _)
+    obtain ⟨z, hz, gz⟩ := hit (q.erase a) hne hmax
+    exact ⟨z, mem_of_mem_erase hz, (mem_erase.mp hz).1, gz⟩
+  obtain ⟨D, ds, cd, hitx⟩ := wing x hx kx
+  obtain ⟨E, es, ce, hity⟩ := wing y hy ky
+  have vx := (mem_filter.mp hx).2
+  have vy := (mem_filter.mp hy).2
+  let A : Finset (Fin n) := {v,x,y}
+  let B := insert v (N v ∪ (D ∪ E))
+  have a3 : A.card = 3 := by simp [A, vx.ne, vy.ne, distinct]
+  have ab : A ⊆ B := by
+    intro z hz
+    rcases mem_insert.mp hz with rfl | hz
+    · exact mem_insert_self _ _
+    rcases mem_insert.mp hz with rfl | hz
+    · exact mem_insert_of_mem (mem_union_left _ (wsub hx))
+    rw [mem_singleton.mp hz]
+    exact mem_insert_of_mem (mem_union_left _ (wsub hy))
+  have b19 : B.card ≤ 19 := by
+    have h := card_insert_le v (N v ∪ (D ∪ E))
+    have u := card_union_le (N v) (D ∪ E)
+    have t := card_union_le D E
+    have dv := deg v
+    change (insert v (N v ∪ (D ∪ E))).card ≤ 19
+    omega
+  have guarded (q) (hq : G.IsBigMaximalClique q) (meet : ∃ z ∈ q, z ∈ A) :
+      ∃ z ∈ q, z ∈ B \ A := by
+    have safe {z : Fin n} (zb : z ∈ B) (zv : z ≠ v) (zx : z ≠ x) (zy : z ≠ y) :
+        z ∈ B \ A := mem_sdiff.mpr ⟨zb, by simp [A, zv, zx, zy]⟩
+    have exterior {z : Fin n} (zd : z ∈ D ∪ E) : z ∈ B \ A := by
+      have h : z ≠ v ∧ ¬ G.Adj v z := by
+        rcases mem_union.mp zd with hd | he
+        · exact ⟨(mem_erase.mp (mem_filter.mp (ds hd)).1).1, (mem_filter.mp (ds hd)).2⟩
+        · exact ⟨(mem_erase.mp (mem_filter.mp (es he)).1).1, (mem_filter.mp (es he)).2⟩
+      exact safe (mem_insert_of_mem (mem_union_right _ zd)) h.1
+        (fun e => h.2 (e ▸ vx)) (fun e => h.2 (e ▸ vy))
+    have inside {z : Fin n} (vz : G.Adj v z) (zx : z ≠ x) (zy : z ≠ y) :
+        z ∈ B \ A := safe (mem_insert_of_mem (mem_union_left _ (mem_filter.mpr ⟨mem_univ _,vz⟩)))
+          vz.ne.symm zx zy
+    obtain ⟨a, aq, ha⟩ := meet
+    rcases mem_insert.mp ha with atHub | ha
+    · rw [atHub] at aq
+      obtain ⟨ne, mx⟩ := erase_in_link G univ q v aq hq (subset_univ _)
+      have neighbor (b : Fin n) (kb : 2 ≤ k b) : ∃ z ∈ N v, G.Adj b z := by
+        obtain ⟨z, hz⟩ := card_pos.mp (show 0 < ((N v).filter (G.Adj b)).card from
+          lt_of_lt_of_le (by decide : 0 < 2) kb)
+        exact ⟨z, (mem_filter.mp hz).1, (mem_filter.mp hz).2⟩
+      obtain ⟨z, hz, zx, zy⟩ := omit_link_pair G xy (neighbor x kx) (neighbor y ky) ne mx
+      exact ⟨z, mem_of_mem_erase hz, inside (mem_filter.mp (mx.1.1 hz)).2 zx zy⟩
+    rcases mem_insert.mp ha with rfl | ha
+    · obtain ⟨z, zq, zx, zd | zv⟩ := hitx q hq aq
+      · exact ⟨z, zq, exterior (mem_union_left _ zd)⟩
+      refine ⟨z, zq, inside zv zx ?_⟩
+      rintro rfl
+      exact xy (hq.1.1 aq zq distinct)
+    rw [mem_singleton.mp ha] at aq
+    obtain ⟨z, zq, zy, ze | zv⟩ := hity q hq aq
+    · exact ⟨z, zq, exterior (mem_union_right _ ze)⟩
+    refine ⟨z, zq, inside zv ?_ zy⟩
+    rintro rfl
+    exact xy (hq.1.1 zq aq distinct)
+  exact fail (by simpa [eleven] using three_in_block small ram.1 G hn A B ab a3 b19 guarded)
 
 
 theorem main : H1 → H2 → H3 → H4 → type_of% @Erdos151.erdos_151 := by
@@ -572,6 +752,8 @@ theorem main : H1 → H2 → H3 → H4 → type_of% @Erdos151.erdos_151 := by
         exact bound_of_hitting G F ht hit
       by_cases hten : Erdos151.H (n + 1) = 10
       · exact threshold_ten h1 h3 h4 G hten
-      exact h2 n G hten hjump hdeg hstrict (bad_core h1 G hgood)
+      by_cases eleven : Erdos151.H (n + 1) = 11
+      · exact threshold_eleven h1 h3 h4 G eleven
+      exact h2 n G hten eleven hjump hdeg hstrict (bad_core h1 G hgood)
 
 end OMA.R_Erdos151_erdos_151_R3
