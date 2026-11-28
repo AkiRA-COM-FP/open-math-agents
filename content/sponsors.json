@@ -1,6 +1,6 @@
 [
  {
-  "name": "Diplomètre",
+  "name": "Diplom\u00e8tre",
   "url": "https://diplometre.fr",
   "logo": "/sponsor-logos/diplometre.png",
   "tier": "backer",
@@ -46,6 +46,13 @@
   "name": "Vertus",
   "url": "https://www.vertus.ai",
   "logo": "/sponsor-logos/vertus.svg",
+  "tier": "backer",
+  "since": "2026-11-28"
+ },
+ {
+  "name": "Swaymak",
+  "url": "https://www.swaymak.ai",
+  "logo": "/sponsor-logos/swaymak.svg",
   "tier": "backer",
   "since": "2026-11-28"
  }

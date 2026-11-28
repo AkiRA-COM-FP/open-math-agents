@@ -1,7 +1,7 @@
 import OMAReductions.R_TotalColoringConjecture_total_coloring_conjecture_R1
 
--- Step TotalColoringConjecture.total_coloring_conjecture.R1.H1: hypothesis H1 of reduction TotalColoringConjecture.total_coloring_conjecture.R1
--- Credit: @Raimo33
+/-! Maximum-degree-one total colouring, following @Raimo33 (#19019).
+Use incidence-set cardinalities for the edge conditions. -/
 
 namespace OMAE_TC
 open SimpleGraph
@@ -39,34 +39,18 @@ theorem colorable {V : Type} [Fintype V] [DecidableEq V] (G : SimpleGraph V) [De
       exact absurd (congrArg Fin.val hc) (by simp)
   · rintro ⟨f1, hf1⟩ ⟨f2, hf2⟩ hne ⟨v, hv1, hv2⟩ -
     apply hne
-    induction f1 using Sym2.ind with
-    | h x y =>
-    induction f2 using Sym2.ind with
-    | h x' y' =>
-    rw [mem_edgeSet] at hf1 hf2
-    have k1 : ∃ a, G.Adj v a ∧ s(x, y) = s(v, a) := by
-      rcases Sym2.mem_iff.mp hv1 with rfl | rfl
-      · exact ⟨y, hf1, rfl⟩
-      · exact ⟨x, hf1.symm, Sym2.eq_swap⟩
-    have k2 : ∃ a, G.Adj v a ∧ s(x', y') = s(v, a) := by
-      rcases Sym2.mem_iff.mp hv2 with rfl | rfl
-      · exact ⟨y', hf2, rfl⟩
-      · exact ⟨x', hf2.symm, Sym2.eq_swap⟩
-    obtain ⟨a, ha, ea⟩ := k1
-    obtain ⟨b, hb, eb⟩ := k2
-    have := uniq G h ha hb
-    subst this
     apply Subtype.ext
-    simp only [ea, eb]
+    have hd : (G.incidenceFinset v).card ≤ 1 := by
+      rw [G.card_incidenceFinset_eq_degree]
+      exact (G.degree_le_maxDegree v).trans h
+    exact Finset.card_le_one.mp hd f1 ((G.mem_incidenceFinset _ _).mpr ⟨hf1, hv1⟩)
+      f2 ((G.mem_incidenceFinset _ _).mpr ⟨hf2, hv2⟩)
   · rintro v ⟨f, hf⟩ hv hc
     have hdeg : 1 ≤ G.maxDegree := by
-      induction f using Sym2.ind with
-      | h x y =>
-      rw [mem_edgeSet] at hf
-      have := G.degree_le_maxDegree x
-      have : 0 < G.degree x := by
-        rw [← card_neighborFinset_eq_degree]; exact Finset.card_pos.mpr ⟨y, by simpa using hf⟩
-      omega
+      have hpos : 0 < (G.incidenceFinset v).card :=
+        Finset.card_pos.mpr ⟨f, (G.mem_incidenceFinset _ _).mpr ⟨hf, hv⟩⟩
+      rw [G.card_incidenceFinset_eq_degree] at hpos
+      exact hpos.trans_le (G.degree_le_maxDegree v)
     have hv' := congrArg Fin.val hc
     simp only [c, Sum.elim_inl, Sum.elim_inr] at hv'
     by_cases hp : ∃ w, G.Adj v w ∧ e w < e v
