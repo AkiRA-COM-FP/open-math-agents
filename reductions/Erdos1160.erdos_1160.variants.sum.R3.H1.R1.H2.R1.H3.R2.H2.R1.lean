@@ -11,6 +11,7 @@ import Mathlib.Tactic.Linarith
 
 /- Credit: @wispiANt. Count the groups with cyclic Sylow subgroups explicitly.
 The Z-group approach was suggested by @hiattco in desk note 69164.
+The nilpotent count was also proved by @gertjanvdgoot in PR #7292.
 The remaining estimates concern nonnilpotent soluble groups of mixed order,
 separating abelian from nonabelian Sylow subgroups. -/
 
@@ -20,11 +21,9 @@ namespace OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2_H2_R1
 
 def H1 : Prop :=
   ∃ E : ℕ, ∀ q r : ℕ, Odd q → q < 2^r → ¬ IsPrimePow q →
-    ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ (¬ p ∣ l-1 ∨ ∀ i, 0 < i → i < a → ¬ Nat.ModEq l (p^i) 1) ∧ 0 < a ∧ q = p^a*l) →
+    ¬ (∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ 0 < a ∧ q = p^a*l) →
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ ¬ ((∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ 0 < a ∧ q = p^a*l) ∧
-        ∀ p l a : ℕ, (p.Prime ∧ l.Prime ∧ p ≠ l ∧ 0 < a ∧ q = p^a*l) →
-          ((∃ N : Subgroup G, N.Normal ∧ Nat.card N = p^a) ∨ Nat.card (Sylow l G) = 1)) ∧ ¬ Group.IsNilpotent G ∧ ¬ IsZGroup G ∧
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ ¬ Group.IsNilpotent G ∧ ¬ IsZGroup G ∧
         (∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
 
@@ -574,6 +573,53 @@ theorem square_prime_bound {p l r : ℕ} (hp : p.Prime) (hl : l.Prime) (hne : p 
       ∏ b ∈ (p^2*l).primeFactors, g (b^(p^2*l).factorization b) :=
   small_exponent_bound hp hl hne hop hol (by decide) (by decide) hr
 
+/-- An abelian Sylow subgroup of prime index is normal or has a normal complement. -/
+theorem normal_hall_of_abelian {p l a : ℕ} (hp : p.Prime) (hl : l.Prime) (hne : p ≠ l)
+    (G : FiniteGrp.{0}) (hg : Nat.card G = p^a*l) (P : Sylow p G) [IsMulCommutative P] :
+    (∃ N : Subgroup G, N.Normal ∧ Nat.card N = p^a) ∨ Nat.card (Sylow l G) = 1 := by
+  classical
+  let _ : Fact p.Prime := ⟨hp⟩
+  let _ : Fact l.Prime := ⟨hl⟩
+  have hk := pow_pos hp.pos a
+  have hP : Nat.card P = p^a := by
+    rw [P.card_eq_multiplicity, hg, Nat.factorization_mul hk.ne' hl.ne_zero,
+      Finsupp.add_apply, Nat.factorization_pow_self hp, Nat.factorization_eq_zero_of_not_dvd
+        (fun h => hne ((Nat.prime_dvd_prime_iff_eq hp hl).mp h)), add_zero]
+  have ind := (P : Subgroup G).index_mul_card
+  change P.index * Nat.card P = Nat.card G at ind
+  rw [hP, hg, Nat.mul_comm (p^a) l] at ind
+  have index := Nat.eq_of_mul_eq_mul_right hk ind
+  rcases (Nat.dvd_prime hl).mp (index ▸ P.card_dvd_index) with one | full
+  · let _ : Subsingleton (Sylow p G) := (Nat.card_eq_one_iff_unique.mp one).1
+    exact Or.inl ⟨P, Sylow.normal_of_subsingleton P, hP⟩
+  · have size := (Subgroup.normalizer (P : Set G)).index_mul_card
+    rw [← P.card_eq_index_normalizer, full, hg, Nat.mul_comm (p^a) l] at size
+    have eq := Subgroup.eq_of_le_of_card_ge P.le_normalizer
+      ((Nat.eq_of_mul_eq_mul_left hl.pos size).le.trans hP.ge)
+    have central : Subgroup.normalizer (P : Set G) ≤ Subgroup.centralizer (P : Set G) :=
+      eq.ge.trans P.le_centralizer
+    let N := (MonoidHom.transferSylow P central).ker
+    have comp : N.IsComplement' (P : Subgroup G) :=
+      MonoidHom.ker_transferSylow_isComplement' P central
+    have hn : Nat.card N = l := comp.index_eq_card.symm.trans index
+    let Q := Sylow.ofCard (p := l) N (by
+      rw [hn, hg, Nat.factorization_mul hk.ne' hl.ne_zero]
+      simp [Nat.factorization_eq_zero_of_not_dvd (show ¬ l ∣ p from fun h =>
+        hne.symm ((Nat.prime_dvd_prime_iff_eq hl hp).mp h)), hl.factorization])
+    let _ := Q.unique_of_normal (by change N.Normal; infer_instance)
+    exact Or.inr (Nat.card_unique)
+
+/-- At prime index, the abelian Sylow case satisfies the estimate with E = 1. -/
+theorem abelian_sylow_bound {p l a r : ℕ} (hp : p.Prime) (hl : l.Prime) (hne : p ≠ l)
+    (ha : 0 < a) (hr : p^a*l < 2^r) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = p^a*l ∧ ∃ P : Sylow p G, IsMulCommutative P}).ncard ≤
+      2^((r+1)^2) * ∏ b ∈ (p^a*l).primeFactors, g (b^(p^a*l).factorization b) := by
+  apply le_trans _ (normal_hall_bound hp hl hne ha hr)
+  apply Set.ncard_le_ncard _ ((finite_classes _).subset (Set.image_mono (fun _ h => h.1)))
+  rintro _ ⟨G, ⟨hg, P, hc⟩, rfl⟩
+  exact ⟨G, ⟨hg, normal_hall_of_abelian hp hl hne G hg P⟩, rfl⟩
+
 theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2.H2 := by
   classical
   rintro ⟨A, hA⟩ ⟨B, hB⟩
@@ -637,7 +683,24 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
       _ ≤ 2^(1*m) := Nat.pow_le_pow_right (by decide) (by dsimp [m]; nlinarith [Nat.zero_le (r^2)])
       _ ≤ 2^(1*m)*L := Nat.le_mul_of_pos_right _ posL
       _ ≤ _ := mono _ _ (le_max_left ..)
-  have aa := (hA q r odd hr hpp htwo).trans (mono _ D ((le_max_left A B).trans (le_max_right ..)))
+  have aa : (S X).ncard ≤ 2^(D*m)*L := by
+    by_cases h : ∃ p l a : ℕ, p.Prime ∧ l.Prime ∧ p ≠ l ∧ 0 < a ∧ q = p^a*l
+    · have empty : S X = ∅ := by
+        apply Set.eq_empty_iff_forall_notMem.mpr
+        rintro _ ⟨G, ⟨hg, _, hf, _, _, hc⟩, _⟩
+        apply hf
+        refine ⟨h, ?_⟩
+        rintro p l a ⟨hp, hl, hne, _, hq⟩
+        let _ : Fact p.Prime := ⟨hp⟩
+        let P : Sylow p G := default
+        let _ := hc p hp P
+        exact normal_hall_of_abelian hp hl hne G (hg.trans hq) P
+      simp [empty]
+    · apply le_trans _ (mono _ D ((le_max_left A B).trans (le_max_right ..)))
+      apply le_trans _ (hA q r odd hr hpp h)
+      apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono (fun _ h => h.1)))
+      rintro _ ⟨G, ⟨hg, hs, _, hn, hz, hc⟩, rfl⟩
+      exact ⟨G, ⟨hg, hs, hn, hz, hc⟩, rfl⟩
   have bb := (hB q r odd hr hpp htwo).trans (mono _ D ((le_max_right A B).trans (le_max_right ..)))
   have nn : (S N).ncard ≤ 2^(D*m)*L := (nilpotent_bound q).trans
     (Nat.le_mul_of_pos_left _ (Nat.pow_pos (by decide)))
