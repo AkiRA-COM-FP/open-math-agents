@@ -108,11 +108,14 @@ async function rpc<T>(fn: string, args: Record<string, unknown>, timeoutMs = 400
 async function rpcOnce<T>(fn: string, args: Record<string, unknown>, timeoutMs: number): Promise<T> {
   // Never let a slow database hang the site: page reads give up after 1 s (and fall back to the last good value),
   // background refreshes after 3 s, writes after 8 s.
+  // No `cache: "no-store"` here: a POST is never cached anyway, and vinext's fetch treats a no-store fetch made while a
+  // page renders as a dynamic API. Its background re-render of a cached page (ISR) then threw "Page changed from static
+  // to dynamic at runtime" whenever a desk read had to ask the database, and vinext kept serving the previous copy:
+  // the home page's counters (and problem pages) froze for as long as the isolate lived.
   const res = await fetch(`${URL_}/rest/v1/rpc/oma_api`, {
     method: "POST",
     headers: { apikey: KEY!, "Content-Type": "application/json" },
     body: JSON.stringify({ p_secret: SECRET, p_fn: fn, p_args: args }),
-    cache: "no-store",
     signal: AbortSignal.timeout(timeoutMs),
   });
   if (!res.ok) {
@@ -294,10 +297,12 @@ export type Stats = {
 
 const EMPTY: Stats = { liveAgents: 0, liveProblems: 0, top: [], solved: [], solvedToday: 0, claimsToday: 0, contributors: 0 };
 
+/** The counters of the home page, the board and the programs (one read, shared, so they always agree): 60 s, and the
+ * global KV copy makes that about one database call a minute worldwide (the database caches it 20 s itself). */
 async function statsDb(): Promise<Stats> {
   if (!deskOnline) return EMPTY;
   try {
-    return await api<Stats>("stats", {}, 120);
+    return await api<Stats>("stats", {}, 60);
   } catch (e) {
     console.error(e);
     return EMPTY;
@@ -420,7 +425,8 @@ const SOLVED_ARGS = { limit: 2000 };
 const solvedDb = () => safe<Solved[]>("solved", SOLVED_ARGS, [], 600);
 
 export type Day = { day: string; claims: number; released: number; submitted: number; solved: number; reduced: number; people: number };
-export const getCalendar = (days = 90) => safe<Day[]>("calendar", { days }, [], 600);
+/** Days, newest first. Today alone (the home page's "Today so far") is read every 2 minutes, the long lists every 10. */
+export const getCalendar = (days = 90) => safe<Day[]>("calendar", { days }, [], days <= 1 ? 120 : 600);
 
 export type Step = { id: string; reduction: string; parent: string; k: number; statement: string; module: string; points: number; created_at: string; solved: boolean; reduction_pr: string; reduction_by: string };
 /** Steps of accepted reductions. Pages: 60 s cache. The desk (fresh=true): 15 s; a step solved meanwhile is refused at claim time (already_solved). */
@@ -445,7 +451,8 @@ export const getStepsStrict = async (parent: string) => {
 export const logEvent = (kind: string, problem: string, handle: string, detail: string) =>
   api<{ ok?: boolean; error?: string }>("log", { kind, problem, handle, detail });
 
-export type Contribution = { handle: string; share: number; roles: { role: "proof" | "step" | "reduction"; item: string; pr: string; agent?: string | null; model?: string | null }[] };
+/** role "help": a teammate whose DONE lemmas (notes) the merged proof uses (supabase/pending-review/022_swarm.sql). */
+export type Contribution = { handle: string; share: number; roles: { role: "proof" | "step" | "reduction" | "help"; item: string; pr: string; agent?: string | null; model?: string | null; notes?: number[] }[] };
 /** Shares of everyone who contributed to the accepted solution of a problem (sum to 1). Empty if unsolved. */
 export const getContributions = (problem: string) => safe<Contribution[]>("contributions", { problem }, [], 120);
 /** Contributions, or null when the database could not answer (getContributions reads that as "none"). */
@@ -544,3 +551,7 @@ export const getActiveIds = () =>
 export async function getSolution(id: string): Promise<Solved | null> {
   return (await getSolved()).find((s) => s.problem_id === id) ?? null;
 }
+
+/** The desk's own calls, for lib/team.ts (the team board of supabase/pending-review/022_swarm.sql): the cached read or
+ * plain call (api), and one uncached call with its own timeout (rpc). */
+export { api as deskCall, rpc as deskRpc };
