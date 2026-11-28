@@ -77,18 +77,22 @@ merge_alone() {
 # --- group commit ---
 Q=/tmp/oma-merge-spool; mkdir -p "$Q/req" "$Q/res"
 RID="$(date +%s%N).$PR.$$"
-printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$PR" "$HEAD_SHA" "$FPATH" "$MODE" "$$" "$(printf '%s' "$MSG" | base64 -w0)" > "$Q/req/.$RID"
+# The leader takes this head from this slot's own repository (a local fetch, a fraction of a second) instead of
+# fetching it from GitHub again: the ref below points at it, and the request gives the repository's path.
+$G update-ref "refs/oma/req/$PR" "$HEAD_SHA" 2>/dev/null || true
+MYREPO=$(cd base && git rev-parse --absolute-git-dir 2>/dev/null || echo -)
+printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$PR" "$HEAD_SHA" "$FPATH" "$MODE" "$$" "$(printf '%s' "$MSG" | base64 -w0)" "$MYREPO" > "$Q/req/.$RID"
 mv "$Q/req/.$RID" "$Q/req/$RID"
 MAXCHAIN=${OMA_MAX_CHAIN:-60}
 
 # The leader, holding the main lock: every live request in the spool (oldest first, at most MAXCHAIN) in one push.
 lead() {
-  local TRY REQS R P H F M PID B64 MAIN TIP C TREE CHANGES RES OUT HEADS N=0 IDX="$PWD/gm_index_lead"
+  local TRY REQS R P H F M PID B64 SRC MAIN TIP C TREE CHANGES RES OUT HEADS N=0 IDX="$PWD/gm_index_lead"
   find "$Q/res" -type f -mmin +30 -delete 2>/dev/null   # results nobody came back for
   for TRY in 1 2 3 4 5 6 7 8 9 10; do
     REQS=()
     for R in $(ls "$Q/req" 2>/dev/null | grep -v '^\.' | sort | head -n "$MAXCHAIN"); do
-      IFS=$'\t' read -r P H F M PID B64 < "$Q/req/$R" 2>/dev/null || { rm -f "$Q/req/$R"; continue; }
+      IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R" 2>/dev/null || { rm -f "$Q/req/$R"; continue; }
       kill -0 "$PID" 2>/dev/null || { rm -f "$Q/req/$R"; continue; }   # its slot gave up (timeout): not merged for it
       REQS+=("$R")
     done
@@ -96,14 +100,21 @@ lead() {
     # main and every head not here yet, in one fetch
     HEADS=()
     for R in "${REQS[@]}"; do
-      IFS=$'\t' read -r P H _ < "$Q/req/$R"; $G cat-file -e "$H^{commit}" 2>/dev/null || HEADS+=("refs/pull/$P/head")
+      IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R"
+      $G cat-file -e "$H^{commit}" 2>/dev/null && continue
+      # from the requesting slot's repository first (local); GitHub only when that fails
+      if [ -n "${SRC:-}" ] && [ "$SRC" != - ] && [ -d "$SRC" ] \
+         && $G fetch -q --no-tags --depth 1 "file://$SRC" "refs/oma/req/$P" 2>/dev/null && $G cat-file -e "$H^{commit}" 2>/dev/null; then
+        continue
+      fi
+      HEADS+=("refs/pull/$P/head")
     done
     $G fetch -q --no-tags --depth 1 origin "+refs/heads/main:refs/oma/main" "${HEADS[@]}" 2>/dev/null \
       || $G fetch -q --no-tags --depth 1 origin "+refs/heads/main:refs/oma/main" || { sleep 5; continue; }
     MAIN=$($G rev-parse refs/oma/main); TIP=$MAIN
     : > gm_results
     for R in "${REQS[@]}"; do
-      IFS=$'\t' read -r P H F M PID B64 < "$Q/req/$R"
+      IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R"
       B=$($G rev-parse "$H:$F" 2>/dev/null) || { printf '%s\tALONE\t-\n' "$R" >> gm_results; continue; }
       if $G cat-file -e "$TIP:$F" 2>/dev/null; then
         [ "$M" = replace ] || { printf '%s\tRULE\talready on main\n' "$R" >> gm_results; continue; }
