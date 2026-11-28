@@ -116,15 +116,21 @@ private theorem free_of_top_hom {V : Type} {G : SimpleGraph V} (free : G.CliqueF
 
 /-- One finite universal host for each size: take the disjoint union of
 all four-clique-free graphs on the prescribed number of vertices. -/
-theorem universal_factors :
+theorem universal_factors_with_positions :
     ∃ (u : ℕ → ℕ) (U : (m : ℕ) → SimpleGraph (Fin (u m))),
-      (∀ m, (U m).CliqueFree 4) ∧ ∀ m (K : SimpleGraph (Fin (2*(m+1)))),
-        K.CliqueFree 4 → Nonempty (K ↪g U m) := by
+      (∀ m, (U m).CliqueFree 4) ∧ (∀ m (K : SimpleGraph (Fin (2*(m+1)))),
+        K.CliqueFree 4 → Nonempty (K ↪g U m)) ∧
+      ∀ m, ∃ (tag : Fin (u m) → {K : SimpleGraph (Fin (2*(m+1))) // K.CliqueFree 4})
+        (pos : Fin (u m) → Fin (2*(m+1))), ∀ x y, (U m).Adj x y →
+          tag x = tag y ∧ (tag x).val.Adj (pos x) (pos y) := by
   classical
   suffices h : ∀ m : ℕ, ∃ (n : ℕ) (G : SimpleGraph (Fin n)), G.CliqueFree 4 ∧
-      ∀ K : SimpleGraph (Fin (2*(m+1))), K.CliqueFree 4 → Nonempty (K ↪g G) by
-    choose u U free inc using h
-    exact ⟨u,U,free,inc⟩
+      (∀ K : SimpleGraph (Fin (2*(m+1))), K.CliqueFree 4 → Nonempty (K ↪g G)) ∧
+      ∃ (tag : Fin n → {K : SimpleGraph (Fin (2*(m+1))) // K.CliqueFree 4})
+        (pos : Fin n → Fin (2*(m+1))), ∀ x y, G.Adj x y →
+          tag x = tag y ∧ (tag x).val.Adj (pos x) (pos y) by
+    choose u U free inc labels using h
+    exact ⟨u,U,free,inc,labels⟩
   intro m
   let B := Fin (2*(m+1))
   let W := {K : SimpleGraph B // K.CliqueFree 4} × B
@@ -133,7 +139,7 @@ theorem universal_factors :
     Adj := fun a b => a.1 = b.1 ∧ a.1.val.Adj a.2 b.2
     symm := ⟨fun {a b} e => ⟨e.1.symm,e.1 ▸ e.2.symm⟩⟩
     loopless := ⟨fun _ e => e.2.ne rfl⟩ }
-  refine ⟨_, G.comap num.symm,?_,?_⟩
+  refine ⟨_, G.comap num.symm,?_,?_,?_⟩
   · rw [cliqueFree_iff,isEmpty_iff]
     intro copy
     let v (i : Fin 4) : W := num.symm (copy i)
@@ -154,6 +160,17 @@ theorem universal_factors :
     intro i j
     change G.Adj (num.symm (num (add i))) (num.symm (num (add j))) ↔ K.Adj i j
     simp [G,add]
+
+  · exact ⟨fun x => (num.symm x).1,fun x => (num.symm x).2,fun _ _ h => h⟩
+
+/-- One finite universal host for each size: take the disjoint union of
+all four-clique-free graphs on the prescribed number of vertices. -/
+theorem universal_factors :
+    ∃ (u : ℕ → ℕ) (U : (m : ℕ) → SimpleGraph (Fin (u m))),
+      (∀ m, (U m).CliqueFree 4) ∧ ∀ m (K : SimpleGraph (Fin (2*(m+1)))),
+        K.CliqueFree 4 → Nonempty (K ↪g U m) := by
+  obtain ⟨u,U,free,inc,_⟩ := universal_factors_with_positions
+  exact ⟨u,U,free,inc⟩
 
 /-- Any such fixed family works if the finite-realization step holds.
 Only the index set varies. At a coordinate of size m at most m+1 labels
@@ -253,6 +270,56 @@ private theorem realize_cut {J : Type} (U : Ultrafilter J)
     exact Bool.noConfusion (b.symm.trans ((ok g hg f hf e).trans h))
   | true => exact decide_eq_true ⟨f,hf,rfl,h⟩
 
+/-- Only bounded vertex positions need binary codes. Equality of their codes
+must agree with equality on the chosen ultrafilter extending the filter. -/
+theorem coded_positions {J : Type} (l : Filter J) (U : Ultrafilter J) (below : (U : Filter J) ≤ l)
+    (n : J → ℕ) (code : ((j : J) → Fin (n j)) → ℕ → Bool)
+    (faithful : ∀ f g, code f = code g ↔ ∀ᶠ j in U, f j = g j)
+    (G : (j : J) → SimpleGraph (Fin (n j))) :
+    ∃ d : ((j : J) → (G j).edgeSet) → ℕ, ∀ a b c, d a = d b → d a = d c →
+      ¬ ∀ᶠ j in l, ∃ x y z : Fin (n j), (a j : Sym2 _) = s(x,y) ∧
+        (b j : Sym2 _) = s(y,z) ∧ (c j : Sym2 _) = s(z,x) := by
+  classical
+  let E := (j : J) → (G j).edgeSet
+  let L (a : E) (j : J) := ((a j).val.out.1 : ℕ)
+  let R (a : E) (j : J) := ((a j).val.out.2 : ℕ)
+  by_cases empty : IsEmpty E
+  · exact ⟨fun _ => 0,fun a => (empty.false a).elim⟩
+  obtain ⟨base⟩ := not_isEmpty_iff.mp empty
+  let clamp (f : J → ℕ) (j : J) : Fin (n j) :=
+    if h : f j < n j then ⟨f j,h⟩ else (base j).val.out.1
+  have left (a : E) (j : J) : clamp (L a) j = (a j).val.out.1 := dif_pos (a j).val.out.1.isLt
+  have right (a : E) (j : J) : clamp (R a) j = (a j).val.out.2 := dif_pos (a j).val.out.2.isLt
+  have sep (a : E) : ∃ k, code (clamp (L a)) k ≠ code (clamp (R a)) k := by
+    by_contra! h
+    have lr := (faithful _ _).mp (funext h)
+    obtain ⟨j,ej⟩ := lr.exists
+    have edge := (a j).property
+    rw [← (a j).val.out_eq] at edge
+    exact (show (G j).Adj (a j).val.out.1 (a j).val.out.2 from edge).ne (by simpa only [left,right] using ej)
+  choose index diff using sep
+  refine ⟨index,?_⟩
+  intro a b c ab ac tri
+  let bit (v : J → ℕ) := code (clamp v) (index a)
+  have opposite (p : E) (k : index p = index a) : bit (L p) ≠ bit (R p) := by
+    simpa only [bit,← k] using diff p
+  let S : Finset (J → ℕ) := {L a,R a,L b,R b,L c,R c}
+  have realize := realize_cut U bit (fun f g h => congrFun
+    ((faithful _ _).mpr (h.mono fun j eq => by simp only [clamp,eq])) _) S
+  obtain ⟨j,⟨cut,hcut⟩,x,y,z,xy,yz,zx⟩ := (realize.and (below tri)).exists
+  have side (p : E) (hl : L p ∈ S) (hr : R p ∈ S) (k : index p = index a)
+      (v w : Fin (n j)) (edge : (p j).val = s(v,w)) : cut v ≠ cut w := by
+    have ne : cut (L p j) ≠ cut (R p j) := by rw [hcut _ hl,hcut _ hr]; exact opposite p k
+    have oriented : s((p j).val.out.1,(p j).val.out.2) = s(v,w) := (p j).val.out_eq.trans edge
+    rcases Sym2.eq_iff.mp oriented with h | h
+    · simpa only [L,R,h.1,h.2] using ne
+    · simpa only [L,R,h.1,h.2] using ne.symm
+  have A := side a (by simp [S]) (by simp [S]) rfl x y xy
+  have B := side b (by simp [S]) (by simp [S]) ab.symm y z yz
+  have C := side c (by simp [S]) (by simp [S]) ac.symm z x zx
+  revert A B C
+  cases cut x <;> cases cut y <;> cases cut z <;> decide
+
 /-- A continuum-sized space of vertex sequences gives enough binary cuts for all edges. -/
 theorem coded_coordinates {J : Type} (code : (J → ℕ) ↪ (ℕ → Bool)) (l : Filter J) [NeBot l]
     (n : J → ℕ) (G : (j : J) → SimpleGraph (Fin (n j))) :
@@ -269,38 +336,15 @@ theorem coded_coordinates {J : Type} (code : (J → ℕ) ↪ (ℕ → Bool)) (l 
     Quotient.exact (Quotient.out_eq (Quotient.mk rel f))
   have stable {f g : J → ℕ} (h : f =ᶠ[U] g) : rep f = rep g :=
     congrArg Quotient.out (Quotient.sound (s := rel) h)
-  let E := (j : J) → (G j).edgeSet
-  let L (a : E) (j : J) := ((a j).val.out.1 : ℕ)
-  let R (a : E) (j : J) := ((a j).val.out.2 : ℕ)
-  have sep (a : E) : ∃ k, code (rep (L a)) k ≠ code (rep (R a)) k := by
-    by_contra! h
-    have eq := code.injective (funext h)
-    have lr : L a =ᶠ[U] R a := (sound _).symm.trans (eq ▸ sound (R a))
-    obtain ⟨j,ej⟩ := lr.exists
-    have edge := (a j).property
-    rw [← (a j).val.out_eq] at edge
-    exact (show (G j).Adj (a j).val.out.1 (a j).val.out.2 from edge).ne (Fin.ext ej)
-  choose index diff using sep
-  refine ⟨index,?_⟩
-  intro a b c ab ac tri
-  let bit (v : J → ℕ) := code (rep v) (index a)
-  have opposite (p : E) (k : index p = index a) : bit (L p) ≠ bit (R p) := by
-    simpa only [bit,← k] using diff p
-  let S : Finset (J → ℕ) := {L a,R a,L b,R b,L c,R c}
-  have realize := realize_cut U bit (fun f g h => by simp only [bit,stable h]) S
-  obtain ⟨j,⟨cut,hcut⟩,x,y,z,xy,yz,zx⟩ := (realize.and (Ultrafilter.of_le _ tri)).exists
-  have side (p : E) (hl : L p ∈ S) (hr : R p ∈ S) (k : index p = index a)
-      (v w : Fin (n j)) (edge : (p j).val = s(v,w)) : cut v ≠ cut w := by
-    have ne : cut (L p j) ≠ cut (R p j) := by rw [hcut _ hl,hcut _ hr]; exact opposite p k
-    have oriented : s((p j).val.out.1,(p j).val.out.2) = s(v,w) := (p j).val.out_eq.trans edge
-    rcases Sym2.eq_iff.mp oriented with h | h
-    · simpa only [L,R,h.1,h.2] using ne
-    · simpa only [L,R,h.1,h.2] using ne.symm
-  have A := side a (by simp [S]) (by simp [S]) rfl x y xy
-  have B := side b (by simp [S]) (by simp [S]) ab.symm y z yz
-  have C := side c (by simp [S]) (by simp [S]) ac.symm z x zx
-  revert A B C
-  cases cut x <;> cases cut y <;> cases cut z <;> decide
+  let vals (f : (j : J) → Fin (n j)) (j : J) := (f j).val
+  apply coded_positions l U (Ultrafilter.of_le l) n (fun f => code (rep (vals f))) _ G
+  intro f g
+  constructor
+  · intro eq
+    have same := code.injective eq
+    exact ((sound (vals f)).symm.trans (same ▸ sound (vals g))).mono fun _ h => Fin.ext h
+  · intro eq
+    exact congrArg code (stable (eq.mono fun _ h => congrArg Fin.val h))
 
 /-- Countably many coordinates admit a countable colouring avoiding every
 eventual triangle, even for an arbitrary proper filter and arbitrary factors
@@ -437,5 +481,98 @@ theorem hard_index_power {I : Type} [Infinite I] (n : Finset I → ℕ)
   obtain ⟨d,avoids⟩ := coded_coordinates e atTop n G
   obtain ⟨a,b,c,ab,ac,t⟩ := hard d
   exact avoids a b c ab ac t
+
+
+/-- An eventual triangle lives in one component modulo eventual equality.
+If all single-component products admitted avoiding colourings, use one
+such colouring on each equivalence class to colour the full product. -/
+theorem single_component {J : Type} (l : Filter J) (n width : J → ℕ)
+    (G : (j : J) → SimpleGraph (Fin (n j)))
+    (tag : (j : J) → Fin (n j) → SimpleGraph (Fin (width j)))
+    (pos : (j : J) → Fin (n j) → Fin (width j))
+    (inside : ∀ j x y, (G j).Adj x y → tag j x = tag j y ∧ (tag j x).Adj (pos j x) (pos j y))
+    (hard : ∀ d : ((j : J) → (G j).edgeSet) → ℕ, ∃ a b c, d a = d b ∧ d a = d c ∧
+      ∀ᶠ j in l, ∃ x y z : Fin (n j), (a j : Sym2 _) = s(x,y) ∧
+        (b j : Sym2 _) = s(y,z) ∧ (c j : Sym2 _) = s(z,x)) :
+    ∃ v : (j : J) → Fin (n j), ∀ d : ((j : J) → (tag j (v j)).edgeSet) → ℕ,
+      ∃ a b c, d a = d b ∧ d a = d c ∧ ∀ᶠ j in l, ∃ x y z : Fin (width j),
+        (a j : Sym2 _) = s(x,y) ∧ (b j : Sym2 _) = s(y,z) ∧ (c j : Sym2 _) = s(z,x) := by
+  classical
+  let E := (j : J) → (G j).edgeSet
+  let vertex (a : E) (j : J) := (a j).val.out.1
+  let T (a : E) (j : J) := tag j (vertex a j)
+  let raw (a : E) (j : J) := Sym2.map (pos j) (a j).val
+  have law (a : E) (j : J) :
+      tag j (a j).val.out.1 = tag j (a j).val.out.2 ∧ raw a j ∈ (T a j).edgeSet := by
+    have e := (a j).property
+    rw [← (a j).val.out_eq] at e
+    obtain ⟨eq,adj⟩ := inside _ _ _ e
+    refine ⟨eq,?_⟩
+    change Sym2.map (pos j) (a j).val ∈ (tag j (a j).val.out.1).edgeSet
+    have hr : Sym2.map (pos j) (a j).val = s(pos j (a j).val.out.1,pos j (a j).val.out.2) :=
+      congrArg (Sym2.map (pos j)) (a j).val.out_eq.symm
+    rw [hr]
+    exact adj
+  have ends (a : E) (j : J) {x y} (h : (a j).val = s(x,y)) :
+      T a j = tag j x ∧ T a j = tag j y := by
+    have pair : s((a j).val.out.1,(a j).val.out.2) = s(x,y) := (a j).val.out_eq.trans h
+    change tag j (a j).val.out.1 = _ ∧ tag j (a j).val.out.1 = _
+    rcases Sym2.eq_iff.mp pair with ⟨rfl,rfl⟩ | ⟨rfl,rfl⟩
+    · exact ⟨rfl,(law a j).1⟩
+    · exact ⟨(law a j).1,rfl⟩
+  let rel : Setoid E := {
+    r := fun a b => ∀ᶠ j in l, T a j = T b j
+    iseqv := ⟨fun _ => .of_forall fun _ => rfl,fun {_ _} h => h.mono fun _ eq => eq.symm,
+      fun {_ _ _} h k => (h.and k).mono fun _ eq => eq.1.trans eq.2⟩ }
+  let q := Quotient.mk rel
+  let proj (r : Quotient rel) (a : E) (j : J) : (T r.out j).edgeSet :=
+    if h : T a j = T r.out j then ⟨raw a j,h ▸ (law a j).2⟩ else ⟨_,(law r.out j).2⟩
+  by_contra fail
+  have avoid (r : Quotient rel) : ∃ d : ((j : J) → (T r.out j).edgeSet) → ℕ,
+      ∀ a b c, d a = d b → d a = d c → ¬ ∀ᶠ j in l, ∃ x y z : Fin (width j),
+        (a j : Sym2 _) = s(x,y) ∧ (b j : Sym2 _) = s(y,z) ∧ (c j : Sym2 _) = s(z,x) := by
+    by_contra! all
+    apply fail
+    exact ⟨vertex r.out,fun d => by simpa using all d⟩
+  choose d avoids using avoid
+  obtain ⟨a,b,c,ab,ac,tri⟩ := hard fun e => d (q e) (proj (q e) e)
+  have tags : ∀ᶠ j in l, T a j = T b j ∧ T a j = T c j := by
+    filter_upwards [tri] with j h
+    obtain ⟨x,y,z,A,B,C⟩ := h
+    exact ⟨(ends a j A).2.trans (ends b j B).1.symm,(ends a j A).1.trans (ends c j C).2.symm⟩
+  have qb : q b = q a := Quotient.sound (s := rel) (tags.mono fun _ h => h.1.symm)
+  have qc : q c = q a := Quotient.sound (s := rel) (tags.mono fun _ h => h.2.symm)
+  rw [qb] at ab
+  rw [qc] at ac
+  apply avoids (q a) _ _ _ ab ac
+  have rep : ∀ᶠ j in l, T (q a).out j = T a j := Quotient.exact (q a).out_eq
+  filter_upwards [tri,tags,rep] with j h agree same
+  obtain ⟨x,y,z,A,B,C⟩ := h
+  refine ⟨pos j x,pos j y,pos j z,?_,?_,?_⟩
+  · simpa only [proj,dif_pos same.symm,raw,Sym2.map_mk] using congrArg (Sym2.map (pos j)) A
+  · simpa only [proj,dif_pos (same.trans agree.1).symm,raw,Sym2.map_mk] using congrArg (Sym2.map (pos j)) B
+  · simpa only [proj,dif_pos (same.trans agree.2).symm,raw,Sym2.map_mk] using congrArg (Sym2.map (pos j)) C
+
+/-- The hard step is equivalent to a product whose coordinate of size m has
+just 2(m+1) vertices. The selected graph may vary with the coordinate. -/
+theorem linear_factors_iff :
+    OMA.R_Erdos595_erdos_595_R2.H1 ↔
+      ∃ (I : Type) (G : (s : Finset I) → SimpleGraph (Fin (2*(s.card+1)))),
+        (∀ s, (G s).CliqueFree 4) ∧
+        ∀ d : ((s : Finset I) → (G s).edgeSet) → ℕ, ∃ a b c, d a = d b ∧ d a = d c ∧
+          ∀ᶠ s in (atTop : Filter (Finset I)), ∃ x y z : Fin (2*(s.card+1)),
+            (a s : Sym2 _) = s(x,y) ∧ (b s : Sym2 _) = s(y,z) ∧ (c s : Sym2 _) = s(z,x) := by
+  constructor
+  · intro h
+    obtain ⟨u,U,free,inc,labels⟩ := universal_factors_with_positions
+    obtain ⟨I,hard⟩ := (fixed_factors_iff u U free inc).mp h
+    choose tag pos inside using labels
+    obtain ⟨v,localHard⟩ := single_component (atTop : Filter (Finset I))
+      (fun s => u s.card) (fun s => 2*(s.card+1)) (fun s => U s.card)
+      (fun s x => (tag s.card x).val) (fun s => pos s.card)
+      (fun s x y h => ⟨congrArg Subtype.val (inside _ x y h).1,(inside _ x y h).2⟩) hard
+    exact ⟨I,_,fun s => (tag s.card (v s)).property,localHard⟩
+  · rintro ⟨I,G,free,hard⟩
+    exact main ⟨I,fun s => 2*(s.card+1),G,free,hard⟩ common_coordinate
 
 end OMA.R_Erdos595_erdos_595_R2_H1_R1
