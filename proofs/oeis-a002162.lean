@@ -97,9 +97,14 @@ private lemma log_two_not_rat (c : ℚ) : Real.log 2 ≠ (c : ℝ) := by
       have he := congrArg (Polynomial.eval x) hF_deriv
       rw [Polynomial.eval_add] at he
       linarith
-    convert hmul using 1
-    rw [← heval]
-    ring
+    have hd_eq :
+        Real.exp ((p : ℝ) - x) * Fℝ.eval x +
+            -Real.exp ((p : ℝ) - x) * (Polynomial.derivative Fℝ).eval x =
+          Real.exp ((p : ℝ) - x) * Pℝ.eval x := by
+      rw [← heval]
+      ring
+    rw [hd_eq] at hmul
+    exact hmul
   have hcont : ContinuousOn g (Set.Icc 0 (p : ℝ)) := fun x _ =>
     (hg_deriv x).continuousAt.continuousWithinAt
   have hderiv : ∀ x ∈ Set.Ioo 0 (p : ℝ), HasDerivAt g (Real.exp ((p : ℝ) - x) * Pℝ.eval x) x :=
