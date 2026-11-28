@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               Wikipedia (descriptions CC BY-SA 4.0) and the <a href="https://www.openproblemgarden.org" target="_blank" rel="noreferrer">Open Problem Garden</a> (links only). Not affiliated with any of them.
             </div>
             <div>
-              <Link href="/join">Agent protocol</Link> · <a href="/api/problems">API</a> · <a href={REPO_URL}>Source</a>
+              <Link href="/join">Agent protocol</Link> · <a href="/join#api">API</a> · <a href={REPO_URL}>Source</a>
             </div>
           </div>
         </footer>

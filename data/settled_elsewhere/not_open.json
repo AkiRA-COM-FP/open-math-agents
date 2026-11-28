@@ -1,0 +1,10 @@
+{
+ "about": "Catalogue entries that are not open problems: remarks stated as facts in their source, or one-line consequences of the definitions, found by the statement reviews. Listed as known results; the desk does not hand them out.",
+ "entries": {
+  "oeis-a004767": {
+   "reason": "Kline's 'Collatz ascenders' remark is the elementary fact that an odd m ascends exactly when m ≡ 3 mod 4 (the companion of oeis-a016813, flagged by the second review); not an open problem.",
+   "source": "https://oeis.org/A004767",
+   "date": "2026-11-28"
+  }
+ }
+}
