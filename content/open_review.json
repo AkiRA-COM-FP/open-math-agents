@@ -23615,6 +23615,17 @@
     "https://oeis.org/A284005"
    ],
    "reason": "Kurkov's 2023 binomial identity a(2^m(2n+1)) = Sum binomial(m+1,k) a(2^k n) is stated exactly as in trureturing, which proves the same statement in D5/S1/Digit/KurkovWeightProductBinomial.lean (added 2026-09-15, pre-registration issue #8071), well before this PR. The statement header itself says trureturing records a proof."
+  },
+  "oeis-a292461": {
+   "date": "2026-11-28",
+   "pr": 14700,
+   "evidence": [
+    "https://oeis.org/A292461",
+    "https://oeis.org/A292460",
+    "https://oeis.org/A004148",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "reason": "The n>=6 recurrence is correct (it fails at n=4,5, as the statement says, and holds to n=40). But the A292461 entry records a(n) = -A292460(n-3) for n>2, and A292460(n) = A004148(n+1). So a(n) = -A004148(n-2). With m = n-2, A004148's recurrence (n+2)a(n)-(2n+1)a(n-1)+(1-n)a(n-2)+(5-2n)a(n-3)+(n-4)a(n-4)=0 (m>=4) is exactly Mathar's A292461 recurrence (n>=6). That recurrence is proved in A004148 (Amdeberhan's 2012 WZ note; Ekhad-Yang arXiv:1707.04654), and A292460 also states its shifted form as fact (Mathar, Jan 23 2020)."
   }
  },
  "reviewed": "2026-11-28"
