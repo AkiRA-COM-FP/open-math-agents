@@ -12,10 +12,16 @@ def H1 : Prop := ∀ t : ℕ, Odd t → 1 < t → ¬ (16 * t ^ 2 + 1 ∣ 2 ^ (4 
 
 /-- The case 8 ∣ x. The hypotheses of H3 about 4p^k, 12p^k, 4p^a r, 36·11^k, 36·71^k and
     x % 8 = 4 are automatic or vacuous here. The family x = 8 p^k is now fully excluded:
-    R1 left p = 3, k = 3 mod 4 open, and `eight_three_fails` below closes it modulo 9. -/
+    R1 left p = 3, k = 3 mod 4 open, and `eight_three_fails` below closes it modulo 9.
+    In the family x = 16 p^k, `sixteen_prime_power` leaves six primes, each in one or two
+    classes of k. -/
 def H2 : Prop := ∀ x : ℕ, 4 < x → 8 ∣ x → ¬ (x - 1).Prime →
     (¬ ∃ s : ℕ, x = 2 ^ s) →
     (∀ p k : ℕ, p.Prime → p ≠ 2 → k ≠ 0 → x ≠ 8 * p ^ k) →
+    (∀ p k : ℕ, p.Prime → p ≠ 2 → k ≠ 0 → x = 16 * p ^ k →
+      (p = 3 ∧ (k % 4 = 0 ∨ k % 16 = 8 ∨ k % 256 = 64)) ∨ (p = 13 ∧ k % 4 = 2) ∨
+      (p = 43 ∧ (k % 8 = 4 ∨ k % 256 = 192)) ∨ (p = 193 ∧ k % 8 = 2) ∨
+      (p = 241 ∧ k % 4 = 1) ∨ (p = 643 ∧ k % 16 = 4)) →
     (∀ m : ℕ, m ∣ x ^ 2 + 1 → m < 2 ^ (m.primeFactors.lcm fun q => x.gcd (q - 1))) →
     ¬ (x ^ 4 - 1 ∣ 2 ^ x - 1)
 
@@ -149,6 +155,149 @@ theorem eight_three_fails (k : ℕ) (hk : k ≠ 0) :
   · exact c.2.1 (bad 17 (by decide) (h.trans dx))
   · exact c.2.2 (bad 241 (by decide) (h.trans dx))
 
+/-- A prime dividing a product of primes is one of them. -/
+lemma prime_mem_of_dvd {p : ℕ} (hp : p.Prime) :
+    ∀ l : List ℕ, (∀ q ∈ l, q.Prime) → p ∣ l.prod → p ∈ l
+  | [], _, h => absurd (Nat.dvd_one.mp (by simpa using h)) hp.ne_one
+  | q :: l, hl, h => by
+    rw [List.prod_cons] at h
+    rcases (Nat.Prime.dvd_mul hp).mp h with h | h
+    · exact List.mem_cons.mpr (Or.inl ((Nat.prime_dvd_prime_iff_eq hp (hl q (by simp))).mp h))
+    · exact List.mem_cons_of_mem _
+        (prime_mem_of_dvd hp l (fun r hr => hl r (List.mem_cons_of_mem _ hr)) h)
+
+/-- If d ∣ t p^k - 1 and p^L = 1 mod d, then only k mod L matters. -/
+lemma residue_of (t p k d L : ℕ) (hper : p ^ L ≡ 1 [MOD d]) (hpos : 0 < t * p ^ k)
+    (h : d ∣ t * p ^ k - 1) : t * p ^ (k % L) ≡ 1 [MOD d] := by
+  have m1 : 1 ≡ t * p ^ k [MOD d] := (Nat.modEq_iff_dvd' hpos).mpr h
+  exact (m1.trans ((pow_period p k L d hper).mul_left t)).symm
+
+lemma class_of (t p k d L a : ℕ) (hL : 0 < L) (hpos : 0 < t * p ^ k)
+    (h : d ∣ t * p ^ k - 1) (hper : p ^ L ≡ 1 [MOD d])
+    (cert : ∀ r : Fin L, t * p ^ r.val ≡ 1 [MOD d] → r.val = a) : k % L = a :=
+  cert ⟨k % L, Nat.mod_lt _ hL⟩ (residue_of t p k d L hper hpos h)
+
+lemma no_class (t p k d L : ℕ) (hL : 0 < L) (hpos : 0 < t * p ^ k)
+    (h : d ∣ t * p ^ k - 1) (hper : p ^ L ≡ 1 [MOD d])
+    (cert : ∀ r : Fin L, ¬ t * p ^ r.val ≡ 1 [MOD d]) : False :=
+  cert ⟨k % L, Nat.mod_lt _ hL⟩ (residue_of t p k d L hper hpos h)
+
+set_option maxHeartbeats 1000000 in
+/-- In the family x = 16 p^k only six odd primes survive the predecessor test, each in one
+    or two classes of k. -/
+theorem sixteen_prime_power (p k : ℕ) (hp : p.Prime) (odd : p ≠ 2) (hk : k ≠ 0)
+    (test : (16 * p ^ k) ^ 4 - 1 ∣ 2 ^ (16 * p ^ k) - 1) :
+    (p = 3 ∧ (k % 4 = 0 ∨ k % 16 = 8 ∨ k % 256 = 64)) ∨ (p = 13 ∧ k % 4 = 2) ∨
+    (p = 43 ∧ (k % 8 = 4 ∨ k % 256 = 192)) ∨ (p = 193 ∧ k % 8 = 2) ∨
+    (p = 241 ∧ k % 4 = 1) ∨ (p = 643 ∧ k % 16 = 4) := by
+  obtain ⟨d, hd, dh, plus⟩ := divisor_before 16 p k (by decide) hp hk test
+  clear test
+  have hpos : 0 < 16 * p ^ k := Nat.mul_pos (by norm_num) (Nat.pow_pos hp.pos)
+  have hd' : d ∣ 65535 := by simpa using hd
+  have hdle := Nat.le_of_dvd (by norm_num) hd'
+  have dmem : ∀ a b : Fin 256, 256 * a.val + b.val ∣ 65535 → 256 * a.val + b.val ∈ [1, 3, 5,
+      15, 17, 51, 85, 255, 257, 771, 1285, 3855, 4369, 13107, 21845, 65535] := by decide +kernel
+  have hm : d ∈ [1, 3, 5, 15, 17, 51, 85, 255, 257, 771, 1285, 3855, 4369, 13107, 21845,
+      65535] := by
+    have e := dmem ⟨d / 256, by omega⟩ ⟨d % 256, Nat.mod_lt _ (by norm_num)⟩
+    simp only [Nat.div_add_mod] at e
+    exact e hd'
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hm
+  have two : p ≠ 2 := odd
+  rcases hm with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl |
+    rfl | rfl | rfl
+  · have := prime_mem_of_dvd hp [2] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact (two rfl).elim
+  · have := prime_mem_of_dvd hp [2, 2] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact (two rfl).elim
+  · have := prime_mem_of_dvd hp [2, 3] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl
+    · exact (two rfl).elim
+    · exact Or.inl ⟨rfl, Or.inl (class_of 16 3 k 5 4 0 (by norm_num) hpos dh (by decide +kernel)
+        (by decide +kernel))⟩
+  · have := prime_mem_of_dvd hp [2, 2, 2, 2] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact (two rfl).elim
+  · have := prime_mem_of_dvd hp [2, 3, 3] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl
+    · exact (two rfl).elim
+    all_goals exact Or.inl ⟨rfl, Or.inr (Or.inl (class_of 16 3 k 17 16 8 (by norm_num) hpos dh
+        (by decide +kernel) (by decide +kernel)))⟩
+  · have := prime_mem_of_dvd hp [2, 2, 13] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl
+    · exact (two rfl).elim
+    · exact (two rfl).elim
+    · exact Or.inr (Or.inl ⟨rfl, class_of 16 13 k 51 4 2 (by norm_num) hpos dh (by decide +kernel)
+        (by decide +kernel)⟩)
+  · have := prime_mem_of_dvd hp [2, 43] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl
+    · exact (two rfl).elim
+    · exact Or.inr (Or.inr (Or.inl ⟨rfl, Or.inl (class_of 16 43 k 85 8 4 (by norm_num) hpos dh
+        (by decide +kernel) (by decide +kernel))⟩))
+  · have := prime_mem_of_dvd hp [2, 2, 2, 2, 2, 2, 2, 2] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact (two rfl).elim
+  · have := prime_mem_of_dvd hp [2, 3, 43] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl
+    · exact (two rfl).elim
+    · exact Or.inl ⟨rfl, Or.inr (Or.inr (class_of 16 3 k 257 256 64 (by norm_num) hpos dh
+        (by decide +kernel) (by decide +kernel)))⟩
+    · exact Or.inr (Or.inr (Or.inl ⟨rfl, Or.inr (class_of 16 43 k 257 256 192 (by norm_num) hpos
+        dh (by decide +kernel) (by decide +kernel))⟩))
+  · have := prime_mem_of_dvd hp [2, 2, 193] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl
+    · exact (two rfl).elim
+    · exact (two rfl).elim
+    · exact Or.inr (Or.inr (Or.inr (Or.inl ⟨rfl, class_of 16 193 k 771 8 2 (by norm_num) hpos dh
+        (by decide +kernel) (by decide +kernel)⟩)))
+  · have := prime_mem_of_dvd hp [2, 643] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl
+    · exact (two rfl).elim
+    · exact Or.inr (Or.inr (Or.inr (Or.inr (Or.inr ⟨rfl, class_of 16 643 k 1285 16 4 (by norm_num)
+        hpos dh (by decide +kernel) (by decide +kernel)⟩))))
+  · have := prime_mem_of_dvd hp [2, 2, 2, 2, 241] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl | rfl | rfl
+    any_goals exact (two rfl).elim
+    exact Or.inr (Or.inr (Or.inr (Or.inr (Or.inl ⟨rfl, class_of 16 241 k 3855 4 1 (by norm_num)
+      hpos dh (by decide +kernel) (by decide +kernel)⟩))))
+  · have := prime_mem_of_dvd hp [2, 5, 19, 23] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl | rfl
+    · exact (two rfl).elim
+    · exact (no_class 16 5 k 4369 256 (by norm_num) hpos dh (by decide +kernel) (by decide +kernel)).elim
+    · exact (no_class 16 19 k 4369 256 (by norm_num) hpos dh (by decide +kernel) (by decide +kernel)).elim
+    · exact (no_class 16 23 k 4369 64 (by norm_num) hpos dh (by decide +kernel) (by decide +kernel)).elim
+  · have := prime_mem_of_dvd hp [2, 2, 29, 113] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl | rfl
+    · exact (two rfl).elim
+    · exact (two rfl).elim
+    · exact (no_class 16 29 k 13107 128 (by norm_num) hpos dh (by decide +kernel) (by decide +kernel)).elim
+    · exact (no_class 16 113 k 13107 128 (by norm_num) hpos dh (by decide +kernel)
+        (by decide +kernel)).elim
+  · have := prime_mem_of_dvd hp [2, 3, 11, 331] (by norm_num) (by simpa using plus)
+    simp only [List.mem_cons, List.not_mem_nil, or_false] at this
+    rcases this with rfl | rfl | rfl | rfl
+    · exact (two rfl).elim
+    · exact (no_class 16 3 k 21845 256 (by norm_num) hpos dh (by decide +kernel) (by decide +kernel)).elim
+    · exact (no_class 16 11 k 21845 64 (by norm_num) hpos dh (by decide +kernel) (by decide +kernel)).elim
+    · exact (no_class 16 331 k 21845 256 (by norm_num) hpos dh (by decide +kernel)
+        (by decide +kernel)).elim
+  · have := prime_mem_of_dvd hp (List.replicate 16 2)
+      (fun q hq => by rw [List.eq_of_mem_replicate hq]; exact Nat.prime_two) (by simpa using plus)
+    simp at this
+    rcases this with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl <;> exact (two rfl).elim
+
 /-- No x = 8 p^k with p an odd prime passes Hasler's test. -/
 theorem eight_prime_power_fails (p k : ℕ) (hp : p.Prime) (odd : p ≠ 2) (hk : k ≠ 0) :
     ¬ ((8 * p ^ k) ^ 4 - 1 ∣ 2 ^ (8 * p ^ k) - 1) := by
@@ -160,9 +309,11 @@ theorem main : H1 → H2 → OMA.R_oeis_a000215_R1.H3 := by
   intro h1 h2 x big four np npow _ _ _ _ mbound _ test
   have hmod : x % 8 = 0 ∨ x % 8 = 4 := by omega
   rcases hmod with h0 | h4
-  · refine h2 x big (by omega) np npow ?_ mbound test
-    rintro p k hp hp2 hk rfl
-    exact eight_prime_power_fails p k hp hp2 hk test
+  · refine h2 x big (by omega) np npow ?_ ?_ mbound test
+    · rintro p k hp hp2 hk rfl
+      exact eight_prime_power_fails p k hp hp2 hk test
+    · rintro p k hp hp2 hk rfl
+      exact sixteen_prime_power p k hp hp2 hk test
   · obtain ⟨t, rfl⟩ : ∃ t, x = 4 * t := ⟨x / 4, by omega⟩
     have todd : Odd t := ⟨t / 2, by omega⟩
     apply h1 t todd (by omega)
