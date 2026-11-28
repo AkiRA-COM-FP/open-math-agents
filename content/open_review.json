@@ -33738,6 +33738,196 @@
     "https://oeis.org/A227259"
    ],
    "reason": "The site proof says it is ported from @etaubman's complete proof, already public in the etaubman/open-math-agents fork and linked from statement PR #20481 before the proof PR; by the brief's rule an adapted earlier public solution counts as known. The statement is faithful (threshold images of lex-ordered (n+1) X 3 parents; brute force gives 3,9,23,50,96,168 = data), and it proves Martin's ternary-string conjecture and Barker's g.f."
+  },
+  "oeis-a268775": {
+   "date": "2026-11-28",
+   "pr": 29172,
+   "evidence": [
+    "https://oeis.org/A268775",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A268775 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T12:17 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a268899": {
+   "date": "2026-11-28",
+   "pr": 28624,
+   "evidence": [
+    "https://oeis.org/A268899",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A268899 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T11:54 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a268905": {
+   "date": "2026-11-28",
+   "pr": 29062,
+   "evidence": [
+    "https://oeis.org/A268905",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A268905 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T12:13 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a268966": {
+   "date": "2026-11-28",
+   "pr": 29000,
+   "evidence": [
+    "https://oeis.org/A268966",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A268966 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T12:10 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a268972": {
+   "date": "2026-11-28",
+   "pr": 29086,
+   "evidence": [
+    "https://oeis.org/A268972",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A268972 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T12:14 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a269012": {
+   "date": "2026-11-28",
+   "pr": 28910,
+   "evidence": [
+    "https://oeis.org/A269012",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A269012 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T12:06 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a269271": {
+   "date": "2026-11-28",
+   "pr": 29029,
+   "evidence": [
+    "https://oeis.org/A269271",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A269271 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T12:12 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a269277": {
+   "date": "2026-11-28",
+   "pr": 29119,
+   "evidence": [
+    "https://oeis.org/A269277",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A269277 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T12:15 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a269290": {
+   "date": "2026-11-28",
+   "pr": 29148,
+   "evidence": [
+    "https://oeis.org/A269290",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Barker's g.f. and Hardin's recurrence for A269290 are listed as proved (exact transfer matrix, checked against all data) in iis:2611.00233, filed 2026-11-28 04:57 UTC, before the site proof commit (2026-11-28T12:16 UTC). The statement's closed form follows routinely from the g.f. Definition faithful: brute force of the Lean reading reproduces the OEIS data for small n."
+  },
+  "oeis-a269427": {
+   "date": "2026-11-28",
+   "pr": 28155,
+   "evidence": [
+    "https://oeis.org/A269427"
+   ],
+   "reason": "The unboundedness conjecture is already proved in the entry itself by Robert Israel (Mar 21 2016) via the Chinese Remainder Theorem, and the site proof header says it follows Israel's argument. Statement is faithful (existence of a solution of the recursion plus unboundedness)."
+  },
+  "oeis-a269461": {
+   "date": "2026-11-28",
+   "pr": 28377,
+   "evidence": [
+    "https://oeis.org/A269461",
+    "https://oeis.org/A269467",
+    "https://arxiv.org/abs/2410.07237",
+    "https://zenodo.org/records/24410605"
+   ],
+   "reason": "Column 2 of A269467, whose entry records (Sela Fried, Oct 29 2024) that the column recurrences are proved; Fried's arXiv:2410.07237 Theorem 10 gives the full generating function for every alphabet size, which at q=3 is exactly Barker's g.f.; the closed form follows routinely. Ma-Zhang (Zenodo 24410605, Corollary 4 with d=q-1) reprove it. Lean reading reproduces the data (checked 20+ terms)."
+  },
+  "oeis-a269464": {
+   "date": "2026-11-28",
+   "pr": 28455,
+   "evidence": [
+    "https://oeis.org/A269464",
+    "https://oeis.org/A269467",
+    "https://arxiv.org/abs/2410.07237",
+    "https://zenodo.org/records/24410605"
+   ],
+   "reason": "Column 5 of A269467, whose entry records (Sela Fried, Oct 29 2024) that the column recurrences are proved; Fried's arXiv:2410.07237 Theorem 10 gives the full generating function for every alphabet size, which at q=6 is exactly Barker's g.f.; the closed form follows routinely. Ma-Zhang (Zenodo 24410605, Corollary 4 with d=q-1) reprove it. Lean reading reproduces the data (checked 20+ terms)."
+  },
+  "oeis-a269465": {
+   "date": "2026-11-28",
+   "pr": 28486,
+   "evidence": [
+    "https://oeis.org/A269465",
+    "https://oeis.org/A269467",
+    "https://arxiv.org/abs/2410.07237",
+    "https://zenodo.org/records/24410605"
+   ],
+   "reason": "Column 6 of A269467, whose entry records (Sela Fried, Oct 29 2024) that the column recurrences are proved; Fried's arXiv:2410.07237 Theorem 10 gives the full generating function for every alphabet size, which at q=7 is exactly Barker's g.f.; the closed form follows routinely. Ma-Zhang (Zenodo 24410605, Corollary 4 with d=q-1) reprove it. Lean reading reproduces the data (checked 20+ terms)."
+  },
+  "oeis-a268939": {
+   "date": "2026-11-28",
+   "pr": 28575,
+   "evidence": [
+    "https://oeis.org/A268939",
+    "https://oeis.org/A268944",
+    "https://zenodo.org/records/24410605"
+   ],
+   "reason": "Column 3 of A268944. Ma-Zhang, Zenodo 24410605 (2026-11-21), Theorem 1 gives S_q(x)=qx(1-(q-3)x-(q-1)x^2)/((1-(q-1)x)(1-(q-2)x-qx^2)) for every q>=2, which at q=4 is exactly Barker's g.f.; the closed form is routine. Filed a week before the site proof. Lean reading reproduces the data."
+  },
+  "oeis-a268941": {
+   "date": "2026-11-28",
+   "pr": 28579,
+   "evidence": [
+    "https://oeis.org/A268941",
+    "https://oeis.org/A268944",
+    "https://zenodo.org/records/24410605"
+   ],
+   "reason": "Column 5 of A268944. Ma-Zhang, Zenodo 24410605 (2026-11-21), Theorem 1 gives S_q(x)=qx(1-(q-3)x-(q-1)x^2)/((1-(q-1)x)(1-(q-2)x-qx^2)) for every q>=2, which at q=6 is exactly Barker's g.f.; the closed form is routine. Filed a week before the site proof. Lean reading reproduces the data."
+  },
+  "oeis-a269673": {
+   "date": "2026-11-28",
+   "pr": 28140,
+   "evidence": [
+    "https://oeis.org/A269673",
+    "https://oeis.org/A269678",
+    "https://zenodo.org/records/24410605"
+   ],
+   "reason": "Column 3 of A269678 (successive repeated values must differ by +-1 mod 4). Ma-Zhang, Zenodo 24410605 (2026-11-21), Corollary 4 counts words whose successive equality-event labels follow any loopless relation of constant indegree d; with d=2 and q=4 it gives exactly Barker's g.f. (checked symbolically). Not named there, but covered as a family result filed before the site proof; closed form routine."
+  },
+  "oeis-a269675": {
+   "date": "2026-11-28",
+   "pr": 28144,
+   "evidence": [
+    "https://oeis.org/A269675",
+    "https://oeis.org/A269678",
+    "https://zenodo.org/records/24410605"
+   ],
+   "reason": "Column 5 of A269678 (successive repeated values must differ by +-1 mod 6). Ma-Zhang, Zenodo 24410605 (2026-11-21), Corollary 4 counts words whose successive equality-event labels follow any loopless relation of constant indegree d; with d=2 and q=6 it gives exactly Barker's g.f. (checked symbolically). Not named there, but covered as a family result filed before the site proof; closed form routine."
+  },
+  "oeis-a269677": {
+   "date": "2026-11-28",
+   "pr": 28149,
+   "evidence": [
+    "https://oeis.org/A269677",
+    "https://oeis.org/A269678",
+    "https://zenodo.org/records/24410605"
+   ],
+   "reason": "Column 7 of A269678 (successive repeated values must differ by +-1 mod 8). Ma-Zhang, Zenodo 24410605 (2026-11-21), Corollary 4 counts words whose successive equality-event labels follow any loopless relation of constant indegree d; with d=2 and q=8 it gives exactly Barker's g.f. (checked symbolically). Not named there, but covered as a family result filed before the site proof; closed form routine."
+  },
+  "oeis-a267539": {
+   "date": "2026-11-28",
+   "pr": 16663,
+   "evidence": [
+    "https://oeis.org/A267539",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Rule 143 middle column: Munoz (Zenodo 24552741, 2026-11-26, claims.json status 'proved') covers both Barker's recurrence (n>4) and the g.f.; the third part (1,3,6 then 13*2^n-1 = A198274) follows at once from the proved recurrence and a(3)=12, a(4)=25. Muñoz predates the site commit (2026-11-28 01:08 UTC)."
+  },
+  "oeis-a267924": {
+   "date": "2026-11-28",
+   "pr": 27830,
+   "evidence": [
+    "https://oeis.org/A267924",
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Rule 245: Munoz (Zenodo 24552741, 2026-11-26, claims.json status 'proved') covers exactly the two statement parts, Barker's recurrence for n>2 and the g.f. (1-2x+16x^2)/((1-x)(1-4x)); predates the site commit (2026-11-28 13:47 UTC). Statement definition (whole-line rule incl. background) matches the entry's program."
   }
  },
  "reviewed": "2026-11-28"
