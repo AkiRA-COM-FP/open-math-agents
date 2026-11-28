@@ -20,16 +20,11 @@ theorem Azero (i k : ℕ) (h : i < k) : A i k = 0 := by
 
 theorem sum3 (m : ℕ) (g : ℕ → ℚ) (hg : ∀ l, l ≤ m → g l = 0) :
     ∑ l ∈ Finset.Icc 1 (m + 3), g l = g (m + 1) + g (m + 2) + g (m + 3) := by
-  have h0 : ∑ l ∈ Finset.Icc 1 m, g l = 0 :=
-    Finset.sum_eq_zero (fun l hl => hg l (Finset.mem_Icc.mp hl).2)
-  have h1 : ∑ l ∈ Finset.Icc 1 (m + 1), g l = g (m + 1) := by
-    rw [Finset.sum_Icc_succ_top (show 1 ≤ m + 1 by omega), h0, zero_add]
-  have h2 : ∑ l ∈ Finset.Icc 1 (m + 1 + 1), g l = g (m + 1) + g (m + 1 + 1) := by
-    rw [Finset.sum_Icc_succ_top (show 1 ≤ m + 1 + 1 by omega), h1]
-  have h3 : ∑ l ∈ Finset.Icc 1 (m + 1 + 1 + 1), g l =
-      g (m + 1) + g (m + 1 + 1) + g (m + 1 + 1 + 1) := by
-    rw [Finset.sum_Icc_succ_top (show 1 ≤ m + 1 + 1 + 1 by omega), h2]
-  exact h3
+  have hz : ∑ l ∈ Finset.Icc 1 m, g l = 0 :=
+    Finset.sum_eq_zero fun l hl ↦ hg l (Finset.mem_Icc.mp hl).2
+  rw [Finset.sum_Icc_succ_top (Nat.succ_pos (m + 2)),
+    Finset.sum_Icc_succ_top (Nat.succ_pos (m + 1)),
+    Finset.sum_Icc_succ_top (Nat.succ_pos m), hz, zero_add]
 
 theorem s1 (n : ℕ) : (Nat.stirlingFirst (n + 1) n : ℚ) = ((n : ℚ) + 1) * (n : ℚ) / 2 := by
   rw [Nat.stirlingFirst_succ_self_left, Nat.cast_choose_two, Nat.cast_add_one]
@@ -38,21 +33,12 @@ theorem s1 (n : ℕ) : (Nat.stirlingFirst (n + 1) n : ℚ) = ((n : ℚ) + 1) * (
 theorem s2 (n : ℕ) : (Nat.stirlingFirst (n + 2) n : ℚ) =
     ((n : ℚ) + 2) * ((n : ℚ) + 1) * (n : ℚ) * (3 * (n : ℚ) + 5) / 24 := by
   induction n with
-  | zero =>
-    rw [show Nat.stirlingFirst (0 + 2) 0 = 0 from rfl]
-    simp
+  | zero => norm_num [Nat.stirlingFirst]
   | succ k ih =>
-    have h : Nat.stirlingFirst (k + 1 + 2) (k + 1) =
-        (k + 2) * Nat.stirlingFirst (k + 2) (k + 1) + Nat.stirlingFirst (k + 2) k :=
-      Nat.stirlingFirst_succ_succ (k + 2) k
-    have h1 : (Nat.stirlingFirst (k + 2) (k + 1) : ℚ) = ((k : ℚ) + 2) * ((k : ℚ) + 1) / 2 := by
-      have h' : (Nat.stirlingFirst (k + 2) (k + 1) : ℚ) =
-          (((k + 1 : ℕ) : ℚ) + 1) * ((k + 1 : ℕ) : ℚ) / 2 := s1 (k + 1)
-      rw [h', Nat.cast_add_one]
-      ring
-    rw [h]
+    rw [Nat.stirlingFirst_succ_succ]
     push_cast
-    rw [h1, ih]
+    rw [s1, ih]
+    push_cast
     ring
 
 /-- a(m+3) as an explicit polynomial in m. -/
@@ -114,12 +100,8 @@ theorem Prec (k : ℕ) : P (k + 7) - 7 * P (k + 6) + 21 * P (k + 5) - 35 * P (k 
 
 theorem Pq (n : ℕ) (hn : 7 ≤ n) : P n - 7 * P (n - 1) + 21 * P (n - 2) - 35 * P (n - 3) +
     35 * P (n - 4) - 21 * P (n - 5) + 7 * P (n - 6) - P (n - 7) = 0 := by
-  obtain ⟨k, rfl⟩ : ∃ k, n = k + 7 := ⟨n - 7, by omega⟩
-  rw [show k + 7 - 1 = k + 6 by omega, show k + 7 - 2 = k + 5 by omega,
-    show k + 7 - 3 = k + 4 by omega, show k + 7 - 4 = k + 3 by omega,
-    show k + 7 - 5 = k + 2 by omega, show k + 7 - 6 = k + 1 by omega,
-    show k + 7 - 7 = k by omega]
-  exact Prec k
+  obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le' hn
+  simpa [Nat.add_sub_assoc] using Prec k
 
 theorem gf : PowerSeries.mk P * (1 - PowerSeries.X) ^ 7 =
     (23 : PowerSeries ℚ) + 54 * PowerSeries.X + 13 * PowerSeries.X ^ 2 := by
