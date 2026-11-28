@@ -5998,6 +5998,56 @@
     "https://oeis.org/A182614"
    ],
    "note": "Wu's recurrence (n>8) and g.f. are faithful. a(n) is sSup of {k : floor(k/phi^n) = n}, which equals floor((n+1)phi^n). This reproduces the b-file, and the recurrence and g.f. hold numerically to n=120. The proof writes phi^n via Lucas numbers, with a sign/size argument for (n+1)psi^n; elementary. Second review: Faithful and true. Since (n+1)(r^n + (-1/r)^n) = (n+1) L_n, for n >= 8 one gets a(n) = (n+1)L_n - [n even], which satisfies the order-6 recurrence with characteristic polynomial (x^2-1)(x^2-x-1)^2. Routine."
+  },
+  "OeisA100800.conjecture": {
+   "date": "2026-11-28",
+   "pr": 21453,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A100800",
+    "https://oeis.org/A101183",
+    "https://github.com/epoch-research/LeanOpenProblems-results",
+    "https://oeis.org/A100800",
+    "https://oeis.org/A101183",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/100800.lean",
+    "https://github.com/epoch-research/LeanOpenProblems-results"
+   ],
+   "note": "The formal-conjectures statement (for n != 0 the iteration of f(x) = x + digitsum(x), started at n, eventually hits a multiple of n) matches the entry's conjecture and its a(n) = 0 convention. The same conjecture is open in A101183, and all four Epoch OEIS runs on oeis_100800_conjecture_0 scored Incorrect. I found no earlier proof. The 600-line proof is a genuine digit-block construction: a mod-9 phase argument plus carefully padded blocks of 9s that steer the orbit into every residue class mod n. Substantive. Second review: Faithful to the upstream FC target and apparently new; it was in Epoch's OEIS Open set and unsolved there. Proof header says it was found by a Codex-fork harness, which is a provenance note, not prior literature."
+  },
+  "mo-142880": {
+   "date": "2026-11-28",
+   "pr": 21619,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/142880",
+    "https://mathoverflow.net/questions/142880"
+   ],
+   "note": "The question's edited form asks whether argmax_Z(B_t - d|t|) <= a * argmax_R(B_t - d|t|) + b in stochastic domination, with constants allowed to depend on d (as a 2013 comment suggests). The statement encodes exactly this with signed argmaxes, a two-sided Brownian motion built from two independent Mathlib IsBrownianReal arms, and a.s. maximizers D and T; the hypotheses are satisfiable. The question has no answers; one comment sketches that the matching tail rates of the two argmaxes should suffice. The 150 KB proof carries out the reflection and tail estimates for both tails. Substantive. Second review: Faithful to the edited MO question; the only prior input is a heuristic comment, so a rigorous proof is new. Proof establishes matching tails exp(-d^2 x/2)/(1+x)^(3/2) and takes multiplier one."
+  },
+  "mse-5079681": {
+   "date": "2026-11-28",
+   "pr": 19335,
+   "routine": false,
+   "evidence": [
+    "https://math.stackexchange.com/questions/5079681",
+    "https://mathoverflow.net/questions/497294",
+    "https://math.stackexchange.com/questions/5079681",
+    "https://mathoverflow.net/questions/497294"
+   ],
+   "note": "Ripa's Conjecture 1 (for n >= 10 the leading digit of the prime zeta value P(n) = sum_p p^-n equals that of 5^n) is stated faithfully. The MSE comments and GH from MO's accepted MO answer only show it for sufficiently large n, using the fact that log2/log5 is not Liouville; nobody had an effective all-n proof. The PR supplies one: a Beukers-Bennett Pade/integral approximation, with knots 0, 3, 128, separates 5^n from the next decimal boundary for n >= 5000, and a kernel-checked certificate covers 10 <= n < 5000. Substantive. Second review: Faithful, true, and the full n>=10 statement was not previously proved (only 'for n large' on MO). Credits to MSE/MO contributors are acknowledgements, not a prior complete proof."
+  },
+  "arxiv-1808.05576": {
+   "date": "2026-11-28",
+   "pr": 19775,
+   "routine": false,
+   "evidence": [
+    "https://arxiv.org/abs/1808.05576",
+    "https://arxiv.org/abs/2607.25188",
+    "https://arxiv.org/abs/1808.05576",
+    "https://arxiv.org/abs/2607.25188",
+    "https://github.com/mxym/math/pull/137"
+   ],
+   "note": "Keough-Shane Conjecture 1.2 (for every n-vertex G, the number of dominating sets of G plus that of its complement is at most 2(2^floor(n/2)-1)(2^ceil(n/2)-1)+2) is stated faithfully for all n, with the empty set counting as dominating only when n = 0. The paper proves only a weaker bound (verified for n <= 10), and Sanh's 2026 follow-up handles only bipartite graphs and still calls the general case open. I found no earlier proof. The 130 KB proof is a structural argument built on Seinsche's characterization of P4-free graphs. Substantive. Second review: Faithful; the site proof (Nov 28 2026) covers every n, which goes beyond the two partial results it cites (bipartite case; n>=160). It credits them openly; the proof method (induced-path/trace counting with a kernel-checked finite part) is its own, so the full result appears new, but the announcement should mention the n>=160 result from nine days earlier."
   }
  },
  "flagged": {
