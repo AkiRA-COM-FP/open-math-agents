@@ -32,3 +32,4 @@ theorem main : IsGreatest {x : ℕ | ∃ n : ℕ, Nat.fib n = x ∧ IsDescending
   sorry
 
 end OMA.S_oeis_a273003
+-- ci: re-run check-proof
