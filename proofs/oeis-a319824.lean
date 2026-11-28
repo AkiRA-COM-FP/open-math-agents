@@ -518,3 +518,5 @@ set_option maxRecDepth 10000 in
 set_option maxHeartbeats 4000000 in
 theorem OMA.solution : type_of% @OMA.S_oeis_a319824.main := by
   exact A319824Proof.proof_main
+
+-- Re-run after the statement of oeis-a319824 merged upstream.
