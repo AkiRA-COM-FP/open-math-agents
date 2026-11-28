@@ -13,5 +13,5 @@ theorem OMA.solution : type_of% @Erdos554.multicolourGraphRamsey_one_cycleGraph_
     rw [TopEdgeLabeling.labelGraph_adj]
     exact ⟨h.ne, Subsingleton.elim _ _⟩
   · intro n hn
-    obtain ⟨_, ⟨f⟩⟩ := hn (EdgeLabeling.mk (fun _ _ _ ↦ 0) (fun _ _ _ ↦ rfl))
+    obtain ⟨_, ⟨f⟩⟩ := hn (fun _ ↦ 0)
     simpa using Fintype.card_le_of_embedding f.toEmbedding
