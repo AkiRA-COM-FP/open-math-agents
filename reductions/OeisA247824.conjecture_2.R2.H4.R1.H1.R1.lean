@@ -5,6 +5,12 @@ The remaining five bounds are recorded individually. -/
 
 namespace OMA.R_OeisA247824_conjecture_2_R2_H4_R1_H1_R1
 
+private theorem count_le (n : ℕ) : Nat.primeCounting n ≤ n := by
+  rw [← Nat.primesLE_card_eq_primeCounting]
+  have sub : Nat.primesLE n ⊆ Finset.Icc 1 n := fun p hp =>
+    Finset.mem_Icc.mpr ⟨(Nat.prime_of_mem_primesLE hp).pos, Nat.le_of_mem_primesLE hp⟩
+  simpa using Finset.card_le_card sub
+
 def H1 : Prop := Nat.primeCounting 94085731 = 5439846
 
 def H2 : Prop := 30841324 ≤ Nat.primeCounting 590237761
@@ -18,12 +24,6 @@ def H4 : Prop :=
   (382482495195 ≤ Nat.primeCounting 11092009835083 ∧
     Nat.primeCounting 11092009835083 ≤ 382482495196) ∧
   Nat.primeCounting 30110134441897 ≤ 1003670521508
-
-private theorem count_le (n : ℕ) : Nat.primeCounting n ≤ n := by
-  rw [← Nat.primesLE_card_eq_primeCounting]
-  have sub : Nat.primesLE n ⊆ Finset.Icc 1 n := fun p hp =>
-    Finset.mem_Icc.mpr ⟨(Nat.prime_of_mem_primesLE hp).pos, Nat.le_of_mem_primesLE hp⟩
-  simpa using Finset.card_le_card sub
 
 theorem main : H1 → H2 → H3 → H4 → OMA.R_OeisA247824_conjecture_2_R2_H4_R1.H1 := by
   intro a b c rest k
