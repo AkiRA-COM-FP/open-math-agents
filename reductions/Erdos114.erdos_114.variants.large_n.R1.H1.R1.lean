@@ -9,22 +9,27 @@ import Mathlib.Analysis.Normed.Module.Connected
 /-! The analytic steps are Lemmas 4–6 of Eremenko and Hayman, arXiv:0805.2295.
 The translation and rotation in Tao's Proposition 1.2 are proved below.
 Connectedness follows by lifting a radial homotopy over exterior regular values,
-then using properness and openness to pass to the unit level. -/
+then using properness and openness to pass to the unit level. The existence
+of a maximizer follows by compactness after translating one root to the origin. -/
 
 namespace OMA.R_Erdos114_erdos_114_variants_large_n_R1_H1_R1
 
 open Set Topology Polynomial Metric Filter Erdos114 MeasureTheory
-open scoped unitInterval
+open scoped unitInterval ENNReal
 
--- Attainment of the maximum over monic polynomials of fixed positive degree.
+-- Continuity of Hausdorff length as the list of roots varies.
 def H1 : Prop :=
-  ∀ n : ℕ, 1 ≤ n → ∃ p : ℂ[X],
-    p.Monic ∧ p.natDegree = n ∧
-    (∀ r : ℂ[X], r.Monic → r.natDegree = n →
-      lemniscateLength r ≤ lemniscateLength p)
+  ∀ n : ℕ, 0 < n →
+    Continuous fun z : Fin n → ℂ => lemniscateLength (∏ i, (X - C (z i)))
+
+-- Length decays when a root escapes to infinity with the first root at zero.
+def H2 : Prop :=
+  ∀ (n : ℕ) (hn : 0 < n) (ε : ℝ≥0∞), 0 < ε →
+    ∃ R : ℝ, 0 ≤ R ∧ ∀ z : Fin n → ℂ, z ⟨0, hn⟩ = 0 →
+      (∃ i, R < ‖z i‖) → lemniscateLength (∏ i, (X - C (z i))) ≤ ε
 
 -- Deform an extremizer at constant length until all critical values are on the unit circle.
-def H2 : Prop :=
+def H3 : Prop :=
   ∀ p : ℂ[X], p.Monic → 1 ≤ p.natDegree →
     (∀ r : ℂ[X], r.Monic → r.natDegree = p.natDegree →
       lemniscateLength r ≤ lemniscateLength p) →
@@ -409,9 +414,84 @@ lemma normalize (p : ℂ[X]) (hp : p.Monic) (hn : 1 ≤ p.natDegree) :
     hqconn ∘ htconn, hqcrit ∘ htcrit⟩
 
 
-theorem main : H1 → H2 → OMA.R_Erdos114_erdos_114_variants_large_n_R1.H1 := by
-  intro hExist hDeform n hn
-  obtain ⟨p, hp, hpdeg, hpmax⟩ := hExist n hn
+private lemma roots_as_vector {p : ℂ[X]} (hp : p.Monic) {n : ℕ} (hd : p.natDegree = n) :
+    ∃ z : Fin n → ℂ, p = ∏ i, (X - C (z i)) := by
+  have hs : p.Splits := IsAlgClosed.splits p
+  obtain ⟨l, hl⟩ := Quotient.exists_rep p.roots
+  have hl' : (l : Multiset ℂ) = p.roots := hl
+  have hlen : l.length = n := by
+    rw [← hd, hs.natDegree_eq_card_roots, ← hl', Multiset.coe_card]
+  let e : Fin n ≃ Fin l.length := finCongr hlen.symm
+  refine ⟨fun i => l.get (e i), ?_⟩
+  calc
+    p = ∏ i : Fin l.length, (X - C (l.get i)) := by
+      rw [hs.eq_prod_roots_of_monic hp, ← hl', Multiset.map_coe, Multiset.prod_coe,
+        ← List.prod_ofFn]
+      congr 1
+      conv_lhs => rw [← List.ofFn_get l, List.map_ofFn]
+      rfl
+    _ = ∏ i : Fin n, (X - C (l.get (e i))) := (e.prod_comp _).symm
+
+private lemma shift_roots {n : ℕ} (z : Fin n → ℂ) (b : ℂ) :
+    (∏ i, (X - C (z i))).taylor b = ∏ i, (X - C (z i - b)) := by
+  rw [taylor_apply, prod_comp]
+  apply Finset.prod_congr rfl
+  intro i _
+  simp only [sub_comp, X_comp, C_comp, map_sub]
+  ring
+
+theorem exists_maximizer {n : ℕ} (hn : 0 < n)
+    (hCont : Continuous fun z : Fin n → ℂ => lemniscateLength (∏ i, (X - C (z i))))
+    (hDecay : ∀ ε : ℝ≥0∞, 0 < ε → ∃ R : ℝ, 0 ≤ R ∧ ∀ z : Fin n → ℂ,
+      z ⟨0, hn⟩ = 0 → (∃ i, R < ‖z i‖) →
+      lemniscateLength (∏ i, (X - C (z i))) ≤ ε) :
+    ∃ p : ℂ[X], p.Monic ∧ p.natDegree = n ∧
+      ∀ q : ℂ[X], q.Monic → q.natDegree = n → lemniscateLength q ≤ lemniscateLength p := by
+  let j : Fin n := ⟨0, hn⟩
+  let P (z : Fin n → ℂ) : ℂ[X] := ∏ i, (X - C (z i))
+  let L (z : Fin n → ℂ) := lemniscateLength (P z)
+  have hmonic (z : Fin n → ℂ) : (P z).Monic :=
+    monic_prod_of_monic _ _ (fun _ _ => monic_X_sub_C _)
+  have hdegree (z : Fin n → ℂ) : (P z).natDegree = n := by
+    unfold P
+    rw [natDegree_prod_of_monic _ _ (fun _ _ => monic_X_sub_C _)]
+    simp
+  have hsurj (p : ℂ[X]) (hp : p.Monic) (hd : p.natDegree = n) :
+      ∃ w : Fin n → ℂ, w j = 0 ∧ L w = lemniscateLength p := by
+    obtain ⟨z, rfl⟩ := roots_as_vector hp hd
+    refine ⟨fun i => z i - z j, sub_self _, ?_⟩
+    dsimp only [L, P]
+    rw [← shift_roots]
+    exact (taylor_geometry _ _).1
+  suffices h : ∃ z, ∀ w : Fin n → ℂ, w j = 0 → L w ≤ L z by
+    obtain ⟨z, hz⟩ := h
+    refine ⟨P z, hmonic z, hdegree z, ?_⟩
+    intro p hp hd
+    obtain ⟨w, hw, hwL⟩ := hsurj p hp hd
+    rw [← hwL]
+    exact hz w hw
+  by_cases hpos : ∃ z : Fin n → ℂ, z j = 0 ∧ 0 < L z
+  · obtain ⟨z, hz, hzpos⟩ := hpos
+    obtain ⟨R, hR, hbound⟩ := hDecay (L z) hzpos
+    let K := (Set.pi univ fun _ : Fin n => closedBall (0 : ℂ) R) ∪ {z}
+    have hK : IsCompact K :=
+      (isCompact_univ_pi fun _ : Fin n => isCompact_closedBall (0 : ℂ) R).union isCompact_singleton
+    have hzK : z ∈ K := Or.inr rfl
+    obtain ⟨a, ha, hmax⟩ := hK.exists_isMaxOn ⟨z, hzK⟩ hCont.continuousOn
+    refine ⟨a, fun w hw => ?_⟩
+    by_cases hwK : w ∈ K
+    · exact hmax hwK
+    · refine (hbound w hw ?_).trans (hmax hzK)
+      by_contra! h
+      exact hwK (Or.inl fun i _ => by simpa [dist_zero_right] using h i)
+  · refine ⟨fun _ => 0, fun w hw => ?_⟩
+    have hz : ¬ 0 < L w := fun h => hpos ⟨w, hw, h⟩
+    exact (le_of_not_gt hz).trans bot_le
+
+
+theorem main : H1 → H2 → H3 → OMA.R_Erdos114_erdos_114_variants_large_n_R1.H1 := by
+  intro hContinuous hDecay hDeform n hn
+  obtain ⟨p, hp, hpdeg, hpmax⟩ := exists_maximizer hn (hContinuous n hn) (hDecay n hn)
   obtain ⟨q, hq, hqdeg, hqlen, hqcrit⟩ :=
     hDeform p hp (hpdeg.symm ▸ hn) (fun r hr hd => hpmax r hr (hd.trans hpdeg))
   have hqn : q.natDegree = n := hqdeg.trans hpdeg
