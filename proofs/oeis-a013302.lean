@@ -7,6 +7,20 @@ the sequence, from which both recurrences follow. -/
 namespace OMA.S_oeis_a013302
 open PowerSeries
 
+/-- The analytic expression naming A013302 equals its algebraic generating
+function throughout the real interval of convergence about zero. -/
+lemma generating_function_identity {x : ℝ} (hx : x ∈ Set.Ioo (-1) 1) :
+    Real.cosh (Real.log (1+x) - Real.artanh x) =
+      (2-x^2) / (2*Real.sqrt (1-x^2)) := by
+  have hp : 0 < 1+x := by linarith [hx.1]
+  have hm : 0 < 1-x := by linarith [hx.2]
+  have hs : 0 < Real.sqrt (1-x^2) := Real.sqrt_pos.mpr (by nlinarith [mul_pos hp hm])
+  rw [Real.cosh_sub, Real.cosh_artanh hx, Real.sinh_artanh hx, Real.cosh_eq,
+    Real.sinh_eq, Real.exp_neg, Real.exp_log hp]
+  field_simp
+  ring
+
+
 private def oddProduct (n : ℕ) : ℚ := Nat.doubleFactorial (2*n-1)
 
 private lemma odd_succ (n : ℕ) : oddProduct (n+1) = (2*n+1) * oddProduct n := by
