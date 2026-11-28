@@ -17,7 +17,7 @@ def Admissible (n : ℕ) (A : ℕ → Sq n) : Prop :=
   (∀ i, (A i).rank = 1) ∧
     ∀ s : Finset ℕ, s.card = n → IsUnit (∑ i ∈ s, A i).det
 
-theorem main (n : ℕ) (hn : 0 < n) :
+theorem main : ∀ n : ℕ, 0 < n →
     IsLeast {d : ℕ | ∃ A : ℕ → Sq n, Admissible n A ∧
       Module.finrank ℂ (Submodule.span ℂ (Set.range A)) = d} (2 * n - 1) := by
   sorry
