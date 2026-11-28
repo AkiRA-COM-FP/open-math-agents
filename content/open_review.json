@@ -16131,6 +16131,30 @@
     "https://oeis.org/A123167"
    ],
    "reason": "Hurt's conjecture is that (2n-1)*2^(n mod 2) is the numerator of 4/n-2/n^2=2(2n-1)/n^2, which is the one-line gcd fact gcd(2(2n-1),n^2)=gcd(2,n^2) (46-line proof). Faithful but trivial; also equivalent to Kimberling's 2025 comment in the entry."
+  },
+  "oeis-a368749": {
+   "date": "2026-11-28",
+   "pr": 24602,
+   "evidence": [
+    "https://oeis.org/A368749"
+   ],
+   "reason": "The entry's conjecture is that the sequence is infinite, i.e. for every n some pair of consecutive primes has exactly n non-prime-powers between them. That is a Polignac-type question and is open. The formal statement only asks for consecutive primes with at least 'bound' non-prime-powers between them, the parenthetical 'arbitrarily large' gloss. That weaker version is a trivial consequence of the factorial gap construction, and the proof uses M^2 + j with j | M, M = (bound+2)!. So the solved statement is the weakened gloss, not the literal conjecture."
+  },
+  "oeis-a377014": {
+   "date": "2026-11-28",
+   "pr": 25329,
+   "evidence": [
+    "https://oeis.org/A377014"
+   ],
+   "reason": "This is a disproof by the single value a(79) = 0, while 79 is missing from the conjectured zero list {1..6,19,31,331,499}. The entry's own data already show a(79) = 0 (position 79 of the DATA line), and my computation to n < 3000 gives zeros exactly at {1,...,6,19,31,79,331,499}. So the disproof exploits an evident omission in the transcribed list, not a real counterexample to Zhou's intended conjecture (which would be the list with 79 added)."
+  },
+  "oeis-a377119": {
+   "date": "2026-11-28",
+   "pr": 10381,
+   "evidence": [
+    "https://oeis.org/A377119"
+   ],
+   "reason": "The disproof refutes only the listed 'period' for p = 2: gap 2 0 = 3, not 2. Those listed periods cannot belong to this sequence, since a(n) = 6a(n-2) + 6a(n-3) is divisible by 6 for every n >= 3 (data 6, 12, 42, ...), so the index sets for 2 and 3 are {0,3,4,5,...}. The comment block looks copied from a sibling entry. The substantive general conjecture (every p divides infinitely many terms, with eventually periodic gaps) is untouched and in fact easy: for p > 3 the recurrence is invertible mod p, so a(n) mod p is purely periodic with a(0) = 0. The 'disproof' exploits a transcription error."
   }
  },
  "known": {
@@ -30946,6 +30970,195 @@
     "https://isitsolved.com/journal/0f6811814620"
    ],
    "reason": "Etienne's closed form was proved in the trureturing library (sorry-free EtiennePrefixCount.lean, added 2026-11-13, with Problems/oeis-a183409-etienne-prefix-count.md using the same lexicographic row/column reading). iis:2611.00258 (07:43 UTC 2026-11-28) also lists it. Both predate the site proof commit (2026-11-28 12:05 UTC)."
+  },
+  "oeis-a361552": {
+   "date": "2026-11-28",
+   "pr": 24587,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Recurrence/Bilateral/HannaPentagonalPartitionParity.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a361552-literal-partition-parity.md",
+    "https://oeis.org/A361552",
+    "https://oeis.org/A359914"
+   ],
+   "reason": "Conjecture 1 (a(n) even and a(n)/2 = p(n-1) mod 2) is proved sorry-free in trureturing's HannaPentagonalPartitionParity.lean, committed 2026-10-14, six weeks before the site proof (2026-11-28). That file leaves out conjecture 2 (a(n) = A359914(n-1) mod 4). On this site the same congruence is part of oeis-a359914, whose proof was merged 39 seconds before this one, with the same mod-4 method. The statement matches the entry (the bilateral sum is split faithfully)."
+  },
+  "oeis-a363228": {
+   "date": "2026-11-28",
+   "pr": 23881,
+   "evidence": [
+    "https://oeis.org/A363228",
+    "https://oeis.org/A090739",
+    "https://www.fq.math.ca/Scanned/33-3/lengyel.pdf"
+   ],
+   "reason": "Mathar's conjecture is an immediate corollary of Lengyel's classical 2-adic valuation of Fibonacci numbers (Fibonacci Quart. 33 (1995)): v2(F_m) = 0 if 3 does not divide m, 1 if m = 3 (mod 6), and v2(m)+2 if 6 divides m. So v4(F_m) = 0 unless 6 | m, and v4(F_6n) = floor((v2(n)+3)/2). Sister entry A090739 gives v2(9^n-1) = v2(n)+3, which yields the same value. The statement is faithful, and the Lean proof re-derives these valuations."
+  },
+  "oeis-a364506": {
+   "date": "2026-11-28",
+   "pr": 24064,
+   "evidence": [
+    "https://zenodo.org/records/23426707",
+    "https://github.com/rbajaj5/a183068-supercongruence/blob/main/related-results/BinomialQuotientCancellation.md",
+    "https://oeis.org/A364506"
+   ],
+   "reason": "Roberto Blanco Gómez, Zenodo 23426707 (2026-10-17), says explicitly that for integer arguments the supercongruences follow from the Jacobsthal-Kazandzidis congruence and that 'this settles ... the conjecture in A364506'. rbajaj5/a183068-supercongruence (committed by 2026-10-15) gives the same reduction, T_h(n) = C(2n,n)C(2hn,hn)C((2h+1)n,hn)/C((h+1)n,hn). The site proof follows this Jacobsthal route. The statement is faithful."
+  },
+  "oeis-a364555": {
+   "date": "2026-11-28",
+   "pr": 22914,
+   "evidence": [
+    "https://oeis.org/A364555",
+    "https://oeis.org/A364554",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/statements/oeis-a364554.lean"
+   ],
+   "reason": "This is a direct corollary of the site's earlier solve oeis-a364554 (proof merged 2026-11-27 16:51 UTC, before this proof at 2026-11-28 07:47 UTC). That solve proves triangularPrimes n = divisorPrimes n with the same four divisor equations, and A364555 is the set of m for which that set is empty. The equivalence is also elementary: k(k+1) = 2mp, so p divides k or k+1. The statement is faithful."
+  },
+  "oeis-a366058": {
+   "date": "2026-11-28",
+   "pr": 21979,
+   "evidence": [
+    "https://oeis.org/A366058",
+    "https://oeis.org/A371064"
+   ],
+   "reason": "The formula a(n) = 6(4*3^(n-1) - 4*2^(n-1) + 1) = 8*3^n - 12*2^n + 6 is already proved in the entry. Shel Kaphan's comment (Mar 10 2024) gives the inclusion-exclusion argument over octants, edges and vertices of the octahedron, and his formula line and A371064 state the general cross-polytope count. The Lean statement is faithful: squared Euclidean distance changes by an odd amount at each lattice step, so 'not closer' means strictly farther, which is the L1-increasing walks in the comment."
+  },
+  "oeis-a367396": {
+   "date": "2026-11-28",
+   "pr": 26101,
+   "evidence": [
+    "https://oeis.org/A367400",
+    "https://github.com/jewoo-suh/oeis-lean/tree/1b2f715df2642944650976bdbfbf7a9adf76e290",
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S3/Combinatorics/CardinalitySumAvoidingSubsets.lean"
+   ],
+   "reason": "The complementary entry A367400 already carries Jewoo Suh's proof (OEIS formula, Oct 15 2026) of Wu's recurrence and g.f., together with a(n) = 2^n - A367396(n). A367396's recurrence and g.f. follow at once. The site proof header itself cites these prior formalizations (jewoo-suh/oeis-lean and trureturing's A367400). The statement is faithful."
+  },
+  "oeis-a368626": {
+   "date": "2026-11-28",
+   "pr": 21971,
+   "evidence": [
+    "https://zenodo.org/records/23760779",
+    "https://oeis.org/A368626"
+   ],
+   "reason": "Lien-Hung Su, 'Parity and Asymptotic Laws for Implicit and Reflected Integer Sequences', Zenodo 23760779 (2026-10-29), Corollary 4.2: for A368626 (d = 3) the odd coefficients are exactly at n = 2^k - 1. That proof uses Frobenius factorization of the even/odd projections. The site statement (the equation times 2, existence plus parity for every solution) is faithful."
+  },
+  "oeis-a368629": {
+   "date": "2026-11-28",
+   "pr": 21989,
+   "evidence": [
+    "https://zenodo.org/records/23760779",
+    "https://oeis.org/A368629"
+   ],
+   "reason": "Lien-Hung Su, Zenodo 23760779 (2026-10-29), Theorem 4.3: for every even d the swapped projection family has odd coefficients exactly at n = 2^k - 1, 'in particular this proves the OEIS parity assertion for A368629 (d = 4)'. The site statement is faithful."
+  },
+  "oeis-a370159": {
+   "date": "2026-11-28",
+   "pr": 15822,
+   "evidence": [
+    "https://zenodo.org/records/23430779",
+    "https://oeis.org/A370159"
+   ],
+   "reason": "Roberto Blanco Gómez, 'Exponential transforms and supercongruences ...', Zenodo 23430779 (2026-10-17): 'Theorem A proves the supercongruences modulo p^(2r) conjectured in: A350406, A350383, A386548, A370159 and A228960'. That is Bala's Oct 2026 conjecture here, six weeks before the site proof (2026-11-27). The statement is faithful (all p >= 5, n, r >= 1)."
+  },
+  "oeis-a372547": {
+   "date": "2026-11-28",
+   "pr": 26201,
+   "evidence": [
+    "https://oeis.org/A372547",
+    "https://doi.org/10.1016/j.jnt.2012.08.020"
+   ],
+   "reason": "Both clauses follow at once from the known fact that 6m is Zumkeller when gcd(m,6) = 1. That fact is a case of Peng and Bhaskara Rao (J. Number Theory 133 (2013)): Zumkeller n times a coprime m is Zumkeller. The entry's own comment already uses it for 2*3*1x1. With it, 66...6 (k = 1 mod 3 digits) gives infinitely many repdigit terms unconditionally, and the repunit-prime clause is immediate. The statement is faithful, but the 'conjecture' is essentially settled by the comment's argument."
+  },
+  "oeis-a374891": {
+   "date": "2026-11-28",
+   "pr": 24959,
+   "evidence": [
+    "https://oeis.org/A244174",
+    "https://oeis.org/A323230",
+    "https://oeis.org/A374891"
+   ],
+   "reason": "Both conjectured identities are immediate from the definitions and from formulas already in sister entries. The obverse product gives a(n+1) = a(n)*(1 + C(2n+2,n+1)), and A323230(n+2) = C(2n+2,n+1) + 1 by definition. A244174 already states 'For n > 0, a(n) = 1 + C(2n,n)' (Kotesovec 2014; Heinz's g.f. 1/sqrt(1-4x) + x/(1-x)). The site proof re-derives that count (all parts are 1, 2, 3, so N threes or N ones and N twos). The statement is faithful."
+  },
+  "oeis-a377824": {
+   "date": "2026-11-28",
+   "pr": 22565,
+   "evidence": [
+    "https://github.com/blakestone-x/math/blob/main/A377824/README.md",
+    "https://github.com/blakestone-x/math/blob/main/A377824Formal/README.md"
+   ],
+   "reason": "Blake Stone's blakestone-x/math has a manuscript proof of Kotesovec's a(n) ~ n^2 2^(n-5), with error O(n^2 phi^n). It also has a complete Lean formalization (A377824Formal) with the same main term (n+1)(n+6)2^n/32, both dated November 26, 2026. The site proof (2026-11-28 07:24 UTC) uses the same S_n = (n+1)(n+6)2^n/32 main term plus an exponential error bound. The statement (recursive compositions, positions of minimal parts, IsEquivalent to n^2 2^n/32) is faithful."
+  },
+  "oeis-a379379": {
+   "date": "2026-11-28",
+   "pr": 27015,
+   "evidence": [
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/statements/oeis-a389591.lean",
+    "https://oeis.org/A389591",
+    "https://oeis.org/A383147"
+   ],
+   "reason": "Of Pol's four formulas: (4) a(n) = sigma(n) - A389591(n) is exactly the site's earlier solve oeis-a389591 (proof 2026-11-28 03:46 UTC, before this one at 06:32 UTC). (2), divisors exceeding twice the previous divisor, is the complement form of that same identity. (1), heads of the 2-dense blocks, is the same set restated. (3), A000593 - A383147, holds by the definition of A383147. The definitions are faithful, but nothing beyond the earlier site solve and definitional rewrites is new."
+  },
+  "oeis-a380711": {
+   "date": "2026-11-28",
+   "pr": 25165,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Recurrence/Algebraic/HannaAbsoluteCubicCongruence.lean",
+    "https://oeis.org/A380711"
+   ],
+   "reason": "Hanna's first conjecture, a(n) = C(3n-1,n)/(3n-1) mod 2 for all n >= 0 (same n = 0 convention, value -1), is proved sorry-free in trureturing's HannaAbsoluteCubicCongruence.lean (first committed 2026-10-22), with the existence of the g.f. The second conjecture (odd iff n = 2*fibbinary + 1) is stated in the entry as equivalent to the first. The site proof re-proves both from the mod-2 functional equation, and the statement is faithful."
+  },
+  "oeis-a382605": {
+   "date": "2026-11-28",
+   "pr": 10617,
+   "evidence": [
+    "https://cs.nyu.edu/~gottlieb/tr/back-issues/2000s/2004/2-may-tr.pdf",
+    "https://cs.nyu.edu/~gottlieb/tr/back-issues/2000s/2003/5-dec.pdf",
+    "https://oeis.org/A382605"
+   ],
+   "reason": "The entry's own link, Gottlieb's Puzzle Corner (Technology Review, Dec 2003, problem DEC 2), poses this chain-folding question. The May 2004 issue prints Kenneth Graves's solution: a split exists exactly when n = 0 or 3 (mod 4), with explicit chains. The site's 'folds' (a contiguous arc of half the total) matches the data, and A154708 is just the n = 0, 3 (mod 4) numbers. I checked both equivalences for n < 400."
+  },
+  "oeis-a383456": {
+   "date": "2026-11-28",
+   "pr": 25930,
+   "evidence": [
+    "https://oeis.org/A383453",
+    "https://oeis.org/A383456"
+   ],
+   "reason": "The statement builds column 1 of the Bi-Tri Geode from (x+y)G = S-1, i.e. G(n,1) = S(n+1,1) - S(n+2,0), and the proof is a two-term factorial simplification. The parent entry A383453 already gives the closed form for every entry, (2m2+3m3+3)!/((2m2+2m3+3)(m2+m3+1)(m2+2m3+2)! m2! m3!). With m3 = 1 that is exactly 2*C(2n+4,n)(n+3)/(n+2). So the claim is immediate from the parent table's formula, and it is close to definitional."
+  },
+  "oeis-a386831": {
+   "date": "2026-11-28",
+   "pr": 27232,
+   "evidence": [
+    "https://zenodo.org/records/24407268",
+    "https://oeis.org/A386831"
+   ],
+   "reason": "Ma and Zhang, 'OEIS A386829, FORMULA 5 ...: Mathar's recurrence and an algebraic family', Zenodo 24407268 (2026-11-20). They state that their two-weight algebraic family 'proves the displayed recurrence conjectures in A386830 for n>=2 and A386831 for n>=4'. The site statement is exactly Mathar's Nov 2 2026 recurrence for n >= 4; I checked the expanded coefficients against the OEIS factored form. The site proof is dated 2026-11-28."
+  },
+  "oeis-a374568": {
+   "date": "2026-11-28",
+   "pr": 24224,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Recurrence/Invariants/CatalanDoubleCompositionPowersOfFour.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a374568-catalan-double-composition-powers-of-four.md"
+   ],
+   "reason": "Hanna's conjecture (a(n) odd iff n = 4^k) is proved sorry-free in trureturing's CatalanDoubleCompositionPowersOfFour.lean (first committed 2026-09-09). That file has the same functional equation x = A(x-x^2) - A(x+x^2)^2, uniqueness, and hanna_conjecture for n >= 1. The site statement differs only by also covering n = 0, where both sides are false. The site proof (2026-11-28) uses the same mod-2 Catalan-composition route."
+  },
+  "oeis-a374570": {
+   "date": "2026-11-28",
+   "pr": 24166,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Recurrence/Invariants/CatalanCompositionSquareParity.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a374570-catalan-composition-square-parity.md"
+   ],
+   "reason": "trureturing's CatalanCompositionSquareParity.lean (first committed 2026-09-09, sorry-free) proves A(x)^2 = A(A(x)C(x)) with uniqueness and 'hanna_conjecture: for n > 1, Odd (a n) iff n = 2^k + 1'. That is exactly the site statement, which is faithful (A(0) = 0, A'(0) = 1, C the shifted Catalan series)."
+  },
+  "oeis-a382319": {
+   "date": "2026-11-28",
+   "pr": 27357,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Recurrence/Invariants/HannaLambertCubeModThreeConverse.lean",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/statements/oeis-a382318.lean"
+   ],
+   "reason": "a(n) = A382318(3n) mod 3 is proved in trureturing's HannaLambertCubeModThreeConverse.lean (2026-10-19, sorry-free), with A382318 = x + (Lambert sum of A382319)^3. It is also the first clause of the site's earlier oeis-a382318 solve (proof 2026-11-28 02:31 -0500, by the same solver, with the same Frobenius idea), merged before this proof (06:05 -0500). The statement is faithful but adds nothing: one Frobenius step, P^3 = expand_3 P over ZMod 3."
   }
  },
  "reviewed": "2026-11-28"
