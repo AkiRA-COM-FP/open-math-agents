@@ -1,5 +1,10 @@
 import FormalConjectures.ErdosProblems.«500»
 
+/-! Inclusion-exclusion formula for the finite tetrahedron extremal count. -/
+
+-- Original proof by @richardsondx (PR #12914), streamlined by @dmae97
+-- (pending PR #26167). Supremum and subset-cardinality witnesses now use Mathlib.
+
 namespace K4Count
 
 abbrev Edge (n : ℕ) := Finset (Fin n)
@@ -26,14 +31,8 @@ lemma card_sizes_eq_sup {α : Type*} [DecidableEq α] (s : Finset (Finset α)) (
     ext q; simp only [Finset.mem_filter, Finset.mem_Icc]; constructor
     · rintro ⟨⟨h1, _⟩, H, hH, rfl⟩; exact ⟨h1, Finset.le_sup hH⟩
     · rintro ⟨h1, hqsup⟩
-      have ⟨H, hH, hqH⟩ : ∃ H ∈ s, q ≤ H.card := by
-        by_contra hn
-        have : s.sup Finset.card ≤ q - 1 := Finset.sup_le fun H hH => by
-          have := Nat.lt_of_not_ge (fun hh => hn ⟨H, hH, hh⟩); omega
-        omega
-      obtain ⟨D, hD⟩ := Finset.card_pos.mp
-        (by rw [Finset.card_powersetCard]; exact Nat.choose_pos hqH)
-      obtain ⟨hDH, hDq⟩ := Finset.mem_powersetCard.mp hD
+      obtain ⟨H, hH, hqH⟩ := (Finset.le_sup_iff h1).mp hqsup
+      obtain ⟨D, hDH, hDq⟩ := Finset.exists_subset_card_eq hqH
       exact ⟨⟨h1, hDq ▸ (Finset.card_mono hDH).trans (hB H hH)⟩, D, hdown H hH D hDH, hDq⟩
   rw [hset, Nat.card_Icc]; omega
 
@@ -82,8 +81,9 @@ theorem value_eq_extremal (n : ℕ) : value n = Hypergraph.cliqueExtremalNumber 
     simp [safe, blocks, Finset.ContainsCompleteHypergraph]
   have hpos (q : ℕ) : 0 < ieCount n q ↔ ∃ H ∈ s, H.card = q := by
     rw [ieCount_eq]; simp only [Int.natCast_pos, Finset.card_pos, Finset.Nonempty,
-      Finset.mem_filter, Finset.mem_powersetCard, Finset.mem_powerset, s, hs_safe]
-    exact ⟨fun ⟨H, ⟨h1, h2⟩, h3⟩ => ⟨H, ⟨h1, h3⟩, h2⟩, fun ⟨H, ⟨h1, h3⟩, h2⟩ => ⟨H, ⟨h1, h2⟩, h3⟩⟩
+      Finset.mem_filter, Finset.mem_powersetCard, Finset.mem_powerset, s, hs_safe,
+      and_assoc, and_comm]
+
   have hset : ((Finset.Icc 1 (triples n).card).filter fun q => 0 < ieCount n q) =
       (Finset.Icc 1 (triples n).card).filter fun q => ∃ H ∈ s, H.card = q := by
     ext q; simp [hpos]
