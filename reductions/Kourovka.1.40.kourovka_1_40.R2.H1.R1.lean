@@ -1,12 +1,14 @@
 import OMAReductions.R_Kourovka_1_40_kourovka_1_40_R2
 
 /-!
-# Kourovka 1.40 for nilpotent intersections, and the three-generator residue
+# Kourovka 1.40 for locally nilpotent intersections and a three-generator reduction
 
 Credit: @witeg4. The homomorphism lemma for Engel commutators comes from the parent reduction.
 The two factors act by commuting conjugations on each lower central layer of their intersection.
 An elementwise binomial argument proves termination on each layer. Any remaining counterexample
 can be tested on three generators, with the initial test element belonging to both factors.
+An Engel generator lift across a cyclic quotient preserves finite generation of the kernel.
+Applied twice, this makes both factors and their intersection finitely generated in the test group.
 -/
 
 open Kourovka.«1.40» Subgroup OMA.R_Kourovka_1_40_kourovka_1_40_R2
@@ -246,25 +248,179 @@ theorem nilpotent_intersection (H K : Subgroup G) [H.Normal] [K.Normal]
 
 end OMA.EngelIntersection
 
+namespace OMA.EngelOrbit
+open Subgroup Kourovka.«1.40»
+open scoped commutatorElement
+variable {G : Type*} [Group G]
+
+private theorem cyclic_fg (x : G) : (zpowers x).FG := by
+  classical
+  exact ⟨{x},by simp [zpowers_eq_closure]⟩
+
+/-- The conjugates of one element by all integral powers of an Engel element lie
+in a finitely generated invariant subgroup of the chosen normal subgroup. -/
+theorem one_orbit (N : Subgroup G) [N.Normal] (t : G) {x : G} (hx : x ∈ N) (n : ℕ)
+    (hn : engelCommutator x t n = 1) :
+    ∃ B : Subgroup G, B.FG ∧ B ≤ N ∧ x ∈ B ∧ B.map (MulAut.conj t) = B := by
+  induction n generalizing x with
+  | zero =>
+    change x=1 at hn
+    exact ⟨⊥,Subgroup.FG.bot,bot_le,by simp [hn],by simp⟩
+  | succ n ih =>
+    let w := ⁅x,t⁆
+    have hw : w ∈ N := commutator_le_left N (⊤ : Subgroup G)
+      (commutator_mem_commutator hx (mem_top t))
+    have hn' : engelCommutator w t n = 1 := by
+      change engelCommutator (engelCommutator x t 1) t n = 1
+      rw [← OMA.MixedEngel.iterate_add x t 1 n, Nat.add_comm]; exact hn
+    obtain ⟨B,hB,hBN,hwB,hinv⟩ := ih hw hn'
+    let c := (MulAut.conj t).toMonoidHom
+    change B.map c = B at hinv
+    let D := zpowers x ⊔ B
+    have hxD : x ∈ D := mem_sup_left (mem_zpowers x)
+    have hwD : w ∈ D := mem_sup_right hwB
+    have iden : w * c x = x := by
+      change ⁅x,t⁆ * (t*x*t⁻¹) = x
+      simp [commutatorElement_def,mul_assoc]
+    have hcD : c x ∈ D := by
+      rw [(eq_inv_mul_iff_mul_eq).mpr iden]
+      exact D.mul_mem (D.inv_mem hwD) hxD
+    have hBm : B ≤ D.map c := by
+      calc B = B.map c := hinv.symm
+           _ ≤ D.map c := map_mono (show B ≤ D from le_sup_right)
+    refine ⟨D,(cyclic_fg x).sup hB,sup_le (zpowers_le.mpr hx) hBN,hxD,le_antisymm ?_ ?_⟩
+    · change (zpowers x ⊔ B).map c ≤ D
+      rw [Subgroup.map_sup,MonoidHom.map_zpowers,hinv]
+      exact sup_le (zpowers_le.mpr hcD) le_sup_right
+    · apply sup_le _ hBm
+      apply zpowers_le.mpr
+      rw [← iden]
+      exact (D.map c).mul_mem (hBm hwB) ⟨x,hxD,rfl⟩
+
+
+/-- Finitely generated groups with cyclic quotient and an Engel generator lift have
+finitely generated kernel, even when that quotient is infinite. -/
+theorem cyclic_kernel_fg [Group.FG G] (N : Subgroup G) [N.Normal] (t : G)
+    (ht : IsEngelElement t) (hgen : N ⊔ zpowers t = ⊤) : N.FG := by
+  classical
+  obtain ⟨s,hs⟩ := (Group.FG.out : (⊤ : Subgroup G).FG)
+  have rep (j : s) : ∃ w ∈ N, ∃ p ∈ zpowers t, w*p = j.val :=
+    mem_sup_of_normal_left.mp (by rw [hgen]; exact mem_top _)
+  choose w hw p hp he using rep
+  have orbit (j : s) : ∃ B : Subgroup G, B.FG ∧ B ≤ N ∧ w j ∈ B ∧ B.map (MulAut.conj t) = B := by
+    obtain ⟨n,hn⟩ := ht (w j)
+    exact one_orbit N t (hw j) n hn
+  choose C fg sub mem stab using orbit
+  let B := ⨆ i, C i
+  have hBN : B ≤ N := iSup_le sub
+  have hBfg : B.FG := Subgroup.FG.iSup _ fg
+  have full : B ⊔ zpowers t = ⊤ := by
+    apply top_unique
+    rw [← hs, closure_le]
+    intro x hx
+    let j : s := ⟨x,hx⟩
+    change j.val ∈ B ⊔ zpowers t
+    rw [← he j]
+    exact mul_mem_sup (le_iSup C j (mem j)) (hp j)
+  have normaliz : t ∈ normalizer (B : Set G) := by
+    apply mem_normalizer_iff_map_conj_eq.mpr
+    change (⨆ i,C i).map _ = ⨆ i,C i
+    rw [Subgroup.map_iSup]
+    simp_rw [stab]
+  let : B.Normal := normalizer_eq_top_iff.mp (by
+    apply top_unique
+    rw [← full]
+    exact sup_le B.le_normalizer (zpowers_le.mpr normaliz))
+  let V := N ⊓ zpowers t
+  obtain ⟨d,hd⟩ := (le_zpowers_iff t V).mp inf_le_right
+  have split : N = B ⊔ V := by
+    apply le_antisymm _ (sup_le hBN inf_le_left)
+    intro x hx
+    obtain ⟨u,hu,v,hv,rfl⟩ := mem_sup_of_normal_left.mp
+      (show x ∈ B ⊔ zpowers t by rw [full]; exact mem_top _)
+    exact mul_mem_sup hu ⟨(N.mul_mem_cancel_left (hBN hu)).mp hx,hv⟩
+  rw [split,hd]
+  exact hBfg.sup (cyclic_fg _)
+
+end OMA.EngelOrbit
+namespace OMA.EngelOrbit
+open Kourovka.«1.40» Subgroup
+variable {G : Type*} [Group G]
+
+/-- In the three-generator test, both factors and their intersection are finitely generated. -/
+theorem three_fg (H K : Subgroup G) [H.Normal] [K.Normal] (eH : IsEngelGroup H)
+    (eK : IsEngelGroup K) {h k z : G} (hh : h ∈ H) (hk : k ∈ K) (hz : z ∈ H ⊓ K)
+    (hg : closure ({h,k,z} : Set G) = ⊤) : H.FG ∧ K.FG ∧ (H ⊓ K : Subgroup G).FG := by
+  classical
+  let : Group.FG G := Group.fg_iff.mpr ⟨_,hg,by simp⟩
+  have fullH : H ⊔ zpowers k = ⊤ := by
+    apply top_unique
+    rw [← hg,closure_le]
+    intro x hx
+    rcases (show x=h ∨ x=k ∨ x=z from hx) with rfl|rfl|rfl
+    · exact mem_sup_left hh
+    · exact mem_sup_right (mem_zpowers _)
+    · exact mem_sup_left hz.1
+  have fullK : K ⊔ zpowers h = ⊤ := by
+    apply top_unique
+    rw [← hg,closure_le]
+    intro x hx
+    rcases (show x=h ∨ x=k ∨ x=z from hx) with rfl|rfl|rfl
+    · exact mem_sup_right (mem_zpowers _)
+    · exact mem_sup_left hk
+    · exact mem_sup_left hz.2
+  have fgH := cyclic_kernel_fg H k (OMA.MixedEngel.ambient_engel K eK hk) fullH
+  have fgK := cyclic_kernel_fg K h (OMA.MixedEngel.ambient_engel H eH hh) fullK
+  refine ⟨fgH,fgK,?_⟩
+  let : Group.FG H := (Group.fg_iff_subgroup_fg H).mpr fgH
+  let u : H := ⟨h,hh⟩
+  let J := K.comap H.subtype
+  have full : J ⊔ zpowers u = ⊤ := by
+    apply top_unique
+    intro a _
+    obtain ⟨v,hv,p,hp,he⟩ := mem_sup_of_normal_left.mp
+      (show (a:G) ∈ K ⊔ zpowers h by rw [fullK]; exact mem_top _)
+    obtain ⟨j,rfl⟩ := mem_zpowers_iff.mp hp
+    have hvH : v ∈ H := by
+      apply (H.mul_mem_cancel_right (H.zpow_mem hh j)).mp
+      rw [he]
+      exact a.property
+    have eqH : (⟨v,hvH⟩ : H)*u^j=a := Subtype.ext he
+    rw [← eqH]
+    exact mul_mem_sup (show (⟨v,hvH⟩ : H) ∈ J from hv) (zpow_mem_zpowers _ _)
+  have fj := cyclic_kernel_fg J u (eH u) full
+  obtain ⟨S,hs,hfin⟩ := (Subgroup.fg_iff J).mp fj
+  apply (Subgroup.fg_iff _).mpr
+  refine ⟨H.subtype '' S,?_,hfin.image _⟩
+  rw [← MonoidHom.map_closure,hs]
+  ext v
+  constructor
+  · rintro ⟨u,hu,rfl⟩
+    exact ⟨u.property,hu⟩
+  · intro hv
+    exact ⟨⟨v,hv.1⟩,hv.2,rfl⟩
+
+end OMA.EngelOrbit
 namespace OMA.R_Kourovka_1_40_kourovka_1_40_R2_H1_R1
 
 open Kourovka.«1.40» Subgroup
 open scoped commutatorElement
 
-/-- Three-generator tests whose intersection is locally nilpotent but has no global class bound. -/
+/-- The remaining three-generator test when the intersection is torsion. -/
 def H1 : Prop :=
   ∀ (G : Type) [Group G] (H K : Subgroup G) [H.Normal] [K.Normal],
     IsEngelGroup H → IsEngelGroup K → ∀ h ∈ H, ∀ k ∈ K, ∀ z ∈ H ⊓ K,
-    closure ({h,k,z} : Set G) = ⊤ → ¬ Group.IsNilpotent (H ⊓ K : Subgroup G) →
-    (∀ J : Subgroup (H ⊓ K : Subgroup G), J.FG → Group.IsNilpotent J) → ∃ n, engelCommutator z (h*k) n = 1
+    closure ({h,k,z} : Set G) = ⊤ → H.FG → K.FG → (H ⊓ K : Subgroup G).FG →
+    ¬ Group.IsNilpotent (H ⊓ K : Subgroup G) →
+    (∀ v : (H ⊓ K : Subgroup G), IsOfFinOrder v) → ∃ n, engelCommutator z (h*k) n = 1
 
-/-- Three-generator tests whose intersection contains a finitely generated nonnilpotent subgroup. -/
+/-- The remaining three-generator test when the intersection has an element of infinite order. -/
 def H2 : Prop :=
   ∀ (G : Type) [Group G] (H K : Subgroup G) [H.Normal] [K.Normal],
     IsEngelGroup H → IsEngelGroup K → ∀ h ∈ H, ∀ k ∈ K, ∀ z ∈ H ⊓ K,
-    closure ({h,k,z} : Set G) = ⊤ →
-    (∃ J : Subgroup (H ⊓ K : Subgroup G), J.FG ∧ ¬ Group.IsNilpotent J) →
-    ∃ n, engelCommutator z (h*k) n = 1
+    closure ({h,k,z} : Set G) = ⊤ → H.FG → K.FG → (H ⊓ K : Subgroup G).FG →
+    ¬ Group.IsNilpotent (H ⊓ K : Subgroup G) →
+    (∃ v : (H ⊓ K : Subgroup G), ¬ IsOfFinOrder v) → ∃ n, engelCommutator z (h*k) n = 1
 
 theorem restrict_engel {G : Type*} [Group G] (H T : Subgroup G) (eH : IsEngelGroup H) :
     IsEngelGroup (H.comap T.subtype) := by
@@ -276,8 +432,9 @@ theorem restrict_engel {G : Type*} [Group G] (H T : Subgroup G) (eH : IsEngelGro
     rw [engel_map,hn,map_one]
   exact ⟨n,Subtype.ext (Subtype.ext (congrArg (fun v : H => (v:G)) he))⟩
 
-private theorem triple (a : H1) (b : H2) {G : Type} [Group G]
+private theorem triple {G : Type} [Group G]
     (H K : Subgroup G) [H.Normal] [K.Normal] (eH : IsEngelGroup H) (eK : IsEngelGroup K)
+    (cases : (H1 ∧ H2) ∨ ∀ J : Subgroup (H ⊓ K : Subgroup G), J.FG → Group.IsNilpotent J)
     {h k z : G} (hh : h ∈ H) (hk : k ∈ K) (hz : z ∈ H ⊓ K) :
     ∃ n, engelCommutator z (h*k) n = 1 := by
   let s : Set G := {h,k,z}
@@ -308,21 +465,43 @@ private theorem triple (a : H1) (b : H2) {G : Type} [Group G]
   have inside : ∃ n, engelCommutator w (u*v) n = 1 := by
     by_cases nil : Group.IsNilpotent (A ⊓ B : Subgroup T)
     · exact OMA.EngelIntersection.nilpotent_intersection A B ea eb full nil (u*v) w
-    by_cases loc : (∀ J : Subgroup (A ⊓ B : Subgroup T), J.FG → Group.IsNilpotent J)
-    · exact a T A B ea eb u hu v hv w hw gen nil loc
-    · change ¬ ∀ J : Subgroup (A ⊓ B : Subgroup T), J.FG → Group.IsNilpotent J at loc
-      push Not at loc
-      exact b T A B ea eb u hu v hv w hw gen loc
+    obtain ⟨fa,fb,fi⟩ := OMA.EngelOrbit.three_fg A B ea eb hu hv hw gen
+    rcases cases with ⟨a,b⟩ | locally
+    · by_cases tor : ∀ q : (A ⊓ B : Subgroup T), IsOfFinOrder q
+      · exact a T A B ea eb u hu v hv w hw gen fa fb fi nil tor
+      · push Not at tor
+        exact b T A B ea eb u hu v hv w hw gen fa fb fi nil tor
+    · let I := (A ⊓ B : Subgroup T)
+      let emb : I →* (H ⊓ K : Subgroup G) :=
+        (T.subtype.comp I.subtype).codRestrict _ (fun v => v.property)
+      have inj : Function.Injective emb := by
+        intro x y he
+        exact Subtype.ext (Subtype.ext (congrArg (fun v : (H ⊓ K : Subgroup G) => (v:G)) he))
+      let : Group.FG I := (Group.fg_iff_subgroup_fg I).mpr fi
+      let : Group.IsNilpotent emb.range :=
+        locally _ ((Group.fg_iff_subgroup_fg _).mp (Group.fg_range emb))
+      exact (nil (Group.nilpotent_of_mulEquiv (MonoidHom.ofInjective inj).symm)).elim
   obtain ⟨n,hn⟩ := inside
   exact ⟨n, (engel_map T.subtype w (u*v) n).symm.trans (by rw [hn,map_one])⟩
 
+
+/-- Local nilpotence of the intersection suffices for arbitrary normal Engel factors. -/
+theorem locally_nilpotent_intersection {G : Type} [Group G] (H K : Subgroup G) [H.Normal] [K.Normal]
+    (eH : IsEngelGroup H) (eK : IsEngelGroup K) (hs : H ⊔ K = ⊤)
+    (locally : ∀ J : Subgroup (H ⊓ K : Subgroup G), J.FG → Group.IsNilpotent J) : IsEngelGroup G := by
+  intro y x
+  obtain ⟨m,hm⟩ := OMA.EngelIntersection.enter_intersection H K eH eK hs y x
+  obtain ⟨h,hh,k,hk,rfl⟩ := mem_sup_of_normal_right.mp
+    (show y ∈ H ⊔ K by rw [hs]; exact mem_top _)
+  obtain ⟨n,hn⟩ := triple H K eH eK (.inr locally) hh hk hm
+  exact ⟨m+n,by rw [OMA.MixedEngel.iterate_add]; exact hn⟩
 
 theorem main : H1 → H2 → OMA.R_Kourovka_1_40_kourovka_1_40_R2.H1 := by
   intro a b G _ H K hH hK eH eK hs _ _ _ y x
   obtain ⟨m,hm⟩ := OMA.EngelIntersection.enter_intersection H K eH eK hs y x
   obtain ⟨h,hh,k,hk,rfl⟩ := mem_sup_of_normal_right.mp
     (show y ∈ H ⊔ K by rw [hs]; exact mem_top _)
-  obtain ⟨n,hn⟩ := triple a b H K eH eK hh hk hm
+  obtain ⟨n,hn⟩ := triple H K eH eK (.inl ⟨a,b⟩) hh hk hm
   exact ⟨m+n,by rw [OMA.MixedEngel.iterate_add]; exact hn⟩
 
 end OMA.R_Kourovka_1_40_kourovka_1_40_R2_H1_R1
