@@ -11977,6 +11977,95 @@
     "https://oeis.org/A283644"
    ],
    "reason": "The disproof only compares the x^2 coefficient of Barker's printed g.f. with a(0..2) = 1, 11, 101 from the entry's own data (the g.f. gives a(2) = 111). The printed g.f./recurrence for Rule 694 (left half, base 10) is evidently garbled: its denominator (1-10x)(1-x^8) does not fit the data at all, whereas the actual sequence satisfies a(n) = a(n-2) + 10^8 a(n-8) - 10^8 a(n-10) (my simulation, matching the b-file), the analogue of the sister entries A283645-A283647. Refuting a formula contradicted by the listed data is not a settlement of a real conjecture."
+  },
+  "oeis-a288762": {
+   "date": "2026-11-28",
+   "pr": 26774,
+   "evidence": [
+    "https://oeis.org/A288762"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his own g.f. has numerator degree 9, so the two conjuncts are inconsistent. The Lean disproof reads a few coefficients off the g.f. and contradicts the recurrence at n = 6; it never needs the Rule 501 automaton. My simulation reproduces the data, the g.f. holds (n<=60), and the recurrence fails only at n = 6, 7, 9, so the intended conjecture is true and is not addressed."
+  },
+  "oeis-a288763": {
+   "date": "2026-11-28",
+   "pr": 26662,
+   "evidence": [
+    "https://oeis.org/A288763"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his own g.f. has numerator degree 9, so the two conjuncts are inconsistent. The Lean disproof reads a few coefficients off the g.f. and contradicts the recurrence at n = 6; it never needs the Rule 501 automaton. My simulation reproduces the data, the g.f. holds (n<=60), and the recurrence fails only at n = 6, 7, 9, so the intended conjecture is true and is not addressed."
+  },
+  "oeis-a288925": {
+   "date": "2026-11-28",
+   "pr": 27366,
+   "evidence": [
+    "https://oeis.org/A288925",
+    "https://oeis.org/A288926"
+   ],
+   "reason": "The disproof exploits a typo in the entry's initial values. The iterate lengths of 00->1000, 10->0001 are 2, 4, 8, 14, 26, 48, ... (A288926 lists the 14-letter third iterate), while A288925 has a(3) = 13. My computation shows the true lengths satisfy exactly the stated recurrence a(n)=a(n-1)+a(n-2)+3a(n-4)-2a(n-5) for n<=25, with a(3) = 14 instead of 13. The Lean proof is just a(3)=13 vs length 14. So the intended conjecture (lengths follow this recurrence) is true and untouched. Also note A288926 later restated the same claim and was solved on the site after this one."
+  },
+  "oeis-a289761": {
+   "date": "2026-11-28",
+   "pr": 23345,
+   "evidence": [
+    "https://oeis.org/A289761"
+   ],
+   "reason": "Trivial as formalized. a(n) is defined by the entry's own formula (n^2 - (n mod 6 - 3)^2)/3 + n, so Barker's recurrence (n>9) and g.f. follow from a(n+6) = a(n) + 4n + 18, which is exactly what the proof does. The statement is faithful and true, but the conjecture adds nothing beyond the entry's closed form (precedent: A253778, A309037)."
+  },
+  "oeis-a290193": {
+   "date": "2026-11-28",
+   "pr": 27803,
+   "evidence": [
+    "https://oeis.org/A290193"
+   ],
+   "reason": "The disproof exploits a parity slip in Corneth's conjecture. The data have a(4) = 111 = bin(2^3-1) and a(5) = 101111 = bin(3*2^4-1), so the even/odd cases are swapped in the comment. The Lean disproof is a(4) != bin(23) by decide. The same proof file also proves the corrected parity form and both of Wu's formulas (theorem corrected), which my simulation confirms for n<=60. Only the evident swap is refuted."
+  },
+  "oeis-a290412": {
+   "date": "2026-11-28",
+   "pr": 26841,
+   "evidence": [
+    "https://oeis.org/A290412"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>6', but his own g.f. has numerator degree 9, so the two conjuncts are inconsistent. The Lean disproof reads a few coefficients off the g.f. and contradicts the recurrence at n = 8; it never needs the Rule 785 automaton. My simulation reproduces the data, the g.f. holds (n<=60), and the recurrence fails only at n = 8, 9, so the intended conjecture is true and is not addressed."
+  },
+  "oeis-a290414": {
+   "date": "2026-11-28",
+   "pr": 26449,
+   "evidence": [
+    "https://oeis.org/A290414"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>6', but his own g.f. has numerator degree 9, so the two conjuncts are inconsistent. The Lean disproof reads a few coefficients off the g.f. and contradicts the recurrence at n = 8; it never needs the Rule 785 automaton. My simulation reproduces the data, the g.f. holds (n<=60), and the recurrence fails only at n = 8, 9, so the intended conjecture is true and is not addressed."
+  },
+  "oeis-a290415": {
+   "date": "2026-11-28",
+   "pr": 26744,
+   "evidence": [
+    "https://oeis.org/A290415"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>6', but his own g.f. has numerator degree 9, so the two conjuncts are inconsistent. The Lean disproof reads a few coefficients off the g.f. and contradicts the recurrence at n = 8; it never needs the Rule 785 automaton. My simulation reproduces the data, the g.f. holds (n<=60), and the recurrence fails only at n = 8, 9, so the intended conjecture is true and is not addressed."
+  },
+  "oeis-a290443": {
+   "date": "2026-11-28",
+   "pr": 24297,
+   "evidence": [
+    "https://oeis.org/A290443"
+   ],
+   "reason": "The disproof exploits a typo in Mathar's printed recurrence. The middle term is printed '-2*-n*(2n-1)^2*a(n-1)', and the statement keeps the double sign (so +2n(2n-1)^2). It fails at n=3 on the first data terms (480 + 300 - 180 != 0). With the evident '-2*n*(2n-1)^2*a(n-1)' the recurrence holds: I checked n=3, 4 by hand, and it is the natural P-recurrence for Catalan(n)*Motzkin(n-1). The proof only evaluates n=3."
+  },
+  "oeis-a290526": {
+   "date": "2026-11-28",
+   "pr": 26780,
+   "evidence": [
+    "https://oeis.org/A290526"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his own g.f. has numerator degree 7, so the two conjuncts are inconsistent. The Lean disproof reads a few coefficients off the g.f. and contradicts the recurrence at n = 6; it never needs the Rule 833 automaton. My simulation reproduces the data, the g.f. holds (n<=60), and the recurrence fails only at n = 6, 7, so the intended conjecture is true and is not addressed."
+  },
+  "oeis-a290527": {
+   "date": "2026-11-28",
+   "pr": 27696,
+   "evidence": [
+    "https://oeis.org/A290527"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence is printed 'for n>4', but his own g.f. has numerator degree 7, so the two conjuncts are inconsistent. The Lean disproof reads a few coefficients off the g.f. and contradicts the recurrence at n = 6; it never needs the Rule 833 automaton. My simulation reproduces the data, the g.f. holds (n<=60), and the recurrence fails only at n = 6, 7, so the intended conjecture is true and is not addressed."
   }
  },
  "known": {
