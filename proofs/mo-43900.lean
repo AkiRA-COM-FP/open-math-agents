@@ -20,9 +20,17 @@ namespace OMA.Density43900.Affine
 
 abbrev F (i : ℕ) := GaloisField 2 (i + 3)
 
-@[ext] structure A (i : ℕ) where
+structure A (i : ℕ) where
   slope : (F i)ˣ
   offset : F i
+
+private theorem A.ext {i : ℕ} {x y : A i}
+    (hs : x.slope = y.slope) (ho : x.offset = y.offset) : x = y := by
+  cases x
+  cases y
+  cases hs
+  cases ho
+  rfl
 
 private def equivProd (i : ℕ) : A i ≃ (F i)ˣ × F i where
   toFun x := (x.slope, x.offset)
