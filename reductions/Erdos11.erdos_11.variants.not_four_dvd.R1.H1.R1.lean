@@ -27,6 +27,14 @@ import Mathlib.Tactic.Ring
 import Mathlib.NumberTheory.SumPrimeReciprocals
 import Mathlib.Tactic.Positivity
 import Mathlib.Data.Nat.Log
+import Mathlib.Algebra.BigOperators.Field
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.Nat.Factorization.Basic
+import Mathlib.Data.Finset.Interval
+import Mathlib.Algebra.Order.BigOperators.GroupWithZero.Finset
+import Mathlib.Algebra.Order.BigOperators.Ring.Finset
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Data.Nat.Totient
 
 /-! An exponent sieve for squarefree numbers translated by powers of two.
 The finite zone through ten million (strict upper bound) reuses the bit-sieve proof by
@@ -2465,3 +2473,480 @@ theorem repeat_bound_of_mersenne (bound : ∀ L : ℕ, 156 ≤ L →
   exact le_trans (Nat.add_le_add_right (Nat.mul_le_mul_left 10 e) 41) (bound L long)
 
 end OMA.R_Erdos11_erdos_11_variants_not_four_dvd_R1_H1_R1
+
+
+namespace Erdos11Sieve
+
+theorem order_dvd_iff_one (m : ℕ) (cop : Nat.Coprime 2 m) (k : ℕ) :
+    orderOf (ZMod.unitOfCoprime 2 cop) ∣ k ↔ 2^k ≡ 1 [MOD m] := by
+  simpa only [Nat.add_zero,pow_zero,Nat.modEq_zero_iff_dvd] using
+    (powers_same_class m cop k 0 0).symm
+
+private theorem binomial_mod_square (p t a : ℕ) :
+    (1+p*t)^a ≡ 1+a*p*t [MOD p^2] := by
+  induction a with
+  | zero => simp [Nat.ModEq]
+  | succ a ih =>
+    rw [pow_succ]
+    calc
+      _ ≡ (1+a*p*t)*(1+p*t) [MOD p^2] := ih.mul_right _
+      _ = (1+(a+1)*p*t) + p^2*(a*t^2) := by ring
+      _ ≡ 1+(a+1)*p*t [MOD p^2] := by simp [Nat.ModEq, Nat.add_mod]
+
+/-- For a non-Wieferich prime, the order of 2 gains exactly a factor p on passage to p². -/
+theorem order_lift_nonwieferich (p : ℕ) (prime : p.Prime) (cop : Nat.Coprime 2 p)
+    (nonw : ¬2^(p-1) ≡ 1 [MOD p^2]) :
+    orderOf (ZMod.unitOfCoprime 2 (cop.pow_right 2)) =
+      p * orderOf (ZMod.unitOfCoprime 2 cop) := by
+  let : NeZero p := ⟨prime.ne_zero⟩
+  let r := orderOf (ZMod.unitOfCoprime 2 cop)
+  let R := orderOf (ZMod.unitOfCoprime 2 (cop.pow_right 2))
+  have pos : 0< r := orderOf_pos _
+  have fr : r ∣ p-1 := by
+    have card : r ∣ Fintype.card (ZMod p)ˣ := orderOf_dvd_card
+    simpa only [ZMod.card_units_eq_totient, Nat.totient_prime prime] using card
+  have one := (order_dvd_iff_one (p^2) (cop.pow_right 2) R).mp (dvd_refl R)
+  have down : r ∣ R := (order_dvd_iff_one p cop R).mpr
+    (one.of_dvd (dvd_pow_self p (by decide : 2≠ 0)))
+  have first := (order_dvd_iff_one p cop r).mp (dvd_refl r)
+  have pospow : 1≤ 2^r := Nat.one_le_pow _ _ (by decide)
+  obtain ⟨t,ht⟩ := (Nat.modEq_iff_dvd' pospow).mp first.symm
+  have expr : 2^r=1+p*t := by omega
+  have up : R ∣ r*p := by
+    apply (order_dvd_iff_one (p^2) (cop.pow_right 2) (r*p)).mpr
+    rw [pow_mul,expr]
+    apply (binomial_mod_square p t p).trans
+    rw [←sq]
+    simp [Nat.ModEq,Nat.add_mod]
+  obtain ⟨k,hk⟩ := down
+  have kd : k ∣ p := by
+    rw [hk] at up
+    exact (Nat.mul_dvd_mul_iff_left pos).mp up
+  rcases (Nat.dvd_prime prime).mp kd with h | h
+  · rw [h,mul_one] at hk
+    exact False.elim (nonw ((order_dvd_iff_one (p^2) (cop.pow_right 2) (p-1)).mp (show R ∣ p-1 by rw [hk]; exact fr)))
+  · change R = p*r
+    rw [hk,h,mul_comm]
+end Erdos11Sieve
+
+open Finset
+namespace Erdos11Sieve
+
+/-- When p is non-Wieferich, all contacts beyond the first cost at most L/(p·ord_p(2)). -/
+theorem ordinary_extra_hits_bound (p n shift L : ℕ) (prime : p.Prime) (cop : Nat.Coprime 2 p)
+    (nonw : ¬2^(p-1) ≡ 1 [MOD p^2]) :
+    ((range L).filter (fun j => 2^(j+shift) ≡ n [MOD p^2])).card-1 ≤
+      L/(p*orderOf (ZMod.unitOfCoprime 2 cop)) := by
+  let : NeZero (p^2) := ⟨pow_ne_zero _ prime.ne_zero⟩
+  have bound := one_class_bound (p^2) n shift L (cop.pow_right 2)
+  dsimp only at bound
+  rw [order_lift_nonwieferich p prime cop nonw] at bound
+  rw [Nat.sub_le_iff_le_add]
+  apply bound.trans
+  split <;> omega
+
+/-- The ordinary-prime part of the obstruction count is bounded by the reciprocal-order sum. -/
+theorem ordinary_total_bound (n shift L : ℕ) (A : Finset ℕ)
+    (good : ∀ p∈A, p.Prime ∧ Nat.Coprime 2 p ∧ ¬2^(p-1) ≡ 1 [MOD p^2]) :
+    (↑(∑ p ∈ A, (((range L).filter (fun j => 2^(j+shift) ≡ n [MOD p^2])).card-1)) : ℝ) ≤
+      (L:ℝ) * ∑ p ∈ A.attach, 1/((p.val:ℝ)*orderOf (ZMod.unitOfCoprime 2 (good p.val p.property).2.1)) := by
+  rw [Finset.mul_sum, ← Finset.sum_attach A (fun p =>
+    (((range L).filter (fun j => 2^(j+shift) ≡ n [MOD p^2])).card-1))]
+  push_cast
+  apply Finset.sum_le_sum
+  intro p _
+  obtain ⟨prime,cop,nonw⟩ := good p.val p.property
+  let : NeZero p.val := ⟨prime.ne_zero⟩
+  let r := orderOf (ZMod.unitOfCoprime 2 cop)
+  have positive : 0< p.val*r := Nat.mul_pos prime.pos (orderOf_pos _)
+  have bound := ordinary_extra_hits_bound p.val n shift L prime cop nonw
+  have scale := (Nat.mul_le_mul_right (p.val*r) bound).trans (Nat.div_mul_le_self L (p.val*r))
+  have realScale : (↑(((range L).filter (fun j => 2^(j+shift) ≡ n [MOD p.val^2])).card-1) : ℝ) *
+      (p.val*r : ℕ) ≤ L := by exact_mod_cast scale
+  rw [mul_one_div]
+  apply (le_div_iff₀ (by exact_mod_cast positive : (0:ℝ)< (p.val:ℝ)*r)).2
+  simpa only [Nat.cast_mul] using realScale
+
+end Erdos11Sieve
+
+namespace Erdos11Sieve
+open Finset
+
+/-- A tenth-unit reciprocal-order bound completely removes the non-Wieferich part of H2. -/
+theorem repeat_bound_of_wieferich_part
+    (orderBudget : ∀ (A : Finset ℕ)
+        (good : ∀ p∈A, p.Prime ∧ 23< p ∧ Nat.Coprime 2 p ∧ ¬2^(p-1) ≡ 1 [MOD p^2]),
+      (∑ p ∈ A.attach, 1/((p.val:ℝ)*orderOf (ZMod.unitOfCoprime 2 (good p.val p.property).2.2.1))) ≤ (1:ℝ)/10)
+    (n L : ℕ) (fits : 2^L< n) :
+    let hits := fun p : ℕ => (range L).filter fun j => p^2 ∣ n-2^(j+1)
+    let active := ((range (n+1)).filter Nat.Prime).filter fun p => 23< p ∧ (hits p).Nonempty
+    let W := active.filter fun p => 2^(p-1) ≡ 1 [MOD p^2]
+    10*(∑p∈W,((hits p).card-1))+41 ≤ L →
+      10*(∑p∈active,((hits p).card-1))+41 ≤ 2*L := by
+  intro hits active W exceptional
+  let O := active.filter fun p => ¬2^(p-1) ≡ 1 [MOD p^2]
+  have good : ∀ p∈O, p.Prime ∧ 23< p ∧ Nat.Coprime 2 p ∧ ¬2^(p-1) ≡ 1 [MOD p^2] := by
+    intro p hp
+    obtain ⟨mem,nonw⟩ := mem_filter.mp hp
+    obtain ⟨base,large,_⟩ := mem_filter.mp mem
+    have prime := (mem_filter.mp base).2
+    exact ⟨prime,large,(Nat.coprime_primes Nat.prime_two prime).mpr (by omega),nonw⟩
+  have lower := ordinary_total_bound n 1 L O (fun p hp => ⟨(good p hp).1,(good p hp).2.2⟩)
+  have mass := orderBudget O good
+  have le := lower.trans (mul_le_mul_of_nonneg_left mass (Nat.cast_nonneg L))
+  have eq (p : ℕ) : hits p = (range L).filter (fun j => 2^(j+1) ≡ n [MOD p^2]) := by
+    apply filter_congr
+    intro j hj
+    have idx := mem_range.mp hj
+    exact (Nat.modEq_iff_dvd' ((Nat.pow_le_pow_right (by decide : 0< 2) (by omega : j+1≤ L)).trans fits.le)).symm
+  have ordinary : 10*(∑p∈O,((hits p).card-1)) ≤ L := by
+    simp only [eq]
+    exact_mod_cast (show (10:ℝ)*↑(∑ p ∈ O, (((range L).filter (fun j => 2^(j+1) ≡ n [MOD p^2])).card-1)) ≤ (L:ℝ) by linarith)
+  have splitSum : (∑p∈W,((hits p).card-1))+(∑p∈O,((hits p).card-1)) = ∑p∈active,((hits p).card-1) :=
+    Finset.sum_filter_add_sum_filter_not _ _ _
+  omega
+
+end Erdos11Sieve
+
+namespace Erdos11Sieve
+open Finset
+set_option maxRecDepth 8192 in
+set_option maxHeartbeats 2000000 in
+theorem order_head_certificate :
+    ∃ lowCut weightCut : ℕ → ℕ, (∀q : Fin 1024,
+      23< q.val → Nat.Coprime q.val 223092870 →
+      65536≤ weightCut q.val*q.val*lowCut q.val ∧ lowCut q.val≤ 64 ∧
+        ∀ j : Fin 64, 0< j.val → q.val∣ 2^j.val-1 → lowCut q.val≤ j.val) ∧
+      ∑p∈range 1024,weightCut p = 1783 := by
+  let lowCut : ℕ → ℕ := fun p : ℕ => (0x200080000000002000000200000000000000000000200000000008000000000000080000000002000000000080000008000000000200000000000002000000000080000000002000000200000000000002000000000000000008000000000000080000008000000000000080000000000000000000080000008001b8000020000000000000000000000008000000800200000020000000000000000000020008000000000000000020008000000800200000000000000000800200000000000000000000200000000000000000800000000000000000000000200000020000000000000200000020000000000800000000000008000000800000000020000000000800000000000008000000000000000020000000000000200000000000000000800000000000002c000000002000000180000000000000000000200080000000002000000000080000008002000000000000000005a000000000000000000080020000002000000000080000000000c80800000000020000000000800000000000000002000000000080020000000000800000000020000000000000000080000000002000000000000000000000000000000080020000000000000000000020000000000800000080000000000000800000080000000000000800000000000000000000800000080020000002000000000000020000000000800000080000000002000560000000000000002000800000000000000002000000000000020000001600000000000020000000000800000080000000002000000000080000000000000800000000020000002000800000000000000000a8000000003c000000000000000000000020000002000800000080000000000000000000000020000000000000000080020000002000000000080020000000000800000000008000000000640000000000000000c0080000000000e80000200080000004a000000000000000000080000000000000000000080020000002000800000000000000002000800000000020000000000800000080000000001a0000000001e02000000000000000008002000000000080000000e00000000000000000000000e00000120080000006602000000180000000000000580000000080000004e000000000480460000080000000001e0074000000001a0000000002e000001c00a00000120000000000a00e000000000000000000000000000000000000000000000000000 >>> (7*p)) % 128
+  let weightCut : ℕ → ℕ := fun p : ℕ => (0x400010000000000000400000000400000000000000000000000000400000000000010000000000000000010000000000000400000000000010000000010000000000000400000000000000000400000000000010000000000000400000000400000000000000000400000000000000000000010000000000000000010000000010000000000000000010000000000000000000000000010000000010000400000000400000000000000000000000000000010000000010000400000000400000000000000000000000000400010000000000000000000000400010000000010000400000000000000000000010000400000000000000000000000000400000000000000000000010000000000000000000000000000000400000000400000000000000000400000000400000000000010000000000000000010000000010000000000000400000000000010000000000000000010000000000000000000000400000000000000000400000000000000000000010000000000000000028000000000000400000000600000000000000000000000000400010000000000000400000000000010000000010000400000000000000000000018000000000000000000000000010000400000000400000000000010000000000000a00010000000000000400000000000010000000000000000000000400000000000010000400000000000010000000000000400000000000000000000010000000000000400000000000000000000000000000000000000010000400000000000000000000000000600000000000018000000018000000000000000018000000018000000000000000018000000000000000000000000018000000018000600000000600000000000000000600000000000018000000018000000000000600020000000000000000000000600018000000000000000000000600000000000000000600000000800000000000000000600000000000018000000018000000000000600000000000018000000000000000018000000000000600000000600018000000000000000000001400000000000038000000000000000000000000000000800000000800020000000020000000000000000000000000000000800000000000000000000020000800000000800000000000020000800000000000020000000000002000000000000030000000000000000000001800028000000000001400000000a00028000000040000000000000000000000000028000000000000000000000000030000c00000000c00030000000000000000000000c00030000000000000c000000000000380000000380000000000012000000000000e8000e00000000000000000000040001000000000000040000000250000000000000000000000000000002a00000002200050000000068001600000001e000000000000000086000000000000680000000b000000000000c8000d80000000800000000000024000a00000000000030000000000001e800000036800a000000006400000000000d3800a200000000000000000000000000000000000000000000000000000000000000000 >>> (9*p)) % 512
+  let row (q : ℕ) : Prop :=
+    23< q → Nat.Coprime q 223092870 → 65536≤ weightCut q*q*lowCut q ∧ lowCut q≤ 64 ∧
+    ∀ j : Fin 64, 0< j.val → q∣ 2^j.val-1 → lowCut q≤ j.val
+  have checks (i : Fin 32) : ∀j : Fin 32, row (32*i.val+j.val) := by
+    fin_cases i <;> dsimp only [row,lowCut,weightCut] <;> decide +kernel
+  refine ⟨lowCut,weightCut,?_,by dsimp only [weightCut]; decide +kernel⟩
+  intro q
+  have bound : q.val/32< 32 := (Nat.div_lt_iff_lt_mul (by decide)).mpr q.isLt
+  have t := checks ⟨_,bound⟩ ⟨q.val%32,Nat.mod_lt _ (by decide)⟩
+  simpa only [Nat.div_add_mod] using t
+
+theorem wheel_coprime {p : ℕ} (hp : p.Prime) (big : 23< p) : Nat.Coprime p 223092870 := by
+  apply hp.coprime_iff_not_dvd.mpr
+  intro dv
+  have fixed : ∀ a ∈ [2,3,5,7,11,13,17,19,23], Nat.Prime a := by decide
+  have lim : ∀ a ∈ [2,3,5,7,11,13,17,19,23], a≤ 23 := by decide
+  have h := prime_in_factors p hp _ fixed (by exact dv)
+  exact (Nat.not_le.mpr big) (lim p h)
+set_option maxRecDepth 8192 in
+set_option maxHeartbeats 2000000 in
+theorem small_order_reciprocal (S : Finset ℕ) (r : ℕ → ℕ)
+    (valid : ∀p∈S,p.Prime ∧ 23< p ∧ p< 1024 ∧ 0< r p ∧ p∣ 2^(r p)-1) :
+    (∑p∈S, (1:ℝ)/((p:ℝ)*(r p:ℝ))) ≤ 1/32 := by
+  obtain ⟨lowCut,weightCut,rows1024,total⟩ := order_head_certificate
+  have point (p : ℕ) (hp : p∈S) : (1:ℝ)/((p:ℝ)*(r p:ℝ)) ≤ (weightCut p:ℝ)/65536 := by
+    obtain ⟨prime,big,small,positive,period⟩ := valid p hp
+    obtain ⟨bound,leCap,truncated⟩ := (rows1024 ⟨p,small⟩) big (wheel_coprime prime big)
+    change lowCut p ≤ 64 at leCap
+    have le : lowCut p ≤ r p := by
+      by_cases hr : r p< 64
+      · exact truncated ⟨_,hr⟩ positive period
+      · omega
+    have finalN : 65536 ≤ weightCut p * p * (r p) := bound.trans (Nat.mul_le_mul_left _ le)
+    have pp : 0< (p:ℝ) := by exact_mod_cast prime.pos
+    have rp : 0< (r p:ℝ) := by exact_mod_cast positive
+    apply (div_le_div_iff₀ (mul_pos pp rp) (by norm_num)).mpr
+    simpa only [one_mul,mul_assoc] using (show (65536:ℝ) ≤ (weightCut p:ℝ)*p*(r p) by exact_mod_cast finalN)
+  have subset : S⊆range 1024 := fun p hp => Finset.mem_range.mpr (valid p hp).2.2.1
+  have wt : ∑p∈S,weightCut p ≤ 1783 := total ▸ Finset.sum_le_sum_of_subset_of_nonneg subset (by intros; omega)
+  calc
+    _ ≤ ∑p∈S,(weightCut p:ℝ)/65536 := Finset.sum_le_sum point
+    _ = ((∑p∈S,weightCut p : ℕ):ℝ)/65536 := by push_cast; rw [Finset.sum_div]
+    _ ≤ 1/32 := by
+      have : ((∑p∈S,weightCut p : ℕ):ℝ) ≤ 1783 := by exact_mod_cast wt
+      linarith only [this]
+
+end Erdos11Sieve
+
+open Finset
+namespace Erdos11Sieve
+
+theorem order_fiber_card (d : ℕ) (pos : 0< d) (F : Finset ℕ)
+    (valid : ∀p∈F,p.Prime ∧ 1024≤ p ∧ p∣ 2^d-1) : 10*F.card ≤ d := by
+  have posM : 0< 2^d-1 := Nat.sub_pos_of_lt (Nat.one_lt_pow pos.ne' (by decide))
+  have sub : F ⊆ (2^d-1).primeFactors := fun p hp =>
+    Nat.mem_primeFactors.mpr ⟨(valid p hp).1,(valid p hp).2.2,posM.ne'⟩
+  have prod := Nat.le_of_dvd posM
+    ((Finset.prod_dvd_prod_of_subset F _ (fun p : ℕ => p) sub).trans (Nat.prod_primeFactors_dvd _))
+  have base : (1024:ℕ)^F.card ≤ ∏p∈F,p := by
+    simpa using (Finset.prod_le_prod' (fun p hp => (valid p hp).2.1))
+  have small : (2:ℕ)^(10*F.card) ≤ 2^d := by
+    rw [pow_mul]; exact (base.trans prod).trans (Nat.sub_le _ _)
+  exact (Nat.pow_le_pow_iff_right (by decide : 1< 2)).mp small
+
+theorem order_shell (a : ℕ) (ha : 32≤ a) (S : Finset ℕ) (r : ℕ → ℕ)
+    (valid : ∀p∈S,p.Prime ∧ a*a≤ p ∧ p< 4*(a*a) ∧ 0< r p ∧ p∣ 2^(r p)-1) :
+    (∑p∈S,(1:ℝ)/((p:ℝ)*(r p:ℝ))) ≤ 11/(10*(a:ℝ)) := by
+  classical
+  let f (p : ℕ) := (1:ℝ)/((p:ℝ)*(r p:ℝ))
+  let low := S.filter (fun p => r p≤ 5*a)
+  let high := S.filter (fun p => ¬r p≤ 5*a)
+  have ap : 0< (a:ℝ) := by exact_mod_cast (show 0< a by omega)
+  have al : 1024≤ a*a := by nlinarith only [ha,Nat.mul_le_mul ha ha]
+  have lows (p : ℕ) (hp : p ∈ low) : r p ∈ Finset.Icc 1 (5*a) :=
+    Finset.mem_Icc.mpr ⟨(valid p (mem_filter.mp hp).1).2.2.2.1,(mem_filter.mp hp).2⟩
+  have per (d : ℕ) (hd : d∈Finset.Icc 1 (5*a)) :
+      (∑p∈low.filter (fun p => r p=d),f p) ≤ 1/(10*(a:ℝ)*a) := by
+    let F := low.filter (fun p => r p=d)
+    have pos : 0< d := (Finset.mem_Icc.mp hd).1
+    have dp : 0< (d:ℝ) := by exact_mod_cast pos
+    have prs (p : ℕ) (hp : p∈F) : p∈S ∧ r p=d := ⟨(mem_filter.mp (mem_filter.mp hp).1).1,(mem_filter.mp hp).2⟩
+    have bound := order_fiber_card d pos F (fun p hp => by
+      obtain ⟨hs,eq⟩ := prs p hp
+      obtain ⟨prime,G,_,_,modp⟩ := valid p hs
+      exact ⟨prime,al.trans G,eq ▸ modp⟩)
+    have one (p : ℕ) (hp : p∈F) : f p ≤ 1/((a:ℝ)*a*d) := by
+      obtain ⟨hs,eq⟩ := prs p hp
+      dsimp only [f]
+      rw [eq]
+      apply one_div_le_one_div_of_le (by positivity)
+      exact_mod_cast Nat.mul_le_mul_right d (valid p hs).2.1
+    calc
+      _ ≤ F.card • (1/((a:ℝ)*a*d)) := Finset.sum_le_card_nsmul F f _ one
+      _ ≤ _ := by
+        rw [nsmul_eq_mul]
+        have b : 10*(F.card:ℝ)≤ d := by exact_mod_cast bound
+        field_simp
+        linarith only [b]
+  have lowBound : (∑p∈low,f p) ≤ 1/(2*(a:ℝ)) := by
+    rw [←Finset.sum_fiberwise_of_maps_to lows f]
+    refine (Finset.sum_le_card_nsmul (Finset.Icc 1 (5*a)) _ _ per).trans ?_
+    simp only [Nat.card_Icc,Nat.add_sub_cancel,nsmul_eq_mul,Nat.cast_mul,Nat.cast_ofNat]
+    field_simp
+    ring_nf
+    rfl
+  have hc : high.card ≤ 3*(a*a) := by
+    have sub : high ⊆ Finset.Ico (a*a) (4*(a*a)) := fun p hp => by
+      obtain ⟨_,lo,hi,_,_⟩ := valid p (mem_filter.mp hp).1
+      exact Finset.mem_Ico.mpr ⟨lo,hi⟩
+    have h := Finset.card_le_card sub
+    rw [Nat.card_Ico] at h
+    omega
+  have highBound : (∑p∈high,f p) ≤ 3/(5*(a:ℝ)) := by
+    have each (p : ℕ) (hp : p∈high) : f p ≤ 1/((a:ℝ)*a*(5*a)) := by
+      obtain ⟨hs,ng⟩ := mem_filter.mp hp
+      apply one_div_le_one_div_of_le (by positivity)
+      exact_mod_cast Nat.mul_le_mul (valid p hs).2.1 (Nat.le_of_lt (Nat.lt_of_not_ge ng))
+    refine (Finset.sum_le_card_nsmul high f _ each).trans ?_
+    rw [nsmul_eq_mul]
+    have b : (high.card:ℝ) ≤ 3*((a:ℝ)*a) := by exact_mod_cast hc
+    field_simp
+    nlinarith only [b]
+  have partition : (∑p∈low,f p)+(∑p∈high,f p)=∑p∈S,f p :=
+    Finset.sum_filter_add_sum_filter_not S _ f
+  change (∑p∈S,f p) ≤ _
+  rw [←partition]
+  refine (add_le_add lowBound highBound).trans ?_
+  field_simp
+  ring_nf
+  rfl
+
+end Erdos11Sieve
+
+namespace Erdos11Sieve
+open Finset
+
+/-- The contribution of primes at least 1024 to the reciprocal order estimate. -/
+theorem large_order_reciprocal (S : Finset ℕ) (r : ℕ → ℕ)
+    (valid : ∀p∈S, p.Prime ∧ 1024≤ p ∧ 0< r p ∧ p∣ 2^(r p)-1) :
+    (∑p∈S,(1:ℝ)/((p:ℝ)*(r p:ℝ))) ≤ 11/160 := by
+  classical
+  let f (p : ℕ) := (1:ℝ)/((p:ℝ)*(r p:ℝ))
+  let a (i : ℕ) := 32*(2:ℕ)^i
+  let cut (i : ℕ) := S.filter fun p => p< a i*a i
+  have apos (i : ℕ) : 32 ≤ a i := by
+    dsimp [a]
+    have := Nat.mul_le_mul_left 32 (Nat.one_le_pow i 2 (by decide))
+    omega
+  have double (i : ℕ) : a (i+1)=2*a i := by dsimp [a]; rw [pow_succ]; ring
+  have bounded (i : ℕ) : (∑p∈cut i, f p) ≤ 11/160 - 11/(5*(a i:ℝ)) := by
+    induction i with
+    | zero =>
+      have empty : cut 0 = ∅ := by
+        apply Finset.eq_empty_iff_forall_notMem.mpr
+        intro p hp
+        obtain ⟨hs,lt⟩ := mem_filter.mp hp
+        have ge := (valid p hs).2.1
+        change p< 1024 at lt
+        omega
+      simp [empty,a]
+      norm_num
+    | succ i ih =>
+      let T := cut (i+1) \ cut i
+      have sq : a (i+1)*a (i+1)=4*(a i*a i) := by rw [double]; ring
+      have inc : cut i ⊆ cut (i+1) := by
+        intro p hp
+        obtain ⟨hs,lt⟩ := mem_filter.mp hp
+        exact mem_filter.mpr ⟨hs,sq ▸ (show p< 4*(a i*a i) by omega)⟩
+      have shell := order_shell (a i) (apos i) T r (by
+        intro p hp
+        obtain ⟨current,old⟩ := mem_sdiff.mp hp
+        obtain ⟨hs,top⟩ := mem_filter.mp current
+        obtain ⟨pp,_,rpos,dvd⟩ := valid p hs
+        have before : ¬p< a i*a i := fun lt => old (mem_filter.mpr ⟨hs,lt⟩)
+        exact ⟨pp,by omega,sq ▸ top,rpos,dvd⟩)
+      have sum : (∑p∈T,f p)+(∑p∈cut i,f p)=∑p∈cut (i+1),f p := Finset.sum_sdiff inc
+      have positive : 0< (a i:ℝ) := by exact_mod_cast (show 0< a i from lt_of_lt_of_le (by decide) (apos i))
+      rw [←sum,double]
+      refine (add_le_add shell ih).trans ?_
+      push_cast
+      field_simp
+      ring_nf
+      rfl
+  let k := S.sup id
+  have final : cut k = S := by
+    apply Finset.filter_eq_self.mpr
+    intro p hp
+    have pm : p≤ k := Finset.le_sup (f:=id) hp
+    have e : k < 2^k := Nat.lt_two_pow_self
+    have small : 2^k ≤ a k := by dsimp [a]; omega
+    have grow : a k ≤ a k*a k := by
+      have gr : 1≤ a k := (by have := apos k; omega)
+      simpa only [Nat.mul_one] using Nat.mul_le_mul_left (a k) gr
+    omega
+  rw [←final]
+  exact (bounded k).trans (sub_le_self _ (by positivity))
+end Erdos11Sieve
+
+namespace Erdos11Sieve
+open Finset
+
+theorem order_weighted_tenth (S : Finset ℕ) (r : ℕ → ℕ)
+    (valid : ∀p∈S,p.Prime ∧ 23< p ∧ 0< r p ∧ p∣ 2^(r p)-1) :
+    (∑p∈S,(1:ℝ)/((p:ℝ)*(r p:ℝ))) ≤ 1/10 := by
+  let small := S.filter (fun p => p< 1024)
+  let large := S.filter (fun p => ¬p< 1024)
+  have sh := small_order_reciprocal small r (fun p hp => by
+    obtain ⟨mem,head⟩ := mem_filter.mp hp
+    exact ⟨(valid p mem).1,(valid p mem).2.1,head,(valid p mem).2.2⟩)
+  have bg := large_order_reciprocal large r (fun p hp => by
+    obtain ⟨mem,tail⟩ := mem_filter.mp hp
+    exact ⟨(valid p mem).1,le_of_not_gt tail,(valid p mem).2.2⟩)
+  rw [←Finset.sum_filter_add_sum_filter_not S (fun p => p< 1024)]
+  exact (add_le_add sh bg).trans (by norm_num)
+
+theorem ordinary_order_budget (A : Finset ℕ)
+    (good : ∀p∈A,p.Prime ∧ 23< p ∧ Nat.Coprime 2 p ∧ ¬2^(p-1)≡1 [MOD p^2]) :
+    (∑p∈A.attach,(1:ℝ)/((p.val:ℝ)*orderOf (ZMod.unitOfCoprime 2 (good p.val p.property).2.2.1))) ≤ 1/10 := by
+  classical
+  let r (p : ℕ) : ℕ := if hp:p∈A then orderOf (ZMod.unitOfCoprime 2 (good p hp).2.2.1) else 1
+  have ok (p : ℕ) (hp : p∈A) : p.Prime ∧ 23< p ∧ 0< r p ∧ p∣ 2^(r p)-1 := by
+    obtain ⟨prime,big,cop,_⟩ := good p hp
+    let : NeZero p := ⟨prime.ne_zero⟩
+    have k : r p = orderOf (ZMod.unitOfCoprime 2 cop) := dif_pos hp
+    rw [k]
+    refine ⟨prime,big,orderOf_pos _,?_⟩
+    exact (Nat.modEq_iff_dvd' (Nat.one_le_pow _ _ (by decide))).mp
+      ((order_dvd_iff_one p cop _).mp (dvd_refl _)).symm
+  have bound := order_weighted_tenth A r ok
+  calc
+    _ = ∑p∈A.attach,(1:ℝ)/((p.val:ℝ)*r p.val) := by
+      apply Finset.sum_congr rfl
+      intro p _
+      simp [r,p.property]
+    _ = ∑p∈A,(1:ℝ)/((p:ℝ)*r p) := Finset.sum_attach A (fun p : ℕ => (1:ℝ)/((p:ℝ)*r p))
+    _ ≤ _ := bound
+
+theorem repeated_hit_bound_from_wieferich (n L : ℕ) (fits : 2^L< n) :
+    let hits := fun p : ℕ => (range L).filter fun j => p^2 ∣ n-2^(j+1)
+    let active := ((range (n+1)).filter Nat.Prime).filter fun p => 23< p ∧ (hits p).Nonempty
+    let W := active.filter fun p => 2^(p-1) ≡ 1 [MOD p^2]
+    10*(∑p∈W,((hits p).card-1))+41≤ L → 10*(∑p∈active,((hits p).card-1))+41≤ 2*L :=
+  repeat_bound_of_wieferich_part ordinary_order_budget n L fits
+
+end Erdos11Sieve
+
+
+open Finset
+namespace Erdos11Sieve
+
+/-- For any prime p, the reciprocal order of 2 modulo p² controls the number of repeat hits. -/
+theorem square_order_total (n L : ℕ) (fits : 2^L< n) (A : Finset ℕ)
+    (good : ∀ p∈A, p.Prime ∧ 23< p ∧ Nat.Coprime 2 p) :
+    (↑(∑p∈A, (((range L).filter (fun j => p^2 ∣ n-2^(j+1))).card-1)) : ℝ) ≤
+      (L:ℝ) * ∑ p ∈ A.attach, 1/(orderOf (ZMod.unitOfCoprime 2 ((good p.val p.property).2.2.pow_right 2)):ℝ) := by
+  rw [Finset.mul_sum, ← Finset.sum_attach A (fun p =>
+    (((range L).filter (fun j => p^2 ∣ n-2^(j+1))).card-1))]
+  push_cast
+  apply Finset.sum_le_sum
+  intro p _
+  obtain ⟨prime,_,cop⟩ := good p.val p.property
+  let : NeZero (p.val^2) := ⟨pow_ne_zero _ prime.ne_zero⟩
+  let r := orderOf (ZMod.unitOfCoprime 2 (cop.pow_right 2))
+  have pos : 0< r := orderOf_pos _
+  have eq : (range L).filter (fun j => p.val^2 ∣ n-2^(j+1)) =
+      (range L).filter (fun j => 2^(j+1) ≡ n [MOD p.val^2]) := by
+    apply filter_congr
+    intro j hj
+    have idx := mem_range.mp hj
+    exact (Nat.modEq_iff_dvd' ((Nat.pow_le_pow_right (by decide : 0< 2) (by omega : j+1≤ L)).trans fits.le)).symm
+  rw [eq, mul_one_div]
+  apply (le_div_iff₀ (by exact_mod_cast pos : (0:ℝ)< r)).2
+  have hit := one_class_bound (p.val^2) n 1 L (cop.pow_right 2)
+  have ub : (((range L).filter (fun j => 2^(j+1) ≡ n [MOD p.val^2])).card-1) ≤ L/r := by
+    rw [Nat.sub_le_iff_le_add]
+    apply hit.trans
+    dsimp only [r]
+    split <;> omega
+  exact_mod_cast (Nat.mul_le_mul_right r ub).trans (Nat.div_mul_le_self L r)
+
+end Erdos11Sieve
+
+open Finset
+namespace Erdos11Sieve
+
+/-- With the ordinary-prime budget, a uniform bound on reciprocal orders of Wieferich
+primes alone suffices for every length in the repeated-hit hypothesis. -/
+theorem repeat_bound_of_exceptional_orders
+    (ordinaryBudget : ∀ (A : Finset ℕ)
+        (good : ∀p∈A, p.Prime ∧ 23< p ∧ Nat.Coprime 2 p ∧ ¬2^(p-1) ≡ 1 [MOD p^2]),
+      (∑ p ∈ A.attach, 1/((p.val:ℝ)*orderOf (ZMod.unitOfCoprime 2 (good p.val p.property).2.2.1))) ≤ (1:ℝ)/10)
+    (exceptionalBudget : ∀ (W : Finset ℕ)
+        (good : ∀p∈W, p.Prime ∧ 23< p ∧ Nat.Coprime 2 p ∧ 2^(p-1) ≡ 1 [MOD p^2]),
+      (∑p∈W.attach, 1/(orderOf (ZMod.unitOfCoprime 2 ((good p.val p.property).2.2.1.pow_right 2)):ℝ)) ≤ (1:ℝ)/15)
+    (n L : ℕ) (fits : 2^L< n) (long : 156≤ L) :
+    let hits := fun p : ℕ => (range L).filter fun j => p^2 ∣ n-2^(j+1)
+    let active := ((range (n+1)).filter Nat.Prime).filter fun p => 23< p ∧ (hits p).Nonempty
+    10*(∑p∈active,((hits p).card-1))+41 ≤ 2*L := by
+  intro hits active
+  apply repeat_bound_of_wieferich_part ordinaryBudget n L fits
+  let W := active.filter fun p => 2^(p-1) ≡ 1 [MOD p^2]
+  have good : ∀ p ∈ W, p.Prime ∧ 23< p ∧ Nat.Coprime 2 p ∧ 2^(p-1) ≡ 1 [MOD p^2] := by
+    intro p hp
+    obtain ⟨mem,wieferich⟩ := mem_filter.mp hp
+    obtain ⟨base,large,_⟩ := mem_filter.mp mem
+    have prime := (mem_filter.mp base).2
+    exact ⟨prime,large,(Nat.coprime_primes Nat.prime_two prime).mpr (by omega),wieferich⟩
+  have counted := square_order_total n L fits W (fun p hp =>
+    ⟨(good p hp).1,(good p hp).2.1,(good p hp).2.2.1⟩)
+  have upper := counted.trans (mul_le_mul_of_nonneg_left (exceptionalBudget W good) (Nat.cast_nonneg L))
+  let E := ∑p∈W,((hits p).card-1)
+  change 10*E+41 ≤ L
+  change (E:ℝ) ≤ (L:ℝ)*(1/15:ℝ) at upper
+  exact_mod_cast (show 10*(E:ℝ)+41≤ (L:ℝ) by
+    linarith [show (156:ℝ)≤ (L:ℝ) by exact_mod_cast long])
+
+end Erdos11Sieve
+
+namespace OMA.R_Erdos11_erdos_11_variants_not_four_dvd_R1_H1_R1
+/-- Reciprocal orders on the exceptional base-2 Wieferich primes suffice for H2.
+The contribution from all ordinary primes has already been bounded unconditionally. -/
+theorem repeat_bound_of_wieferich_orders
+    (budget : ∀ (W : Finset ℕ)
+       (good : ∀p∈W, p.Prime ∧ 23 < p ∧ Nat.Coprime 2 p ∧ 2^(p-1) ≡ 1 [MOD p^2]),
+       (∑p∈W.attach, 1/(orderOf (ZMod.unitOfCoprime 2 ((good p.val p.property).2.2.1.pow_right 2)):ℝ)) ≤ (1:ℝ)/15) : H2 := by
+  intro n _ large L hits active long
+  have fits : 2^L < n := lt_of_le_of_lt (Nat.pow_log_le_self 2 (by omega : n-1 ≠ 0)) (by omega)
+  exact Erdos11Sieve.repeat_bound_of_exceptional_orders Erdos11Sieve.ordinary_order_budget budget n L fits long
+end OMA.R_Erdos11_erdos_11_variants_not_four_dvd_R1_H1_R1
+
