@@ -16409,6 +16409,59 @@
     "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/main/FormalConjectures/OEIS/3161.lean"
    ],
    "reason": "Second review: Already proved and accepted upstream about seven weeks before the site's proof. Not new."
+  },
+  "oeis-a208509": {
+   "date": "2026-11-28",
+   "pr": 23400,
+   "evidence": [
+    "https://zenodo.org/records/24211281",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a208509-affine-polynomial-pair-binomial-coefficients.md",
+    "https://oeis.org/A208509"
+   ],
+   "reason": "Werner's conjecture T(n,k) = C(n-1,2k+1) + C(n,2k+1) for the v-polynomials of A208508/A208509 was formalized in trureturing (PR #26034, merged 2026-11-03, endpoint AffinePolynomialPairBinomialCoefficients.werner_a208509) and proved as Theorem 1 of Ma and Zhang's Zenodo note 10.5281/zenodo.24211281 (published 2026-11-14), both before this site's proof (merged 2026-11-28). The formal statement itself is faithful (P m = (u(m+1), v(m+1)), all 2k+1 <= n)."
+  },
+  "oeis-a213246": {
+   "date": "2026-11-28",
+   "pr": 10564,
+   "evidence": [
+    "https://oeis.org/A213246"
+   ],
+   "reason": "Barker's recurrence a(n)=65a(n-6)-64a(n-12) and g.f. for nonzero 9th powers in GF(2^n). The entry itself records 'Conjectures verified by Robert Israel, Jun 27 2018', and gives a(n) = M/gcd(M,9) with M = 2^n-1, from which both follow by 6-periodicity; the statement header even quotes Israel's verification. Statement is faithful, but the result was settled in the source before this PR (merged 2026-11-27)."
+  },
+  "oeis-a218621": {
+   "date": "2026-11-28",
+   "pr": 23975,
+   "evidence": [
+    "https://oeis.org/A218621",
+    "https://oeis.org/A218621/b218621.txt"
+   ],
+   "reason": "Disproof of the comment's six-condition conjecture via condition 2 at n=81: a(81)=9 (values 41,16,13,28,81 over the divisors) while condition 2 demands a prime. The formalization (IsA = admissible divisor of minimal value) is faithful and the disproof is correct, but a(81)=9 is a listed term of the entry's own data (and a(225)=9 in Noe's b-file), so the conjecture was already refuted by public data; the proof is a finite check."
+  },
+  "oeis-a219196": {
+   "date": "2026-11-28",
+   "pr": 23404,
+   "evidence": [
+    "https://oeis.org/A219196"
+   ],
+   "reason": "The conjecture a(15)=a(16)=131070 and a(17..32)=8589934590 for a(n) = den B_{2^(n-1)} is settled in the entry itself: Robert Israel (Sep 21 2015) notes via von Staudt-Clausen that a(n) is 2 times the product of the Fermat primes <= 2^(n-1)+1, which gives these values (for n <= 32 only F_0..F_4 can occur since 2^k+1 prime forces k a power of 2). Statement faithful (Mathlib bernoulli denominators, A131577 offset 0); the proof is a finite von Staudt-Clausen computation. Known and essentially trivial."
+  },
+  "oeis-a220902": {
+   "date": "2026-11-28",
+   "pr": 10605,
+   "evidence": [
+    "https://oeis.org/A220902"
+   ],
+   "reason": "Mathar's P-recurrence (n>=5) for a(n) = C(n) - C(n-1) + C(n-2) (Asinowski's formula, used as definition; reproduces the data). The entry records 'Mathar's conjecture can be verified by expressing a in terms of factorials and simplifying. - Robert Israel, Dec 31 2015', together with the algebraic g.f.; the conjecture was settled in the source long before this PR."
+  },
+  "oeis-a221650": {
+   "date": "2026-11-28",
+   "pr": 24653,
+   "evidence": [
+    "https://oeis.org/A221650",
+    "https://oeis.org/A000041",
+    "https://oeis.org/A066633"
+   ],
+   "reason": "Pol's Conjectures 1-2: P(n,j,k) = [k|j] p(n-j) counts partitions of n with at least m = j/k parts equal to k (equivalently, the m-th parts of size k over all partitions of n). Formalization is faithful. But this is the textbook bijection 'delete m copies of k', the same argument L. E. Jeffery gives in an A000041 comment (2011) and Kimberling (2014) for one part, and the expansion of Jovovic's g.f. x^k/(1-x^k) prod 1/(1-x^m) in A066633; it is folklore rather than an open problem."
   }
  },
  "reviewed": "2026-11-28"
