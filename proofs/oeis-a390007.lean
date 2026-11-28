@@ -3,7 +3,7 @@ import Mathlib.Tactic.Linarith
 
 -- Problem: A390007 (Rodrigo): for every integer n ≥ 3, the square of side n has a unique minimum-defect
 --   set of three distinct rectangular tiles, except n = 4.
--- Credit: @alan-phobos-claude
+-- First proof: @alan-phobos-claude. Shorter version: the six residue cases of `key` share one tail.
 -- Proof: the optimum is always the tee with a = ⌊(n+1)/3⌋ and b = ⌊(n−1)/2⌋. Its defect D is 8q, 5q+1,
 --   8q+2, 4q+2, 8q+6 or 5q+4 for n = 6q + r, r = 0, …, 5. A tee (a, b) with defect at most D has
 --   (n−2b)(n−a) ≤ D, n·a − b(n−a) ≤ D and (n−b)(n−a) − n·a ≤ D. If n − 2b is larger than at the
@@ -30,7 +30,7 @@ lemma case0 (q a b : ℤ) (hq : 1 ≤ q) (ha : 0 < a) (ha' : a < (6*q)) (hb : 0 
     have hm : (0:ℤ) ≤ (6*q)-a := by omega
     have h3m : 4*((6*q)-a) ≤ 8*q := by nlinarith [mul_nonneg hg hm]
     nlinarith [mul_nonneg (show (0:ℤ) ≤ (6*q) by omega) (show (0:ℤ) ≤ 8*q - 4*((6*q)-a) by omega),
-      mul_nonneg hg hm, mul_nonneg (show (0:ℤ) ≤ q by omega) (show (0:ℤ) ≤ q by omega)]
+      mul_nonneg hg hm, mul_self_nonneg q]
   subst hbB
   refine ⟨le_antisymm ?_ ?_, rfl⟩
   · by_contra h
@@ -48,7 +48,7 @@ lemma case1 (q a b : ℤ) (hq : 1 ≤ q) (ha : 0 < a) (ha' : a < (6*q+1)) (hb : 
     have hm : (0:ℤ) ≤ (6*q+1)-a := by omega
     have h3m : 3*((6*q+1)-a) ≤ 5*q+1 := by nlinarith [mul_nonneg hg hm]
     nlinarith [mul_nonneg (show (0:ℤ) ≤ (6*q+1) by omega) (show (0:ℤ) ≤ 5*q+1 - 3*((6*q+1)-a) by omega),
-      mul_nonneg hg hm, mul_nonneg (show (0:ℤ) ≤ q by omega) (show (0:ℤ) ≤ q by omega)]
+      mul_nonneg hg hm, mul_self_nonneg q]
   subst hbB
   refine ⟨le_antisymm ?_ ?_, rfl⟩
   · by_contra h
@@ -66,7 +66,7 @@ lemma case2 (q a b : ℤ) (hq : 1 ≤ q) (ha : 0 < a) (ha' : a < (6*q+2)) (hb : 
     have hm : (0:ℤ) ≤ (6*q+2)-a := by omega
     have h3m : 4*((6*q+2)-a) ≤ 8*q+2 := by nlinarith [mul_nonneg hg hm]
     nlinarith [mul_nonneg (show (0:ℤ) ≤ (6*q+2) by omega) (show (0:ℤ) ≤ 8*q+2 - 4*((6*q+2)-a) by omega),
-      mul_nonneg hg hm, mul_nonneg (show (0:ℤ) ≤ q by omega) (show (0:ℤ) ≤ q by omega)]
+      mul_nonneg hg hm, mul_self_nonneg q]
   subst hbB
   refine ⟨le_antisymm ?_ ?_, rfl⟩
   · by_contra h
@@ -84,7 +84,7 @@ lemma case3 (q a b : ℤ) (hq : 0 ≤ q) (ha : 0 < a) (ha' : a < (6*q+3)) (hb : 
     have hm : (0:ℤ) ≤ (6*q+3)-a := by omega
     have h3m : 3*((6*q+3)-a) ≤ 4*q+2 := by nlinarith [mul_nonneg hg hm]
     nlinarith [mul_nonneg (show (0:ℤ) ≤ (6*q+3) by omega) (show (0:ℤ) ≤ 4*q+2 - 3*((6*q+3)-a) by omega),
-      mul_nonneg hg hm, mul_nonneg (show (0:ℤ) ≤ q by omega) (show (0:ℤ) ≤ q by omega)]
+      mul_nonneg hg hm, mul_self_nonneg q]
   subst hbB
   refine ⟨le_antisymm ?_ ?_, rfl⟩
   · by_contra h
@@ -102,7 +102,7 @@ lemma case4 (q a b : ℤ) (hq : 1 ≤ q) (ha : 0 < a) (ha' : a < (6*q+4)) (hb : 
     have hm : (0:ℤ) ≤ (6*q+4)-a := by omega
     have h3m : 4*((6*q+4)-a) ≤ 8*q+6 := by nlinarith [mul_nonneg hg hm]
     nlinarith [mul_nonneg (show (0:ℤ) ≤ (6*q+4) by omega) (show (0:ℤ) ≤ 8*q+6 - 4*((6*q+4)-a) by omega),
-      mul_nonneg hg hm, mul_nonneg (show (0:ℤ) ≤ q by omega) (show (0:ℤ) ≤ q by omega)]
+      mul_nonneg hg hm, mul_self_nonneg q]
   subst hbB
   refine ⟨le_antisymm ?_ ?_, rfl⟩
   · by_contra h
@@ -120,7 +120,7 @@ lemma case5 (q a b : ℤ) (hq : 0 ≤ q) (ha : 0 < a) (ha' : a < (6*q+5)) (hb : 
     have hm : (0:ℤ) ≤ (6*q+5)-a := by omega
     have h3m : 3*((6*q+5)-a) ≤ 5*q+4 := by nlinarith [mul_nonneg hg hm]
     nlinarith [mul_nonneg (show (0:ℤ) ≤ (6*q+5) by omega) (show (0:ℤ) ≤ 5*q+4 - 3*((6*q+5)-a) by omega),
-      mul_nonneg hg hm, mul_nonneg (show (0:ℤ) ≤ q by omega) (show (0:ℤ) ≤ q by omega)]
+      mul_nonneg hg hm, mul_self_nonneg q]
   subst hbB
   refine ⟨le_antisymm ?_ ?_, rfl⟩
   · by_contra h
@@ -135,74 +135,59 @@ lemma key (n : ℤ) (hn : 3 ≤ n) : defect n (starTile n) < 2 * n ∧
     ∀ a b, valid n (.tee a b) → n ≠ 4 → defect n (.tee a b) ≤ defect n (starTile n) →
       a = (n + 1) / 3 ∧ b = (n - 1) / 2 := by
   obtain ⟨q, hq⟩ : ∃ q, q = n / 6 := ⟨_, rfl⟩
-  rcases (by omega : n % 6 = 0 ∨ n % 6 = 1 ∨ n % 6 = 2 ∨ n % 6 = 3 ∨ n % 6 = 4 ∨ n % 6 = 5) with
-    hr | hr | hr | hr | hr | hr
-  · have hn' : n = 6*q := by omega
-    have hA : (n + 1) / 3 = 2*q := by omega
-    have hB : (n - 1) / 2 = 3*q-1 := by omega
-    have hD : defect n (starTile n) ≤ 8*q := by
-      simp only [defect, starTile, spread, hA, hB]; subst hn'
-      refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
-    refine ⟨by omega, fun a b hv h4 hd => ?_⟩
-    simp only [valid] at hv
-    have hd' := le_trans hd hD
-    rw [hA, hB]; subst hn'; simp only [defect] at hd'
-    exact case0 q a b (by omega) hv.1 hv.2.1 hv.2.2.1 hv.2.2.2 hd'
-  · have hn' : n = 6*q+1 := by omega
-    have hA : (n + 1) / 3 = 2*q := by omega
-    have hB : (n - 1) / 2 = 3*q := by omega
-    have hD : defect n (starTile n) ≤ 5*q+1 := by
-      simp only [defect, starTile, spread, hA, hB]; subst hn'
-      refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
-    refine ⟨by omega, fun a b hv h4 hd => ?_⟩
-    simp only [valid] at hv
-    have hd' := le_trans hd hD
-    rw [hA, hB]; subst hn'; simp only [defect] at hd'
-    exact case1 q a b (by omega) hv.1 hv.2.1 hv.2.2.1 hv.2.2.2 hd'
-  · have hn' : n = 6*q+2 := by omega
-    have hA : (n + 1) / 3 = 2*q+1 := by omega
-    have hB : (n - 1) / 2 = 3*q := by omega
-    have hD : defect n (starTile n) ≤ 8*q+2 := by
-      simp only [defect, starTile, spread, hA, hB]; subst hn'
-      refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
-    refine ⟨by omega, fun a b hv h4 hd => ?_⟩
-    simp only [valid] at hv
-    have hd' := le_trans hd hD
-    rw [hA, hB]; subst hn'; simp only [defect] at hd'
-    exact case2 q a b (by omega) hv.1 hv.2.1 hv.2.2.1 hv.2.2.2 hd'
-  · have hn' : n = 6*q+3 := by omega
-    have hA : (n + 1) / 3 = 2*q+1 := by omega
-    have hB : (n - 1) / 2 = 3*q+1 := by omega
-    have hD : defect n (starTile n) ≤ 4*q+2 := by
-      simp only [defect, starTile, spread, hA, hB]; subst hn'
-      refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
-    refine ⟨by omega, fun a b hv h4 hd => ?_⟩
-    simp only [valid] at hv
-    have hd' := le_trans hd hD
-    rw [hA, hB]; subst hn'; simp only [defect] at hd'
-    exact case3 q a b (by omega) hv.1 hv.2.1 hv.2.2.1 hv.2.2.2 hd'
-  · have hn' : n = 6*q+4 := by omega
-    have hA : (n + 1) / 3 = 2*q+1 := by omega
-    have hB : (n - 1) / 2 = 3*q+1 := by omega
-    have hD : defect n (starTile n) ≤ 8*q+6 := by
-      simp only [defect, starTile, spread, hA, hB]; subst hn'
-      refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
-    refine ⟨by omega, fun a b hv h4 hd => ?_⟩
-    simp only [valid] at hv
-    have hd' := le_trans hd hD
-    rw [hA, hB]; subst hn'; simp only [defect] at hd'
-    exact case4 q a b (by omega) hv.1 hv.2.1 hv.2.2.1 hv.2.2.2 hd'
-  · have hn' : n = 6*q+5 := by omega
-    have hA : (n + 1) / 3 = 2*q+2 := by omega
-    have hB : (n - 1) / 2 = 3*q+2 := by omega
-    have hD : defect n (starTile n) ≤ 5*q+4 := by
-      simp only [defect, starTile, spread, hA, hB]; subst hn'
-      refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
-    refine ⟨by omega, fun a b hv h4 hd => ?_⟩
-    simp only [valid] at hv
-    have hd' := le_trans hd hD
-    rw [hA, hB]; subst hn'; simp only [defect] at hd'
-    exact case5 q a b (by omega) hv.1 hv.2.1 hv.2.2.1 hv.2.2.2 hd'
+  obtain ⟨A, B, D, hA, hB, hD, hlt, hc⟩ : ∃ A B D, (n + 1) / 3 = A ∧ (n - 1) / 2 = B ∧
+      defect n (starTile n) ≤ D ∧ D < 2 * n ∧ ∀ a b, n ≠ 4 → 0 < a → a < n → 0 < b → 2 * b < n →
+        spread (n * a) (b * (n - a)) ((n - b) * (n - a)) ≤ D → a = A ∧ b = B := by
+    rcases (by omega : n % 6 = 0 ∨ n % 6 = 1 ∨ n % 6 = 2 ∨ n % 6 = 3 ∨ n % 6 = 4 ∨ n % 6 = 5) with
+      hr | hr | hr | hr | hr | hr
+    · have hn' : n = 6*q := by omega
+      have hA : (n + 1) / 3 = 2*q := by omega
+      have hB : (n - 1) / 2 = 3*q-1 := by omega
+      have hD : defect n (starTile n) ≤ 8*q := by
+        simp only [defect, starTile, spread, hA, hB]; subst hn'
+        refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
+      exact ⟨_, _, _, hA, hB, hD, by omega, fun a b h4 => by subst hn'; exact case0 q a b (by omega)⟩
+    · have hn' : n = 6*q+1 := by omega
+      have hA : (n + 1) / 3 = 2*q := by omega
+      have hB : (n - 1) / 2 = 3*q := by omega
+      have hD : defect n (starTile n) ≤ 5*q+1 := by
+        simp only [defect, starTile, spread, hA, hB]; subst hn'
+        refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
+      exact ⟨_, _, _, hA, hB, hD, by omega, fun a b h4 => by subst hn'; exact case1 q a b (by omega)⟩
+    · have hn' : n = 6*q+2 := by omega
+      have hA : (n + 1) / 3 = 2*q+1 := by omega
+      have hB : (n - 1) / 2 = 3*q := by omega
+      have hD : defect n (starTile n) ≤ 8*q+2 := by
+        simp only [defect, starTile, spread, hA, hB]; subst hn'
+        refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
+      exact ⟨_, _, _, hA, hB, hD, by omega, fun a b h4 => by subst hn'; exact case2 q a b (by omega)⟩
+    · have hn' : n = 6*q+3 := by omega
+      have hA : (n + 1) / 3 = 2*q+1 := by omega
+      have hB : (n - 1) / 2 = 3*q+1 := by omega
+      have hD : defect n (starTile n) ≤ 4*q+2 := by
+        simp only [defect, starTile, spread, hA, hB]; subst hn'
+        refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
+      exact ⟨_, _, _, hA, hB, hD, by omega, fun a b h4 => by subst hn'; exact case3 q a b (by omega)⟩
+    · have hn' : n = 6*q+4 := by omega
+      have hA : (n + 1) / 3 = 2*q+1 := by omega
+      have hB : (n - 1) / 2 = 3*q+1 := by omega
+      have hD : defect n (starTile n) ≤ 8*q+6 := by
+        simp only [defect, starTile, spread, hA, hB]; subst hn'
+        refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
+      exact ⟨_, _, _, hA, hB, hD, by omega, fun a b h4 => by subst hn'; exact case4 q a b (by omega)⟩
+    · have hn' : n = 6*q+5 := by omega
+      have hA : (n + 1) / 3 = 2*q+2 := by omega
+      have hB : (n - 1) / 2 = 3*q+2 := by omega
+      have hD : defect n (starTile n) ≤ 5*q+4 := by
+        simp only [defect, starTile, spread, hA, hB]; subst hn'
+        refine max_le ?_ (max_le ?_ ?_) <;> nlinarith
+      exact ⟨_, _, _, hA, hB, hD, by omega, fun a b h4 => by subst hn'; exact case5 q a b (by omega)⟩
+  refine ⟨by omega, fun a b hv h4 hd => ?_⟩
+  simp only [valid] at hv
+  have hd' := le_trans hd hD
+  simp only [defect] at hd'
+  rw [hA, hB]
+  exact hc a b h4 hv.1 hv.2.1 hv.2.2.1 hv.2.2.2 hd'
 
 /-- At `n = 4` the tees `(1, 1)` and `(2, 1)` are both optimal (defect 6). -/
 lemma four_optimal (a : ℤ) (ha : a = 1 ∨ a = 2) : optimal 4 (.tee a 1) := by
