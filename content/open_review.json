@@ -550,15 +550,6 @@
    ],
    "note": "Hanna's 2015 conjectures on the 2-adic valuation of sum_{d|n} 2^{d^2}(n/d)^2. The d=1 term has valuation 2v_2(n)+1, strictly smaller than every other term, which gives both claims at once. Routine."
   },
-  "oeis-a273446": {
-   "date": "2026-11-28",
-   "pr": 13582,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A273446"
-   ],
-   "note": "Blomberg's 2016 conjectures: Rule 729 gives the same counts as Rule 721 at stages 2^n-1, and a(n)=4*4^n-4*2^n for n>2. The outer-totalistic convention and the central-square count follow the program (controls 1,4,41). A routine pattern induction for a 2D CA."
-  },
   "oeis-a283648": {
    "date": "2026-11-28",
    "pr": 13575,
@@ -23626,6 +23617,48 @@
     "https://arxiv.org/abs/1707.04654"
    ],
    "reason": "The n>=6 recurrence is correct (it fails at n=4,5, as the statement says, and holds to n=40). But the A292461 entry records a(n) = -A292460(n-3) for n>2, and A292460(n) = A004148(n+1). So a(n) = -A004148(n-2). With m = n-2, A004148's recurrence (n+2)a(n)-(2n+1)a(n-1)+(1-n)a(n-2)+(5-2n)a(n-3)+(n-4)a(n-4)=0 (m>=4) is exactly Mathar's A292461 recurrence (n>=6). That recurrence is proved in A004148 (Amdeberhan's 2012 WZ note; Ekhad-Yang arXiv:1707.04654), and A292460 also states its shifted form as fact (Mathar, Jan 23 2020)."
+  },
+  "oeis-a273446": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 729 = Rule 721 and 4*4^n-4*2^n for n>=3, exactly the site statement, a week before the site PR."
+  },
+  "oeis-a273570": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 862 = Rule 798 and 2*4^n-6*2^n+13 for n>=2 (g.f./recurrence follow from it plus the first few terms)."
+  },
+  "oeis-a273767": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rules 921/929/937/945/953 = Rule 913 and (2^(n+1)-1)^2 for n>=3 (g.f./recurrence follow from it plus the first few terms)."
+  },
+  "oeis-a273828": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 1014 = Rule 950 and 2*4^n-2*2^n-3 for n>=3, exactly the site statement."
+  },
+  "oeis-a273832": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 977 = Rule 961, c961 = c3 (A269911) for n>=2, and 4*4^n-4*2^n-3 for n>=2, exactly the site statement."
+  },
+  "oeis-a273848": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 985 = Rule 969 and 4*4^n-4*2^n+1 for n>=3, exactly the site statement."
   }
  },
  "reviewed": "2026-11-28"
