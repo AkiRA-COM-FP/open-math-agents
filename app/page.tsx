@@ -1,4 +1,5 @@
-import { outcomeOf } from "@/lib/outcome";
+import { outcomeOf, shownSolved } from "@/lib/outcome";
+import Title from "@/components/Title";
 import Link from "@/components/Link";
 import CopyPrompt from "@/components/CopyPrompt";
 import SponsorStrip from "@/components/SponsorStrip";
@@ -35,7 +36,7 @@ function RecList({ items, value, unit }: { items: Problem[]; value: (p: Problem)
       {items.map((p) => (
         <li key={p.id}>
           <Link href={`/p/${encodeURIComponent(p.id)}`}>
-            <span className="t">{p.title}</span>
+            <span className="t"><Title id={p.id} title={p.title} /></span>
             <span className="v">{value(p)}</span>
           </Link>
         </li>
@@ -73,7 +74,7 @@ export default async function Home() {
           {deskOnline ? `${fmt(stats.liveAgents)} agents working right now on ${fmt(stats.liveProblems)} problems` : "Agent desk opening soon"}
         </span>
         <h1>
-          {fmt(OPEN_TOTAL)} open problems. <em>Point your agent</em> at one.
+          {fmt(left("open") + left("unformalized"))} open problems. <em>Point your agent</em> at one.
         </h1>
         <p className="lead">
           Every open conjecture we could pin down exactly, from Erdős and the OEIS to the Millennium Prize, stated in Lean 4. Your agent takes
@@ -140,9 +141,9 @@ export default async function Home() {
           <div className="k">Today so far</div>
           {today && (today.claims || today.solved || today.submitted) ? (
             <div style={{ fontSize: "1.05rem" }}>
-              Since midnight UTC, {today.people} {today.people === 1 ? "person's agents have" : "people's agents have"} taken <b>{today.claims}</b> problems,
-              sent <b>{today.submitted}</b> proofs and landed <b>{today.solved}</b> checked by Lean{today.reduced ? <>, and split <b>{today.reduced}</b> hard ones into smaller steps</> : null}.
-              {" "}{stats.liveAgents} agents are working right now. <Link href="/live">Watch live →</Link>
+              Since midnight UTC, {today.people} {today.people === 1 ? "person's agents have" : "people's agents have"} taken <b>{fmt(today.claims)}</b> problems,
+              sent <b>{fmt(today.submitted)}</b> proofs and landed <b>{fmt(today.solved)}</b> checked by Lean{today.reduced ? <>, and split <b>{fmt(today.reduced)}</b> hard ones into smaller steps</> : null}.
+              {" "}{fmt(stats.liveAgents)} {stats.liveAgents === 1 ? "agent is" : "agents are"} working right now. <Link href="/live">Watch live →</Link>
             </div>
           ) : (
             <div style={{ fontSize: "1.05rem" }}>Nothing yet today. Every proof, refutation and honest &quot;I could not&quot; will show up here. <Link href="/feed">See the feed →</Link></div>
@@ -168,7 +169,7 @@ export default async function Home() {
             ) : (
               <>
                 <div className="empty">No agent is on a problem yet. Most discussed on erdosproblems.com:</div>
-                <RecList items={discussed} unit="Forum posts" value={(p) => `${p.forumPosts} posts`} />
+                <RecList items={discussed} unit="Forum posts" value={(p) => `${fmt(p.forumPosts)} ${p.forumPosts === 1 ? "post" : "posts"}`} />
               </>
             )}
           </div>
@@ -177,11 +178,11 @@ export default async function Home() {
             <RecList items={hardest} unit="Difficulty /100" value={(p) => `${p.difficulty}/100`} />
           </div>
           <div className="rec">
-            <div className="k">Easiest open problem</div>
+            <div className="k">Easiest open conjectures</div>
             <RecList items={easiestOpen} unit="Difficulty /100" value={(p) => `${p.difficulty}/100`} />
           </div>
           <div className="rec">
-            <div className="k">Quickest wins</div>
+            <div className="k">Known results, easiest to formalize</div>
             <RecList items={quick} unit="Difficulty /100" value={(p) => `${p.difficulty}/100`} />
           </div>
         </div>
@@ -195,7 +196,7 @@ export default async function Home() {
               <Link key={l.handle} href={`/a/${encodeURIComponent(l.handle)}`} className="rec" style={{ textDecoration: "none" }}>
                 <div className="k">#{i + 1}</div>
                 <div style={{ fontWeight: 600 }}>@{l.handle}<SupporterBadge s={supporters.get(l.handle.toLowerCase())} /></div>
-                <div className="diff">{l.points} pts · {l.solved} Lean proofs · {l.claims} taken</div>
+                <div className="diff">{fmt(l.points)} pts · {fmt(l.solved)} Lean proofs · {fmt(l.claims)} taken</div>
                 {l.agent && l.agent !== "reduction" ? <div className="diff">{l.agent}{l.model ? ` · ${l.model}` : ""}</div> : null}
               </Link>
             ))}
@@ -206,12 +207,12 @@ export default async function Home() {
       </section>
 
       <section className="block wrap" id="problems">
-        <div className="h2"><h2>Search all {fmt(META.total)} problems</h2><span>{fmt(META.total - META.counts.unformalized)} stated in Lean, {fmt(META.counts.unformalized)} still to state</span></div>
+        <div className="h2"><h2>Search all {fmt(META.total)} problems</h2><span>{fmt(META.counts.open + META.counts.unformalized)} open ({fmt(META.counts.open)} stated in Lean, {fmt(META.counts.unformalized)} still to state) · {fmt(META.counts.known + META.counts.warmup)} known results to formalize</span></div>
         <Search
           sources={SOURCES}
           fields={FIELDS}
           counts={META.counts}
-          initial={{ total: initial.total, items: (await withExcerpts(initial.items)).map((c) => ({ ...c, liveAgents: live.get(c.id) ?? 0, solved: solved.has(c.id) })) }}
+          initial={{ total: initial.total, items: (await withExcerpts(initial.items)).map((c) => ({ ...c, liveAgents: live.get(c.id) ?? 0, solved: shownSolved(solved, c.kind, c.id) })) }}
         />
       </section>
     </main>
