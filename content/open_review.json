@@ -15197,6 +15197,32 @@
     "https://arxiv.org/abs/1401.3727"
    ],
    "reason": "Statement faithful to Shevelev's conjecture for every odd k (consecutive solutions of t(n) = t(n+k) alternate between evil and odious). It is Theorem 3.1 ('Shevelev's conjecture') of J.-P. Allouche, 'Thue, combinatorics on words, and conjectures inspired by the Thue-Morse sequence', J. Theor. Nombres Bordeaux 27 (2015), arXiv:1401.3727, which is linked from the entry."
+  },
+  "oeis-a174013": {
+   "date": "2026-11-28",
+   "pr": 24472,
+   "evidence": [
+    "https://oeis.org/A174013",
+    "https://zenodo.org/records/24550766"
+   ],
+   "reason": "Statement faithful (g.f. normalised correctly; recurrence n>=7 verified numerically). But Zenodo record 24550766 (JiaZhuang Wang, 2026-11-26, 'Resolved Conjectures on OEIS A352834, A304362, and A174013', with Lean 4) proves Mathar's 7th-order recurrence for A174013, one day before this proof was merged (2026-11-27)."
+  },
+  "oeis-a176006": {
+   "date": "2026-11-28",
+   "pr": 24539,
+   "evidence": [
+    "https://oeis.org/A176006",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "Statement faithful (g.f. (3-x-sqrt(1-6x+x^2))/(2(1-x)), recurrence n>=3; verified numerically). Already proved as Proposition 10.23 in Roberto Blanco Gomez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo 23112421, 2026-10-02), well before this proof (2026-11-27)."
+  },
+  "oeis-a177122": {
+   "date": "2026-11-28",
+   "pr": 23055,
+   "evidence": [
+    "https://oeis.org/A177122"
+   ],
+   "reason": "Statement faithful (a(1)=6, k=1, l=1; recurrence verified numerically). The OEIS entry itself records 'Conjecture verified using differential equation ... satisfied by the g.f. - Robert Israel, Jan 07 2026', i.e. the conjecture was settled in the source before this proof (2026-11-28)."
   }
  },
  "reviewed": "2026-11-28"
