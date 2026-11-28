@@ -2,19 +2,23 @@ import FormalConjectures.ErdosProblems.«145»
 import Mathlib
 
 /-!
-Convergence of squarefree-gap moments for exponents from zero through three.
+Squarefree-gap moments for exponents from zero through three.
 
-The remaining analytic input is a linear upper bound for the order-7/2
-moment of completed gaps, as in Chan, arXiv:2310.08448, equation (3).
-Bertrand's postulate includes the gap crossing the cutoff by doubling it.
-The fixed-gap frequencies have a proof in PR 4209. The Cauchy argument
-adapts the truncation proofs in PRs 3976 and 4712.
+A gap of weight w = g³√g is charged to an interior multiple of p² when
+w (1 + ⌊log₂ p⌋) ≤ p. The product bound on primes in each dyadic block and
+disjointness of the gaps give an unconditional total charge of at most 8N.
+The remaining analytic estimate concerns the complementary completed gaps.
+Chan (arXiv:2310.08448, Sections 1 and 2) gives the moment asymptotic and
+describes the large-prime and small-prime cases in the proof.
+
+Bertrand's postulate controls the gap crossing the cutoff. The fixed-gap
+frequencies have a proof in PR 4209. The Cauchy argument adapts PRs 3976 and 4712.
 -/
 -- Credit: @Pasx71
 
 namespace OMA.R_Erdos145_erdos_145_variants_le_three_R2
 
-open Filter Finset Erdos145
+open Filter Finset Erdos145 Classical
 open scoped Topology BigOperators
 
 /-- Each fixed gap size has a limiting frequency. -/
@@ -22,11 +26,166 @@ def H1 : Prop := ∀ k : ℕ, ∃ d : ℝ,
   Tendsto (fun x : ℝ => 1/x * (((A x).filter
     (fun n => s (n+1)-s n = k)).card : ℝ)) atTop (𝓝 d)
 
-/-- An eventual bound for the moment of order seven halves over completed gaps.
-The weight is written as the cube of the gap times its square root. -/
-def H2 : Prop := ∃ C : ℝ, 0 < C ∧ ∀ᶠ y : ℝ in atTop,
-  (∑ n ∈ (A y).filter (fun n => s (n+1) ≤ ⌊y⌋₊),
-    ((s (n+1)-s n : ℕ) : ℝ)^3 * Real.sqrt ((s (n+1)-s n : ℕ) : ℝ)) ≤ C*y
+/-- Bound the order-7/2 moment on gaps that have no large prime-square witness. -/
+def H2 : Prop :=
+  let w (n : ℕ) : ℝ := ((s (n+1)-s n : ℕ) : ℝ)^3 * Real.sqrt ((s (n+1)-s n : ℕ) : ℝ)
+  let large (n : ℕ) := ∃ p q : ℕ, p.Prime ∧ s n < p^2*q ∧ p^2*q < s (n+1) ∧
+    w n * ((Nat.log 2 p : ℝ)+1) ≤ p
+  ∃ C : ℝ, 0 < C ∧ ∀ᶠ y : ℝ in atTop,
+    ∑ n ∈ ((A y).filter (fun n => s (n+1) ≤ ⌊y⌋₊)).filter (fun n => ¬ large n), w n ≤ C*y
+
+/-- The primorial bound controls the number of primes in one dyadic block. -/
+lemma prime_block_card (k : ℕ) :
+    ((Nat.primesLE (2^(k+1))).filter (fun p => 2^k ≤ p)).card * k ≤ 4 * 2^k := by
+  let B := (Nat.primesLE (2^(k+1))).filter (fun p => 2^k ≤ p)
+  apply (Nat.pow_le_pow_iff_right (by decide : 1 < 2)).mp
+  calc
+    2^(B.card*k) = ∏ _p ∈ B, 2^k := by rw [prod_const, ← pow_mul, mul_comm]
+    _ ≤ ∏ p ∈ B, p := prod_le_prod (fun _ _ => Nat.zero_le _) (fun _ hp => (mem_filter.mp hp).2)
+    _ ≤ ∏ p ∈ Nat.primesLE (2^(k+1)), p :=
+      prod_le_prod_of_subset_of_one_le' (filter_subset ..) (fun _ hp _ => (Nat.mem_primesLE.mp hp).2.one_le)
+    _ = primorial (2^(k+1)) := rfl
+    _ ≤ 4^(2^(k+1)) := primorial_le_four_pow _
+    _ = 2^(4*2^k) := by
+      rw [show (4:ℕ) = 2^2 by decide, ← pow_mul, pow_succ 2 k]
+      congr 1
+      ring
+
+lemma sum_reciprocal_steps (K : ℕ) :
+    ∑ k ∈ range K, ((1:ℝ)/(k+1) - 1/(k+2)) = 1 - 1/(K+1) := by
+  induction K with
+  | zero => norm_num
+  | succ k ih => rw [sum_range_succ, ih]; push_cast; ring
+
+/-- For one dyadic block of primes, count disjoint prime-square multiples up to N. -/
+lemma block_mass (T : Finset ℕ) (w : ℕ → ℝ) (p q : ℕ → ℕ) (N j : ℕ)
+    (hinj : Set.InjOn (fun n => (p n, q n)) T)
+    (hprime : ∀ n ∈ T, (p n).Prime)
+    (hq : ∀ n ∈ T, 0 < q n) (hN : ∀ n ∈ T, (p n)^2*q n ≤ N)
+    (hlog : ∀ n ∈ T, Nat.log 2 (p n) = j+1)
+    (hw : ∀ n ∈ T, w n * ((j:ℝ)+2) ≤ p n) :
+    ∑ n ∈ T, w n ≤ 8*N*(1/((j:ℝ)+1)-1/((j:ℝ)+2)) := by
+  let k := j+1
+  let B := (Nat.primesLE (2^(k+1))).filter (fun t => 2^k ≤ t)
+  let Q := N / (2^k)^2
+  have hlow (n) (hn : n ∈ T) : 2^k ≤ p n := by
+    simpa only [hlog n hn, k] using Nat.pow_log_le_self 2 (hprime n hn).ne_zero
+  have hupp (n) (hn : n ∈ T) : p n < 2^(k+1) := by
+    simpa only [hlog n hn, k] using Nat.lt_pow_succ_log_self (by decide : 1 < 2) (p n)
+  have hmaps : Set.MapsTo (fun n => (p n, q n)) T (↑(B ×ˢ Ioc 0 Q : Finset (ℕ × ℕ)) : Set (ℕ × ℕ)) := by
+    intro n hn
+    refine mem_product.mpr ⟨mem_filter.mpr ⟨Nat.mem_primesLE.mpr ⟨(hupp n hn).le, hprime n hn⟩, hlow n hn⟩, ?_⟩
+    refine mem_Ioc.mpr ⟨hq n hn, (Nat.le_div_iff_mul_le (by positivity : 0 < (2^k)^2)).mpr ?_⟩
+    calc
+      q n * (2^k)^2 ≤ q n * (p n)^2 := by gcongr; exact hlow n hn
+      _ ≤ N := by simpa only [mul_comm] using hN n hn
+  have hcard : T.card ≤ B.card * Q := by
+    simpa only [card_product, Nat.card_Ioc, Nat.sub_zero] using card_le_card_of_injOn _ hmaps hinj
+  have hcnt : 2^k * k * T.card ≤ 4*N := by
+    apply Nat.le_of_mul_le_mul_right (c := 2^k) _ (by positivity)
+    calc
+      (2^k*k*T.card)*2^k ≤ (2^k*k*(B.card*Q))*2^k := by gcongr
+      _ = (B.card*k) * (Q*(2^k)^2) := by ring
+      _ ≤ (4*2^k)*N := Nat.mul_le_mul (prime_block_card k) (Nat.div_mul_le_self ..)
+      _ = (4*N)*2^k := by ring
+  have hsum : (∑ n ∈ T, w n) * ((j:ℝ)+2) ≤ T.card*(2*(2:ℝ)^k) := by
+    rw [sum_mul]
+    calc
+      _ ≤ ∑ _n ∈ T, 2*(2:ℝ)^k := by
+        apply sum_le_sum
+        intro n hn
+        apply (hw n hn).trans
+        exact_mod_cast (show p n ≤ 2*2^k by simpa only [pow_succ, mul_comm] using (hupp n hn).le)
+      _ = _ := by rw [sum_const, nsmul_eq_mul]
+  have hc : (2:ℝ)^k * k * T.card ≤ 4*N := by exact_mod_cast hcnt
+  have hmass : (∑ n ∈ T, w n) * (((j:ℝ)+1)*((j:ℝ)+2)) ≤ 8*N := by
+    have hk : (k:ℝ) = j+1 := by simp [k]
+    calc
+      _ = ((∑ n ∈ T, w n) * ((j:ℝ)+2)) * k := by rw [hk]; ring
+      _ ≤ (T.card*(2*(2:ℝ)^k))*k := mul_le_mul_of_nonneg_right hsum (by positivity)
+      _ = 2 * ((2:ℝ)^k * k * T.card) := by ring
+      _ ≤ _ := by linarith only [hc]
+  have hid : 8*(N:ℝ)*(1/((j:ℝ)+1)-1/((j:ℝ)+2)) =
+      8*N/(((j:ℝ)+1)*((j:ℝ)+2)) := by
+    field_simp
+    ring
+  rw [hid]
+  exact (le_div_iff₀ (by positivity)).mpr hmass
+
+/-- A prime-square witness in each gap bounds the total weight by 8N. -/
+lemma witness_mass (T : Finset ℕ) (w : ℕ → ℝ) (N : ℕ)
+    (hend : ∀ n ∈ T, s (n+1) ≤ N)
+    (witness : ∀ n ∈ T, ∃ p q : ℕ, p.Prime ∧ s n < p^2*q ∧ p^2*q < s (n+1) ∧
+      w n * ((Nat.log 2 p : ℝ)+1) ≤ p) :
+    ∑ n ∈ T, w n ≤ 8*N := by
+  classical
+  choose! p q hp hleft hright hprice using witness
+  have hinj : Set.InjOn (fun n => (p n, q n)) T := by
+    intro a ha b hb heq
+    have he : (p a)^2*q a = (p b)^2*q b :=
+      congrArg (fun t : ℕ × ℕ => t.1^2*t.2) heq
+    have mono : Monotone s := (Nat.nth_strictMono Nat.squarefree_infinite).monotone
+    rcases lt_trichotomy a b with h | h | h
+    · have := mono (show a+1 ≤ b from h)
+      have := hright a ha
+      have := hleft b hb
+      omega
+    · exact h
+    · have := mono (show b+1 ≤ a from h)
+      have := hright b hb
+      have := hleft a ha
+      omega
+  let scale (n : ℕ) := Nat.log 2 (p n) - 1
+  let K := T.sup scale + 1
+  have maps : ∀ n ∈ T, scale n ∈ range K := fun n hn =>
+    mem_range.mpr (Nat.lt_succ_of_le (le_sup hn))
+  rw [← sum_fiberwise_of_maps_to maps w]
+  calc
+    _ ≤ ∑ j ∈ range K, 8*(N:ℝ)*(1/((j:ℝ)+1)-1/((j:ℝ)+2)) := by
+      apply sum_le_sum
+      intro j _
+      let F := T.filter fun n => scale n = j
+      have sub : F ⊆ T := filter_subset ..
+      have hj (n) (hn : n ∈ F) : Nat.log 2 (p n) = j+1 := by
+        have h1 := (mem_filter.mp hn).2
+        have h2 := Nat.log_pos (by decide : 1 < 2) (hp n (sub hn)).two_le
+        dsimp [scale] at h1
+        omega
+      apply block_mass F w p q N j (hinj.mono sub) (fun n hn => hp n (sub hn)) _ _ hj
+      · intro n hn
+        specialize hprice n (sub hn)
+        rw [hj n hn] at hprice
+        push_cast at hprice
+        linarith only [hprice]
+      · intro n hn
+        by_contra! hzero
+        have := hleft n (sub hn)
+        simp [Nat.le_zero.mp hzero] at this
+      · exact fun n hn => (hright n (sub hn)).le.trans (hend n (sub hn))
+    _ = 8*(N:ℝ)*(1-1/((K:ℝ)+1)) := by rw [← mul_sum, sum_reciprocal_steps]
+    _ ≤ 8*N := by
+      have h : 0 ≤ 1/((K:ℝ)+1) := by positivity
+      nlinarith only [mul_nonneg (show 0 ≤ 8*(N:ℝ) by positivity) h]
+
+/-- The large-prime part and the residual bound together control all completed gaps. -/
+lemma completed_moment (residual : H2) :
+    ∃ C : ℝ, 0 < C ∧ ∀ᶠ y : ℝ in atTop,
+      (∑ n ∈ (A y).filter (fun n => s (n+1) ≤ ⌊y⌋₊),
+        ((s (n+1)-s n : ℕ) : ℝ)^3 * Real.sqrt ((s (n+1)-s n : ℕ) : ℝ)) ≤ C*y := by
+  classical
+  let w (n : ℕ) : ℝ := ((s (n+1)-s n : ℕ) : ℝ)^3 * Real.sqrt ((s (n+1)-s n : ℕ) : ℝ)
+  let large (n : ℕ) := ∃ p q : ℕ, p.Prime ∧ s n < p^2*q ∧ p^2*q < s (n+1) ∧
+    w n * ((Nat.log 2 p : ℝ)+1) ≤ p
+  obtain ⟨C, hC, hb⟩ := residual
+  refine ⟨C+8, by linarith, ?_⟩
+  filter_upwards [hb, eventually_ge_atTop (0:ℝ)] with y hy hy0
+  let D := (A y).filter (fun n => s (n+1) ≤ ⌊y⌋₊)
+  have hlarge : ∑ n ∈ D.filter large, w n ≤ 8*(⌊y⌋₊:ℝ) :=
+    witness_mass _ _ _ (fun _ hn => (mem_filter.mp (mem_filter.mp hn).1).2)
+      (fun _ hn => (mem_filter.mp hn).2)
+  have hrest : ∑ n ∈ D.filter (fun n => ¬ large n), w n ≤ C*y := hy
+  change ∑ n ∈ D, w n ≤ (C+8)*y
+  linarith only [sum_filter_add_sum_filter_not D large w, hrest, hlarge, Nat.floor_le hy0]
 
 /-- Every squarefree gap counted at x is completed by 2x. -/
 lemma next_le_double {x : ℝ} (hx : 1 ≤ x) {n : ℕ} (hn : n ∈ A x) :
@@ -47,7 +206,7 @@ lemma cubic_tail (moment : H2) (ε : ℝ) (hε : 0 < ε) :
     ∃ K : ℕ, 0 < K ∧ ∀ᶠ x : ℝ in atTop, 1/x * ∑ n ∈ (A x).filter
       (fun n => ¬ s (n+1)-s n < K), ((s (n+1)-s n : ℕ) : ℝ)^3 ≤ ε := by
   classical
-  obtain ⟨C,hC,bounded⟩ := moment
+  obtain ⟨C,hC,bounded⟩ := completed_moment moment
   obtain ⟨L,hL⟩ := exists_nat_gt (2*C/ε)
   have hLpos : (0:ℝ) < L := lt_trans (by positivity) hL
   have hLn : 0 < L := by exact_mod_cast hLpos
@@ -90,6 +249,7 @@ lemma cubic_tail (moment : H2) (ε : ℝ) (hε : 0 < ε) :
   calc
     _ ≤ C*(2*x) := hscaled
     _ ≤ L*(ε*x) := by nlinarith only [mul_le_mul_of_nonneg_right hscale hxpos.le]
+
 
 lemma sumByGapSize (D : Finset ℕ) (g : ℕ → ℕ) (a : ℝ) (K : ℕ) :
     (∑ k ∈ range K, ((D.filter fun n => g n=k).card : ℝ) * (k:ℝ)^a) =
