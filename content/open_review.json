@@ -10654,6 +10654,39 @@
     "https://oeis.org/A000120"
    ],
    "reason": "Trivial. Pol's triangle remark for the base-9 digit sum says that row k+1 consists of a(9^k + j), and that the rows converge to A173529(n) = 1 + a(n-1). This is immediate from a(9^k + j) = 1 + a(j) for j < 9^k: prepending the leading digit 1 adds 1 to the digit sum, and that is the whole proof. The A000120 analogue is printed as an observation, not a conjecture. The formalization is faithful, but there is no open content."
+  },
+  "oeis-a087324": {
+   "date": "2026-11-28",
+   "pr": 14434,
+   "evidence": [
+    "https://oeis.org/A087324"
+   ],
+   "reason": "The disproof only uses the empty prime signature. The formal claim (2) ranges over every finite multiset of positive exponents, the empty one included. Only n = 1 has the empty signature, and comp9(1) = 8 does not, so (2) fails for a trivial reason. Murthy plainly means signatures of integers > 1 (A025487-style), and the substantive parts, infinitude and every nonempty signature, are untouched. The proof exploits an edge case of the encoding."
+  },
+  "oeis-a092468": {
+   "date": "2026-11-28",
+   "pr": 16823,
+   "evidence": [
+    "https://oeis.org/A092468"
+   ],
+   "reason": "The formal a(n) sums over i <= j <= k, as in the entry's name. But the data and the PARI program sum over k <= j <= i. The formal version gives 1,1,5,28,95,... instead of the listed 1,1,3,24,71,..., while the PARI order reproduces all 23 data terms. So the disproof of Kotesovec's ratio limit refutes the conjecture for a different sequence, not for the one whose ratios he plotted."
+  },
+  "oeis-a096121": {
+   "date": "2026-11-28",
+   "pr": 24983,
+   "evidence": [
+    "https://oeis.org/A096121",
+    "https://oeis.org/A102038"
+   ],
+   "reason": "The formal statement never defines rook walks. It counts an ad hoc sigma type (switch columns, permutations, stars-and-bars subsets), and the bijection with full-spectrum rook walks exists only in a docstring. What Lean proves is that Sum_k 2(m+1)! k! C(floor((m+k+1)/2),k) C(floor((m+k)/2),k) equals 2(m+1)! times the continuant, which is Hanna's 2006 binomial-sum formula for A102038, already in that entry. The sum does match the data (2,8,60,816,...). Separately, the conjecture follows by one induction from the entry's recurrence a(n+1) = n(n+1)(a(n)+a(n-1))."
+  },
+  "oeis-a099976": {
+   "date": "2026-11-28",
+   "pr": 14862,
+   "evidence": [
+    "https://oeis.org/A099976"
+   ],
+   "reason": "Trivial. The statement is Mathar's D-finite recurrence n(2n+1)a(n) = 2(4n-1)(4n+1)a(n-1) for a(n) = C(4n+2,2n+1). The entry does not mark it as a conjecture, and it is the one-line factorial ratio C(4n+2,2n+1)/C(4n-2,2n-1) = 2(4n-1)(4n+1)/(n(2n+1)). The entry's actual conjecture, odd part of a(n) = A063079(n+1), is not addressed. True and faithful, but no open content."
   }
  },
  "known": {
@@ -19870,6 +19903,169 @@
     "https://oeis.org/A051250"
    ],
    "reason": "Zumkeller's conjecture (60 is the largest n whose reduced residues other than 1 are all prime powers) was already proved in the entry by Charles R Greathouse IV (Jul 14 2011). He uses Dusart's bounds to show phi(n) > pi*(n) for n > 420 and checks finitely many cases below, concluding 'Hence 60 is the last term in the sequence.' The Lean statement (IsGreatest) is faithful; the site proof is a different elementary (Bonse-type) argument for a known result."
+  },
+  "oeis-a086522": {
+   "date": "2026-11-28",
+   "pr": 25653,
+   "evidence": [
+    "https://oeis.org/A086522",
+    "https://oeis.org/A086519"
+   ],
+   "reason": "The statement is exactly the comment Vim Wenders added to the entry on May 27 2008: 19 is not a member, so the conjecture that every prime 6k+1 is a member is false. The formalization of A086519 and of membership is faithful (offset 1; it handles a possibly missing next term), and the proof checks the 3, 7, 19 start and the pairs of primes summing to 38. But the source already records the counterexample, so the result is known."
+  },
+  "oeis-a088023": {
+   "date": "2026-11-28",
+   "pr": 25350,
+   "evidence": [
+    "https://oeis.org/A088023"
+   ],
+   "reason": "The conjecture a(n+1) >= a(n) is formalized faithfully (block doubling from [1], offset 1). But the entry already carries Don Reble's comment of Nov 13 2005: 'The conjecture is plainly true. In fact, a(n+1)-a(n) = 0 or 1.' The source thus settles it, and the Lean proof re-derives this elementary monotonicity."
+  },
+  "oeis-a088120": {
+   "date": "2026-11-28",
+   "pr": 18757,
+   "evidence": [
+    "https://oeis.org/A088120"
+   ],
+   "reason": "The disproof of conjecture (2) (common difference 1 except at n = 4, 5) uses n = 12: 1*3*5*...*23 + 2 = 316234143227 is prime and smaller than every d = 1 candidate. That number is exactly the listed data term a(12) = 316234143227 (Wasserman, 2005), and 23!! + 2 = 316234143227, so the entry's own data already shows d = 2 at n = 12. Formalization faithful; conjecture (1) is not addressed."
+  },
+  "oeis-a092315": {
+   "date": "2026-11-28",
+   "pr": 14857,
+   "evidence": [
+    "https://oeis.org/A092315"
+   ],
+   "reason": "This disproves Hasler's formula a(n) = floor(exp(2n-gamma)/4 + 1/8) at n = 17. The entry already records a(17) = 81897532160124 in its data (corrected by Kirchner, Jul 23 2020), together with Kirchner's replacement formula floor(exp(2n-gamma)/4). My mpmath evaluation gives exp(34-gamma)/4 = 81897532160124.935, so Hasler's floor is ...125, which contradicts the listed term. The counterexample is in the source."
+  },
+  "oeis-a092960": {
+   "date": "2026-11-28",
+   "pr": 26133,
+   "evidence": [
+    "https://oeis.org/A092960",
+    "https://doi.org/10.5281/zenodo.23102577"
+   ],
+   "reason": "The conjecture 'no term is zero' is settled in the entry itself: Opao (2005) gives a(n) = 2^n for even n, and Lien-Hung Su (comment of Oct 03 2026, with a Zenodo note) gives (2^n-3)*(2^n-1)+1 = (2^n-2)^2 for odd n >= 3. The statement's docstring says so, and the proof header says it follows the entry, Opao 2005 and Su 2026. Formalization faithful (x >= 1, ratio >= 2)."
+  },
+  "oeis-a097509": {
+   "date": "2026-11-28",
+   "pr": 25312,
+   "evidence": [
+    "https://oeis.org/A097509",
+    "https://arxiv.org/abs/2402.08331",
+    "https://kskedlaya.org/putnam-archive/2020s.pdf"
+   ],
+   "reason": "This is Irwin's conjecture a(n+1) = A082844(n), with A082844 encoded by its self-describing 2/3 rule. The entry links Schaeffer-Shallit-Zorcic (arXiv:2402.08331, pp. 17-19), who prove it, and carries Bhargava's comment tying the sequence to the Putnam 2020 B6 solution. The proof file itself opens by saying the identity was proved by Schaeffer, Shallit and Zorcic. Prior settlement."
+  },
+  "oeis-a103137": {
+   "date": "2026-11-28",
+   "pr": 25166,
+   "evidence": [
+    "https://oeis.org/A103137"
+   ],
+   "reason": "Mathar's recurrence for A103137 is formalized faithfully from the g.f. 1 - x S(-x). But the entry already contains Sela Fried's comment (Mar 29 2026): the recurrence 'follows immediately from the D-finite recurrence for A006318 by using a(n)=(-1)^n*A006318(n-1)'. Prior settlement in the source."
+  },
+  "oeis-a103621": {
+   "date": "2026-11-28",
+   "pr": 26481,
+   "evidence": [
+    "https://oeis.org/A103621",
+    "https://oeis.org/A102370"
+   ],
+   "reason": "This disproves Wu's 8-periodic recurrence and g.f. for the sloping-binary trajectory of 7. The proof shows the period persists up to 2^37 and then breaks at the term where sloping(2^37-37) = 2^38-3. That is exactly Peter Munn's comment in the entry (Jan 13 2024): 'The above conjectures are incompatible with A102370(2^37-37) = 2^38-3.' Formalization faithful; the counterexample is already in the source."
+  },
+  "oeis-a105565": {
+   "date": "2026-11-28",
+   "pr": 25852,
+   "evidence": [
+    "https://oeis.org/A105565",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/105565.lean",
+    "https://github.com/HaigAd/formal-conjectures/blob/327b99914ce787ab41c67ba645626982e15b0124/FormalConjectures/OEIS/105565.lean#L595"
+   ],
+   "reason": "Tuenter's 2025 bounds beta-2 < S(n) - alpha*n < beta-1 are formalized faithfully, and the proof is correct; I checked n <= 2000 at 60 digits. But formal-conjectures already marks FormalConjectures/OEIS/105565.lean as 'research solved', with a formal_proof link to a Lean proof in HaigAd/formal-conjectures ('Solved by OpenAI Codex, prompted by Adam Haig'). That marking is present at the site's pinned upstream commit 9097e2f, which was set on 2026-11-25, before this solve. Prior settlement."
+  },
+  "oeis-a105695": {
+   "date": "2026-11-28",
+   "pr": 13950,
+   "evidence": [
+    "https://oeis.org/A105695"
+   ],
+   "reason": "Mathar's 2011 recurrence. The formalizer found that it fails at n = 3 (left side 1) and stated it for n >= 4; that is correct, and my check gives LHS(3) = 1 and 0 afterwards. But the entry already contains Peter Bala's comment (Oct 29 2015) giving the 3-term recurrence (n+1)(n-3)a(n) = (n-2)(2n-3)a(n-1) + 3(n-2)(n-3)a(n-2), and he notes 'Mathar's 4-term recurrence above follows easily from this.' Prior settlement in the source."
+  },
+  "oeis-a105801": {
+   "date": "2026-11-28",
+   "pr": 22335,
+   "evidence": [
+    "https://oeis.org/A105801",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/105801.lean",
+    "https://github.com/KitaKen1/oeis-a105801-lean/blob/68642a80db062bee7061437b60d31c3e7d626595/lean/OeisA105801FC.lean#L323-L351"
+   ],
+   "reason": "Resta's conjecture (eventual constancy mod 3^k) is formalized faithfully. The proof is correct and elegant: residue -1/5, even steps halve |x-y|, two consecutive odd steps lift the 3-adic precision. But formal-conjectures marks FormalConjectures/OEIS/105801.lean 'research solved', with a formal_proof link to KitaKen1/oeis-a105801-lean. The marking is already present at the site's pinned upstream commit 9097e2f (set 2026-11-25), before this solve. Prior settlement."
+  },
+  "oeis-a106346": {
+   "date": "2026-11-28",
+   "pr": 26166,
+   "evidence": [
+    "https://oeis.org/A106346",
+    "https://arxiv.org/abs/2106.10400"
+   ],
+   "reason": "The conjecture that the row sums of A106346 (the inverse of binomial(k,n-k) mod 2) are A036987 is formalized faithfully. But the entry links Beck and Dilcher, arXiv:2106.10400. Their matrix R is A106344 with 1-based indexing: their row 17 of R^-1, 0 1 -1 -1 1 ..., equals row 16 of the inverse I computed. Their Corollary 4, eq. (4.8), proves that the row sums of R^-1 are 1 when n is a power of 2 and 0 otherwise. Prior settlement."
+  },
+  "oeis-a107928": {
+   "date": "2026-11-28",
+   "pr": 27705,
+   "evidence": [
+    "https://oeis.org/A107928",
+    "https://github.com/the-omega-institute/trureturing/blob/d58e3ee8947f56d1b02879d99bdee93876046e52/D5/S1/Recurrence/Invariants/StephanHarmonicMeanNumeratorClosedForm.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/d58e3ee8947f56d1b02879d99bdee93876046e52/Problems/oeis-a107928-harmonic-mean-numerator-closed-form.md"
+   ],
+   "reason": "Stephan's closed forms a(3n) = (3/2)8^n, a(3n+1) = 3*8^n, a(3n+2) = 2*8^n. The g.f. is correctly omitted: it is false as printed (+8x^4 should be -8x^4). Formalization faithful. But trureturing already has the same three-residue closed form as theorem stephan_a107928, a Lean proof by the same block induction, with its problem page (searches dated 2026-09) noting the g.f. sign error. Our proof merged 2026-11-28, so the result is publicly known."
+  },
+  "oeis-a110322": {
+   "date": "2026-11-28",
+   "pr": 24992,
+   "evidence": [
+    "https://oeis.org/A110322"
+   ],
+   "reason": "Mathar's 2014 recurrence a(n) - (n+1)a(n-1) - (2n-1)(n-1)a(n-2) + 2(n-1)(n-2)a(n-3) = 0, with the e.g.f. exp(x)/(1-x-2x^2) as definition, is faithful and true. But the entry already lists Martin Clever's formula (Mar 22 2023) a(n) - n a(n-1) - 2n(n-1)a(n-2) - 1 = 0, a direct coefficient extraction from the e.g.f. Subtracting Clever's identity at n-1 from it at n gives Mathar's recurrence exactly, so the source settles it in one line."
+  },
+  "oeis-a111000": {
+   "date": "2026-11-28",
+   "pr": 14871,
+   "evidence": [
+    "https://oeis.org/A111000"
+   ],
+   "reason": "Hilliard's 2005 conjecture lim zeta(zeta(n))/zeta(zeta(n+1)) = 1/2 is formalized faithfully (real zeta at the real value zeta(n)). But the entry already records Cloitre's formula (Oct 04 2005): a(n) = 2^n - (4/3)^n + O(1), more precisely zeta(zeta(n)) - 2^n + (4/3)^n + 1 -> gamma. The ratio limit 1/2 is immediate from it, and the Lean proof uses the same mechanism (2^k(zeta(k)-1) -> 1 and the pole of zeta at 1). Settled in the source."
+  },
+  "oeis-a111002": {
+   "date": "2026-11-28",
+   "pr": 10477,
+   "evidence": [
+    "https://oeis.org/A111002",
+    "http://planetmath.org/ExampleOfGcd"
+   ],
+   "reason": "Barker's 2015 recurrence a(n) = 3a(n-7) - 3a(n-14) + a(n-21) (n > 20) for gcd(n^4+n^2+1, (n+1)^4+(n+1)^2+1) is stated faithfully and true. But the entry's formula line already gives the closed form a(n) = n^2+n+1, times 7 when n = 3 mod 7 (the PlanetMath example it links). From that, the recurrence is the third difference of a quadratic in each residue class mod 7. The proof re-derives the closed form and takes that difference, so it is settled by the source."
+  },
+  "oeis-a111403": {
+   "date": "2026-11-28",
+   "pr": 27710,
+   "evidence": [
+    "https://oeis.org/A111403",
+    "https://oeis.org/A220294",
+    "https://oeis.org/A002716"
+   ],
+   "reason": "Mathar's 2007 conjecture a(n) = A002716(2n) - 1 is formalized faithfully (A002716 by Somos's recursion; a(n) = 2^(2^(n+1)) - 2^(2^n)). But the cross-referenced entries already settle it. A002716 records 'a(2*n) = A220294(n)' (Somos, Dec 10 2012). A220294 is defined as 1 - 2^(2^n) + 2^(2^(n+1)) and lists 'a(n) = A002716(2*n) = 1 + A111403(n)'."
+  },
+  "oeis-a113255": {
+   "date": "2026-11-28",
+   "pr": 10171,
+   "evidence": [
+    "https://oeis.org/A113255",
+    "https://github.com/lefttosolve2/open-math-agents/blob/main/proofs/oeis-a113249.lean",
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/113255.lean",
+    "https://github.com/KitaKen1/oeis-a113249-family-square-terms-lean/blob/9b999db08344184285e8050c2722c845fd5f5309/lean/OeisA113249FamilyFC.lean#L126-L134",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Library/ArithUnits/dement2005a113249.md"
+   ],
+   "reason": "Known twice over. First, formal-conjectures marks OEIS/113255.lean 'research solved' at the pinned upstream commit 9097e2f (set 2026-11-25), linking a Lean proof for the whole family in KitaKen1/oeis-a113249-family-square-terms-lean. Second, the identical whole-family statement (same definition, checked by diff) was solved on this site as oeis-a113249 (PR #7849, committed 2026-11-27 17:16 UTC), about an hour before this proof (18:15 UTC). The math (Z[sqrt(4-m^2)] norm argument) is fine. trureturing also has a library page on the same Dement family (Library/ArithUnits/dement2005a113249.md)."
   }
  },
  "reviewed": "2026-11-28"
