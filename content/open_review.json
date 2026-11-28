@@ -454,16 +454,6 @@
    ],
    "note": "Perry's 2004 conjecture that the constant terms are never negative. The polynomials are linear in X: the X-coefficient B satisfies sum_{i<=n} B(i)floor(n/i) = [n=1], so B(n) = mu(n) - mu(n/2), and the constant term is phi(n) - mu(n) + mu(n/2) >= 0 (this matches the data 0,3,3,1,5,0,...). Routine."
   },
-  "oeis-a098746": {
-   "date": "2026-11-28",
-   "pr": 11015,
-   "routine": false,
-   "evidence": [
-    "https://oeis.org/A098746",
-    "https://doi.org/10.1016/j.disc.2004.08.003"
-   ],
-   "note": "Burstein's 2017 conjecture: |Av_n(4231,42513)| = |Av_n(1342,13254)|. The formal statement compares the two pattern-avoidance counts directly, with the occurrence definition correct and n=0 included. {1342,13254} is not a symmetry of {4231,42513}, so this is a nontrivial Wilf-equivalence. The 3900-line proof works through skew-sum decompositions. Albert et al. (2004) enumerated only the first class, and I found no earlier proof of the equivalence."
-  },
   "oeis-a102827": {
    "date": "2026-11-28",
    "pr": 10022,
@@ -10427,6 +10417,16 @@
     "https://www.mathekalender.de/wp/wp-content/uploads/2026/02/MK2025-Challenges-and-Solutions.pdf"
    ],
    "reason": "Second review: The general formula is a direct transcription of the published Mathekalender solution's argument from n=2025 to all n>4; only the near-equal partition for n = 2 mod 3 is new, and it is trivial. It should not be presented as a new solution of an open problem; at best it is a routine generalization of known work."
+  },
+  "oeis-a098746": {
+   "date": "2026-11-28",
+   "pr": 11015,
+   "evidence": [
+    "https://oeis.org/A098746",
+    "https://permpal.com/perms/basis/0231_02143/",
+    "https://arxiv.org/abs/math/0211213"
+   ],
+   "reason": "Second review: The proof is valid, but the conjecture was already settled in substance by PermPAL's automatically generated and verified specification for Av(1342,13254) (Jan 2022), whose g.f. equals A098746's. It is new only as a human/Lean-readable proof. Also a near-duplicate of the Burstein half of oeis-a001764."
   }
  },
  "reviewed": "2026-11-28"
