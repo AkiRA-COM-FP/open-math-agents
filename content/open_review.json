@@ -18502,6 +18502,22 @@
     "https://oeis.org/A279880/internal"
    ],
    "reason": "Disproof of a printed range slip for 2D Rule 213. Barker's recurrence is printed 'n>6', but his own g.f. has numerator degree 8, so it can only hold beyond n=8; the disproof only plays the recurrence against the g.f. coefficient at n=8. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>8 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a395754": {
+   "date": "2026-11-28",
+   "pr": 15819,
+   "evidence": [
+    "https://oeis.org/A395754"
+   ],
+   "reason": "Trivial. For odd squarefree m, one of k and k+1 is even, so its radical is even and cannot divide m; hence no k qualifies and a(n)=0. The Lean proof is exactly this ten-line parity argument. The statement is faithful (k>0 matches a(1)=0)."
+  },
+  "oeis-a091338": {
+   "date": "2026-11-28",
+   "pr": 14323,
+   "evidence": [
+    "https://oeis.org/A091338"
+   ],
+   "reason": "The disproof exploits an evident typo. Smeets's last clause a(24n+16) = -a(12n+4) fails already at n=0 (a(16)=1, a(4)=1); the intended clause is a(24n+16) = -a(12n+8) = -(3/(3n+2)), which is true. The statement header itself says all other clauses hold. The 'disproof' is a one-line check of a misprint, not a settlement of the conjecture."
   }
  },
  "known": {
@@ -34500,6 +34516,113 @@
     "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/h277403-div10.md"
    ],
    "reason": "Statement is faithful (the functional equation determines a uniquely; offset 1, n>2). trureturing's HannaIntegralCompositionDivTen.result (sorry-free, added 2026-10-29) proves the same claim for every solution pair (A,G), integrality included."
+  },
+  "oeis-a394815": {
+   "date": "2026-11-28",
+   "pr": 28971,
+   "evidence": [
+    "https://oeis.org/A394815",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/NumberComplexity/A394815BothPrimeGcd.lean",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/NumberComplexity/A394757TwinPrimeSigma.lean"
+   ],
+   "reason": "The statement is faithful: 36 | k for the terms, and A394757 (gcd prime) is the disjoint union of the gcd=2 and gcd=3 cases. Both are already proved in Lean in thatnealpatel/proofs (A394815BothPrimeGcd.lean gives 36 | k; A394757TwinPrimeSigma.lean shows the prime gcd is 2 or 3). Those files were in the repo by 2026-10-25, a month before the site proof (2026-11-28)."
+  },
+  "oeis-a395495": {
+   "date": "2026-11-28",
+   "pr": 26997,
+   "evidence": [
+    "https://oeis.org/A395495",
+    "https://mathdb.com/abs/2611.00029"
+   ],
+   "reason": "Disproof of Exley's formula a(n)=(n^2-n+6)/2 at n=11, which predicts 58. The proof file says it verifies the 57-cell container that Myeongjin Kang published on MathDB 2611.00029 (2026-11-04, with a Lean certificate): the L1 ball of radius 5 minus four cells. The counterexample was public before the site proof (2026-11-28)."
+  },
+  "oeis-a396723": {
+   "date": "2026-11-28",
+   "pr": 22675,
+   "evidence": [
+    "https://oeis.org/A396723",
+    "https://oeis.org/A396722"
+   ],
+   "reason": "Mathar's recurrence n*a(n)-2(4n+1)a(n-1)+8(2n+1)a(n-2)=0 is stated faithfully. It is settled by Eiver Rodríguez's comment in the sister entry A396722 (Sep 28 2026). He proves n*p(n,x)=(n+1-x)p(n-1,x)+x-1 for every x and derives the recurrence; evaluating at x=-1/2 gives this entry's recurrence the same way. Family result, public two months before the site proof."
+  },
+  "oeis-a396724": {
+   "date": "2026-11-28",
+   "pr": 22681,
+   "evidence": [
+    "https://oeis.org/A396724",
+    "https://oeis.org/A396722"
+   ],
+   "reason": "Mathar's recurrence n*a(n)-2(4n+3)a(n-1)+8(2n+3)a(n-2)=0 is stated faithfully. Eiver Rodríguez's comment in A396722 (Sep 28 2026) proves n*p(n,x)=(n+1-x)p(n-1,x)+x-1 for all x; evaluating at x=-3/2 and eliminating the inhomogeneous term gives exactly this recurrence. Known family result."
+  },
+  "oeis-a396803": {
+   "date": "2026-11-28",
+   "pr": 28869,
+   "evidence": [
+    "https://oeis.org/A396803",
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Recurrence/Residue/IterateExponentialParity.lean"
+   ],
+   "reason": "The site statement is Hanna's parity conjecture (a(n) odd iff n odd) for A(x)=x*exp(A^[3](x)). trureturing's IterateExponentialParity.lean (2026-09-12, sorry-free) proves odd_iff_odd for every iterate count and has the A396803 endpoint parity_iterate_three. It was public long before the site proof (2026-11-28)."
+  },
+  "oeis-a396806": {
+   "date": "2026-11-28",
+   "pr": 28365,
+   "evidence": [
+    "https://oeis.org/A396806",
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Recurrence/Residue/IterateExponentialParity.lean"
+   ],
+   "reason": "The site statement is the parity conjecture for A(x)=x*exp(A^[6](x)). trureturing's IterateExponentialParity.lean (2026-09-12, sorry-free) proves it uniformly, with the A396806 endpoint parity_iterate_six. trureturing also proves the mod-6 and mod-3 conjectures (IterateExponentialModSix, Sep 2026). Known."
+  },
+  "oeis-a397578": {
+   "date": "2026-11-28",
+   "pr": 24216,
+   "evidence": [
+    "https://oeis.org/A397578",
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S3/Arith/Robin/SigmaNeighbourPeak.lean"
+   ],
+   "reason": "Ratushnyak's conjecture that a(n) exists for every n (some k>=2 with sigma(k) > n*sigma(k-1) and sigma(k) > n*sigma(k+1)) is stated faithfully. trureturing proved exactly this in SigmaNeighbourPeak.lean (theorem result, sorry-free, committed 2026-10-10), using the primorial argument. That predates the site proof (2026-11-28)."
+  },
+  "oeis-a400454": {
+   "date": "2026-11-28",
+   "pr": 23604,
+   "evidence": [
+    "https://oeis.org/A400454",
+    "https://math.stackexchange.com/questions/5148637/new-prime-test-for-proth-numbers"
+   ],
+   "reason": "Wright's conjecture (2^((N-1)/4) == -1 mod N implies N=(2^k-1)2^(k+3)+1 is prime) is stated faithfully for k>=1. It was proved in the accepted answer to Wright's own MSE question 5148637 (Sep 2026) via Proth/Pocklington: the order of 2^m is 2^(k+2), which forces every prime factor above sqrt(N). A second answer and comments, including one pointing to a proof in the OEIS draft, also settle it, and the asker accepted. Known."
+  },
+  "oeis-a177131": {
+   "date": "2026-11-28",
+   "pr": 16245,
+   "evidence": [
+    "https://oeis.org/A177131",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Mathar's P-recurrence for the Choulet sequence a(n+1)=sum a(p)a(n-p)+1 (a(0)=1, a(1)=10, k=0, l=1) is stated faithfully for n>=4. It is covered by Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177, which proves the recurrences for every Choulet sequence a(n+1)=sum a(j)a(n-j)+k(n+1)+l. The site proof uses the same route: algebraic g.f., then a differential equation, then the recurrence."
+  },
+  "mo-427621": {
+   "date": "2026-11-28",
+   "pr": 16600,
+   "evidence": [
+    "https://mathoverflow.net/questions/427621"
+   ],
+   "reason": "The question's inequality is formalized faithfully, and the site disproves it with S=<5,6,13>, n=2 (19 is in 2S*\\4S* while max(3S*\\4S*)=18). The asker Dylan C. Beck already answered his own question on 2022-07-31 ('the answer is no'), with the counterexample S*\\2S*={10,11,34}. Known."
+  },
+  "mo-361305": {
+   "date": "2026-11-28",
+   "pr": 16685,
+   "evidence": [
+    "https://mathoverflow.net/questions/361305"
+   ],
+   "reason": "The affirmative answer (C(X,Y) with the compact-open topology is a topological group for every X and every topological group Y) is stated faithfully. It is classical: inversion is post-composition, and the compact-open topology is uniform convergence on compacta for the group uniformity. A comment on the question points to Narici–Beckenstein §2.6, and Mathlib already has the commutative case as an instance. The site proof adapts that Mathlib argument. Textbook result, not new."
+  },
+  "oeis-a242560": {
+   "date": "2026-11-28",
+   "pr": 13522,
+   "evidence": [
+    "https://oeis.org/A242560",
+    "https://oeis.org/A060681"
+   ],
+   "reason": "Orr's conjecture a(2n)=n is stated faithfully (k ranges over positive integers, k != n). The entry now carries the formula a(n) = n - A032742(n) for n>1 (Alper Ferudun, Oct 06 2026), which gives a(2n)=2n-n=n directly. The argument is elementary: n-k | n!-n, and no d in (n,2n) divides (2n)!-2n. Already settled in the entry before the site proof."
   }
  },
  "reviewed": "2026-11-28"
