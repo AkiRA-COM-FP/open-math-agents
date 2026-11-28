@@ -12,8 +12,23 @@ open OMA.S_oeis_a103225
 
 private abbrev Column := Fin 12405
 private def x (i : Column) : ℤ := i.val - (6202 : ℤ)
-private def height (i : Column) : ℕ :=
-  Nat.sqrt (((6203 : ℤ)^2 - 1 - (x i)^2).toNat)
+private def radicand (j : ℕ) : ℤ := (6203 : ℤ)^2 - 1 - ((j : ℤ) - 6202)^2
+
+/-- The fuel bounds the work per column. The square test below certifies
+each returned height independently of convergence of Newton's iteration. -/
+private def newton (n : ℕ) : ℕ → ℕ → ℕ
+  | 0, g => g
+  | f+1, g =>
+    let y := (g + n/g)/2
+    if y < g then newton n f y else g
+
+private def heightAt (j : ℕ) : ℕ :=
+  let n := (radicand j).toNat
+  let h := newton n 16 8192
+  if h*h ≤ n then h else 0
+
+private def height (i : Column) : ℕ := heightAt i.val
+
 private abbrev Points := (i : Column) × Fin (2 * height i + 1)
 
 private def point : Points → GaussianInt
@@ -31,10 +46,22 @@ private theorem injective : Function.Injective point := by
   cases hjl
   rfl
 
-set_option maxRecDepth 150000 in
-set_option maxHeartbeats 2500000 in
-private theorem columns_fit : ∀ i : Column, (x i)^2 + (height i : ℤ)^2 < (6203 : ℤ)^2 := by
-  decide +kernel
+private theorem columns_fit (i : Column) : (x i)^2 + (height i : ℤ)^2 < (6203 : ℤ)^2 := by
+  have lo : (0 : ℤ) ≤ i.val := by positivity
+  have hi : (i.val : ℤ) ≤ 12404 := by
+    exact_mod_cast (show i.val ≤ 12404 by have := i.isLt; omega)
+  have rad : 0 ≤ radicand i.val := by
+    dsimp [radicand]
+    nlinarith [mul_nonneg lo (sub_nonneg.mpr hi)]
+  have hnat : height i * height i ≤ (radicand i.val).toNat := by
+    by_cases h : newton (radicand i.val).toNat 16 8192 * newton (radicand i.val).toNat 16 8192 ≤ (radicand i.val).toNat
+    · simpa only [height, heightAt, if_pos h] using h
+    · simp [height, heightAt, h]
+  have hz : (height i : ℤ) * (height i : ℤ) ≤ ((radicand i.val).toNat : ℤ) := by
+    exact_mod_cast hnat
+  rw [Int.toNat_of_nonneg rad] at hz
+  dsimp [x, radicand] at hz ⊢
+  nlinarith only [hz]
 
 private theorem inside (p : Points) : (point p).norm < (6203 : ℤ)^2 := by
   obtain ⟨i,j⟩ := p
@@ -45,11 +72,22 @@ private theorem inside (p : Points) : (point p).norm < (6203 : ℤ)^2 := by
   change x i * x i - (-1) * ((j.val : ℤ) - height i) * ((j.val : ℤ) - height i) < _
   nlinarith [mul_nonneg hy₁ hy₂]
 
+private def widthSum : ℕ → ℕ
+  | 0 => 0
+  | j+1 => widthSum j + (2*heightAt j+1)
+
+private theorem widthSum_eq (n : ℕ) : widthSum n = ∑ j ∈ Finset.range n, (2*heightAt j+1) := by
+  induction n with
+  | zero => simp [widthSum]
+  | succ j ih => rw [widthSum, ih, Finset.sum_range_succ]
+
 set_option maxRecDepth 150000 in
 set_option maxHeartbeats 2500000 in
 private theorem number_of_points : Nat.card Points = 120879729 := by
   rw [Nat.card_eq_fintype_card, Fintype.card_sigma]
   simp only [Fintype.card_fin]
+  change (∑ i : Fin 12405, (fun j : ℕ => 2*heightAt j+1) i.val) = _
+  rw [Fin.sum_univ_eq_sum_range (fun j : ℕ => 2*heightAt j+1) 12405, ← widthSum_eq]
   decide +kernel
 
 private def eligible : Set GaussianInt :=
@@ -74,7 +112,7 @@ private theorem finite_eligible : eligible.Finite := by
 
 private theorem coprime_of_inside {z : GaussianInt} (hz : z ≠ 0)
     (hn : z.norm < (6203 : ℤ)^2) : IsCoprime (6203 : GaussianInt) z := by
-  haveI : Fact (Nat.Prime 6203) := ⟨by norm_num⟩
+  have : Fact (Nat.Prime 6203) := ⟨by norm_num⟩
   have hp := GaussianInt.prime_of_nat_prime_of_mod_four_eq_three 6203 (by decide)
   apply hp.coprime_iff_not_dvd.mpr
   rintro ⟨w, hw⟩
