@@ -1,4 +1,5 @@
 import OMAReductions.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2
+import Mathlib.GroupTheory.Frattini
 import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
 import Mathlib.GroupTheory.FiniteAbelian.Basic
 import Mathlib.LinearAlgebra.Matrix.Block
@@ -41,7 +42,7 @@ def H1 : Prop :=
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
           ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
         (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∨
-        (∃ K H : FiniteGrp.{0}, IsMulCommutative K ∧
+        (∃ K H : FiniteGrp.{0}, (IsMulCommutative K ∨ (IsPrimePow (Nat.card K) ∧ IsPrimePow (Nat.card H))) ∧
         Group.IsNilpotent H ∧ (Nat.card K).Coprime (Nat.card H) ∧
         ∃ f : H →* MulAut K, Nonempty (G ≃* SemidirectProduct _ H f))) ∧ ¬ IsZGroup G ∧
         (∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P)}).ncard ≤
@@ -59,7 +60,7 @@ def H2 : Prop :=
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
           ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
         (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∨
-        (∃ K H : FiniteGrp.{0}, IsMulCommutative K ∧
+        (∃ K H : FiniteGrp.{0}, (IsMulCommutative K ∨ (IsPrimePow (Nat.card K) ∧ IsPrimePow (Nat.card H))) ∧
         Group.IsNilpotent H ∧ (Nat.card K).Coprime (Nat.card H) ∧
         ∃ f : H →* MulAut K, Nonempty (G ≃* SemidirectProduct _ H f))) ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
@@ -1757,16 +1758,198 @@ lemma all_abelian_action_bound (K H : FiniteGrp.{0}) [IsMulCommutative K] {r : �
   rw [Finset.prod_pow_eq_pow_sum,pow_mul]
   exact (Nat.pow_le_pow_left (Nat.succ_le_of_lt ((Nat.le_mul_of_pos_left _ Nat.card_pos).trans_lt hr)) _).trans
     (Nat.pow_le_pow_right (by positivity) lim)
-/-- Sum over kernel and complement isomorphism classes using the coprime Sylow product. -/
-theorem abelian_kernel_hall_union {q r : ℕ} (hr : q < 2^r) :
+
+/-- A prime-power group acting trivially on the Frattini quotient acts trivially
+if its prime does not divide the order of the Frattini subgroup. -/
+theorem trivial_action {G A : Type*} [Group G] [Finite G] [Group A] {l : ℕ}
+    [Fact l.Prime] (ha : IsPGroup l A) (cop : ¬ l ∣ Nat.card (frattini G))
+    (a : A →* MulAut G)
+    (h : ∀ u x, QuotientGroup.mk' (frattini G) (a u x) = QuotientGroup.mk' (frattini G) x) :
+    ∀ u x, a u x = x := by
+  classical
+  let f := QuotientGroup.mk' (frattini G)
+  let S : Subgroup G := ⨅ u : A, (a u).toMonoidHom.eqLocus (MonoidHom.id G)
+  have gen : S ⊔ frattini G = ⊤ := by
+    apply top_unique
+    intro x _
+    let F := f ⁻¹' {f x}
+    let _ : MulAction A F :=
+      { smul := fun u y => ⟨a u y.val,(h u y.val).trans y.property⟩
+        one_smul := fun y => Subtype.ext (by change a 1 y.val = y.val; rw [map_one]; rfl)
+        mul_smul := fun u v y => Subtype.ext (by change a (u*v) y.val = a u (a v y.val); rw [map_mul]; rfl) }
+    have sz : Nat.card F = Nat.card (frattini G) := by
+      calc
+        _ = Nat.card f.ker := Nat.card_congr (f.fiberEquivKer x)
+        _ = _ := by rw [show f.ker = frattini G from QuotientGroup.ker_mk' _]
+    obtain ⟨y,hy⟩ := ha.nonempty_fixed_point_of_prime_not_dvd_card F (sz ▸ cop)
+    have ys : y.val ∈ S := Subgroup.mem_iInf.mpr fun u => congrArg Subtype.val (hy u)
+    have eq : f x = f y.val := y.property.symm
+    have div : x / y.val ∈ frattini G := QuotientGroup.eq_iff_div_mem.mp eq
+    simpa using (S ⊔ frattini G).mul_mem ((le_sup_right : frattini G ≤ S ⊔ frattini G) div) ((le_sup_left : S ≤ S ⊔ frattini G) ys)
+  have all := frattini_nongenerating gen
+  intro u x
+  exact Subgroup.mem_iInf.mp (show x ∈ S by rw [all]; trivial) u
+
+/-- Any subgroup of automorphisms inducing the identity modulo Frattini is a p-group. -/
+theorem kernel_isPGroup {G : Type*} [Group G] [Finite G] {p : ℕ} [Fact p.Prime]
+    (hg : IsPGroup p G) (K : Subgroup (MulAut G))
+    (h : ∀ (u : K) x, QuotientGroup.mk' (frattini G) (u.val x) = QuotientGroup.mk' (frattini G) x) :
+    IsPGroup p K := by
+  classical
+  apply IsPGroup.of_card_dvd_pow (n := Nat.card K)
+  apply (Nat.dvd_pow_self_iff (Nat.card_pos (α := K)).ne' (Fact.out : p.Prime).ne_zero).mpr
+  intro l hl
+  obtain ⟨prime,dvd,_⟩ := Nat.mem_primeFactors.mp hl
+  suffices l = p by subst l; exact Nat.mem_primeFactors.mpr ⟨Fact.out,dvd_rfl,(Fact.out : p.Prime).ne_zero⟩
+  by_contra ne
+  let _ : Fact l.Prime := ⟨prime⟩
+  let L : Sylow l K := default
+  have cop := IsPGroup.coprime_card_of_ne l p ne L.toSubgroup (frattini G) L.isPGroup' (hg.to_subgroup _)
+  have nd : ¬ l ∣ Nat.card (frattini G) := prime.coprime_iff_not_dvd.mp
+    (cop.coprime_dvd_left (L.dvd_card_of_dvd_card dvd))
+  have id := trivial_action L.isPGroup' nd (K.subtype.comp L.toSubgroup.subtype) (fun u => h u.val)
+  apply L.ne_bot_of_dvd_card dvd
+  apply (Subgroup.eq_bot_iff_forall _).mpr
+  intro u hu
+  apply Subtype.ext
+  exact DFunLike.ext _ _ (id ⟨u,hu⟩)
+
+/-- A prime-power group acting on two lifts of one homomorphism has an intertwiner
+in the kernel whenever its prime does not divide the kernel order. -/
+theorem conjugate_lifts {A B H : Type*} [Group A] [Group B] [Group H]
+    {l : ℕ} [Fact l.Prime] (hH : IsPGroup l H) (f : A →* B)
+    (cop : ¬ l ∣ Nat.card f.ker) (a b : H →* A) (eq : ∀ h, f (a h) = f (b h)) :
+    ∃ u : f.ker, ∀ h, b h * u.val = u.val * a h := by
+  classical
+  let _ : MulAction H f.ker :=
+    { smul := fun h u => ⟨b h * u.val * (a h)⁻¹, by
+        change f (b h * u.val * (a h)⁻¹) = 1
+        simp only [map_mul,map_inv,show f u.val = 1 from u.property,mul_one,eq,mul_inv_cancel]⟩
+      one_smul := fun u => Subtype.ext (by change b 1 * u.val * (a 1)⁻¹ = u.val; simp)
+      mul_smul := fun g h u => Subtype.ext (by
+        change b (g*h) * u.val * (a (g*h))⁻¹ = b g * (b h * u.val * (a h)⁻¹) * (a g)⁻¹
+        simp [mul_assoc]) }
+  obtain ⟨u,hu⟩ := hH.nonempty_fixed_point_of_prime_not_dvd_card f.ker cop
+  refine ⟨u,fun h => ?_⟩
+  exact mul_inv_eq_iff_eq_mul.mp (congrArg Subtype.val (hu h))
+
+theorem frattini_lifts {P H : Type*} [Group P] [Finite P] [Group H] {p l : ℕ}
+    [Fact p.Prime] [Fact l.Prime] (hp : IsPGroup p P) (hl : IsPGroup l H) (ne : l ≠ p)
+    (a b : H →* MulAut P) (same : ∀ h x, QuotientGroup.mk' (frattini P) (a h x) =
+      QuotientGroup.mk' (frattini P) (b h x)) :
+    ∃ u : MulAut P, (∀ x, QuotientGroup.mk' (frattini P) (u x) = QuotientGroup.mk' (frattini P) x) ∧
+      ∀ h, b h * u = u * a h := by
+  classical
+  let N := frattini P
+  let f : MulAut P →* MulAut (P ⧸ N) :=
+    { toFun := fun u => QuotientGroup.congr N N u (Subgroup.characteristic_iff_map_eq.mp (frattini_characteristic) u)
+      map_one' := by ext x; induction x using QuotientGroup.induction_on; rfl
+      map_mul' := by intro g h; ext x; induction x using QuotientGroup.induction_on; rfl }
+  have fixed (u : f.ker) (x : P) : QuotientGroup.mk' N (u.val x) = QuotientGroup.mk' N x :=
+    DFunLike.congr_fun (show f u.val = 1 from u.property) (QuotientGroup.mk' N x)
+  obtain ⟨n,hn⟩ := (kernel_isPGroup hp f.ker fixed).exists_card_eq
+  have cop : ¬ l ∣ Nat.card f.ker := by
+    rw [hn]; exact fun hd => ne ((Nat.prime_dvd_prime_iff_eq (Fact.out : l.Prime) (Fact.out : p.Prime)).mp ((Fact.out : l.Prime).dvd_of_dvd_pow hd))
+  obtain ⟨u,hu⟩ := conjugate_lifts hl f cop a b (fun h => by
+    apply DFunLike.ext'; funext x; induction x using QuotientGroup.induction_on with
+    | _ x => exact same h x)
+  exact ⟨u.val,fixed u,hu⟩
+
+theorem quotient_commutative (P : Type*) [Group P] [Finite P] [Group.IsNilpotent P] :
+    IsMulCommutative (P ⧸ frattini P) := by
+  apply Subgroup.Normal.quotient_commutative_iff_commutator_le.mpr
+  apply le_iInf; intro M; apply le_iInf; intro hM
+  change IsCoatom M at hM
+  let _ : M.Normal := ((Group.isNilpotent_of_finite_tfae (G := P)).out 0 2 rfl rfl).mp ‹_› M hM
+  obtain ⟨x,hx⟩ := SetLike.exists_not_mem_of_ne_top M hM.1
+  have lt : M < M ⊔ Subgroup.zpowers x := lt_of_le_of_ne le_sup_left (fun eq =>
+    hx (Subgroup.zpowers_le.mp (eq.symm ▸ (le_sup_right : Subgroup.zpowers x ≤ M ⊔ Subgroup.zpowers x))))
+  exact Subgroup.Normal.commutator_le_of_self_sup_commutative_eq_top (hM.2 _ lt) inferInstance
+/-- Count split extensions for a fixed pair of groups of distinct prime-power orders. -/
+theorem two_primary_action_count (P H : FiniteGrp.{0}) {p l r : ℕ}
+    [Fact p.Prime] [Fact l.Prime] (hp : IsPGroup p P) (hl : IsPGroup l H) (ne : l ≠ p)
+    (hr : Nat.card P * Nat.card H < 2^r) :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | Nat.card G = q ∧ ∃ K H : FiniteGrp.{0}, IsMulCommutative K ∧
+      {G : FiniteGrp.{0} | ∃ a : H →* MulAut P, Nonempty (G ≃* SemidirectProduct P H a)}).ncard ≤
+      2^((r+1)*r) := by
+  classical
+  let N := frattini P
+  let Q := P ⧸ N
+  let _ : Finite Q := inferInstanceAs (Finite (P ⧸ N))
+  let q : P →* Q := QuotientGroup.mk' N
+  let _ : Group.IsNilpotent P := hp.isNilpotent
+  let _ : IsMulCommutative (FiniteGrp.of Q) := quotient_commutative P
+  have qle : Nat.card Q ≤ Nat.card P := Nat.le_of_dvd Nat.card_pos N.card_quotient_dvd_card
+  have hk := (hp.to_quotient N).exists_card_eq
+  obtain ⟨s,hs⟩ := hk
+  obtain ⟨m,hm⟩ := hl.exists_card_eq
+  have cop : ¬ p ∣ Nat.card H := by
+    rw [hm]; exact fun hd => ne ((Nat.prime_dvd_prime_iff_eq (Fact.out : p.Prime) (Fact.out : l.Prime)).mp ((Fact.out : p.Prime).dvd_of_dvd_pow hd)).symm
+  obtain ⟨t,ht,C,fin,code,bc,inter⟩ := prime_action_code (FiniteGrp.of Q) H hs cop
+  let f : MulAut P →* MulAut Q :=
+    { toFun := fun u => QuotientGroup.congr N N u (Subgroup.characteristic_iff_map_eq.mp frattini_characteristic u)
+      map_one' := by ext x; induction x using QuotientGroup.induction_on; rfl
+      map_mul' := by intro g h; ext x; induction x using QuotientGroup.induction_on; rfl }
+  let S := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+    {G : FiniteGrp.{0} | ∃ a : H →* MulAut P, Nonempty (G ≃* SemidirectProduct P H a)}
+  let G (i : S) := i.property.choose
+  have rep (i : S) : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (G i) = i.val := i.property.choose_spec.2
+  choose a iso using fun i : S => i.property.choose_spec.1
+  let b (i : S) := f.comp (a i)
+  let c (i : S) := code (b i)
+  let base (i : S) : S := (show ∃ j, c j = c i from ⟨i,rfl⟩).choose
+  have samebase {i j : S} (e : c i = c j) : base i = base j := by simp only [base,e]
+  choose U hU using fun i : S => inter (b i) (b (base i)) (Exists.choose_spec (show ∃ j, c j = c i from ⟨i,rfl⟩)).symm
+  have inj : Function.Injective (fun i : S => (c i, (U i : MulAut Q))) := by
+    intro i j eq
+    have e := samebase (congrArg Prod.fst eq)
+    have v : (U i : MulAut Q) = U j := congrArg Prod.snd eq
+    have same (h : H) (x : P) : q (a i h x) = q (a j h x) := by
+      apply (U i).injective
+      change U i (b i h (q x)) = U i (b j h (q x))
+      have hi := hU i h (q x)
+      have hj := hU j h (q x)
+      change U i = U j at v
+      rw [e,v] at hi
+      rw [v]
+      exact hi.symm.trans hj
+    obtain ⟨u,_,hu⟩ := frattini_lifts hp hl ne (a i) (a j) same
+    let mid := SemidirectProduct.congr u (MulEquiv.refl H) (fun h => (hu h).symm)
+    apply Subtype.ext
+    rw [← rep i,← rep j]
+    exact Quotient.sound ⟨InducedCategory.isoMk (F := FiniteGrp.toGrp)
+      (((iso i).some.trans (mid.trans (iso j).some.symm)).toGrpIso)⟩
+  let _ : Finite (Q →* Q) := Finite.of_injective (fun g : Q →* Q => (g : Q → Q)) DFunLike.coe_injective
+  have aut : Nat.card (MulAut Q) ≤ Nat.card Q ^ Nat.log 2 (Nat.card Q) :=
+    (Nat.card_le_card_of_injective MulEquiv.toMonoidHom MulEquiv.toMonoidHom_injective).trans (hom_count Q Q)
+  have qlt := qle.trans_lt ((Nat.le_mul_of_pos_right _ Nat.card_pos).trans_lt hr)
+  have logle := (Nat.log_lt_of_lt_pow Nat.card_pos.ne' qlt).le
+  have tle := (Nat.le_log_of_pow_le (by decide : 1 < 2) ht).trans logle
+  change Nat.card S ≤ _
+  calc
+    _ ≤ Nat.card (C × MulAut Q) := Nat.card_le_card_of_injective _ inj
+    _ ≤ (Nat.card H+1)^r * Nat.card Q^r := by
+      rw [Nat.card_prod]
+      exact Nat.mul_le_mul (bc.trans (Nat.pow_le_pow_right (by omega) tle))
+        (aut.trans (Nat.pow_le_pow_right Nat.card_pos logle))
+    _ = ((Nat.card H+1)*Nat.card Q)^r := (mul_pow ..).symm
+    _ ≤ (2^(r+1))^r := by
+      apply Nat.pow_le_pow_left
+      have le := Nat.mul_le_mul_left (Nat.card H) qle
+      rw [Nat.mul_comm (Nat.card H) (Nat.card P)] at le
+      rw [Nat.add_mul,one_mul,pow_succ]; omega
+    _ = _ := (pow_mul ..).symm
+
+/-- Sum over kernel and complement isomorphism classes using the coprime Sylow product. -/
+theorem abelian_or_two_primary_hall_union {q r : ℕ} (hr : q < 2^r) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ ∃ K H : FiniteGrp.{0}, (IsMulCommutative K ∨ (IsPrimePow (Nat.card K) ∧ IsPrimePow (Nat.card H))) ∧
         Group.IsNilpotent H ∧
         (Nat.card K).Coprime (Nat.card H) ∧ ∃ f : H →* MulAut K, Nonempty (G ≃* SemidirectProduct _ H f)}).ncard ≤
       2^((r+1)^2) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
   classical
   let C (n : ℕ) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-    {G : FiniteGrp.{0} | Nat.card G = n ∧ IsMulCommutative G}
+    {G : FiniteGrp.{0} | Nat.card G = n ∧ (IsMulCommutative G ∨ (IsPrimePow n ∧ IsPrimePow (q/n)))}
   let O (n : ℕ) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
     {G : FiniteGrp.{0} | Nat.card G = n ∧ Group.IsSolvable G ∧ Group.IsNilpotent G}
   let K {n : ℕ} (x : C n) : FiniteGrp.{0} := x.property.choose
@@ -1783,20 +1966,36 @@ theorem abelian_kernel_hall_union {q r : ℕ} (hr : q < 2^r) :
   have finite (i : I) (x : X i) : (S i x).Finite := (finite_classes q).subset (Set.image_mono (by
     rintro G ⟨a,⟨u⟩⟩
     exact (Nat.card_congr u.toEquiv).trans (by rw [SemidirectProduct.card,kc,hc]; exact i.property.2.2.1)))
-  have inner (i : I) : (⋃ x : X i, S i x).ncard ≤ 2^(r*r)*L q := by
+  have inner (i : I) : (⋃ x : X i, S i x).ncard ≤ 2^((r+1)*r)*L q := by
     let _ := Fintype.ofFinite (X i)
-    have cnt (x : X i) : (S i x).ncard ≤ 2^(r*r) := by
-      let _ : IsMulCommutative (K x.1) := x.1.property.choose_spec.1.2
-      apply all_abelian_action_bound
-      · rw [kc,hc]; exact i.property.2.2.2
-      · rw [kc,hc,i.property.2.2.1]; exact hr
+    have cnt (x : X i) : (S i x).ncard ≤ 2^((r+1)*r) := by
+      have cp : (Nat.card (K x.1)).Coprime (Nat.card (H x.2)) := by rw [kc,hc]; exact i.property.2.2.2
+      have sz : Nat.card (K x.1) * Nat.card (H x.2) < 2^r := by rw [kc,hc,i.property.2.2.1]; exact hr
+      rcases x.1.property.choose_spec.1.2 with comm | ⟨pk,ph⟩
+      · let _ : IsMulCommutative (K x.1) := comm
+        exact (all_abelian_action_bound _ _ cp sz).trans (Nat.pow_le_pow_right (by decide) (by nlinarith))
+      · obtain ⟨p,k,hp,hk,ek⟩ := (isPrimePow_nat_iff _).mp pk
+        obtain ⟨l,m,hl,hm,em⟩ := (isPrimePow_nat_iff _).mp ph
+        let _ : Fact p.Prime := ⟨hp⟩
+        let _ : Fact l.Prime := ⟨hl⟩
+        have kp : Nat.card (K x.1) = p^k := (kc _).trans ek.symm
+        have kh : Nat.card (H x.2) = l^m := (hc _).trans em.symm
+        apply two_primary_action_count _ _ (IsPGroup.of_card kp) (IsPGroup.of_card kh) _ sz
+        rintro rfl
+        rw [kp,kh] at cp
+        exact hp.not_dvd_one (cp ▸ Nat.dvd_gcd (dvd_pow_self _ hk.ne') (dvd_pow_self _ hm.ne'))
     have csize : (C i.val.val).ncard ≤ L i.val.val := by
       apply le_trans _ (nilpotent_bound _)
       apply Set.ncard_le_ncard _ ((finite_classes _).subset (Set.image_mono fun _ h => h.1))
       rintro _ ⟨G,⟨hG,comm⟩,rfl⟩
-      let _ : IsMulCommutative G := comm
-      let _ : CommGroup G := { (inferInstance : Group G) with mul_comm := IsMulCommutative.is_comm.comm }
-      exact ⟨G,⟨hG,inferInstance,inferInstance⟩,rfl⟩
+      rcases comm with comm | ⟨pk,_⟩
+      · let _ : IsMulCommutative G := comm
+        let _ : CommGroup G := { (inferInstance : Group G) with mul_comm := IsMulCommutative.is_comm.comm }
+        exact ⟨G,⟨hG,inferInstance,inferInstance⟩,rfl⟩
+      · obtain ⟨p,k,hp,_,eq⟩ := (isPrimePow_nat_iff _).mp pk
+        let _ : Fact p.Prime := ⟨hp⟩
+        let _ : Group.IsNilpotent G := (IsPGroup.of_card (hG.trans eq.symm)).isNilpotent
+        exact ⟨G,⟨hG,inferInstance,inferInstance⟩,rfl⟩
     have sz : Nat.card (X i) ≤ L q := by
       rw [← i.property.2.2.1]; unfold L; rw [sylow_product_coprime i.property.1 i.property.2.1 i.property.2.2.2]
       change Nat.card (C _ × O _) ≤ _
@@ -1804,8 +2003,8 @@ theorem abelian_kernel_hall_union {q r : ℕ} (hr : q < 2^r) :
       exact Nat.mul_le_mul csize (nilpotent_bound _)
     calc
       _ ≤ ∑ x : X i, (S i x).ncard := Set.ncard_iUnion_le_of_fintype _
-      _ ≤ ∑ _ : X i, 2^(r*r) := Finset.sum_le_sum fun x _ => cnt x
-      _ = 2^(r*r)*Nat.card (X i) := by simp [Nat.card_eq_fintype_card,Nat.mul_comm]
+      _ ≤ ∑ _ : X i, 2^((r+1)*r) := Finset.sum_le_sum fun x _ => cnt x
+      _ = 2^((r+1)*r)*Nat.card (X i) := by simp [Nat.card_eq_fintype_card,Nat.mul_comm]
       _ ≤ _ := Nat.mul_le_mul_left _ sz
   apply le_trans (Set.ncard_le_ncard (t := ⋃ i : I, ⋃ x : X i, S i x) ?_
     (Set.finite_iUnion fun i => Set.finite_iUnion (finite i))) ?_
@@ -1817,7 +2016,8 @@ theorem abelian_kernel_hall_union {q r : ℕ} (hr : q < 2^r) :
     have leq := (Nat.le_mul_of_pos_right (Nat.card N) (Nat.card_pos (α := P))).trans eq.le
     have div : q/Nat.card N = Nat.card P := by rw [← eq,Nat.mul_div_cancel_left _ Nat.card_pos]
     let i : I := ⟨⟨Nat.card N,by omega⟩,Nat.card_pos,div.symm ▸ Nat.card_pos,div.symm ▸ eq,div.symm ▸ cop⟩
-    let x : X i := (⟨Quotient.mk _ N,N,⟨rfl,comm⟩,rfl⟩,⟨Quotient.mk _ P,P,⟨div.symm,sol,nil⟩,rfl⟩)
+    have typ : IsMulCommutative N ∨ (IsPrimePow (Nat.card N) ∧ IsPrimePow (q/Nat.card N)) := by rwa [div]
+    let x : X i := (⟨Quotient.mk _ N,N,⟨rfl,typ⟩,rfl⟩,⟨Quotient.mk _ P,P,⟨div.symm,sol,nil⟩,rfl⟩)
     have kn : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (K x.1) = Quotient.mk _ N := x.1.property.choose_spec.2
     have hp : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (H x.2) = Quotient.mk _ P := x.2.property.choose_spec.2
     let f := ((inducedFunctor FiniteGrp.toGrp).mapIso (Classical.choice (Quotient.exact kn))).groupIsoToMulEquiv.symm
@@ -1828,10 +2028,22 @@ theorem abelian_kernel_hall_union {q r : ℕ} (hr : q < 2^r) :
       (by simpa using hr : Nat.card (Fin (q+1)) ≤ 2^r)
     calc
       _ ≤ ∑ i : I, (⋃ x : X i, S i x).ncard := Set.ncard_iUnion_le_of_fintype _
-      _ ≤ ∑ _ : I, 2^(r*r)*L q := Finset.sum_le_sum fun i _ => inner i
-      _ = Nat.card I*(2^(r*r)*L q) := by simp [Nat.card_eq_fintype_card]
-      _ ≤ 2^r*(2^(r*r)*L q) := Nat.mul_le_mul_right _ ni
+      _ ≤ ∑ _ : I, 2^((r+1)*r)*L q := Finset.sum_le_sum fun i _ => inner i
+      _ = Nat.card I*(2^((r+1)*r)*L q) := by simp [Nat.card_eq_fintype_card]
+      _ ≤ 2^r*(2^((r+1)*r)*L q) := Nat.mul_le_mul_right _ ni
       _ ≤ _ := by rw [← mul_assoc,← pow_add]; apply Nat.mul_le_mul_right; apply Nat.pow_le_pow_right (by decide); nlinarith
+
+/-- Specialization to abelian kernels of arbitrary order. -/
+theorem abelian_kernel_hall_union {q r : ℕ} (hr : q < 2^r) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ ∃ K H : FiniteGrp.{0}, IsMulCommutative K ∧
+        Group.IsNilpotent H ∧
+        (Nat.card K).Coprime (Nat.card H) ∧ ∃ f : H →* MulAut K, Nonempty (G ≃* SemidirectProduct _ H f)}).ncard ≤
+      2^((r+1)^2) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
+  apply le_trans _ (abelian_or_two_primary_hall_union hr)
+  apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono fun _ h => h.1))
+  rintro _ ⟨G,⟨hg,K,H,comm,nil,cop,act,iso⟩,rfl⟩
+  exact ⟨G,⟨hg,K,H,Or.inl comm,nil,cop,act,iso⟩,rfl⟩
 
 theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2.H2 := by
   classical
@@ -1865,7 +2077,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
           ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))
   let U (G : FiniteGrp.{0}) := U₁ G ∨ U₂ G
   let V (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))
-  let W (G : FiniteGrp.{0}) := (∃ K H : FiniteGrp.{0}, IsMulCommutative K ∧
+  let W (G : FiniteGrp.{0}) := (∃ K H : FiniteGrp.{0}, (IsMulCommutative K ∨ (IsPrimePow (Nat.card K) ∧ IsPrimePow (Nat.card H))) ∧
         Group.IsNilpotent H ∧ (Nat.card K).Coprime (Nat.card H) ∧
         ∃ f : H →* MulAut K, Nonempty (G ≃* SemidirectProduct _ H f))
   let N₀ (G : FiniteGrp.{0}) := U G ∨ V G
@@ -1972,7 +2184,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
       · exact Or.inl ⟨G,⟨hg,hs,h⟩,rfl⟩
       · exact Or.inr ⟨G,⟨hg,hs,h⟩,rfl⟩
     have w : (S W).ncard ≤ 2^m*L := by
-      apply le_trans _ (abelian_kernel_hall_union hr)
+      apply le_trans _ (abelian_or_two_primary_hall_union hr)
       apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono (fun _ h => h.1)))
       rintro _ ⟨G,⟨hg,_,h⟩,rfl⟩
       exact ⟨G,⟨hg,h⟩,rfl⟩
