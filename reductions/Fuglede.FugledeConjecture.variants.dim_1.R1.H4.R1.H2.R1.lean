@@ -21,24 +21,116 @@ def H1 : Prop :=
     ∃ C : Finset (ZMod M), ∀ m : ZMod M,
       ∃! q : {w // w ∈ W} × {c // c ∈ C}, q.1.1 + q.2.1 = m
 
-/-- Lift a family with a shared spectrum to a single spectral set by taking
-prescribed copies of its members in a cyclic extension. -/
+/-- The stack of a family with a shared spectrum is spectral in the cyclic
+extension, with one member of the family in each layer. -/
 def H2 : Prop :=
-  ∀ (N : ℕ) (_ : NeZero N) (p r : ℕ), 0 < p → 0 < r →
+  ∀ (N L : ℕ) (_ : NeZero N) (_ : NeZero L) (hcop : N.Coprime L) (p r : ℕ), 0 < p →
     ∀ (Λ : Finset (ZMod N)) (A : Fin r → Finset (ZMod N)),
       Λ.card = p →
       (∀ i, (A i).card = p ∧
         ∀ ξ₁ ∈ Λ, ∀ ξ₂ ∈ Λ, ξ₁ ≠ ξ₂ →
           ∑ k ∈ A i, Complex.exp (2 * Real.pi * Complex.I *
             (((ξ₁.val : ℝ) - (ξ₂.val : ℝ)) * (k.val : ℝ) / (N : ℝ))) = 0) →
-      ∃ (M : ℕ) (_ : NeZero M) (π : ZMod M →+ ZMod N) (W K : Finset (ZMod M)),
-        M = N * (∑ i : Fin r, (2 * N) ^ i.val) ∧ Function.Surjective π ∧
-        0 < W.card ∧ K.card = W.card ∧
-        (∀ ξ₁ ∈ K, ∀ ξ₂ ∈ K, ξ₁ ≠ ξ₂ →
-          ∑ w ∈ W, Complex.exp (2 * Real.pi * Complex.I *
-            (((ξ₁.val : ℝ) - (ξ₂.val : ℝ)) * (w.val : ℝ) / (M : ℝ))) = 0) ∧
-        (∀ x, (W.filter fun w => π w = x).card =
-          ∑ i : Fin r, if x ∈ A i then (2 * N) ^ i.val else 0)
+      ∀ (layer : ZMod L → Fin r) (W : Finset (ZMod (N * L))),
+        (∀ w, w ∈ W ↔ (ZMod.chineseRemainder hcop w).1 ∈
+          A (layer (ZMod.chineseRemainder hcop w).2)) →
+        ∃ K : Finset (ZMod (N * L)), K.card = W.card ∧
+          ∀ ξ₁ ∈ K, ∀ ξ₂ ∈ K, ξ₁ ≠ ξ₂ →
+            ∑ w ∈ W, Complex.exp (2 * Real.pi * Complex.I *
+              (((ξ₁.val : ℝ) - (ξ₂.val : ℝ)) * (w.val : ℝ) / ((N * L : ℕ) : ℝ))) = 0
+
+lemma radix_layer_count_coprime (N r : ℕ) (hr : 0 < r) :
+    N.Coprime (∑ i : Fin r, (2 * N) ^ i.val) := by
+  obtain ⟨r, rfl⟩ := Nat.exists_eq_succ_of_ne_zero hr.ne'
+  simp only [Fin.sum_univ_succ, Fin.val_zero, pow_zero, Fin.val_succ, pow_succ',
+    ← Finset.mul_sum]
+  rw [mul_comm 2 N, mul_assoc, Nat.coprime_add_mul_left_right]
+  exact Nat.coprime_one_right N
+
+lemma weighted_layer_partition (N r : ℕ) (hr : 0 < r) :
+    let L := ∑ i : Fin r, (2 * N) ^ i.val
+    ∃ (hL : NeZero L) (layer : ZMod L → Fin r),
+      letI : NeZero L := hL
+      ∀ i, ((Finset.univ : Finset (ZMod L)).filter fun y => layer y = i).card =
+        (2 * N) ^ i.val := by
+  classical
+  let L := ∑ i : Fin r, (2 * N) ^ i.val
+  let zero : Fin r := ⟨0, hr⟩
+  have hLpos : 0 < L := by
+    exact lt_of_lt_of_le Nat.one_pos
+      (show (2 * N) ^ zero.val ≤ L from
+        Finset.single_le_sum (f := fun i : Fin r => (2 * N) ^ i.val)
+          (fun _ _ => Nat.zero_le _) (Finset.mem_univ zero))
+  let hL : NeZero L := ⟨hLpos.ne'⟩
+  let types (i : Fin r) := Fin ((2 * N) ^ i.val)
+  let e : (Σ i, types i) ≃ ZMod L := Fintype.equivOfCardEq (by
+    rw [Fintype.card_sigma, ZMod.card]
+    simp only [types, Fintype.card_fin, L])
+  let layer (y : ZMod L) := (e.symm y).1
+  refine ⟨hL, layer, ?_⟩
+  intro i
+  let f₀ : types i ≃ {q : Sigma types // q.1 = i} :=
+    { toFun := fun j => ⟨⟨i, j⟩, rfl⟩
+      invFun := fun q => q.property ▸ q.val.2
+      left_inv := fun _ => rfl
+      right_inv := by
+        rintro ⟨⟨k, j⟩, rfl⟩
+        rfl }
+  let f₁ : {q : Sigma types // q.1 = i} ≃ {y : ZMod L // layer y = i} :=
+    (e.symm.subtypeEquivOfSubtype (p := fun q => q.1 = i)).symm
+  let f₂ : {y : ZMod L // layer y = i} ≃
+      {y // y ∈ (Finset.univ : Finset (ZMod L)).filter (fun y => layer y = i)} :=
+    Equiv.subtypeEquivRight (by intro y; simp)
+  simpa only [types, Fintype.card_fin, Fintype.card_coe] using
+    (Fintype.card_congr (f₀.trans (f₁.trans f₂))).symm
+
+
+
+lemma weighted_stack_projection {N L r : ℕ} [NeZero N] [NeZero L]
+    (A : Fin r → Finset (ZMod N)) (layer : ZMod L → Fin r)
+    (hlayer : ∀ i, ((Finset.univ : Finset (ZMod L)).filter fun y => layer y = i).card =
+      (2 * N) ^ i.val)
+    (f : ZMod (N * L) ≃+* ZMod N × ZMod L) (W : Finset (ZMod (N * L)))
+    (hW : ∀ w, w ∈ W ↔ (f w).1 ∈ A (layer (f w).2)) (x : ZMod N) :
+    (W.filter fun w => (f w).1 = x).card =
+      ∑ i : Fin r, if x ∈ A i then (2 * N) ^ i.val else 0 := by
+  classical
+  let Ys : Finset (ZMod L) := Finset.univ.filter fun y => x ∈ A (layer y)
+  have hcard : (W.filter fun w => (f w).1 = x).card = Ys.card := by
+    apply Finset.card_bij (fun w _ => (f w).2)
+    · intro w hw
+      obtain ⟨hw, hx⟩ := Finset.mem_filter.mp hw
+      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, hx ▸ (hW w).mp hw⟩
+    · intro w hw v hv h
+      apply f.injective
+      exact Prod.ext ((Finset.mem_filter.mp hw).2.trans (Finset.mem_filter.mp hv).2.symm) h
+    · intro y hy
+      have hy' := (Finset.mem_filter.mp hy).2
+      refine ⟨f.symm (x, y), Finset.mem_filter.mpr ⟨(hW _).mpr ?_, ?_⟩, ?_⟩
+      · simpa only [f.apply_symm_apply] using hy'
+      · simp
+      · simp
+  rw [hcard]
+  have hsum := Finset.sum_card_fiberwise_eq_card_filter Ys (Finset.univ : Finset (Fin r)) layer
+  simp only [Finset.mem_univ, Finset.filter_true] at hsum
+  rw [← hsum]
+  apply Finset.sum_congr rfl
+  intro i _
+  by_cases hxi : x ∈ A i
+  · rw [if_pos hxi, ← hlayer i]
+    congr 1
+    ext y
+    constructor
+    · exact fun hy => Finset.mem_filter.mpr ⟨Finset.mem_univ _, (Finset.mem_filter.mp hy).2⟩
+    · intro hy
+      have hyi := (Finset.mem_filter.mp hy).2
+      refine Finset.mem_filter.mpr ⟨Finset.mem_filter.mpr ⟨Finset.mem_univ _, ?_⟩, hyi⟩
+      rwa [hyi]
+  · rw [if_neg hxi, Finset.card_eq_zero]
+    apply Finset.eq_empty_iff_forall_notMem.mpr
+    intro y hy
+    obtain ⟨hy, hyi⟩ := Finset.mem_filter.mp hy
+    exact hxi (hyi ▸ (Finset.mem_filter.mp hy).2)
 
 /-- Count a tiling in each fiber of the projection onto the smaller group. -/
 lemma weighted_tile_counts {N M p r : ℕ} [NeZero N] [NeZero M] (hp : 0 < p)
@@ -199,11 +291,33 @@ theorem main : H1 → H2 → OMA.R_Fuglede_FugledeConjecture_variants_dim_1_R1_H
     have hr : 0 < r := Fintype.card_pos_iff.mpr ⟨⟨S₀, hS₀⟩⟩
     let A (i : Fin r) : Finset (ZMod N) := (e.symm i).val
     have hA (i : Fin r) := hℬ (A i) (e.symm i).property
-    obtain ⟨M, hM, π, W, K, hsize, hsurj, hW, hcard, horth, hproj⟩ :=
-      hlift N hN p r hp hr Λ A hΛ hA
-    obtain ⟨C, hC⟩ := hsingle M hM W K hW hcard horth
-    obtain ⟨hbound, hweighted⟩ := @weighted_tile_counts N M p r hN hM hp A π W C hsize hsurj
-      (fun i => (hA i).1) hproj hC
+    let L := ∑ i : Fin r, (2 * N) ^ i.val
+    have hcop : N.Coprime L := radix_layer_count_coprime N r hr
+    obtain ⟨hL, layer, hlayer⟩ := weighted_layer_partition N r hr
+    have hM : NeZero (N * L) := ⟨Nat.mul_ne_zero hN.out hL.out⟩
+    let f : ZMod (N * L) ≃+* ZMod N × ZMod L := ZMod.chineseRemainder hcop
+    let W : Finset (ZMod (N * L)) := Finset.univ.filter fun w => (f w).1 ∈ A (layer (f w).2)
+    have hW (w : ZMod (N * L)) : w ∈ W ↔ (f w).1 ∈ A (layer (f w).2) := by
+      simp only [W, Finset.mem_filter, Finset.mem_univ, true_and]
+    have hWpos : 0 < W.card := by
+      have hpos : 0 < (A (layer 0)).card := by rw [(hA (layer 0)).1]; exact hp
+      obtain ⟨a, ha⟩ := Finset.card_pos.mp hpos
+      refine Finset.card_pos.mpr ⟨f.symm (a, 0), (hW _).mpr ?_⟩
+      simpa only [f.apply_symm_apply] using ha
+    have hstack := hlift N L hN hL hcop p r hp Λ A hΛ hA layer W hW
+    obtain ⟨K, hK, horth⟩ := hstack
+    obtain ⟨C, hC⟩ := hsingle (N * L) hM W K hWpos hK horth
+    let π : ZMod (N * L) →+ ZMod N :=
+      (AddMonoidHom.fst (ZMod N) (ZMod L)).comp f.toAddEquiv.toAddMonoidHom
+    have hsurj : Function.Surjective π := by
+      intro x
+      refine ⟨f.symm (x, 0), ?_⟩
+      change (f (f.symm (x, 0))).1 = x
+      rw [f.apply_symm_apply]
+    have hproj := @weighted_stack_projection N L r hN hL A layer hlayer f W hW
+    obtain ⟨hbound, hweighted⟩ :=
+      @weighted_tile_counts N (N * L) p r hN hM hp A π W C rfl hsurj
+        (fun i => (hA i).1) hproj hC
     have hNpos : 0 < N := Nat.pos_of_ne_zero hN.out
     have hcount (i : Fin r) (m : ZMod N) :
         (C.filter fun c => m - π c ∈ A i).card = 1 := by
