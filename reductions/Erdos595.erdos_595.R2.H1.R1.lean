@@ -1,6 +1,7 @@
 import OMAReductions.R_Erdos595_erdos_595_R2
 import Mathlib.Order.Filter.AtTopBot.Finset
 import Mathlib.Order.Filter.Ultrafilter.Defs
+import Mathlib.SetTheory.Cardinal.Continuum
 
 -- Credit: @wispiANt
 namespace OMA.R_Erdos595_erdos_595_R2_H1_R1
@@ -252,11 +253,8 @@ private theorem realize_cut {J : Type} (U : Ultrafilter J)
     exact Bool.noConfusion (b.symm.trans ((ok g hg f hf e).trans h))
   | true => exact decide_eq_true ⟨f,hf,rfl,h⟩
 
-/-- Countably many coordinates admit a countable colouring avoiding every
-eventual triangle, even for an arbitrary proper filter and arbitrary factors
-on finite ordinal vertex sets. Thus finite Ramsey strength is insufficient
-on a countable index set in the fixed-factor criterion. -/
-theorem countable_coordinates {J : Type} [Countable J] (l : Filter J) [NeBot l]
+/-- A continuum-sized space of vertex sequences gives enough binary cuts for all edges. -/
+theorem coded_coordinates {J : Type} (code : (J → ℕ) ↪ (ℕ → Bool)) (l : Filter J) [NeBot l]
     (n : J → ℕ) (G : (j : J) → SimpleGraph (Fin (n j))) :
     ∃ d : ((j : J) → (G j).edgeSet) → ℕ, ∀ a b c, d a = d b → d a = d c →
       ¬ ∀ᶠ j in l, ∃ x y z : Fin (n j), (a j : Sym2 _) = s(x,y) ∧
@@ -274,29 +272,24 @@ theorem countable_coordinates {J : Type} [Countable J] (l : Filter J) [NeBot l]
   let E := (j : J) → (G j).edgeSet
   let L (a : E) (j : J) := ((a j).val.out.1 : ℕ)
   let R (a : E) (j : J) := ((a j).val.out.2 : ℕ)
-  have sep (a : E) : ∃ j, rep (L a) j ≠ rep (R a) j := by
+  have sep (a : E) : ∃ k, code (rep (L a)) k ≠ code (rep (R a)) k := by
     by_contra! h
-    have eq := funext h
+    have eq := code.injective (funext h)
     have lr : L a =ᶠ[U] R a := (sound _).symm.trans (eq ▸ sound (R a))
     obtain ⟨j,ej⟩ := lr.exists
     have edge := (a j).property
     rw [← (a j).val.out_eq] at edge
     exact (show (G j).Adj (a j).val.out.1 (a j).val.out.2 from edge).ne (Fin.ext ej)
   choose index diff using sep
-  let key (a : E) := (index a, rep (L a) (index a))
-  obtain ⟨enc,inj⟩ := Countable.exists_injective_nat (J × ℕ)
-  refine ⟨fun a => enc (key a),?_⟩
+  refine ⟨index,?_⟩
   intro a b c ab ac tri
-  have kb := inj ab
-  have kc := inj ac
-  let bit (v : J → ℕ) := decide (rep v (key a).1 = (key a).2)
-  have opposite (p : E) (k : key p = key a) : bit (L p) ≠ bit (R p) := by
-    simp only [bit,← k]
-    simp [key,Ne.symm (diff p)]
+  let bit (v : J → ℕ) := code (rep v) (index a)
+  have opposite (p : E) (k : index p = index a) : bit (L p) ≠ bit (R p) := by
+    simpa only [bit,← k] using diff p
   let S : Finset (J → ℕ) := {L a,R a,L b,R b,L c,R c}
   have realize := realize_cut U bit (fun f g h => by simp only [bit,stable h]) S
   obtain ⟨j,⟨cut,hcut⟩,x,y,z,xy,yz,zx⟩ := (realize.and (Ultrafilter.of_le _ tri)).exists
-  have side (p : E) (hl : L p ∈ S) (hr : R p ∈ S) (k : key p = key a)
+  have side (p : E) (hl : L p ∈ S) (hr : R p ∈ S) (k : index p = index a)
       (v w : Fin (n j)) (edge : (p j).val = s(v,w)) : cut v ≠ cut w := by
     have ne : cut (L p j) ≠ cut (R p j) := by rw [hcut _ hl,hcut _ hr]; exact opposite p k
     have oriented : s((p j).val.out.1,(p j).val.out.2) = s(v,w) := (p j).val.out_eq.trans edge
@@ -304,10 +297,32 @@ theorem countable_coordinates {J : Type} [Countable J] (l : Filter J) [NeBot l]
     · simpa only [L,R,h.1,h.2] using ne
     · simpa only [L,R,h.1,h.2] using ne.symm
   have A := side a (by simp [S]) (by simp [S]) rfl x y xy
-  have B := side b (by simp [S]) (by simp [S]) kb.symm y z yz
-  have C := side c (by simp [S]) (by simp [S]) kc.symm z x zx
+  have B := side b (by simp [S]) (by simp [S]) ab.symm y z yz
+  have C := side c (by simp [S]) (by simp [S]) ac.symm z x zx
   revert A B C
   cases cut x <;> cases cut y <;> cases cut z <;> decide
+
+/-- Countably many coordinates admit a countable colouring avoiding every
+eventual triangle, even for an arbitrary proper filter and arbitrary factors
+on finite ordinal vertex sets. Thus finite Ramsey strength is insufficient
+on a countable index set in the fixed-factor criterion. -/
+theorem countable_coordinates {J : Type} [Countable J] (l : Filter J) [NeBot l]
+    (n : J → ℕ) (G : (j : J) → SimpleGraph (Fin (n j))) :
+    ∃ d : ((j : J) → (G j).edgeSet) → ℕ, ∀ a b c, d a = d b → d a = d c →
+      ¬ ∀ᶠ j in l, ∃ x y z : Fin (n j), (a j : Sym2 _) = s(x,y) ∧
+        (b j : Sym2 _) = s(y,z) ∧ (c j : Sym2 _) = s(z,x) := by
+  classical
+  obtain ⟨num,inj⟩ := Countable.exists_injective_nat (J × ℕ)
+  let bits (f : J → ℕ) (k : ℕ) := decide (∃ j, num (j,f j) = k)
+  have inject : Function.Injective bits := by
+    intro f g h
+    funext j
+    have atBit := congrFun h (num (j,f j))
+    have known : bits f (num (j,f j)) = true := decide_eq_true ⟨j,rfl⟩
+    obtain ⟨i,eq⟩ : ∃ i, num (i,g i) = num (j,f j) := of_decide_eq_true (atBit.symm.trans known)
+    obtain ⟨rfl,hval⟩ := Prod.mk.inj (inj eq)
+    exact hval.symm
+  exact coded_coordinates ⟨bits,inject⟩ l n G
 
 /-- Every witness in the product reduction requires an uncountable index set. -/
 theorem uncountable_index {I : Type} (n : Finset I → ℕ)
@@ -321,5 +336,106 @@ theorem uncountable_index {I : Type} (n : Finset I → ℕ)
   obtain ⟨d,avoids⟩ := countable_coordinates atTop n G
   obtain ⟨a,b,c,ab,ac,triangle⟩ := hard d
   exact avoids a b c ab ac triangle
+
+
+/-- The trace on a finite coordinate uses at most two to the power of its
+size many values. Distinct subsets have different traces on an entire tail. -/
+theorem finite_traces (I : Type) :
+    ∃ t : Set I → Finset I → ℕ, (∀ A s, t A s < 2 ^ s.card) ∧
+      ∀ A B, A ≠ B → ∀ᶠ s in (atTop : Filter (Finset I)), t A s ≠ t B s := by
+  classical
+  let word (A : Set I) (s : Finset I) (i : ↥s) := decide (i.val ∈ A)
+  let num (s : Finset I) := Fintype.equivFin (↥s → Bool)
+  refine ⟨fun A s => (num s (word A s)).val,?_,?_⟩
+  · intro A s
+    simpa using (num s (word A s)).isLt
+  · intro A B ne
+    have differs : ∃ i, ¬ (i ∈ A ↔ i ∈ B) := by
+      by_contra! h
+      exact ne (Set.ext h)
+    obtain ⟨i,hi⟩ := differs
+    filter_upwards [Filter.eventually_finset_mem_atTop i] with s hs
+    intro eq
+    have bits := congrFun ((num s).injective (Fin.ext eq)) (⟨i,hs⟩ : ↥s)
+    exact hi (by simpa only [word,decide_eq_decide] using bits)
+
+open Cardinal in
+private theorem binary_sequence_capacity {I : Type} [Infinite I] :
+    Cardinal.mk (Finset I → ℕ) = 2 ^ Cardinal.mk I := by
+  rw [Cardinal.mk_arrow,Cardinal.lift_id,Cardinal.lift_id,Cardinal.mk_nat,
+    Cardinal.mk_finset_of_infinite]
+  exact Cardinal.power_eq_two_power (Cardinal.aleph0_le_mk I)
+    (Cardinal.natCast_le_aleph0 (n := 2)) (Cardinal.aleph0_le_mk I)
+
+open Cardinal in
+/-- Exact whole-space coding test: for any ultrafilter extending the tails,
+its natural-valued germs can be separated by countably many binary cuts
+exactly when the power set of the index fits into the continuum. -/
+theorem germ_coding_iff {I : Type} [Infinite I] (U : Ultrafilter (Finset I))
+    (tails : (U : Filter (Finset I)) ≤ atTop) :
+    (∃ c : (Finset I → ℕ) → (ℕ → Bool), ∀ f g, c f = c g ↔ f =ᶠ[U] g) ↔
+      2 ^ Cardinal.mk I ≤ 𝔠 := by
+  classical
+  have bits : Cardinal.mk (ℕ → Bool) = 𝔠 := by simp
+  constructor
+  · rintro ⟨c,faithful⟩
+    obtain ⟨t,_,separate⟩ := finite_traces I
+    have inj : Function.Injective (fun A => c (t A)) := by
+      intro A B eq
+      by_contra ne
+      have agree := (faithful _ _).mp eq
+      obtain ⟨s,h,k⟩ := (agree.and (tails (separate A B ne))).exists
+      exact k h
+    have bound := Cardinal.mk_le_of_injective inj
+    rwa [Cardinal.mk_set,bits] at bound
+  · intro h
+    obtain ⟨e⟩ : Nonempty ((Finset I → ℕ) ↪ (ℕ → Bool)) := by
+      change Cardinal.mk (Finset I → ℕ) ≤ Cardinal.mk (ℕ → Bool)
+      rwa [binary_sequence_capacity,bits]
+    let r : Setoid (Finset I → ℕ) := {
+      r := EventuallyEq U
+      iseqv := ⟨EventuallyEq.refl _,EventuallyEq.symm,EventuallyEq.trans⟩ }
+    refine ⟨fun f => e (Quotient.mk r f).out,fun f g => ⟨?_,?_⟩⟩
+    · intro eq
+      apply Quotient.exact (s := r)
+      rw [← (Quotient.mk r f).out_eq, ← (Quotient.mk r g).out_eq]
+      exact congrArg (Quotient.mk r) (e.injective eq)
+    · intro eq
+      exact congrArg (fun q : Quotient r => e q.out) (Quotient.sound eq)
+
+open Cardinal in
+private theorem sequence_code {I : Type} [Infinite I] (h : 2 ^ Cardinal.mk I ≤ 𝔠) :
+    Nonempty ((Finset I → ℕ) ↪ (ℕ → Bool)) := by
+  change Cardinal.mk (Finset I → ℕ) ≤ Cardinal.mk (ℕ → Bool)
+  rwa [binary_sequence_capacity,show Cardinal.mk (ℕ → Bool) = 𝔠 by simp]
+
+open Cardinal in
+/-- Under equality of the powers at aleph-zero and aleph-one the first
+uncountable index still admits an avoiding colouring, for every family. -/
+theorem aleph_one_plateau {I : Type} [Infinite I] (size : Cardinal.mk I = ℵ₁)
+    (plateau : (2 : Cardinal.{0}) ^ ℵ₁ = 𝔠) (n : Finset I → ℕ)
+    (G : (s : Finset I) → SimpleGraph (Fin (n s))) :
+    ∃ d : ((s : Finset I) → (G s).edgeSet) → ℕ, ∀ a b c, d a = d b → d a = d c →
+      ¬ ∀ᶠ s in (atTop : Filter (Finset I)), ∃ x y z : Fin (n s),
+        (a s : Sym2 _) = s(x,y) ∧ (b s : Sym2 _) = s(y,z) ∧ (c s : Sym2 _) = s(z,x) := by
+  obtain ⟨e⟩ := sequence_code (I := I) (by rw [size,plateau])
+  exact coded_coordinates e atTop n G
+
+open Cardinal in
+/-- A hard product on an infinite index set requires strictly more subsets
+of that set than real numbers. In particular an aleph-one index is ruled
+out whenever its power set has size continuum. -/
+theorem hard_index_power {I : Type} [Infinite I] (n : Finset I → ℕ)
+    (G : (s : Finset I) → SimpleGraph (Fin (n s)))
+    (hard : ∀ d : ((s : Finset I) → (G s).edgeSet) → ℕ,
+      ∃ a b c, d a = d b ∧ d a = d c ∧ ∀ᶠ s in (atTop : Filter (Finset I)),
+        ∃ x y z : Fin (n s), (a s : Sym2 _) = s(x,y) ∧
+          (b s : Sym2 _) = s(y,z) ∧ (c s : Sym2 _) = s(z,x)) :
+    𝔠 < 2 ^ Cardinal.mk I := by
+  by_contra! h
+  obtain ⟨e⟩ := sequence_code h
+  obtain ⟨d,avoids⟩ := coded_coordinates e atTop n G
+  obtain ⟨a,b,c,ab,ac,t⟩ := hard d
+  exact avoids a b c ab ac t
 
 end OMA.R_Erdos595_erdos_595_R2_H1_R1
