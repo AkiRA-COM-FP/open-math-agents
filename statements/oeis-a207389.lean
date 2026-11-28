@@ -7,7 +7,6 @@ Source: https://oeis.org/A207389
 Credit: @clementtrecourt
 
 The conjectures listed in the entry, all stated below as one conjunction:
-* a(n) = (1/36)*n^6 + (113/60)*n^5 + (151/9)*n^4 + (95/4)*n^3 - (605/36)*n^2 - (229/30)*n + 3.
 * G.f.: x*(21 + 294*x - 339*x^2 - 62*x^3 + 139*x^4 - 36*x^5 + 3*x^6) / (1 - x)^7.
 * a(n) = 7*a(n-1) - 21*a(n-2) + 35*a(n-3) - 35*a(n-4) + 21*a(n-5) - 7*a(n-6) + a(n-7) for n>7.
 
@@ -35,7 +34,6 @@ def a (n : ℕ) : ℤ :=
 
 open PowerSeries in
 theorem main :
-    (∀ n : ℕ, 1 ≤ n → (a n : ℚ) = 1 / 36 * (n : ℚ) ^ 6 + 113 / 60 * (n : ℚ) ^ 5 + 151 / 9 * (n : ℚ) ^ 4 + 95 / 4 * (n : ℚ) ^ 3 - 605 / 36 * (n : ℚ) ^ 2 - 229 / 30 * (n : ℚ) + 3) ∧
     (PowerSeries.mk (fun n => if n < 1 then 0 else (a n : ℚ)) * ((1 - X) ^ 7 : PowerSeries ℚ) = X * (21 + 294 * X - 339 * X ^ 2 - 62 * X ^ 3 + 139 * X ^ 4 - 36 * X ^ 5 + 3 * X ^ 6)) ∧
     (∀ n : ℕ, 8 ≤ n → (a n : ℚ) = 7 * a (n - 1) - 21 * a (n - 2) + 35 * a (n - 3) - 35 * a (n - 4) + 21 * a (n - 5) - 7 * a (n - 6) + a (n - 7)) := by
   sorry
