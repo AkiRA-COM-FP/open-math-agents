@@ -1287,15 +1287,6 @@
    ],
    "note": "Mathar's 2025 conjecture a(n)+a(n+1) = A203286(n+1). I brute-forced the Configuration encoding (equal numbers of positive and negative entries, zero sum, at most n nonzero pairs), and it reproduces A203286 (4,12,28,57,...). The alkane formula reproduces A005994, and the identity checks for n <= 8. The proof is a bijective slice count. Routine."
   },
-  "oeis-a008705": {
-   "date": "2026-11-28",
-   "pr": 12732,
-   "routine": false,
-   "evidence": [
-    "https://oeis.org/A008705"
-   ],
-   "note": "Bala's 2023 supercongruences a(p) == -1-p and a(2p) == p-1 (mod p^2) for primes p >= 3, with a(n) = [x^n] Prod_{m<=n}(1-x^m)^n. The statement matches the entry, which still lists them as conjectures. The proof is a clean argument over ZMod(p^2) with 'good' polynomials whose coefficients at non-multiples of p are divisible by p. Short, but a genuine supercongruence proof."
-  },
   "oeis-a020964": {
    "date": "2026-11-28",
    "pr": 10923,
@@ -1709,24 +1700,6 @@
     "https://oeis.org/A000986"
    ],
    "note": "Mathar's 2013 order-5 P-recurrence for symmetric 0-1 matrices with row sums 2. The definition counts the matrices directly (diagonal 1 counted once), which matches the data 1,0,1,4,18,... The entry has the e.g.f. and Kotesovec's recurrence, so the claim is a holonomic consequence, though the Lean proof derives it combinatorially. Routine."
-  },
-  "oeis-a002414": {
-   "date": "2026-11-28",
-   "pr": 13195,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A002414"
-   ],
-   "note": "Plouffe's g.f. x(1+5x)/(1-x)^4 for a(n) = n(n+1)(2n-1)/2, stated as A*(1-x)^4 = x(1+5x) with a(0)=0. Faithful. It is immediate from the cubic closed form in the name: trivial."
-  },
-  "oeis-a026741": {
-   "date": "2026-11-28",
-   "pr": 13320,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A026741"
-   ],
-   "note": "Hopper's lcm(n,p) = p*a(n,p) and gcd(n,p) = n/a(n,p) for prime p, where a(n,p) = n/p if p|n and n otherwise. Faithful for n>0. A two-case triviality."
   },
   "oeis-a051524": {
    "date": "2026-11-28",
@@ -3293,15 +3266,6 @@
    ],
    "note": "The statement is Conjecture 6.2 of Barcau–Paşol–Ţurcaş: for odd primes p, delta((Z/p^2)^2, pG) = (2p-1)^2. A set T bijecting onto (Z/p)^2 under coordinatewise reduction is exactly a transversal of the cosets of pG, and the minimum of |T-T| is stated with IsLeast. The paper (v1 only, 26 Jun 2026) proves only 3p^2-p-1 and a conditional result. I found no later resolution."
   },
-  "arxiv-1805.10646": {
-   "date": "2026-11-28",
-   "pr": 17874,
-   "routine": false,
-   "evidence": [
-    "https://arxiv.org/abs/1805.10646"
-   ],
-   "note": "Glen–Simpson–Smyth conjecture that P(3,n) = 4n-2 for binary-labelled (3,n)-starlike trees and all n >= 2. The paper counts distinct non-empty palindromes along simple paths, and the formalization counts the distinct non-empty palindromic factors of the three leaf-to-leaf words, which is the same thing. It states attainment and the upper bound for every n >= 2. The paper proves only 4n-1, and I found no later proof."
-  },
   "mo-396509": {
    "date": "2026-11-28",
    "pr": 6357,
@@ -3536,16 +3500,6 @@
    ],
    "note": "R. J. Mathar's Sep 2012 conjectured 3-term holonomic recurrence for a(n) = (5n+1)C(4n,n)/(3n+1). The statement uses exactly the defining closed form (over Q) for n>=2, so it is faithful. Such recurrences for hypergeometric closed forms are routinely provable (Zeilberger's 'provable conjectures'), and the Lean proof is factorial algebra. Trivial, but the OEIS still lists it as a conjecture, it is not among the 33 in Ekhad-Yang-Zeilberger 2017, and I found no earlier proof. Statement PR #7930, proof PR #9307."
   },
-  "oeis-a273798": {
-   "date": "2026-11-28",
-   "pr": 9285,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A273798",
-    "https://oeis.org/A116882"
-   ],
-   "note": "The statement says numbers 2^m p with p prime and p < 2^m lie in A116882 (odd part^2 <= k). It is faithful and immediate: the odd part is p and p^2 < 2^m p. A 19-line proof. Trivial; I found no earlier written resolution, though it follows directly from the definition (and from Ordowski's characterization in A116882)."
-  },
   "oeis-a167138": {
    "date": "2026-11-28",
    "pr": 8035,
@@ -3734,15 +3688,6 @@
     "https://oeis.org/A364554"
    ],
    "note": "The statement is faithful to Ngom's 2023 formula conjecture: the primes p with T(k) = np are exactly the primes among (2r±1)/d and (r±1)/(2d) over factorizations n = dr, so the counts agree. The entry explicitly says '(Proof is welcome.)'. Correct and new, but elementary (p divides one of the factors x, 2x±1 of 2T(k))."
-  },
-  "arxiv-2102.09941": {
-   "date": "2026-11-28",
-   "pr": 7054,
-   "routine": true,
-   "evidence": [
-    "https://arxiv.org/abs/2102.09941v2"
-   ],
-   "note": "Conjecture 3.1 of arXiv:2102.09941v2 says n = 6 is the unique n satisfying: n | sigma^k(n) for all odd k; periodicity with period dividing lcm(e_p+1); and residue entropy tending to log 2. The paper defines sigma^k as the k-fold iterate (Theorem 2.1, Section 4), and the formal statement follows this faithfully. The disproof observes that the claimed solution fails: sigma(6) = 12, sigma(12) = 28, sigma(28) = 56, and 6 does not divide 56 at k = 3. The paper's own assertion that 6 works is simply false. The result is valid but trivial, and it refutes a self-contradictory conjecture from a low-quality preprint. (Under a sum-of-powers reading sigma_k(6) the n = 6 clauses would hold, but the paper explicitly uses iteration.)"
   },
   "mo-506603": {
    "date": "2026-11-28",
@@ -4812,15 +4757,6 @@
    ],
    "note": "Hurt's conjecture that (n/2)^2(3-(-1)^n) is the denominator of 4/n - 2/n^2 for n >= 1. Elementary gcd computation; I also checked it numerically for n < 200. Routine."
   },
-  "oeis-a258409": {
-   "date": "2026-11-28",
-   "pr": 6510,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A258409"
-   ],
-   "note": "The statement conjoins Ordowski's conjecture (a(n) = gcd of p-1 over primes p | n) and Wiseman's (a(n) = gcd of consecutive-divisor differences). Caveat: Ordowski's half was already proved in the entry by Robert Israel (2016). Wiseman's half is new but trivial: consecutive differences telescope to every d-1, and all divisors are ≡ 1 mod a(n). Confirmed only because Wiseman's part had no earlier proof; it is entirely routine."
-  },
   "oeis-a216971": {
    "date": "2026-11-28",
    "pr": 6596,
@@ -5511,6 +5447,47 @@
     "https://oeis.org/A145646"
    ],
    "reason": "Second review: The disproof is arithmetically correct but refutes a fit to an explicitly ill-defined physical sequence, using terms beyond its published data; the entry itself warns that the differences are unpredictable. That makes the 'open problem' essentially vacuous, so it should not be announced as a solved conjecture. At most it is a trivial finite check (routine)."
+  },
+  "arxiv-2102.09941": {
+   "date": "2026-11-28",
+   "pr": 7054,
+   "evidence": [
+    "https://arxiv.org/abs/2102.09941v2"
+   ],
+   "reason": "Second review: The disproof is valid for the faithful statement, but the source conjecture is self-evidently false at its own example n=6 (the paper miscomputes sigma iterates). Not a meaningful open problem to announce."
+  },
+  "oeis-a002414": {
+   "date": "2026-11-28",
+   "pr": 13195,
+   "evidence": [
+    "https://oeis.org/A002414"
+   ],
+   "reason": "Second review: Correct proof, but there is no open problem here: the g.f. of a polynomial sequence is a textbook computation. Should not be announced as a solved conjecture."
+  },
+  "oeis-a026741": {
+   "date": "2026-11-28",
+   "pr": 13320,
+   "evidence": [
+    "https://oeis.org/A026741"
+   ],
+   "reason": "Second review: A tautology from definitions; not a genuine open problem."
+  },
+  "oeis-a273798": {
+   "date": "2026-11-28",
+   "pr": 9285,
+   "evidence": [
+    "https://oeis.org/A273798",
+    "https://oeis.org/A116882"
+   ],
+   "reason": "Second review: True by a two-line observation directly from the definitions; not a genuine open problem."
+  },
+  "arxiv-1805.10646": {
+   "date": "2026-11-28",
+   "pr": 17874,
+   "evidence": [
+    "https://arxiv.org/abs/1805.10646"
+   ],
+   "reason": "Second review: Proves the binary-alphabet version (the abstract's reading). The body's conjecture P(3,n)=4n-2 is over all alphabets and remains formally open; any announcement must say 'binary alphabet'."
   }
  },
  "known": {
@@ -10424,6 +10401,23 @@
     "https://oeis.org/A004215"
    ],
    "reason": "Second review: Correct but a duplicate of oeis-a004215 (identical statement, same solver, same day). It should not be counted as a separate new result."
+  },
+  "oeis-a258409": {
+   "date": "2026-11-28",
+   "pr": 6510,
+   "evidence": [
+    "https://oeis.org/A258409"
+   ],
+   "reason": "Second review: Half of the conjunction was proved in the entry in 2016; the other half is a one-line observation. Not a new result."
+  },
+  "oeis-a008705": {
+   "date": "2026-11-28",
+   "pr": 12732,
+   "evidence": [
+    "https://oeis.org/A008705",
+    "https://github.com/rbajaj5/a183068-supercongruence/blob/main/related-results/ModularProductPrimeCoefficientPacket.md"
+   ],
+   "reason": "Second review: Public proof already exists: rbajaj5/a183068-supercongruence, ModularProductPrimeCoefficientPacket.md (Corollary 2 and Theorem 3, committed 2026-07-30), proves exactly a(p)=-1-p and a(2p)=p-1 mod p^2 for A008705. The site proof (2026-11-27) is independent but not first."
   }
  },
  "reviewed": "2026-11-28"
