@@ -276,10 +276,42 @@ private theorem large_case (k : ℕ) (hk : 65 ≤ k) : a (2*k) ≤ a (2*k-1) := 
   suffices (a (2*k) : ℚ) ≤ a n by exact_mod_cast this
   nlinarith only [ol, eu, el, ed, od, room, sq_nonneg ((k : ℚ)-65)]
 
+private def sumBelow (f : ℕ → ℕ) : ℕ → ℕ
+  | 0 => 0
+  | m+1 => sumBelow f m + f m
+
+private theorem sumBelow_eq (f : ℕ → ℕ) (m : ℕ) :
+    sumBelow f m = ∑ i ∈ range m, f i := by
+  induction m with
+  | zero => simp [sumBelow]
+  | succ m ih => rw [sumBelow, ih, sum_range_succ]
+
+private abbrev isPrimitive (n x y : ℕ) : Prop :=
+  0 < x ∧ x < y ∧ x + 2*y < n ∧ n < 2*(x+y) ∧ Nat.gcd (Nat.gcd x y) (n-x-y) = 1
+
+private def quick (n : ℕ) : ℕ :=
+  sumBelow (fun x => sumBelow (fun y => if isPrimitive n x y then 1 else 0)
+    (n/2+1)) (n/3+1)
+
+private theorem quick_eq (n : ℕ) : a n = quick n := by
+  let box := range (n/3+1) ×ˢ range (n/2+1)
+  have rect : ((shapes n).filter fun v => common n v = 1) =
+      box.filter (fun v => isPrimitive n v.1 v.2) := by
+    apply Finset.ext
+    rintro ⟨x,y⟩
+    rw [mem_filter, mem_filter, mem_shapes]
+    simp only [box, mem_product, mem_range, common, third, isPrimitive]
+    omega
+  rw [primitive, rect, card_filter]
+  simp only [box, sum_product, quick, sumBelow_eq]
+
 set_option maxRecDepth 150000 in
 set_option maxHeartbeats 4000000 in
 private theorem small_cases : ∀ i : Fin 65, a (2*i.val) ≤ a (2*i.val-1) := by
-  decide +kernel
+  have checked : ∀ i : Fin 65, quick (2*i.val) ≤ quick (2*i.val-1) := by decide +kernel
+  intro i
+  rw [quick_eq, quick_eq]
+  exact checked i
 
 end PrimitiveTriangle
 
