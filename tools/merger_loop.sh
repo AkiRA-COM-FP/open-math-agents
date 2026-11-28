@@ -17,9 +17,36 @@ set -uo pipefail
 export MERGER_V2=1 MERGER_V3=1
 # Every GitHub call has a time limit: one call that never answers must not stall all verdicts.
 GH_BIN="$(type -P gh)"; export GH_BIN
-gh() { timeout 90 "$GH_BIN" "$@"; }
-export -f gh
 ROOT="$PWD"; mkdir -p "$ROOT/done" "$ROOT/remerge"
+# API calls use the GitHub App's installation token when the App is set up (secrets OMA_APP_ID and
+# OMA_APP_PRIVATE_KEY: its own budget, 15,000 calls an hour, apart from GITHUB_TOKEN's, which check-proof and the
+# batch checker share), else GITHUB_TOKEN. Git pushes always use the checkout's GITHUB_TOKEN (a push made with an App
+# token would start the push workflows on main). The token lasts an hour; app_token() mints a new one every 45 minutes.
+export GH_TOKEN_BASE="$GH_TOKEN" OMA_TOKEN_FILE="$ROOT/.app_token"
+gh() { local T=""; [ -s "$OMA_TOKEN_FILE" ] && T=$(cat "$OMA_TOKEN_FILE"); GH_TOKEN="${T:-$GH_TOKEN_BASE}" timeout 90 "$GH_BIN" "$@"; }
+export -f gh
+app_token() {  # mint an installation token for this repository from the App's key; on any failure, GITHUB_TOKEN
+  [ -n "${OMA_APP_ID:-}" ] && [ -n "${OMA_APP_KEY:-}" ] || return 0
+  [ -s "$OMA_TOKEN_FILE" ] && [ $(( $(date -u +%s) - $(stat -c %Y "$OMA_TOKEN_FILE") )) -lt 2700 ] && return 0
+  local K NOW H P S J INST TOK; K=$(umask 077; mktemp); printf '%s\n' "$OMA_APP_KEY" > "$K"; NOW=$(date -u +%s)
+  b64u() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
+  H=$(printf '{"alg":"RS256","typ":"JWT"}' | b64u)
+  P=$(printf '{"iat":%d,"exp":%d,"iss":"%s"}' $((NOW - 60)) $((NOW + 540)) "$OMA_APP_ID" | b64u)
+  S=$(printf '%s.%s' "$H" "$P" | openssl dgst -sha256 -sign "$K" 2>/dev/null | b64u); rm -f "$K"
+  J="$H.$P.$S"
+  INST=$(curl -sS -m 30 -H "Authorization: Bearer $J" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/$REPO/installation" | jq -r '.id // empty' 2>/dev/null)
+  [ -n "$INST" ] && TOK=$(curl -sS -m 30 -X POST -H "Authorization: Bearer $J" -H "Accept: application/vnd.github+json" "https://api.github.com/app/installations/$INST/access_tokens" | jq -r '.token // empty' 2>/dev/null)
+  if [ -n "${TOK:-}" ]; then
+    echo "::add-mask::$TOK"; (umask 077; printf '%s' "$TOK" > "$OMA_TOKEN_FILE.tmp") && mv "$OMA_TOKEN_FILE.tmp" "$OMA_TOKEN_FILE"
+    echo "merger: GitHub App token minted (installation $INST)"
+  else
+    echo "merger: GitHub App token not minted, using GITHUB_TOKEN"
+    # an expired token must not stay in use: drop it once it is older than 55 minutes
+    [ -s "$OMA_TOKEN_FILE" ] && [ $(( NOW - $(stat -c %Y "$OMA_TOKEN_FILE") )) -ge 3300 ] && rm -f "$OMA_TOKEN_FILE"
+  fi
+  return 0
+}
+app_token
 export CREDIT_RETRY_FILE="$ROOT/credit_retry.txt"; touch "$CREDIT_RETRY_FILE"
 # Credit ledger: credit.sh appends a line per merge (tools/ledger_entry.py), tools/ledger_post.sh sends them to the site.
 export LEDGER_FILE="$ROOT/ledger.jsonl"; touch "$LEDGER_FILE"
@@ -265,7 +292,7 @@ spool() { local F="$SPOOL/.c.$BASHPID.$(date +%s%N)"; cat > "$F"; [ -s "$F" ] &&
 #   every slot busy; it also refreshes main and restarts in place on a new version of this script.
 fast_poll() {
   while [ "$(date -u +%s)" -lt "$END" ]; do
-    local T=$(date -u +%s); budget
+    local T=$(date -u +%s); app_token; budget
     { gh api --paginate "repos/$REPO/actions/workflows/check-proof.yml/runs?status=in_progress&per_page=100" --jq ".workflow_runs[] | $JQ_RUN" > inprog.tsv 2>/dev/null || cp prev_inprog.tsv inprog.tsv
       cut -f1 inprog.tsv | sort > now_ids; cut -f1 prev_inprog.tsv | sort > prev_ids
       for LID in $(comm -23 prev_ids now_ids); do
