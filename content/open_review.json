@@ -8634,6 +8634,236 @@
     "https://oeis.org/A223443"
    ],
    "note": "Barker's g.f. 4x(7-16x+2x^2)/((1-2x)(1-4x)) and closed form a(n) = 2^(n-2)(4+25*2^n) (n>1) for n X 2 arrays on the 15-node binary fanout tree (edges exactly as listed in the entry, no start condition), horizontal and vertical moves along edges. My transfer count matches all 11 data terms and the closed form. Routine (bipartite tree, small transfer matrix). No prior proof found (entry, A223449, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a168505": {
+   "date": "2026-11-28",
+   "pr": 22631,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A168505",
+    "https://oeis.org/A168505",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "CF 1/(1-x/(1+x/(1-x/(1-x/...)))) with period-3 numerators is encoded as A=1/(1-XU), U=1/(1+XV), V=1/(1-XA), which is correct; recurrence coefficients match. Python: CF reproduces 38 data terms and recurrence holds n<90. Note a(n)=2-A174015(n) (same Mathar recurrence, also solved in this batch); no prior proof found in the searched sources. Routine. Second review: Faithful and true; routine (algebraic g.f., ODE certificate). Note A168505(n)=2-A174015(n) and the recurrence's coefficients sum to 0, so this conjecture and the A174015 one (same recurrence, also in this batch) are equivalent; not literal duplicates but the owner may want to count them once."
+  },
+  "oeis-a171556": {
+   "date": "2026-11-28",
+   "pr": 10677,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A171556",
+    "https://oeis.org/A171556",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "a(n)=3*catalan(n)-2 and the recurrence (n>=2) match the entry exactly; Python check n<90. No prior proof found in searched sources; routine consequence of the Catalan recurrence. Second review: Faithful and true; a short consequence of the Catalan recurrence (2-term identity), routine."
+  },
+  "oeis-a172065": {
+   "date": "2026-11-28",
+   "pr": 15380,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A172065",
+    "https://oeis.org/A172065",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "S^2=1-4x with S(0)=1, 2xc=1-S, G*(3S-1+4x)=2c^8 encodes the entry's g.f.; expanded cubic coefficients equal Mathar's factored ones. Python: data (22 terms) and recurrence n<80 verified. No prior proof found; routine. Second review: Faithful and true; routine (algebraic g.f.; also Manyama's binomial sum gives a Zeilberger certificate). Fried's JIS paper treats A026641 (k=0) mod 4, not this recurrence."
+  },
+  "oeis-a174015": {
+   "date": "2026-11-28",
+   "pr": 22618,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A174015",
+    "https://oeis.org/A174015",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "S^2=1-2x+x^2+4x^3, S(0)=1, 2x(1-x)A=3x-1+S encodes the entry's g.f.; recurrence matches. Python: 38 data terms and recurrence verified. a(n)=2-A168505(n), so this and A168505 are essentially the same identity (both open as separate entries). No prior proof found; routine. Second review: Faithful and true; routine. Equivalent to the A168505 conjecture in this batch (A174015=2-A168505, same recurrence, coefficients summing to 0)."
+  },
+  "oeis-a178072": {
+   "date": "2026-11-28",
+   "pr": 24179,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A178072",
+    "https://oeis.org/A178072",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Entry's g.f. 2/(1+2x+x^2+sqrt(1-4x+6x^2+x^4)) is rationalised correctly to x^{-1}(1+2x+x^2-S)/(4+2x^2); all eight quadratic coefficients expand correctly. Python: 34 data terms and recurrence for 7<=n<88 verified. No prior proof found; routine. Second review: Faithful and true; routine (algebraic g.f.)."
+  },
+  "oeis-a182560": {
+   "date": "2026-11-28",
+   "pr": 10268,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A182560",
+    "https://oeis.org/A182560"
+   ],
+   "note": "Definition a(0)=0, a(1)=1, a(n)=(a(n-1) AND a(n-2)) XOR n and the claim (zero set infinite) match the entry. Python: data matches; zeros at 0,6,24,30,96,... = 6*A000695, as Zumkeller's comment asserts (no proof is given in the entry). Proof is a genuine per-bit periodic analysis. No prior proof found in searched sources. Second review: Faithful and apparently open as a proved statement; the proof works with bit-block phases, which in effect establishes Zumkeller's empirical a(6*A000695(n))=0 pattern. The entry already contains an unproved comment that implies the conjecture, so the result is a proof of an observed pattern, not a surprise."
+  },
+  "oeis-a182755": {
+   "date": "2026-11-28",
+   "pr": 23936,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A182755",
+    "https://oeis.org/A182755"
+   ],
+   "note": "a = coefficients of (1+35x)/(1-90x^2) with offset 1; statement says a(n) is the least h>a(n-1) with a(n-2)a(n-1)h | (a(n-2)+a(n-1))(a(n-2)+h)(a(n-1)+h) and the quotient is 130, exactly the entry's comment. Python brute force confirms minimality for n<=9. Proof via scaling/coprime reduction to finitely many divisor pairs; no prior proof found. Second review: Faithful and true. The proof reduces to gcd(p,q)=1 divisor conditions (q|36, p|1260; q|5, p|15750) plus a finite check, a short elementary argument, so routine."
+  },
+  "oeis-a182894": {
+   "date": "2026-11-28",
+   "pr": 24485,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A182894",
+    "https://oeis.org/A182894",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Deutsch's g.f. 1/(z+z^2+sqrt((1+z+z^2)(1-3z+z^2))) is rationalised correctly (radicand and denominator 1-2x-2x^2-4x^3 checked). Python: 33 data terms and recurrence 7<=n<90 verified. No prior proof found; routine. Second review: Faithful and true; routine (algebraic g.f.)."
+  },
+  "oeis-a182904": {
+   "date": "2026-11-28",
+   "pr": 24654,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A182904",
+    "https://oeis.org/A182904",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "g.f. 1/sqrt(R) encoded as S*R^{-1} with S=sqrt(R); recurrence coefficients match. Python: 31 data terms and recurrence verified. No prior proof found; routine. Second review: Faithful and true; routine."
+  },
+  "oeis-a183702": {
+   "date": "2026-11-28",
+   "pr": 23985,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A183702",
+    "https://oeis.org/A183702",
+    "https://oeis.org/A183710"
+   ],
+   "note": "Arrays (n+1)x2 over 0..3 with every 2x2 block nonsingular; recurrence, g.f. and real closed form all stated. Python transfer-matrix count matches the data, the recurrence and the closed form numerically. No prior proof found; routine. Second review: Faithful and true; finite transfer-matrix argument, routine. The parallel sibling A183626 was settled by a Nov 2026 proof in its parent table, but nothing comparable exists for A183710/A183702 as far as I can find."
+  },
+  "oeis-a186338": {
+   "date": "2026-11-28",
+   "pr": 22629,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A186338",
+    "https://oeis.org/A186338",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "CF with period-3 numerators 2x,2x,x is encoded as A=1/(1-2XU), U=1/(1-2XV), V=1/(1-XA), which is correct; recurrence matches. Python: data and recurrence verified. No prior proof found; routine. Second review: Faithful and true; routine."
+  },
+  "oeis-a186341": {
+   "date": "2026-11-28",
+   "pr": 24484,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A186341",
+    "https://oeis.org/A186341",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Entry's g.f. with sqrt(P/(1-x)) is rewritten as sqrt(P(1-x))/(1-x); I checked the radicand expansion and that the encoded series equals both the stated g.f. and the defining sum binomial(n-k,k)*A186338(k) for n<80. Recurrence (n>=9) verified numerically. No prior proof found; routine. Second review: Faithful and true; routine."
+  },
+  "oeis-a187049": {
+   "date": "2026-11-28",
+   "pr": 24242,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187049",
+    "https://oeis.org/A187049"
+   ],
+   "note": "Tours = injective sequences of 5 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>7. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Moves: bishop 1 or 2 squares. Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187158": {
+   "date": "2026-11-28",
+   "pr": 23754,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187158",
+    "https://oeis.org/A187158"
+   ],
+   "note": "Tours = injective sequences of 5 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>3. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187159": {
+   "date": "2026-11-28",
+   "pr": 23762,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187159",
+    "https://oeis.org/A187159"
+   ],
+   "note": "Tours = injective sequences of 6 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>4. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187160": {
+   "date": "2026-11-28",
+   "pr": 24096,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187160",
+    "https://oeis.org/A187160"
+   ],
+   "note": "Tours = injective sequences of 7 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>5. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187161": {
+   "date": "2026-11-28",
+   "pr": 24252,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187161",
+    "https://oeis.org/A187161"
+   ],
+   "note": "Tours = injective sequences of 8 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>6. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187174": {
+   "date": "2026-11-28",
+   "pr": 23615,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187174",
+    "https://oeis.org/A187174"
+   ],
+   "note": "Left-handed knight moves (-1,-2),(2,-1),(1,2),(-2,1) correctly encode 'out two, left one' (mirror image gives the same counts). Python DFS matches the data n<=16 and the quadratic for n>5; the statement includes Barker's g.f. No prior proof found; routine. Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187288": {
+   "date": "2026-11-28",
+   "pr": 23893,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187288",
+    "https://oeis.org/A187288"
+   ],
+   "note": "Tours = injective sequences of 3 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>3. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Moves: rook 1 or 2 squares. Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187289": {
+   "date": "2026-11-28",
+   "pr": 23898,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187289",
+    "https://oeis.org/A187289"
+   ],
+   "note": "Tours = injective sequences of 4 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>5. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Moves: rook 1 or 2 squares. Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187290": {
+   "date": "2026-11-28",
+   "pr": 24143,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187290",
+    "https://oeis.org/A187290"
+   ],
+   "note": "Tours = injective sequences of 5 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>7. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Moves: rook 1 or 2 squares. Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a187291": {
+   "date": "2026-11-28",
+   "pr": 24714,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187291",
+    "https://oeis.org/A187291"
+   ],
+   "note": "Tours = injective sequences of 6 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>9. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Moves: rook 1 or 2 squares. Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
   }
  },
  "flagged": {
@@ -17436,6 +17666,167 @@
     "https://oeis.org/A259459"
    ],
    "reason": "Mathar's 'conjectured' g.f. 3F0(4,3,3;;x/2) is immediate from facts already in the entry: Mathar's own recurrence 2n a(n) = (n+3)(n+2)^2 a(n-1) and Fischer's 2024 closed form a(n) = (n+3)!(n+2)!(n+1)(n+2)/(6*2^(n+2)) give exactly the Pochhammer term ratio. The closed form itself is a one-line sum from the definition (the d^1 coefficient is P*Sum_j (j-1)/3). The definition as the d^1 a^(n+1) coefficient of the product reproduces the data, and the g.f. holds for n < 30. Settled in the source and essentially trivial."
+  },
+  "oeis-a176826": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A176826",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A176826 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177123": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177123",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177123 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177124": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177124",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177124 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177125": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177125",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177125 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177168": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177168",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177168 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177171": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177171",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177171 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177172": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177172",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177172 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177175": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177175",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177175 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177177": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177177",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177177 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177178": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177178",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177178 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177179": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177179",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177179 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177181": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177181",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177181 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177182": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177182",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177182 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177183": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177183",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177183 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177184": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177184",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177184 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177185": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177185",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177185 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a177197": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177197",
+    "https://doi.org/10.3390/math14122177",
+    "https://epublications.vu.lt/object/elaba:306651023/306651023.pdf"
+   ],
+   "reason": "Second review: The statement is faithful and true, but it was already settled in print: Dubickas (Mathematics, June 2026) proves the recurrence for all Choulet sequences and says he thereby verifies all of Mathar's conjectures in this family. For A177197 the paper's formula gives exactly the Lean recurrence. Not new."
+  },
+  "oeis-a183626": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A183626",
+    "https://oeis.org/A183632"
+   ],
+   "reason": "Second review: The statement is faithful, but it was settled in OEIS before the site's proof: Veljjanoski's Nov 18 2026 proof in the parent entry A183632 explicitly covers the column formulas of A183626. Not new."
   }
  },
  "reviewed": "2026-11-28"
