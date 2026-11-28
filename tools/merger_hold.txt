@@ -1,0 +1,3 @@
+# Pull requests the merger leaves without a verdict for now (read by tools/merger_loop.sh: one number per line).
+# 28 Nov 2026 18:15 UTC: together they would close Erdos142.erdos_142.variants.lower (a new theorem): held for the
+# review of two independent reviewers. Remove a number to let it through, in its place in the filing order.

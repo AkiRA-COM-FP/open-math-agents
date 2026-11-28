@@ -658,10 +658,6 @@ theorem radius_pow {d q : ℕ} (hd : 0 < d) : (radius d q)^d ≤ q :=
 theorem radius_pos {d q : ℕ} (hq : 0 < q) : 1 ≤ radius d q :=
   Nat.le_findGreatest (P := fun n => n^d ≤ q) hq (by simpa using (show 1 ≤ q from hq))
 
-theorem radius_mono {d q N : ℕ} (hd : 0 < d) (h : q ≤ N) : radius d q ≤ radius d N :=
-  Nat.le_findGreatest (P := fun n => n^d ≤ N)
-    ((Nat.findGreatest_le (P := fun n => n^d ≤ q) q).trans h) ((radius_pow hd).trans h)
-
 theorem lt_succ_radius_pow {d q : ℕ} (hd : 0 < d) : q < (radius d q+1)^d := by
   by_contra! he
   have hle : radius d q+1 ≤ q := (le_self_pow₀ (by omega : 1 ≤ radius d q+1) hd.ne').trans he
@@ -718,80 +714,6 @@ theorem card_box {d N : ℕ} (hd : 0 < d) (hN : 0 < N) :
     (box d t).card = (2*t+1)^d := by simp [box, hc]
     _ ≤ (3*t)^d := Nat.pow_le_pow_left (by omega) _
     _ ≤ 3^d*N := by rw [mul_pow]; exact Nat.mul_le_mul_left _ (radius_pow hd)
-
-/-- Quotients D/q label all divisors lying in the short terminal interval. -/
-theorem card_large_divisors {D N K : ℕ} (hD : 0 < D) :
-    ((Icc 1 N).filter (fun q => q ∣ D ∧ D ≤ K*q)).card ≤ K := by
-  classical
-  let S := (Icc 1 N).filter (fun q => q ∣ D ∧ D ≤ K*q)
-  have spec {q} (h : q ∈ S) : 0 < q ∧ q ∣ D ∧ D ≤ K*q := by
-    obtain ⟨hq, hd, hk⟩ := mem_filter.mp h
-    exact ⟨(mem_Icc.mp hq).1,hd,hk⟩
-  have hcard : S.card ≤ (Icc 1 K).card := by
-    apply card_le_card_of_injOn (fun q => D/q)
-    · intro q hq
-      obtain ⟨hp,hd,hk⟩ := spec hq
-      have he := Nat.div_mul_cancel hd
-      apply mem_Icc.mpr
-      constructor
-      · exact Nat.div_pos (Nat.le_of_dvd hD hd) hp
-      · exact Nat.le_of_mul_le_mul_right (he.le.trans hk) hp
-    · intro q hq s hs heq
-      obtain ⟨hp,dq,_⟩ := spec hq
-      obtain ⟨_,ds,_⟩ := spec hs
-      have eq₁ := Nat.div_mul_cancel dq
-      have eq₂ := Nat.div_mul_cancel ds
-      change D / q = D / s at heq
-      rw [← heq] at eq₂
-      have hn : 0 < D/q := Nat.div_pos (Nat.le_of_dvd hD dq) hp
-      exact Nat.eq_of_mul_eq_mul_left hn (eq₁.trans eq₂.symm)
-  simpa [S] using hcard
-
-/-- Count roots by their short vector. The determinant restricts both the
-number of possible moduli for a vector and the number of roots per modulus. -/
-theorem incidence {d N K : ℕ} (hd : 0 < d) (hN : 0 < N)
-    (roots : ℕ → Finset ℕ) (detAbs : (Fin d → ℤ) → ℕ)
-    (rows : (Fin d → ℤ) → ℕ → Finset ℕ)
-    (nonsing : ∀ b, b ≠ 0 → 0 < detAbs b)
-    (fiber : ∀ b q, 0 < q → b ≠ 0 → detAbs b ≤ K*q → (rows b q).card ≤ K)
-    (cover : ∀ q ∈ Icc 1 N, ∀ r ∈ roots q, ∃ b ∈ box d (radius d N),
-      b ≠ 0 ∧ q ∣ detAbs b ∧ detAbs b ≤ K*q ∧ r ∈ rows b q) :
-    (∑ q ∈ Icc 1 N, (roots q).card) ≤ (3^d*K^2)*N := by
-  classical
-  let B := box d (radius d N)
-  let Q := Icc 1 N
-  let slice (b : Fin d → ℤ) (q : ℕ) := if b ≠ 0 ∧ q ∣ detAbs b ∧ detAbs b ≤ K*q then
-    rows b q else ∅
-  have bound (b : Fin d → ℤ) : (∑ q ∈ Q, (slice b q).card) ≤ K^2 := by
-    by_cases hb : b = 0
-    · simp [slice,hb]
-    let S := Q.filter (fun q => q ∣ detAbs b ∧ detAbs b ≤ K*q)
-    have hs : S.card ≤ K := card_large_divisors (nonsing b hb)
-    calc
-      (∑ q ∈ Q, (slice b q).card) ≤ ∑ q ∈ Q, (if q ∣ detAbs b ∧ detAbs b ≤ K*q then K else 0) := by
-        apply sum_le_sum
-        intro q hq
-        by_cases h : q ∣ detAbs b ∧ detAbs b ≤ K*q
-        · simpa [slice,hb,h] using fiber b q (mem_Icc.mp hq).1 hb h.2
-        · simp [slice,hb,h]
-      _ = S.card*K := by rw [← sum_filter]; simp [S]
-      _ ≤ K^2 := by rw [sq]; exact Nat.mul_le_mul_right _ hs
-  calc
-    (∑ q ∈ Q, (roots q).card) ≤ ∑ q ∈ Q, ∑ b ∈ B, (slice b q).card := by
-      apply sum_le_sum
-      intro q hq
-      apply le_trans (b := (B.biUnion (fun b => slice b q)).card) _ (card_biUnion_le ..)
-      apply card_le_card
-      intro r hr
-      obtain ⟨b,hb,hn,hdiv,hsize,hr'⟩ := cover q hq r hr
-      exact mem_biUnion.mpr ⟨b,hb,by simpa [slice,hn,hdiv,hsize] using hr'⟩
-    _ = ∑ b ∈ B, ∑ q ∈ Q, (slice b q).card := sum_comm
-    _ ≤ ∑ _ ∈ B, K^2 := sum_le_sum (fun b _ => bound b)
-    _ = B.card*K^2 := by simp
-    _ ≤ (3^d*K^2)*N := by
-      have h := Nat.mul_le_mul_right (K^2) (card_box hd hN)
-      calc B.card*K^2 ≤ 3^d*N*K^2 := h
-           _ = _ := by ring
 
 end OMA.Box975
 end
@@ -992,79 +914,8 @@ namespace OMA.Kummer975
 open Polynomial NumberField Ideal
 open scoped NumberField
 
-private noncomputable def linearFactorEquiv {F : Type*} [Field F] [DecidableEq F] (g : F[X]) (hg : g ≠ 0) :
-    {r : F // g.IsRoot r} ≃
-      {Q : (UniqueFactorizationMonoid.normalizedFactors g).toFinset // Q.val.natDegree = 1} where
-  toFun r := ⟨⟨X - C r.val, by
-    rw [Multiset.mem_toFinset, Polynomial.mem_normalizedFactors_iff hg]
-    exact ⟨irreducible_X_sub_C _, monic_X_sub_C _, dvd_iff_isRoot.mpr r.property⟩⟩,
-      natDegree_X_sub_C _⟩
-  invFun Q := ⟨-Q.val.val.coeff 0, by
-    obtain ⟨_, hm, hd⟩ := (Polynomial.mem_normalizedFactors_iff hg).mp
-      (Multiset.mem_toFinset.mp Q.val.property)
-    have e := eq_X_add_C_of_degree_eq_one
-      ((degree_eq_iff_natDegree_eq_of_pos (by decide : 0 < 1)).mpr Q.property)
-    apply dvd_iff_isRoot.mp
-    convert! hd using 1
-    simp [hm.leadingCoeff] at e
-    simpa using e.symm⟩
-  left_inv r := by ext; simp
-  right_inv Q := by
-    apply Subtype.ext
-    apply Subtype.ext
-    obtain ⟨_, hm, _⟩ := (Polynomial.mem_normalizedFactors_iff hg).mp
-      (Multiset.mem_toFinset.mp Q.val.property)
-    simpa [hm.leadingCoeff] using (eq_X_add_C_of_degree_eq_one
-      ((degree_eq_iff_natDegree_eq_of_pos (by decide : 0 < 1)).mpr Q.property)).symm
-
-private def primesEquiv {K : Type*} [Field K] [NumberField K] (p : ℕ) (hp : p.Prime) :
-    {P : Ideal.primesOver (Ideal.span {(p : ℤ)}) (𝓞 K) // P.val.inertiaDeg ℤ = 1} ≃
-      {P : Ideal (𝓞 K) // P.absNorm = p} where
-  toFun P := ⟨P.val.val, by
-    have : P.val.val.IsPrime := P.val.property.1
-    have : P.val.val.LiesOver (Ideal.span {(p : ℤ)}) := P.val.property.2
-    simpa [P.property] using (Ideal.natAbs_pow_inertiaDeg (p : ℤ) P.val.val).symm⟩
-  invFun P := by
-    have hprime : P.val.absNorm.Prime := P.property.symm ▸ hp
-    have : P.val.IsPrime := Ideal.isPrime_of_irreducible_absNorm hprime
-    have : P.val.LiesOver (Ideal.span {(p : ℤ)}) :=
-      ⟨by simpa only [P.property] using Ideal.span_singleton_absNorm hprime⟩
-    refine ⟨⟨P.val, inferInstance, inferInstance⟩, ?_⟩
-    apply (Nat.pow_right_injective hp.one_lt)
-    simpa [P.property] using Ideal.natAbs_pow_inertiaDeg (p : ℤ) P.val
-  left_inv _ := rfl
-  right_inv _ := rfl
-
-noncomputable def rootIdealEquiv {K : Type*} [Field K] [NumberField K] (θ : 𝓞 K)
-    (p : ℕ) [hp : Fact p.Prime] (good : ¬ p ∣ RingOfIntegers.exponent θ) :
-    {r : ZMod p // ((minpoly ℤ θ).map (Int.castRingHom (ZMod p))).IsRoot r} ≃
-      {P : Ideal (𝓞 K) // P.absNorm = p} := by
-  classical
-  let e := NumberField.Ideal.primesOverSpanEquivMonicFactorsMod good
-  apply (linearFactorEquiv _ (Polynomial.map_monic_ne_zero (minpoly.monic θ.isIntegral))).trans
-  apply Equiv.trans _ (primesEquiv p hp.out)
-  refine Equiv.subtypeEquiv e.symm (fun Q => ?_)
-  rw [NumberField.Ideal.inertiaDeg_primesOverSpanEquivMonicFactorsMod_symm_apply' good Q.property]
-
 open Filter
 open scoped Topology
-
-/-- Landau's ideal-count asymptotic, with the count grouped by its positive norm.
-The reindexing follows Mathlib's proof of the Dirichlet class number formula. -/
-lemma coefficient_mean (K : Type*) [Field K] [NumberField K] :
-    Tendsto (fun N : ℕ => (∑ n ∈ Finset.Icc 1 N,
-      (Nat.card {I : Ideal (𝓞 K) // I.absNorm = n} : ℝ)) / N)
-      atTop (𝓝 (NumberField.dedekindZeta_residue K)) := by
-  refine ((NumberField.Ideal.tendsto_norm_le_div_atTop₀ K).comp
-    tendsto_natCast_atTop_atTop).congr fun n => ?_
-  simp only [Function.comp_apply, Nat.cast_le, ← Nat.cast_sum]
-  congr
-  rw [← add_left_inj 1, ← Ideal.card_norm_le_eq_card_norm_le_add_one,
-    show Finset.Icc 1 n = Finset.Ioc 0 n from Finset.Icc_succ_left_eq_Ioc _ _,
-    show 1 = Nat.card {I : Ideal (𝓞 K) // I.absNorm = 0} by simp [Ideal.absNorm_eq_zero_iff],
-    Finset.sum_Ioc_add_eq_sum_Icc n.zero_le,
-    ← Finset.card_preimage_eq_sum_card_image_eq (fun k _ => Ideal.finite_setOfPred_absNorm_eq k)]
-  simp [Set.coe_eq_subtype]
 
 end OMA.Kummer975
 end
@@ -1074,60 +925,6 @@ namespace OMA.Field975
 
 open Polynomial NumberField
 open scoped NumberField
-
-/-- Changing variables by a unit identifies the integral normalization over the rationals. -/
-theorem irreducible_normalization (f : ℤ[X]) (hf : Irreducible f) (hd : 0 < f.natDegree) :
-    Irreducible (f.integralNormalization.map (Int.castRingHom ℚ)) := by
-  let a : ℚ := f.leadingCoeff
-  have ha : a ≠ 0 := by dsimp [a]; exact_mod_cast leadingCoeff_ne_zero.mpr hf.ne_zero
-  let : Invertible a := invertibleOfNonzero ha
-  let e := Polynomial.algEquivCMulXAddC a 0
-  apply (MulEquiv.irreducible_iff e).mp
-  have he : e (f.integralNormalization.map (Int.castRingHom ℚ)) =
-      C (a ^ (f.natDegree - 1)) * f.map (Int.castRingHom ℚ) := by
-    simp only [e, algEquivCMulXAddC_apply, map_zero, add_zero, ← comp_eq_aeval]
-    ext j
-    simp only [comp_C_mul_X_coeff, coeff_map, coeff_C_mul, Int.coe_castRingHom, a]
-    rw [mul_comm ((f.leadingCoeff : ℚ) ^ _) _]
-    exact_mod_cast f.integralNormalization_coeff_mul_leadingCoeff_pow j hd
-  rw [he]
-  apply (irreducible_isUnit_mul ((isUnit_iff_ne_zero.mpr (pow_ne_zero _ ha)).map C)).mpr
-  exact (Polynomial.IsPrimitive.Int.irreducible_iff_irreducible_map_cast (hf.isPrimitive hd.ne')).mp hf
-
-noncomputable def scaledRoots (f : ℤ[X]) (hd : 0 < f.natDegree) (p : ℕ) [Fact p.Prime]
-    (good : (f.leadingCoeff : ZMod p) ≠ 0) :
-    {r : ZMod p // (f.map (Int.castRingHom (ZMod p))).IsRoot r} ≃
-      {r : ZMod p // (f.integralNormalization.map (Int.castRingHom (ZMod p))).IsRoot r} := by
-  apply Equiv.subtypeEquiv (Equiv.mulLeft₀ (f.leadingCoeff : ZMod p) good)
-  intro r
-  simp only [Polynomial.IsRoot, eval_map, Equiv.mulLeft₀_apply]
-  rw [show (f.leadingCoeff : ZMod p) = (Int.castRingHom (ZMod p)) f.leadingCoeff from rfl,
-    f.integralNormalization_eval₂_leadingCoeff_mul hd]
-  simp [good]
-
-lemma exponent_pos {K : Type*} [Field K] [NumberField K] (θ : 𝓞 K)
-    (hθ : (minpoly ℤ θ).natDegree = Module.finrank ℚ K) :
-    0 < RingOfIntegers.exponent θ := by
-  let A := Algebra.adjoin ℤ ({θ} : Set (𝓞 K))
-  have hfull : Module.finrank ℤ A.toSubmodule = Module.finrank ℤ (𝓞 K) := by
-    change Module.finrank ℤ (Algebra.adjoin ℤ ({θ} : Set (𝓞 K))) = _
-    rw [(Algebra.adjoin.powerBasis' θ.isIntegral).finrank, Algebra.adjoin.powerBasis'_dim,
-      hθ, RingOfIntegers.rank]
-  let U := (𝓞 K) ⧸ A.toSubmodule
-  have : Finite U := Submodule.finiteQuotientOfFreeOfRankEq _ hfull
-  let m := Nat.card U
-  have hm : 0 < m := Nat.card_pos
-  have hmθ : (m : 𝓞 K) ∈ conductor ℤ θ := by
-    apply mem_conductor_iff.mpr
-    intro b
-    change (m : 𝓞 K) * b ∈ A.toSubmodule
-    rw [← nsmul_eq_mul, ← Submodule.Quotient.mk_eq_zero]
-    change A.toSubmodule.mkQ (m • b) = 0
-    rw [map_nsmul]
-    exact card_nsmul_eq_zero'
-  rw [RingOfIntegers.exponent_eq_sInf]
-  exact (Nat.sInf_mem (show {d : ℕ | 0 < d ∧ (d : 𝓞 K) ∈ conductor ℤ θ}.Nonempty from
-    ⟨m, hm, hmθ⟩)).1
 
 private lemma original_isRoot_cast (f : ℤ[X]) (p r : ℕ) :
     (f.map (Int.castRingHom (ZMod p))).IsRoot (r : ZMod p) ↔
@@ -1152,61 +949,6 @@ theorem root_count (f : ℤ[X]) (p : ℕ) [NeZero p] :
     left_inv := fun r => Subtype.ext (by simp [ZMod.val_natCast, Nat.mod_eq_of_lt r.property.1])
     right_inv := fun r => Subtype.ext (ZMod.natCast_zmod_val _)
   }
-
-noncomputable abbrev definingPolynomial (f : ℤ[X]) := f.integralNormalization.map (Int.castRingHom ℚ)
-
-abbrev canonicalField (f : ℤ[X]) := AdjoinRoot (definingPolynomial f)
-
-theorem canonical_link (f : ℤ[X]) (hf : Irreducible f) (hd : 0 < f.natDegree)
-    [Fact (Irreducible (definingPolynomial f))] :
-    ∃ M : ℕ, 0 < M ∧
-      ∀ p : ℕ, p.Prime → ¬ p ∣ M →
-        Nat.count (fun r : ℕ => (p : ℤ) ∣ f.eval (r : ℤ)) p =
-          Nat.card {I : Ideal (𝓞 (canonicalField f)) // I.absNorm = p} := by
-  let g := f.integralNormalization
-  let F := g.map (Int.castRingHom ℚ)
-  have irr : Irreducible F := irreducible_normalization f hf hd
-  let K := AdjoinRoot F
-  let x := AdjoinRoot.root F
-  have mon : g.Monic := f.monic_integralNormalization hf.ne_zero
-  have hx : Polynomial.aeval x g = 0 := by
-    rw [← aeval_map_algebraMap ℚ]
-    change Polynomial.aeval (AdjoinRoot.root F) F = 0
-    rw [Polynomial.aeval_def]
-    exact AdjoinRoot.eval₂_root F
-  have hxint : IsIntegral ℤ x := ⟨g, mon, hx⟩
-  let θ : 𝓞 K := ⟨x, hxint⟩
-  have hmin : minpoly ℤ θ = g := by
-    rw [← RingOfIntegers.minpoly_coe]
-    apply Polynomial.map_injective (Int.castRingHom ℚ) Int.cast_injective
-    change (minpoly ℤ x).map (algebraMap ℤ ℚ) = F
-    rw [← minpoly.isIntegrallyClosed_eq_field_fractions' ℚ hxint]
-    exact AdjoinRoot.minpoly_powerBasis_gen_of_monic (mon.map _) irr.ne_zero
-  have hdeg : (minpoly ℤ θ).natDegree = Module.finrank ℚ K := by
-    rw [hmin, (AdjoinRoot.powerBasis irr.ne_zero).finrank]
-    exact (Polynomial.natDegree_map_eq_of_injective Int.cast_injective g).symm
-  refine ⟨f.leadingCoeff.natAbs * RingOfIntegers.exponent θ,
-    Nat.mul_pos (Int.natAbs_pos.mpr (leadingCoeff_ne_zero.mpr hf.ne_zero))
-      (exponent_pos θ hdeg), ?_⟩
-  intro p hp good
-  let : Fact p.Prime := ⟨hp⟩
-  have h1 : ¬ p ∣ f.leadingCoeff.natAbs := fun h => good (dvd_mul_of_dvd_left h _)
-  have h2 : ¬ p ∣ RingOfIntegers.exponent θ := fun h => good (dvd_mul_of_dvd_right h _)
-  have hnon : (f.leadingCoeff : ZMod p) ≠ 0 := by
-    intro h
-    exact h1 (Int.natAbs_dvd_natAbs.mpr ((ZMod.intCast_zmod_eq_zero_iff_dvd _ p).mp h))
-  rw [root_count]
-  apply Nat.card_congr
-  apply (scaledRoots f hd p hnon).trans
-  simpa [hmin] using OMA.Kummer975.rootIdealEquiv θ p h2
-
-theorem field_link (f : ℤ[X]) (hf : Irreducible f) (hd : 0 < f.natDegree) :
-    ∃ (K : Type) (_ : Field K) (_ : NumberField K), ∃ M : ℕ, 0 < M ∧
-      ∀ p : ℕ, p.Prime → ¬ p ∣ M →
-        Nat.count (fun r : ℕ => (p : ℤ) ∣ f.eval (r : ℤ)) p =
-          Nat.card {I : Ideal (𝓞 K) // I.absNorm = p} := by
-  let : Fact (Irreducible (definingPolynomial f)) := ⟨irreducible_normalization f hf hd⟩
-  exact ⟨canonicalField f, inferInstance, inferInstance, canonical_link f hf hd⟩
 
 end OMA.Field975
 end
@@ -1846,19 +1588,6 @@ lemma atom_mul (b : ArithmeticFunction ℝ) {d n : ℕ} (hd : 0 < d) (hn : 0 < n
   simp_rw [h]
   simp [Nat.mem_divisors, hn.ne']
 
-lemma atom_mul_atom {u v : ℕ} (hu : 0 < u) :
-    atom u * atom v = atom (u*v) := by
-  ext n
-  rcases Nat.eq_zero_or_pos n with rfl | hn
-  · simp
-  rw [atom_mul _ hu hn]
-  by_cases hd : u ∣ n
-  · obtain ⟨m, rfl⟩ := hd
-    have hm : m ≠ 0 := fun h => by simp [h] at hn
-    simp [atom, hu.ne', hn.ne', hm]
-  · have ne : n ≠ u*v := fun h => hd ⟨v, h⟩
-    simp [atom, hd, ne]
-
 variable (K : Type*) [Field K] [NumberField K]
 
 noncomputable def fiber (n : ℕ) : Finset (Ideal (𝓞 K)) :=
@@ -1881,12 +1610,6 @@ private lemma countAvoid_apply (S : Finset (Ideal (𝓞 K))) (n : ℕ) :
     countAvoid K S n = if n = 0 then (0 : ℝ) else ((avoid K S n).card : ℝ) := rfl
 
 noncomputable abbrev a := countAvoid K ∅
-
-lemma a_apply {n : ℕ} (hn : n ≠ 0) :
-    a K n = (Nat.card {I : Ideal (𝓞 K) // I.absNorm = n} : ℝ) := by
-  classical
-  simp [a, countAvoid, hn, avoid, fiber]
-  exact (Set.ncard_eq_toFinset_card _ _).symm
 
 private lemma norm_pos {P : Ideal (𝓞 K)} (hP : Prime P) : 0 < P.absNorm :=
   Nat.pos_of_ne_zero (Ideal.absNorm_eq_zero_iff.not.mpr hP.ne_zero)
@@ -2078,97 +1801,6 @@ lemma multiplicative : (mu K).IsMultiplicative := by
 
 open Polynomial
 
-private lemma factors_coeff {p : ℕ} (hp : p.Prime) (e : Ideal (𝓞 K) → ℕ)
-    (S : Finset (Ideal (𝓞 K))) (norms : ∀ P ∈ S, P.absNorm = p ^ e P) (k : ℕ) :
-    euler K S (p^k) = (∏ P ∈ S, (1 - X ^ e P : ℝ[X])).coeff k := by
-  classical
-  induction S using Finset.induction_on generalizing k with
-  | empty =>
-    cases k with
-    | zero => simp [euler]
-    | succ k => simp [euler, hp.ne_one, Polynomial.coeff_one]
-  | insert P S hPS ih =>
-    have nt := norms P (mem_insert_self P S)
-    have ns := fun Q (hQ : Q ∈ S) => norms Q (mem_insert_of_mem hQ)
-    rw [show euler K (insert P S) = (1-atom P.absNorm)*euler K S by simp [euler,hPS],
-      Finset.prod_insert hPS, sub_mul, one_mul, sub_mul, one_mul, coeff_sub, coeff_X_pow_mul']
-    change euler K S (p^k) - (atom P.absNorm * euler K S) (p^k) = _
-    rw [nt, atom_mul _ (pow_pos hp.pos _) (pow_pos hp.pos _), ih ns k]
-    simp only [Nat.pow_dvd_pow_iff_le_right hp.one_lt]
-    by_cases h : e P ≤ k
-    · have div : p^k / p^(e P) = p^(k-e P) := by
-        calc p^k / p^(e P) = (p^(k-e P)*p^e P)/p^e P := by rw [←pow_add, Nat.sub_add_cancel h]
-             _ = _ := Nat.mul_div_cancel _ (pow_pos hp.pos _)
-      simp only [if_pos h, div, ih ns]
-    · simp only [if_neg h]
-
-theorem «local» (p : ℕ) (hp : p.Prime) :
-    ∃ L : Finset (Ideal (𝓞 K)), ∃ e : Ideal (𝓞 K) → ℕ, (∀ P ∈ L, 0 < e P) ∧
-      (∑ P ∈ L, e P) ≤ Module.finrank ℚ K ∧
-      ∀ k : ℕ, (mu K) (p^k) = (∏ P ∈ L, (1 - X ^ (e P) : ℝ[X])).coeff k := by
-  classical
-  let pI : Ideal ℤ := Ideal.span {(p : ℤ)}
-  let : Fact p.Prime := ⟨hp⟩
-  let : pI.IsMaximal := Int.ideal_span_isMaximal_of_prime p
-  let L := Finset.univ.image (Subtype.val : pI.primesOver (𝓞 K) → Ideal (𝓞 K))
-  have memL (P : Ideal (𝓞 K)) : P ∈ L ↔ P ∈ pI.primesOver (𝓞 K) := by
-    constructor
-    · rintro h
-      obtain ⟨Q, _, rfl⟩ := mem_image.mp h
-      exact Q.property
-    · intro h
-      exact mem_image.mpr ⟨⟨P,h⟩, mem_univ _, rfl⟩
-  have normL (P : Ideal (𝓞 K)) (hP : P ∈ L) : P.absNorm = p^(P.inertiaDeg ℤ) := by
-    have : P.IsPrime := ((memL P).mp hP).1
-    have : P.LiesOver (Ideal.span {(p : ℤ)}) := ((memL P).mp hP).2
-    simpa using (Ideal.natAbs_pow_inertiaDeg (p:ℤ) P).symm
-  have primeL (P : Ideal (𝓞 K)) (hP : P ∈ L) : Prime P := by
-    have : P.IsPrime := ((memL P).mp hP).1
-    apply Ideal.prime_of_isPrime _ this
-    intro heq
-    exact (pow_ne_zero _ hp.ne_zero) ((normL P hP).symm.trans (by simp [heq]))
-  refine ⟨L, fun P => P.inertiaDeg ℤ, ?_, ?_, ?_⟩
-  · intro P hP
-    have : P.IsPrime := ((memL P).mp hP).1
-    exact P.inertiaDeg_pos ℤ
-  · change (∑ P ∈ Finset.univ.image _, _) ≤ _
-    rw [Finset.sum_image (fun _ _ _ _ eq => Subtype.ext eq),
-      ← NumberField.RingOfIntegers.rank K, ← Ideal.sum_ramification_inertia_eq_finrank pI (𝓞 K)]
-    apply Finset.sum_le_sum
-    intro Q _
-    have : Q.val.IsPrime := Q.property.1
-    exact Nat.le_mul_of_pos_left _ (Q.val.ramificationIdx_pos ℤ)
-  · intro k
-    have hn := pow_pos hp.pos k
-    let S := smallPrimes K (p^k)
-    have h1 : euler K (S ∪ L) (p^k) = euler K S (p^k) := by
-      apply no_large_change K _ _ subset_union_left hn
-      intro P hP
-      obtain ⟨h, notS⟩ := mem_sdiff.mp hP
-      have hL := (mem_union.mp h).resolve_left notS
-      have hpr := primeL P hL
-      exact ⟨hpr, fun hd => notS ((mem_small K).mpr ⟨Nat.le_of_dvd hn hd,hpr⟩)⟩
-    have h2 : euler K (S ∪ L) (p^k) = euler K L (p^k) := by
-      apply no_large_change K _ _ subset_union_right hn
-      intro P hP
-      obtain ⟨h, notL⟩ := mem_sdiff.mp hP
-      have hpr := ((mem_small K).mp ((mem_union.mp h).resolve_right notL)).2
-      refine ⟨hpr, ?_⟩
-      intro hd
-      have : P.IsPrime := Ideal.isPrime_of_prime hpr
-      let : NeZero P := ⟨hpr.ne_zero⟩
-      let q := (Ideal.under ℤ P).absNorm
-      have hq : q.Prime := Nat.absNorm_under_prime P
-      have nP : q^(P.inertiaDeg ℤ) = P.absNorm := by
-        simpa [q] using Ideal.natAbs_pow_inertiaDeg (q:ℤ) P
-      have qd : q ∣ p^k := dvd_trans (nP ▸ dvd_pow_self q (P.inertiaDeg_pos ℤ).ne') hd
-      have qp : q = p := (hp.eq_one_or_self_of_dvd q (hq.dvd_of_dvd_pow qd)).resolve_left hq.ne_one
-      apply notL ((memL P).mpr ⟨inferInstance, ?_⟩)
-      change P.LiesOver (Ideal.span {(p:ℤ)})
-      rw [←qp]
-      exact Int.liesOver_span_absNorm P
-    exact h1.symm.trans (h2.trans (factors_coeff K hp _ L normL k))
-
 end OMA.IdealEuler975
 end
 
@@ -2214,123 +1846,7 @@ theorem roots_uniform (f : ℤ[X]) (hf : Irreducible f) (hd : f.natDegree ≠ 0)
       exact (prime_le_degree_of_not_dvd f p hp hL).trans
         (by exact_mod_cast (show f.natDegree ≤ C by dsimp [C]; omega))
 
-/-- Coefficients of a product of `s.card` local inverse factors are bounded by
-`2^s.card`, since multiplying by `1-X^e` subtracts two earlier coefficients. -/
-theorem poly_coeff {ι : Type*} (s : Finset ι) (e : ι → ℕ) (j : ℕ) :
-    |(∏ i ∈ s, (1-X^(e i) : ℝ[X])).coeff j| ≤ (2:ℝ)^s.card := by
-  classical
-  induction s using Finset.induction_on generalizing j with
-  | empty => by_cases h : j = 0 <;> simp [coeff_one,h]
-  | @insert i s hi ih =>
-    rw [prod_insert hi,mul_comm, mul_sub, mul_one,coeff_sub,coeff_mul_X_pow',
-      card_insert_of_notMem hi,pow_succ]
-    apply (abs_sub _ _).trans
-    split_ifs
-    · linarith only [ih j,ih (j-e i)]
-    · simp only [abs_zero,add_zero]
-      linarith only [ih j, pow_nonneg (by norm_num : (0:ℝ) ≤ 2) s.card]
-
-theorem poly_support {ι : Type*} (s : Finset ι) (e : ι → ℕ) {j : ℕ}
-    (b : (∑ i ∈ s, e i) < j) : (∏ i ∈ s, (1-X^(e i) : ℝ[X])).coeff j = 0 := by
-  apply coeff_eq_zero_of_natDegree_lt
-  apply (natDegree_prod_le ..).trans_lt
-  refine (sum_le_sum fun i _ => (natDegree_sub_le ..).trans ?_).trans_lt b
-  simp
-
-theorem conv_power (g v : ArithmeticFunction ℝ) {p : ℕ} (hp : p.Prime) (k : ℕ) :
-    (g*v) (p^k) = ∑ j ∈ range (k+1), g (p^(k-j))*v (p^j) := by
-  rw [ArithmeticFunction.mul_apply,Nat.sum_divisorsAntidiagonal' (fun a b => g a*v b),
-    Nat.sum_divisors_prime_pow hp]
-  apply sum_congr rfl
-  intro j hj
-  have hjk : j ≤ k := by simpa using mem_range.mp hj
-  have eq : p^k / p^j = p^(k-j) := by
-    conv_lhs => rw [← Nat.sub_add_cancel hjk, pow_add]
-    exact Nat.mul_div_cancel _ (pow_pos hp.pos _)
-  rw [eq]
-
-theorem conv_prime (g v : ArithmeticFunction ℝ) {p : ℕ} (hp : p.Prime) :
-    (g*v) p = g p * v 1 + g 1*v p := by
-  simpa [sum_range_succ] using conv_power g v hp 1
-
-theorem conv_bound (g v : ArithmeticFunction ℝ) {B U : ℝ} {d : ℕ}
-    (bn : 0 ≤ B) (un : 0 ≤ U)
-    (gB : ∀ p : ℕ, p.Prime → ∀ j : ℕ, |g (p^j)| ≤ B)
-    (vB : ∀ p : ℕ, p.Prime → ∀ j : ℕ, |v (p^j)| ≤ U)
-    (off : ∀ p : ℕ, p.Prime → ∀ j : ℕ, d < j → v (p^j) = 0)
-    {p : ℕ} (hp : p.Prime) (k : ℕ) : |(g*v) (p^k)| ≤ (d+1:ℕ)*B*U := by
-  classical
-  rw [conv_power g v hp k]
-  apply (abs_sum_le_sum_abs ..).trans
-  calc
-    _ ≤ ∑ j ∈ range (k+1), if j < d+1 then B*U else 0 := by
-      apply sum_le_sum
-      intro j _
-      split_ifs with h
-      · rw [abs_mul]
-        exact mul_le_mul (gB _ hp _) (vB _ hp _) (abs_nonneg _) bn
-      · rw [off _ hp _ (by omega),mul_zero,abs_zero]
-    _ = ∑ j ∈ (range (k+1)).filter (· < d+1), B*U := by rw [sum_filter]
-    _ ≤ ∑ _j ∈ range (d+1), B*U := by
-      exact sum_le_sum_of_subset_of_nonneg (fun j hj => mem_range.mpr (mem_filter.mp hj).2)
-        (fun _ _ _ => mul_nonneg bn un)
-    _ = _ := by simp [mul_assoc]
-
-/-- Positivity of the residue degrees bounds the number of Euler factors by the field degree. -/
-theorem local_bounds {ι : Type*} {v : ArithmeticFunction ℝ} {p d : ℕ}
-    (h : ∃ L : Finset ι, ∃ e : ι → ℕ, (∀ i ∈ L, 0 < e i) ∧ (∑ i ∈ L, e i) ≤ d ∧
-      ∀ j : ℕ, v (p^j) = (∏ i ∈ L, (1-X^(e i) : ℝ[X])).coeff j) :
-    (∀ j : ℕ, |v (p^j)| ≤ (2:ℝ)^d) ∧ ∀ j : ℕ, d < j → v (p^j) = 0 := by
-  obtain ⟨L,e,pos,deg,eq⟩ := h
-  have size : L.card ≤ ∑ i ∈ L, e i := calc
-    _ = ∑ _i ∈ L, 1 := by simp
-    _ ≤ _ := sum_le_sum fun i hi => pos i hi
-  constructor
-  · intro j
-    rw [eq j]
-    exact (poly_coeff L e j).trans (pow_le_pow_right₀ (by norm_num) (size.trans deg))
-  · intro j hj
-    exact (eq j).trans (poly_support L e (deg.trans_lt hj))
-
-theorem uniform_of_local {ι : Type*} (f : ℤ[X]) (hf : Irreducible f) (hd : f.natDegree ≠ 0)
-    (v : ArithmeticFunction ℝ) (d : ℕ)
-    (loc : ∀ p : ℕ, p.Prime → ∃ L : Finset ι, ∃ e : ι → ℕ,
-      (∀ i ∈ L, 0 < e i) ∧ (∑ i ∈ L, e i) ≤ d ∧
-      ∀ j : ℕ, v (p^j) = (∏ i ∈ L, (1-X^(e i) : ℝ[X])).coeff j) :
-    ∃ B : ℝ, 0 ≤ B ∧ ∀ p : ℕ, p.Prime → ∀ j : ℕ, |(rho f*v) (p^j)| ≤ B := by
-  obtain ⟨B,bn,root⟩ := roots_uniform f hf hd
-  refine ⟨((d+1 : ℕ) : ℝ)*B*(2:ℝ)^d, by positivity, fun p hp j => ?_⟩
-  exact conv_bound _ _ bn (by positivity) root (fun q hq => (local_bounds (loc q hq)).1)
-    (fun q hq => (local_bounds (loc q hq)).2) hp j
-
 open scoped NumberField
-
-theorem uniform (f : ℤ[X]) (hf : Irreducible f) (hd : f.natDegree ≠ 0)
-    (K : Type*) [Field K] [NumberField K] :
-    ∃ B : ℝ, 0 ≤ B ∧ ∀ p : ℕ, p.Prime → ∀ j : ℕ,
-      |(rho f * IdealEuler975.mu K) (p^j)| ≤ B :=
-  uniform_of_local f hf hd _ _ (IdealEuler975.local K)
-
-/-- The linear Euler coefficients cancel at primes where the two counting functions agree. -/
-theorem vanish (f : ℤ[X]) (K : Type*) [Field K] [NumberField K] (M : ℕ)
-    (link : ∀ p : ℕ, p.Prime → ¬p ∣ M →
-      Nat.count (fun r : ℕ => (p : ℤ) ∣ f.eval (r:ℤ)) p =
-        Nat.card {I : Ideal (𝓞 K) // I.absNorm = p})
-    {p : ℕ} (hp : p.Prime) (good : ¬p ∣ M) : (rho f * IdealEuler975.mu K) p = 0 := by
-  let a := IdealEuler975.a K
-  let v := IdealEuler975.mu K
-  have inv : a*v = 1 := IdealEuler975.inverse K
-  have a1 : a 1 = 1 := by
-    rw [show a 1 = _ from IdealEuler975.a_apply K one_ne_zero]
-    suffices h : Nat.card {I : Ideal (𝓞 K) // I.absNorm = 1} = 1 by exact_mod_cast h
-    exact Nat.card_eq_one_iff_exists.mpr
-      ⟨⟨⊤,Ideal.absNorm_eq_one_iff.mpr rfl⟩,fun I => Subtype.ext (Ideal.absNorm_eq_one_iff.mp I.2)⟩
-  have eq : rho f p = a p := by
-    rw [rho_apply,show a p = _ from IdealEuler975.a_apply K hp.ne_zero]
-    exact_mod_cast link p hp good
-  change (rho f*v) p = 0
-  rw [conv_prime _ _ hp, eq, rho_one, ← a1, ← conv_prime _ _ hp, inv,
-    ArithmeticFunction.one_apply_ne hp.ne_one]
 
 end OMA.CoeffBound975
 end
