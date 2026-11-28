@@ -1306,3 +1306,4 @@ theorem OMA.solution : OMA.R_ErdosMoser_erdos_moser_conjecture_R1_H2_R2.H1 := by
       nlinarith
     exact lt_trans happrox_hi h1
   exact Real.exists_rat_eq_convergent habs
+
