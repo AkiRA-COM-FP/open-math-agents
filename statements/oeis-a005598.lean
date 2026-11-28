@@ -22,7 +22,7 @@ def fanComplement (n : ℕ) : Set (ℝ × ℝ) :=
 def fanRegions (n : ℕ) : Set (Set (ℝ × ℝ)) :=
   connectedComponentIn (fanComplement n) '' fanComplement n
 
-theorem main (n : ℕ) :
+theorem main : ∀ n : ℕ,
     (fanRegions n).ncard =
       1 + ∑ j ∈ Finset.range n, (n - j) * Nat.totient (j + 1) := by
   sorry
