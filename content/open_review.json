@@ -20833,6 +20833,63 @@
     "https://github.com/connoranderson/open-math-agents/blob/eb9153a9e3c88aca39758e8c206232e47a1c66d0/proofs/mo-450037.lean"
    ],
    "reason": "The question is open-ended ('under what condition will P_k be linearly independent?'). The statement answers it with near-tautological criteria: full rank of an evaluation table on a large enough grid, and nonvanishing of the Gram determinant of the symmetric tensors for squares of linear forms. These restate linear independence rather than giving a usable condition. The proof is also an unchanged port of @connoranderson's earlier public proof (statement PR #21676)."
+  },
+  "oeis-a084991": {
+   "date": "2026-11-28",
+   "pr": 22941,
+   "evidence": [
+    "https://oeis.org/A084991"
+   ],
+   "reason": "This formalizes Sean Irvine's 2026 remark, which is not a conjecture: an odd palindrome is a sum of two primes iff k-2 is prime, and Goldbach implies that every even palindrome >2 is a term. Both parts are immediate (by parity, an odd sum of two primes must use 2; the second part is Goldbach applied directly), and the proof is 13 lines. Trivial author remark."
+  },
+  "oeis-a075036": {
+   "date": "2026-11-28",
+   "pr": 24531,
+   "evidence": [
+    "https://oeis.org/A075036",
+    "https://oeis.org/A075036/b075036.txt"
+   ],
+   "reason": "The disproof uses a(6)=735=3*5*7^2, the sixth printed data term: it is odd, but its highest p-adic order is at p=7, not p=3. Wu's own b-file has further violations at n=32, 36 and 40. The printed comment is therefore contradicted by the entry's own data and is evidently misworded. The disproof is formally correct but only exploits that slip and settles nothing of substance."
+  },
+  "oeis-a019337": {
+   "date": "2026-11-28",
+   "pr": 23195,
+   "evidence": [
+    "https://oeis.org/A019337"
+   ],
+   "reason": "This formalizes Jianing Song's remark, which is not a conjecture and already carries its proof ('since 7 is a quadratic residue modulo any other prime'): every term other than 2 is 5, 11, 13, 15, 17 or 23 mod 28. The site proof is that quadratic-reciprocity argument (61 lines). The claim is correct but is an author remark with its proof in the source."
+  },
+  "oeis-a130091": {
+   "date": "2026-11-28",
+   "pr": 23010,
+   "evidence": [
+    "https://oeis.org/A130091"
+   ],
+   "reason": "This formalizes Rorabaugh's 2015 remark, which is not a conjecture and gives its own proof: 36n+-6 is divisible by 6 but not by 4 or 9, hence it has two equal exponents, and every 24 consecutive integers contain such a number. The proof is 28 lines. Correct, but an author remark already proved in the entry."
+  },
+  "oeis-a208460": {
+   "date": "2026-11-28",
+   "pr": 23192,
+   "evidence": [
+    "https://oeis.org/A208460"
+   ],
+   "reason": "Pol's 'conjecture' (the k-th divisor of n divides T(n,k) = n minus the k-th proper divisor) is trivial: for k up to the number of proper divisors, the k-th proper divisor equals the k-th divisor d, and d divides both n and n-d. The proof is 42 lines. Trivial; it follows from the definitions."
+  },
+  "oeis-a071713": {
+   "date": "2026-11-28",
+   "pr": 16678,
+   "evidence": [
+    "https://oeis.org/A071713"
+   ],
+   "reason": "The statement asks only for x, y, z distinct and nonzero, and the disproof uses (1,2,-2): 1+32-32 = 1. The entry explicitly says (Propper, 2008) that |x|, |y|, |z| must also be distinct, because otherwise x=-y trivially gives 1 for odd n. The formalization drops that condition and the disproof exploits exactly this slip. The real question (is a(5)=12) is untouched."
+  },
+  "oeis-a395896": {
+   "date": "2026-11-28",
+   "pr": 17071,
+   "evidence": [
+    "https://oeis.org/A395896"
+   ],
+   "reason": "De Vlieger's conjecture (a(n)=0 for even n, i.e. for odd squarefree m) is trivial: one of k, k+1 is even, so 2 divides rad(k) or rad(k+1), which cannot divide odd m. The proof is 33 lines. Trivial."
   }
  },
  "known": {
@@ -38097,6 +38154,110 @@
     "https://eulersolve.org/papers/opg-57403/paper.pdf"
    ],
    "reason": "Faithful to Porton's definitions (reloid = filter on A x B, composition via relational composition, monovalued f o f^-1 <= id). A. Ferudun, 'Two Problems of Porton on Reloids' (eulersolve.org, dated 2026-10-08), Theorem 1.1/Cor. 4.1, already proves every metamonovalued reloid is monovalued. It tests with id_B and the off-diagonal relation; the site proof uses the same kind of disjoint pair. Not new."
+  },
+  "Erdos332.erdos_332": {
+   "date": "2026-11-28",
+   "pr": 10136,
+   "evidence": [
+    "https://www.erdosproblems.com/332"
+   ],
+   "reason": "The open question asks which conditions on A suffice for D(A) to have bounded gaps. The site's answer is positive upper density, and the erdosproblems page itself says that Prikry, Tijdeman, Stewart and others (surveys [St78], [Ti79]) showed positive density is sufficient. The proof header credits those authors. A known sufficient condition is supplied; the open characterization question is not resolved."
+  },
+  "oeis-a081921": {
+   "date": "2026-11-28",
+   "pr": 10172,
+   "evidence": [
+    "https://oeis.org/A081921"
+   ],
+   "reason": "Statement (Mathar's recurrence for the e.g.f. exp(3x)/sqrt(1-x^2), n>=3) matches the entry. The entry's own formula section contains Robert Israel's proof (Mar 14 2019): it follows from the differential equation satisfied by the e.g.f. The statement header itself cites this."
+  },
+  "oeis-a086534": {
+   "date": "2026-11-28",
+   "pr": 24519,
+   "evidence": [
+    "https://oeis.org/A086534",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Sorry/NumberComplexity/A086534Refutation.lean"
+   ],
+   "reason": "Murthy's 'sequence is finite' is refuted by CRT plus Dirichlet: there are primes p with 2^n | p-1 and 3^n | p+1 for every n. This exact refutation, with the same b>=2 reading and the same remark about a(1), is already in thatnealpatel/proofs (A086534Refutation.lean, sorry-free, source retrieved 2026-10-21). The site disproof (2026-11-28) gives the same argument."
+  },
+  "opg-large-acyclic-induced-subdigraph-in-a-planar-oriented-graph": {
+   "date": "2026-11-28",
+   "pr": 23315,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/large_acyclic_induced_subdigraph_in_a_planar_oriented_graph",
+    "https://arxiv.org/abs/1504.06726"
+   ],
+   "reason": "The formal disproof is correct: a 7-vertex oriented planar digraph whose maximum acyclic set has 4 < 21/5 vertices. It is the D_3 construction of Knauer, Valicov and Wenger, 'Planar digraphs without large acyclic sets' (arXiv:1504.06726, 2015), whose abstract says it disproves Harutyunyan's conjecture. The proof file cites that paper. Known since 2015; the OPG page is simply out of date."
+  },
+  "oeis-a188645": {
+   "date": "2026-11-28",
+   "pr": 22899,
+   "evidence": [
+    "https://oeis.org/A188645",
+    "https://oeis.org/A188644"
+   ],
+   "reason": "The conjecture ((k^n+k^-n)/2 is an integer for k=(sqrt(x^2+y)+x)^2, y=+-1) appears verbatim in both A188644 and A188645. It was already proved on this site under oeis-a188644, with an identical statement covering both y=1 and y=-1 (proof committed 2026-11-28 03:41 UTC, before this one at 07:46 UTC). Manyama's comment in A188645 also identifies the array as T_k(2n^2+1), which settles the y=1 case. The underlying proof is routine Chebyshev algebra."
+  },
+  "oeis-a334514": {
+   "date": "2026-11-28",
+   "pr": 29328,
+   "evidence": [
+    "https://oeis.org/A334514",
+    "https://github.com/blakestone-x/math/blob/main/A334501/README.md",
+    "https://github.com/blakestone-x/math/commits/main/A334501"
+   ],
+   "reason": "Barker's recurrence a(n)=2a(n-4)-a(n-8) (n>24) and g.f. for the cyclic Rule 107 eventual period are proved in blakestone-x/math A334501/README.md. That note gives the period 4n/gcd(4,n) for n>=17, the 16 small values, and says it yields all of Barker's generating functions (for rules 9, 25, 41, 107 and 190). Its folder commit a80ee14 is dated Nov 27 2026, before the site proof (2026-11-28 12:24 UTC). The site proof uses the same translating-defect argument."
+  },
+  "oeis-a081320": {
+   "date": "2026-11-28",
+   "pr": 29067,
+   "evidence": [
+    "https://oeis.org/A081320"
+   ],
+   "reason": "The statement formalizes only the first part of the conjecture (a(n)=a(n-12) for n>12 not divisible by 12). The entry already contains Greathouse's 2012 comment that this part follows from the strong divisibility of Fibonacci numbers (v_2 and v_3 of F(n) depend only on n mod 12 off multiples of 12). The statement header itself quotes this. Known, with the proof sketched in the source."
+  },
+  "oeis-a271062": {
+   "date": "2026-11-28",
+   "pr": 27876,
+   "evidence": [
+    "https://oeis.org/A271062",
+    "https://oeis.org/A271060"
+   ],
+   "reason": "Wu's recurrence and g.f. for the partial sums of the Rule 261 ON-cell counts follow at once from Wu's g.f. for A271060 (divide by 1-x). The A271060 g.f. was already proved on this site (proofs/oeis-a271060.lean, committed 2026-11-28 13:48 UTC, with byte-identical cell/onCount definitions), about an hour before this proof (14:51 UTC). Cohen's Zenodo 24384895 covers only rule 261 at stages 2^n-1 (A271061), not every stage."
+  },
+  "mse-4636083": {
+   "date": "2026-11-28",
+   "pr": 25505,
+   "evidence": [
+    "https://math.stackexchange.com/questions/4636083"
+   ],
+   "reason": "The formal statement is existential (some char-0 field K and some n>=2 with a proper subgroup of GL_n(K) isomorphic to GL_n(K)). The question's comments already settle that: Qiaochu Yuan and David Craven note that C has a proper subfield isomorphic to C, so GL_n(C) embeds properly in itself for every n. The site's g -> det(g)g example over Q (cube-determinant image) is a nice non-field-automorphism example, but the formalized claim is answered in the thread."
+  },
+  "mo-168514": {
+   "date": "2026-11-28",
+   "pr": 17419,
+   "evidence": [
+    "https://mathoverflow.net/questions/168514"
+   ],
+   "reason": "The question asks whether gcd(p(n),q(n)) is bounded for coprime squarefree integer polynomials. The thread answers it in the comments: by Bezout, A p + B q = C with C a nonzero integer, so the gcd divides C (the resultant). The site proof is the same 74-line Bezout argument. Classical."
+  },
+  "oeis-a376388": {
+   "date": "2026-11-28",
+   "pr": 17587,
+   "evidence": [
+    "https://oeis.org/A376388",
+    "https://github.com/the-omega-institute/trureturing/blob/master/Problems/oeis-a376317-kurkov-periodic-boundary-schroder.md"
+   ],
+   "reason": "Kurkov's conjecture (both periodic shifts give the large Schroder numbers on the diagonal) also appears in A376317. It was already proved in trureturing (Problems/oeis-a376317-kurkov-periodic-boundary-schroder.md, Lean module D5/S1/Recurrence/Algebraic/PeriodicBoundarySchroder.lean) with an identical Lean statement, and that note says A376388 repeats the same conjecture. The site statement and proof say they are adapted from trureturing at commit 37f55f0."
+  },
+  "oeis-a028231": {
+   "date": "2026-11-28",
+   "pr": 16707,
+   "evidence": [
+    "https://oeis.org/A028231",
+    "https://math.colgate.edu/~integers/m15/m15.Abstract.html"
+   ],
+   "reason": "Barker's recurrence a(n)=15a(n-1)-15a(n-2)+a(n-3) is stated for Wesolowski's characterization (k with (k^2+k+1)/3 a square). The entry gives Marcus's closed form sqrt(3)((2+sqrt3)^(2n+1)-(2-sqrt3)^(2n+1))/4 - 1/2, credited to Broughan (INTEGERS 12 (2012) A15), and states that Barker's recurrence and g.f. 'follow easily from the formula'. The content is a one-class Pell equation (2k+1)^2-12y^2=-3. Settled in the source; the site proof is a routine Pell argument."
   }
  },
  "reviewed": "2026-11-28"

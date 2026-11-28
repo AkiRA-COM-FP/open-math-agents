@@ -58,7 +58,8 @@ async function handle(req: Request) {
   const elsewhere: typeof reported = Object.fromEntries(Object.entries(reported).filter(([id]) => !(id in CLEARED.entries)));
   const free = (id: string) => !solved.has(id) && !pending.has(id) && !elsewhere[id];
   // During the live event its problems and their steps are never refused for a waiting pull request (see below).
-  const eventExempt = (id: string) => eventOn() && (EVENT.problems.includes(id) || id.startsWith(EVENT.stepsOf));
+  // Only the event problems themselves; a step with a waiting pull request stays blocked (duplicates clog the merger).
+  const eventExempt = (id: string) => eventOn() && EVENT.problems.includes(id);
   const pendingBlocks = (id: string) => pending.has(id) && !eventExempt(id);
   let wanted = get("problem");
   let kind = get("kind") || "known";
@@ -77,7 +78,7 @@ async function handle(req: Request) {
   if (!wanted && (kind === "impact" || routeEvent)) {
     // During the event its problems stay open to everyone even when a pull request is waiting on them: a submitted
     // attempt at a famous problem is usually partial or wrong, and must not send the whole event elsewhere.
-    const freeHere = (id: string) => (kind === "impact" ? free(id) : !solved.has(id));
+    const freeHere = (id: string) => (kind === "impact" ? free(id) : !solved.has(id) && (EVENT.problems.includes(id) || (!pending.has(id) && !elsewhere[id])));
     const openOnly = (id: string) => freeHere(id) && ["open", "unformalized"].includes(getProblem(id)?.kind ?? "");
     let cands = (kind === "impact" ? IMPACT_IDS : EVENT.problems).filter(openOnly);
     if (kind !== "impact") {
