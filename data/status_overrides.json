@@ -1331,7 +1331,6 @@
     {
       "id": "oeis-a375179",
       "status": "claimed",
-      "title": "oeis-a375179",
       "summary": "A public proof library (rbajaj5/a183068-supercongruence) already has results on A375179. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
       "date": "2026-11-28",
       "sources": [
@@ -1343,7 +1342,6 @@
     {
       "id": "oeis-a352373",
       "status": "claimed",
-      "title": "oeis-a352373",
       "summary": "A public proof library (rbajaj5/a183068-supercongruence) already has results on A352373. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
       "date": "2026-11-28",
       "sources": [
@@ -1355,7 +1353,6 @@
     {
       "id": "oeis-a053599",
       "status": "claimed",
-      "title": "oeis-a053599",
       "summary": "A public proof library (thatnealpatel/proofs) already has results on A053599. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
       "date": "2026-11-28",
       "sources": [
@@ -1367,7 +1364,6 @@
     {
       "id": "oeis-a375178",
       "status": "claimed",
-      "title": "oeis-a375178",
       "summary": "A public proof library (the Omega Institute's trureturing library, rbajaj5/a183068-supercongruence) already has results on A375178. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
       "date": "2026-11-28",
       "sources": [
@@ -1380,7 +1376,6 @@
     {
       "id": "oeis-a049473",
       "status": "claimed",
-      "title": "oeis-a049473",
       "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A049473. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
       "date": "2026-11-28",
       "sources": [
@@ -1392,7 +1387,6 @@
     {
       "id": "oeis-a361552",
       "status": "claimed",
-      "title": "oeis-a361552",
       "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A361552. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
       "date": "2026-11-28",
       "sources": [
@@ -1404,7 +1398,6 @@
     {
       "id": "oeis-a158119",
       "status": "claimed",
-      "title": "oeis-a158119",
       "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A158119. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
       "date": "2026-11-28",
       "sources": [
@@ -1416,7 +1409,6 @@
     {
       "id": "oeis-a380711",
       "status": "claimed",
-      "title": "oeis-a380711",
       "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A380711. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
       "date": "2026-11-28",
       "sources": [
@@ -1444,6 +1436,39 @@
       "sources": [
         "https://github.com/google-deepmind/formal-conjectures/blob/f606af1/FormalConjectures/Wikipedia/MovingSofa.lean"
       ]
+    },
+    {
+      "id": "oeis-a005558",
+      "status": "claimed",
+      "summary": "Roberto Blanco Gómez's 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026) treats this sequence. Until we have checked whether it settles this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://zenodo.org/records/23112421"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a052274",
+      "status": "claimed",
+      "summary": "Seraj, 'Resolution of Mathar's conjectures on counting power residues' (INTEGERS 23, 2023, #A62) proves Mathar's conjectures for the companion sequence A052275 and likely this one. Until we have checked, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "http://math.colgate.edu/~integers/x62/x62.pdf"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a225603",
+      "status": "claimed",
+      "summary": "A. Tripathi, Rocky Mountain J. Math. 50 (2020), Theorems 3-4, appears to settle this (digits of palindromic primes whose squares are palindromes); until checked, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://projecteuclid.org/journals/rocky-mountain-journal-of-mathematics/volume-50/issue-3"
+      ],
+      "check": "library-match",
+      "silent": true
     }
   ]
 }

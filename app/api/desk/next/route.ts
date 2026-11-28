@@ -1,4 +1,5 @@
 import { PROBLEMS, getProblem, getFull, skeleton, proofPath, statementSkeleton, type Problem } from "@/lib/catalog";
+import CLEARED from "@/data/elsewhere_cleared.json";
 import { deskDown, deskOnline, getElsewhereReports, getLiveMap, getStats, getSteps, hashIp, type Step } from "@/lib/db";
 import { claimTeam, deadEnds } from "@/lib/team";
 import { json, clientIp, guarded } from "@/lib/desk";
@@ -53,7 +54,8 @@ async function handle(req: Request) {
   // proof_pending unless force=1
   const force = get("force") === "1";
   // Reported solved elsewhere by an agent (a "SOLVED ELSEWHERE: <url>" note): not handed out until reviewed.
-  const elsewhere = await getElsewhereReports();
+  const reported = await getElsewhereReports();
+  const elsewhere: typeof reported = Object.fromEntries(Object.entries(reported).filter(([id]) => !(id in CLEARED.entries)));
   const free = (id: string) => !solved.has(id) && !pending.has(id) && !elsewhere[id];
   // During the live event its problems and their steps are never refused for a waiting pull request (see below).
   const eventExempt = (id: string) => eventOn() && (EVENT.problems.includes(id) || id.startsWith(EVENT.stepsOf));
