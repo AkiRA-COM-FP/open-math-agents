@@ -20922,6 +20922,30 @@
     "https://mathoverflow.net/questions/506929"
    ],
    "reason": "The third clause disproves the asker's tentative remark ('for the handful I've tested f(n) appears to lie in [-1,1] but I don't know if that pattern holds'), which is presented here as a conjecture. The disproof follows from the closed form -(B_{r+2}+B_{r+1})/2 for n=p^2 q_1...q_r (checked for r<=5; it is 3.55 at r=14 and -27.5 at r=16). The first clause, the Bernoulli reformulation, is essentially the falling-factorial argument already in the 2026-01-23/24 comments."
+  },
+  "oeis-a287191": {
+   "date": "2026-11-28",
+   "pr": 27450,
+   "evidence": [
+    "https://oeis.org/A287191"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's g.f. has numerator degree 6 over a denominator of degree 4 (1-101x^2+100x^4), so the recurrence a(n)=101a(n-2)-100a(n-4) can only hold for n>6, but it is printed 'n>4'. The Lean disproof uses only this inconsistency between the g.f. and the recurrence at n=6 (coefficient 6), never the cellular automaton. With the data, a(6)=1100000 is not 101*11000-100*0. The g.f. and the closed form are presumably true."
+  },
+  "opg-generalized-path-connectedness-in-proximity-spaces": {
+   "date": "2026-11-28",
+   "pr": 14234,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/generalized_path_connectedness_in_proximity_spaces"
+   ],
+   "reason": "The disproof rests on a definitional change. The source defines 'connected regarding delta' (for a proximity) as: for all nonempty X,Y with X u Y = U, X delta Y, which for a general endofuncoid demands the relation in both directions. The formalization instead uses X [mu]* Y OR Y [mu]* X (mu join mu^-1) and adds disjointness. The counterexample is the non-symmetric funcoid on Bool (false->true): connected only in the symmetrized sense, and the source's own definition makes it disconnected. The title restricts to proximity spaces (symmetric), where no such example exists; the intended conjecture is untouched."
+  },
+  "mo-490781": {
+   "date": "2026-11-28",
+   "pr": 13995,
+   "evidence": [
+    "https://mathoverflow.net/questions/490781"
+   ],
+   "reason": "The statement conjoins the MMS conjecture (open in general) with the 'MM conjecture' A(n,k)=C(n-floor(n/k),k) for n<4k, k not dividing n. The disproof only refutes the MM part, at (n,k)=(5,3) with weights (3,3,-2,-2,-2) giving 3 < C(4,3)=4. But the question itself says 'I realized that the MM conjecture is not generally correct' and asks about a different formula (2). So the disproof refutes a conjunct already reported false in the source; MMS and formula (2) are untouched."
   }
  },
  "known": {
@@ -38388,6 +38412,180 @@
     "https://mathoverflow.net/questions/247291"
    ],
    "reason": "The site disproof uses U=[[0,1],[i,0]], with conj(U)U=diag(i,-i) and D^2=-I. A 2016 comment on the question already says 'Easy counterexamples are obtained by taking a 2x2 matrix U with zero diagonal', and the asker accepted it ('it gives a recipe for counterexamples in every dimension')."
+  },
+  "oeis-a192338": {
+   "date": "2026-11-28",
+   "pr": 29377,
+   "evidence": [
+    "https://oeis.org/A192338",
+    "https://github.com/highphysicist/oeis-A192338-A192339-proof"
+   ],
+   "reason": "Statement (Barker's order-4 recurrence for n>4 and the g.f., with the reduction x^2->x+2 read as remainder mod x^2-x-2) matches the entry, its Mathematica program and the example terms. The public Lean repository highphysicist/oeis-A192338-A192339-proof (created 2026-11-23, per GitHub search API) proves the same recurrence a(n+4)=4a(n+3)+a(n+2)-10a(n+1)-4a(n) for both A192338 and A192339; the g.f. follows from it and the first four terms. The site proof was committed 2026-11-27."
+  },
+  "oeis-a208502": {
+   "date": "2026-11-28",
+   "pr": 29390,
+   "evidence": [
+    "https://oeis.org/A208502",
+    "https://isitsolved.com/journal/e9039b327f56"
+   ],
+   "reason": "Statement (Barker's g.f. and closed form for n>2 for Hardin's 4 X n arrays) matches the entry. The isitsolved transfer-matrix paper iis:2611.00264 (filed 2026-11-28 08:32 UTC) lists A208502 with 'Barker g.f. proved; Hardin recurrence (n>4) proved'; the site proof was committed 2026-11-28 12:26 UTC. The closed form follows from the g.f. by partial fractions, so the whole conjunction was settled earlier."
+  },
+  "oeis-a281199": {
+   "date": "2026-11-28",
+   "pr": 29330,
+   "evidence": [
+    "https://oeis.org/A281199",
+    "https://isitsolved.com/journal/bb4951d4a901"
+   ],
+   "reason": "Statement (Barker's g.f. and closed form for Hardin's n X 2 arrays with exactly one exception, Column 2 of A281205) matches the entry. isitsolved iis:2611.00237 (round 3 of the Hardin transfer-matrix project, filed 2026-11-28 05:28 UTC) lists A281199 with 'Barker g.f. proved; Hardin recurrence (n>4) proved'. The site proof was committed 2026-11-28 12:25 UTC. The closed form follows from the g.f. by partial fractions."
+  },
+  "oeis-a271052": {
+   "date": "2026-11-28",
+   "pr": 27868,
+   "evidence": [
+    "https://oeis.org/A271052",
+    "https://oeis.org/A271051",
+    "https://github.com/lefttosolve2/open-math-agents/pull/27866"
+   ],
+   "reason": "Faithful (2D Rule 253 with the background evolving; my simulation reproduces all data terms). But A271052 is the partial sums of A271051, and the site's A271051 solve (PR #27866, merged 2026-11-28 14:00 UTC, same solver) proved its g.f. with the same numerator over (1-x)^3(1+x)^3; dividing by (1-x) gives A271052's g.f., and the parity closed forms and recurrence follow. This proof was committed later (15:25 UTC), so the claim was already implied by an earlier site solve."
+  },
+  "oeis-a271064": {
+   "date": "2026-11-28",
+   "pr": 27878,
+   "evidence": [
+    "https://oeis.org/A271064",
+    "https://oeis.org/A271060",
+    "https://github.com/lefttosolve2/open-math-agents/pull/27873"
+   ],
+   "reason": "Faithful (Rule 261, first differences of the per-stage count; my simulation reproduces the data). A271064 is the first differences of A271060, whose g.f. was proved on this site by the same solver (PR #27873, merged 2026-11-28 14:00 UTC). D(x)=((1-x)C(x)-c(0))/x then gives A271064's g.f. and recurrence directly. This proof was committed later (15:25 UTC)."
+  },
+  "oeis-a273766": {
+   "date": "2026-11-28",
+   "pr": 27947,
+   "evidence": [
+    "https://oeis.org/A273766",
+    "https://oeis.org/A273768"
+   ],
+   "reason": "Faithful (Rule 913, background evolving; my simulation matches all 47 terms). But A273768, the partial sums of exactly this count with the same definition, was solved on this site earlier (merged 2026-11-28 14:05 UTC, solver justusklocke-cloud). Its g.f. has the same numerator 1+x+8x^2+8x^3-16x^4+5x^5+x^6 over (1-x)^4. Multiplying by (1-x) gives A273766's g.f., which in turn gives (2n+1)^2 for n>3 and the recurrence. This proof was committed 14:59 UTC."
+  },
+  "oeis-a202254": {
+   "date": "2026-11-28",
+   "pr": 29245,
+   "evidence": [
+    "https://oeis.org/A202254",
+    "https://github.com/blakestone-x/math/blob/main/A202253/README.md"
+   ],
+   "reason": "Statement (Barker's parity cubic formulas for 4-element zero-sum arrays with adjacent differences in -n..n) is faithful. Blake Stone's public Lean package github.com/blakestone-x/math/A202253 proves exactly these parity formulas, plus the g.f. and recurrence, for the literal count. It was committed 2026-11-28 07:18 UTC (Batch 15, per the GitHub commit search API), before the site proof commit at 12:20 UTC."
+  },
+  "mo-143188": {
+   "date": "2026-11-28",
+   "pr": 17629,
+   "evidence": [
+    "https://mathoverflow.net/questions/143188"
+   ],
+   "reason": "The statement (no open subset of an infinite-dimensional separable Frechet space is homeomorphic to T^infinity) is exactly the question as posed. It is settled in the question's own comments (score 6): T^infinity is compact, so its image would be clopen, hence the whole space, which is not compact. The asker's edit concedes this and asks for closure. The Lean proof is this same compactness and connectedness argument. Trivial and known."
+  },
+  "mo-171753": {
+   "date": "2026-11-28",
+   "pr": 17304,
+   "evidence": [
+    "https://mathoverflow.net/questions/171753"
+   ],
+   "reason": "Faithful (every union-closed family of subsets of [n] is the solution set of a co-Horn CNF, including the empty family via the empty clause). Emil Jerabek's comment on the question gives the standard answer: intersection-closed families (closure systems) are exactly Horn-axiomatizable, and the dual holds for union-closed families; take all co-Horn clauses valid in the family. Classical exercise, proved the same way here."
+  },
+  "mo-61882": {
+   "date": "2026-11-28",
+   "pr": 17061,
+   "evidence": [
+    "https://mathoverflow.net/questions/61882",
+    "https://mathoverflow.net/a/513963",
+    "https://mathoverflow.net/a/61918"
+   ],
+   "reason": "The disproof uses U_j that are not connected (unions of cells around exp(1/z)), which the literal question allows. Goodwillie (comment) and Thurston (2011 answer, score 14) already said counterexamples exist without connectedness, and an MO answer of 2026-08-05 gives exactly this exp(1/z) square-colouring construction. The genuine open problem (connected U_j, Elsner's thesis) is untouched. Known, and it only refutes the weakened literal version."
+  },
+  "oeis-a355409": {
+   "date": "2026-11-28",
+   "pr": 18616,
+   "evidence": [
+    "https://oeis.org/A355409",
+    "https://the-omega-institute.github.io/trureturing-mdbook/Blueprint/D5/S1/Recurrence/Periodic/IntegralEgfTotientPeriod.html",
+    "https://github.com/blakestone-x/math/blob/main/A354242/README.md",
+    "https://doi.org/10.33774/coe-2026-4d6jr"
+   ],
+   "reason": "Faithful statement of Bala's totient-period conjecture for e.g.f. 1/(1+e^{2x}-e^{3x}) = G(e^x-1). The general theorem (every integral G(e^x-1) is eventually periodic mod k with period dividing phi(k)) was already in trureturing (IntegralEgfTotientPeriod, Nov 15 2026), in Danesh's Aug 2026 preprint (Carmichael period), and in blakestone-x/math A354242. It was also proved on this site for all g in oeis-a354242 (merged 2026-11-28 14:28 UTC, before this commit at 15:26 UTC). The proof here is the same surjection/Euler argument."
+  },
+  "oeis-a177129": {
+   "date": "2026-11-28",
+   "pr": 16250,
+   "evidence": [
+    "https://oeis.org/A177129",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Mathar's order-4 P-recurrence (n>=4) for the Choulet sequence (a0,a1,k,l)=(1,8,0,1) is stated faithfully; the definition reproduces the data, and the recurrence checks numerically to n=79. It is an instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (June 2026), which proves these recurrences for every Choulet sequence a(n+1)=sum a(j)a(n-j)+k(n+1)+l."
+  },
+  "oeis-a176857": {
+   "date": "2026-11-28",
+   "pr": 16220,
+   "evidence": [
+    "https://oeis.org/A176857",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Mathar's order-5 P-recurrence (n>=5) for the Choulet sequence (a0,a1,k,l)=(1,3,-1,0) is stated faithfully; the definition reproduces the data, and the recurrence checks numerically to n=79. Covered by Dubickas, Mathematics 14 (2026) 2177, which proves the recurrences for every Choulet sequence (the k != 0 case gives order 5)."
+  },
+  "oeis-a176953": {
+   "date": "2026-11-28",
+   "pr": 16180,
+   "evidence": [
+    "https://oeis.org/A176953",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Mathar's order-5 P-recurrence (n>=5) for the Choulet sequence (a0,a1,k,l)=(1,1,-1,-1) is stated faithfully; the definition reproduces the data (1,1,-1,-5,-17,...), and the recurrence checks numerically to n=79. Covered by Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177, which proves these recurrences for every Choulet sequence."
+  },
+  "oeis-a176966": {
+   "date": "2026-11-28",
+   "pr": 16164,
+   "evidence": [
+    "https://oeis.org/A176966",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Mathar's order-5 P-recurrence (n>=5) for the Choulet sequence (a0,a1,k,l)=(1,4,-1,1) is stated faithfully; the definition reproduces the data, and the recurrence checks numerically to n=79. Covered by Dubickas, Mathematics 14 (2026) 2177 (all Choulet sequences a(n+1)=sum a(j)a(n-j)+k(n+1)+l)."
+  },
+  "mo-497434": {
+   "date": "2026-11-28",
+   "pr": 16482,
+   "evidence": [
+    "https://mathoverflow.net/questions/497434",
+    "https://mathoverflow.net/a/515198"
+   ],
+   "reason": "Faithful to the question's own definition (3-connected cubic, not 3-edge-colourable, an induced cycle whose complement is independent). The existence was already answered on MO: David White's answer of 2026-09-13 gives verified 40- and 44-vertex examples (an induced 30-cycle or 33-cycle with an independent complement), cleaning up an earlier answer. The site proof (Nov 27) uses a different Petersen-based example, but the question was already settled."
+  },
+  "oeis-a053004": {
+   "date": "2026-11-28",
+   "pr": 14810,
+   "evidence": [
+    "https://oeis.org/A053004",
+    "https://mathworld.wolfram.com/GausssConstant.html"
+   ],
+   "reason": "Both conjuncts are classical theta/AGM identities, not open problems. At q=e^{-pi} (lemniscatic case) theta_2=theta_4 and theta_3^2=sqrt(2)*theta_2^2, so Gauss's AGM(theta_3^2,theta_4^2)=1 gives AGM(1,sqrt2)=1/theta_2(e^{-pi})^2 (Bala). Plouffe's sum of A001934(k)e^{-k pi} is 1/theta_4(e^{-pi})^2, the same value (Borwein & Borwein, Pi and the AGM). The same solver also proved the reciprocal (Gauss's constant) form on this site in oeis-a014549, committed 3 minutes earlier. Faithful statement."
+  },
+  "oeis-a002193": {
+   "date": "2026-11-28",
+   "pr": 14406,
+   "evidence": [
+    "https://oeis.org/A002193",
+    "https://dlmf.nist.gov/20.9"
+   ],
+   "reason": "Plouffe's 2025 'conjecture' sqrt2 = sum A014969(k) e^{-k pi} says (theta_3/theta_4)^2 at q=e^{-pi} equals sqrt2. That is the classical Jacobi identity k' = theta_4^2/theta_3^2 (DLMF 20.9.2) at the self-dual singular value k=k'=1/sqrt2. The statement is faithful (A014969 built from r_2-type coefficients of theta_3^2 and theta_4^2). Earlier reviews marked the reciprocal entry A010503 known for the same reason; not an open problem."
+  },
+  "oeis-a160077": {
+   "date": "2026-11-28",
+   "pr": 14104,
+   "evidence": [
+    "https://oeis.org/A160077",
+    "https://dlmf.nist.gov/18.9"
+   ],
+   "reason": "Faithful (numerator of H_n(19/26) in lowest terms). The entry does not treat this as open: Mathar's line is tagged [DLMF] (the Hermite three-term recurrence), Israel adds 'E.g.f. exp(-x*(169*x-19)). The conjecture is a consequence', and Greubel gives a(n)=13^n H_n(19/26). The only extra step is that 13 does not divide 13^n H_n(19/26) (it is 6^n mod 13). Known and routine."
   }
  },
  "reviewed": "2026-11-28"
