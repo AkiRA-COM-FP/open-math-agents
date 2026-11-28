@@ -9016,6 +9016,47 @@
     "https://oeis.org/A253938"
    ],
    "reason": "Second review: The formalized identity is not an open problem: the OEIS comment states it as fact, and it follows from Pascal's rule in one step. The only conjecture mentioned (the F(n,p,r) formula of A253938) is not what was formalized, so the 'solve' is vacuous as an open-problem result."
+  },
+  "oeis-a239367": {
+   "date": "2026-11-28",
+   "pr": 22730,
+   "evidence": [
+    "https://oeis.org/A239367",
+    "https://oeis.org/A238315"
+   ],
+   "reason": "Trivial. The statement defines a(n) = b(2n-1), where b is A238315 given by its first-order defining recurrence b(n) = n^2 + 2^(n-1) - 2b(n-1). Barker's closed form (-1+4^n-12n+36n^2)/27, the recurrence and the g.f. then follow from the definition by a two-step induction. They are also immediate from Barker's 2014 g.f. for A238315 in that entry. Faithful (checked n <= 18), but not an open problem."
+  },
+  "oeis-a243662": {
+   "date": "2026-11-28",
+   "pr": 24673,
+   "evidence": [
+    "https://oeis.org/A243662"
+   ],
+   "reason": "Trivial as formalized. T is defined by Schulte's own second formula, binom(3n+1-k,n-k)binom(n,k-1)/n, so the triangle's real definition (Novelli-Thibon, or reversion of x/((1+x+xy)(1+x)^2)) never enters. The 'conjecture' then reduces to the one-line trinomial-revision identity binom(3n,n-1)binom(n-1,k-1) = binom(3n,k-1)binom(3n-k+1,n-k), plus the definitions of A001764 and A001263. The values match the data, but nothing open is settled."
+  },
+  "oeis-a246776": {
+   "date": "2026-11-28",
+   "pr": 23586,
+   "evidence": [
+    "https://oeis.org/A246776"
+   ],
+   "reason": "Trivial. The statement is the entry's comment that Firoozbakht's conjecture holds iff a(n) >= 0 for all n > 1. That is a direct unfolding of the definitions: p(n)^(1/n) > p(n+1)^(1/(n+1)) iff p(n+1) < p(n)^(1+1/n) iff p(n+1) <= floor(p(n)^(1+1/n)), since p(n+1) is an integer and the bound is irrational for n >= 2; the pair n = 1, 2 holds outright. Firoozbakht's conjecture itself stays open."
+  },
+  "oeis-a246919": {
+   "date": "2026-11-28",
+   "pr": 23072,
+   "evidence": [
+    "https://oeis.org/A246919"
+   ],
+   "reason": "The disproof uses only that Barker's recurrence is stated 'for n > 14' while his own g.f. has numerator degree 16. From the data, a(16) = 49 but 3a(12) - 3a(8) + a(4) = 45. My computation of the cevian lengths (via 4y^2 - z^2 = 3n^2) reproduces the data, and the recurrence holds for every n from 17 to 399, so only the evident range typo is refuted. The g.f. is presumably right, and the intended statement (n > 16) is untouched."
+  },
+  "oeis-a247000": {
+   "date": "2026-11-28",
+   "pr": 23079,
+   "evidence": [
+    "https://oeis.org/A247000"
+   ],
+   "reason": "The disproof uses only that Barker's recurrence a(n) = a(n-1)+a(n-3)-a(n-4) is stated 'for n > 4' while his own g.f. has numerator degree 14. The entry's own data already violate it at every n = 7..14 (e.g. a(7) = 10, not 11), and it holds from n = 15 on. This is an evident range typo (n > 14 intended), refuted without touching the palindrome count; the g.f. itself is untouched."
   }
  },
  "known": {
@@ -16462,6 +16503,66 @@
     "https://oeis.org/A066633"
    ],
    "reason": "Pol's Conjectures 1-2: P(n,j,k) = [k|j] p(n-j) counts partitions of n with at least m = j/k parts equal to k (equivalently, the m-th parts of size k over all partitions of n). Formalization is faithful. But this is the textbook bijection 'delete m copies of k', the same argument L. E. Jeffery gives in an A000041 comment (2011) and Kimberling (2014) for one part, and the expansion of Jovovic's g.f. x^k/(1-x^k) prod 1/(1-x^m) in A066633; it is folklore rather than an open problem."
+  },
+  "oeis-a229004": {
+   "date": "2026-11-28",
+   "pr": 23466,
+   "evidence": [
+    "https://oeis.org/A229004"
+   ],
+   "reason": "Barker's recurrence a(n) = a(n-1)+a(n-4)-a(n-5) and g.f. are immediate from the classical fact that Bell numbers mod 3 have period 13 (Touchard; Levine-Dalton 1962 and Wagstaff 1996 are cited in the entry). The entry's own Sep 2013 comment (Perez Herrero) uses this period to show the zero indices are exactly 4, 8, 9, 11 mod 13, so a(n+4) = a(n)+13. The formalization is faithful and the data match, but the result was settled in the source."
+  },
+  "oeis-a230312": {
+   "date": "2026-11-28",
+   "pr": 24708,
+   "evidence": [
+    "https://oeis.org/A230312"
+   ],
+   "reason": "del Arte's conjecture a(n) = A001912(n)^2 (n^2 is not x^2 + k(k+1) with 0 < x < n iff 4n^2+1 is prime) is proved in the entry itself by Zhi-Wei Sun's Feb 2014 comment: 4n^2+1 = (2n)^2+1^2 is composite iff it has a second representation as a sum of two squares. The formalization is faithful, but the result is settled in the source."
+  },
+  "oeis-a234285": {
+   "date": "2026-11-28",
+   "pr": 23362,
+   "evidence": [
+    "https://oeis.org/A234285",
+    "https://en.wikipedia.org/wiki/Riesel_number",
+    "https://oeis.org/A101036"
+   ],
+   "reason": "The statement bundles five claims from Firoozbakht's comment. The disproof refutes the fourth, her 'it seems' claim that for every even r some 2^k - r - 1 is an odd prime, at r = 509202. Since 509203 is a dual Riesel number, 2^k - 509203 is divisible by one of {3,5,7,13,17,241} for every k. That |2^n - 509203| is always composite is the standard dual-Riesel fact (Wikipedia, Riesel number), so the claim was already refuted by known results. The disproof is correct, but it is not new."
+  },
+  "oeis-a241675": {
+   "date": "2026-11-28",
+   "pr": 24261,
+   "evidence": [
+    "https://oeis.org/A241675",
+    "https://oeis.org/A241568"
+   ],
+   "reason": "The statement is the entry's comment that a(n) > 0 for all n > 4 iff Sun's conjecture A241568(i) holds. The next comment in the same entry gives the proof: 4 | n uses F(3) = 2, and otherwise an odd prime p | n with p <= n/2 and a Fibonacci non-residue below p/2 lifts to n. The formalization (Fibonacci k with 0 < 2k < n, no x with x^2 = k mod n, and A241568(i) for primes p > 3) is faithful. The equivalence was settled in the source; the underlying conjecture remains open."
+  },
+  "oeis-a246697": {
+   "date": "2026-11-28",
+   "pr": 23559,
+   "evidence": [
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A246697RowSumsTriangle.lean",
+    "https://oeis.org/A246697"
+   ],
+   "reason": "Etienne's closed form 4a(n) = 2n^3+6n^2+9n+4+n(-1)^n and the order-6 recurrence for the row sums of A246696. Both are already proved sorry-free in thatnealpatel/proofs (Proofs/Enumerative/A246697RowSumsTriangle.lean, committed 2026-10-21), which predates this solve (2026-11-28). The statement is faithful (triangle rows and data match; closed form checked for n < 60), but the result is known."
+  },
+  "oeis-a248586": {
+   "date": "2026-11-28",
+   "pr": 23239,
+   "evidence": [
+    "https://oeis.org/A248586"
+   ],
+   "reason": "The recurrence n^2 a(n) + (-19n^2+19n-5)a(n-1) + 35(n-1)^2 a(n-2) - 17(n-1)(n-2)a(n-3) = 0 is faithfully stated for a(n) = Sum C(n,i)C(2i,i)^2 (checked exactly to n = 39). But the entry already settles it: Munarini (Oct 2016) gives the g.f. as (2/Pi)K(16t/(1-t))/(1-t) and the second-order ODE it satisfies, and remarks that the conjectured recurrence comes from this ODE. I verified that the ODE holds on the series and translates to exactly this recurrence."
+  },
+  "oeis-a259459": {
+   "date": "2026-11-28",
+   "pr": 22829,
+   "evidence": [
+    "https://oeis.org/A259459"
+   ],
+   "reason": "Mathar's 'conjectured' g.f. 3F0(4,3,3;;x/2) is immediate from facts already in the entry: Mathar's own recurrence 2n a(n) = (n+3)(n+2)^2 a(n-1) and Fischer's 2024 closed form a(n) = (n+3)!(n+2)!(n+1)(n+2)/(6*2^(n+2)) give exactly the Pochhammer term ratio. The closed form itself is a one-line sum from the definition (the d^1 coefficient is P*Sum_j (j-1)/3). The definition as the d^1 a^(n+1) coefficient of the product reproduces the data, and the g.f. holds for n < 30. Settled in the source and essentially trivial."
   }
  },
  "reviewed": "2026-11-28"
