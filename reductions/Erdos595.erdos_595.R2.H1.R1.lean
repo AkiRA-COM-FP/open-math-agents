@@ -575,4 +575,42 @@ theorem linear_factors_iff :
   · rintro ⟨I,G,free,hard⟩
     exact main ⟨I,fun s => 2*(s.card+1),G,free,hard⟩ common_coordinate
 
+/-- Every I-indexed list of bounded position sequences misses one even
+modulo eventual equality: at s avoid the at most |s| listed values. -/
+theorem diagonal_position {I : Type}
+    (f : I → (s : Finset I) → Fin (2*(s.card+1))) :
+    ∃ g : (s : Finset I) → Fin (2*(s.card+1)),
+      ∀ i, ∀ᶠ s in (atTop : Filter (Finset I)), g s ≠ f i s := by
+  classical
+  have missing (s : Finset I) : ∃ k : Fin (2*(s.card+1)), k ∉ s.image (fun i => f i s) := by
+    by_contra! all
+    have eq := Finset.eq_univ_of_forall all
+    have bound := Finset.card_image_le (s := s) (f := fun i => f i s)
+    rw [eq,Finset.card_univ,Fintype.card_fin] at bound
+    omega
+  choose g fresh using missing
+  refine ⟨g,fun i => ?_⟩
+  filter_upwards [Filter.eventually_finset_mem_atTop i] with s hi
+  exact fun eq => fresh s (eq ▸ Finset.mem_image_of_mem (fun j => f j s) hi)
+
+/-- At or above the continuum even linear-size position germs cannot all
+be distinguished by countably many binary cuts. This applies at aleph-one
+under CH; separation of just the adjacent pairs is a weaker condition. -/
+theorem no_faithful_position_code {I : Type} (index : (ℕ → Bool) ↪ I)
+    (U : Filter (Finset I)) [NeBot U] (tails : U ≤ atTop) :
+    ¬ ∃ c : ((s : Finset I) → Fin (2*(s.card+1))) → (ℕ → Bool),
+      ∀ f g, c f = c g → ∀ᶠ s in U, f s = g s := by
+  classical
+  rintro ⟨c,faithful⟩
+  let list (i : I) : (s : Finset I) → Fin (2*(s.card+1)) :=
+    if h : ∃ g, index (c g) = i then h.choose else fun _ => 0
+  obtain ⟨g,avoids⟩ := diagonal_position list
+  let i := index (c g)
+  have hit : ∃ h, index (c h) = i := ⟨g,rfl⟩
+  have eq : c (list i) = c g := by
+    apply index.injective
+    simpa only [list,dif_pos hit] using hit.choose_spec
+  obtain ⟨s,h,k⟩ := ((faithful _ _ eq).and (tails (avoids i))).exists
+  exact k h.symm
+
 end OMA.R_Erdos595_erdos_595_R2_H1_R1
