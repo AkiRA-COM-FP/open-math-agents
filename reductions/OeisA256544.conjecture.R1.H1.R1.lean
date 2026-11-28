@@ -2,19 +2,19 @@ import OMAReductions.R_OeisA256544_conjecture_R1
 import Mathlib
 
 /-!
-# A sufficient ternary-form route for odd squarefree triangular floors
+# A fixed ternary-form route for odd squarefree triangular floors
 
 Credit: @MattGaiser. All proof code in this file is independently written.
 The parent odd-squarefree step is @marcusbuffett's merged reduction PR #3440.
 The original conjecture is Zhi-Wei Sun's OEIS A256544, April1 2015,
 and Conjecture1.1(ii) of arXiv1504.01608, DOI10.48550/arXiv.1504.01608 (preprint).
 
-H1 constructs a bounded odd slope with unit square-norm and proves every
-prime-power local congruence. local_data_proved proves H1 below, using
-Mathlib's finite-field two-square theorem and elementary lifting arguments.
+H1 proves every required prime-power local congruence for the fixed form
+x^2+(x+m*y)^2+(m*z)^2. local_data_proved proves H1 below, using Mathlib's
+finite-field two-square theorem and elementary lifting arguments.
 
 H2 is OPEN: a uniform local-to-global bound for the positive ternary form
-x^2+(x+m*y)^2+(g*x+m*z)^2, of Gram determinant8*m^4 and level4*m^2.
+x^2+(x+m*y)^2+(m*z)^2, of Gram determinant8*m^4 and level4*m^2.
 It is a stronger sufficient condition than the floor conjecture. Almost all
 remaining difficulty is concentrated in H2. No analytic estimate is invoked
 as a proof of that bound. General theta-series estimates such as Waibel,
@@ -69,48 +69,6 @@ lemma odd_int_tri (a : ℤ) (ha : Odd a) :
   have ht : 8*(Nat.triangular x : ℤ)+1 = (2*(x : ℤ)+1)^2 := by
     exact_mod_cast eight_tri_add_one x
   exact hs.symm.trans ht.symm
-
-lemma odd_coprime_gamma (m : ℕ) (hm : 0< m) (hs : Squarefree m) :
-    ∃ g : ℕ, Odd g ∧ g<2*m ∧ Nat.Coprime (g^2+2) m := by
-  by_cases h3 : 3 ∣ m
-  · obtain ⟨s,hms⟩ := h3
-    have hspos : 0<s := by omega
-    have h3s : ¬3 ∣ s := by
-      intro hd
-      apply (Nat.squarefree_iff_prime_squarefree.mp hs) 3 (by decide)
-      obtain ⟨t,ht⟩ := hd
-      refine ⟨t,?_⟩
-      rw [hms,ht]
-      ring
-    have hco3s : Nat.Coprime 3 s := (Nat.prime_three.coprime_iff_not_dvd).mpr h3s
-    have hco : Nat.Coprime 3 (2*s) := Nat.coprime_mul_iff_right.mpr ⟨by decide,hco3s⟩
-    let g : ℕ := Nat.chineseRemainder hco 0 1
-    have hg3 : Nat.ModEq 3 g 0 := (Nat.chineseRemainder hco 0 1).prop.1
-    have hg2s : Nat.ModEq (2*s) g 1 := (Nat.chineseRemainder hco 0 1).prop.2
-    have hg2 : Nat.ModEq 2 g 1 := hg2s.of_dvd ⟨s,rfl⟩
-    have hgs : Nat.ModEq s g 1 := hg2s.of_dvd ⟨2,by ring⟩
-    have hodd : Odd g := Nat.odd_iff.mpr (by simpa [Nat.ModEq] using hg2)
-    have hglt : g<2*m := by
-      have he := Nat.chineseRemainder_lt_mul hco 0 1 (by decide) (by omega : 2*s≠0)
-      change g<3*(2*s) at he
-      omega
-    have hv3 : Nat.ModEq 3 (g^2+2) 2 := by
-      simpa using (hg3.pow 2).add (Nat.ModEq.refl 2)
-    have hvs : Nat.ModEq s (g^2+2) 3 := by
-      simpa using (hgs.pow 2).add (Nat.ModEq.refl 2)
-    have hunit3 : Nat.Coprime (g^2+2) 3 := by
-      change Nat.gcd (g^2+2) 3=1
-      rw [hv3.gcd_eq]
-      decide
-    have hunits : Nat.Coprime (g^2+2) s := by
-      change Nat.gcd (g^2+2) s=1
-      rw [hvs.gcd_eq]
-      exact hco3s
-    refine ⟨g,hodd,hglt,?_⟩
-    rw [hms]
-    exact Nat.coprime_mul_iff_right.mpr ⟨hunit3,hunits⟩
-  · refine ⟨1,odd_one,by omega,?_⟩
-    simpa using (Nat.prime_three.coprime_iff_not_dvd.mpr h3)
 
 lemma odd_square_mod_eight (g : ℕ) (hg : Odd g) : g^2%8=1 := by
   obtain ⟨k,hk⟩ := hg
@@ -383,52 +341,56 @@ lemma rayForm_all_local_congruences (m g N : ℕ) (ho : Odd m) (hco : Nat.Coprim
     simpa only [Nat.cast_pow] using rayForm_local_away_of_congruence m g (p^k) hc N hrep
 
 
-/-- Construct a bounded odd slope and prove every required local congruence. -/
-def H1 : Prop := ∀ m : ℕ, 0< m → Odd m → Squarefree m →
-  ∃ g : ℕ, Odd g ∧ g<2*m ∧ Nat.Coprime (g^2+2) m ∧
-    ∀ N : ℕ, N%8=3 → Nat.ModEq m N (g^2+2) →
-    ∀ p : ℕ, p.Prime → ∀ k : ℕ,
-      ∃ x y z : ℤ, Int.ModEq ((p:ℤ)^k) ((x^2+(x+m*y)^2+(g*x+m*z)^2)) N
+/-- The fixed form has every required prime-power local representation. -/
+def H1 : Prop := ∀ m : ℕ, 0< m → Odd m → ∀ N : ℕ,
+  N%8=3 → Nat.ModEq m N 2 → ∀ p : ℕ, p.Prime → ∀ k : ℕ,
+    ∃ x y z : ℤ, Int.ModEq ((p:ℤ)^k) ((x^2+(x+m*y)^2+(m*z)^2)) N
 
-/-- The remaining strong quantitative representation assertion is OPEN.
-It is a sufficient condition stronger than the triangular-floor conjecture. -/
-def H2 : Prop := ∀ m g N : ℕ, 0< m → Odd m → Squarefree m →
-  m ∉ ({1,3,5,13,15}:Finset ℕ) → Odd g → g<2*m → Nat.Coprime (g^2+2) m →
-  N%8=3 → Nat.Coprime N (2*m) → Nat.ModEq m N (g^2+2) → m^8<16*N →
+/-- Open quantitative global representation for one explicit form per modulus. -/
+def H2 : Prop := ∀ m N : ℕ, 0< m → Odd m → Squarefree m →
+  m ∉ ({1,3,5,13,15}:Finset ℕ) → N%8=3 → Nat.Coprime N (2*m) →
+  Nat.ModEq m N 2 → m^8<16*N →
   (∀ p : ℕ, p.Prime → ∀ k : ℕ,
-    ∃ x y z : ℤ, Int.ModEq ((p:ℤ)^k) ((x^2+(x+m*y)^2+(g*x+m*z)^2)) N) →
-  ∃ x y z : ℤ, (x^2+(x+m*y)^2+(g*x+m*z)^2)=N
+    ∃ x y z : ℤ, Int.ModEq ((p:ℤ)^k) ((x^2+(x+m*y)^2+(m*z)^2)) N) →
+  ∃ x y z : ℤ, (x^2+(x+m*y)^2+(m*z)^2)=N
+
+lemma odd_coprime_two (m : ℕ) (ho : Odd m) : Nat.Coprime 2 m := by
+  have hm2 : Nat.ModEq 2 m 1 := by change m%2=1%2; exact Nat.odd_iff.mp ho
+  change Nat.gcd 2 m=1
+  rw [Nat.gcd_comm,hm2.gcd_eq]
+  decide
 
 lemma local_data_proved : H1 := by
-  intro m hm ho hs
-  obtain ⟨g,hg,hglt,hco⟩ := odd_coprime_gamma m hm hs
-  exact ⟨g,hg,hglt,hco,fun N hN8 hNm => rayForm_all_local_congruences m g N ho hco hNm hN8⟩
+  intro m hm ho N hN8 hNm
+  simpa using rayForm_all_local_congruences m 0 N ho (by simpa using odd_coprime_two m ho) hNm hN8
 
 theorem main : H1 → H2 → OMA.R_OeisA256544_conjecture_R1.H1 := by
   intro hlocal hglobal m ho hs hex n hn
   have hm : 0< m := by obtain ⟨k,hk⟩ := ho; omega
-  obtain ⟨g,hg,hglt,hco,hlocal⟩ := hlocal m hm ho hs
-  let c := g^2%(8*m)
+  have hco := odd_coprime_two m ho
+  let c := m^2%(8*m)
   let ρ := c/8
   let N := 8*(m*n+ρ)+3
   have hc8 : c%8=1 := by
     dsimp [c]
     rw [Nat.mod_mod_of_dvd _ (show 8∣8*m from ⟨m,rfl⟩)]
-    exact odd_square_mod_eight g hg
+    exact odd_square_mod_eight m ho
   have hclt : c<8*m := Nat.mod_lt _ (by omega)
   have hcρ : c=8*ρ+1 := by dsimp [ρ]; omega
   have hρ : ρ< m := by omega
-  have hcmod : Nat.ModEq m (8*ρ+1) (g^2) := by
+  have hcmod : Nat.ModEq m (8*ρ+1) 0 := by
     rw [← hcρ]
-    exact (Nat.mod_modEq (g^2) (8*m)).of_dvd ⟨8,by ring⟩
+    apply ((Nat.mod_modEq (m^2) (8*m)).of_dvd ⟨8,by ring⟩).trans
+    change m^2%m=0%m
+    simp [Nat.pow_mod]
   have hN8 : N%8=3 := by dsimp [N]; omega
   have hN0 : Nat.ModEq m N (8*ρ+3) := by
     have hp : Nat.ModEq m (8*m*n) 0 := by change (8*m*n)%m=0%m; simp [Nat.mul_mod]
     have he : N=8*m*n+(8*ρ+3) := by dsimp [N]; ring
     rw [he]
     simpa using hp.add (Nat.ModEq.refl (8*ρ+3))
-  have hNm : Nat.ModEq m N (g^2+2) :=
-    hN0.trans (by simpa only [Nat.add_assoc,show (1:ℕ)+2=3 from rfl] using hcmod.add_right 2)
+  have hNm : Nat.ModEq m N 2 :=
+    hN0.trans (by simpa only [Nat.add_assoc,zero_add,show (1:ℕ)+2=3 from rfl] using hcmod.add_right 2)
   have hcoNm : Nat.Coprime N m := by
     change Nat.gcd N m=1
     rw [hNm.gcd_eq]
@@ -443,10 +405,10 @@ theorem main : H1 → H2 → OMA.R_OeisA256544_conjecture_R1.H1 := by
     m^8=m*m^7 := by ring
     _ < m*(128*n) := Nat.mul_lt_mul_of_pos_left hn hm
     _ ≤ 16*N := by dsimp [N]; nlinarith
-  obtain ⟨x,y,z,hrep⟩ := hglobal m g N hm ho hs hex hg hglt hco hN8 hcoN hNm hbig (hlocal N hN8 hNm)
-  have hcmodZ : Int.ModEq m (8*(ρ:ℤ)+1) ((g:ℤ)^2) := by
-    exact_mod_cast Int.natCast_modEq_iff.mpr hcmod
-  apply floors_from_rayForm m n g ρ hm ho hρ hco hcmodZ x y z
+  obtain ⟨x,y,z,hrep⟩ := hglobal m N hm ho hs hex hN8 hcoN hNm hbig (hlocal m hm ho N hN8 hNm)
+  have hcmodZ : Int.ModEq m (8*(ρ:ℤ)+1) ((0:ℤ)^2) := by
+    simpa using Int.natCast_modEq_iff.mpr hcmod
+  apply floors_from_rayForm m n 0 ρ hm ho hρ (by simpa using hco) hcmodZ x y z
   simpa [N] using hrep
 
 end OMA.R_OeisA256544_conjecture_R1_H1_R1
