@@ -22,3 +22,4 @@ theorem main :
   sorry
 
 end OMA.S_oeis_a007491
+-- ci: re-run check-proof
