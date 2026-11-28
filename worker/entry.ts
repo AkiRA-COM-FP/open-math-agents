@@ -62,8 +62,29 @@ function secure(res: Response): Response {
   return r;
 }
 
+// A URL copied out of a sentence often keeps what follows it: "see https://lefttosolve.com/p/X." or "(…/join.txt)" or
+// "**…/board**". No page, id or file of the site ends with such a character, so a GET or HEAD for such a path is sent
+// to the path without it instead of a 404. A closing bracket is kept when the path opens one (a front's name).
+const TAIL = /(?:[.,;:!'"*>\])]|%(?:20|22|27|2[Cc]|3[Ee]|29|5[Dd]))$/;
+function untrailed(url: URL): string | null {
+  if (/^\/(_next|__|cdn-cgi)\//.test(url.pathname)) return null;
+  let p = url.pathname;
+  for (let m = TAIL.exec(p); m && p.length > 1; m = TAIL.exec(p)) {
+    const c = decodeURIComponent(m[0]);
+    if (c === ")" && p.split(/\(|%28/).length > p.split(/\)|%29/).length - 1) break;
+    if (c === "]" && p.split(/\[|%5[Bb]/).length > p.split(/\]|%5[Dd]/).length - 1) break;
+    p = p.slice(0, -m[0].length);
+  }
+  return p !== url.pathname && p.length > 0 ? p : null;
+}
+
 export default {
   async fetch(req: Request, env: unknown, ctx: ExecutionContext): Promise<Response> {
+    if (req.method === "GET" || req.method === "HEAD") {
+      const url = new URL(req.url);
+      const to = untrailed(url);
+      if (to) return new Response(null, { status: 308, headers: { Location: `${to}${url.search}`, "Cache-Control": "public, max-age=3600" } });
+    }
     // Last resort: nothing the site answers is a 500. vinext turns an exception a route did not catch into an empty
     // 500; here it becomes a 503 with Retry-After (agents' tools and webhooks retry it), logged. Every other status,
     // and every successful answer, passes through unchanged.
@@ -115,7 +136,35 @@ const FRESH_UNTIL = "x-page-cache-fresh-until";
 const staleFor = (ttl: number) => Math.min(3600, Math.max(300, ttl * 10));
 const refreshing = new Set<string>();
 
+// vinext keeps its own copy of each page in every isolate. Once that copy is older than the page's revalidate, vinext
+// answers with it (x-vinext-cache: STALE) and renders a new one in the background. The old copy can be very old (an
+// isolate that has not rendered the page for an hour), so it is never stored for the whole data centre: the visitor who
+// asked gets it, and once vinext's new render has finished (in this isolate, a few seconds) the page is asked again
+// and that copy is stored instead. Storing those STALE copies as fresh is what kept the home page's counters behind.
+const isStale = (res: Response) => res.headers.get("x-vinext-cache") === "STALE";
+const VINEXT_REGEN = Symbol.for("vinext.isrCache.pendingRegenerations");
+async function vinextRendered(): Promise<void> {
+  const pending = (globalThis as unknown as Record<symbol, Map<string, Promise<unknown>> | undefined>)[VINEXT_REGEN];
+  const runs = pending instanceof Map ? [...pending.values()] : [];
+  const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+  await Promise.race([runs.length ? Promise.allSettled(runs) : sleep(3000), sleep(15_000)]);
+}
+
+/** Asks vinext for the page (again, after its re-render when it answers STALE) and stores the answer. Background only. */
+async function refreshCopy(url: URL, headers: Headers, bot: boolean, key: Request, cache: Cache, env: unknown, ctx: ExecutionContext): Promise<void> {
+  const again = () => new Request(url.toString(), { method: "GET", headers });
+  let res = await inner.fetch(again(), env, ctx);
+  if (isStale(res)) {
+    await res.body?.cancel();
+    await vinextRendered();
+    res = await inner.fetch(again(), env, ctx);
+  }
+  store(again(), url, res, bot, key, cache, ctx);
+  await res.body?.cancel();
+}
+
 function store(req: Request, url: URL, res: Response, bot: boolean, key: Request, cache: Cache, ctx: ExecutionContext): boolean {
+  if (isStale(res)) return false;
   const m = /s-maxage=(\d+)/.exec(res.headers.get("cache-control") ?? "")
     ?? ((res.headers.get("x-vinext-cache") === "MISS" || SEARCH_ONLY.test(url.pathname)) && routeTtl(url.pathname) ? ["", String(routeTtl(url.pathname))] : null);
   const type = res.headers.get("content-type") ?? "";
@@ -146,9 +195,7 @@ async function route(req: Request, env: unknown, ctx: ExecutionContext): Promise
       const stale = until > 0 && Date.now() > until;
       if (stale && !refreshing.has(key.url)) {
         refreshing.add(key.url);
-        const again = new Request(req.url, { method: "GET", headers: req.headers });
-        ctx.waitUntil(inner.fetch(again, env, ctx)
-          .then((res) => { store(again, url, res, bot, key, cache, ctx); return res.body?.cancel(); })
+        ctx.waitUntil(refreshCopy(url, new Headers(req.headers), bot, key, cache, env, ctx)
           .catch(() => undefined)
           .finally(() => refreshing.delete(key.url)));
       }
@@ -159,7 +206,14 @@ async function route(req: Request, env: unknown, ctx: ExecutionContext): Promise
       return r;
     }
     const res = await inner.fetch(req, env, ctx);
-    store(req, url, res, bot, key, cache, ctx);
+    if (!store(req, url, res, bot, key, cache, ctx) && isStale(res) && !refreshing.has(key.url)) {
+      // vinext's old copy goes to this visitor only; its fresh render is stored once ready
+      refreshing.add(key.url);
+      ctx.waitUntil(vinextRendered()
+        .then(() => refreshCopy(url, new Headers(req.headers), bot, key, cache, env, ctx))
+        .catch(() => undefined)
+        .finally(() => refreshing.delete(key.url)));
+    }
     return res;
   }
 }
