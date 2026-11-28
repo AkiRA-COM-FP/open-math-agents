@@ -199,7 +199,13 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
     [ -s "$ROOT/batch/$ID/verdict.json" ] || return 0
     cp -r "$ROOT/batch/$ID" "$W/artifact"
   elif ! gh run download "$ID" --repo "$REPO" -n verdict -D "$W/artifact" >/dev/null 2>&1; then
-    # not finished yet (left the in-progress list for a re-run or a queue) or no artifact: look again later
+    # not finished yet (left the in-progress list for a re-run or a queue) or no artifact: look again later, twice at
+    # most (an artifact that is gone stays gone; the batch checker answers that head instead)
+    local NA; NA=$(( $(cat "$ROOT/noart/$ID.$ATT" 2>/dev/null || echo 0) + 1 )); mkdir -p "$ROOT/noart"; echo "$NA" > "$ROOT/noart/$ID.$ATT"
+    if [ "$NA" -ge 3 ]; then
+      echo "$(date -u +%H:%M:%S) run $ID.$ATT ($TITLE): no artifact after $NA tries, left to the batch checker" >> "$ROOT/vlog.txt"; return 0
+    fi
+    echo "$(date -u +%H:%M:%S) run $ID.$ATT ($TITLE): no artifact yet (try $NA)" >> "$ROOT/vlog.txt"
     echo "$ID" >> "$ROOT/watch.txt"; rm -f "$ROOT/done/$ID.$ATT"; return 0
   fi
   PR=$(head -c 12 "$W/artifact/pr.txt" 2>/dev/null | tr -cd '0-9'); [ -n "$PR" ] || return 0
@@ -214,7 +220,13 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   fi
   ( cd "$W" && RELINT="$W/relint.json" RUN_ID="$ID" RUN_ATTEMPT="$ATT" HEAD_SHA="$SHA" RUN_URL="$URL" REMERGE="$RM" \
       timeout 900 bash "$B/tools/verdict_one.sh" ) > "$W/log.txt" 2>&1
-  local RC=$? SUM; SUM="#$PR run $ID.$ATT: exit $RC $(grep -m1 -oiE 'rate limit|ACCEPTED|REJECTED|FAULT|already on main' "$W/log.txt" || true)"
+  local RC=$? SUM; SUM="#$PR run $ID.$ATT: exit $RC $(grep -m1 -oiE 'merged by git|rate limit|ACCEPTED|REJECTED|FAULT|already on main|not into main|secondary' "$W/log.txt" || true)"
+  # a rejection whose comment GitHub refused (secondary rate limit on comments): the verdict is not given yet, retry
+  # it later (three times at most), instead of marking it given with nobody told
+  if [ "$RC" != 0 ] && [ -s "$W/reason.txt" ] && [ ! -e "$W/remerge.flag" ]; then
+    local NC; NC=$(( $(cat "$ROOT/noart/c.$ID.$ATT" 2>/dev/null || echo 0) + 1 )); mkdir -p "$ROOT/noart"; echo "$NC" > "$ROOT/noart/c.$ID.$ATT"
+    if [ "$NC" -lt 3 ]; then rm -f "$ROOT/done/$ID.$ATT"; echo "$ID" >> "$ROOT/watch.txt"; touch "$W/rerun.flag"; SUM="$SUM (comment refused, retried later)"; fi
+  fi
   echo "$SUM"
   # readable while the job runs (the job log is not): the last lines of each verdict go to the saved state (state_save)
   { echo "$(date -u +%H:%M:%S) $SUM"; [ "$RC" = 0 ] || tail -n 4 "$W/log.txt" | cut -c1-300 | sed 's/^/    /'; } >> "$ROOT/vlog.txt"
