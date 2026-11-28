@@ -4,7 +4,7 @@ import Mathlib
 /-! Proof for OEIS A195986: for even `n`, the lifting-the-exponent lemma gives
 `v₂(5^n - 3^n) = v₂(n) + 3` and `v₂(3^n - 1) = v₂(n) + 2 ≥ 3`; for odd `n`, both `5^n - 3^n` and
 `3^n - 1` are `2 (mod 4)`, so both valuations are `1`.
-Credit: @SudharsanAnimations -/
+Credit: Sudharsan Rajendiran -/
 
 namespace OMA.P195986
 open OMA.S_oeis_a195986
