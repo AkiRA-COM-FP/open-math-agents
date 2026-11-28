@@ -7,12 +7,15 @@ namespace OMA.R_Erdos89_erdos_89_R1_H2_R1
 
 /-- Packing for squarefree diagonal forms. Count disjoint collinear k-point
 blocks using all form values realized on their union, including cross-block
-differences. The constant is independent of the form and the block size. -/
+differences. Assume any collection of at most k lines covers less than half the union. The constant is independent of the form and the block size. -/
 def H1 : Prop :=
   ∃ C : ℕ, ∀ (d k : ℕ) (F : Finset (Finset (ℤ × ℤ))), 0 < d → Squarefree d → 0 < k →
     (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id →
     (∀ T ∈ F, T.card = k ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
     ((F.biUnion id).card : ℝ) ≤ Real.exp ((k : ℝ)^2) →
+    (∀ G : Finset (Finset (ℤ × ℤ)), G.card ≤ k →
+      (∀ T ∈ G, T ⊆ F.biUnion id ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
+      2*(G.biUnion id).card < (F.biUnion id).card) →
     let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
     F.card ≤ C * (((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card+1)
 
@@ -225,13 +228,103 @@ private theorem value_mono {S T : Finset (ℤ × ℤ)} (h : S ⊆ T) (q : ℤ ×
   obtain ⟨hx,hy,hne⟩ := mem_offDiag.mp hxy
   exact mem_image.mpr ⟨(x,y),mem_offDiag.mpr ⟨h hx,h hy,hne⟩,rfl⟩
 
+/-- A pin at an endpoint of a lattice line distinguishes all its other points. -/
+private theorem line_value_bound (d : ℤ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
+    (hsub : T ⊆ S) (a b c : ℤ) (hab : a ≠ 0 ∨ b ≠ 0)
+    (hl : ∀ p ∈ T, a*p.1+b*p.2=c) :
+    let q := fun z : ℤ × ℤ => z.1^2+d*z.2^2
+    T.card ≤ (S.offDiag.image fun xy => q (xy.1-xy.2)).card + 1 := by
+  classical
+  intro q
+  obtain h | h := T.eq_empty_or_nonempty
+  · simp [h]
+  let t := fun p : ℤ × ℤ => b*p.1-a*p.2
+  obtain ⟨o,ho,hmin⟩ := T.exists_min_image t h
+  let L := a^2+b^2
+  let W := b^2+d*a^2
+  have hL : 0 < L := by dsimp [L]; rcases hab with ha|hb <;> positivity
+  have hW : 0 < W := by dsimp [W]; rcases hab with ha|hb <;> positivity
+  have hx (p) (hp : p ∈ T) : L*(p.1-o.1)=b*(t p-t o) := by
+    dsimp [L,t]; linear_combination a*(hl p hp - hl o ho)
+  have hy (p) (hp : p ∈ T) : L*(p.2-o.2)= -a*(t p-t o) := by
+    dsimp [L,t]; linear_combination b*(hl p hp - hl o ho)
+  have norm (p) (hp : p ∈ T) : L^2*q (p-o) = W*(t p-t o)^2 := by
+    change L^2*((p.1-o.1)^2+d*(p.2-o.2)^2) = _
+    calc
+      _ = (L*(p.1-o.1))^2+d*(L*(p.2-o.2))^2 := by ring
+      _ = _ := by rw [hx p hp,hy p hp]; dsimp [W]; ring
+  have hinj : Set.InjOn (fun p => q (p-o)) (T : Set (ℤ × ℤ)) := by
+    intro p hp r hr he
+    change q (p-o) = q (r-o) at he
+    have hs := (norm p hp).symm.trans ((congrArg (L^2 * ·) he).trans (norm r hr))
+    have hs' := mul_left_cancel₀ hW.ne' hs
+    have ht : t p-t o = t r-t o := by
+      have h1 := hmin p hp
+      have h2 := hmin r hr
+      rcases sq_eq_sq_iff_eq_or_eq_neg.mp hs' with hh|hh <;> omega
+    have ex := (hx p hp).trans ((congrArg (b * ·) ht).trans (hx r hr).symm)
+    have ey := (hy p hp).trans ((congrArg (-a * ·) ht).trans (hy r hr).symm)
+    exact Prod.ext (by have := mul_left_cancel₀ hL.ne' ex; omega)
+      (by have := mul_left_cancel₀ hL.ne' ey; omega)
+  have hmap : (T.erase o).image (fun p => q (p-o)) ⊆
+      S.offDiag.image (fun xy => q (xy.1-xy.2)) := by
+    intro v hv
+    obtain ⟨p,hp,rfl⟩ := mem_image.mp hv
+    obtain ⟨hne,hp'⟩ := mem_erase.mp hp
+    exact mem_image.mpr ⟨(p,o),mem_offDiag.mpr ⟨hsub hp',hsub ho,hne⟩,rfl⟩
+  have hh := card_le_card hmap
+  rw [card_image_of_injOn (hinj.mono (by exact_mod_cast erase_subset o T))] at hh
+  have := card_erase_add_one ho
+  omega
+
+private theorem packing_from_spread (packing : H1) :
+  ∃ C : ℕ, ∀ (d k : ℕ) (F : Finset (Finset (ℤ × ℤ))), 0 < d → Squarefree d → 0 < k →
+    (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id →
+    (∀ T ∈ F, T.card = k ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
+    ((F.biUnion id).card : ℝ) ≤ Real.exp ((k : ℝ)^2) →
+    let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
+    F.card ≤ C * (((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  obtain ⟨C,pack⟩ := packing
+  refine ⟨max C 2,?_⟩
+  intro d k F hd hsq hk hdis hline hsize q
+  let S := F.biUnion id
+  let D := (S.offDiag.image fun xy => q (xy.1-xy.2)).card
+  change F.card ≤ max C 2 * (D+1)
+  by_cases spread : ∀ G : Finset (Finset (ℤ × ℤ)), G.card ≤ k →
+      (∀ T ∈ G, T ⊆ S ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
+      2*(G.biUnion id).card < S.card
+  · exact (pack d k F hd hsq hk hdis hline hsize spread).trans
+      (Nat.mul_le_mul_right _ (le_max_left C 2))
+  push Not at spread
+  obtain ⟨G,hkG,hG,hhalf⟩ := spread
+  have hcov : (G.biUnion id).card ≤ k*(D+1) := calc
+    _ ≤ ∑ T ∈ G, T.card := card_biUnion_le
+    _ ≤ ∑ _T ∈ G, (D+1) := by
+      apply sum_le_sum
+      intro T hT
+      obtain ⟨hsub,a,b,c,hab,hl⟩ := hG T hT
+      exact line_value_bound d (by exact_mod_cast hd) S T hsub a b c hab hl
+    _ ≤ _ := by simpa using Nat.mul_le_mul_right (D+1) hkG
+  have hcard : S.card = F.card*k := by
+    dsimp [S]; rw [card_biUnion hdis]
+    calc
+      _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => (hline T hT).1
+      _ = _ := by simp
+  have hprod : F.card*k ≤ (2*(D+1))*k := calc
+    _ = S.card := hcard.symm
+    _ ≤ 2*(G.biUnion id).card := hhalf
+    _ ≤ 2*(k*(D+1)) := Nat.mul_le_mul_left 2 hcov
+    _ = _ := by ring
+  exact (Nat.le_of_mul_le_mul_right hprod hk).trans (Nat.mul_le_mul_right _ (le_max_right C 2))
+
 private theorem diagonal_bound (packing : H1) :
     ∃ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
       0 < k → (S.card : ℝ) ≤ Real.exp ((k : ℝ)^2) →
       let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
       S.card ≤ k*(C+1)*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
   classical
-  obtain ⟨C,pack⟩ := packing
+  obtain ⟨C,pack⟩ := packing_from_spread packing
   refine ⟨C,?_⟩
   intro d S k hd hsq hk hsize q
   let D := fun T : Finset (ℤ × ℤ) => (T.offDiag.image fun xy => q (xy.1-xy.2)).card
