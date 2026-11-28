@@ -4,7 +4,7 @@ import Mathlib
 # Hyponontiling Wang tiles
 
 Source: https://mathoverflow.net/questions/466776 (domotorp)
-Credit: @SudharsanAnimations
+Credit: Sudharsan Rajendiran
 
 Call a finite collection of tiles *tiling* if the plane can be tiled using each tile at least
 once. Is there a collection of at least `3` tiles that is not tiling, but such that removing any
