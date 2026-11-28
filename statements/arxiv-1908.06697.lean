@@ -5,7 +5,7 @@ import Mathlib
 
 Source: https://arxiv.org/abs/1908.06697 (Bellitto, Klimošová, Merker, Witkowski, Yuditsky,
 "Counterexamples to Thomassen's conjecture on decomposition of cubic graphs", 2019)
-Credit: @SudharsanAnimations
+Credit: Sudharsan Rajendiran
 
 Thomassen conjectured that the vertices of every 3-connected cubic graph on at least `8`
 vertices can be coloured blue and red so that the blue subgraph has maximum degree at most `1`
