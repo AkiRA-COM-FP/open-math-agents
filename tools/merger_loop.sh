@@ -8,7 +8,7 @@
 # over hours silently dropped the oldest runs, whose proofs then waited for hours without a verdict).
 # v3: a green check run means accepted and its title carries the PR number, so accepted runs need no artifact
 # download; the loop also restarts itself on a new version of this script pushed to main (state kept in done/).
-# v4: verdicts go oldest pull request first (the filing order decides who solves a problem first), at most $BATCH per
+# v4: verdicts go oldest pull request first (the filing order decides who solves a problem first), slots fed without a barrier,
 # loop so polling never pauses for long; runs listed in base/tools/requeue.tsv (lost by earlier versions) are given
 # their verdict once; an accepted run whose merge was refused is retried even after a restart; credits that the site
 # did not record are retried every 10 minutes.
@@ -61,21 +61,59 @@ else
   BPID=""; LAST_BACKLOG=0; LAST_SCAN=0
 fi
 touch "$ROOT/queue.tsv"
-SLOTS=${SLOTS:-4}; BATCH=${BATCH:-40}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0; CPID=""
+SLOTS=${SLOTS:-8}; FEED=${FEED:-25}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0; CPID=""
+wait_slots() { local i; for i in $(seq 1 "$SLOTS"); do [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""; done; }
 iso() { date -u -d "@$1" +%Y-%m-%dT%H:%M:%SZ; }
+nap() { local S=$1 L=$(( END - $(date -u +%s) )); [ "$S" -gt "$L" ] && S=$L; [ "$S" -gt 0 ] && sleep "$S"; return 0; }
+# The merger's state (the queue, what was given, refused merges to retry, credits to resend) is pushed every 5 minutes
+# to the branch merger-state, as one commit that replaces the previous one, and read back by the next merger: a
+# hand-over used to drop the whole queue (2,805 items on 28 November). Git, not the API: no budget. Never main.
+state_save() {
+  local D="$ROOT/state_out" G="git -C $ROOT/base" T C F; rm -rf "$D"; mkdir -p "$D"
+  cp "$ROOT/queue.tsv" "$D/queue.tsv" 2>/dev/null || : > "$D/queue.tsv"
+  ls "$ROOT/done" > "$D/done.list" 2>/dev/null
+  (cd "$ROOT/remerge" && for F in *; do [ -f "$F" ] && printf '%s\t%s\n' "$F" "$(cat "$F")"; done) > "$D/remerge.tsv" 2>/dev/null
+  cp "$ROOT/rejected.txt" "$D/rejected.txt" 2>/dev/null || : > "$D/rejected.txt"
+  cp "$CREDIT_RETRY_FILE" "$D/credit_retry.txt" 2>/dev/null || : > "$D/credit_retry.txt"
+  date -u +%s > "$D/saved"
+  T=$(for F in queue.tsv done.list remerge.tsv rejected.txt credit_retry.txt saved; do
+        printf '100644 blob %s\t%s\n' "$($G hash-object -w "$D/$F")" "$F"; done | $G mktree) || return 0
+  C=$($G -c user.name=oma-merger -c user.email=oma-merger@users.noreply.github.com commit-tree "$T" -m "merger state") || return 0
+  timeout 60 $G push -q --force origin "$C:refs/heads/merger-state" 2>/dev/null && echo "merger: state saved ($(wc -l < "$D/queue.tsv") queued)"
+  LAST_STATE=$(date -u +%s)
+}
+state_load() {  # a new merger (not a restart in place): what the previous one left, if it is less than 12 hours old
+  local G="git -C $ROOT/base" S
+  timeout 60 $G fetch -q --depth 1 origin merger-state 2>/dev/null || { echo "merger: no saved state"; return 0; }
+  S=$($G show FETCH_HEAD:saved 2>/dev/null || echo 0)
+  [ $(( $(date -u +%s) - S )) -lt 43200 ] || { echo "merger: saved state too old, ignored"; return 0; }
+  $G show FETCH_HEAD:queue.tsv >> "$ROOT/queue.tsv" 2>/dev/null
+  (cd "$ROOT/done" && $G show FETCH_HEAD:done.list 2>/dev/null | grep -E '^[A-Za-z0-9._-]+$' | xargs -r touch)
+  $G show FETCH_HEAD:remerge.tsv 2>/dev/null | while IFS=$'\t' read -r F N; do
+    [[ "$F" =~ ^[0-9]+$ && "$N" =~ ^[0-9]+$ ]] && echo "$N" > "$ROOT/remerge/$F"; done
+  $G show FETCH_HEAD:rejected.txt >> "$ROOT/rejected.txt" 2>/dev/null
+  $G show FETCH_HEAD:credit_retry.txt >> "$CREDIT_RETRY_FILE" 2>/dev/null
+  echo "merger: resumed the saved state of $(iso "$S"): $(wc -l < "$ROOT/queue.tsv") queued, $(ls "$ROOT/done" | wc -l) given"
+}
+LAST_STATE=0
 JQ_RUN='[.id, .head_sha, .run_attempt, .html_url, .updated_at, (.conclusion // ""), (.display_title // "")] | @tsv'
 remaining() { gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset)"' 2>/dev/null || echo "999 0"; }
 budget() {  # never let the repository run dry: other jobs (checks, deploys) need the API too; GraphQL is checked too
   local rem reset grem greset; read -r rem reset grem greset < <(gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset) \(.resources.graphql.remaining) \(.resources.graphql.reset)"' 2>/dev/null || echo "999 0 999 0")
   echo "budget: core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv")"
-  if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; sleep $(( reset - $(date -u +%s) + 5 )); fi
-  if [ "${grem:-999}" -lt 60 ]; then echo "GraphQL budget low ($grem left), waiting for the reset"; sleep $(( greset - $(date -u +%s) + 5 )); fi
+  # the wait never runs past the end of this job, and the queue is saved first (the next merger resumes it)
+  if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; state_save; nap $(( reset - $(date -u +%s) + 5 )); fi
+  if [ "${grem:-999}" -lt 60 ]; then echo "GraphQL budget low ($grem left), waiting for the reset"; state_save; nap $(( greset - $(date -u +%s) + 5 )); fi
 }
-refresh() {  # main moved on (merges): pull it and sync each verdict slot's copy (rsync: only what changed)
+refresh() {  # main moved on (merges): pull it; each verdict slot's copy is synced when the slot next starts (sync_slot)
   git -C "$ROOT/base" fetch -q --depth 1 origin main && git -C "$ROOT/base" reset -q --hard FETCH_HEAD; git -C "$ROOT/base" clean -fdq
-  for d in $(seq 1 "$SLOTS"); do
-    if command -v rsync >/dev/null; then rsync -a --delete "$ROOT/base/" "$ROOT/base_$d/"; else rm -rf "$ROOT/base_$d"; cp -a "$ROOT/base" "$ROOT/base_$d"; fi
-  done
+  BASE_REV=$(git -C "$ROOT/base" rev-parse HEAD 2>/dev/null || date +%s%N)
+}
+declare -A SYNCED
+sync_slot() {  # $1 slot: bring its copy of main up to date (rsync: only what changed), never while it works
+  [ "${SYNCED[$1]:-}" = "$BASE_REV" ] && [ -d "$ROOT/base_$1" ] && return 0
+  if command -v rsync >/dev/null; then rsync -a --delete "$ROOT/base/" "$ROOT/base_$1/"; else rm -rf "$ROOT/base_$1"; cp -a "$ROOT/base" "$ROOT/base_$1"; fi
+  SYNCED[$1]=$BASE_REV
 }
 scan() {  # completed runs created in the last $1 seconds, in 30-minute slices (at most 1,000 runs per query)
   local NOW A B FLOOR; NOW=$(date -u +%s); FLOOR=$(( START - INITIAL_BACK ))
@@ -175,6 +213,7 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   git -C "$B" clean -fdq -- proofs reductions statements 2>/dev/null || true
 }
 refresh
+[ -n "${MERGER_RESUME:-}" ] || state_load
 LLID="$$-$(date +%s%N)"; echo "$LLID" > "$ROOT/ledger_loop.id"; bash "$ROOT/base/tools/ledger_post.sh" loop "$LLID" & LLOOP=$!
 while [ "$(date -u +%s)" -lt "$END" ]; do
   NOW=$(date -u +%s); budget
@@ -191,10 +230,10 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
   # 2. every 10 minutes (and at start): a full scan of runs created in the last three hours, in slices
   if [ $(( NOW - LAST_SCAN )) -ge 600 ]; then LAST_SCAN=$NOW; scan 10800 >> cand.tsv; fi
   # 3. re-runs and runs that were not finished when first seen
-  for WID in $(sort -u watch.txt); do
+  mv watch.txt watch.cur 2>/dev/null || : > watch.cur; touch watch.txt
+  for WID in $(sort -u watch.cur); do
     gh api "repos/$REPO/actions/runs/$WID" --jq "select(.status == \"completed\" and .conclusion != \"cancelled\") | $JQ_RUN" >> cand.tsv 2>/dev/null || true
   done
-  : > watch.txt
   # 3b. verdicts of the batch checker (batch-check.yml), every 90 seconds at most (tools/batch_verdicts.sh: ~4 API calls)
   if [ -f base/tools/batch_verdicts.sh ] && [ $(( NOW - ${LAST_BATCH:-0} )) -ge 90 ]; then
     # three hours back even after a hand-over: a queue lost with the previous merger is found again (cheaply: verdicts
@@ -211,7 +250,7 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
   if [ $(( NOW - LAST_REFRESH )) -ge 120 ]; then
     LAST_REFRESH=$NOW; refresh
     if [ "$(sha1sum "$SELF" | cut -d' ' -f1)" != "$SELF_SHA" ]; then
-      echo "merger: new version on main, restarting in place"
+      echo "merger: new version on main, restarting in place"; wait_slots
       export MERGER_RESUME=1 MERGER_START=$START MERGER_END=$END MERGER_BPID=$BPID MERGER_LAST_BACKLOG=$LAST_BACKLOG MERGER_INITIAL_BACK=$INITIAL_BACK
       exec bash "$SELF"
     fi
@@ -234,18 +273,25 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
     printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$N" "$ID" "$SHA" "$ATT" "$URL" "$UPD" "$CONC" "$TITLE" "${MODE:-}" >> next.tsv
   done < all.tsv
   sort -t$'\t' -k1,1n -k2,2n next.tsv | cut -f2- > sorted.tsv
-  head -n "$BATCH" sorted.tsv > batch.tsv; tail -n +"$(( BATCH + 1 ))" sorted.tsv > queue.tsv
-  while IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE; do
-    touch "done/$ID.$ATT"
-    OLD=0; [ "$(date -u -d "$UPD" +%s 2>/dev/null || echo 0)" -lt "$START" ] && OLD=1
-    [ -n "${MODE:-}" ] && OLD=0   # requeued runs: checked by hand to have no verdict (or a refused merge)
-    while :; do
-      FREE=""; for i in $(seq 1 "$SLOTS"); do { [ -z "${SPID[$i]:-}" ] || ! kill -0 "${SPID[$i]}" 2>/dev/null; } && { FREE=$i; break; }; done
-      [ -n "$FREE" ] && break; sleep 1
+  # Slots are fed continuously, oldest pull request first: a slot that finishes takes the next item at once, and the
+  # loop goes back to polling after about $FEED seconds (no barrier waiting for the slowest of a batch any more).
+  mapfile -t QL < sorted.tsv; QI=0; T0=$(date -u +%s)
+  while [ "$QI" -lt "${#QL[@]}" ]; do
+    for i in $(seq 1 "$SLOTS"); do
+      [ "$QI" -lt "${#QL[@]}" ] || break
+      { [ -z "${SPID[$i]:-}" ] || ! kill -0 "${SPID[$i]}" 2>/dev/null; } || continue
+      [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""
+      IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE <<< "${QL[$QI]}"; QI=$((QI + 1))
+      touch "done/$ID.$ATT"
+      OLD=0; [ "$(date -u -d "$UPD" +%s 2>/dev/null || echo 0)" -lt "$START" ] && OLD=1
+      [ -n "${MODE:-}" ] && OLD=0   # requeued runs: checked by hand to have no verdict (or a refused merge)
+      sync_slot "$i"
+      verdict "$ID" "$SHA" "$ATT" "$URL" "$OLD" "$i" "$CONC" "$TITLE" "${MODE:-}" & SPID[$i]=$!
     done
-    verdict "$ID" "$SHA" "$ATT" "$URL" "$OLD" "$FREE" "$CONC" "$TITLE" "${MODE:-}" & SPID[$FREE]=$!
-  done < batch.tsv
-  for i in $(seq 1 "$SLOTS"); do [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""; done
+    [ $(( $(date -u +%s) - T0 )) -ge "$FEED" ] && break
+    sleep 1
+  done
+  printf '%s\n' "${QL[@]:$QI}" | awk 'NF' > queue.tsv
   # 6. credits the site did not record (it answered an error): retry every 10 minutes
   # in the background and at most 5 minutes per pass, never blocking the verdicts (the site may be down for hours)
   if [ -s "$CREDIT_RETRY_FILE" ] && [ $(( NOW - LAST_CREDIT )) -ge 600 ] && { [ -z "${CPID:-}" ] || ! kill -0 "$CPID" 2>/dev/null; }; then
@@ -265,8 +311,10 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
     ( cd "$B" && LANES=1 BACKLOG_MIN_BUDGET=800 timeout 3000 bash "$B/base/tools/backlog_pass.sh" 2>&1 | grep -E "merged|batch|done:|budget" | sed 's/^/backlog: /' ) &
     BPID=$!
   fi
+  [ $(( NOW - LAST_STATE )) -ge 300 ] && state_save
   [ -s queue.tsv ] || sleep 30
 done
+wait_slots; state_save
 echo stop > "$ROOT/ledger_loop.id"; kill "$LLOOP" 2>/dev/null; bash "$ROOT/base/tools/ledger_post.sh" once   # last lines
 wait
 echo "merger: time is up; the next scheduled run takes over"

@@ -103,10 +103,21 @@ case "$VERDICT" in
       gh api -X DELETE "repos/$REPO/issues/$PR/labels/needs-human-review" >/dev/null 2>&1 || true
     fi
     {
+      MERGED=0; GMRC=1; OUT=""
+      gitmerge() { PR="$PR" HEAD_SHA="$HEAD_SHA" FPATH="$FPATH" MODE="$MODE" TITLE="$(jq -r '.title // ""' pr.json)" bash base/tools/git_merge.sh 2> git_merge.log; }
+      # Merge by git first while tools/merge_by_git is on main (delete that one file to go back to the merge API):
+      # tools/git_merge.sh pushes one commit on main that adds exactly the checked file of the pinned head, with the
+      # head as second parent so GitHub marks the pull request merged, after the duplicate and shortest-proof rules
+      # against main at push time. No API call, where the merge API costs one or two and refuses some pull requests.
+      # The merged pull request is then the verdict: no comment. Exit 2 there: a rule says no (handled below); any
+      # other failure falls back to the merge API.
+      if [ -f base/tools/merge_by_git ] && [ -f base/tools/git_merge.sh ]; then
+        if GM="$(gitmerge)"; then MERGED=1; MERGE_SHA="$GM"; echo "merged by git: $GM"; else GMRC=$?; echo "git merge ($GMRC): $(tail -c 300 git_merge.log)"; fi
+      fi
+      if [ "$MERGED" = 0 ] && [ "$GMRC" != 2 ]; then
       if [ "${REMERGE:-0}" = 0 ]; then comment "$MSG"; fi   # a merge retry does not repeat the verdict
       # Many verdicts merge at once: GitHub refuses a merge when main moved a moment before ("Base branch
       # was modified"). That is a race, not a rejection: retry with a random pause, a few times.
-      MERGED=0
       # GitHub never merges a draft: an accepted draft is marked ready first.
       if [ "$(jq -r .draft pr.json)" = "true" ]; then
         gh pr ready "$PR" --repo "$REPO" || true
@@ -125,10 +136,19 @@ case "$VERDICT" in
         echo "$OUT" | grep -qiE "base branch was modified|try the merge again|is not mergeable|still a draft|timeout|502|503" || break
         sleep $(( (RANDOM % 20) + 5 * TRY ))
       done
+      # Both merge APIs refuse this token for some pull requests ("Resource not accessible by integration": #7514,
+      # #7562, #7031 stayed open for a day): the same merge by git, if not tried above.
+      if [ "$MERGED" = 0 ] && [ ! -f base/tools/merge_by_git ] && printf '%s' "$OUT" | grep -q "not accessible by integration" && [ -f base/tools/git_merge.sh ]; then
+        if GM="$(gitmerge)"; then MERGED=1; MERGE_SHA="$GM"; echo "merged by git: $GM"; else GMRC=$?; echo "git merge ($GMRC): $(tail -c 300 git_merge.log)"; fi
+      fi
+      fi
       if [ "$MERGED" = 1 ]; then
         # A merge made with GITHUB_TOKEN triggers no other workflow, so credit it here.
         CREDIT_FILES=files.json CREDIT_PR=pr.json MERGE_SHA="${MERGE_SHA:-}" bash base/tools/credit.sh "$PR" || true
-      elif [ "$MODE" = new ] && gh api "repos/$REPO/contents/$FPATH?ref=main" >/dev/null 2>&1; then
+      elif [ "$GMRC" = 2 ] && grep -q "not shorter" git_merge.log; then
+        printf 'a shorter proof was merged first\n' > reason.txt
+        comment "Not merged: a proof of \`$PID\` at least as short was merged on main meanwhile (the shortest-proof rule is checked again when merging)."
+      elif [ "$GMRC" = 2 ] || { [ "$MODE" = new ] && gh api "repos/$REPO/contents/$FPATH?ref=main" >/dev/null 2>&1; }; then
         printf 'already on main: another proof of this problem was merged first\n' > reason.txt
         comment "Not merged: \`$FPATH\` is already on main (someone else's proof was merged first)."
       elif [ "${REMERGE:-0}" -lt 6 ]; then
