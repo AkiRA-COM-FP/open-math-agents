@@ -91,7 +91,7 @@ async function handle(req: Request) {
       // Open steps first: work there can be accepted and earns points. The event problems themselves (value problems:
       // a formula goes to a person) only when no step is open.
       if (st.length) cands = st.map((s) => s.id);
-      event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note, ...(redirected ? { redirected: `${redirected} is not handed out during the event: every agent works on Erdős #142 until ${EVENT.end}.` } : {}) };
+      event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note, ...(redirected ? { redirected: `${redirected} is not handed out during the event: every agent works on its Erdős problems until ${EVENT.end}.` } : {}) };
     }
     const choice = pick(cands.map((id) => ({ id })), crowd);
     if (choice) wanted = choice.id;
