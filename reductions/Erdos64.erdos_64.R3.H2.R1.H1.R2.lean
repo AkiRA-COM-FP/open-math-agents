@@ -1,4 +1,5 @@
 import OMAReductions.R_Erdos64_erdos_64_R3_H2_R1
+import Mathlib.Algebra.BigOperators.Group.Finset.Sigma
 
 /-!
 Contract the prescribed edge in the bipartite marked problem of PR #2529. PR #31004 motivates the marked bipartite case.
@@ -351,6 +352,276 @@ theorem cycleOnBank (n : ℕ)
   obtain ⟨k,v,c,hk,hc,hl,miss,_⟩ := avoidBelow n small K ba deg size col colorOK
   have valid := OMA.R_Erdos64_erdos_64_R3_H2_R1.forgetAddedEdge c miss
   exact ⟨k,v,c.transfer G valid,hk,hc.transfer valid,(c.length_transfer valid).trans hl⟩
+
+private theorem oneLost {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (W : Set V) [DecidablePred (· ∈ W)] (v : W) (d : V) (hd : d ∉ W)
+    (vd : G.Adj v d) (only : ∀ t, G.Adj v t → t ∉ W → t = d) :
+    (G.induce W).degree v + 1 = G.degree v.val := by
+  classical
+  let e := Function.Embedding.subtype W
+  have eq : G.neighborFinset v.val = insert d (((G.induce W).neighborFinset v).map e) := by
+    ext t
+    simp only [mem_neighborFinset,Finset.mem_insert,Finset.mem_map]
+    constructor
+    · intro h
+      by_cases ht : t ∈ W
+      · exact Or.inr ⟨⟨t,ht⟩,h,rfl⟩
+      · exact Or.inl (only t h ht)
+    · rintro (rfl | ⟨w,hw,rfl⟩)
+      · exact vd
+      · exact hw
+  have fresh : d ∉ ((G.induce W).neighborFinset v).map e := by
+    rintro h
+    obtain ⟨w,_,hw⟩ := Finset.mem_map.mp h
+    exact hd (hw ▸ w.property)
+  rw [← G.card_neighborFinset_eq_degree v.val,eq,Finset.card_insert_of_notMem fresh,Finset.card_map,
+    card_neighborFinset_eq_degree]
+
+
+private theorem networkDegrees {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (W : Set V) [DecidablePred (· ∈ W)] (x y : W) (xy : x ≠ y) (dx dy : V)
+    (dxo : dx ∉ W) (dyo : dy ∉ W) (xd : G.Adj x dx) (yd : G.Adj y dy)
+    (ports : ∀ u : W, ∀ v ∉ W, G.Adj u v → (u = x ∧ v = dx) ∨ (u = y ∧ v = dy))
+    (cub : ∀ u : W, G.degree u.val = 3) :
+    (G.induce W).degree x = 2 ∧ (G.induce W).degree y = 2 ∧
+      ∀ u, u ≠ x → u ≠ y → (G.induce W).degree u = 3 := by
+  classical
+  constructor
+  · have h := oneLost G W x dx dxo xd (fun t ht out =>
+      (ports x t out ht).elim And.right (fun e => (xy e.1).elim))
+    rw [cub] at h
+    omega
+  constructor
+  · have h := oneLost G W y dy dyo yd (fun t ht out =>
+      (ports y t out ht).elim (fun e => (xy e.1.symm).elim) And.right)
+    rw [cub] at h
+    omega
+  · intro u ux uy
+    rw [degree_induce_of_neighborSet_subset (show G.neighborSet u.val ⊆ W by
+      intro t ht
+      by_contra out
+      exact (ports u t out ht).elim (fun h => ux h.1) (fun h => uy h.1))]
+    exact cub u
+
+
+/-- In a cubic cut side, adjacency between the deficient terminals can also
+be handled. Delete both terminals; their exits either form a square with
+them or give a smaller side with nonadjacent terminals. -/
+theorem cycleOnCubicBank (n : ℕ)
+    (small : ∀ (W : Type) (K : SimpleGraph W) [Fintype W] [DecidableRel K.Adj],
+      Fintype.card W ≤ n → 3 ≤ K.minDegree →
+      ∃ (k : ℕ) (w : W) (c : K.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] {a b : V}
+    (da : G.degree a = 2) (db : G.degree b = 2)
+    (interior : ∀ t, t ≠ a → t ≠ b → G.degree t = 3) (size : Fintype.card V ≤ n+1)
+    (col : V → Bool) (opposite : col a ≠ col b)
+    (proper : ∀ u v, G.Adj u v → col u ≠ col v) :
+    ∃ (k : ℕ) (v : V) (c : G.Walk v v), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k := by
+  classical
+  by_cases edge : G.Adj a b
+  · have second {i j : V} (ij : G.Adj i j) (deg : G.degree i = 2) :
+        ∃ x, x ≠ j ∧ G.Adj i x ∧ ∀ t, G.Adj i t → t = j ∨ t = x := by
+      have je := (G.mem_neighborFinset ..).2 ij
+      have card : ((G.neighborFinset i).erase j).card = 1 := by
+        rw [Finset.card_erase_of_mem je,card_neighborFinset_eq_degree,deg]
+      obtain ⟨x,hx⟩ := Finset.card_eq_one.mp card
+      have spec (t : V) : t ≠ j ∧ G.Adj i t ↔ t = x := by
+        simpa using (show t ∈ (G.neighborFinset i).erase j ↔ t ∈ ({x} : Finset V) by rw [hx])
+      exact ⟨x,((spec x).2 rfl).1,((spec x).2 rfl).2,fun t h => or_iff_not_imp_left.mpr
+        (fun tj => (spec t).1 ⟨tj,h⟩)⟩
+    obtain ⟨x,xb,ax,atA⟩ := second edge da
+    obtain ⟨y,ya,by',atB⟩ := second edge.symm db
+    have ac := proper _ _ ax
+    have bc := proper _ _ by'
+    have diff : col x ≠ col y := by
+      cases h₁ : col a <;> cases h₂ : col b <;> cases h₃ : col x <;> cases h₄ : col y <;> simp_all
+    have xy : x ≠ y := fun h => diff (congrArg col h)
+    by_cases link : G.Adj x y
+    · let c : G.Walk a a := .cons ax (.cons link (.cons by'.symm (.cons edge.symm .nil)))
+      refine ⟨2,a,c,by decide,?_,rfl⟩
+      apply Walk.isCycle_iff_isPath_tail_and_le_length.mpr
+      constructor
+      · simp [c,Walk.cons_isPath_iff,ax.ne.symm,xb,xy,by'.ne.symm,ya,edge.ne.symm]
+      · exact (by decide : 3 ≤ 4)
+    let W : Set V := {t | t ≠ a ∧ t ≠ b}
+    let X : W := ⟨x,ax.ne.symm,xb⟩
+    let Y : W := ⟨y,ya,by'.ne.symm⟩
+    have ports (u : W) (v : V) (out : v ∉ W) (uv : G.Adj u v) :
+        (u = X ∧ v = a) ∨ (u = Y ∧ v = b) := by
+      by_cases va : v = a
+      · subst v
+        rcases atA _ uv.symm with h | h
+        · exact (u.property.2 h).elim
+        · exact Or.inl ⟨Subtype.ext h,rfl⟩
+      have vb : v = b := by by_contra h; exact out ⟨va,h⟩
+      subst v
+      rcases atB _ uv.symm with h | h
+      · exact (u.property.1 h).elim
+      · exact Or.inr ⟨Subtype.ext h,rfl⟩
+    obtain ⟨dx,dy,others⟩ := networkDegrees G W X Y (fun h => xy (congrArg Subtype.val h))
+      a b (fun h => h.1 rfl) (fun h => h.2 rfl) ax.symm by'.symm ports (fun u => interior u u.property.1 u.property.2)
+    obtain ⟨k,v,c,hk,hc,hl⟩ := cycleOnBank n small (G.induce W) (a := X) (b := Y) link
+      dx.ge dy.ge (fun t tx ty => (others t tx ty).ge)
+      ((Fintype.card_le_of_injective Subtype.val Subtype.val_injective).trans size)
+      (fun t => col t.val) diff (fun u v h => proper u v h)
+    exact ⟨k,v.val,c.map (Embedding.induce W).toHom,hk,hc.map Subtype.val_injective,(c.length_map _).trans hl⟩
+  · exact cycleOnBank n small G edge da.ge db.ge (fun t ha hb => (interior t ha hb).ge)
+      size col opposite proper
+
+
+private theorem sumNeighbors {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    [DecidableEq V] (S : Finset V) (u : V) :
+    (∑ v ∈ S, if G.Adj u v then 1 else 0) = (G.neighborFinset u ∩ S).card := by
+  rw [← Finset.sum_filter]
+  simp only [Finset.sum_const,smul_eq_mul,mul_one]
+  congr 1
+  ext v
+  simp [and_comm]
+
+private theorem oneTerm {V : Type} (S : Finset V) (d : V → ℕ) (one : ∑ u ∈ S, d u = 1) :
+    ∃ x ∈ S, d x = 1 ∧ ∀ y ∈ S, y ≠ x → d y = 0 := by
+  classical
+  obtain ⟨x,hx,pos⟩ : ∃ x ∈ S, d x ≠ 0 := by
+    by_contra! h
+    have h0 := Finset.sum_eq_zero h
+    omega
+  have p := S.sum_erase_add d hx
+  have dx : d x = 1 := by omega
+  refine ⟨x,hx,dx,?_⟩
+  intro y hy ne
+  have q := (S.erase x).sum_erase_add d (Finset.mem_erase.mpr ⟨ne,hy⟩)
+  omega
+
+/-- Two outgoing incidences in a cubic bipartite side belong to distinct
+vertices of opposite colors. Counting degrees in each class determines this
+even when the endpoints of the cut have not been specified. -/
+theorem twoDeficits {V : Type} [Fintype V] (K : SimpleGraph V) [DecidableRel K.Adj]
+    (col : V → Bool) (proper : ∀ u v, K.Adj u v → col u ≠ col v) (d : V → ℕ)
+    (cubic : ∀ u, K.degree u + d u = 3) (cut : ∑ u, d u = 2) :
+    ∃ a b, col a ≠ col b ∧ K.degree a = 2 ∧ K.degree b = 2 ∧
+      ∀ u, u ≠ a → u ≠ b → K.degree u = 3 := by
+  classical
+  let L := Finset.univ.filter (fun u => col u = false)
+  have left (u : V) : u ∈ L ↔ col u = false := by simp [L]
+  have right (u : V) : u ∈ Lᶜ ↔ col u ≠ false := by simp [L]
+  have row (u : V) (ul : u ∈ L) :
+      (∑ v ∈ Lᶜ, if K.Adj u v then 1 else 0) = K.degree u := by
+    rw [sumNeighbors,Finset.inter_eq_left.mpr,card_neighborFinset_eq_degree]
+    intro v hv
+    exact (right v).2 (fun vl => proper u v ((K.mem_neighborFinset ..).1 hv) (((left u).1 ul).trans vl.symm))
+  have column (v : V) (vr : v ∈ Lᶜ) :
+      (∑ u ∈ L, if K.Adj u v then 1 else 0) = K.degree v := by
+    simp_rw [show ∀ u, K.Adj u v ↔ K.Adj v u from fun u => K.adj_comm u v]
+    rw [sumNeighbors,Finset.inter_eq_left.mpr,card_neighborFinset_eq_degree]
+    intro u hu
+    apply (left u).2
+    have e := proper v u ((K.mem_neighborFinset ..).1 hu)
+    have ne := (right v).1 vr
+    cases h₁ : col v <;> cases h₂ : col u <;> simp_all
+  have balance : (∑ u ∈ L, K.degree u) = ∑ v ∈ Lᶜ, K.degree v := by
+    rw [← Finset.sum_congr rfl row,Finset.sum_comm]
+    exact Finset.sum_congr rfl column
+  have counts (T : Finset V) : (∑ u ∈ T, K.degree u) + (∑ u ∈ T, d u) = T.card * 3 := by
+    rw [← Finset.sum_add_distrib]
+    simp [cubic]
+  have hL := counts L
+  have hR := counts Lᶜ
+  have total := L.sum_add_sum_compl d
+  have dl : ∑ u ∈ L, d u = 1 := by omega
+  have dr : ∑ u ∈ Lᶜ, d u = 1 := by omega
+  obtain ⟨a,al,ad,ao⟩ := oneTerm L d dl
+  obtain ⟨b,br,bd,bo⟩ := oneTerm Lᶜ d dr
+  have ac := cubic a
+  have bc := cubic b
+  refine ⟨a,b,fun e => (right b).1 br (e ▸ (left a).1 al),by omega,by omega,?_⟩
+  intro u ua ub
+  have du : d u = 0 := by
+    by_cases h : u ∈ L
+    · exact ao u h ua
+    · exact bo u (Finset.mem_compl.mpr h) ub
+  have := cubic u
+  omega
+
+/-- A small bipartite side of an actual two-edge cut contains a dyadic cycle.
+Only vertices on the chosen side must have ambient degree three. -/
+theorem cycleInsideTwoEdgeCut (n : ℕ)
+    (small : ∀ (W : Type) (K : SimpleGraph W) [Fintype W] [DecidableRel K.Adj],
+      Fintype.card W ≤ n → 3 ≤ K.minDegree →
+      ∃ (k : ℕ) (w : W) (c : K.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] (S : Finset V)
+    (cubic : ∀ u ∈ S, G.degree u = 3) (size : S.card ≤ n+1)
+    (cut : (∑ u ∈ S, ∑ v ∈ Sᶜ, if G.Adj u v then 1 else 0) = 2)
+    (col : S → Bool) (proper : ∀ u v : S, G.Adj u.val v.val → col u ≠ col v) :
+    ∃ (k : ℕ) (u : S) (c : (G.induce (S : Set V)).Walk u u), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k := by
+  classical
+  let K := G.induce (S : Set V)
+  let d (u : V) := ∑ v ∈ Sᶜ, if G.Adj u v then 1 else 0
+  have row (u : S) : K.degree u = ∑ v ∈ S, if G.Adj u.val v then 1 else 0 := by
+    rw [sumNeighbors,← card_neighborFinset_eq_degree]
+    apply Finset.card_bij (fun w _ => w.val)
+    · intro w hw
+      exact Finset.mem_inter.mpr ⟨(G.mem_neighborFinset ..).2 ((K.mem_neighborFinset ..).1 hw),w.property⟩
+    · intro w _ v _ h
+      exact Subtype.ext h
+    · intro v hv
+      obtain ⟨uv,vs⟩ := Finset.mem_inter.mp hv
+      exact ⟨⟨v,vs⟩,(K.mem_neighborFinset ..).2 ((G.mem_neighborFinset ..).1 uv),rfl⟩
+  have deg (u : S) : K.degree u + d u = 3 := by
+    rw [row]
+    change (∑ v ∈ S, if G.Adj u.val v then 1 else 0) +
+      (∑ v ∈ Sᶜ, if G.Adj u.val v then 1 else 0) = 3
+    rw [Finset.sum_add_sum_compl,sumNeighbors,Finset.inter_univ,card_neighborFinset_eq_degree,cubic u u.property]
+  have total : ∑ u : S, d u = 2 := (S.sum_subtype (fun _ => Iff.rfl) d).symm.trans cut
+  obtain ⟨a,b,ab,da,db,others⟩ := twoDeficits K col proper (fun u => d u.val) deg total
+  exact cycleOnCubicBank n small K da db others (by simpa using size) col ab proper
+
+/-- Taking the smaller side doubles the range of the ordinary order bound
+for cubic bipartite graphs having a two-edge cut. -/
+theorem cubicBipartiteTwoEdgeCut (n : ℕ)
+    (small : ∀ (W : Type) (K : SimpleGraph W) [Fintype W] [DecidableRel K.Adj],
+      Fintype.card W ≤ n → 3 ≤ K.minDegree →
+      ∃ (k : ℕ) (w : W) (c : K.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj] (S : Finset V)
+    (cubic : ∀ u, G.degree u = 3) (size : Fintype.card V ≤ 2*n+3)
+    (cut : (∑ u ∈ S, ∑ v ∈ Sᶜ, if G.Adj u v then 1 else 0) = 2)
+    (col : V → Bool) (proper : ∀ u v, G.Adj u v → col u ≠ col v) :
+    ∃ (k : ℕ) (u : V) (c : G.Walk u u), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k := by
+  classical
+  have solve (T : Finset V) (bound : T.card ≤ n+1)
+      (edges : (∑ u ∈ T, ∑ v ∈ Tᶜ, if G.Adj u v then 1 else 0) = 2) :
+      ∃ (k : ℕ) (u : V) (c : G.Walk u u), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k := by
+    obtain ⟨k,u,c,hk,hc,hl⟩ := cycleInsideTwoEdgeCut n small G T (fun u _ => cubic u)
+      bound edges (fun u => col u.val) (fun u v h => proper u v h)
+    exact ⟨k,u.val,c.map (Embedding.induce (T : Set V)).toHom,hk,hc.map Subtype.val_injective,
+      (c.length_map _).trans hl⟩
+  by_cases h : S.card ≤ n+1
+  · exact solve S h cut
+  · apply solve Sᶜ (by rw [Finset.card_compl]; omega)
+    rw [compl_compl,Finset.sum_comm]
+    convert cut using 1
+    apply Finset.sum_congr rfl
+    intro u _
+    apply Finset.sum_congr rfl
+    intro v _
+    simp only [G.adj_comm v u]
+
+/-- A cubic bipartite counterexample with a two-edge cut would force an
+ordinary counterexample on fewer than half as many vertices. -/
+theorem counterexampleBelowHalf {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (S : Finset V) (cubic : ∀ u, G.degree u = 3)
+    (cut : (∑ u ∈ S, ∑ v ∈ Sᶜ, if G.Adj u v then 1 else 0) = 2)
+    (col : V → Bool) (proper : ∀ u v, G.Adj u v → col u ≠ col v)
+    (bad : ¬ ∃ (k : ℕ) (u : V) (c : G.Walk u u), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k) :
+    ∃ (W : Type) (_ : Fintype W) (K : SimpleGraph W) (_ : DecidableRel K.Adj),
+      Fintype.card W ≤ Fintype.card V / 2 - 1 ∧ 3 ≤ K.minDegree ∧
+      ¬ ∃ (k : ℕ) (u : W) (c : K.Walk u u), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k := by
+  classical
+  by_contra noSmaller
+  apply bad
+  apply cubicBipartiteTwoEdgeCut (Fintype.card V / 2 - 1) _ G S cubic (by omega) cut col proper
+  intro W K finite dec order degree
+  by_contra badK
+  exact noSmaller ⟨W,finite,K,dec,order,degree,badK⟩
 
 theorem main : H1 → H2 → OMA.R_Erdos64_erdos_64_R3_H2_R1.H1 := by
   intro smaller odd V G _ _ a b ba min cuts
