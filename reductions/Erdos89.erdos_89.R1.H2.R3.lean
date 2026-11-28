@@ -8,10 +8,14 @@ namespace OMA.R_Erdos89_erdos_89_R1_H2_R3
 /-- The remaining squarefree diagonal estimate. For every dense subset and
 assignment of occupied pins, any modulus compatible with the vertical progression
 in each pin-column pair puts more than k pairs in some form-value residue.
-Every nonempty family of realized gaps also exceeds the divisor budget. -/
+Every nonempty family of realized gaps also exceeds the divisor budget.
+The estimate is only required outside the polynomial coefficient range for
+fixed exponent r and density parameter t₀, chosen uniformly in the configuration. -/
 def H1 : Prop :=
-  ∃ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
+  ∃ r t₀ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
+    (∀ p ∈ S, ∀ W : ℕ, (∀ z ∈ S, (z.1-p.1).natAbs ≤ W) →
+      W^2 ≤ t₀*S.card → d^r < W^2) →
     (∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (M : ℤ), 0 < M →
       ∀ (p : ℤ × ℤ → ℤ × ℤ) (t s : (ℤ × ℤ) × ℤ → ℤ),
       (∀ x ∈ T, let e := (p x,x.1)
@@ -807,6 +811,246 @@ theorem divisor_gap_bound (d : ℕ) (S : Finset (ℤ × ℤ))
   exact (union_bound A X W width).trans
     (Nat.mul_le_mul_right cost (card.trans (card_insert_le ..)))
 
+/-- Raising the divisor count to a fixed power costs at most a constant times n. -/
+private theorem divisor_power_bound (k : ℕ) (hk : 0 < k) :
+    ∃ C : ℕ, ∀ n : ℕ, 0 < n → n.divisors.card^k ≤ C*n := by
+  classical
+  let B := k^k
+  refine ⟨B^(2^k),?_⟩
+  intro n hn
+  let P := n.primeFactors
+  let f (p : ℕ) := if p < 2^k then B else 1
+  have step (p : ℕ) (hp : p ∈ P) :
+      (n.factorization p+1)^k ≤ f p*p^(n.factorization p) := by
+    let a := n.factorization p
+    change (a+1)^k ≤ f p*p^a
+    by_cases small : p < 2^k
+    · simp only [f,if_pos small]
+      have hm := Nat.mod_lt a hk
+      have he := Nat.mod_add_div a k
+      have ha : a+1 ≤ k*(a/k+1) := by rw [Nat.mul_add_one]; omega
+      have powle := Nat.pow_le_pow_left (show a/k+1 ≤ 2^(a/k) from (a/k).lt_two_pow_self) k
+      calc
+        _ ≤ (k*(a/k+1))^k := Nat.pow_le_pow_left ha k
+        _ ≤ B*(2^(a/k))^k := by rw [mul_pow]; exact Nat.mul_le_mul_left _ powle
+        _ ≤ B*p^a := by
+          apply Nat.mul_le_mul_left
+          rw [← pow_mul]
+          exact (Nat.pow_le_pow_right (by decide) (Nat.div_mul_le_self a k)).trans
+            (Nat.pow_le_pow_left (Nat.prime_of_mem_primeFactors hp).two_le _)
+    · simp only [f,if_neg small,one_mul]
+      calc
+        _ ≤ (2^a)^k := Nat.pow_le_pow_left a.lt_two_pow_self k
+        _ = (2^k)^a := by rw [← pow_mul,← pow_mul,Nat.mul_comm]
+        _ ≤ _ := Nat.pow_le_pow_left (by omega) a
+  have size : (P.filter fun p => p < 2^k).card ≤ 2^k := by
+    apply (card_le_card (show P.filter (fun p => p < 2^k) ⊆ range (2^k) from
+      fun p hp => mem_range.mpr (mem_filter.mp hp).2)).trans
+    simp
+  have prod : (∏ p ∈ P, f p) ≤ B^(2^k) := by
+    simp only [f,← prod_filter,prod_const]
+    exact Nat.pow_le_pow_right (pow_pos hk _) size
+  rw [Nat.card_divisors hn.ne',← prod_pow]
+  calc
+    _ ≤ ∏ p ∈ P, (f p * p^(n.factorization p)) := prod_le_prod' step
+    _ = (∏ p ∈ P, f p)*n := by rw [prod_mul_distrib]; exact congrArg _ (Nat.prod_primeFactors_pow_factorization hn.ne').symm
+    _ ≤ _ := Nat.mul_le_mul_right _ prod
+
+/-- For a positive difference h of vertical squares, each pair of divisors
+of d*h and h accounts for at most one repeated unsigned gap pair. -/
+private theorem decode_repeat (d : ℕ) (hd : 0 < d) (u v x y : ℕ) (hux : u < x)
+    (eqv : u^2+d*v^2 = x^2+d*y^2) :
+    let h := v^2-y^2
+    0 < h ∧ d*h ≤ x^2 ∧ ∃ i ∈ (d*h).divisors, ∃ j ∈ h.divisors,
+      ((d*h/i+i)/2,(h/j-j)/2) = (x,y) := by
+  intro h
+  have hv : y < v := by
+    by_contra! hy
+    have he := Nat.mul_le_mul_left d (Nat.pow_le_pow_left hy 2)
+    have he' := Nat.pow_lt_pow_left hux (by decide : 2 ≠ 0)
+    omega
+  have hh : 0 < h := Nat.sub_pos_of_lt (Nat.pow_lt_pow_left hv (by decide))
+  have hy := Nat.sub_add_cancel (Nat.pow_le_pow_left hv.le 2)
+  change h+y^2=v^2 at hy
+  have factorV : h = (v-y)*(v+y) := by
+    have he := Nat.sub_add_cancel hv.le
+    nlinarith only [hy,congrArg (fun z : ℕ => z*(v+y)) he]
+  have factorH : d*h = (x-u)*(x+u) := by
+    have he := Nat.sub_add_cancel hux.le
+    nlinarith only [eqv,congrArg (d*·) hy,congrArg (fun z : ℕ => z*(x+u)) he]
+  refine ⟨hh,by nlinarith only [eqv,congrArg (d*·) hy,Nat.zero_le (u^2)],
+    x-u,Nat.mem_divisors.mpr ⟨⟨_,factorH⟩,(Nat.mul_pos hd hh).ne'⟩,
+    v-y,Nat.mem_divisors.mpr ⟨⟨_,factorV⟩,hh.ne'⟩,?_⟩
+  have h₁ : d*h/(x-u)=x+u := by rw [factorH,Nat.mul_div_cancel_left _ (Nat.sub_pos_of_lt hux)]
+  have h₂ : h/(v-y)=v+y := by rw [factorV,Nat.mul_div_cancel_left _ (Nat.sub_pos_of_lt hv)]
+  rw [h₁,h₂]
+  exact Prod.ext (by dsimp; omega) (by dsimp; omega)
+
+/-- Only W²/d positive differences of vertical squares can cause a repeat,
+regardless of how high the selected rows extend. -/
+theorem gap_repeat_bound (d W : ℕ) (hd : 0 < d) (T : Finset (ℕ × ℕ))
+    (width : ∀ z ∈ T, z.1 ≤ W) :
+    let q := fun z : ℕ × ℕ => z.1^2+d*z.2^2
+    T.card ≤ (T.image q).card + ∑ h ∈ Icc 1 (W^2/d), (d*h).divisors.card*h.divisors.card := by
+  classical
+  intro q
+  let E := T.filter fun z => ∃ w ∈ T, w.1 < z.1 ∧ q w=q z
+  let F (h : ℕ) := ((d*h).divisors ×ˢ h.divisors).image fun ij =>
+    ((d*h/ij.1+ij.1)/2,(h/ij.2-ij.2)/2)
+  have sub : E ⊆ (Icc 1 (W^2/d)).biUnion F := by
+    intro z hz
+    obtain ⟨hzt,w,_,hw,he⟩ := mem_filter.mp hz
+    obtain ⟨hh,hb,i,hi,j,hj,hij⟩ := decode_repeat d hd w.1 w.2 z.1 z.2 hw he
+    let h := w.2^2-z.2^2
+    refine mem_biUnion.mpr ⟨h,mem_Icc.mpr ⟨hh,?_⟩,mem_image.mpr
+      ⟨(i,j),mem_product.mpr ⟨hi,hj⟩,hij⟩⟩
+    exact (Nat.le_div_iff_mul_le hd).mpr (by
+      rw [Nat.mul_comm]; exact hb.trans (Nat.pow_le_pow_left (width z hzt) 2))
+  have cost : E.card ≤ ∑ h ∈ Icc 1 (W^2/d), (d*h).divisors.card*h.divisors.card := by
+    apply (card_le_card sub).trans (card_biUnion_le.trans ?_)
+    exact sum_le_sum fun h _ => card_image_le.trans (le_of_eq (card_product ..))
+  have inj : Set.InjOn q ((T \ E : Finset _) : Set _) := by
+    intro z hz w hw e
+    obtain ⟨hz,hnz⟩ := mem_sdiff.mp hz
+    obtain ⟨hw,hnw⟩ := mem_sdiff.mp hw
+    rcases lt_trichotomy z.1 w.1 with h|h|h
+    · exact (hnw (mem_filter.mpr ⟨hw,z,hz,h,e⟩)).elim
+    · apply Prod.ext h
+      change z.1^2+d*z.2^2=w.1^2+d*w.2^2 at e
+      rw [h] at e
+      exact Nat.pow_left_injective (by decide : 2 ≠ 0)
+        (Nat.eq_of_mul_eq_mul_left hd (Nat.add_left_cancel e))
+    · exact (hnz (mem_filter.mpr ⟨hz,w,hw,h,e.symm⟩)).elim
+  have good := card_le_card (image_mono q (sdiff_subset : T \ E ⊆ T))
+  rw [card_image_of_injOn inj] at good
+  have part := card_sdiff_add_card_eq_card (show E ⊆ T from filter_subset ..)
+  omega
+
+/-- Uniform in the coefficient and in the selected rows: the number lost
+to repeated values is at most W²/t once d grows polynomially with W. -/
+theorem polynomial_coefficient_gaps (r t : ℕ) : ∃ D₀ : ℕ, ∀ d W : ℕ,
+    D₀ ≤ d → 0 < d → W^2 ≤ d^r → ∀ T : Finset (ℕ × ℕ), (∀ z ∈ T, z.1 ≤ W) →
+    let q := fun z : ℕ × ℕ => z.1^2+d*z.2^2
+    t*T.card ≤ t*(T.image q).card+W^2 := by
+  classical
+  let k := 2*r+1
+  have hk : 0 < k := by dsimp [k]; omega
+  obtain ⟨C,divisor⟩ := divisor_power_bound k hk
+  refine ⟨t^k*C^2,?_⟩
+  intro d W hd₀ hd hW T width q
+  have bound (h : ℕ) (hh : h ∈ Icc 1 (W^2/d)) :
+      t*((d*h).divisors.card*h.divisors.card) ≤ d := by
+    obtain ⟨hhp,hhmax⟩ := mem_Icc.mp hh
+    have hdh : d*h ≤ W^2 := by
+      rw [Nat.mul_comm]; exact (Nat.le_div_iff_mul_le hd).mp hhmax
+    have hh₁ : h ≤ d^r := (Nat.le_mul_of_pos_left _ hd).trans (hdh.trans hW)
+    have hd₁ := hdh.trans hW
+    suffices he : (t*((d*h).divisors.card*h.divisors.card))^k ≤ d^k by
+      by_contra! hn
+      exact (Nat.not_lt_of_ge he) (Nat.pow_lt_pow_left hn hk.ne')
+    calc
+      _ = t^k*((d*h).divisors.card^k*h.divisors.card^k) := by simp only [mul_pow]
+      _ ≤ t^k*((C*(d*h))*(C*h)) := Nat.mul_le_mul_left _ (Nat.mul_le_mul
+        (divisor _ (Nat.mul_pos hd hhp)) (divisor _ hhp))
+      _ ≤ t^k*((C*d^r)*(C*d^r)) := by gcongr
+      _ = (t^k*C^2)*(d^r*d^r) := by ring
+      _ ≤ d*(d^r*d^r) := Nat.mul_le_mul_right _ hd₀
+      _ = d^k := by dsimp [k]; rw [show 2*r+1=r+r+1 by omega,pow_succ,pow_add]; ring
+  have cost : t*(∑ h ∈ Icc 1 (W^2/d), (d*h).divisors.card*h.divisors.card) ≤ W^2 := by
+    rw [mul_sum]
+    exact (sum_le_sum bound).trans (by simpa using Nat.div_mul_le_self (W^2) d)
+  have he := Nat.mul_le_mul_left t (gap_repeat_bound d W hd T width)
+  rw [Nat.mul_add] at he
+  exact he.trans (Nat.add_le_add_left cost _)
+
+/-- At least half the points of a full L by L box give different values
+as soon as L²≤d^r and d exceeds a threshold depending only on r. -/
+theorem polynomial_coefficient_box (r : ℕ) : ∃ D₀ : ℕ, ∀ d L : ℕ,
+    D₀ ≤ d → 0 < d → L^2 ≤ d^r →
+    L^2 ≤ 2*(((range L) ×ˢ (range L)).image fun z => z.1^2+d*z.2^2).card := by
+  obtain ⟨D₀,h⟩ := polynomial_coefficient_gaps r 2
+  refine ⟨D₀,?_⟩
+  intro d L h₀ hd hL
+  have he := h d L h₀ hd hL ((range L) ×ˢ (range L)) (fun z hz =>
+    (mem_range.mp (mem_product.mp hz).1).le)
+  simp only [card_product,card_range] at he
+  rw [← pow_two] at he
+  omega
+
+
+/-- Linear distinct-value bound with a constant independent of d and S.
+Only the horizontal span is restricted; the selected heights can be arbitrary. -/
+theorem polynomial_coefficient_strip (r t : ℕ) : ∃ B : ℕ,
+    ∀ (d W : ℕ) (S : Finset (ℤ × ℤ)) (p : ℤ × ℤ), 0 < d → p ∈ S →
+    (∀ z ∈ S, (z.1-p.1).natAbs ≤ W) → W^2 ≤ d^r → W^2 ≤ t*S.card →
+    let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
+    S.card ≤ B*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  obtain ⟨D₀,hlarge⟩ := polynomial_coefficient_gaps r (8*(t+1))
+  refine ⟨max 8 (4*(D₀^r+1)),?_⟩
+  intro d W S p hd hp width scale dense q
+  let g := fun z : ℤ × ℤ => ((z.1-p.1).natAbs,(z.2-p.2).natAbs)
+  let T := S.image g
+  let f := fun z : ℕ × ℕ => z.1^2+d*z.2^2
+  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
+  let sign := fun z : ℤ × ℤ => (decide (p.1 ≤ z.1),decide (p.2 ≤ z.2))
+  have nT : S.card ≤ 4*T.card := by
+    have inj : Function.Injective (fun z => (g z,sign z)) := by
+      intro x y he
+      have h := congrArg Prod.fst he
+      have hs := congrArg Prod.snd he
+      simp [g,sign,Prod.mk.injEq] at h hs
+      exact Prod.ext (by omega) (by omega)
+    have sub : (S.image fun z => (g z,sign z)) ⊆ T ×ˢ (univ : Finset (Bool × Bool)) := by
+      intro z hz
+      obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
+      exact mem_product.mpr ⟨mem_image_of_mem _ hx,mem_univ _⟩
+    simpa [card_image_of_injective _ inj,Nat.mul_comm] using card_le_card sub
+  have cols : ∀ z ∈ T, z.1 ≤ W := by
+    intro z hz
+    obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
+    exact width x hx
+  have vals : (T.image f).card ≤ V.card+1 := by
+    have sub : ((T.image f).image (Nat.cast : ℕ → ℤ)) ⊆ insert 0 V := by
+      intro z hz
+      obtain ⟨n,hn,rfl⟩ := mem_image.mp hz
+      obtain ⟨u,hu,rfl⟩ := mem_image.mp hn
+      obtain ⟨x,hx,rfl⟩ := mem_image.mp hu
+      by_cases h : x=p
+      · simp [h,f,g]
+      · exact mem_insert_of_mem (mem_image.mpr ⟨(x,p),mem_offDiag.mpr ⟨hx,hp,h⟩,by simp [f,g,q]⟩)
+    exact (by simpa only [card_image_of_injective _ Nat.cast_injective] using card_le_card sub :
+      (T.image f).card ≤ (insert 0 V).card).trans (card_insert_le ..)
+  by_cases big : D₀ ≤ d
+  · have e := hlarge d W big hd scale T cols
+    change 8*(t+1)*T.card ≤ 8*(t+1)*(T.image f).card+W^2 at e
+    have ey := Nat.mul_le_mul_left (8*(t+1)) vals
+    have ex := Nat.mul_le_mul_left (t+1) nT
+    have hl : (t+1)*S.card ≤ (t+1)*(8*(V.card+1)) := by nlinarith
+    exact (Nat.le_of_mul_le_mul_left hl (by omega)).trans
+      (Nat.mul_le_mul_right _ (le_max_left ..))
+  · have hW : W ≤ D₀^r := (show W ≤ W^2 by nlinarith only [Nat.le_mul_self W]).trans
+        (scale.trans (Nat.pow_le_pow_left (by omega) r))
+    have small : T.card ≤ (W+1)*(T.image f).card := by
+      have inj : Function.Injective (fun z : ℕ × ℕ => (z.1,f z)) := by
+        intro x y he
+        obtain ⟨ex,eqv⟩ := Prod.mk.inj he
+        apply Prod.ext ex
+        change x.1^2+d*x.2^2=y.1^2+d*y.2^2 at eqv
+        rw [ex] at eqv
+        exact Nat.pow_left_injective (by decide : 2 ≠ 0)
+          (Nat.eq_of_mul_eq_mul_left hd (Nat.add_left_cancel eqv))
+      have sub : (T.image fun z => (z.1,f z)) ⊆ range (W+1) ×ˢ T.image f := by
+        intro z hz
+        obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
+        exact mem_product.mpr ⟨mem_range.mpr (Nat.lt_succ_of_le (cols x hx)),mem_image_of_mem _ hx⟩
+      simpa [card_image_of_injective _ inj] using card_le_card sub
+    calc
+      _ ≤ 4*((W+1)*(T.image f).card) := nT.trans (Nat.mul_le_mul_left _ small)
+      _ ≤ 4*((D₀^r+1)*(V.card+1)) := Nat.mul_le_mul_left _ (Nat.mul_le_mul (by omega) vals)
+      _ = 4*(D₀^r+1)*(V.card+1) := by ring
+      _ ≤ _ := Nat.mul_le_mul_right _ (le_max_right ..)
+
 /-- Transfer the squarefree bound using the assigned pins, the divisor estimate,
 or the remaining arithmetic hypothesis. -/
 theorem integral_form_bound (arith : H1) :
@@ -815,8 +1059,9 @@ theorem integral_form_bound (arith : H1) :
     let q := fun v : ℤ × ℤ => a*v.1^2+b*v.1*v.2+c*v.2^2
     S.card ≤ k*C*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
   classical
-  obtain ⟨C,hard⟩ := arith
-  refine ⟨max C 4,?_⟩
+  obtain ⟨r,t₀,C,hard⟩ := arith
+  obtain ⟨B,strip⟩ := polynomial_coefficient_strip r t₀
+  refine ⟨max (max C B) 4,?_⟩
   intro a b c ha hdisc A k hk hsize Q
   let V := fun (q : ℤ × ℤ → ℤ) (T : Finset (ℤ × ℤ)) => T.offDiag.image fun xy => q (xy.1-xy.2)
   obtain ⟨d,hd,hsq,F,_,hF⟩ := squarefree_model a b c ha hdisc
@@ -827,8 +1072,18 @@ theorem integral_form_bound (arith : H1) :
   change V q S = (V Q A).image (4*a * ·) at hv
   have hvals := congrArg Finset.card hv
   rw [card_image_of_injective _ (mul_right_injective₀ (by positivity : 4*a ≠ 0))] at hvals
-  change A.card ≤ k*max C 4*((V Q A).card+1)
+  change A.card ≤ k*max (max C B) 4*((V Q A).card+1)
   rw [← hc,← hvals]
+  by_cases outside : ∀ p ∈ S, ∀ W : ℕ, (∀ z ∈ S, (z.1-p.1).natAbs ≤ W) →
+      W^2 ≤ t₀*S.card → d^r < W^2
+  swap
+  · push Not at outside
+    obtain ⟨p,hp,W,width,dense,scale⟩ := outside
+    have h := strip d W S p hd hp width scale dense
+    exact h.trans (Nat.mul_le_mul_right _ (show B ≤ k*max (max C B) 4 by
+      calc
+        B ≤ max (max C B) 4 := (le_max_right ..).trans (le_max_left ..)
+        _ ≤ _ := Nat.le_mul_of_pos_left _ hk))
   by_cases heavy : ∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (M : ℤ), 0 < M →
       ∀ (p : ℤ × ℤ → ℤ × ℤ) (t s : (ℤ × ℤ) × ℤ → ℤ),
       (∀ x ∈ T, let e := (p x,x.1)
@@ -846,8 +1101,8 @@ theorem integral_form_bound (arith : H1) :
         min (min (X a).card (X b).card) (h.divisors.filter fun j =>
           j ≤ h/j ∧ h/j+j ≤ 2*W (min a b) ∧ h/j-j ≤ 2*W (max a b) ∧ j%2 = (h/j)%2).card
       0 < mass → k*mass^2 < S.card*cost
-    · have h := hard d S k hd hsq hk (by rwa [hc]) heavy costly
-      exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (le_max_left ..)))
+    · have h := hard d S k hd hsq hk (by rwa [hc]) outside heavy costly
+      exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k ((le_max_left C B).trans (le_max_left ..))))
     dsimp only at costly
     push Not at costly
     obtain ⟨A',X,W,width,pairs,pos,cheap⟩ := costly
