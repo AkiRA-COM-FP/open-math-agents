@@ -1,14 +1,11 @@
 import OMAStatements.S_oeis_a181666
 
--- The 3-divisibility condition forces an even exponent gap. Mathlib then removes the power of 2.
+-- Original Lean proof: @agchua.
+-- The 3-divisibility condition forces an even exponent gap. The factorization at 2 records the smaller exponent.
 
 namespace OMA.A181666
 
 open OMA.S_oeis_a181666
-
-lemma oddPart_eq (n : ℕ) : oddPart n = n.divMaxPow 2 := by
-  rw [oddPart, Nat.factorization_def _ Nat.prime_two]
-  exact Nat.div_eq_of_eq_mul_right (by positivity) (Nat.pow_multiplicity_mul_divMaxPow 2 n).symm
 
 lemma four_mod (k : ℕ) : 1 ≡ 4 ^ k [MOD 3] := by
   simpa using (show 1 ≡ 4 [MOD 3] by decide).pow k
@@ -33,8 +30,8 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a181666.main := by
   · rintro ⟨hm, k, hk⟩
     let j := m.factorization 2
     have h : 2 ^ j * ((4 ^ k - 1) / 3) = m := by
-      rw [← hk, oddPart_eq, show j = multiplicity 2 m from Nat.factorization_def _ Nat.prime_two]
-      exact Nat.pow_multiplicity_mul_divMaxPow 2 m
+      rw [← hk]
+      exact Nat.ordProj_mul_ordCompl_eq_self m 2
     refine ⟨3 * m, ⟨j + 2 * k, j, by omega, ?_⟩, by omega, dvd_mul_right .., by omega⟩
     rw [two_pow_sub, pow_mul, show (2 : ℕ)^2 = 4 by decide, ← h, mul_left_comm, Nat.mul_div_cancel' (four_mod k).dvd']
   · rintro ⟨x, ⟨i, j, hij, rfl⟩, hx, hd, hm⟩
@@ -54,6 +51,9 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a181666.main := by
         rw [pow_succ, Nat.dvd_iff_mod_eq_zero] at h'
         have : 0 < 4 ^ t := by positivity
         omega
-    refine ⟨Nat.mul_pos (by positivity) (Nat.pos_of_ne_zero fun h => ho (h ▸ dvd_zero _)), k, ?_⟩
-    rw [oddPart_eq, Nat.divMaxPow_base_pow_mul (by decide)]
-    exact congrArg Prod.snd (Nat.maxPowDvdDiv_of_not_dvd ho)
+    have hq : 0 < (4 ^ k - 1) / 3 :=
+      Nat.pos_of_ne_zero fun h => ho (h ▸ dvd_zero _)
+    refine ⟨Nat.mul_pos (by positivity) hq, k, ?_⟩
+    rw [oddPart, Nat.factorization_mul (by positivity) hq.ne',
+      Finsupp.add_apply, Nat.Prime.factorization_pow Nat.prime_two, Finsupp.single_eq_same,
+      Nat.factorization_eq_zero_of_not_dvd ho, Nat.add_zero, Nat.mul_div_cancel_left _ (by positivity)]
