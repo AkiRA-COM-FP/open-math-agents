@@ -63,13 +63,46 @@ fi
 touch "$ROOT/queue.tsv"
 SLOTS=${SLOTS:-4}; BATCH=${BATCH:-40}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0; CPID=""
 iso() { date -u -d "@$1" +%Y-%m-%dT%H:%M:%SZ; }
+nap() { local S=$1 L=$(( END - $(date -u +%s) )); [ "$S" -gt "$L" ] && S=$L; [ "$S" -gt 0 ] && sleep "$S"; return 0; }
+# The merger's state (the queue, what was given, refused merges to retry, credits to resend) is pushed every 5 minutes
+# to the branch merger-state, as one commit that replaces the previous one, and read back by the next merger: a
+# hand-over used to drop the whole queue (2,805 items on 28 November). Git, not the API: no budget. Never main.
+state_save() {
+  local D="$ROOT/state_out" G="git -C $ROOT/base" T C F; rm -rf "$D"; mkdir -p "$D"
+  cp "$ROOT/queue.tsv" "$D/queue.tsv" 2>/dev/null || : > "$D/queue.tsv"
+  ls "$ROOT/done" > "$D/done.list" 2>/dev/null
+  (cd "$ROOT/remerge" && for F in *; do [ -f "$F" ] && printf '%s\t%s\n' "$F" "$(cat "$F")"; done) > "$D/remerge.tsv" 2>/dev/null
+  cp "$ROOT/rejected.txt" "$D/rejected.txt" 2>/dev/null || : > "$D/rejected.txt"
+  cp "$CREDIT_RETRY_FILE" "$D/credit_retry.txt" 2>/dev/null || : > "$D/credit_retry.txt"
+  date -u +%s > "$D/saved"
+  T=$(for F in queue.tsv done.list remerge.tsv rejected.txt credit_retry.txt saved; do
+        printf '100644 blob %s\t%s\n' "$($G hash-object -w "$D/$F")" "$F"; done | $G mktree) || return 0
+  C=$($G -c user.name=oma-merger -c user.email=oma-merger@users.noreply.github.com commit-tree "$T" -m "merger state") || return 0
+  timeout 60 $G push -q --force origin "$C:refs/heads/merger-state" 2>/dev/null && echo "merger: state saved ($(wc -l < "$D/queue.tsv") queued)"
+  LAST_STATE=$(date -u +%s)
+}
+state_load() {  # a new merger (not a restart in place): what the previous one left, if it is less than 12 hours old
+  local G="git -C $ROOT/base" S
+  timeout 60 $G fetch -q --depth 1 origin merger-state 2>/dev/null || { echo "merger: no saved state"; return 0; }
+  S=$($G show FETCH_HEAD:saved 2>/dev/null || echo 0)
+  [ $(( $(date -u +%s) - S )) -lt 43200 ] || { echo "merger: saved state too old, ignored"; return 0; }
+  $G show FETCH_HEAD:queue.tsv >> "$ROOT/queue.tsv" 2>/dev/null
+  (cd "$ROOT/done" && $G show FETCH_HEAD:done.list 2>/dev/null | grep -E '^[A-Za-z0-9._-]+$' | xargs -r touch)
+  $G show FETCH_HEAD:remerge.tsv 2>/dev/null | while IFS=$'\t' read -r F N; do
+    [[ "$F" =~ ^[0-9]+$ && "$N" =~ ^[0-9]+$ ]] && echo "$N" > "$ROOT/remerge/$F"; done
+  $G show FETCH_HEAD:rejected.txt >> "$ROOT/rejected.txt" 2>/dev/null
+  $G show FETCH_HEAD:credit_retry.txt >> "$CREDIT_RETRY_FILE" 2>/dev/null
+  echo "merger: resumed the saved state of $(iso "$S"): $(wc -l < "$ROOT/queue.tsv") queued, $(ls "$ROOT/done" | wc -l) given"
+}
+LAST_STATE=0
 JQ_RUN='[.id, .head_sha, .run_attempt, .html_url, .updated_at, (.conclusion // ""), (.display_title // "")] | @tsv'
 remaining() { gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset)"' 2>/dev/null || echo "999 0"; }
 budget() {  # never let the repository run dry: other jobs (checks, deploys) need the API too; GraphQL is checked too
   local rem reset grem greset; read -r rem reset grem greset < <(gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset) \(.resources.graphql.remaining) \(.resources.graphql.reset)"' 2>/dev/null || echo "999 0 999 0")
   echo "budget: core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv")"
-  if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; sleep $(( reset - $(date -u +%s) + 5 )); fi
-  if [ "${grem:-999}" -lt 60 ]; then echo "GraphQL budget low ($grem left), waiting for the reset"; sleep $(( greset - $(date -u +%s) + 5 )); fi
+  # the wait never runs past the end of this job, and the queue is saved first (the next merger resumes it)
+  if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; state_save; nap $(( reset - $(date -u +%s) + 5 )); fi
+  if [ "${grem:-999}" -lt 60 ]; then echo "GraphQL budget low ($grem left), waiting for the reset"; state_save; nap $(( greset - $(date -u +%s) + 5 )); fi
 }
 refresh() {  # main moved on (merges): pull it and sync each verdict slot's copy (rsync: only what changed)
   git -C "$ROOT/base" fetch -q --depth 1 origin main && git -C "$ROOT/base" reset -q --hard FETCH_HEAD; git -C "$ROOT/base" clean -fdq
@@ -175,6 +208,7 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   git -C "$B" clean -fdq -- proofs reductions statements 2>/dev/null || true
 }
 refresh
+[ -n "${MERGER_RESUME:-}" ] || state_load
 LLID="$$-$(date +%s%N)"; echo "$LLID" > "$ROOT/ledger_loop.id"; bash "$ROOT/base/tools/ledger_post.sh" loop "$LLID" & LLOOP=$!
 while [ "$(date -u +%s)" -lt "$END" ]; do
   NOW=$(date -u +%s); budget
@@ -265,8 +299,10 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
     ( cd "$B" && LANES=1 BACKLOG_MIN_BUDGET=800 timeout 3000 bash "$B/base/tools/backlog_pass.sh" 2>&1 | grep -E "merged|batch|done:|budget" | sed 's/^/backlog: /' ) &
     BPID=$!
   fi
+  [ $(( NOW - LAST_STATE )) -ge 300 ] && state_save
   [ -s queue.tsv ] || sleep 30
 done
+state_save
 echo stop > "$ROOT/ledger_loop.id"; kill "$LLOOP" 2>/dev/null; bash "$ROOT/base/tools/ledger_post.sh" once   # last lines
 wait
 echo "merger: time is up; the next scheduled run takes over"

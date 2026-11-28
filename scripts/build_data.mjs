@@ -28,6 +28,16 @@ const prizeUsd = (p) => { const m = (p ?? "").replace(/,/g, "").match(/[$£](\d+
 const SETTLED_STATE = /^(proved|disproved|solved)\b/;
 // A problem proved here stays an open problem solved here: erdosproblems.com then marks it solved because of our proof.
 const provedHere = (id) => fs.existsSync(path.join(ROOT, "proofs", `${id}.lean`));
+// formal-conjectures' "textbook" category means a known result found in textbooks (Kummer's criterion, the Poincaré
+// conjecture in dimension ≥ 5, BB(4) = 107, …), not an easy exercise: it is a known result to formalize, scored like
+// one (its upstream difficulty was computed from a lower base, 16 instead of 42). "test" and "API" stay warm-ups.
+// Exceptions: elementary facts that only look important because of their source (the Millennium bonus).
+const TEXTBOOK_EASY = new Set(["ComplexityTheory.coP_eq_P", "ComplexityTheory.P_subset_BPP"]);
+function textbookIsKnown(p) {
+  if (TEXTBOOK_EASY.has(p.id)) return { ...p, difficulty: Math.min(p.difficulty ?? 6, 6) };
+  if (p.kind !== "warmup" || p.category !== "textbook") return p;
+  return { ...p, kind: "known", category: "textbook result", difficulty: Math.min(100, (p.difficulty ?? 16) + 26) };
+}
 function settledUpstream(p) {
   if (p.kind !== "open" || !SETTLED_STATE.test(p.erdosState ?? "") || /\.variants?\./.test(p.id) || provedHere(p.id)) return p;
   return { ...p, kind: "known", category: "research solved (per erdosproblems.com)" };
@@ -54,7 +64,7 @@ const formalized = (p) => {
 };
 
 const core = [
-  ...catalog.problems.map((p) => ({ ...settledUpstream(p), fame: fameOf(p) })),
+  ...catalog.problems.map((p) => ({ ...settledUpstream(textbookIsKnown(p)), fame: fameOf(textbookIsKnown(p)) })),
   ...extra.problems.map((p) => formalized({ ...p, fame: fameOf(p) })),
   ...e2.rows.map(([id, title, si, fields, statement, ref, authors, fame, difficulty, tags, area, posts]) => formalized({
     id, title, source: e2.sources[si], kind: "unformalized", category: "unformalized", fields, tags, statement, ref, authors, fame, difficulty,
