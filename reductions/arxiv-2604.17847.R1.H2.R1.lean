@@ -1,5 +1,6 @@
 import OMAReductions.R_arxiv_2604_17847_R1
 import Mathlib.Dynamics.PeriodicPts.Lemmas
+import Mathlib.FieldTheory.IsAlgClosed.AlgebraicClosure
 
 -- Reduction arxiv-2604.17847.R1.H2.R1 of the exceptional square step.
 -- Credit: @wispiANt
@@ -9,17 +10,16 @@ namespace OMA.R_arxiv_2604_17847_R1_H2_R1
 open OMA.S_arxiv_2604_17847
 open OMA.R_arxiv_2604_17847_R1 (rank_dvd_index pisano_eq_of_certificate)
 
--- The two remaining assertions concern only primes whose period is unchanged at the square modulus.
+-- An aligned companion forces the upper neighbor to be the square zero.
 def H1 : Prop :=
-  ∀ q : ℕ, q.Prime → 53 < q → 96 < pisano q →
-    let k := pisano q / 2
-    q ^ 2 ∣ (if Even k then Nat.fib k else 2 * Nat.fib (k+1) - Nat.fib k) → (2 * q + 1).Prime
+  ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
+    (q ^ 2 ∣ Nat.fib (q-1) ∨ q ^ 2 ∣ Nat.fib (q+1)) →
+    (2*q+1).Prime ∧ q ^ 2 ∣ Nat.fib (q+1)
 
+-- At the upper neighbor, only the common part of the two indices matters.
 def H2 : Prop :=
-  ∀ q : ℕ, q.Prime → 53 < q → 96 < pisano q →
-    let k := pisano q / 2
-    q ^ 2 ∣ (if Even k then Nat.fib k else 2 * Nat.fib (k+1) - Nat.fib k) →
-    (2 * q + 1).Prime → 2 * q + 1 ∣ Nat.fib (pisano q)
+  ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q → q ^ 2 ∣ Nat.fib (q+1) →
+    (2*q+1).Prime → 2*q+1 ∣ Nat.fib ((pisano q).gcd (2*(q+1)))
 
 -- Consecutive values form a finite reversible orbit for every positive modulus.
 lemma fib_pair_iterate (q n : ℕ) :
@@ -352,14 +352,203 @@ lemma period_square_through_96 {q : ℕ} (hq : q.Prime) (hl : 53 < q) (hs : pisa
     pisano (q ^ 2) = q * pisano q :=
   (period_square_dichotomy hq).resolve_left (fun h => (Nat.not_lt_of_ge hs) (large_period_of_stability hq hl h))
 
+-- This form of Binet's identity avoids division by the difference of the two roots.
+lemma fib_root_difference {K : Type*} [Field K] {a b : K}
+    (ha : a ^ 2 = a + 1) (hb : b ^ 2 = b + 1) (n : ℕ) :
+    (Nat.fib n : K) * (a - b) = a ^ n - b ^ n := by
+  induction n using Nat.twoStepInduction with
+  | zero => simp
+  | one => simp
+  | more n h0 h1 =>
+    rw [Nat.fib_add_two, Nat.cast_add, add_mul, h0, h1, pow_add a n 2, pow_add b n 2, ha, hb, pow_succ, pow_succ]
+    ring
+
+-- Adapted from PR #30640. Frobenius permutes the two distinct roots of X²-X-1 in characteristic p.
+lemma zero_at_neighbor {p : ℕ} (hp : p.Prime) (h2 : p ≠ 2) (h5 : p ≠ 5) :
+    p ∣ Nat.fib (p - 1) ∨ p ∣ Nat.fib (p + 1) := by
+  let : Fact p.Prime := ⟨hp⟩
+  let K := AlgebraicClosure (ZMod p)
+  have two : (2 : K) ≠ 0 := CharP.cast_ne_zero_of_ne_of_prime K Nat.prime_two h2
+  have five : (5 : K) ≠ 0 := CharP.cast_ne_zero_of_ne_of_prime K (by decide : Nat.Prime 5) h5
+  obtain ⟨s, hs⟩ := IsAlgClosed.exists_pow_nat_eq (5 : K) (by decide : 0 < 2)
+  let a := (1 + s) / 2
+  let b := 1 - a
+  have twice : a * 2 = 1 + s := div_mul_cancel₀ _ two
+  have ha : a ^ 2 = a + 1 := by
+    have h : (2 : K)^2 * (a ^ 2 - (a + 1)) = 0 := by
+      linear_combination (2 * a - 1 + s) * twice + hs
+    exact sub_eq_zero.mp ((mul_eq_zero.mp h).resolve_left (pow_ne_zero _ two))
+  have hb : b ^ 2 = b + 1 := by dsimp [b]; linear_combination ha
+  have diff : a - b ≠ 0 := by
+    intro h
+    have ab : a - b = s := by dsimp only [b]; linear_combination twice
+    rw [ab] at h
+    exact five (by simpa [h] using hs.symm)
+  have zero_of_equal (n : ℕ) (h : a ^ n = b ^ n) : p ∣ Nat.fib n := by
+    apply (CharP.cast_eq_zero_iff K p _).mp
+    apply (mul_eq_zero.mp ?_).resolve_right diff
+    rw [fib_root_difference ha hb, h, sub_self]
+  have hroot : (a ^ p) ^ 2 = a ^ p + 1 := by
+    rw [← pow_mul, Nat.mul_comm, pow_mul, ha, add_pow_char _ _ p, one_pow]
+  have poly : (a ^ p - a) * (a ^ p - b) = 0 := by
+    dsimp [b]
+    linear_combination hroot - ha
+  have conj : b ^ p = 1 - a ^ p := by simp [b, sub_pow_char]
+  rcases mul_eq_zero.mp poly with h | h
+  · have fix := sub_eq_zero.mp h
+    have fixb : b ^ p = b := by rw [conj, fix]
+    have unit (x : K) (hx : x ^ 2 = x + 1) (hf : x ^ p = x) : x ^ (p - 1) = 1 := by
+      have hn : x ≠ 0 := by rintro rfl; simp at hx
+      apply mul_right_cancel₀ hn
+      rw [one_mul, ← pow_succ, Nat.sub_add_cancel hp.one_lt.le, hf]
+    exact Or.inl (zero_of_equal _ ((unit a ha fix).trans (unit b hb fixb).symm))
+  · have swap := sub_eq_zero.mp h
+    have swapb : b ^ p = a := by rw [conj, swap]; dsimp [b]; ring
+    exact Or.inr (zero_of_equal _ (by rw [pow_succ, pow_succ, swap, swapb, mul_comm]))
+
+-- Both neighbors cannot be zeros: the gcd of the two indices divides their difference, two.
+lemma neighbors_not_both {q : ℕ} (hq : q.Prime) :
+    ¬ (q ∣ Nat.fib (q-1) ∧ q ∣ Nat.fib (q+1)) := by
+  rintro ⟨hlo,hhi⟩
+  let g := (q-1).gcd (q+1)
+  have hd : g ∣ 2 := by
+    have h := Nat.dvd_sub (Nat.gcd_dvd_right (q-1) (q+1)) (Nat.gcd_dvd_left (q-1) (q+1))
+    have eq : q+1-(q-1) = 2 := by have := hq.two_le; omega
+    rwa [eq] at h
+  have hf : q ∣ Nat.fib g := by rw [Nat.fib_gcd]; exact Nat.dvd_gcd hlo hhi
+  exact hq.not_dvd_one (by simpa using hf.trans (Nat.fib_dvd _ _ hd))
+
+-- At any positive zero index prime to q, the square test detects period stability.
+lemma stable_iff_at_coprime_zero {q n : ℕ} (hq : q.Prime) (ho : 2 < q) (hn : 0 < n)
+    (hz : q ∣ Nat.fib n) (hc : ¬ q ∣ n) :
+    pisano (q^2) = pisano q ↔ q^2 ∣ Nat.fib n := by
+  constructor
+  · intro stable
+    exact ((period_power_eq_iff hq ho (by decide : 0 < 2)).mp stable).trans
+      (Nat.fib_dvd _ _ (rank_dvd_index hn hz))
+  · intro hs
+    let : NeZero q := ⟨hq.ne_zero⟩
+    rcases period_square_dichotomy hq with eq | growth
+    · exact eq
+    · have ret := fourfold_return hs
+      rw [growth] at ret
+      have hd := (dvd_mul_right q (pisano q)).trans ret
+      have two : ¬ q ∣ 2 := fun h => (Nat.not_le_of_lt ho) (Nat.le_of_dvd (by decide) h)
+      exact (hc ((hq.dvd_mul.mp ((hq.dvd_mul.mp hd).resolve_left two)).resolve_left two)).elim
+
+lemma stable_neighbor_iff {q : ℕ} (hq : q.Prime) (hl : 5 < q) :
+    pisano (q^2) = pisano q ↔ q^2 ∣ Nat.fib (q-1) ∨ q^2 ∣ Nat.fib (q+1) := by
+  have left : ¬ q ∣ q-1 := by
+    intro h
+    have := Nat.le_of_dvd (show 0 < q-1 by omega) h
+    omega
+  have right : ¬ q ∣ q+1 := fun h => hq.not_dvd_one ((Nat.dvd_add_iff_right (dvd_refl q)).mpr h)
+  have lo := stable_iff_at_coprime_zero (q := q) (n := q-1) hq (by omega) (by omega)
+  have hi := stable_iff_at_coprime_zero (q := q) (n := q+1) hq (by omega) (by omega)
+  have base : q ∣ q^2 := dvd_pow_self q (by decide)
+  constructor
+  · intro stable
+    rcases zero_at_neighbor hq (by omega) (by omega) with h | h
+    · exact Or.inl ((lo h left).mp stable)
+    · exact Or.inr ((hi h right).mp stable)
+  · rintro (h | h)
+    · exact (lo (base.trans h) left).mpr h
+    · exact (hi (base.trans h) right).mpr h
+
+lemma prime_not_dvd_period {q : ℕ} (hq : q.Prime) (hl : 5 < q) : ¬ q ∣ pisano q := by
+  let : NeZero q := ⟨hq.ne_zero⟩
+  intro hd
+  have transfer (n : ℕ) (hz : q ∣ Nat.fib n) : q ∣ n := by
+    have h := hd.trans (fourfold_return hz)
+    have two : ¬ q ∣ 2 := fun h => (Nat.not_le_of_lt (by omega : 2 < q)) (Nat.le_of_dvd (by decide) h)
+    exact (hq.dvd_mul.mp ((hq.dvd_mul.mp h).resolve_left two)).resolve_left two
+  rcases zero_at_neighbor hq (by omega) (by omega) with h | h
+  · have := Nat.le_of_dvd (show 0 < q-1 by omega) (transfer _ h)
+    omega
+  · exact hq.not_dvd_one ((Nat.dvd_add_iff_right (dvd_refl q)).mpr (transfer _ h))
+
+-- The p-1 branch for p=2q+1 can only share a rank dividing 2 with the period.
+lemma companion_alignment_iff {q : ℕ} (hq : q.Prime) (hl : 5 < q) (hp : (2*q+1).Prime) :
+    2*q+1 ∣ Nat.fib (pisano q) ↔ 2*q+1 ∣ Nat.fib ((pisano q).gcd (2*(q+1))) := by
+  constructor
+  · intro aligned
+    have plus : 2*q+1 ∣ Nat.fib (2*(q+1)) := by
+      rcases zero_at_neighbor hp (by omega) (by omega) with lo | hi
+      · simp only [Nat.add_sub_cancel] at lo
+        let d := (pisano q).gcd (2*q)
+        have zero : 2*q+1 ∣ Nat.fib d := by rw [Nat.fib_gcd]; exact Nat.dvd_gcd aligned lo
+        have cop : d.Coprime q := (hq.coprime_iff_not_dvd.mpr
+          (fun h => prime_not_dvd_period hq hl (h.trans (Nat.gcd_dvd_left _ _)))).symm
+        have small : d ∣ 2 := cop.dvd_of_dvd_mul_right (Nat.gcd_dvd_right _ _)
+        exact (hp.not_dvd_one (by simpa using zero.trans (Nat.fib_dvd _ _ small))).elim
+      · rwa [show 2*(q+1) = 2*q+1+1 by omega]
+    rw [Nat.fib_gcd]
+    exact Nat.dvd_gcd aligned plus
+  · exact fun h => h.trans (Nat.fib_dvd _ _ (Nat.gcd_dvd_left _ _))
+
+-- Even the companion's upper branch cannot align if q itself has a lower-neighbor zero.
+lemma aligned_companion_forces_upper {q : ℕ} (hq : q.Prime) (hl : 53 < q)
+    (hp : (2*q+1).Prime) (ha : 2*q+1 ∣ Nat.fib (pisano q)) : q ∣ Nat.fib (q+1) := by
+  let : NeZero q := ⟨hq.ne_zero⟩
+  rcases zero_at_neighbor hq (by omega) (by omega) with lo | hi
+  · let d := (pisano q).gcd (2*(q+1))
+    have zero : 2*q+1 ∣ Nat.fib d := (companion_alignment_iff hq (by omega) hp).mp ha
+    have below : d ∣ 2*(2*(q-1)) := (Nat.gcd_dvd_left _ _).trans (fourfold_return lo)
+    have above : d ∣ 2*(2*(q+1)) :=
+      (Nat.gcd_dvd_right _ _).trans (dvd_mul_left _ 2)
+    have small : d ∣ 8 := by
+      have diff := Nat.dvd_sub above below
+      rwa [show 2*(2*(q+1))-2*(2*(q-1)) = 8 by omega] at diff
+    have h := Nat.le_of_dvd (by decide : 0 < Nat.fib 8) (zero.trans (Nat.fib_dvd _ _ small))
+    have : Nat.fib 8 = 21 := by decide
+    omega
+  · exact hi
+
+-- The bounded test uses Mathlib's proven binary Fibonacci evaluator.
+set_option maxRecDepth 6000 in
+set_option maxHeartbeats 2000000 in
+lemma large_prime_of_stability {q : ℕ} (hq : q.Prime) (hl : 5 < q)
+    (stable : pisano (q^2) = pisano q) : 1000 < q := by
+  by_contra! small
+  have test : ∀ j : Fin 1001, 5 < j.val →
+      ¬ (j.val ^ 2 ∣ Nat.fastFib (j.val-1) ∨ j.val ^ 2 ∣ Nat.fastFib (j.val+1)) := by decide
+  have hz := (stable_neighbor_iff hq hl).mp stable
+  rw [Nat.fib_eq_fastFib] at hz
+  exact test ⟨q, Nat.lt_succ_of_le small⟩ hl hz
+
+lemma square_period_through_1000 {q : ℕ} (hq : q.Prime) (hl : 5 < q) (small : q ≤ 1000) :
+    pisano (q^2) = q * pisano q :=
+  (period_square_dichotomy hq).resolve_left (fun h => (Nat.not_lt_of_ge small) (large_prime_of_stability hq hl h))
+
+-- This equivalence audits the chosen 2q+1 witness strategy in both directions.
+lemma canonical_companion_iff : (H1 ∧ H2) ↔
+    ∀ q : ℕ, q.Prime → 53 < q → pisano (q^2) = pisano q →
+      (2*q+1).Prime ∧ 2*q+1 ∣ Nat.fib (pisano q) := by
+  constructor
+  · rintro ⟨first, second⟩ q hq hl stable
+    have large := large_prime_of_stability hq (by omega) stable
+    have long := large_period_of_stability hq hl stable
+    obtain ⟨hp, upper⟩ := first q hq large long ((stable_neighbor_iff hq (by omega)).mp stable)
+    exact ⟨hp, (companion_alignment_iff hq (by omega) hp).mpr (second q hq large long upper hp)⟩
+  · intro canonical
+    constructor
+    · intro q hq large _ neighbor
+      have stable := (stable_neighbor_iff hq (by omega)).mpr neighbor
+      obtain ⟨hp, aligns⟩ := canonical q hq (by omega) stable
+      have hz := aligned_companion_forces_upper hq (by omega) hp aligns
+      have upper := (stable_iff_at_coprime_zero hq (by omega) (Nat.succ_pos q) hz
+        (fun h => hq.not_dvd_one ((Nat.dvd_add_iff_right (dvd_refl q)).mpr h))).mp stable
+      exact ⟨hp, upper⟩
+    · intro q hq large _ upper hp
+      have stable := (stable_neighbor_iff hq (by omega)).mpr (Or.inr upper)
+      exact (companion_alignment_iff hq (by omega) hp).mp (canonical q hq (by omega) stable).2
+
 theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H2 := by
-  intro primality divides q hq hlarge hs
+  intro first second q hq hlarge hs
   let : NeZero q := ⟨hq.ne_zero⟩
   have stable := (period_power_eq_iff_at_period hq (by omega) (by decide : 0 < 2)).mpr hs
-  have long := large_period_of_stability hq hlarge stable
-  have half := (stable_half_period_iff (by omega : 2 < q) (by decide : 0 < 2)).mp stable
-  have hp := primality q hq hlarge long half
-  refine ⟨2 * q + 1, hp, ?_, rank_dvd_index (period_and_returns q).1 (divides q hq hlarge long half hp)⟩
+  obtain ⟨hp, divides⟩ := canonical_companion_iff.mp ⟨first,second⟩ q hq hlarge stable
+  refine ⟨2*q+1, hp, ?_, rank_dvd_index (period_and_returns q).1 divides⟩
   simp [Nat.ModEq, Nat.add_mod]
 
 end OMA.R_arxiv_2604_17847_R1_H2_R1
