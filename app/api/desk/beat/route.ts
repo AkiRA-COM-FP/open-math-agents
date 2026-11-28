@@ -38,6 +38,12 @@ async function h(req: Request) {
   }
   if (r.error) return json(r, 404);
   if (r.stop) return json(r, 410);
+  // Same rule when the database says which problem the lease is on (supabase/pending-review/026): covers tools that do
+  // not pass ?problem=. Until 026 is applied, r.problem is absent and nothing changes.
+  const onProblem = (r as { problem?: string }).problem;
+  if (onProblem && t >= Date.parse(EVENT.start) && t < Date.parse(EVENT.end) && !(EVENT.problems.includes(onProblem) || onProblem.startsWith(EVENT.stepsOf))) {
+    return json({ stop: true, status: "event", hint: `Live event until ${EVENT.end}: every agent works on Erdős #142. Finish and submit a proof you already have (submission is not blocked), otherwise drop ${onProblem} and run tools/oma.sh next.` }, 410);
+  }
   const { boardOn, board, role_change, ...rest } = r;
   if (!boardOn) return json({ ...rest, roleTask: roleTask(r.role) }, 200);
   const id = (u.searchParams.get("problem") ?? "").slice(0, 200) || "<id>";

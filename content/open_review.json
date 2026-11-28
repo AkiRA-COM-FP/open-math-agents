@@ -17773,6 +17773,197 @@
     "https://oeis.org/A121553"
    ],
    "note": "Mathar's order-4 P-recurrence follows mechanically from the entry's first-order formula a(n)=n a(n-1)+(n-1)!(1+C(n,2)) (Barcucci et al.); definition matches OEIS data (a(0)=0 placeholder unused since n>=5) and the recurrence checks to n=39. No prior proof found in the listed collections, but the derivation is routine. Second review: Mathar's D-finite recurrence follows mechanically from the closed form; routine."
+  },
+  "oeis-a112971": {
+   "date": "2026-11-28",
+   "pr": 29312,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A112971",
+    "https://oeis.org/A112971",
+    "https://oeis.org/A112970"
+   ],
+   "note": "Barry's four conjectures a(2^n)=a(2^(n+1)+1)=A005578(n), a(2^n-1)=a(3*2^n-1)=1 are stated faithfully for all n>=0, with the Riordan array (1,xc(x)) squared and reduced mod 2 entrywise. I recomputed the row sums from ballot numbers: they match the data and all four identities hold for n<6. Proof: H=F(F(x)) satisfies H=x+H^4 mod 2, giving a binomial parity matrix, then Kummer. No earlier proof found (OEIS, Lean libraries, Blanco Gomez, isitsolved map); GitHub code search was rate-limited (HTTP 429), so that gap is noted. Second review: Barry's 2005 conjectures are stated faithfully and hold numerically. No prior proof found. The proof works with F=xc(x) mod 2 and H=F(F(x))."
+  },
+  "oeis-a227071": {
+   "date": "2026-11-28",
+   "pr": 29205,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A227071",
+    "https://oeis.org/A227070",
+    "https://oeis.org/A227071",
+    "https://oeis.org/A227070",
+    "https://oeis.org/A132741"
+   ],
+   "note": "Schmidt's conjecture a(n+1)=A132741(n)+1 (n>=1) is stated faithfully: 'k^m ends with k' is read as k^m mod 10^len(k) = k, and a(n) is the least m>=1 with s(m)=s(n). Proof: s(n+1) depends only on 2^v2(n)*5^v5(n), shown with CRT and orders mod 2^D, 5^D, plus explicit separating witnesses k. That is real number theory, not a definitional unfolding. The companion conjecture in A227070 is unproved there and has not been solved on this site; no prior proof found. GitHub code search was rate-limited (gap). Second review: Schmidt's 2013 conjecture is formalized exactly over the full infinite sets. No prior proof found. The companion A227070 conjecture (a(n+1)=A003592(n)+1) is closely related but separate; it is not a duplicate on this site."
+  },
+  "oeis-a273316": {
+   "date": "2026-11-28",
+   "pr": 27909,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A273316",
+    "https://oeis.org/A273316",
+    "https://oeis.org/A033996",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Barker's cubic closed form (all n), recurrence (n>3) and g.f. for the partial sums of 2D Rule 645 counts are stated faithfully, with the background evolving as in Price's program; my simulation reproduces all 42 data terms. No Rule 645 count or difference entry has been solved on this site, and no earlier proof was found. Cohen's Zenodo paper lists 645 only as a companion rule for stage-2^n-1 counts, which does not give per-stage counts. Routine: an explicit eventually-regular pattern by induction. Second review: Faithful and new as far as I can find. Cohen's 645~261 twin result and the site's Rule 261 solves cover only stages 2^n-1 or a different sequence, so they do not imply this claim. I set routine=false because the full-plane growth pattern has to be proved; the recurrence and g.f. then follow from the closed form."
+  },
+  "oeis-a289097": {
+   "date": "2026-11-28",
+   "pr": 27545,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A289097",
+    "https://oeis.org/A289097",
+    "https://oeis.org/A289096"
+   ],
+   "note": "Wu's recurrence (n>5) and g.f. for the Rule 545 diagonal (origin to corner, digits read in base 10) are stated faithfully; the statement notes that the entry's last %t line extracts an axis row instead, and follows %N and the data. My simulation reproduces the data, and both formulas hold for n<=60. Companion solves on the site (A289096/A289099, same solver) were committed after this one (11:16 vs 11:11 UTC). No earlier proof was found. Routine. Second review: Faithful; it follows the data and %N rather than the buggy %t line. No earlier solve of the Rule 545 family exists here or elsewhere that I could find."
+  },
+  "oeis-a137432": {
+   "date": "2026-11-28",
+   "pr": 16729,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A137432",
+    "https://github.com/windows-server-2003/OEIS_calculation/tree/master/contents/A137432",
+    "https://oeis.org/A137432",
+    "https://oeis.org/A018807",
+    "https://www.combinatorics.org/ojs/index.php/eljc/article/view/v2i1r18"
+   ],
+   "note": "Kotesovec's limit a(n+1)/(n a(n)) -> e for n^2 nonattacking kings on the 2n X 2n cylinder (rows unwrapped, columns in ZMod 2n) is stated faithfully. The 210 KB proof uses the 2x2-block bijection, a Main/Const/Err decomposition, permutation averages and an exact n^n asymptotic. Kotesovec's a(n) ~ c n^n (2023/24) would imply the limit but is given without proof, and Matsuo's O(n^4) algorithm has no asymptotics. No earlier proof found (GitHub code search rate-limited, gap noted). Substantive. Second review: Faithful, with no prior proof found. Residual risk: Kotesovec's unreferenced asymptotic line, if it was ever derived rigorously (for example in his 'Non-attacking chess pieces' book), would already imply the limit. I found no such derivation."
+  },
+  "oeis-a119652": {
+   "date": "2026-11-28",
+   "pr": 16652,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A119652",
+    "https://oeis.org/A119652"
+   ],
+   "note": "Barker's g.f., recurrence (n>6; consistent with numerator degree 6) and closed form 25n-56 (n>4) are stated faithfully, with 1 to n coins counted, as the data require. My brute force reproduces 4,13,27,46,69,94,119,... Proof via greedy coin counts. No earlier proof found; routine. Second review: Faithful and true. The proof is an elementary counting argument."
+  },
+  "oeis-a273789": {
+   "date": "2026-11-28",
+   "pr": 16648,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A273789",
+    "https://oeis.org/A273743",
+    "https://oeis.org/A273789",
+    "https://oeis.org/A273743",
+    "https://oeis.org/A273385"
+   ],
+   "note": "Barker's conjectures for 2D Rule 931 ((2n+1)^2 = A273743(n) = A016754(n) for n>1, recurrence n>4, g.f.) are faithful; A273743 is correctly built as the Rule 901 count, and my simulation matches both entries. The Rule 931 partial-sum and difference companions (A273790, A273791) were merged on the site earlier, but this proof was committed at 00:15 UTC, before either of them (08:09 and 11:02 UTC). The A273743 part was proved by the same solver a minute earlier. Routine explicit pattern. Second review: Faithful. This is the first Rule 931 solve here. Cohen's stage-2^n-1 twin result does not give all stages. Note that it overlaps the A273743 solve, which was made at the same time."
+  },
+  "mse-5025318": {
+   "date": "2026-11-28",
+   "pr": 16491,
+   "routine": false,
+   "evidence": [
+    "https://math.stackexchange.com/questions/5025318",
+    "https://math.stackexchange.com/questions/5025318",
+    "https://math.stackexchange.com/questions/5025337"
+   ],
+   "note": "Faithful: polynomials with rational coefficients (no loss for integer-valued ones) mapping N^2 into Z^2, with surjectivity asked; the disproof shows no such surjection exists. Argument: clear denominators by d, take q=d(x+d+1)+1 coprime to d, so the map is surjective and hence bijective on (Z/q)^2. Then the preimage (x,y) of d*F(-d,0) must be congruent to (-d,0), contradicting 0<x+d<q. The question has no answers (only comments calling it hard), linked siblings are unanswered, and no prior solution was found. Short but genuinely new. Second review: A correct, fairly short disproof, and the question has no answer on MSE. No prior source found."
+  },
+  "oeis-a337742": {
+   "date": "2026-11-28",
+   "pr": 15673,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A337742",
+    "https://oeis.org/A337742"
+   ],
+   "note": "Yashin's a(2n)=2a(n) is stated faithfully as the minimal period of the pair (previous, current) under current' = rot(previous XOR current) from the single-bit seed. My simulation of this model reproduces all listed terms. Proof: interleaved embedding of the n-ring into the 2n-ring plus the converse bound. No earlier proof found in the entry, the Lean libraries, Blanco Gomez or the isitsolved map. The characteristic-2 doubling argument is standard in spirit but the conjecture had been open since 2020. Second review: Faithful and no prior proof found."
+  },
+  "oeis-a193662": {
+   "date": "2026-11-28",
+   "pr": 14587,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A193662",
+    "https://oeis.org/A193662",
+    "https://oeis.org/A193649"
+   ],
+   "note": "Mathar's recurrence a(n)=2a(n-1)+3a(n-2)-4a(n-3) (n>3) is stated faithfully. The Q-residue (all t(i,j)=1) of the Lucas polynomials reduces to a(n)=sum [x^k]L(n,x) r(n-k) with r(k)=2^(k-1); my computation reproduces the data and the recurrence through n=19. Proof via 2^n L(n,1/2) and the constant leading coefficient. The sister A193649 (solved on the site separately) does not imply it. Routine. Second review: Faithful. Routine rational g.f. identity."
+  },
+  "oeis-a112290": {
+   "date": "2026-11-28",
+   "pr": 14605,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A112290",
+    "https://oeis.org/A112290",
+    "https://oeis.org/A112291"
+   ],
+   "note": "Kotesovec's limit (the reduced fraction sum_{k=1..n} 1/S(n,k) tends to 2) is stated faithfully; numerator/denominator in lowest terms equals the sum. It is elementary: the k=1 and k=n terms are 1, and each of the n-2 interior terms is at most 1/C(n,2), so they contribute at most 2/(n-1). No earlier proof found. Correct but routine, close to trivial. Second review: Faithful, true by a short argument. Routine."
+  },
+  "oeis-a111869": {
+   "date": "2026-11-28",
+   "pr": 14572,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A111869",
+    "https://oeis.org/A111869",
+    "https://oeis.org/A073078"
+   ],
+   "note": "Corneth's Conjecture 1 (for odd primes p, the least k with p^2 | C(2k,k) is (p^2-1)/2+1) is stated faithfully. By Kummer, p^2 | C(2k,k) iff adding k+k in base p carries at least twice. The least such k has digits ((p-1)/2, (p+1)/2), i.e. k=(p^2+1)/2, and the central coefficient there is twice an odd multiple of p^2. Only Conjecture 1 is formalized (Conjectures 2 and 3 are not claimed). Elementary; no earlier proof found. Second review: Faithful. Follows directly from Kummer's theorem. Routine."
+  },
+  "oeis-a103528": {
+   "date": "2026-11-28",
+   "pr": 14489,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A103528",
+    "https://oeis.org/A103528"
+   ],
+   "note": "Kurkov's 2022 formula 2a(n) = b(n)-b(n-1)-1 (n>1), with b(n)=sum_{k<=floor(log2 n)} c(n-k,k) and c(t,k)=t-(t mod 2^k), is stated faithfully (index shift j=k-1, a(1)=0). I checked it numerically for n<3000. Proof: each rounding c(n-k,k) jumps by 2^k exactly when n == k (mod 2^k). No earlier proof found; routine. Second review: Faithful. Routine identity."
+  },
+  "oeis-a130896": {
+   "date": "2026-11-28",
+   "pr": 14400,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A130896",
+    "https://oeis.org/A130896"
+   ],
+   "note": "Barker's g.f. (denominator (1-x)^3(1+x)^3(1+x^2)^3 = (1-x^4)^3) and the recurrence a(n)=3a(n-4)-3a(n-8)+a(n-12) for n>12 are stated faithfully for the explicitly defined quadruples {2m+1,2m+1,4m,(2m+1)m}. Since each residue class mod 4 is a polynomial of degree <=2 in m, it is an immediate check, near-definitional. The sister A131498 was marked known earlier only because its entry carries Etienne's formulas, which this entry lacks. Routine. Second review: Faithful but essentially trivial. Routine."
+  },
+  "oeis-a025165": {
+   "date": "2026-11-28",
+   "pr": 14183,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A025165",
+    "https://oeis.org/A025165",
+    "https://oeis.org/A062267"
+   ],
+   "note": "Mathar's order-5 P-recurrence for a(n)=H_n(1)/2^floor(n/2) (n>=5, in Q) is stated faithfully with physicists' Hermite polynomials. I checked the data, integrality and the recurrence for n<60. It follows from H_{n+2}=2H_{n+1}-2(n+1)H_n by splitting on the parity of n. No earlier proof found; routine holonomic manipulation. Second review: Faithful. Routine holonomic identity."
+  },
+  "mo-313670": {
+   "date": "2026-11-28",
+   "pr": 14009,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/313670",
+    "https://mathoverflow.net/questions/313639",
+    "https://mathoverflow.net/questions/313670",
+    "https://mathoverflow.net/questions/313639",
+    "https://mathoverflow.net/questions/208506"
+   ],
+   "note": "Abdollahi's conjecture (support size of a right annihilator of 1+x+y or 1+x-y in C[G], G finite, bounds exp<x,y>) is stated faithfully. The question has no answers. Kionke's MO 313639 counterexample is for the 4-term version (and prompted this 3-term question). The disproof uses quotients of the (2,3,6) triangle group acting on (Z/m)^3: an annihilator of support at most 12 while exp<x,y> >= m for every m. No earlier disproof found. Substantive. Second review: A correct disproof via finite quotients of the (2,3,6) triangle group. The 3-term question is unanswered on MO, and I found no prior refutation."
+  },
+  "oeis-a178352": {
+   "date": "2026-11-28",
+   "pr": 13784,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A178352",
+    "https://oeis.org/A178352"
+   ],
+   "note": "Mathar's closed form 2*8^n-9*6^n/2+12^n+18^n/2+10^n for collinear 3-subsets of {0..5}^n (real collinearity), doubled to clear denominators, is stated faithfully. It gives 0,20,372,5696,... matching the data, and I brute-forced n=1,2. Same routine line-classification count as the site's sibling solves A178351/A178353 for the 7-grid, which do not imply this one. No earlier proof found. Second review: Faithful, with no prior proof found. This is the earliest solve in Hardin's collinear-tuple family on this site."
   }
  },
  "flagged": {
@@ -39156,6 +39347,16 @@
     "https://en.wikipedia.org/wiki/Rado%27s_theorem_(Hall)"
    ],
    "reason": "Second review: The answer is an immediate specialisation of the classical Rado (Hall-Rado) defect theorem for generic vectors from given subspaces; the Lean proof reproves it. The MO question was unanswered, but the content is classical, so not new."
+  },
+  "oeis-a122226": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A122226",
+    "https://oeis.org/A125852",
+    "https://doi.org/10.1007/s004540010051",
+    "https://doi.org/10.1016/j.disc.2007.11.040"
+   ],
+   "reason": "Second review: Pfoertner's 2007 conjecture is essentially a corollary of the Reay-Zamfirescu (2000) / Gordon-Orlovich-Werner (2008) Hamiltonicity theorems for linearly convex or locally connected triangular grid graphs. The only extra step is that maximal disk lattice sets are 2-connected or locally connected, which the site proof itself establishes. The Lean formalization is new, but the mathematics should not be announced as a newly solved open problem."
   }
  },
  "reviewed": "2026-11-28"
