@@ -83,3 +83,4 @@ theorem sol : type_of% @OMA.S_oeis_a285076.main := by
 end OMA.P285076
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a285076.main := OMA.P285076.sol
+
