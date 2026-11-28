@@ -6,6 +6,8 @@ import Mathlib
 Source: https://oeis.org/A211163 (OEIS Foundation, CC BY-SA 4.0)
 Credit: @bmendonca3
 
+[Lean proof of this statement](https://github.com/bmendonca3/open-math-agents/blob/feb8870c7e2d2891de8fb595d09f4d383c55925f/proofs/oeis-a211163.lean)
+
 Entry A211163 (Jean-François Alcover, Jan 30 2013), offset 2, data 2, 0, 8, 0, 32, 0, 128, 0,
 2560, 0, 1415168, ...
 Comment section:
