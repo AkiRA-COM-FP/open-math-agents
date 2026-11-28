@@ -15886,6 +15886,494 @@
     "https://oeis.org/A091817"
    ],
    "note": "Quet's integrality conjecture is stated faithfully: p | 2num(H(p-3)) - 3den(H(p-3)) for primes p>=3, with reduced num/den. I checked p<400 and the data. It follows from H(p-1) = 0 (mod p): H(p-3) = H(p-1) - 1/(p-1) - 1/(p-2) = 1 + 1/2 = 3/2 (mod p), and den(H(p-3)) is prime to p. No prior proof found in the entry or the searched sources. Routine. Second review: Faithful; immediate from H_{p-1} = 0 mod p. Not recorded in the entry."
+  },
+  "oeis-a203157": {
+   "date": "2026-11-28",
+   "pr": 28304,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203157",
+    "https://oeis.org/A203157"
+   ],
+   "note": "products n = (P_n, e_{n-1}) correctly computes the (n-1)-st elementary symmetric function of t_1..t_n; Mathar's 2(1-n)a(n)+n^3 a(n-1)=0 for n>1 checks to n=13. Follows from e_{n-1}=P_n*sum 1/t_k = P_n*2n/(n+1) (telescoping); no prior written proof found. Routine. Second review: Faithful and true; follows from e_{n-1}=P_n*sum 1/T_k=P_n*2n/(n+1). Routine. No earlier proof found."
+  },
+  "oeis-a203829": {
+   "date": "2026-11-28",
+   "pr": 27822,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203829",
+    "https://oeis.org/A203835",
+    "https://oeis.org/A203829",
+    "https://oeis.org/A203835"
+   ],
+   "note": "Statement encodes (n+1) X 3 arrays over 0..2 with each 2x2 block having x(i,j)=x(i+1,j+1) or x(i,j+1)=x(i+1,j); transfer matrix reproduces 225,1971,17289,... and Hardin's recurrence (n>2), Barker's g.f. and Binet form check to n=29. No prior proof found (parent A203835 only empirical). Routine 27-state transfer matrix. Second review: Faithful and true (Hardin's recurrence plus Barker's g.f. and closed form). Routine transfer-matrix count. Not in any isitsolved width-3 round."
+  },
+  "oeis-a204240": {
+   "date": "2026-11-28",
+   "pr": 28804,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A204240",
+    "https://oeis.org/A204238/a204238.pdf",
+    "https://oeis.org/A204240",
+    "https://oeis.org/A204158",
+    "https://oeis.org/A204238/a204238.pdf"
+   ],
+   "note": "Matrix max(3i-2j,3j-2i) with 1-based indices matches A204158; recurrence (n>=3) and g.f. -x(4x-1)/(5x+1)^2 check to n=15. Fried's 2026 note attached to sister A204238 proves the analogous max(3i-j,3j-i) case by the same min-matrix plus rank-2 method, which adapts at once here, but no source states A204240's formula; I treat it as confirmed and routine rather than known. Second review: Faithful and true. Fried's A204238 note gives a method that transfers verbatim, but it covers only the sibling matrix, so it is not a prior proof of this entry. Routine."
+  },
+  "oeis-a204565": {
+   "date": "2026-11-28",
+   "pr": 28694,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A204565",
+    "https://oeis.org/A204572",
+    "https://oeis.org/A204565",
+    "https://oeis.org/A204572"
+   ],
+   "note": "Statement formalizes Barker's closed form 3a(n)=1+3*3^n+2*7^n (n>=1), which implies the g.f. and Hardin's recurrence; the restricted-growth condition (each value's smaller values occur earlier in row-major order) and the diagonal/antidiagonal block condition are faithful, and brute force gives 8,42,256,1682,11448,79162 = formula. No prior proof found; routine. Second review: Faithful (closed form only; the omitted g.f. is equivalent and true). Routine transfer count; no earlier proof found."
+  },
+  "oeis-a207452": {
+   "date": "2026-11-28",
+   "pr": 27964,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207452",
+    "https://isitsolved.com/journal/849ff39de7ae",
+    "https://oeis.org/A207452",
+    "https://oeis.org/A207453",
+    "https://isitsolved.com/journal/849ff39de7ae"
+   ],
+   "note": "Statement encodes n X 7 arrays avoiding 000/001 in rows and 001/101 in columns (rows from the third on are bitwise subsets of the previous one); transfer matrix reproduces 42,1764,10710,... and the g.f./recurrence (n>5) to n=15. iis:2611.00300 also proves it but was filed 11:52 UTC, after the site proof commit (11:21:10 UTC); no earlier source found. Routine. Second review: Faithful and true. An independent isitsolved paper proved the same claims the same day; by the brief's rule (filing time vs proof commit time) the site commit is 31 minutes earlier, but the PR merged after the iis filing, so precedence is thin. Any announcement should not claim priority over iis:2611.00300."
+  },
+  "oeis-a208971": {
+   "date": "2026-11-28",
+   "pr": 28291,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208971",
+    "https://oeis.org/A208970",
+    "https://oeis.org/A208971",
+    "https://oeis.org/A208970"
+   ],
+   "note": "Dihedral orbits of 4-tuples in [-n,n] with zero sum and cyclic first and second differences in [-n,n]; this cyclic reading reproduces the data 1,3,4,8,11,18,... (n<=12) and both parity closed forms. (The docstring quotes a different g.f. and date, but main states only the closed forms, which match the entry.) No prior proof found; routine. Second review: Formal statement faithful and true; routine quasi-polynomial count. The header comment misquotes the g.f. and the date and should be fixed before display, but the theorem itself is right."
+  },
+  "oeis-a209008": {
+   "date": "2026-11-28",
+   "pr": 27969,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A209008",
+    "https://oeis.org/A209007",
+    "https://oeis.org/A209008",
+    "https://oeis.org/A209007"
+   ],
+   "note": "Rotation orbits of the same cyclically constrained zero-sum 4-tuples; brute force gives 1,3,5,10,16,26,... = data and both of Barker's parity closed forms for n<=12. No prior proof found; routine. Second review: Faithful (closed forms; omitted g.f. equivalent) and true. Routine. No earlier proof found."
+  },
+  "oeis-a209861": {
+   "date": "2026-11-28",
+   "pr": 28753,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A209861",
+    "https://oeis.org/A209642",
+    "https://oeis.org/A209641",
+    "https://oeis.org/A209861",
+    "https://oeis.org/A209642",
+    "https://oeis.org/A209862",
+    "https://oeis.org/A054429"
+   ],
+   "note": "Karttunen's conjecture A209861(A054429(n)) = A054429(A209861(n)) is stated row by row (row k = [2^k,2^(k+1))) as output(x)+output(rev x) = 3*2^k-1, with A209861(2^k+x) modelled as 2^k + rank of the A209642 tree code of x among row-k codes. That model is not derived in Lean from the A014486 definition, but it reproduces all 89 listed terms of A209861 and 64 of A209642, and the codes of row k are exactly the (2k+2)-bit terms of A209641, so the bridge is sound; the identity itself checks to k=10. No prior proof found; short but non-mechanical rank-reversal argument. Second review: Faithful reformulation and true (checked to 2^16). The proof is a short order-reversal argument on tree codes, so routine. No earlier proof found."
+  },
+  "oeis-a213248": {
+   "date": "2026-11-28",
+   "pr": 10568,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A213248",
+    "https://oeis.org/A213248"
+   ],
+   "note": "Nonzero 13th powers in GaloisField 2 n; the entry's unconjectured formula a(n)=M/gcd(M,13) (cyclic unit group) is 12-periodic in its gcd since ord_13(2)=12, which gives Barker's recurrence (n>24) and g.f., both checked against the formula to n=79. Unlike A213243 there is no 'verified' note, so the g.f. was still conjectural; routine. Second review: Faithful and true. It is an immediate consequence of the formula already in the entry (13 | 2^n-1 iff 12 | n), so routine; no earlier written proof of Barker's lines found."
+  },
+  "oeis-a214972": {
+   "date": "2026-11-28",
+   "pr": 28866,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214972",
+    "https://oeis.org/A152009",
+    "https://oeis.org/A214972",
+    "https://oeis.org/A152009"
+   ],
+   "note": "The L-sieve definition of A152009 (remove first term, delete indices 1,4,7,..., repeat) is encoded via Nat.nth kept and reproduces the A152009 data; the conjecture a(n)=a(n-1)+1 iff n in A152009 checks for all n<27307. No prior proof found (A152009's own floor((3a+3)/2) formula is also only conjectured there). Short but non-mechanical argument (survivor i = i + i/2 + 1). Second review: Faithful and true; the proof is a short structural argument (survivor i -> i+i/2+1), routine. No earlier proof found."
+  },
+  "oeis-a218981": {
+   "date": "2026-11-28",
+   "pr": 29174,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A218981",
+    "https://oeis.org/A218981",
+    "https://oeis.org/A218852"
+   ],
+   "note": "Statement (infinitely many n=w+x+y+z with all parts positive and sigma(n)=sigma(w)+sigma(x)+sigma(y)+sigma(z)) is faithful to Perry's conjecture. The proof uses the one-line family 5p=p+p+p+2p for primes p>5: sigma(5p)=6(p+1)=3(p+1)+3(p+1). Elementary and near-trivial, but not vacuous; no earlier written proof found (sister A218852 notes a similar twin-prime family only). Second review: Faithful and true. The conjecture is a real 'Conjecture' line but extremely easy (any 5m with gcd(m,10)=1 works), so it is routine and should not be announced as a substantial result."
+  },
+  "oeis-a222098": {
+   "date": "2026-11-28",
+   "pr": 15779,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A222098",
+    "https://isitsolved.com/journal/df182c39e7cd",
+    "https://oeis.org/A222098",
+    "https://oeis.org/A222104",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "note": "Statement (n X 2 arrays over 0..5, steps right and down increase by 0..3 mod 6, top-left 0) is faithful; transfer matrix reproduces 4,46,530,6108,... and the recurrence, g.f. and Binet form to n=26. iis:2611.00233 also proves it but was filed 2026-11-28 04:57 UTC, after the site proof commit (2026-11-27 22:15 UTC); no earlier source found. Routine. Second review: Faithful and true. iis:2611.00233 proved the g.f. and recurrence independently a few hours after the site's proof commit (but before its merge); by commit time the site is first. Routine transfer count."
+  },
+  "oeis-a224670": {
+   "date": "2026-11-28",
+   "pr": 23182,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A224670",
+    "https://oeis.org/A224676",
+    "https://oeis.org/A224670",
+    "https://oeis.org/A224671"
+   ],
+   "note": "Statement counts (n+1) X 3 matrices over 0..2 whose consecutive-row, consecutive-column 2x2 blocks satisfy A^2=A (four integer equations); transfer matrix reproduces 25,50,76,123,... and Barker's g.f., closed form (= -2+20F(n+1)+2(n+1)+(n+1)(n+2)/2) and Hardin's recurrence (n>5) to n=30. The proof reuses the technique of the site's accepted A224671 proof (a different column), not an earlier proof of this entry; no prior proof found. Routine. Second review: Faithful and true; routine transfer-matrix count adapted from the site's own A224671 proof. No outside prior proof found."
+  },
+  "oeis-a227512": {
+   "date": "2026-11-28",
+   "pr": 28856,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A227512",
+    "https://oeis.org/A227512",
+    "https://oeis.org/A227513"
+   ],
+   "note": "The name's formula is a typo (-1/n + 1/log(...)); the statement uses 1/(log((2n+1)/(2n-1)) - 1/n), which matches the comment, example and data (checked to n=1499 at 60 digits). The closed form 12n^3-floor(9n/5)-1 (all n>=1), the order-8 recurrence (n>=9) and the g.f. all hold numerically. No prior proof found; needs explicit artanh series error bounds, so not purely mechanical. Second review: Faithful and true. The proof is an explicit two-sided bound from the log series (value = 12n^3 - 9n/5 - O(1/n)), short and elementary, so routine. No earlier proof found."
+  },
+  "oeis-a267226": {
+   "date": "2026-11-28",
+   "pr": 27829,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267226",
+    "https://oeis.org/A267232",
+    "https://oeis.org/A267226",
+    "https://oeis.org/A267232"
+   ],
+   "note": "Column 2 of A267232; Barker's g.f. and closed form (n>1). Lean reading (first adjacent repeat, all later entries below it) reproduces every listed term I computed (19-25 terms) and the g.f. checks symbolically. No proof in the entry, parent table, Fried, Blanco Gomez, Ma-Zhang, iis, Palomar, Zenodo, Epoch or the named Lean repos. Second review: Faithful statement of Barker's two formulas for column 2 of A267232. True; a simple first-repeat decomposition gives the g.f., so routine. No earlier proof found."
+  },
+  "oeis-a267229": {
+   "date": "2026-11-28",
+   "pr": 27833,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267229",
+    "https://oeis.org/A267232",
+    "https://oeis.org/A267229",
+    "https://oeis.org/A267232"
+   ],
+   "note": "Column 5 of A267232; Barker's g.f. and closed form (n>1). Lean reading (first adjacent repeat, all later entries below it) reproduces every listed term I computed (19-25 terms) and the g.f. checks symbolically. No proof in the entry, parent table, Fried, Blanco Gomez, Ma-Zhang, iis, Palomar, Zenodo, Epoch or the named Lean repos. Second review: Faithful statement of Barker's two formulas for column 5 of A267232. True; a simple first-repeat decomposition gives the g.f., so routine. No earlier proof found."
+  },
+  "oeis-a267231": {
+   "date": "2026-11-28",
+   "pr": 27843,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267231",
+    "https://oeis.org/A267232",
+    "https://oeis.org/A267231",
+    "https://oeis.org/A267232"
+   ],
+   "note": "Column 7 of A267232; Barker's g.f. and closed form (n>1). Lean reading (first adjacent repeat, all later entries below it) reproduces every listed term I computed (19-25 terms) and the g.f. checks symbolically. No proof in the entry, parent table, Fried, Blanco Gomez, Ma-Zhang, iis, Palomar, Zenodo, Epoch or the named Lean repos. Second review: Faithful statement of Barker's two formulas for column 7 of A267232. True; a simple first-repeat decomposition gives the g.f., so routine. No earlier proof found."
+  },
+  "oeis-a268263": {
+   "date": "2026-11-28",
+   "pr": 28559,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A268263",
+    "https://oeis.org/A268261",
+    "https://oeis.org/A268263",
+    "https://oeis.org/A268261"
+   ],
+   "note": "Row 4 of A268261 (length 5, values 0..n): Barker's g.f. and recurrence; ranges match the entry (recurrence genuinely fails just below its stated start). Lean reading (repeated values form a restricted-growth sequence) reproduces the data for n<=30 by DP. Polynomial count for fixed length; no prior proof found in entry, parent, iis, Fried, Ma-Zhang, Palomar, Zenodo or Lean repos. Second review: Faithful; Barker's recurrence and g.f. for a row of Hardin's table A268261 are true (checked to n=49). Routine fixed-length polynomial count; no earlier proof found."
+  },
+  "oeis-a268264": {
+   "date": "2026-11-28",
+   "pr": 28565,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A268264",
+    "https://oeis.org/A268261",
+    "https://oeis.org/A268264",
+    "https://oeis.org/A268261"
+   ],
+   "note": "Row 5 of A268261 (length 6, values 0..n): Barker's g.f. and recurrence; ranges match the entry (recurrence genuinely fails just below its stated start). Lean reading (repeated values form a restricted-growth sequence) reproduces the data for n<=30 by DP. Polynomial count for fixed length; no prior proof found in entry, parent, iis, Fried, Ma-Zhang, Palomar, Zenodo or Lean repos. Second review: Faithful; Barker's recurrence and g.f. for a row of Hardin's table A268261 are true (checked to n=49). Routine fixed-length polynomial count; no earlier proof found."
+  },
+  "oeis-a268265": {
+   "date": "2026-11-28",
+   "pr": 28598,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A268265",
+    "https://oeis.org/A268261",
+    "https://oeis.org/A268265",
+    "https://oeis.org/A268261"
+   ],
+   "note": "Row 6 of A268261 (length 7, values 0..n): Barker's g.f. and recurrence; ranges match the entry (recurrence genuinely fails just below its stated start). Lean reading (repeated values form a restricted-growth sequence) reproduces the data for n<=30 by DP. Polynomial count for fixed length; no prior proof found in entry, parent, iis, Fried, Ma-Zhang, Palomar, Zenodo or Lean repos. Second review: Faithful; Barker's recurrence and g.f. for a row of Hardin's table A268261 are true (checked to n=49). Routine fixed-length polynomial count; no earlier proof found."
+  },
+  "oeis-a269538": {
+   "date": "2026-11-28",
+   "pr": 29017,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269538",
+    "https://oeis.org/A269537",
+    "https://oeis.org/A269538",
+    "https://oeis.org/A269537",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 4 of A269537 (length-4 arrays over 0..n): Barker's g.f. and order-5 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 4 of A269537. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269539": {
+   "date": "2026-11-28",
+   "pr": 29007,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269539",
+    "https://oeis.org/A269537",
+    "https://oeis.org/A269539",
+    "https://oeis.org/A269537",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 5 of A269537 (length-5 arrays over 0..n): Barker's g.f. and order-6 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 5 of A269537. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269540": {
+   "date": "2026-11-28",
+   "pr": 28990,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269540",
+    "https://oeis.org/A269537",
+    "https://oeis.org/A269540",
+    "https://oeis.org/A269537",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 6 of A269537 (length-6 arrays over 0..n): Barker's g.f. and order-7 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 6 of A269537. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269541": {
+   "date": "2026-11-28",
+   "pr": 28961,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269541",
+    "https://oeis.org/A269537",
+    "https://oeis.org/A269541",
+    "https://oeis.org/A269537",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 7 of A269537 (length-7 arrays over 0..n): Barker's g.f. and order-8 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 7 of A269537. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269586": {
+   "date": "2026-11-28",
+   "pr": 28993,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269586",
+    "https://oeis.org/A269583",
+    "https://oeis.org/A269586",
+    "https://oeis.org/A269583",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 6 of A269583 (length-6 arrays over 0..n): Barker's g.f. and order-7 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 6 of A269583. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269587": {
+   "date": "2026-11-28",
+   "pr": 28975,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269587",
+    "https://oeis.org/A269583",
+    "https://oeis.org/A269587",
+    "https://oeis.org/A269583",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 7 of A269583 (length-7 arrays over 0..n): Barker's g.f. and order-8 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 7 of A269583. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269608": {
+   "date": "2026-11-28",
+   "pr": 29087,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269608",
+    "https://oeis.org/A269606",
+    "https://oeis.org/A269608",
+    "https://oeis.org/A269606",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 5 of A269606 (length-5 arrays over 0..n): Barker's g.f. and order-6 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 5 of A269606. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269609": {
+   "date": "2026-11-28",
+   "pr": 29075,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269609",
+    "https://oeis.org/A269606",
+    "https://oeis.org/A269609",
+    "https://oeis.org/A269606",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 6 of A269606 (length-6 arrays over 0..n): Barker's g.f. and order-7 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 6 of A269606. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269610": {
+   "date": "2026-11-28",
+   "pr": 29057,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269610",
+    "https://oeis.org/A269606",
+    "https://oeis.org/A269610",
+    "https://oeis.org/A269606",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 7 of A269606 (length-7 arrays over 0..n): Barker's g.f. and order-8 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 7 of A269606. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269622": {
+   "date": "2026-11-28",
+   "pr": 28996,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269622",
+    "https://oeis.org/A269619",
+    "https://oeis.org/A269622",
+    "https://oeis.org/A269619",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 6 of A269619 (length-6 arrays over 0..n): Barker's g.f. and order-7 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 6 of A269619. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269623": {
+   "date": "2026-11-28",
+   "pr": 28979,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269623",
+    "https://oeis.org/A269619",
+    "https://oeis.org/A269623",
+    "https://oeis.org/A269619",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 7 of A269619 (length-7 arrays over 0..n): Barker's g.f. and order-8 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 7 of A269619. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269642": {
+   "date": "2026-11-28",
+   "pr": 29013,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269642",
+    "https://oeis.org/A269640",
+    "https://oeis.org/A269642",
+    "https://oeis.org/A269640",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 5 of A269640 (length-5 arrays over 0..n): Barker's g.f. and order-6 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 5 of A269640. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269643": {
+   "date": "2026-11-28",
+   "pr": 28999,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269643",
+    "https://oeis.org/A269640",
+    "https://oeis.org/A269643",
+    "https://oeis.org/A269640",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 6 of A269640 (length-6 arrays over 0..n): Barker's g.f. and order-7 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 6 of A269640. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269644": {
+   "date": "2026-11-28",
+   "pr": 28985,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269644",
+    "https://oeis.org/A269640",
+    "https://oeis.org/A269644",
+    "https://oeis.org/A269640",
+    "https://zenodo.org/records/24410605"
+   ],
+   "note": "Row 7 of A269640 (length-7 arrays over 0..n): Barker's g.f. and order-8 recurrence with the entry's range. Lean reading (chain condition on consecutive adjacent-repeat values) reproduces the data for n<=30 by DP, and the g.f./recurrence check on those values. Fixed-length count is a polynomial in n; the relation is not loopless/constant-indegree, so Ma-Zhang does not apply; no prior proof found. Second review: Faithful statement of Barker's g.f. and recurrence for row 7 of A269640. True (checked to n=59 exactly); a fixed-length polynomial count, so routine. No earlier proof found in the entry, the parent table or any collection."
+  },
+  "oeis-a269613": {
+   "date": "2026-11-28",
+   "pr": 28612,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269613",
+    "https://oeis.org/A269619",
+    "https://oeis.org/A269613",
+    "https://oeis.org/A269619"
+   ],
+   "note": "Column 2 of A269619: Barker's g.f. and closed form. Lean reading (successive repeat values differ by +2, 0 or -1) reproduces 25 data terms; g.f. checks. The relation has a loop (difference 0), so Ma-Zhang's Corollary 4 does not cover it; no prior proof found. Second review: Faithful and true. Routine finite-state transfer count. No earlier proof found."
+  },
+  "oeis-a269659": {
+   "date": "2026-11-28",
+   "pr": 28983,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269659",
+    "https://oeis.org/A269656",
+    "https://oeis.org/A269659",
+    "https://oeis.org/A269656"
+   ],
+   "note": "Row 6 of A269656: Barker's g.f. and recurrence. Lean reading (an ascending pair x,x+1 occurring twice anywhere) reproduces the data (brute force n<=8). Hasler (A269656, Feb 2020) proved only rows 1..5 ('easily proved'); row 6 still unproved in OEIS; no other prior proof found. Second review: Faithful and true. The parent entry records easy proofs only for rows 1-5, so row 6 was open; routine fixed-length count."
+  },
+  "oeis-a269684": {
+   "date": "2026-11-28",
+   "pr": 28123,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269684",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269684",
+    "https://oeis.org/A269690",
+    "https://zenodo.org/records/24410605",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Patterns/BarkerRegularRelationCounting.lean"
+   ],
+   "note": "Column 2 of A269690 (successive repeat values must NOT differ by +-1 mod 3): Barker's g.f. and closed form. Lean reading reproduces 20-25 data terms; g.f. checks. The allowed relation includes equality (a loop), so Ma-Zhang's loopless Corollary 4 does not apply (it would give a different g.f.); no prior proof found. Second review: Faithful statement of Barker's g.f. and closed form for column 2 of A269690. The nearby Ma-Zhang family theorem does not apply (loops allowed). Routine 3-state transfer count; no earlier proof found."
+  },
+  "oeis-a269685": {
+   "date": "2026-11-28",
+   "pr": 28359,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269685",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269685",
+    "https://oeis.org/A269690",
+    "https://zenodo.org/records/24410605",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Patterns/BarkerRegularRelationCounting.lean"
+   ],
+   "note": "Column 3 of A269690 (successive repeat values must NOT differ by +-1 mod 4): Barker's g.f. and closed form. Lean reading reproduces 20-25 data terms; g.f. checks. The allowed relation includes equality (a loop), so Ma-Zhang's loopless Corollary 4 does not apply (it would give a different g.f.); no prior proof found. Second review: Faithful statement of Barker's g.f. and closed form for column 3 of A269690. The nearby Ma-Zhang family theorem does not apply (loops allowed). Routine 3-state transfer count; no earlier proof found."
+  },
+  "oeis-a269687": {
+   "date": "2026-11-28",
+   "pr": 28366,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269687",
+    "https://oeis.org/A269690",
+    "https://oeis.org/A269687",
+    "https://oeis.org/A269690",
+    "https://zenodo.org/records/24410605",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Patterns/BarkerRegularRelationCounting.lean"
+   ],
+   "note": "Column 5 of A269690 (successive repeat values must NOT differ by +-1 mod 6): Barker's g.f. and closed form. Lean reading reproduces 20-25 data terms; g.f. checks. The allowed relation includes equality (a loop), so Ma-Zhang's loopless Corollary 4 does not apply (it would give a different g.f.); no prior proof found. Second review: Faithful statement of Barker's g.f. and closed form for column 5 of A269690. The nearby Ma-Zhang family theorem does not apply (loops allowed). Routine 3-state transfer count; no earlier proof found."
   }
  },
  "flagged": {
