@@ -7,7 +7,10 @@ sums as finite products. H2 is the remaining prime-majority assertion in
 these explicit variables.
 Source: https://oeis.org/A300984
 Credit: @dwilfand-sys. The product formula for the squarefree-divisor
-sum is also used by @anmolspace in open-math-agents #9203.
+sum is also used by @anmolspace in open-math-agents #9203. Reinhard
+Zumkeller recorded its radical-divisor interpretation at https://oeis.org/A048250
+in 2002. Amiram Eldar's 2025 characterization at https://oeis.org/A065301
+implies the prime-support observation by applying it to the radical of n.
 -/
 
 open Finset OMA.S_oeis_a300984
@@ -94,11 +97,15 @@ theorem main : H1 → H2 → type_of% @OMA.S_oeis_a300984.main := by
     constructor
     · rintro ⟨hm,hp,hp2,n,hn,hB,hs,ht,i,j,hj,rfl⟩
       obtain ⟨hS,hT⟩ := h₁ p i j hp hp2 hj
-      exact ⟨hm,hp,hp2,i,j,hj,hB,hS ▸ hs,hT ▸ ht⟩
+      rw [hS] at hs
+      rw [hT] at ht
+      exact ⟨hm,hp,hp2,i,j,hj,hB,hs,ht⟩
     · rintro ⟨hm,hp,hp2,i,j,hj,hB,hs,ht⟩
       obtain ⟨hS,hT⟩ := h₁ p i j hp hp2 hj
-      exact ⟨hm,hp,hp2,2^i*p^j,Nat.mul_pos (pow_pos (by decide) i) (pow_pos hp.pos j),
-        hB,hS.symm ▸ hs,hT.symm ▸ ht,i,j,hj,rfl⟩
+      refine ⟨hm, hp, hp2, 2^i*p^j, Nat.mul_pos (pow_pos (by decide) i) (pow_pos hp.pos j),
+        hB, ?_, ?_, i, j, hj, rfl⟩
+      · simpa only [hS] using hs
+      · simpa only [hT] using ht
   intro m hm
   change (representedPrimes (10^m)).card < 2*((representedPrimes (10^m)).filter isA082539).card
   rw [same]
