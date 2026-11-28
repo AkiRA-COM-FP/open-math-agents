@@ -6,23 +6,19 @@ the edge count weakly, and between graphs with equal edge counts it is an isomor
 `Sub`-steps raise the count strictly. Deleting edges of `G` one at a time gives
 `|E(φ G)| ≥ |E(G)|`; adding the missing edges one at a time gives `|E(φ G)| ≤ |E(G)|`. -/
 
+-- Original proof by @ppleskov (PR #20732), following reduction #20528.
+
 open OMA.S_mo_153208 SimpleGraph
 
 namespace MO153208
 
 variable {n : ℕ}
 
-lemma image_sub {G H : SimpleGraph (Fin n)} (f : G →g H) :
-    (Sym2.map f) '' G.edgeSet ⊆ H.edgeSet := by
-  rintro _ ⟨e, he, rfl⟩
-  induction e using Sym2.ind with
-  | h u v => simpa using f.map_adj he
-
 lemma sub_le {G H : SimpleGraph (Fin n)} (h : Sub G H) : G.edgeSet.ncard ≤ H.edgeSet.ncard := by
   obtain ⟨f, hf⟩ := h
   calc G.edgeSet.ncard = ((Sym2.map f) '' G.edgeSet).ncard :=
         (Set.ncard_image_of_injective _ (Sym2.map.injective hf)).symm
-    _ ≤ H.edgeSet.ncard := Set.ncard_le_ncard (image_sub f) (Set.toFinite _)
+    _ ≤ H.edgeSet.ncard := Set.ncard_le_ncard f.image_edgeSet_subset (Set.toFinite _)
 
 lemma sub_of_eq {G H : SimpleGraph (Fin n)} (h : Sub G H)
     (he : G.edgeSet.ncard = H.edgeSet.ncard) : Sub H G := by
@@ -31,7 +27,7 @@ lemma sub_of_eq {G H : SimpleGraph (Fin n)} (h : Sub G H)
   let g := (Equiv.ofBijective f hb).symm
   have hfg : ∀ x, f (g x) = x := fun x => (Equiv.ofBijective f hb).apply_symm_apply x
   have himg : (Sym2.map f) '' G.edgeSet = H.edgeSet :=
-    Set.eq_of_subset_of_ncard_le (image_sub f)
+    Set.eq_of_subset_of_ncard_le f.image_edgeSet_subset
       (by rw [Set.ncard_image_of_injective _ (Sym2.map.injective hf)]; omega) (Set.toFinite _)
   refine ⟨⟨g, fun {u v} huv => ?_⟩, (Equiv.ofBijective f hb).symm.injective⟩
   have : s(u, v) ∈ (Sym2.map f) '' G.edgeSet := by rw [himg]; exact huv
@@ -83,38 +79,20 @@ theorem OMA.solution : OMA.R_mo_153208_R1.H1 := by
     | zero =>
       intro G hG
       have h1 : (φ G).edgeSet.ncard ≤ (⊤ : SimpleGraph (Fin n)).edgeSet.ncard :=
-        Set.ncard_le_ncard (fun e he => by
-          induction e using Sym2.ind with
-          | h u v => exact (φ G).ne_of_adj he) (Set.toFinite _)
+        Set.ncard_le_ncard (edgeSet_mono le_top) (Set.toFinite _)
       have h2 : G.edgeSet.ncard ≤ (⊤ : SimpleGraph (Fin n)).edgeSet.ncard :=
-        Set.ncard_le_ncard (fun e he => by
-          induction e using Sym2.ind with
-          | h u v => exact G.ne_of_adj he) (Set.toFinite _)
+        Set.ncard_le_ncard (edgeSet_mono le_top) (Set.toFinite _)
       omega
     | succ m ih =>
       intro G hG
       have hlt : G.edgeSet.ncard < (⊤ : SimpleGraph (Fin n)).edgeSet.ncard := by omega
-      obtain ⟨e, heT, heG⟩ : ∃ e ∈ (⊤ : SimpleGraph (Fin n)).edgeSet, e ∉ G.edgeSet := by
-        by_contra hc
-        push_neg at hc
-        exact absurd (Set.ncard_le_ncard hc (Set.toFinite _)) (by omega)
+      obtain ⟨e, heT, heG⟩ := Set.exists_mem_notMem_of_ncard_lt_ncard hlt
       induction e using Sym2.ind with
       | h u v =>
         have huv : u ≠ v := by simpa using heT
         let G' := G ⊔ SimpleGraph.edge u v
         have hG'e : G'.edgeSet = insert s(u, v) G.edgeSet := by
-          ext e
-          induction e using Sym2.ind with
-          | h a b =>
-            simp only [G', edgeSet_sup, Set.mem_union, mem_edgeSet, Set.mem_insert_iff, edge_adj,
-              Sym2.eq_iff]
-            constructor
-            · rintro (h | ⟨h, -⟩)
-              · exact Or.inr h
-              · exact Or.inl h
-            · rintro (h | h)
-              · right; exact ⟨h, by rcases h with ⟨rfl, rfl⟩ | ⟨rfl, rfl⟩ <;> simpa [eq_comm] using huv⟩
-              · exact Or.inl h
+          simp [G', edgeSet_sup, edgeSet_edge_of_ne huv, Set.union_comm]
         have hG' : G'.edgeSet.ncard = G.edgeSet.ncard + 1 := by
           rw [hG'e, Set.ncard_insert_of_notMem heG]
         have hle : G ≤ G' := le_sup_left
