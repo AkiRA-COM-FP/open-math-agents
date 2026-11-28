@@ -17220,6 +17220,559 @@
     "https://oeis.org/A343073"
    ],
    "note": "Statement: with b^^1=b, a(n) = #{0<b<n : b^^x == 1 mod n for some x>=1}, and the set {n>=2 : a(n)=phi(n)} = {2,3}, matching the entry's conjecture. Proof: a Bertrand prime q in (n/2,n) is a coprime b that never works for n>=4, plus direct a(2)=1, a(3)=2. Short and elementary. No prior proof found (entry, A239063/A321312, Zenodo, GitHub repos). Second review: No equality cases beyond 2 and 3; short number-theoretic argument."
+  },
+  "oeis-a359842": {
+   "date": "2026-11-28",
+   "pr": 15787,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A359842",
+    "https://oeis.org/A359842"
+   ],
+   "note": "Bala's three congruences are faithful (2^(k-1) | a(2^k) and 3^(k+2) | a(3^k) for k>=2; p^(k+1) | a(p^k) for p>=5, stated for all k>=1, which covers the entry's claim). I checked them numerically: v2(a(2^k)) = k-1 for k<=6, v3(a(3^k)) = 5,5,6 for k=2..4, and the p=5,7,11,13 cases. I found no prior proof in the entry, the cross-reference A099237, the Lean libraries, Zenodo, Palomar or a web search. The 755-line proof is a genuine p-adic cancellation argument. Second review: Bala's 2023 prime-power congruence conjectures; no prior proof located. Substantive (755-line proof)."
+  },
+  "oeis-a362602": {
+   "date": "2026-11-28",
+   "pr": 29038,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A362602",
+    "https://oeis.org/A362602",
+    "https://oeis.org/A046955",
+    "https://oeis.org/A265735"
+   ],
+   "note": "The statement is faithful: infinitely many numerators p of convergents to 2pi lie within 1/k of pi*k for some positive integer k. It is a classical one-liner. Among each two consecutive convergents p/q of 2pi, one has |2pi - p/q| < 1/(2q^2), and then k=2q works. The statement's own docstring sketches exactly this. The proof follows the site's earlier A265735 template. I found no prior settlement for this A-number. Second review: Conjecture is an immediate consequence of Vahlen/Legendre; faithful, routine."
+  },
+  "oeis-a386833": {
+   "date": "2026-11-28",
+   "pr": 25952,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A386833",
+    "https://oeis.org/A386833"
+   ],
+   "note": "Mathar's (Nov 02 2026) conjectured D-finite recurrence for Manyama's binomial sum is stated faithfully. I checked the expanded coefficient polynomials symbolically against the entry, and the definition against the data. The recurrence holds for n<=79, including the first index used. I found no prior proof in the entry, the Lean libraries, blakestone/kolin indexes, Zenodo or Palomar. Routine: a creative-telescoping (Zeilberger/Gosper certificate) proof. Second review: Mathar's guessed D-finite recurrence for a Manyama binomial sum; true and provable by standard creative telescoping. New in the sense that no proof was found, but routine."
+  },
+  "oeis-a386835": {
+   "date": "2026-11-28",
+   "pr": 25405,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A386835",
+    "https://oeis.org/A386835"
+   ],
+   "note": "Mathar's (Nov 02 2026) conjectured D-finite recurrence for Manyama's binomial sum is stated faithfully. I checked the expanded coefficient polynomials symbolically against the entry, and the definition against the data. The recurrence holds for n<=79, including the first index used. I found no prior proof in the entry, the Lean libraries, blakestone/kolin indexes, Zenodo or Palomar. Routine: a creative-telescoping (Zeilberger/Gosper certificate) proof. Second review: Mathar's guessed D-finite recurrence for a Manyama binomial sum; true and provable by standard creative telescoping. New in the sense that no proof was found, but routine."
+  },
+  "oeis-a386836": {
+   "date": "2026-11-28",
+   "pr": 26186,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A386836",
+    "https://oeis.org/A386836"
+   ],
+   "note": "Mathar's (Nov 02 2026) conjectured D-finite recurrence for Manyama's binomial sum is stated faithfully. I checked the expanded coefficient polynomials symbolically against the entry, and the definition against the data. The recurrence holds for n<=79, including the first index used. I found no prior proof in the entry, the Lean libraries, blakestone/kolin indexes, Zenodo or Palomar. Routine: a creative-telescoping (Zeilberger/Gosper certificate) proof. Second review: Mathar's guessed D-finite recurrence for a Manyama binomial sum; true and provable by standard creative telescoping. New in the sense that no proof was found, but routine."
+  },
+  "oeis-a386837": {
+   "date": "2026-11-28",
+   "pr": 21747,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A386837",
+    "https://oeis.org/A386837"
+   ],
+   "note": "Mathar's (Nov 02 2026) conjectured D-finite recurrence for Manyama's binomial sum is stated faithfully. I checked the expanded coefficient polynomials symbolically against the entry, and the definition against the data. The recurrence holds for n<=79, including the first index used. I found no prior proof in the entry, the Lean libraries, blakestone/kolin indexes, Zenodo or Palomar. Routine: a creative-telescoping (Zeilberger/Gosper certificate) proof. Only the order-3 recurrence is formalized (from n>=3), with Mathar's leading factor 3n(21719n-23881)(3n-1)(3n-2) expanded. Second review: Mathar's guessed D-finite recurrence for a Manyama binomial sum; true and provable by standard creative telescoping. New in the sense that no proof was found, but routine."
+  },
+  "oeis-a386843": {
+   "date": "2026-11-28",
+   "pr": 24937,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A386843",
+    "https://oeis.org/A386843"
+   ],
+   "note": "Mathar's (Nov 02 2026) conjectured D-finite recurrence for Manyama's binomial sum is stated faithfully. I checked the expanded coefficient polynomials symbolically against the entry, and the definition against the data. The recurrence holds for n<=79, including the first index used. I found no prior proof in the entry, the Lean libraries, blakestone/kolin indexes, Zenodo or Palomar. Routine: a creative-telescoping (Zeilberger/Gosper certificate) proof. Both of Mathar's recurrences (order 3 from n>=3 and order 2 from n>=2) are formalized. The 129-line proof is a Gosper certificate for the order-2 one, and two instances of it give the order-3 one. Second review: Both of Mathar's Nov 2026 D-finite recurrences for a holonomic binomial sum; routine creative-telescoping result, no earlier proof found."
+  },
+  "oeis-a386845": {
+   "date": "2026-11-28",
+   "pr": 27228,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A386845",
+    "https://oeis.org/A386845"
+   ],
+   "note": "Mathar's (Nov 02 2026) conjectured D-finite recurrence for Manyama's binomial sum is stated faithfully. I checked the expanded coefficient polynomials symbolically against the entry, and the definition against the data. The recurrence holds for n<=79, including the first index used. I found no prior proof in the entry, the Lean libraries, blakestone/kolin indexes, Zenodo or Palomar. Routine: a creative-telescoping (Zeilberger/Gosper certificate) proof. Only the order-4 recurrence is formalized. Second review: Mathar's guessed D-finite recurrence for a Manyama binomial sum; true and provable by standard creative telescoping. New in the sense that no proof was found, but routine."
+  },
+  "oeis-a386862": {
+   "date": "2026-11-28",
+   "pr": 25417,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A386862",
+    "https://oeis.org/A386862"
+   ],
+   "note": "Mathar's (Nov 02 2026) conjectured D-finite recurrence for Manyama's binomial sum is stated faithfully. I checked the expanded coefficient polynomials symbolically against the entry, and the definition against the data. The recurrence holds for n<=79, including the first index used. I found no prior proof in the entry, the Lean libraries, blakestone/kolin indexes, Zenodo or Palomar. Routine: a creative-telescoping (Zeilberger/Gosper certificate) proof. Only the order-3 recurrence is formalized. Second review: Mathar's guessed D-finite recurrence for a Manyama binomial sum; true and provable by standard creative telescoping. New in the sense that no proof was found, but routine."
+  },
+  "oeis-a386863": {
+   "date": "2026-11-28",
+   "pr": 27225,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A386863",
+    "https://oeis.org/A386863"
+   ],
+   "note": "Mathar's (Nov 02 2026) conjectured D-finite recurrence for Manyama's binomial sum is stated faithfully. I checked the expanded coefficient polynomials symbolically against the entry, and the definition against the data. The recurrence holds for n<=79, including the first index used. I found no prior proof in the entry, the Lean libraries, blakestone/kolin indexes, Zenodo or Palomar. Routine: a creative-telescoping (Zeilberger/Gosper certificate) proof. Only the order-4 recurrence is formalized. Second review: Mathar's guessed D-finite recurrence for a Manyama binomial sum; true and provable by standard creative telescoping. New in the sense that no proof was found, but routine."
+  },
+  "oeis-a385736": {
+   "date": "2026-11-28",
+   "pr": 10551,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A385736",
+    "https://oeis.org/A385736"
+   ],
+   "note": "Huber's conjecture (the triangular numbers that are not perimeters of nondegenerate triangles with triangular sides are exactly 0, 1, 6, 10, 28, 55) is formalized faithfully. The strict triangle inequalities force positive sides. I found no prior proof in the entry, the Lean libraries, Zenodo or a web search. The proof gives explicit triangular-triple families by residue of n mod 3 plus a finite check for n < 7: elementary but correct. Second review: Huber's conjecture follows from three explicit polynomial identities plus a finite check; faithful but routine."
+  },
+  "oeis-a387243": {
+   "date": "2026-11-28",
+   "pr": 24727,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A387243",
+    "https://oeis.org/A382131",
+    "https://oeis.org/A387243",
+    "https://oeis.org/A381767",
+    "https://oeis.org/A382131"
+   ],
+   "note": "The conjecture a(n) = A382131(n) - n is formalized faithfully. A381767(m) is the least N with m^m <= N^(m-1) (= ceil(m^(m/(m-1)))), and A382131 is its complement. The definitions reproduce the data (1,1,2,11,41,130 vs 2,3,5,15,46,136). I found no prior proof in the entries or elsewhere. The argument is short: (k+n)^k < (k+1)^(k+1) iff k+n < c(k+1), c increases by at least 1 each step (an elementary convexity inequality), and complement counting finishes it. Second review: Faithful statement of Boddorf's identity; no prior proof found."
+  },
+  "oeis-a389425": {
+   "date": "2026-11-28",
+   "pr": 26148,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A389425",
+    "https://oeis.org/A199716",
+    "https://oeis.org/A389425",
+    "https://oeis.org/A199716"
+   ],
+   "note": "Sulaiman's conjecture (gaps of A199716 are 1 with natural density 1) is formalized faithfully. 'eligible' requires 6k-5 and 6k-1 to be composite (>1 and not prime), which reproduces 16, 20, 21, ... I found no prior proof. It is a routine consequence of the primes having density zero: the non-eligible k have density 0, so almost every eligible k is followed by an eligible k+1 (130-line proof). Second review: Density-1 claim follows from pi(x)=o(x); faithful, routine."
+  },
+  "oeis-a391629": {
+   "date": "2026-11-28",
+   "pr": 29098,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A391629",
+    "https://oeis.org/A368684",
+    "https://oeis.org/A391629",
+    "https://oeis.org/A368684"
+   ],
+   "note": "Wiseman's conjecture a(n) = A000041(n) - A368684(n) is formalized faithfully: weakly increasing parts must equal the first sums of a weakly decreasing positive sequence, and A368684 is by its name. It reproduces a(6)=9, for instance. I found no prior proof (trureturing has only the sister A391620). Routine: the first sums of a decreasing sequence are decreasing, so the increasing target is constant. That leaves k equal parts with k=1 or n/k even, which is exactly the divisor set A368684 counts. Second review: Wiseman's conjectured formula; faithful, no earlier proof located."
+  },
+  "oeis-a393858": {
+   "date": "2026-11-28",
+   "pr": 27117,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A393858",
+    "https://oeis.org/A393858",
+    "https://oeis.org/A393856"
+   ],
+   "note": "Both Hanna conjectures (a(n) odd iff n is a power of 2; a(n) == 1 mod 7) are formalized faithfully. The integral recursion encodes A(x - x A(6x)/6) = x with A(6x)/6 written as Sum 6^(k-1) a(k) x^k, and the data agree. I found no prior proof (Zenodo, Palomar, Lean libraries). Routine: mod 2 the equation becomes A(x - x^2) = x (Catalan numbers, odd iff n is a power of 2), and mod 7 it becomes A(x + xA(-x)) = x with solution x/(1-x). Uniqueness over each residue field finishes it. Second review: Hanna's two congruence conjectures; faithful; no prior proof found."
+  },
+  "oeis-a394761": {
+   "date": "2026-11-28",
+   "pr": 22438,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A394761",
+    "https://oeis.org/A394761",
+    "https://oeis.org/A381466",
+    "https://oeis.org/A392200"
+   ],
+   "note": "Chapman's conjecture (at most eight 1's, four 2's and three 3's in a row) is formalized via 9/5/4 consecutive runs at spacing len+1. That spacing is justified: after a division step the state divides the index, so the next gcd is 1. My computation to 3*10^6 steps gives maxima exactly 8, 4, 3. I found no prior proof (entry, A392200/A391446, Epoch OEIS Open, Lean libraries, web). The 384-line proof is a genuine residue analysis of A381466. Second review: Disproof by explicit counterexample (nine consecutive 1's at around step 1.95e7), independently reproduced. A finite check, so routine."
+  },
+  "oeis-a273871": {
+   "date": "2026-11-28",
+   "pr": 22909,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273871",
+    "https://oeis.org/A273871"
+   ],
+   "note": "Conjecture 1 is essentially definitional: (4^k)^(p-1)-1 is a multiple of 4^(p-1)-1 and k=1 gives the converse, so it is trivial. Conjecture 2 (Fermat primes are terms) is a short exercise: (F_m-1)^2+1 = F_{m+1} divides 2^(2^(m+2))-1, which divides 4^(F_m-1)-1. Faithful but routine; conjecture 1 alone would be flagged as trivial. Second review: Both Krizek conjectures are elementary one-liners (27-line proof). Faithful but trivial."
+  },
+  "oeis-a187916": {
+   "date": "2026-11-28",
+   "pr": 29640,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187916",
+    "https://oeis.org/A187916"
+   ],
+   "note": "Faithful statement of Mathar's order-4 P-recurrence for n>=5 (coefficients match the full formula line). The proof is a routine holonomic verification using (k+2)C(k+1)=(4k+2)C(k) for each parity. No earlier proof found in the listed collections, the trureturing/np/rb id lists, the isitsolved map or the cross-referenced entries. Second review: Mathar's 2015 recurrence for an algebraic-g.f. sequence; routine."
+  },
+  "oeis-a164004": {
+   "date": "2026-11-28",
+   "pr": 29639,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A164004",
+    "https://oeis.org/A163280",
+    "https://oeis.org/A164004",
+    "https://oeis.org/A163280"
+   ],
+   "note": "Faithful: a(n) is the 4th smallest j with A033676(j)=n (Nat.nth index 3), with a(0)=0. Barker's closed form n(n+3) for n>1, the recurrence and the g.f. follow from the elementary fact that, for n>=2, the first column-n entries are n^2, n^2+n, n^2+2n, n^2+3n. Correct but routine; no earlier proof found. Second review: Barker's closed form/recurrence/g.f.; elementary, routine."
+  },
+  "oeis-a203650": {
+   "date": "2026-11-28",
+   "pr": 29522,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203650",
+    "https://oeis.org/A203650",
+    "https://oeis.org/A203656"
+   ],
+   "note": "Faithful formalization of the n X 3 array count over 0..4 divided by 25 (a(1)=81 checked by brute force). Barker's g.f. and closed form are proved by an exact transfer matrix. A203650 and its table A203656 are not in the isitsolved Hardin papers (checked: local map, fresh page crawl and the .tex of every Hardin round to iis:2611.00327), the trureturing/np/rb lists or the other collections. Routine. Second review: Hardin/Barker empirical g.f. conjecture; faithful and routine; no prior proof found."
+  },
+  "oeis-a204070": {
+   "date": "2026-11-28",
+   "pr": 29482,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A204070",
+    "https://oeis.org/A204070",
+    "https://oeis.org/A204076"
+   ],
+   "note": "Faithful (row-major new-value condition plus the diagonal/antidiagonal 2 X 2 rule; a(1)=38 and a(2)=329 checked by brute force). Barker's g.f. and closed form are proved by a transfer matrix. A204070 and its table A204076 were not found in the isitsolved Hardin rounds (map, fresh pages, .tex) or the other collections. Routine. Second review: Hardin/Barker empirical g.f. conjecture; faithful and routine; no prior proof found."
+  },
+  "oeis-a241807": {
+   "date": "2026-11-28",
+   "pr": 29627,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A241807",
+    "https://oeis.org/A241807"
+   ],
+   "note": "Faithful: numerator of (n^2+n+2)/((n+1)(n+2)(n+3)) equals (n^2+n+2)/per(n) with the stated period-16 list. The proof shows gcd(N,D) divides 16 via (n+5)(n+2)+4 times N = D(n+2)+16, then a finite residue check mod 16. Elementary; no earlier proof found. Second review: Period-16 gcd identity; routine."
+  },
+  "oeis-a251269": {
+   "date": "2026-11-28",
+   "pr": 29599,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A251269",
+    "https://oeis.org/A251269",
+    "https://oeis.org/A251268"
+   ],
+   "note": "Faithful (3 X (n+1) binary arrays, 2 X 2 condition x11-x00 >= x10-x01; data reproduced). Barker's g.f. and closed form are proved by a column transfer matrix. Neither A251269 nor its table A251268 is in the isitsolved Hardin rounds (1590 single sequences plus table rounds T1-T3 checked via .tex), the trureturing/np/rb lists or the other collections. Routine. Second review: Hardin/Barker empirical g.f. conjecture; faithful and routine; no prior proof found."
+  },
+  "oeis-a390583": {
+   "date": "2026-11-28",
+   "pr": 29587,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A390583",
+    "https://oeis.org/A390583"
+   ],
+   "note": "Faithful: primitive Descartes quadruples (x,y,R,R) with x<=y<=R and gcd(x,y,R)=1 have y-x equal to k^3 or 2k^3 (Hohn's 'observed and generally conjectured' comment); the separate chain question is correctly excluded. The proof reduces Descartes to R(y-x)^2 = 4xy(x+y) and does a short gcd/valuation analysis. Checked numerically for all x<y<1500 (3002 quadruples, no exception). No earlier proof found; trureturing has only the sphere analogue A390148. Second review: Faithful; elementary but genuine proof; no prior proof found."
+  },
+  "oeis-a392338": {
+   "date": "2026-11-28",
+   "pr": 29568,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A392338",
+    "https://oeis.org/A309257",
+    "https://oeis.org/A392338",
+    "https://oeis.org/A084367"
+   ],
+   "note": "Faithful: for odd n=2m+1>=3, the minimum nonzero |det| of a circulant matrix whose first row is a permutation of 0..n-1 is m(2m+1)^2. The proof gives a lower bound plus an explicit permutation achieving it. Brute force confirms 9, 50, 147, 324 for n=3,5,7,9. The equivalent statement for symbols 1..n (A309257, odd n) is unproved in the OEIS and in the 2019 REU entries. A392191's Oct 2026 formula concerns signed minima and gives no proof. Substantive. Second review: Spezia's conjecture for odd n; faithful; no prior proof found."
+  },
+  "oeis-a282957": {
+   "date": "2026-11-28",
+   "pr": 29570,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282957",
+    "https://oeis.org/A282957"
+   ],
+   "note": "Faithful formalization of Wu's conjectured order-8 recurrence (n>24) and g.f. for the x-axis binary word of 2D 5-neighbour outer-totalistic Rule 533 (definition reproduces the data). Proved by a kernel-checked finite invariant on the symmetry wedge. Not covered by Cohen's Zenodo 24384895 (A269xxx-A273xxx entries only), the isitsolved map, trureturing (no Rule 533 / A28295x file) or Munoz's ECA list. The site's later A282955 solve credits this proof's method. Second review: Wu's CA recurrence/g.f.; routine; no prior proof found."
+  },
+  "mo-461674": {
+   "date": "2026-11-28",
+   "pr": 29666,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/461674",
+    "https://mathoverflow.net/questions/461674"
+   ],
+   "note": "Faithful in quantile coordinates: laws with the same mean are monotone f, g on (0,1); 'below' is equal mean plus put-price domination, which is the convex order. The conclusion's coupling cost equal to the integral of |f-g|^p gives W_p(lambda,rho) <= W_p(mu,nu), so g(d)=d works for every p>=1, answering the question affirmatively. The construction picks l pointwise from {f,g} with prefix integrals equal to the max, and r = f+g-l. No MO answer exists (only comments). No earlier solution found. Second review: Positive answer with g = identity; short but genuine argument; no earlier answer found."
+  },
+  "arxiv-2602.21687": {
+   "date": "2026-11-28",
+   "pr": 14221,
+   "routine": false,
+   "evidence": [
+    "https://arxiv.org/abs/2602.21687v3",
+    "https://arxiv.org/abs/2602.21687v3"
+   ],
+   "note": "Faithful encoding of Open Question 1 (existence of a 2-balanced permutation sequence for every n; condition (3) with floor((j+1)n/t)+1). The site disproves it at n = 2^(2^22+2) via a Halasz-type L1 discrepancy (Riesz product) bound against the balanced-side pigeonhole. arXiv v3 (2026-07-22) still lists it as open. The Halasz idea is the statement contributor's remark, not prior literature. Substantive negative answer; no earlier solution found. Second review: Genuine disproof of Open Question 1 (no 2-balanced sequence for a specific huge n). No prior settlement found."
+  },
+  "mo-401929": {
+   "date": "2026-11-28",
+   "pr": 29571,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/401929",
+    "https://mathoverflow.net/questions/401929"
+   ],
+   "note": "Open-ended question (relating the spectra of the Gram matrix before and after translating samples). The statement proves the rank-<=2 perturbation formula and the asker's edit claim (eigenvalues agree on eigenvectors orthogonal to e). It also gives an explicit unit-sample example where the shifted Gram matrices coincide but the original spectra differ. Correct but elementary linear algebra; no MO answer. Second review: Reasonable formal answer to a vague question; elementary linear algebra plus an explicit example. Routine."
+  },
+  "mo-514879": {
+   "date": "2026-11-28",
+   "pr": 7835,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/514879",
+    "https://mathoverflow.net/questions/514879"
+   ],
+   "note": "The question asks to prove deg_x F_n(x,y) = C(n-1,(n-1)/2) for odd n. The Lean statement writes n=2k+1 and x=t^n, and quantifies over every choice of square roots. Because the evaluation identity holds for all t and y, F is uniquely determined, so natDegree is the true degree. The question has no answers and its comments give no proof (StackExchange API). The 315-line proof is a genuine argument (norm pairing, binomial series, Laurent coefficients). Second review: Faithful; no prior answer."
+  },
+  "oeis-a228916": {
+   "date": "2026-11-28",
+   "pr": 24508,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228916",
+    "https://oeis.org/A228916",
+    "https://oeis.org/A108300"
+   ],
+   "note": "Kotesovec's conjecture (indices n>1 of primes in A108300 are multiples of 3) is stated faithfully, with u(0)=1, u(1)=5, u(n)=3u(n-1)+u(n-2). The proof is an elementary covering: u(m) mod 10 has period 12, u(m) is even for m=2 mod 3, and 5 divides u(m) for m=1 mod 3, with m=1 (u=5) the lone exception. No prior proof was found, but the argument is routine. Second review: Conjecture follows from u mod 10 periodicity; routine."
+  },
+  "oeis-a332553": {
+   "date": "2026-11-28",
+   "pr": 24581,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A332553",
+    "https://arxiv.org/abs/2004.14000",
+    "https://oeis.org/A332553",
+    "https://oeis.org/A082183",
+    "https://arxiv.org/abs/2004.14000"
+   ],
+   "note": "Sloane's Conjectures 1 and 2 (records of n/a(n) occur exactly at T_j-1 with value j/2+1, and a(n) > 2n/(j+2) below T_j-1) are formalized faithfully, with A082183/A082184 by sInf; this reproduces the data. Numerically the records for n<3000 are exactly n=2,5,9,14,20,... with values j/2+1. Myers-Schroeppel-Shannon-Sloane-Zimmermann (arXiv:2004.14000) prove only Klee's n+k>=m and do not address the records. The proof is an elementary inequality analysis of triangular triples. Second review: Sloane's two conjectures; faithful; no prior proof found."
+  },
+  "oeis-a182129": {
+   "date": "2026-11-28",
+   "pr": 24522,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A182129",
+    "https://oeis.org/A182129"
+   ],
+   "note": "Lagneau's generalization (every orbit of k -> (digit sum of k)^n eventually repeats) is stated faithfully. It is routine: (digit sum)^n <= (9*(log10 x+1))^n < x for large x, so orbits are bounded and therefore eventually periodic. No prior proof was found. Second review: Lagneau's 'conjecture' is trivial (orbit bounded). Note: oeis-a178481 on this site states the same conjecture (conjugate map), proved 13 s later."
+  },
+  "oeis-a361337": {
+   "date": "2026-11-28",
+   "pr": 24591,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A361337",
+    "https://oeis.org/A361978",
+    "https://oeis.org/A361337"
+   ],
+   "note": "Hasler's conjecture a(2894+k)=3112+k (every N>=3112 reaches 0, and exactly 2893 terms lie below 3112) is formalized faithfully. The leading-zero conventions are argued to be irrelevant and match the examples. The proof combines a kernel-checked table for N<31120 with an induction (for N>=31120, split off the last digit). The complement entry A361978 still says only 'appears to be finite'. The proof is a finite computation plus a simple induction. Second review: Faithful; no prior proof found."
+  },
+  "oeis-a365092": {
+   "date": "2026-11-28",
+   "pr": 24596,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A365092",
+    "https://oeis.org/A001144",
+    "https://oeis.org/A365092",
+    "https://oeis.org/A001144"
+   ],
+   "note": "Song's conjecture (for k>=2 the largest n with a(n)=k is A001144(k)) is formalized faithfully. a(n) follows the entry's formula and programs, and A001144 follows Adams-Watters' comment as the maximum right-associated tower over compositions (giving 512=2^3^2 at k=7). The 368-line proof is a genuine extremal argument. No proof appears in the entry, A001144 or the Golomb-Richman Monthly problem, and none was found in the other libraries. Second review: Jianing Song's conjecture; faithful; no prior proof found."
+  },
+  "oeis-a201976": {
+   "date": "2026-11-28",
+   "pr": 29359,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A201976",
+    "https://oeis.org/A201981",
+    "https://oeis.org/A201976",
+    "https://oeis.org/A201981"
+   ],
+   "note": "Barker's g.f. and order-7 recurrence for Hardin's n X 3 arrays over 0..3 (rows and columns lexicographically nondecreasing forwards and nonincreasing backwards) are formalized with a reading that reproduces the parent tables, and the proof derives all 26 data terms. Nothing was found in the parent A201981 (empirical only), in isitsolved filings up to 12:25 UTC, or in the trureturing, thatnealpatel, blakestone or Athanor id lists. The site proof is a routine structural count. Second review: Hardin/Barker empirical g.f. conjecture; faithful and routine; no prior proof found."
+  },
+  "oeis-a201043": {
+   "date": "2026-11-28",
+   "pr": 29355,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A201043",
+    "https://oeis.org/A201042",
+    "https://oeis.org/A201043",
+    "https://oeis.org/A201042"
+   ],
+   "note": "Barker's g.f. x(41+90x+46x^2-4x^3+x^4)/(1-x)^5 and the recurrence for the number of -n..n arrays of 4 elements with adjacent differences in -n..n are stated faithfully, with a(0) excluded per offset 1. The count is the Ehrhart polynomial of an integral polytope (difference constraints form a totally unimodular system), so this is a routine degree-4 polynomial identity. The parent table A201042 has empirical row formulas only, and no prior proof was found. Second review: Hardin/Barker empirical g.f. conjecture; faithful and routine; no prior proof found."
+  },
+  "oeis-a201046": {
+   "date": "2026-11-28",
+   "pr": 29347,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A201046",
+    "https://oeis.org/A201042",
+    "https://oeis.org/A201046",
+    "https://oeis.org/A201042"
+   ],
+   "note": "This is the 7-element case of the same family as A201043: Barker's g.f. over (1-x)^8 and the order-8 recurrence, stated faithfully, with the proof checking all listed terms. It is routine: the count is a degree-7 Ehrhart-type polynomial. The parent A201042 is empirical only, and no prior proof was found. Second review: Hardin/Barker empirical g.f. conjecture; faithful and routine; no prior proof found."
+  },
+  "oeis-a245990": {
+   "date": "2026-11-28",
+   "pr": 29337,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A245990",
+    "https://oeis.org/A245995",
+    "https://oeis.org/A245990"
+   ],
+   "note": "The empirical recurrence, Barker's g.f. 4x(7+3x)/(1-2x-x^2) and the Binet form for length n+2 arrays over 0..3 with no pair summing to 3 within a window of three are stated faithfully. The proof is a two-state transfer argument (two extensions, plus one when the last two digits agree). Nothing was found in the parent A245995 (empirical column formulas) or the prior-art lists. Routine. Second review: Hardin/Barker empirical g.f. conjecture; faithful and routine; no prior proof found."
+  },
+  "mo-459462": {
+   "date": "2026-11-28",
+   "pr": 29332,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/459462",
+    "https://mathoverflow.net/questions/459462"
+   ],
+   "note": "Englander asks whether q(n,k)=S_2(n,k)/S(n,k) is strictly decreasing in k. The statement gives the exact refinement: non-increasing for 0<k<n, strict iff 2k<=n, and zero once 2k>n (where both sides vanish, so literal strictness is impossible). It also checks that the e.g.f. definition gives S(n,k) for s=1. The question has no answers or comments (StackExchange API), and a web search found no prior proof. My exact check for n<=60 agrees. Second review: Faithful (with the necessary strictness range); no prior answer found."
+  },
+  "oeis-a201045": {
+   "date": "2026-11-28",
+   "pr": 29329,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A201045",
+    "https://oeis.org/A201042",
+    "https://oeis.org/A201045",
+    "https://oeis.org/A201042"
+   ],
+   "note": "This is the 6-element case of the -n..n adjacent-difference array family (siblings A201043/A201046): Barker's g.f. over (1-x)^7 and the order-7 recurrence, stated faithfully, with the proof checking a(1..23). It is a routine Ehrhart-type polynomial count. The parent A201042 has only empirical formulas, and no prior proof was found. Second review: Row 6 of Hardin's A201042; the claim is a degree-6 polynomial count, which Ehrhart theory makes expected but nobody had written down for this row. Routine polynomial/g.f. identity."
+  },
+  "oeis-a079953": {
+   "date": "2026-11-28",
+   "pr": 29325,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A079953",
+    "https://oeis.org/A039734",
+    "https://oeis.org/A079953",
+    "https://oeis.org/A039734"
+   ],
+   "note": "Mathar's conjecture A079953(n)=A039734(n) (n>=2) is stated faithfully: the least prime q with p mod 2q = p is the unique prime below p maximizing p mod q. The proof needs a prime in (3v/4, v] for v>=11, proved from Chebyshev-type lcm bounds plus a finite chain. Numerically it holds for all primes below 2*10^5. No prior proof was found in the entries or the libraries. Second review: Proof: a prime in (3v/4, v] (Chebyshev/Nagura style) gives q0 <= 2p/3 so p mod q0 >= p/3, while primes below p/2 leave remainders < p/3. Short argument from a known prime-gap theorem; genuinely settles Mathar's conjecture."
+  },
+  "oeis-a317850": {
+   "date": "2026-11-28",
+   "pr": 24600,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A317850",
+    "https://oeis.org/A317864",
+    "https://oeis.org/A317850",
+    "https://oeis.org/A317864"
+   ],
+   "note": "Thomas's 'iff n = 3, 7, 15 (mod 20)' is refuted at n=4. g(a)=(a^4+1)^4+1-a has the root a=2 mod 10 with derivative a unit mod 10, so Hensel gives a 10-adic pair x = ...2, y = x^4+1. I lifted it to 20 digits (x = ...696407492162, y = ...828975851537, and y^4+1 = x). The 10-adic encoding is faithful (compatible families in ZMod 10^k, n>=1). This is a genuine but routine Hensel counterexample to the printed claim. Second review: Disproof: at n=4 there is a 10-adic 2-cycle x = ...2, y = x^4+1 (Hensel, derivative a unit mod 10). Many other n outside {3,7,15 mod 20} also work, so Thomas's conjecture is simply false. Finite Hensel check, hence routine."
+  },
+  "oeis-a363473": {
+   "date": "2026-11-28",
+   "pr": 24588,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A363473",
+    "https://oeis.org/A363473"
+   ],
+   "note": "Both the permutation conjecture and the generalized b-version are formalized faithfully (BijOn from {1<=k<=n} onto the positive integers). It is routine by unique factorization: for k>=2, T(n,k)=k*p with p a prime >= gpf(k), so every composite m arises exactly once (k = m/gpf(m), with n fixed by the index of gpf(m)), and column 1 gives 1 and the primes. The same argument works with b(k) in place of k. No prior proof was found. Second review: Both conjectures follow from the unique factorisation m = (m/gpf(m))*gpf(m); a short elementary argument. Faithful and true, low novelty."
+  },
+  "oeis-a390217": {
+   "date": "2026-11-28",
+   "pr": 22476,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A390217",
+    "https://oeis.org/A390217"
+   ],
+   "note": "Hutton's conjectured g.f. (1/4)(P(x)^4 + P(x^2)^2 + 2P(x^4)) for 4-colored partitions with color sum = 0 mod 4 is stated faithfully. Multiplicity vectors are bounded by n, products are truncated at range n (enough for coefficient n), and a(0)=1. It is a routine roots-of-unity filter: at omega=i the four color factors give 1/(1-x^(4j)), and at omega=-1 they give 1/(1-x^(2j))^2. No prior proof was found. Second review: Standard roots-of-unity filter (Burnside) proof of the conjectured g.f.; true and faithful, routine g.f. identity."
+  },
+  "oeis-a227720": {
+   "date": "2026-11-28",
+   "pr": 13018,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A227720",
+    "https://oeis.org/A227720"
+   ],
+   "note": "Kimberling's recurrence and g.f. The printed recurrence's -2a(n-1) is a sign typo: it fails on the data (gives -321 at n=7), while the printed g.f. denominator implies +2a(n-1). The statement uses the g.f.-consistent sign and the printed g.f. unchanged, a faithful repair that the proof does not exploit. The proof bounds log to show 1/s(n) lies in [3n^2+(9n+1)/4, +1/4), giving a(n)=3n^2+floor((9n+1)/4); I confirmed this for n<3000 at 50 digits. Routine. Second review: Kimberling's g.f. holds: rounding of a quasi-polynomial with period 4 whose fractional offsets stay away from 1/2. Routine after log bounds; the typo correction is correctly documented."
+  },
+  "oeis-a007528": {
+   "date": "2026-11-28",
+   "pr": 17615,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A007528",
+    "https://oeis.org/A007528"
+   ],
+   "note": "Valianatos' conjecture, with the n-th primes = 5 mod 6 paired against the n-th primes = 1 mod 6 and partial products tending to 3/4, is stated faithfully. Numerically the product is 0.750034 after 928739 pairs. The value is L(1,chi_-3)^2/L(2,chi_0) with the p=2 factor removed, and the pairing is handled by a(n)/b(n) -> 1. The 922-line proof establishes this convergence; no prior written proof was found in the entry or the libraries. Second review: True and faithful. It is a short consequence of classical facts (Euler product at s=1, value of L(1,chi) mod 6, index pairing harmless by density), so low novelty; the Lean proof does the analytic work from scratch."
+  },
+  "oeis-a270923": {
+   "date": "2026-11-28",
+   "pr": 17308,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A270923",
+    "https://oeis.org/A270923",
+    "https://oeis.org/A252782",
+    "https://oeis.org/A270917"
+   ],
+   "note": "Kotesovec's conjectured limit a(n)^(1/n^2) -> exp(exp(-1)) is refuted. Using r^3 <= 3^r (r^(1/r) is maximal at r=3 over the integers), every term is at most poly(n)^n * 3^(n^2/3), so limsup <= 3^(1/3) = 1.44225 < exp(1/e) = 1.44467. The conjecture used the real maximizer e instead of the integer 3. The finite multiplicity-sum definition reproduces the data 1,2,10,88,1414,46648,3026028,373615284 (my check). Genuine, short refutation. Second review: Kotesovec's conjectured constant e^(1/e) is the real maximum of k^(1/k); with integer part sizes the maximum is 3^(1/3), so the conjecture is false. Elementary bound, routine. The same error sits in A252782 and A270917 (A270917 is also disproved on the site)."
+  },
+  "oeis-a002105": {
+   "date": "2026-11-28",
+   "pr": 17278,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A002105",
+    "https://oeis.org/A002439",
+    "https://oeis.org/A002105",
+    "https://arxiv.org/abs/2609.07238"
+   ],
+   "note": "Bala's conjecture (reduced tangent numbers mod k are eventually periodic with period dividing phi(k)) is stated faithfully as a(n+phi(k)) = a(n) mod k for n >= N. The proof uses von Staudt-Clausen for powers of 2 and an exponential-sum model for odd moduli, and its header says the method adapts the site's earlier proof for A002439 (Glaisher's T numbers, a different sequence and claim). So this is not a duplicate. No prior proof of this specific claim was found, though it is in the spirit of classical Kummer-type congruences. Second review: Settles Bala's conjecture for this entry, with the 2-part from von Staudt-Clausen and odd moduli by the same exponential-sum method as Kallat (2026) and the site's A002439 proof. Not literally covered by prior work, but close to a routine adaptation."
+  },
+  "oeis-a165372": {
+   "date": "2026-11-28",
+   "pr": 16697,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A165372",
+    "https://oeis.org/A165372"
+   ],
+   "note": "Barker's g.f. x^2(9+22x+33x^2)/(1-x)^2 and a(n)=8(8n-19) for n>2 are stated faithfully for Hardin's slanted n X 3 arrays (edge adjacency in absolute coordinates, corners 1,2,3,4 as in the examples). The proof gives a layer and spine characterization and a 4x4 transfer-matrix count, yielding 9, 40, 104, ... as in the data. Nothing was found in isitsolved filings up to 12:25 UTC (this proof was committed 01:10 UTC) or the libraries. Routine. Second review: Barker's linear formula for a Hardin connectivity count; true and faithfully encoded. Routine structural count."
+  },
+  "oeis-a121553": {
+   "date": "2026-11-28",
+   "pr": 29550,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121553",
+    "https://oeis.org/A121553"
+   ],
+   "note": "Mathar's order-4 P-recurrence follows mechanically from the entry's first-order formula a(n)=n a(n-1)+(n-1)!(1+C(n,2)) (Barcucci et al.); definition matches OEIS data (a(0)=0 placeholder unused since n>=5) and the recurrence checks to n=39. No prior proof found in the listed collections, but the derivation is routine. Second review: Mathar's D-finite recurrence follows mechanically from the closed form; routine."
   }
  },
  "flagged": {
@@ -20946,6 +21499,15 @@
     "https://mathoverflow.net/questions/490781"
    ],
    "reason": "The statement conjoins the MMS conjecture (open in general) with the 'MM conjecture' A(n,k)=C(n-floor(n/k),k) for n<4k, k not dividing n. The disproof only refutes the MM part, at (n,k)=(5,3) with weights (3,3,-2,-2,-2) giving 3 < C(4,3)=4. But the question itself says 'I realized that the MM conjecture is not generally correct' and asks about a different formula (2). So the disproof refutes a conjunct already reported false in the source; MMS and formula (2) are untouched."
+  },
+  "oeis-a165141": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A165141",
+    "https://oeis.org/A165141/b165141.txt",
+    "https://oeis.org/A160324"
+   ],
+   "reason": "Second review: The bundled 'It seems' remark (ii) is an author remark presented as a conjecture, and the entry's b-file already contradicts it, so refuting main is vacuous as stated. The real content, that Sun's limit conjecture (iii) fails because representation counts are unbounded relative to sqrt(n), is genuine and worth keeping. But the formalization should isolate (iii), and Sun's main conjecture (every count occurs) stays open."
   }
  },
  "known": {
@@ -38586,6 +39148,14 @@
     "https://dlmf.nist.gov/18.9"
    ],
    "reason": "Faithful (numerator of H_n(19/26) in lowest terms). The entry does not treat this as open: Mathar's line is tagged [DLMF] (the Hermite three-term recurrence), Israel adds 'E.g.f. exp(-x*(169*x-19)). The conjecture is a consequence', and Greubel gives a(n)=13^n H_n(19/26). The only extra step is that 13 does not divide 13^n H_n(19/26) (it is 6^n mod 13). Known and routine."
+  },
+  "mo-279516": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://mathoverflow.net/questions/279516",
+    "https://en.wikipedia.org/wiki/Rado%27s_theorem_(Hall)"
+   ],
+   "reason": "Second review: The answer is an immediate specialisation of the classical Rado (Hall-Rado) defect theorem for generic vectors from given subspaces; the Lean proof reproves it. The MO question was unanswered, but the content is classical, so not new."
   }
  },
  "reviewed": "2026-11-28"
