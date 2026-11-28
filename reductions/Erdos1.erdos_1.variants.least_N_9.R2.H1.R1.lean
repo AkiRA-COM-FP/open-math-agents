@@ -5,7 +5,8 @@ The cube interval-growth bound leaves four possible maxima. Single-value and pai
 relations remove vertices and edges from the residual graph. Three forced vertices
 either fail the pair tests or sum to a relation on their own. For larger candidate
 sets, check only triangles satisfying the moment, rank-span and modular support
-bounds. The 306th distinct subset sum must lie within the maximum of the 158th.
+bounds. The maximum bounds three gaps in the ordered distinct subset sums, from ranks
+158 to 306, 207 to 355, and 224 to 367.
 A surviving triangle has four signed sums to inspect up to sign. -/
 
 namespace OMA.R_Erdos1_erdos_1_variants_least_N_9_R2_H1_R1
@@ -186,15 +187,32 @@ lemma table7 : ∀ i j : Fin (128+1), (fun j : ℕ => (0x10040100401004010040100
   have block129 := verifyBlocks test 128 1 block128 (by decide +kernel)
   exact block129
 
-lemma table8 : ∀ i j : Fin (256+1), (fun j : ℕ => if j=158 then 306 else 0) (i.val+j.val) ≤ max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) i.val) j.val + max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) j.val) i.val := by
-  intro i j
-  change (if i.val+j.val=158 then 306 else 0)≤_
-  split
-  · rename_i eq
-    have chk : ∀ t ∈ List.range 159, 306 ≤ max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) t) (158-t) + max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) (158-t)) t := by decide +kernel
-    have v := chk i.val (List.mem_range.mpr (by omega))
-    rwa [show 158-i.val=j.val by omega] at v
-  · omega
+lemma table8 (K : ℕ) (hK : K = 158 ∨ K = 207 ∨ K = 224) : ∀ i j : Fin (256+1), (fun j : ℕ => if j=K then K+(if K=224 then 143 else 148) else 0) (i.val+j.val) ≤ max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) i.val) j.val + max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) j.val) i.val := by
+  rcases hK with rfl | rfl | rfl
+  · intro i j
+    change (if i.val+j.val=158 then 306 else 0)≤_
+    split
+    · rename_i eq
+      have chk : ∀ t ∈ List.range 159, 306 ≤ max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) t) (158-t) + max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) (158-t)) t := by decide +kernel
+      have v := chk i.val (List.mem_range.mpr (by omega))
+      rwa [show 158-i.val=j.val by omega] at v
+    · omega
+  · intro i j
+    change (if i.val+j.val=207 then 355 else 0)≤_
+    split
+    · rename_i eq
+      have chk : ∀ t ∈ List.range 208, 355 ≤ max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) t) (207-t) + max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) (207-t)) t := by decide +kernel
+      have v := chk i.val (List.mem_range.mpr (by omega))
+      rwa [show 207-i.val=j.val by omega] at v
+    · omega
+  · intro i j
+    change (if i.val+j.val=224 then 367 else 0)≤_
+    split
+    · rename_i eq
+      have chk : ∀ t ∈ List.range 225, 367 ≤ max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) t) (224-t) + max ((fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) (224-t)) t := by decide +kernel
+      have v := chk i.val (List.mem_range.mpr (by omega))
+      rwa [show 224-i.val=j.val by omega] at v
+    · omega
 
 lemma count_growth (r K gap : ℕ) (positive : 0<K) (topBound : K≤2^r) (M : ℕ) (A : Finset ℕ) (hc : A.card=r) (hA : IsSumDistinctSet A M)
     (growth : ∀ (C : Finset ℕ → ℤ → ℕ), (∀ B, Monotone (C B)) → (∀ B z, C B z ≤ 2^B.card) →
@@ -323,7 +341,8 @@ lemma count_growth (r K gap : ℕ) (positive : 0<K) (topBound : K≤2^r) (M : �
     exact ⟨t,hmem,(counts t).trans hit,by rwa [counts,Nat.cast_add]⟩
 lemma all_growth (C : Finset ℕ → ℤ → ℕ) (M : ℕ)
     (monoC : ∀ A, Monotone (C A)) (sizeC : ∀ A z, C A z ≤ 2^A.card)
-    (stepC : ∀ A a, a∉A → ∀ z, C (insert a A) z = C A z + C A (z-a)) :
+    (stepC : ∀ A a, a∉A → ∀ z, C (insert a A) z = C A z + C A (z-a))
+    (K : ℕ) (hK : K = 158 ∨ K = 207 ∨ K = 224) :
     (∀ B : Finset ℕ, B.card=1 → (∀ a∈B, a≤M) → ∀ z, C B z=1 → 1+1≤C B (z+M)) ∧
     (∀ B : Finset ℕ, B.card=2 → (∀ a∈B, a≤M) → ∀ z, C B z=1 → 1+2≤C B (z+M)) ∧
     (∀ B : Finset ℕ, B.card=3 → (∀ a∈B, a≤M) → ∀ z, C B z=2 → 2+4≤C B (z+M)) ∧
@@ -332,7 +351,7 @@ lemma all_growth (C : Finset ℕ → ℤ → ℕ) (M : ℕ)
     (∀ B : Finset ℕ, B.card=6 → (∀ a∈B, a≤M) → ∀ z, C B z=14 → 14+23≤C B (z+M)) ∧
     (∀ B : Finset ℕ, B.card=7 → (∀ a∈B, a≤M) → ∀ z, C B z=36 → 36+43≤C B (z+M)) ∧
     (∀ B : Finset ℕ, B.card=8 → (∀ a∈B, a≤M) → ∀ z, C B z=65 → 65+78≤C B (z+M)) ∧
-    (∀ B : Finset ℕ, B.card=9 → (∀ a∈B, a≤M) → ∀ z, C B z=158 → 158+148≤C B (z+M)) := by
+    (∀ B : Finset ℕ, B.card=9 → (∀ a∈B, a≤M) → ∀ z, C B z=K → K+(if K=224 then 143 else 148)≤C B (z+M)) := by
   have base : ∀ A : Finset ℕ, A.card=0 → (∀ a∈A, a≤M) → ∀ z, id (C A z) ≤ C A (z+M) :=
     fun A _ _ z => monoC A (show z ≤ z + (M:ℤ) by omega)
   have h1 := iterate C M monoC sizeC stepC 0 id (fun j : ℕ => (0x200800 >>> (10*j)) % 1024) base table0
@@ -343,7 +362,7 @@ lemma all_growth (C : Finset ℕ → ℤ → ℕ) (M : ℕ)
   have h6 := iterate C M monoC sizeC stepC 5 (fun j : ℕ => (0x2008020080200801f07c1f07c1e0781e0741d0701a0681a06419060160581504c100400f0340a01800 >>> (10*j)) % 1024) (fun j : ℕ => (0x401004010040100400fc3f0fc3f0fc3e0f83e0f83d0f43d0f03c0ec390e4390e4380e0380dc370d8340d0340cc330c8300c02f0b42a0a82a0a4290a0260982508c200801f0741a05816054130400c01c00 >>> (10*j)) % 1024) h5 table5
   have h7 := iterate C M monoC sizeC stepC 6 (fun j : ℕ => (0x401004010040100400fc3f0fc3f0fc3e0f83e0f83d0f43d0f03c0ec390e4390e4380e0380dc370d8340d0340cc330c8300c02f0b42a0a82a0a4290a0260982508c200801f0741a05816054130400c01c00 >>> (10*j)) % 1024) (fun j : ℕ => (0x802008020080200802007f1fc7f1fc7f1fc7e1f87e1f87e1f47d1f47d1f07c1f07b1ec7a1e0781e0781e0771dc771dc761d8761d4751d0721c8721c8711c4711c0701bc6d1b46d1b06c1ac691a4681986318c6318c6218862184611805e1785e1745d1705a1685915c541505414c53148501404f1344a1284911c44100401003f0fc3e0f03c0ec390d8360d4330c02c0b02b0a4260881d0741c0681704c0e02000 >>> (10*j)) % 1024) h6 table6
   have h8 := iterate C M monoC sizeC stepC 7 (fun j : ℕ => (0x802008020080200802007f1fc7f1fc7f1fc7e1f87e1f87e1f47d1f47d1f07c1f07b1ec7a1e0781e0781e0771dc771dc761d8761d4751d0721c8721c8711c4711c0701bc6d1b46d1b06c1ac691a4681986318c6318c6218862184611805e1785e1745d1705a1685915c541505414c53148501404f1344a1284911c44100401003f0fc3e0f03c0ec390d8360d4330c02c0b02b0a4260881d0741c0681704c0e02000 >>> (10*j)) % 1024) (fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) h7 table7
-  have h9 := iterate C M monoC sizeC stepC 8 (fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) (fun j : ℕ => if j=158 then 306 else 0) h8 table8
+  have h9 := iterate C M monoC sizeC stepC 8 (fun j : ℕ => (0x100401004010040100401003fcff3fcff3fcff3fcfe3f8fe3f8fe3f8fd3f4fd3f4fd3f0fc3f0fc3ecfb3ecfa3e8f93dcf73dcf73dcf73d8f63d8f63d8f53d4f53d4f43d0f43ccf33c8f03c0f03c0f03bcef3bcef3b8ee3b8ed3b4ec3a8ea3a8ea3a4e93a4e83a0e7394e5394e4390e3384e1380de36cdb36cdb36cda368da368d9364d9360d835cd5354d5354d4350d434cd3348d0340d033ccf338cc330cb324c6318c6318c5314c5310c430cc1304c1300c02fcbd2f4bc2e8b72dcb72d8b62d4b32ccb22c0ad2b4ac2a8a728ca328ca3288a2288a1284a02789e2789d2749c2689a26497250942509324c922409023c8d2288a2248721080200801fc7f1f87c1f07b1e4761d8751cc701b06c1ac69198621745d1745c1705b164591605614c53148501344912448118430fc3a0e8390dc340c02b094250902207c1b0581002400 >>> (10*j)) % 1024) (fun j : ℕ => if j=K then K+(if K=224 then 143 else 148) else 0) h8 (table8 K hK)
   refine ⟨?_ ,?_ ,?_ ,?_ ,?_ ,?_ ,?_ ,?_ ,?_ ⟩
   · intro B hc hb z hit
     have res := h1 B hc hb z
@@ -380,20 +399,20 @@ lemma all_growth (C : Finset ℕ → ℤ → ℕ) (M : ℕ)
   · intro B hc hb z hit
     have res := h9 B hc hb z
     rw [hit] at res
-    exact res
+    simpa using res
 lemma lower (A : Finset ℕ) (M : ℕ) (r : ℕ) (small : r≤9) (hc : A.card=r) (distinct : IsSumDistinctSet A M) :
     ([0,1,2,4,7,13,23,43,78,148] : List ℕ)[r]! ≤ M := by
   interval_cases r
   · exact Nat.zero_le M
-  · exact (count_growth 1 1 1 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).1)).1
-  · exact (count_growth 2 1 2 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).2.1)).1
-  · exact (count_growth 3 2 4 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).2.2.1)).1
-  · exact (count_growth 4 3 7 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).2.2.2.1)).1
-  · exact (count_growth 5 8 13 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).2.2.2.2.1)).1
-  · exact (count_growth 6 14 23 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).2.2.2.2.2.1)).1
-  · exact (count_growth 7 36 43 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).2.2.2.2.2.2.1)).1
-  · exact (count_growth 8 65 78 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).2.2.2.2.2.2.2.1)).1
-  · exact (count_growth 9 158 148 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step).2.2.2.2.2.2.2.2)).1
+  · exact (count_growth 1 1 1 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).1)).1
+  · exact (count_growth 2 1 2 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).2.1)).1
+  · exact (count_growth 3 2 4 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).2.2.1)).1
+  · exact (count_growth 4 3 7 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).2.2.2.1)).1
+  · exact (count_growth 5 8 13 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).2.2.2.2.1)).1
+  · exact (count_growth 6 14 23 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).2.2.2.2.2.1)).1
+  · exact (count_growth 7 36 43 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).2.2.2.2.2.2.1)).1
+  · exact (count_growth 8 65 78 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).2.2.2.2.2.2.2.1)).1
+  · exact (count_growth 9 158 148 (by decide) (by decide) M A hc distinct (fun C mono sz step => (all_growth C M mono sz step 158 (Or.inl rfl)).2.2.2.2.2.2.2.2)).1
 
 end CubeWindow
 
@@ -865,7 +884,8 @@ def H1 : Prop :=
       ∀ hv : V.Nonempty, W.card.choose k ≤ V.max' hv + 1 - V.min' hv) →
     148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % 148)).card →
     (let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
-     ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+148)).card) →
+     ∀ k ∈ ({158,207,224} : Finset ℕ), ∃ t ∈ V, (V.filter (· ≤ t)).card = k ∧
+       k+(if k=224 then 143 else 148) ≤ (V.filter (· ≤ t+148)).card) →
     (∀ x ∈ R, ∀ y ∈ R, x < y → (y : ℤ) - x ∉ D ∧ (y : ℤ) + x ∉ D) →
     ∃ J ∈ R.powerset, ((J.sum id : ℕ) : ℤ) - ((R \ J).sum id : ℕ) ∈ D
 
@@ -886,7 +906,8 @@ def H2 : Prop :=
       ∀ hv : V.Nonempty, W.card.choose k ≤ V.max' hv + 1 - V.min' hv) →
     148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % 149)).card →
     (let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
-     ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+149)).card) →
+     ∀ k ∈ ({158,207,224} : Finset ℕ), ∃ t ∈ V, (V.filter (· ≤ t)).card = k ∧
+       k+(if k=224 then 143 else 148) ≤ (V.filter (· ≤ t+149)).card) →
     (∀ x ∈ R, ∀ y ∈ R, x < y → (y : ℤ) - x ∉ D ∧ (y : ℤ) + x ∉ D) →
     ∃ J ∈ R.powerset, ((J.sum id : ℕ) : ℤ) - ((R \ J).sum id : ℕ) ∈ D
 
@@ -907,7 +928,8 @@ def H3 : Prop :=
       ∀ hv : V.Nonempty, W.card.choose k ≤ V.max' hv + 1 - V.min' hv) →
     148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % 150)).card →
     (let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
-     ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+150)).card) →
+     ∀ k ∈ ({158,207,224} : Finset ℕ), ∃ t ∈ V, (V.filter (· ≤ t)).card = k ∧
+       k+(if k=224 then 143 else 148) ≤ (V.filter (· ≤ t+150)).card) →
     (∀ x ∈ R, ∀ y ∈ R, x < y → (y : ℤ) - x ∉ D ∧ (y : ℤ) + x ∉ D) →
     ∃ J ∈ R.powerset, ((J.sum id : ℕ) : ℤ) - ((R \ J).sum id : ℕ) ∈ D
 
@@ -928,7 +950,8 @@ def H4 : Prop :=
       ∀ hv : V.Nonempty, W.card.choose k ≤ V.max' hv + 1 - V.min' hv) →
     148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % 151)).card →
     (let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
-     ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+151)).card) →
+     ∀ k ∈ ({158,207,224} : Finset ℕ), ∃ t ∈ V, (V.filter (· ≤ t)).card = k ∧
+       k+(if k=224 then 143 else 148) ≤ (V.filter (· ≤ t+151)).card) →
     (∀ x ∈ R, ∀ y ∈ R, x < y → (y : ℤ) - x ∉ D ∧ (y : ℤ) + x ∉ D) →
     ∃ J ∈ R.powerset, ((J.sum id : ℕ) : ℤ) - ((R \ J).sum id : ℕ) ∈ D
 
@@ -1050,13 +1073,15 @@ theorem main : H1 → H2 → H3 → H4 → OMA.R_Erdos1_erdos_1_variants_least_N
           · exact (hsmall _ h _ hm).le
         · intro S T heq
           exact Subtype.ext (hiq _ (mem_powerset.mp S.property) _ (mem_powerset.mp T.property) heq)
-      have hgrowth := CubeWindow.count_growth 9 158 148 (by decide) (by decide) M A hc hd
-        (fun g mono sz step ↦ (CubeWindow.all_growth g M mono sz step).2.2.2.2.2.2.2.2)
+      have hgrowth (k : ℕ) (hk : k = 158 ∨ k = 207 ∨ k = 224) :=
+        CubeWindow.count_growth 9 k (if k=224 then 143 else 148) (by omega) (by norm_num; omega) M A hc hd
+          (fun g mono sz step ↦ (CubeWindow.all_growth g M mono sz step k hk).2.2.2.2.2.2.2.2)
       have hres : 148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % M)).card := by
-        rw [hRAeq]; exact hgrowth.2.1
+        rw [hRAeq]; exact (hgrowth 158 (Or.inl rfl)).2.1
       let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
-      have hwin : ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+M)).card := by
-        simpa only [V,hRAeq] using hgrowth.2.2
+      have hwin (k : ℕ) (hk : k ∈ ({158,207,224} : Finset ℕ)) :
+          ∃ t ∈ V, (V.filter (· ≤ t)).card = k ∧ k+(if k=224 then 143 else 148) ≤ (V.filter (· ≤ t+M)).card := by
+        simpa only [V,hRAeq] using (hgrowth k (by simpa using hk)).2.2
       have hbig : 3 < C.card := by omega
       have htr : R ∈ C.powersetCard 3 := mem_powersetCard.mpr ⟨hRC,hrc⟩
       clear_value M
