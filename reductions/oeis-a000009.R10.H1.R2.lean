@@ -13,12 +13,17 @@ Both arithmetic hypotheses below remain open.
 namespace OMA.R_oeis_a000009_R10_H1_R2
 open OMA.S_oeis_a000009 Finset
 
-/-- Two distinct values survive the small-divisor sieve in each window. -/
+/-- Usable arrivals occur arbitrarily late. Immediately before each such arrival
+above the starting endpoint, two previously arrived values still survive. -/
 def H1 : Prop :=
   let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
-  ∀ x : ℕ, 30020900773769688559070113208459541809716021698140392739697 ≤ x →
-    ∃ a b : ℕ, Q a ∧ Q b ∧ x ≤ a ∧ a < b ∧ 2*b ≤ 3*x ∧
-      ∀ s, 1000 ≤ s → Q s → s*s ≤ x → ¬ s ∣ a ∧ ¬ s ∣ b
+  let start : ℕ := 30020900773769688559070113208459541809716021698140392739697
+  let birth := fun a : ℕ => (2*a+2)/3
+  let live := fun x a : ℕ => Q a ∧ x ≤ a ∧ 2*a ≤ 3*x ∧
+    ∀ s, 1000 ≤ s → Q s → s*s ≤ x → ¬ s ∣ a
+  (∀ x, start ≤ x → ∃ c, x < birth c ∧ live (birth c) c) ∧
+    ∀ c, start < birth c → live (birth c) c →
+      ∃ a b, live (birth c-1) a ∧ live (birth c-1) b ∧ a < b
 
 /-- If two cofactor exceptions can occur together in a window, at least one
 has a small divisor already at the earliest possible lower endpoint. -/
@@ -29,6 +34,178 @@ def H2 : Prop :=
   ∀ a b : ℕ, Q a → Q b → a < b → exceptional a → exceptional b →
     let e := max 30020900773769688559070113208459541809716021698140392739697 ((2*b+2)/3)
     e ≤ a → ∃ s, 1000 ≤ s ∧ Q s ∧ s*s ≤ e ∧ (s ∣ a ∨ s ∣ b)
+
+/-- Every value lives on one interval of integer window endpoints. A number d
+that divides a and is least among its eligible divisors causes the first
+sieve loss at d². The geometric upper endpoint a can occur earlier. -/
+theorem lifetime_of_least_divisor (Q : ℕ → Prop) {a d : ℕ}
+    (big : 1000 ≤ d) (qd : Q d) (divides : d ∣ a)
+    (least : ∀ s, 1000 ≤ s → Q s → s ∣ a → d ≤ s) (x : ℕ) :
+    (x ≤ a ∧ 2*a ≤ 3*x ∧ ∀ s, 1000 ≤ s → Q s → s*s ≤ x → ¬ s ∣ a) ↔
+    ((2*a+2)/3 ≤ x ∧ x ≤ a ∧ x < d*d) := by
+  constructor
+  · rintro ⟨lo,hi,clean⟩
+    exact ⟨by omega,lo,lt_of_not_ge (fun sq => clean d big qd sq divides)⟩
+  · rintro ⟨lo,hi,small⟩
+    refine ⟨hi,by omega,?_⟩
+    intro s hs qs sq dv
+    have le := least s hs qs dv
+    exact (Nat.not_le_of_lt small) ((Nat.mul_le_mul le le).trans sq)
+
+/-- For a finite range of windows the final endpoint takes the place of a
+future arrival. Tests just before usable arrivals include simultaneous arrivals
+once and use the old witnesses before any new value can be used. -/
+theorem pair_on_segment_iff (Q : ℕ → Prop) (start last : ℕ) (order : start ≤ last) :
+    let birth := fun a : ℕ => (2*a+2)/3
+    let live := fun x a : ℕ => Q a ∧ x ≤ a ∧ 2*a ≤ 3*x ∧
+      ∀ s, 1000 ≤ s → Q s → s*s ≤ x → ¬ s ∣ a
+    let pair := fun x : ℕ => ∃ a b, live x a ∧ live x b ∧ a < b
+    (∀ x, start ≤ x → x ≤ last → pair x) ↔
+      pair last ∧ (∀ c, start < birth c → birth c ≤ last → live (birth c) c → pair (birth c-1)) := by
+  intro birth live pair
+  constructor
+  · intro cover
+    exact ⟨cover last order le_rfl,fun c lo hi _ => cover _ (by omega) (by omega)⟩
+  · rintro ⟨final,checks⟩ x lo hi
+    classical
+    have next : ∃ e : ℕ, x < e ∧
+        (e = last+1 ∨ ∃ c, birth c = e ∧ live e c) :=
+      ⟨last+1,by omega,Or.inl rfl⟩
+    let e := Nat.find next
+    obtain ⟨after,why⟩ := Nat.find_spec next
+    change x < e at after
+    have limit : e ≤ last+1 := Nat.find_min' next ⟨by omega,Or.inl rfl⟩
+    have atEnd : pair (e-1) := by
+      rcases why with h | ⟨c,h,hc⟩
+      · change e = last+1 at h
+        simpa [h] using final
+      · change birth c = e at h
+        by_cases eq : e = last+1
+        · simpa [eq] using final
+        · rw [← h]
+          exact checks c (by omega) (by omega) (h.symm ▸ hc)
+    obtain ⟨a,b,ha,hb,ab⟩ := atEnd
+    have back (z : ℕ) (hz : live (e-1) z) : live x z := by
+      obtain ⟨qz,left,right,clean⟩ := hz
+      have br : birth z ≤ e-1 := by dsimp [birth]; omega
+      have born : birth z ≤ x := by
+        by_contra! late
+        have usable : live (birth z) z :=
+          ⟨qz,by omega,by dsimp [birth]; omega,fun s hs qs sq => clean s hs qs (sq.trans br)⟩
+        have least := Nat.find_min' next (show x < birth z ∧
+          (birth z = last+1 ∨ ∃ c, birth c = birth z ∧ live (birth z) c) from
+          ⟨late,Or.inr ⟨z,rfl,usable⟩⟩)
+        change e ≤ birth z at least
+        omega
+      exact ⟨qz,by omega,by dsimp [birth] at born; omega,
+        fun s hs qs sq => clean s hs qs (by omega)⟩
+    exact ⟨a,b,back a ha,back b hb,ab⟩
+
+/-- It suffices to check pairs just before each usable arrival, provided such
+arrivals are cofinal. The two pre-arrival witnesses survive throughout the gap. -/
+theorem pair_supply_iff_arrivals (Q : ℕ → Prop) (start : ℕ) :
+    let birth := fun a : ℕ => (2*a+2)/3
+    let live := fun x a : ℕ => Q a ∧ x ≤ a ∧ 2*a ≤ 3*x ∧
+      ∀ s, 1000 ≤ s → Q s → s*s ≤ x → ¬ s ∣ a
+    let pair := fun x : ℕ => ∃ a b, live x a ∧ live x b ∧ a < b
+    (∀ x, start ≤ x → pair x) ↔
+      (∀ x, start ≤ x → ∃ c, x < birth c ∧ live (birth c) c) ∧
+      (∀ c, start < birth c → live (birth c) c → pair (birth c-1)) := by
+  intro birth live pair
+  have retreat {x y a : ℕ} (h : live y a) (born : birth a ≤ x) (le : x ≤ y) : live x a := by
+    obtain ⟨qa,lo,hi,clean⟩ := h
+    dsimp [birth] at born
+    exact ⟨qa,le.trans lo,by omega,fun s hs qs sq => clean s hs qs (sq.trans le)⟩
+  have atBirth {x a : ℕ} (h : live x a) : live (birth a) a := by
+    apply retreat h le_rfl
+    have hi := h.2.2.1
+    dsimp [birth]; omega
+  constructor
+  · intro supply
+    constructor
+    · intro x hx
+      obtain ⟨a,_,ha,_,_⟩ := supply (3*(x+1)) (by omega)
+      have lo := ha.2.1
+      exact ⟨a,by dsimp [birth]; omega,atBirth ha⟩
+    · intro c bound _
+      exact supply _ (by omega)
+  · rintro ⟨cofinal,checks⟩ x hx
+    obtain ⟨c,after,usable⟩ := cofinal x hx
+    have last := checks c (by omega) usable
+    exact (pair_on_segment_iff Q start (birth c-1) (by omega)).mpr
+      ⟨last,fun z lower _ hz => checks z lower hz⟩ x hx (by omega)
+
+/-- For a strictly increasing enumeration whose first value reaches start,
+two values lie in every window exactly when the initial pair fits and the
+value two positions ahead fits the first window after the old value leaves. -/
+theorem two_values_iff_spacing (v : ℕ → ℕ) (inc : StrictMono v) (start : ℕ)
+    (first : start ≤ v 0) :
+    (∀ x, start ≤ x → ∃ i j : ℕ, i < j ∧ x ≤ v i ∧ 2*v j ≤ 3*x) ↔
+    (2*v 1 ≤ 3*start ∧ ∀ i, 2*v (i+2) ≤ 3*(v i+1)) := by
+  constructor
+  · intro cover
+    constructor
+    · obtain ⟨i,j,ij,_,hi⟩ := cover start le_rfl
+      have := inc.monotone (show 1 ≤ j by omega)
+      omega
+    · intro i
+      have h := inc.monotone (Nat.zero_le i)
+      obtain ⟨j,k,jk,lo,hi⟩ := cover (v i+1) (by omega)
+      have ij : i < j := by
+        by_contra! inv
+        have := inc.monotone inv
+        omega
+      have := inc.monotone (show i+2 ≤ k by omega)
+      omega
+  · rintro ⟨initial,spacing⟩ x hx
+    have reaches : ∃ i, x ≤ v i := ⟨x,inc.id_le x⟩
+    let j := Nat.find reaches
+    have lo : x ≤ v j := Nat.find_spec reaches
+    refine ⟨j,j+1,by omega,lo,?_⟩
+    cases eq : j with
+    | zero => simpa using initial.trans (Nat.mul_le_mul_left 3 hx)
+    | succ i =>
+      have early : i < Nat.find reaches := by change i < j; omega
+      have prev := Nat.find_min reaches early
+      have := spacing i
+      change 2*v (i+2) ≤ 3*x
+      omega
+
+/-- The arrival formulation recovers exactly the original sparse-pair supply. -/
+theorem H1_iff_pair_supply : H1 ↔
+  let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
+  ∀ x : ℕ, 30020900773769688559070113208459541809716021698140392739697 ≤ x →
+    ∃ a b : ℕ, Q a ∧ Q b ∧ x ≤ a ∧ a < b ∧ 2*b ≤ 3*x ∧
+      ∀ s, 1000 ≤ s → Q s → s*s ≤ x → ¬ s ∣ a ∧ ¬ s ∣ b := by
+  let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
+  have windows := pair_supply_iff_arrivals Q 30020900773769688559070113208459541809716021698140392739697
+  constructor
+  · intro h q x hx
+    obtain ⟨a,b,ha,hb,ab⟩ := windows.mpr h x hx
+    exact ⟨a,b,ha.1,hb.1,ha.2.1,ab,hb.2.2.1,
+      fun s hs qs sq => ⟨ha.2.2.2 s hs qs sq,hb.2.2.2 s hs qs sq⟩⟩
+  · intro h
+    apply windows.mp
+    intro x hx
+    obtain ⟨a,b,qa,qb,lo,ab,hi,clean⟩ := h x hx
+    exact ⟨a,b,⟨qa,lo,by omega,fun s hs qs sq => (clean s hs qs sq).1⟩,
+      ⟨qb,by omega,hi,fun s hs qs sq => (clean s hs qs sq).2⟩,ab⟩
+
+/-- For values that pass the sieve until they leave the window, estimating the
+spacing of every second value suffices; intermediate integer windows need no tests. -/
+theorem H1_of_clean_spacing (v : ℕ → ℕ) (inc : StrictMono v)
+    (first : 30020900773769688559070113208459541809716021698140392739697 ≤ v 0) (initial : 2*v 1 ≤ 3*30020900773769688559070113208459541809716021698140392739697)
+    (spacing : ∀ i, 2*v (i+2) ≤ 3*(v i+1))
+    (terms : ∀ i, (∃ m : ℕ, 0 < m ∧ v i = strictPartitionCount m) ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) →
+        s*s ≤ v i → ¬ s ∣ v i) : H1 := by
+  apply H1_iff_pair_supply.mpr
+  intro q x hx
+  obtain ⟨i,j,ij,lo,hi⟩ := (two_values_iff_spacing v inc _ first).mpr ⟨initial,spacing⟩ x hx
+  have lt := inc ij
+  exact ⟨v i,v j,(terms i).1,(terms j).1,lo,lt,hi,
+    fun s hs qs sq => ⟨(terms i).2 s hs qs (sq.trans lo),
+      (terms j).2 s hs qs (sq.trans (lo.trans lt.le))⟩⟩
 
 /-- Every subset of {1,...,k} extends to a distinct partition of n by adding
 a unique part greater than k. -/
@@ -192,6 +369,33 @@ theorem first_common_window_iff (Q : ℕ → Prop) (start a b : ℕ) :
     obtain ⟨s,hs,qs,sq,div⟩ := h (le.trans ha)
     exact ⟨s,hs,qs,sq.trans le,div⟩
 
+/-- An actual pair of exceptions shares an early window. The geometric and
+small-divisor tests by themselves cannot exclude all pairs down to x = 1. -/
+theorem early_exception_pair :
+    let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
+    let exc := fun a : ℕ => ∃ k : ℕ, 2 ≤ k ∧ 2*k*k < 3*a ∧ k ∣ a ∧ 1000 ≤ a/k ∧ Q (a/k)
+    let a := strictPartitionCount 110
+    let b := strictPartitionCount 114
+    let e := (2*b+2)/3
+    a < b ∧ e = 918870 ∧ e ≤ a ∧ exc a ∧ exc b ∧
+      ∀ s : ℕ, 1000 ≤ s → e < s*s := by
+  intro Q exc a b e
+  have q45 : strictPartitionCount 45 = 2048 := by
+    rw [OMA.R_oeis_a000009_R10.strictPartitionCount_eq_rec 45 45 le_rfl]; decide +kernel
+  have q46 : strictPartitionCount 46 = 2304 := by
+    rw [OMA.R_oeis_a000009_R10.strictPartitionCount_eq_rec 46 46 le_rfl]; decide +kernel
+  have va : a = 1004544 := by
+    dsimp only [a]; rw [OMA.R_oeis_a000009_R10.strictPartitionCount_eq_rec 110 110 le_rfl]; decide +kernel
+  have vb : b = 1378304 := by
+    dsimp only [b]; rw [OMA.R_oeis_a000009_R10.strictPartitionCount_eq_rec 114 114 le_rfl]; decide +kernel
+  have endpoint : e = 918870 := by dsimp only [e]; omega
+  refine ⟨by omega,endpoint,by omega,?_,?_,?_⟩
+  · rw [va]; exact ⟨436,by decide,by decide,by decide,by decide,46,by decide,q46.symm⟩
+  · rw [vb]; exact ⟨673,by decide,by decide,by decide,by decide,45,by decide,q45.symm⟩
+  · intro s hs
+    have lower := Nat.mul_le_mul hs hs
+    omega
+
 /-- After sieving, a proper partition divisor exists exactly when a short
 cofactor gives one. Multiple factorizations of the same value cost one exception. -/
 theorem short_cofactor_iff (Q : ℕ → Prop) (x a : ℕ) (hi : 2*a ≤ 3*x)
@@ -224,7 +428,7 @@ theorem main : H1 → H2 → OMA.R_oeis_a000009_R10.H1 := by
   let x := n/2+1
   let start := 30020900773769688559070113208459541809716021698140392739697
   have hx : start ≤ x := by dsimp [x,start]; omega
-  obtain ⟨a,b,qa,qb,lo,ab,hi,clean⟩ := supply x hx
+  obtain ⟨a,b,qa,qb,lo,ab,hi,clean⟩ := H1_iff_pair_supply.mp supply x hx
   by_contra! missing
   have fail (c : ℕ) (qc : ∃ m : ℕ, 0 < m ∧ c = strictPartitionCount m)
       (lc : x ≤ c) (hc : 2*c ≤ 3*x)
