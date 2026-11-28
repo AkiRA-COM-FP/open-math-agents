@@ -14033,6 +14033,488 @@
     "https://oeis.org/A288603"
    ],
    "note": "Kimberling's conjecture that the n-th iterate of 00->0101, 10->1001 (StringReplace from 00, the rule in A288600's name and program) has A288603(n) letters. The reference uses the data's a(3)=8 with the recurrence from n=4 (the name's 'n>=3' is off by one). My simulation matches for n<=30; A288603's own comment ('1->1001') is a different, false map (lengths 2,4,10,...). Mathar's question whether A288600 = 0 + A288375 is not part of the statement. Routine block decomposition. No prior proof found (entries A288596/A288599/A288600/A288603, blakestone-x/math, trureturing/thatnealpatel id lists, GitHub commit search, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, Zenodo). Second review: Faithful; verified to n=26; no prior proof found. Routine (block coding plus recurrence)."
+  },
+  "oeis-a288927": {
+   "date": "2026-11-28",
+   "pr": 27271,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288927",
+    "https://oeis.org/A288926",
+    "https://oeis.org/A288927",
+    "https://oeis.org/A288926",
+    "https://oeis.org/A288928"
+   ],
+   "note": "The statement asks for m in [1.39,1.40) with a(n)/n -> m and -1 < m - a(n)/n < 1 for all n>=1, where a counts the 0s of the 1-limiting word of A288926 (odd iterates). That is faithful to Kimberling's comment. Numerically, from the 25th iterate (10^7 letters), m = 1.394779... (from the Perron root of x^5-x^4-x^3-3x+2) matches, and m - a(n)/n lies in [-0.605, 0.145]. The proof uses a 5-token substitution and its Perron-Frobenius asymptotics. No prior proof found. Second review: Faithful two-part statement; numerics agree. No prior proof found in the entry family, blakestone's Kimberling packages (different words) or the proof collections. Not routine: needs a Perron-root analysis of the substitution."
+  },
+  "oeis-a288929": {
+   "date": "2026-11-28",
+   "pr": 27403,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288929",
+    "https://oeis.org/A192967",
+    "https://oeis.org/A288929",
+    "https://oeis.org/A192967"
+   ],
+   "note": "Kimberling's conjecture is that the n-th iterate of 00->1000, 10->10011 (StringReplace, left to right) has A192967(n+2) letters. The statement uses Ratushnyak's formula for A192967, which matches its data. My check agrees for n<=24. The proof is a short block-counting argument (blocks 100, 10, 1). No prior proof found. Second review: Faithful; verified numerically. No earlier proof found. Routine: a length recurrence from a block count."
+  },
+  "oeis-a288966": {
+   "date": "2026-11-28",
+   "pr": 23335,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288966",
+    "https://oeis.org/A288966/a288966.pdf",
+    "https://oeis.org/A288966",
+    "https://oeis.org/A288966/a288966.pdf"
+   ],
+   "note": "Oudra's 2024 formula a(n) = n + lpf(n) - n/lpf(n) - 1 for the iteration count of Rousseau's Java loop. The Lean body/run transcribes the program exactly (one branch per pass, y updated at the end). My simulation matches the data and the formula for n < 3000. Rousseau's PDF proves only that the loop factorizes; its hyperbola-crossing picture makes the count (p-1)+(n-q) natural but does not state it. No prior proof found. Routine. Second review: Faithful and true. Not previously proved, but it follows by a short count of squares crossed in Rousseau's own description, so routine."
+  },
+  "oeis-a289096": {
+   "date": "2026-11-28",
+   "pr": 27615,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A289096",
+    "https://oeis.org/A289096",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Wu's recurrence (n>5) and g.f. for the Rule 545 diagonal (corner to origin, binary digits read in base 10) are stated exactly, with bit c+2s of 545 and the whole plane evolving its background. My simulation reproduces all listed data, and every formula holds for n<=60. No prior proof found (entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Muñoz's ECA certificates, Blanco Gómez, Fried). Routine pattern induction. Second review: Faithful (diagonal convention follows %N and data, not the x-axis %t line). All formulas verified to n=140. No prior proof: Rule 545 has no full-evolution certificate in Cohen's artifact or the Lean CA libraries. Routine eventually-regular pattern argument."
+  },
+  "oeis-a289099": {
+   "date": "2026-11-28",
+   "pr": 27644,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A289099",
+    "https://oeis.org/A289099",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Wu's recurrence (n>5), g.f., and Spezia's e.g.f. for the Rule 545 diagonal (origin to corner, base 2) are stated exactly, with bit c+2s of 545 and the whole plane evolving its background. My simulation reproduces all listed data, and every formula holds for n<=60. No prior proof found (entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Muñoz's ECA certificates, Blanco Gómez, Fried). Routine pattern induction. Second review: Faithful (diagonal convention follows %N and data, not the x-axis %t line). All formulas verified to n=140. No prior proof: Rule 545 has no full-evolution certificate in Cohen's artifact or the Lean CA libraries. Routine eventually-regular pattern argument."
+  },
+  "oeis-a289060": {
+   "date": "2026-11-28",
+   "pr": 27663,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A289060",
+    "https://oeis.org/A289057",
+    "https://oeis.org/A289060",
+    "https://oeis.org/A289057",
+    "https://github.com/blakestone-x/math"
+   ],
+   "note": "Kimberling's conjecture is that the n-th iterate of 00->0010, 01->010, 10->011 (StringReplace from 00) has a(n) letters, with a given by the order-3 recurrence and 8 initial values. The '+ *a(n-3)' typo in the name is read as +a(n-3), as the formula line has it. The Lean rewrite copies an unmatched 1 and moves on by one letter, as StringReplace does. My check agrees for n<=22. No prior proof found (A289057, which states the same conjecture, is unsolved). Second review: Faithful and verified. No earlier publication found (checked blakestone's repo since the statement credits that user). Routine length recurrence."
+  },
+  "oeis-a289246": {
+   "date": "2026-11-28",
+   "pr": 23613,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A289246",
+    "https://oeis.org/A289246",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821"
+   ],
+   "note": "The coefficients of 1/Sum (floor((k+1)phi)+floor((k+1)/phi))(-x)^k are strictly increasing from index 0, stated as StrictMono over Z (constant coefficient 1). I checked the data and strict increase for n<300 with exact arithmetic. The proof exploits the Beatty structure (increments in {1,2}). No prior proof found (Fried's papers, Blanco Gómez, Palomar). Second review: Faithful; strict increase checked to 3000 terms. No prior proof for this member of Kimberling's family. Not routine (irrational slope)."
+  },
+  "oeis-a289262": {
+   "date": "2026-11-28",
+   "pr": 24325,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A289262",
+    "https://oeis.org/A289262",
+    "https://oeis.org/A078140"
+   ],
+   "note": "Strict increase of the coefficients of 1/Sum floor((k+1)*11/7)(-x)^k, stated as StrictMono over Q. With r rational the series is rational (Barker's g.f.), so the claim is a routine linear-recurrence positivity argument. My exact check agrees for n<300 and with the data. No prior proof found. Second review: Faithful and true numerically. Rational slope makes the g.f. rational, so the proof is a periodic g.f. identity plus a dominant-root positivity argument: routine. No prior proof found."
+  },
+  "oeis-a289683": {
+   "date": "2026-11-28",
+   "pr": 24967,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A289683",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL13/Whitt/whitt2.html",
+    "https://oeis.org/A289683",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL13/Whitt/whitt2.html"
+   ],
+   "note": "Mathar's P-recurrence a(n) + 2(3-2n)a(n-1) + (n-1)(n-3)a(n-2) = 0 for n>=2, with a(n) = n! b(n) and Abate-Whitt's Eq. 15 sum as definition, matching the data. I checked it exactly for n<40. The proof is a routine binomial/Catalan term identity summed over k. No prior proof found (the Abate-Whitt paper gives the sum, not this recurrence). Second review: Faithful and true. Routine holonomic identity. No prior proof found."
+  },
+  "oeis-a289912": {
+   "date": "2026-11-28",
+   "pr": 24265,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A289912",
+    "https://oeis.org/A289912",
+    "https://oeis.org/A289913"
+   ],
+   "note": "Strict increase of the coefficients of 1/Sum round((k+1)sqrt 2)(-x)^k, stated as StrictMono over Q. I checked the data and strict increase for n<300 with exact arithmetic. The proof uses that consecutive weights differ by 1 or 2 (from 1.4 < sqrt 2 < 1.42) and a sign argument. No prior proof found. Second review: Faithful; numerically true to 3000 terms; no prior proof found. Not routine (irrational slope)."
+  },
+  "oeis-a290196": {
+   "date": "2026-11-28",
+   "pr": 24387,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290196",
+    "https://oeis.org/A290196",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Corneth's a(n) = 10(10^n-1)/9 for n>=4 for the Rule 721 diagonal (corner to origin, binary digits in base 10) are stated exactly, with bit c+2s of 721 and the whole plane evolving its background. My simulation reproduces all listed data, and every formula holds for n<=60. No prior proof found (entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Muñoz's ECA certificates, Blanco Gómez, Fried). Routine pattern induction. Second review: Faithful (diagonal convention follows %N and data, not the x-axis %t line). All formulas verified to n=140. No prior proof: Rule 721 has no full-evolution certificate in Cohen's artifact or the Lean CA libraries. Routine eventually-regular pattern argument."
+  },
+  "oeis-a290197": {
+   "date": "2026-11-28",
+   "pr": 24379,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290197",
+    "https://oeis.org/A290197",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Corneth's a(n) = (10^n-1)/9 for n>=4 for the Rule 721 diagonal (origin to corner, binary digits in base 10) are stated exactly, with bit c+2s of 721 and the whole plane evolving its background. My simulation reproduces all listed data, and every formula holds for n<=60. No prior proof found (entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Muñoz's ECA certificates, Blanco Gómez, Fried). Routine pattern induction. Second review: Faithful (diagonal convention follows %N and data, not the x-axis %t line). All formulas verified to n=140. No prior proof: Rule 721 has no full-evolution certificate in Cohen's artifact or the Lean CA libraries. Routine eventually-regular pattern argument."
+  },
+  "oeis-a290198": {
+   "date": "2026-11-28",
+   "pr": 24375,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290198",
+    "https://oeis.org/A290198",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Corneth's Fibonacci(2n+1) (n<=3) and 2^(n+1)-2 (n>=4) for the Rule 721 diagonal (corner to origin, base 2) are stated exactly, with bit c+2s of 721 and the whole plane evolving its background. My simulation reproduces all listed data, and every formula holds for n<=60. No prior proof found (entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Muñoz's ECA certificates, Blanco Gómez, Fried). Routine pattern induction. Second review: Faithful (diagonal convention follows %N and data, not the x-axis %t line). All formulas verified to n=140. No prior proof: Rule 721 has no full-evolution certificate in Cohen's artifact or the Lean CA libraries. Routine eventually-regular pattern argument."
+  },
+  "oeis-a290199": {
+   "date": "2026-11-28",
+   "pr": 24590,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290199",
+    "https://oeis.org/A290199",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Corneth's a(n) = 2^n - 1 for n>=4 for the Rule 721 diagonal (origin to corner, base 2) are stated exactly, with bit c+2s of 721 and the whole plane evolving its background. My simulation reproduces all listed data, and every formula holds for n<=60. No prior proof found (entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Palomar, Epoch OEIS Open, Muñoz's ECA certificates, Blanco Gómez, Fried). Routine pattern induction. Second review: Faithful (diagonal convention follows %N and data, not the x-axis %t line). All formulas verified to n=140. No prior proof: Rule 721 has no full-evolution certificate in Cohen's artifact or the Lean CA libraries. Routine eventually-regular pattern argument."
+  },
+  "oeis-a291499": {
+   "date": "2026-11-28",
+   "pr": 23451,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A291499",
+    "https://arxiv.org/abs/1705.07444",
+    "https://oeis.org/A291499",
+    "https://arxiv.org/abs/1705.07444"
+   ],
+   "note": "Wu's recurrence (n>8) and g.f. for uhat(n,1,5) are stated exactly, with a(n) defined by a literal transcription of the entry's Mathematica program (min over divisors starting from n). My Python port reproduces the data, and both formulas hold for n<400. The values are negative because the program is applied with m < h, so the sequence is a program artefact rather than Bajnok's sumset function, but the conjecture concerns the entry's sequence. No prior proof found. Routine: a(n) is linear in n for large n. Second review: Faithful to the program that defines the data, and true. Routine: for large n the minimum is attained at d=n and is linear in n. No prior proof found."
+  },
+  "oeis-a291502": {
+   "date": "2026-11-28",
+   "pr": 23886,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A291502",
+    "https://arxiv.org/abs/1705.07444",
+    "https://oeis.org/A291502",
+    "https://arxiv.org/abs/1705.07444"
+   ],
+   "note": "Wu's recurrence (n>11) and g.f. for uhat(n,1,8) are stated exactly, with a(n) defined by a literal transcription of the entry's Mathematica program (min over divisors starting from n). My Python port reproduces the data, and both formulas hold for n<400. The values are negative because the program is applied with m < h, so the sequence is a program artefact rather than Bajnok's sumset function, but the conjecture concerns the entry's sequence. No prior proof found. Routine: a(n) is linear in n for large n. Second review: Faithful to the program that defines the data, and true. Routine: for large n the minimum is attained at d=n and is linear in n. No prior proof found."
+  },
+  "oeis-a291514": {
+   "date": "2026-11-28",
+   "pr": 23426,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A291514",
+    "https://arxiv.org/abs/1705.07444",
+    "https://oeis.org/A291514",
+    "https://arxiv.org/abs/1705.07444"
+   ],
+   "note": "Wu's recurrence (n>10) and g.f. for uhat(n,3,5) are stated exactly, with a(n) defined by a literal transcription of the entry's Mathematica program (min over divisors starting from n). My Python port reproduces the data, and both formulas hold for n<400. The values are negative because the program is applied with m < h, so the sequence is a program artefact rather than Bajnok's sumset function, but the conjecture concerns the entry's sequence. No prior proof found. Routine: a(n) is linear in n for large n. Second review: Faithful to the program that defines the data, and true. Routine: for large n the minimum is attained at d=n and is linear in n. No prior proof found."
+  },
+  "oeis-a291515": {
+   "date": "2026-11-28",
+   "pr": 23295,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A291515",
+    "https://arxiv.org/abs/1705.07444",
+    "https://oeis.org/A291515",
+    "https://arxiv.org/abs/1705.07444"
+   ],
+   "note": "Wu's recurrence (n>11) and g.f. for uhat(n,3,6) are stated exactly, with a(n) defined by a literal transcription of the entry's Mathematica program (min over divisors starting from n). My Python port reproduces the data, and both formulas hold for n<400. The values are negative because the program is applied with m < h, so the sequence is a program artefact rather than Bajnok's sumset function, but the conjecture concerns the entry's sequence. No prior proof found. Routine: a(n) is linear in n for large n. Second review: Faithful to the program that defines the data, and true. Routine: for large n the minimum is attained at d=n and is linear in n. No prior proof found."
+  },
+  "oeis-a295317": {
+   "date": "2026-11-28",
+   "pr": 13434,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A295317",
+    "https://oeis.org/A295317",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "note": "Barker's order-13 recurrence (n>13) for Hurt's sum Sum_{i<=(n-1)/2} i(n-i)(i mod 2) is stated faithfully over Z; my computation reproduces the data and the recurrence holds for n<220. Hurt's closed form in the entry (Dec 2017) is unproved there and the sister entries' 'verified' notes (A295286/7, A295293) concern other sequences; no prior proof found (Palomar, Lean libraries, Blanco Gomez, Fried). Routine quasi-polynomial computation. Second review: Faithful and true. iis:2611.00231 proves the same thing but was filed after the site proof commit, so the site has priority. Routine quasi-polynomial identity."
+  },
+  "oeis-a296159": {
+   "date": "2026-11-28",
+   "pr": 13402,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A296159",
+    "https://oeis.org/A296159",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "note": "Barker's recurrence (n>9) for Sum_{i<=(n-1)/2} i((n-i) mod 2) is stated faithfully over Z; data reproduced and recurrence checked for n<220. No prior proof found (entry has only Hurt's unproved floor formula; Palomar, Lean libraries, Blanco Gomez, Fried). Routine quasi-polynomial. Second review: Faithful and true. iis:2611.00231 proves the same thing but was filed after the site proof commit, so the site has priority. Routine quasi-polynomial identity."
+  },
+  "oeis-a296161": {
+   "date": "2026-11-28",
+   "pr": 10641,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A296161",
+    "https://oeis.org/A296161",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "note": "Barker's recurrence (n>9) for Sum_{i<=n/2} (n-i)(i mod 2) is stated faithfully over Z; data reproduced and recurrence checked for n<220. No prior proof found (entry, cross-references, Palomar, Lean libraries, Blanco Gomez, Fried). Routine quasi-polynomial. Second review: Faithful and true. iis:2611.00231 proves the same thing but was filed after the site proof commit, so the site has priority. Routine quasi-polynomial identity."
+  },
+  "oeis-a302393": {
+   "date": "2026-11-28",
+   "pr": 23960,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A302393",
+    "https://oeis.org/A302393"
+   ],
+   "note": "Barker's order-7 recurrence (n>7) for the number of even parts over partitions of 3n into 3 parts; the enumeration k<=i<=3n-i-k reproduces the data and the recurrence holds for n<120. Sister A302392 (odd parts) also has only Barker conjectures; no prior proof found (Palomar, Lean libraries, Blanco Gomez, Fried). Routine quasi-polynomial. Second review: Faithful and true; routine quasi-polynomial count. No prior proof found."
+  },
+  "oeis-a303120": {
+   "date": "2026-11-28",
+   "pr": 10639,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A303120",
+    "https://oeis.org/A303120"
+   ],
+   "note": "Barker's closed form n^2(-4+3(1+(-1)^n)n^2+4n^4)/48 (n>=1, over Q) and order-12 recurrence (n>12) are stated faithfully (the g.f. is omitted, a partial but honest formalization); both check for n<100 against the definition and data. No prior proof found. Routine: Faulhaber sums. Second review: Faithful (g.f. omitted but implied); true by a direct power-sum evaluation. Routine. No prior proof found."
+  },
+  "oeis-a298799": {
+   "date": "2026-11-28",
+   "pr": 25739,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A298799",
+    "https://oeis.org/A034171",
+    "https://oeis.org/A298799",
+    "https://oeis.org/A034171"
+   ],
+   "note": "Disproof of Bala's congruence a(pn) == a(n) mod p^2 (p prime, p == 1 mod 9) with the exception set n = m*p+k, 0<=m,k-1<=(p-1)/9, transcribed faithfully. Counterexample p=19, n=362 (not excepted since m=19>2): I recompute a(6878) mod 361 = 218 and a(362) mod 361 = 294. For p=19 and n<=420 the failures are exactly n with all base-19 digits <=2 (1,2,20,21,39,40,362,363,381,382,400,401), so Bala's exception set is just too small beyond n<p^2; the literal conjecture is false. The same flaw likely affects sister A034171 (unsolved here). Second review: Correct disproof of the literal statement: the counterexample is genuine and not a typo artifact. But the failures at n = p^2 + (listed exception) show Bala's exception set is just incomplete. Announce it as 'the stated exception set is too small', not as 'the congruence fails'. Routine finite check."
+  },
+  "oeis-a303930": {
+   "date": "2026-11-28",
+   "pr": 25114,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A303930",
+    "https://oeis.org/A303930",
+    "https://oeis.org/A303930/b303930.txt"
+   ],
+   "note": "Barker's order-8 recurrence (n>8) and g.f. The Lean a(n) is a transfer-matrix Burnside average over the 4 reflections of the 2 x n grid. My brute force of no-leaf edge subsets up to symmetry matches it for n<=8, and the model matches all 28 data terms. No prior proof found (entry, Lean libraries, Zenodo, Palomar). Routine transfer-matrix argument. Second review: Barker's g.f./recurrence for no-leaf subgraphs of 2xn grid up to symmetry; definition faithful (matches b-file), claim true, no prior proof found."
+  },
+  "oeis-a304030": {
+   "date": "2026-11-28",
+   "pr": 23352,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A304030",
+    "https://oeis.org/A304030"
+   ],
+   "note": "The comment (under Collatz, a(n) = n mod 2 for n>1) is stated faithfully, with the hypothesis and crossings counted strictly. Short argument: the first step goes below n (n even) or above (n odd), the trajectory ends at 1<n and never returns to n, so the number of sign changes has the parity of n. Checked for n<10^5. No prior written proof found. Second review: The comment is an author-asserted observation rather than a conjecture; its proof is an immediate sign-change parity argument. Faithful and true."
+  },
+  "oeis-a306467": {
+   "date": "2026-11-28",
+   "pr": 26412,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A306467",
+    "https://oeis.org/A005383",
+    "https://oeis.org/A036570",
+    "https://oeis.org/A306467",
+    "https://oeis.org/A36570",
+    "https://oeis.org/A5383"
+   ],
+   "note": "Ratajczak's two conjectures, read as set equalities (a(p+1)=2 iff p>3 and (p+1)/2 prime; a(p+1)=2 and a(p+2)=3 iff (p+1)/2 and (p+2)/3 are primes), with S and a transcribed from the name. My implementation reproduces the data, and both equivalences hold for p<700. No prior proof found. Elementary divisibility of multifactorials. Second review: Ratajczak's two conjectures on a(p+1)=2 and a(p+2)=3 are faithfully stated and numerically true; no earlier proof found. Part 1 has a short argument (n=2q forces S_2(n)=n), part 2 needs more."
+  },
+  "oeis-a306562": {
+   "date": "2026-11-28",
+   "pr": 23268,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A306562",
+    "https://oeis.org/A306562"
+   ],
+   "note": "Alcover's 2019 conjecture is read as: extrema exactly at the block ends n(n+1)/2, with value F(n) (times 16). The summand signs follow Wang's formula. Data reproduced; both parts checked for m<2900 and n<70. No prior proof found. Routine block computation. Second review: Alcover's local-extrema formula; true by direct block-sum computation."
+  },
+  "oeis-a307663": {
+   "date": "2026-11-28",
+   "pr": 27538,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A307663",
+    "https://oeis.org/A307663/a307663.pdf",
+    "https://oeis.org/A307663",
+    "https://oeis.org/A307663/a307663.pdf"
+   ],
+   "note": "Israel's D-finite recurrence is stated verbatim for n>=1 over Q, with a(n) from the name. Checked for n<=35. Sela Fried's linked note (2024) proves only the e.g.f. conjecture, and no source states that the recurrence is proved. Routine: it follows from the now-proved holonomic e.g.f. (the Lean proof is a direct elementary computation). Second review: Israel's D-finite recurrence follows mechanically from Fried's proven e.g.f.; not explicitly proved before as far as found."
+  },
+  "oeis-a308107": {
+   "date": "2026-11-28",
+   "pr": 24409,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308107",
+    "https://oeis.org/A308107"
+   ],
+   "note": "Barker's recurrence (n>15) for the sum of smallest sides of scalene triangles. The Lean definition (scalene triples with the triangle inequality) equals the entry's double sum, and brute force matches the data and the g.f. to n=70. No prior proof found (no Howroyd note, Lean libraries, Zenodo, Palomar). Routine quasi-polynomial. Second review: Barker recurrence for the scalene-triangle smallest-side sum; true, no prior proof found."
+  },
+  "oeis-a308109": {
+   "date": "2026-11-28",
+   "pr": 24741,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308109",
+    "https://oeis.org/A308109"
+   ],
+   "note": "Barker's g.f. and recurrence for the sum of middle sides of scalene triangles. Statement follows the entry's formula; brute force matches data and both formulas to n=70. No prior proof found. Routine quasi-polynomial. Second review: Barker g.f./recurrence for middle-side sum of scalene triangles; true, no prior proof found."
+  },
+  "oeis-a308149": {
+   "date": "2026-11-28",
+   "pr": 27613,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308149",
+    "https://oeis.org/A308149"
+   ],
+   "note": "The terms <=16 are 1,2,4,8,16. Under the Collatz hypothesis, the terms >16 are exactly those whose trajectory contains 32. Faithful. Checked for n<20000. Short argument: the only entries into {1,2,4,8,16} are from 5 and 32, and no trajectory hits both. No prior proof found. Second review: An author-asserted consequence of Collatz with an immediate proof (16's only preimages are 5 and 32); faithful and true."
+  },
+  "oeis-a308215": {
+   "date": "2026-11-28",
+   "pr": 22706,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308215",
+    "https://oeis.org/A308217",
+    "https://oeis.org/A308215"
+   ],
+   "note": "Barker's g.f., closed form (n>0) and recurrence (n>6) for the inverse of A001844(n+1) mod A001844(n). The ZMod reading matches the PARI program, and all three are checked to n=60. The entry has no proof. Robert Israel proved the analogous formulas for the sister A308217 in 2019, and the reciprocity xA+yB=1+AB transfers them. The same easy method applies. Second review: Barker's closed form for an explicit modular inverse; verifying the polynomial inverse is routine."
+  },
+  "oeis-a308235": {
+   "date": "2026-11-28",
+   "pr": 24771,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308235",
+    "https://oeis.org/A308235"
+   ],
+   "note": "Barker's g.f. and order-21 recurrence for the total prism surface area over scalene triangles. Faithful to the entry's formula; brute force matches data, g.f. and recurrence to n=70. No prior proof found. Routine quasi-polynomial. Second review: Barker's g.f./recurrence for prism surface areas over scalene triangles; true, no prior proof."
+  },
+  "oeis-a308236": {
+   "date": "2026-11-28",
+   "pr": 24770,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308236",
+    "https://oeis.org/A308236"
+   ],
+   "note": "Barker's g.f. and order-21 recurrence for the total prism surface area over all triangles. Faithful; brute force matches data, g.f. and recurrence to n=70. No prior proof found. Routine quasi-polynomial. Second review: Barker's g.f./recurrence for prism surface areas over all triangles; true, no prior proof."
+  },
+  "oeis-a308823": {
+   "date": "2026-11-28",
+   "pr": 24161,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308823",
+    "https://oeis.org/A308823",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "note": "Barker's recurrence (n>19) for the sum of smallest parts of 5-part partitions. The entry's quadruple sum is transcribed exactly; brute force matches data and Barker's g.f. to n=70. No prior proof found. Routine. Second review: Site proof predates the isitsolved filing by about 1h22m, so it stands as first; the result is routine."
+  },
+  "oeis-a309054": {
+   "date": "2026-11-28",
+   "pr": 23282,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A309054",
+    "https://oeis.org/A309054",
+    "https://oeis.org/A309054/b309054.txt"
+   ],
+   "note": "Munn's conjectured identity Sum_{-3m..3m-1}(a(n)+1) = 4 Sum_{-m..m-1}(a(n)+1), for all m>=0, with the recursion and the even extension transcribed. The data is reproduced and the identity holds for m<3000. The entry only has the 3^k case. Routine 3-adic induction. Second review: Munn's self-similarity sum identity; true, no prior proof found."
+  },
+  "oeis-a309263": {
+   "date": "2026-11-28",
+   "pr": 25420,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A309263",
+    "https://oeis.org/A140110",
+    "https://oeis.org/A309263",
+    "https://oeis.org/A140110"
+   ],
+   "note": "The conjecture that every 4*5^n is a term is stated faithfully: 6 does not divide it, and A140110's consecutive-divisor-ratio condition is encoded as a=g*t, b=g*(t+1). Easy: the divisor chain is 5^j, 2*5^j, 4*5^j, 5^(j+1), so the ratios are 1/2, 1/2, 4/5. No prior proof found. Second review: 4*5^n is in the sequence by a short divisor-ordering argument; faithful and true."
+  },
+  "oeis-a319303": {
+   "date": "2026-11-28",
+   "pr": 23357,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A319303",
+    "https://oeis.org/A322521",
+    "https://oeis.org/A319303",
+    "https://oeis.org/A322521"
+   ],
+   "note": "Sigrist's remark is formalized faithfully: under Collatz, the node-encoding walk hits every positive integer. Branching nodes are v>4 with v=4 mod 6, and r is halved. I checked walk(A322521(m)) = m for m<3000 with the entry's inverse program. No written proof found. Routine induction along the tree path. Second review: Author-asserted surjectivity under Collatz, proved by inverting the encoding; faithful and true."
+  },
+  "oeis-a320097": {
+   "date": "2026-11-28",
+   "pr": 25056,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A320097",
+    "https://oeis.org/A320097",
+    "https://oeis.org/A320097/b320097.txt",
+    "https://oeis.org/A320101"
+   ],
+   "note": "The order-6 recurrence (n>6) and Barker's empirical g.f. for no-leaf subgraphs of the 4 x n grid. The Lean transfer matrix (16 boundary masks, 8 vertical-edge masks) matches my brute force for n<=4 and all listed data, and both formulas hold to n=40. No prior proof found. Routine transfer-matrix (Cayley-Hamilton) argument. Second review: Order-6 recurrence for no-leaf subgraphs of the 4xn grid; true, no prior proof found."
+  },
+  "oeis-a321152": {
+   "date": "2026-11-28",
+   "pr": 27023,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A321152",
+    "https://oeis.org/A321152"
+   ],
+   "note": "Jackson's 'finite and full' conjecture (the 20 listed terms are all terms) is stated faithfully: a nonempty upper-half practical list, as in the program, with the standard definition of practical. I recomputed the list up to 30000. No prior proof found. Not routine: a 5291-line proof using the Stewart-Sierpinski criterion, a residue sieve and primorial bounds. Second review: Finiteness of Jackson's practical-complement list; the list is complete to 40000 and no earlier proof was found."
+  },
+  "oeis-a321225": {
+   "date": "2026-11-28",
+   "pr": 24880,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A321225",
+    "https://oeis.org/A321225",
+    "https://oeis.org/A321225/b321225.txt"
+   ],
+   "note": "Chai Wah Wu's 2024 recurrence (n>18) and g.f. are stated faithfully, with cut points where prefix sums of 12321... hit triangular numbers. Data reproduced; both formulas hold to n=200. No prior proof found. Routine: periodic word with period-5 digit sum 9. Second review: Wu's order-18 recurrence and g.f. follow from the 5-periodic word; true, no prior proof."
+  },
+  "oeis-a321334": {
+   "date": "2026-11-28",
+   "pr": 26899,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A321334",
+    "https://oeis.org/A321334"
+   ],
+   "note": "Jackson's 'finite and full' conjecture for squarefree complements (11 terms) is stated faithfully, matching the program. Recomputed up to 30000. No prior proof found. Routine: for large n, some upper-half squarefree s has 4 | n-s. Second review: Finiteness of Jackson's squarefree-complement list; true to 40000, no earlier proof."
   }
  },
  "flagged": {
@@ -32466,6 +32948,88 @@
     "https://zenodo.org/records/23067094"
    ],
    "reason": "'No term is zero' is stated faithfully: for every n>=1 there is a prime p with floor(10^n/p) prime. The proof uses Bertrand's postulate at floor(10^n/4) to get quotient 2 or 3. But Lien-Hung Su's Zenodo 23067094 (2026-10-01), 'Nonvanishing and Growth of Least Prime Denominators for Decimal Powers', proves exactly this (a(n)>0 for all n>=1 via Bertrand, and quotient 2 via Nagura), well before this proof (2026-11-27)."
+  },
+  "oeis-a289131": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A289131",
+    "https://github.com/blakestone-x/math/blob/main/A289128/README.md",
+    "https://github.com/blakestone-x/math/blob/main/notes/Math_Proofs_Batch10_README.md"
+   ],
+   "reason": "Second review: Correct and faithful, but already proved and published one day earlier in blakestone-x/math (Batch 10, 27 Nov 2026). The site statement credits @blakestone-x, so this is the same contributor's own prior result rather than a scoop; still not a new result at proof time."
+  },
+  "oeis-a289760": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A289760",
+    "https://arxiv.org/abs/1709.04428"
+   ],
+   "reason": "Second review: True and faithfully stated, but it follows directly from Demiroglu Karabulut's 2017 computation of Waring numbers gamma(6,q) over finite fields (Table 2), which lists 7 and 13 as the only primes needing more than four sixth powers. The site's elementary Lean proof is new as a formalization only."
+  },
+  "oeis-a296141": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A296141",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "reason": "Second review: True and faithful, but a timestamped public proof (iis:2611.00231) was filed 16 minutes before the site proof was committed. Its siblings A295317, A296159 and A296161 were committed on the site before that filing."
+  },
+  "oeis-a307767": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A307767",
+    "https://en.wikipedia.org/wiki/Strong_pseudoprime",
+    "https://doi.org/10.1090/S0025-5718-1980-0572872-7"
+   ],
+   "reason": "Second review: Ordowski's question is a two-line corollary of the classical theorem that a strong pseudoprime to base a is an Euler-Jacobi pseudoprime to base a (PSW 1980). True, but effectively settled in the 1980 literature; mark known (or at least not a new result)."
+  },
+  "oeis-a308265": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A308265",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "reason": "Second review: Proved publicly on isitsolved about 3h40m before the site proof commit."
+  },
+  "oeis-a308726": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A308726",
+    "https://isitsolved.com/journal/376c7d060532"
+   ],
+   "reason": "Second review: Mathar's recurrence was decided publicly on isitsolved 56 minutes before the site commit. Also note the statement defines a(n) by Kotesovec's g.f., not by the permutation count."
+  },
+  "oeis-a308733": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A308733",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "reason": "Second review: Proved on isitsolved about 5h before the site commit."
+  },
+  "oeis-a308758": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A308758",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "reason": "Second review: Proved on isitsolved about 5h before the site commit."
+  },
+  "oeis-a308759": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A308759",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "reason": "Second review: Proved on isitsolved about 5h before the site commit."
+  },
+  "oeis-a308760": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A308760",
+    "https://isitsolved.com/journal/844f1dfae2e1"
+   ],
+   "reason": "Second review: Proved on isitsolved about 5h before the site commit."
   }
  },
  "reviewed": "2026-11-28"
