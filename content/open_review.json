@@ -13104,6 +13104,399 @@
     "https://oeis.org/A294159"
    ],
    "note": "Mathar's Jun 2020 order-5 D-finite recurrence is stated for n>=5, with G fixed by the entry's algebraic equation (x^3+x^2+3x-1)(G^2-G)+x=0 and G(0)=1. This reproduces the data, and the recurrence holds for n=5..39. No prior proof found: the conjecture postdates Ekhad-Yang 2017, and the terms match no other entry. Routine: differentiate the algebraic equation and read off coefficients. Second review: Faithful and true. A D-finite recurrence for an algebraic g.f. is a mechanical consequence of the quadratic equation, so routine. No prior proof found."
+  },
+  "oeis-a211435": {
+   "date": "2026-11-28",
+   "pr": 14403,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211435",
+    "https://oeis.org/A211422",
+    "https://oeis.org/A211435",
+    "https://oeis.org/A211422"
+   ],
+   "note": "It counts triples in [-n,n]^3 with w+4x+5y=0; the statement takes Barker's g.f. (offset 0) and the order-7 recurrence for n>6. My count matches the data and the recurrence for n<40. Sister entries A211433, A211434 and A211441 have proofs only for other coefficient sets, and I found none for this one. It is an elementary lattice-point count, so routine. Second review: Faithful conjunction of Barker's two conjectures. True by exact computation to n=199; a routine Ehrhart-type quasi-polynomial identity. No prior proof found."
+  },
+  "oeis-a211562": {
+   "date": "2026-11-28",
+   "pr": 25397,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211562",
+    "https://oeis.org/A211561",
+    "https://oeis.org/A133611",
+    "https://oeis.org/A211562",
+    "https://oeis.org/A211561"
+   ],
+   "note": "Restricted growth arrays of length n+2 containing the value n-1 (Fin (n+2) -> Fin (n+2) loses none). My enumeration reproduces the data, and the g.f. and recurrence in the statement match Barker's. The count is Sum_{j>=n} S2(n+2,j) (Hardin's 'empirical' line, and the tail-sum reading of A133611), and S2(n+2,n+i) are polynomials in n. Nothing states Barker's formulas as proved, so routine. Second review: Statement matches. The count is sum_(j=n..n+2) S(n+2,j) (the entry's own 'Empirical' line, immediate since containing n-1 means at least n blocks), a polynomial in n, so Barker's g.f. is a routine consequence. No earlier proof found."
+  },
+  "oeis-a211563": {
+   "date": "2026-11-28",
+   "pr": 25400,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211563",
+    "https://oeis.org/A211561",
+    "https://oeis.org/A133611",
+    "https://oeis.org/A211563",
+    "https://oeis.org/A211561"
+   ],
+   "note": "Restricted growth arrays of length n+3 containing the value n-1 (Fin (n+3) -> Fin (n+3) loses none). My enumeration reproduces the data, and the g.f. and recurrence in the statement match Barker's. The count is Sum_{j>=n} S2(n+3,j) (Hardin's 'empirical' line, and the tail-sum reading of A133611), and S2(n+3,n+i) are polynomials in n. Nothing states Barker's formulas as proved, so routine. Second review: Statement matches. The count is sum_(j=n..n+3) S(n+3,j) (the entry's own 'Empirical' line, immediate since containing n-1 means at least n blocks), a polynomial in n, so Barker's g.f. is a routine consequence. No earlier proof found."
+  },
+  "oeis-a211564": {
+   "date": "2026-11-28",
+   "pr": 25406,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211564",
+    "https://oeis.org/A211561",
+    "https://oeis.org/A133611",
+    "https://oeis.org/A211564",
+    "https://oeis.org/A211561"
+   ],
+   "note": "Restricted growth arrays of length n+4 containing the value n-1 (Fin (n+4) -> Fin (n+4) loses none). My enumeration reproduces the data, and the g.f. and recurrence in the statement match Barker's. The count is Sum_{j>=n} S2(n+4,j) (Hardin's 'empirical' line, and the tail-sum reading of A133611), and S2(n+4,n+i) are polynomials in n. Nothing states Barker's formulas as proved, so routine. Second review: Statement matches. The count is sum_(j=n..n+4) S(n+4,j) (the entry's own 'Empirical' line, immediate since containing n-1 means at least n blocks), a polynomial in n, so Barker's g.f. is a routine consequence. No earlier proof found."
+  },
+  "oeis-a212205": {
+   "date": "2026-11-28",
+   "pr": 25746,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A212205",
+    "https://oeis.org/A212205"
+   ],
+   "note": "Mathar's order-7 D-finite recurrence for the algebraic g.f., stated for every S with S^2=1-6x^2+x^4, S(0)=1, and G with 2x(1-6x^2)G = (1+2x)S-1+5x^2-2x^3. The right side has zero constant term, so G exists and is unique and the hypotheses are not vacuous. I computed G exactly, matched the data and checked the recurrence for n=7..59. No prior proof found; routine (algebraic implies D-finite). Second review: Faithful. Mathar's holonomic recurrence for an explicit algebraic g.f. is a routine (guess-and-verify) identity. No prior proof found."
+  },
+  "oeis-a212840": {
+   "date": "2026-11-28",
+   "pr": 13409,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A212840",
+    "https://oeis.org/A212835",
+    "https://oeis.org/A212840",
+    "https://oeis.org/A212835"
+   ],
+   "note": "Length-7 words over 0..n with 0 never adjacent to n (letters low/high/inside encode 0, n and 1..n-1). The statement takes Hardin's degree-7 polynomial for all n>=1, Barker's recurrence (n>8) and his g.f. with a(0)=0. My transfer count agrees with the polynomial for n=1..24 and with all listed data. No prior proof found; routine. Second review: Faithful and true; a 3-state transfer-matrix computation gives the degree-7 polynomial. No prior proof found."
+  },
+  "oeis-a214160": {
+   "date": "2026-11-28",
+   "pr": 25215,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214160",
+    "https://oeis.org/A214166",
+    "https://oeis.org/A214160",
+    "https://oeis.org/A214166"
+   ],
+   "note": "Proper 0..5 colourings of an n X 3 array, cyclic in each row, with new colours introduced in row-major order. My transfer count over (row, max colour seen) reproduces the data for n=1..11 and Barker's closed form exactly (the zpow exponents in A214181 are handled correctly). No prior proof found; routine transfer-matrix argument. Second review: Faithful and true; the count is a finite sum over number of colors of a rank-one transfer matrix, so Barker's formulas are routine. No prior proof found."
+  },
+  "oeis-a214181": {
+   "date": "2026-11-28",
+   "pr": 26050,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214181",
+    "https://oeis.org/A214187",
+    "https://oeis.org/A214181",
+    "https://oeis.org/A214187"
+   ],
+   "note": "Proper 0..6 colourings of an n X 3 array, cyclic in each row, with new colours introduced in row-major order. My transfer count over (row, max colour seen) reproduces the data for n=1..11 and Barker's closed form exactly (the zpow exponents in A214181 are handled correctly). No prior proof found; routine transfer-matrix argument. Second review: Faithful and true; the count is a finite sum over number of colors of a rank-one transfer matrix, so Barker's formulas are routine. No prior proof found."
+  },
+  "oeis-a214353": {
+   "date": "2026-11-28",
+   "pr": 27198,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214353",
+    "https://oeis.org/A214352",
+    "https://oeis.org/A214353",
+    "https://oeis.org/A214352"
+   ],
+   "note": "Six-cell triangle over 0..n where each of the three upper cells lies between its sw and se neighbours. My brute force matches the data for n=1..13. The statement takes Barker's g.f. and recurrence for n>7. The count is a degree-6 polynomial by elementary summation; no prior proof found, so routine. Second review: Faithful and true; counting integer points of a union of order polytopes gives a degree-6 polynomial, so the g.f. is routine. No prior proof found."
+  },
+  "oeis-a285970": {
+   "date": "2026-11-28",
+   "pr": 24486,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A285970",
+    "https://oeis.org/A285969",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A285970",
+    "https://oeis.org/A285969",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3/2 for the positions of 0 in the {0110->0}-transform of Thue-Morse (A285969) is stated as a real limit with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A285969, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0110. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286057": {
+   "date": "2026-11-28",
+   "pr": 24700,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286057",
+    "https://oeis.org/A286055",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286057",
+    "https://oeis.org/A286055",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 4/3 for the positions of 1 in the {010->1}-transform of Thue-Morse (A286055) is stated as a real limit with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286055, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 010. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286066": {
+   "date": "2026-11-28",
+   "pr": 24499,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286066",
+    "https://oeis.org/A286064",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286066",
+    "https://oeis.org/A286064",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3/2 for the positions of 1 in the {0110->1}-transform of Thue-Morse (A286064) is stated as a real limit with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286064, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0110. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286337": {
+   "date": "2026-11-28",
+   "pr": 24557,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286337",
+    "https://oeis.org/A286336",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286337",
+    "https://oeis.org/A286336",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3/2 for the positions of 0 in the {1101->0}-transform of Thue-Morse (A286336) is stated as a real limit with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286336, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 1101. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286340": {
+   "date": "2026-11-28",
+   "pr": 24629,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286340",
+    "https://oeis.org/A286339",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286340",
+    "https://oeis.org/A286339",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 9/5 for the positions of 0 in the {1101->1}-transform of Thue-Morse (A286339) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286339, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 1101. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286341": {
+   "date": "2026-11-28",
+   "pr": 24631,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286341",
+    "https://oeis.org/A286339",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286341",
+    "https://oeis.org/A286339",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 9/4 for the positions of 1 in the {1101->1}-transform of Thue-Morse (A286339) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286339, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 1101. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286401": {
+   "date": "2026-11-28",
+   "pr": 24679,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286401",
+    "https://oeis.org/A286400",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286401",
+    "https://oeis.org/A286400",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 9/4 for the positions of 0 in the {1010->1}-transform of Thue-Morse (A286400) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286400, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 1010. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286402": {
+   "date": "2026-11-28",
+   "pr": 24683,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286402",
+    "https://oeis.org/A286400",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286402",
+    "https://oeis.org/A286400",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 9/5 for the positions of 1 in the {1010->1}-transform of Thue-Morse (A286400) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286400, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 1010. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286420": {
+   "date": "2026-11-28",
+   "pr": 24649,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286420",
+    "https://oeis.org/A286419",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286420",
+    "https://oeis.org/A286419",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3 for the positions of 0 in the {0100->1}-transform of Thue-Morse (A286419) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3,5,6}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286419, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0100. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286421": {
+   "date": "2026-11-28",
+   "pr": 24657,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286421",
+    "https://oeis.org/A286419",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286421",
+    "https://oeis.org/A286419",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3/2 for the positions of 1 in the {0100->1}-transform of Thue-Morse (A286419) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286419, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0100. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286485": {
+   "date": "2026-11-28",
+   "pr": 24636,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286485",
+    "https://oeis.org/A286484",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286485",
+    "https://oeis.org/A286484",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 9/4 for the positions of 0 in the {0010->0}-transform of Thue-Morse (A286484) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286484, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0010. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286486": {
+   "date": "2026-11-28",
+   "pr": 24638,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286486",
+    "https://oeis.org/A286484",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286486",
+    "https://oeis.org/A286484",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 9/5 for the positions of 1 in the {0010->0}-transform of Thue-Morse (A286484) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286484, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0010. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286488": {
+   "date": "2026-11-28",
+   "pr": 24640,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286488",
+    "https://oeis.org/A286487",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286488",
+    "https://oeis.org/A286487",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3 for the positions of 0 in the {0010->1}-transform of Thue-Morse (A286487) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3,5,6}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286487, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0010. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286489": {
+   "date": "2026-11-28",
+   "pr": 24644,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286489",
+    "https://oeis.org/A286487",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286489",
+    "https://oeis.org/A286487",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3/2 for the positions of 1 in the {0010->1}-transform of Thue-Morse (A286487) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286487, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0010. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286491": {
+   "date": "2026-11-28",
+   "pr": 24690,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286491",
+    "https://oeis.org/A286490",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286491",
+    "https://oeis.org/A286490",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 9/5 for the positions of 0 in the {0101->0}-transform of Thue-Morse (A286490) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286490, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0101. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286492": {
+   "date": "2026-11-28",
+   "pr": 24694,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286492",
+    "https://oeis.org/A286490",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286492",
+    "https://oeis.org/A286490",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 9/4 for the positions of 1 in the {0101->0}-transform of Thue-Morse (A286490) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286490, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 0101. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286494": {
+   "date": "2026-11-28",
+   "pr": 24661,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286494",
+    "https://oeis.org/A286493",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286494",
+    "https://oeis.org/A286493",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3/2 for the positions of 0 in the {1011->0}-transform of Thue-Morse (A286493) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286493, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 1011. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a286495": {
+   "date": "2026-11-28",
+   "pr": 24288,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286495",
+    "https://oeis.org/A286493",
+    "https://github.com/joaquimmj/oeis-conjectures/blob/main/conjectures/kimberling/proof.md",
+    "https://oeis.org/A286495",
+    "https://oeis.org/A286493",
+    "https://oeis.org/A010060"
+   ],
+   "note": "Kimberling's limit a(n)/n -> 3 for the positions of 1 in the {1011->0}-transform of Thue-Morse (A286493) is stated as a real limit together with Kimberling's remark that the gaps lie in {1,2,3,5,6}, with a left-to-right non-overlapping StringReplace scan that reproduces the listed data. My check over a 2^22-letter prefix matches the data and gives the ratio to 6 decimals, and the gap sets agree. No prior proof: there is no Dekking comment in the entry, its complement or A286493, and nothing in Palomar or the Lean libraries. Manji-Jung's tm_limits.py (Nov 2026) covers only the patterns 00, 11, 01, 10, 011, 101, 0011, 1001 and 1100, not 1011. Routine: a factor-frequency argument. Second review: Faithful and true numerically. The frequency follows from factor frequencies of Thue-Morse (Dekking's return-word method), but no published proof of this entry was found."
+  },
+  "oeis-a285956": {
+   "date": "2026-11-28",
+   "pr": 26993,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A285956",
+    "https://oeis.org/A285956"
+   ],
+   "note": "Barker's g.f., the even and odd quartic closed forms and the order-8 recurrence (n>7) for axis-parallel rectangles on the n X n grid with no corner on either diagonal are stated faithfully, with a 0-based grid and diagonals p=q and p+q=n-1. My brute force matches the data and both closed forms for n<36. This is an inclusion-exclusion count that gives a quasi-polynomial. No prior proof in the entry or elsewhere. Second review: Faithful and true; an inclusion-exclusion quasi-polynomial count of period 2. No prior proof found."
+  },
+  "oeis-a283403": {
+   "date": "2026-11-28",
+   "pr": 25127,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A283403",
+    "https://oeis.org/A283403",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Wu's recurrence (n>26) and g.f. for 2D Rule 633 (right half, base 2) are stated faithfully, with the whole plane evolving (background included) as in Price's program. My own simulation reproduces the data (b-file where available) and every stated formula holds for n<150. No prior proof found (OEIS entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Muñoz's Zenodo ECA paper (1D only), Palomar, Epoch, Blanco Gómez/Fried, formal-conjectures, conjectures.io). The proof reuses sections of longling12's A283407 proof on this site (a different statement), which does not make the result known. Second review: Faithful and true; the proof needs an eventual-structure argument for the automaton (light cone, moving front, stable axis strip), not a finite check. No prior proof of these formulas found."
+  },
+  "oeis-a283406": {
+   "date": "2026-11-28",
+   "pr": 24958,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A283406",
+    "https://oeis.org/A283406",
+    "https://doi.org/10.5281/zenodo.24384895"
+   ],
+   "note": "Wu's recurrence (n>33) and g.f. for 2D Rule 637 (left half, base 2) are stated faithfully, with the whole plane evolving (background included) as in Price's program. My own simulation reproduces the data (b-file where available) and every stated formula holds for n<150. No prior proof found (OEIS entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Muñoz's Zenodo ECA paper (1D only), Palomar, Epoch, Blanco Gómez/Fried, formal-conjectures, conjectures.io). The proof reuses sections of longling12's A283407 proof on this site (a different statement), which does not make the result known. Second review: Faithful and true; the proof needs an eventual-structure argument for the automaton (light cone, moving front, stable axis strip), not a finite check. No prior proof of these formulas found."
   }
  },
  "flagged": {
@@ -31159,6 +31552,78 @@
     "https://github.com/lefttosolve2/open-math-agents/blob/main/statements/oeis-a382318.lean"
    ],
    "reason": "a(n) = A382318(3n) mod 3 is proved in trureturing's HannaLambertCubeModThreeConverse.lean (2026-10-19, sorry-free), with A382318 = x + (Lambert sum of A382319)^3. It is also the first clause of the site's earlier oeis-a382318 solve (proof 2026-11-28 02:31 -0500, by the same solver, with the same Frobenius idea), merged before this proof (06:05 -0500). The statement is faithful but adds nothing: one Frobenius step, P^3 = expand_3 P over ZMod 3."
+  },
+  "oeis-a287128": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A287128",
+    "https://oeis.org/A287125",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 4 row A287128 M7 \"true\" (proved by the window argument)). Prior settlement, not new."
+  },
+  "oeis-a287381": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A287381",
+    "https://oeis.org/A287931",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 4 row A287381 M10 \"true\"). Prior settlement, not new."
+  },
+  "oeis-a286808": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A286808",
+    "https://oeis.org/A286807",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 2 row A286808 M5 \"true\"). Prior settlement, not new."
+  },
+  "oeis-a287103": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A287103",
+    "https://oeis.org/A288710",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 2 row A287103 M40 \"true\", singled out in Sec. 6 as easy to miss). Prior settlement, not new."
+  },
+  "oeis-a287126": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A287126",
+    "https://oeis.org/A287125",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 2 row A287126 M7 \"true\"). Prior settlement, not new."
+  },
+  "oeis-a287127": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A287127",
+    "https://oeis.org/A287125",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 2 row A287127 M7 \"true\"). Prior settlement, not new."
+  },
+  "oeis-a287379": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A287379",
+    "https://oeis.org/A287931",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 2 row A287379 M10 \"true\"). Prior settlement, not new."
+  },
+  "oeis-a287380": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A287380",
+    "https://oeis.org/A287931",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 2 row A287380 M10 \"true\"). Prior settlement, not new."
   }
  },
  "reviewed": "2026-11-28"
