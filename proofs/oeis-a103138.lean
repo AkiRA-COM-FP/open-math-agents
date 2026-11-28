@@ -167,12 +167,14 @@ private theorem quadratic : U ^ 2 + (1 + X) * U = X := by
         if_neg (by omega : n + 1 + 1 ≠ 1), coeff_U, u]
       ring
 
+private theorem series_smul (x y : PowerSeries ℤ) : x • y = x * y := rfl
+
 private theorem ode_U :
     (1 + 6 * X + X ^ 2) * (derivative ℤ U) - (3 + X) * U =
       (1 - X : PowerSeries ℤ) := by
   have diff := congrArg (derivative ℤ) quadratic
   simp only [pow_two, map_add, Derivation.leibniz, derivative_X, Derivation.map_one_eq_zero,
-    zero_add, one_mul, Algebra.id.smul_eq_mul] at diff
+    zero_add, one_mul, series_smul] at diff
   linear_combination (2 * U + 1 + X) * diff - (4 * derivative ℤ U + 2) * quadratic
 
 private theorem seriesNat (c : ℕ) : (c : PowerSeries ℤ) = C (R := ℤ) (c : ℤ) :=
@@ -238,7 +240,7 @@ private theorem ode_gf :
     rw [show (2 : PowerSeries ℤ) = C (R := ℤ) 2 from seriesNat 2, derivative_C]
   rw [gf_linear]
   simp only [map_sub, Derivation.leibniz, map_add, derivative_X,
-    dTwo, zero_add, Algebra.id.smul_eq_mul, mul_one]
+    dTwo, zero_add, series_smul, mul_one]
   linear_combination (2 + X) ^ 2 * ode_U
 
 theorem main (n : ℕ) (hn : 3 ≤ n) :
