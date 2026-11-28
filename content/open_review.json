@@ -4985,6 +4985,57 @@
     "https://oeis.org/A237048"
    ],
    "reason": "Essentially trivial. A237048(n,k) = [k(k+1)/2 <= n and k | n - k(k+1)/2], while (m+1)+...+(m+k) = km + k(k+1)/2, so a partition into k consecutive parts exists exactly when the indicator is 1, and its parts then sum to n by definition. Pol's 'conjecture' is a restatement of the defining property of A237048, with a 61-line proof."
+  },
+  "oeis-a302689": {
+   "date": "2026-11-28",
+   "pr": 21514,
+   "evidence": [
+    "https://oeis.org/A302689",
+    "https://oeis.org/A258547"
+   ],
+   "reason": "The disproof refutes Weisstein's formula line 'a(n) = A258547(n-5) for n > 5 (conjectured)' at n = 6, where a(6) = 44 and A258547(1) = 16. That line has an evident index slip: A258547 starts 16, 44, 104, 228, ..., which is exactly a(5), a(6), a(7), ..., so the intended relation is a(n) = A258547(n-4) for n > 4. Somos's formula A258547(n) = 16*2^n - 4n - 12 is equivalent to that corrected form. The proof exploits the off-by-one and says nothing about the real claim."
+  },
+  "oeis-a109864": {
+   "date": "2026-11-28",
+   "pr": 21153,
+   "evidence": [
+    "https://oeis.org/A109864",
+    "https://github.com/thatnealpatel/proofs/blob/39d62b2/Proofs/NumberComplexity/A109864Refutation.lean"
+   ],
+   "reason": "The disproof uses n = 5: the comment says a(n) = 0 iff n > 3 and n begins with 2, 4, 5, 6 or 8, but 5 is itself a palindromic prime, and the entry's own data has a(5) = 5. That is an evident slip: the intended exceptions are the primes 2 and 5. The substantive part, that every n beginning with 1, 3, 7 or 9 starts some palindromic prime, is untouched. The identical n = 5 refutation was already in thatnealpatel/proofs (A109864Refutation.lean, committed 2026-10-25), so it is also known."
+  },
+  "oeis-a394578": {
+   "date": "2026-11-28",
+   "pr": 19668,
+   "evidence": [
+    "https://oeis.org/A394578",
+    "https://github.com/the-omega-institute/trureturing/issues/15665"
+   ],
+   "reason": "The statement conjoins the comment 'a(n+1)/a(n) -> 1/4' with Mathar's recurrence, and the disproof refutes only the ratio part. Since a(n) = 2^(2n-1)p(n, n+1/2) with p near 1, a(n) grows like 4^n (data 1, 9, 30, 133, 498, ...), so '1/4' is an evident slip for 4 (or for a(n)/a(n+1)). The disproof exploits that slip and leaves Mathar's recurrence untouched. The same ratio refutation was also already in trureturing (issue #15665, closed 2026-10-12)."
+  },
+  "oeis-a045626": {
+   "date": "2026-11-28",
+   "pr": 19327,
+   "evidence": [
+    "https://oeis.org/A045626"
+   ],
+   "reason": "The statement defines a(n) by the linear recurrence a(n) = a(n-1)+a(n-2)+a(n-3)+a(n-4)-a(n-5) with initial terms -1, 2, 3, 3, 5, the rule every program in the entry uses. Stephan's conjectured g.f. then follows from the definition, since the denominator expands to 1-x-x^2-x^3-x^4+x^5 (the proof is coefficient bookkeeping). The only real content, that the loxodromic bends obey this recurrence by Soddy-Gosset, is assumed in the definition and not proved. So the formal theorem is definitional."
+  },
+  "mo-201997": {
+   "date": "2026-11-28",
+   "pr": 17482,
+   "evidence": [
+    "https://mathoverflow.net/questions/201997"
+   ],
+   "reason": "The statement is a blanket no-go: for all d and all d/4 < h < d/2, no local measurable S has mean zero, finite variance, and off-diagonal covariance 2 gamma^2 |x-y|^(-4h). The disproof takes the single point d = 5, h = 2, gamma = 1 and lets S be the linear map phi -> Delta phi/6, since Delta_x Delta_y |x-y|^(-4) = 72|x-y|^(-8) in R^5. That is first-chaos and has nothing to do with squaring. It only works because 4h - 2h happens to be the order of Delta^2, and it says nothing about generic [phi] > d/4 or about the Wick-square no-go the asker (and Hairer, in the comments) had in mind. It answers only the literal conditions, through a loophole, so I flagged it. The Gaussian-field machinery is adapted, with credit, from mrdouglasny/gaussian-field."
+  },
+  "opg-vertex-cover-integrality-gap": {
+   "date": "2026-11-28",
+   "pr": 20073,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/vertex_cover_integrality_gap"
+   ],
+   "reason": "The formal statement is vacuous. It asks for n-vertex G and H with G =^C_{delta n} H and (2-eps)vc(H) <= vc(G), but it neither requires the graphs to be non-trivial nor rules out vc(H) = 0. The proof takes G = H = the empty graph (identity strategy, vc = 0) and closes the goal in five lines. The Atserias-Dawar conjecture, which concerns a genuine factor-2 gap for graphs with nonzero covers that are C^k-equivalent for linear k, is untouched."
   }
  },
  "known": {
@@ -10866,6 +10917,170 @@
     "https://oeis.org/A378277"
    ],
    "reason": "Schulte's alternating-row-sum conjecture is proved sorry-free in trureturing (D5/S1/Recurrence/Parity/HarmonicTriangleAlternatingRowSums.lean, with the n=1 case separate). Its problem file records the literature screen on 2026-09-08, well before this Nov 27 solve. The identity is a routine Cassini telescoping."
+  },
+  "oeis-a113252": {
+   "date": "2026-11-28",
+   "pr": 21491,
+   "evidence": [
+    "https://oeis.org/A113252",
+    "https://oeis.org/A113249",
+    "https://github.com/lefttosolve2/open-math-agents/pull/7849"
+   ],
+   "reason": "The statement is the family-wide conjecture (a(m,2n+1) is a square for all m and n), and its docstring says so. Its definitions and main theorem are character-for-character identical to statements/oeis-a113249.lean. That statement was solved earlier on this site (PR #7849, merged 2026-11-27), and this proof is a verbatim copy of that proof. So this is a duplicate of an earlier solve. Mathematically it is a routine induction on the pair (a(2n), a(2n+1))."
+  },
+  "oeis-a030229": {
+   "date": "2026-11-28",
+   "pr": 16598,
+   "evidence": [
+    "https://oeis.org/A030229",
+    "https://github.com/thatnealpatel/proofs/blob/39d62b2/Proofs/NumberComplexity/A030229Refutation.lean"
+   ],
+   "reason": "Irwin's 2016 comment claims Inverse(M)(a,1) = -1 on A030229, with M(i,j) = [j|i]. But the first column of the inverse is mu(a) = +1 on this set, so the comment is a sign or copy error (the -1 version is true for A030059). The disproof at a = 1 (and N = 1) is correct. The same refutation, with a = 6 and the -1 version for A030059, was already in thatnealpatel/proofs (Proofs/NumberComplexity/A030229Refutation.lean, committed 2026-10-25), a month before this PR."
+  },
+  "oeis-a077739": {
+   "date": "2026-11-28",
+   "pr": 7302,
+   "evidence": [
+    "https://oeis.org/A077739",
+    "https://github.com/the-omega-institute/trureturing/issues/30844",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a077739-murthy-zero-indices.md"
+   ],
+   "reason": "The statement (a(n) = 0 iff n is 11, 17 or 19, n >= 1, overlapping prefix and suffix allowed) is faithful to Murthy's conjecture. The same full classification was settled in Lean in the-omega-institute/trureturing on 2026-11-15 (issue #30844, PR #30866; D5/S1/Digit/Admissibility/MurthyA077739Classification.lean). This PR was merged on 2026-11-27, so the result was already public."
+  },
+  "oeis-a131576": {
+   "date": "2026-11-28",
+   "pr": 19804,
+   "evidence": [
+    "https://oeis.org/A131576",
+    "https://oeis.org/A067742",
+    "https://github.com/thatnealpatel/proofs/blob/39d62b2/Proofs/NumberComplexity/A131576CountsRepresentationsSum.lean"
+   ],
+   "reason": "Pol's 2017 identities a(n) = (A001227 - A067742)/2 = A082647 - A067742 are stated faithfully, with positive consecutive parts as the data requires. They follow at once from results already in OEIS: a(n) counts the odd divisors > sqrt(2n) (Hirschhorn-Hirschhorn, cited in A131576), and Sloane's Theorem 1 in A067742 (2021) says A067742(n) = #{odd d <= sqrt(2n)} - #{odd d > sqrt(2n)}. A Lean proof of exactly these identities was also already in thatnealpatel/proofs (committed 2026-10-25)."
+  },
+  "oeis-a259145": {
+   "date": "2026-11-28",
+   "pr": 17301,
+   "evidence": [
+    "https://oeis.org/A259145",
+    "https://github.com/thatnealpatel/proofs/blob/39d62b2/Proofs/NumberComplexity/A259145PhiPrimeCyclic.lean"
+   ],
+   "reason": "Olivieri's conjecture (if k^2 - phi(k) is prime then gcd(k, phi(k)) = 1) is stated faithfully. It is trivial: the gcd divides that prime and is at most k < k^2 - phi(k) for k >= 2. The same argument was already formalized in thatnealpatel/proofs (A259145PhiPrimeCyclic.lean, committed 2026-10-25), before this PR."
+  },
+  "oeis-a285999": {
+   "date": "2026-11-28",
+   "pr": 21278,
+   "evidence": [
+    "https://oeis.org/A285999",
+    "https://oeis.org/A067742",
+    "https://oeis.org/A131576",
+    "https://oeis.org/A285902"
+   ],
+   "reason": "Pol's Conjecture 1 (a(n) = 2 * sum_{j<=n} A131576(j)) is stated faithfully, and the proof reduces it to A001227(j) = 2*A131576(j) + A067742(j) for each j. That termwise identity was already settled in OEIS: A131576(j) counts the odd divisors > sqrt(2j) (Hirschhorn-Hirschhorn), and Sloane's Theorem 1 in A067742 (2021) gives A067742(j) = #{odd d <= sqrt(2j)} - #{odd d > sqrt(2j)}. Summing finishes it."
+  },
+  "oeis-a188644": {
+   "date": "2026-11-28",
+   "pr": 19160,
+   "evidence": [
+    "https://oeis.org/A188644",
+    "https://oeis.org/A188645"
+   ],
+   "reason": "Hohn's conjecture (for x >= 1 and y = +-1, (k^n + k^-n)/2 is an integer, k = (sqrt(x^2+y)+x)^2) is stated faithfully for both signs. It was settled in the entries before this PR: Manyama (2018-2019) identifies the y = -1 array with T_{2n}(x) and the y = +1 array (A188645) with T_n(2x^2+1), and gives explicit binomial sums with integer terms. The proof uses the classical k*k' = 1, k + k' = 2(2x^2+y) recurrence. Routine and known."
+  },
+  "oeis-a137225": {
+   "date": "2026-11-28",
+   "pr": 20571,
+   "evidence": [
+    "https://oeis.org/A137225",
+    "https://oeis.org/A062318"
+   ],
+   "reason": "Mathar's 2008 conjecture T(k,3) = A062318(k) is stated in the old offset 0 (A062318(k+1) now), which matches the data and the WARNING in A062318. But A062318 already carries Zumkeller's 2006 comment 'a(n+1) is the smallest number with ternary digit sum = n', which is exactly this claim. It is also the elementary fact that the least number with base-3 digit sum k is 2...2 or 12...2 in base 3. Known and trivial."
+  },
+  "oeis-a004109": {
+   "date": "2026-11-28",
+   "pr": 20657,
+   "evidence": [
+    "https://oeis.org/A004109",
+    "https://arxiv.org/abs/2408.12459",
+    "https://oeis.org/A002829"
+   ],
+   "reason": "Kotesovec's 2024 'conjecture' a(n) ~ 2^(n+1/2) 3^n n^(3n)/e^(3n+2) is stated faithfully for connected 3-regular graphs on Fin(2n). It equals the proven asymptotic of all labeled cubic graphs in A002829 (sqrt2 6^n n^(3n)/e^(3n+2), Read and Bender-Canfield) combined with the classical fact that almost all labeled cubic graphs are connected (Bollobas, Wormald, around 1981). The entry also links de Panafieu (arXiv:2408.12459, 2024), which derives asymptotic expansions for connected regular graphs. The PR formalizes that classical configuration-model argument."
+  },
+  "oeis-a060957": {
+   "date": "2026-11-28",
+   "pr": 20504,
+   "evidence": [
+    "https://oeis.org/A060957",
+    "https://github.com/TEAM-42KR/ang-subset-products-lean",
+    "https://zenodo.org/records/23599288"
+   ],
+   "reason": "The statement is Ang's 2020 conjecture about prime-power gaps in the set of subset products of {1..n}, and it is faithful. The proof file says outright that its core is ported, under MIT licence, from Sungsoo Na's public repository TEAM-42KR/ang-subset-products-lean (commit 6f512eb). The counterexample was published on Zenodo on 2026-10-28 ('Ang's conjecture on products of distinct integers fails for large primes', doi:10.5281/zenodo.23599287), a month before this PR. Known."
+  },
+  "mo-449746": {
+   "date": "2026-11-28",
+   "pr": 21091,
+   "evidence": [
+    "https://mathoverflow.net/questions/449746",
+    "https://doi.org/10.1016/0022-314X(83)90031-8",
+    "https://mathoverflow.net/a/449780"
+   ],
+   "reason": "The question asks only for references for a classical fact: under RH, every zero of every derivative xi^(m), m >= 1, has real part 1/2. The statement encodes this faithfully, with xi made entire via completedRiemannZeta_0. The 2023 answer already gives the proof: under RH, xi(1/2+iz) is in the Laguerre-Polya class (Hadamard product of order 1 with real zeros), and that class is closed under differentiation. The statement itself cites Conrey (1983) for the same fact. Known."
+  },
+  "mo-327172": {
+   "date": "2026-11-28",
+   "pr": 20020,
+   "evidence": [
+    "https://mathoverflow.net/questions/327172",
+    "https://mathoverflow.net/a/415946",
+    "https://arxiv.org/abs/1512.00433"
+   ],
+   "reason": "The statement faithfully encodes Tromp's conjecture as expected fractions: N edges with uniform endpoints, alternating trimming of degree-1 endpoints, and f_i -> a_{i-1} a_i. The limit is the standard density-evolution recursion for peeling on sparse random bipartite graphs (Justesen's product-code recursion with t = 1, lambda = 1). Haeger-Pfister-Graell i Amat-Brannstrom (IEEE TIT 2017) proved such recursions rigorously, and the proof header says its finite-round tree peeling follows them. A 2022 MO answer also claims a (heuristic) proof. I counted it as known; if the owner wants a literal match of the exact ensemble, it could be downgraded to uncertain."
+  },
+  "mo-304819": {
+   "date": "2026-11-28",
+   "pr": 14706,
+   "evidence": [
+    "https://mathoverflow.net/questions/304819",
+    "https://mathoverflow.net/a/513795"
+   ],
+   "reason": "The conjecture (among n points on a circle, the regular n-gon maximizes sum_{i<j} |B_i-B_j|^alpha for 1 <= alpha <= 2) is stated faithfully on the unit circle, with coincident points allowed. Two MathOverflow answers posted 2026-07-31, four months before this PR, already prove it. One handles alpha = 2 by the centroid identity, and 1 <= alpha < 2 via Cohn-Kumar universal optimality, since the regular n-gon is sharp and 4^q - t^q is completely monotone. For alpha = 1 it is also Fejes Toth's classical result. Known."
+  },
+  "Erdos653.erdos_653": {
+   "date": "2026-11-28",
+   "pr": 8136,
+   "evidence": [
+    "https://www.erdosproblems.com/forum/thread/653/proof-claims",
+    "https://conjectures.io/problems/erdos653-erdos-653",
+    "https://conjectures.io/results/257ce6dd-e3e5-4169-9d7e-2811092977ca/solution"
+   ],
+   "reason": "The site settled erdos_653 (g(n) >= (1-o(1))n) through reduction PR #8136 plus sub-goals R2.H1 (#21334) and R2.H2 (#20880), all merged in November 2026. But conjectures.io already lists this exact formal-conjectures target as Proved: a 28.6k-line Lean proof, approved 16 Sept 2026. Bloom posted it as a proof claim on erdosproblems.com on 2026-09-27. So a public formal proof predates the site's."
+  },
+  "Erdos168.erdos_168.parts.i": {
+   "date": "2026-11-28",
+   "pr": 21284,
+   "evidence": [
+    "https://www.erdosproblems.com/168",
+    "https://www.erdosproblems.com/forum/thread/168"
+   ],
+   "reason": "The formal statement leaves the limit as a placeholder `answer`. The proof sets answer := sum over 3-smooth d of gain(d)/(3d) and proves F(N)/N tends to it. That is exactly the 1977 Graham-Spencer-Witsenhausen formula (1/3) sum_{k in K} 1/d_k quoted on the problem page, which Eberhard evaluated to 0.800965755... So the proof re-derives a known theorem and gives no new closed form. Part (ii), irrationality, is untouched."
+  },
+  "Erdos1075.erdos_1075": {
+   "date": "2026-11-28",
+   "pr": 19789,
+   "evidence": [
+    "https://www.erdosproblems.com/1075",
+    "https://zenodo.org/records/22667633"
+   ],
+   "reason": "The disproof's own header says 'the mathematical counterexample is due to Anonymous (2026), Zenodo record 22667633'. That record, 'Counterexamples to Erdos Problem 1075', was published 2026-09-08, well before this PR was merged on 2026-11-28. The PR formalizes that published counterexample (a cycle-potential construction) against the formal-conjectures statement, so it is known. I did not separately check whether the counterexample hinges on a formalization detail rather than on the jump question itself."
+  },
+  "opg-edge-colouring-geometric-complete-graphs": {
+   "date": "2026-11-28",
+   "pr": 19471,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/edge_colouring_geometric_complete_graphs",
+    "https://arxiv.org/abs/1105.4931",
+    "https://arxiv.org/abs/1804.01057"
+   ],
+   "reason": "The statement conjoins Hurtado's four OPG conjectures, and the disproof refutes only Variant B (B(n) <= (1-eps)n, where disjoint edges must get distinct colours) using points on a parabola, i.e. in convex position. That was already done: Fabila-Monroy and Wood (arXiv:1105.4931, 2011) proved chi(D_n) >= n - sqrt(2n) for the convex segment disjointness graph, and the exact value n - floor(sqrt(2n+1/4) - 1/2) was found in 2018 (arXiv:1804.01057). Since B(n) is at least the convex-position value, Variant B was refuted over a decade ago. Variants A, C and D are untouched."
   }
  },
  "reviewed": "2026-11-28"
