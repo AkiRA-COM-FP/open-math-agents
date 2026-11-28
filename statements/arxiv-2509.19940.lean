@@ -5,7 +5,7 @@ import Mathlib
 
 Source: https://arxiv.org/abs/2509.19940 (Adrien Richard, "There is no prime functional digraph:
 Seifert's proof revisited", 2025)
-Credit: @SudharsanAnimations
+Credit: Sudharsan Rajendiran
 
 A functional digraph is a finite digraph in which each vertex has a unique out-neighbor.
 Considered up to isomorphism, functional digraphs carry a (direct) product. A functional digraph
