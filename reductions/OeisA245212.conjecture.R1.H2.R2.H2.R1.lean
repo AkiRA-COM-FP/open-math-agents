@@ -12,6 +12,31 @@ open private OMA.R_OeisA245212_conjecture_R1_H2_R2.at_power_product
   OMA.R_OeisA245212_conjecture_R1_H2_R2.weighted2
   OMA.R_OeisA245212_conjecture_R1_H2_R2.weighted_gt from OMAReductions.R_OeisA245212_conjecture_R1_H2_R2
 
+private theorem numerator {a b u y : ℕ} (ha : 0<a) (eq : a*u=b*y) :
+    let g := a.gcd b
+    let Q := a/g
+    Q∣y ∧ u=(b/g)*(y/Q) := by
+  let g := a.gcd b
+  let Q := a/g
+  let P := b/g
+  have gp : 0<g := Nat.gcd_pos_of_pos_left _ ha
+  have aeq : Q*g=a := Nat.div_mul_cancel (Nat.gcd_dvd_left a b)
+  have beq : P*g=b := Nat.div_mul_cancel (Nat.gcd_dvd_right a b)
+  have qp : 0 < Q := Nat.div_pos (Nat.le_of_dvd ha (Nat.gcd_dvd_left a b)) gp
+  have ab : Q*u=P*y := by
+    apply Nat.eq_of_mul_eq_mul_right gp
+    calc
+      Q*u*g = Q*g*u := by ring
+      _ = a*u := by rw [aeq]
+      _ = b*y := eq
+      _ = P*y*g := by rw [←beq]; ring
+  have cp : Q.Coprime P := Nat.coprime_div_gcd_div_gcd gp
+  have div : Q∣y := cp.dvd_of_dvd_mul_left (ab ▸ dvd_mul_right Q u)
+  refine ⟨div,?_⟩
+  apply Nat.eq_of_mul_eq_mul_left qp
+  change Q*u = Q*(P*(y/Q))
+  rw [ab,←Nat.mul_assoc,mul_comm Q P,Nat.mul_assoc,Nat.mul_div_cancel' div]
+
 /-- Exact prime-exponent obstruction for a divisor equality, at any power of two. -/
 def H1 : Prop :=
   ∀ k m : ℕ, Odd m → OeisA245212.a (2^k*m) = (σ 1 (2^k*m) : ℤ) →
@@ -39,31 +64,6 @@ def H2 : Prop :=
       let H := 1+k+(k+1).factorization 2
       if U < H then E=m.primeFactors.card+U
       else if H < U then E=m.primeFactors.card+H else m.primeFactors.card+H<E) → Q∣y → x%y ≠ ((k+1)/g)*(y/Q)
-
-private theorem numerator {a b u y : ℕ} (ha : 0<a) (eq : a*u=b*y) :
-    let g := a.gcd b
-    let Q := a/g
-    Q∣y ∧ u=(b/g)*(y/Q) := by
-  let g := a.gcd b
-  let Q := a/g
-  let P := b/g
-  have gp : 0<g := Nat.gcd_pos_of_pos_left _ ha
-  have aeq : Q*g=a := Nat.div_mul_cancel (Nat.gcd_dvd_left a b)
-  have beq : P*g=b := Nat.div_mul_cancel (Nat.gcd_dvd_right a b)
-  have qp : 0 < Q := Nat.div_pos (Nat.le_of_dvd ha (Nat.gcd_dvd_left a b)) gp
-  have ab : Q*u=P*y := by
-    apply Nat.eq_of_mul_eq_mul_right gp
-    calc
-      Q*u*g = Q*g*u := by ring
-      _ = a*u := by rw [aeq]
-      _ = b*y := eq
-      _ = P*y*g := by rw [←beq]; ring
-  have cp : Q.Coprime P := Nat.coprime_div_gcd_div_gcd gp
-  have div : Q∣y := cp.dvd_of_dvd_mul_left (ab ▸ dvd_mul_right Q u)
-  refine ⟨div,?_⟩
-  apply Nat.eq_of_mul_eq_mul_left qp
-  change Q*u = Q*(P*(y/Q))
-  rw [ab,←Nat.mul_assoc,mul_comm Q P,Nat.mul_assoc,Nat.mul_div_cancel' div]
 
 theorem main : H1 → H2 → OMA.R_OeisA245212_conjecture_R1_H2_R2.H2 := by
   intro test remain m om hm ns
