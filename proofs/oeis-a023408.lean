@@ -140,53 +140,6 @@ theorem conjecture (n : ℕ) (hn : 1 < n) : a n + b n = 9 := by
   have : (d + e) * 10 ^ k = 9 * 10 ^ k := by nlinarith
   exact Nat.eq_of_mul_eq_mul_right hpos this
 
-/-- The {5,6} number of length k is the only number below 10^k whose k last digits are all 5 or 6
-and which is divisible by 2^k, so the definition matches the entry: the last k digits of a power
-2^m with m >= k ending in k digits 5 or 6 form x56 k. -/
-lemma unique56 (k D : ℕ) (hD : D < 10 ^ k) (hdig : ∀ i < k, D / 10 ^ i % 10 = 5 ∨ D / 10 ^ i % 10 = 6)
-    (hdvd : 2 ^ k ∣ D) : D = x56 k := by
-  induction k generalizing D with
-  | zero => simp at hD; simp [hD, x56]
-  | succ k ih =>
-    have hpos : 0 < 10 ^ k := by positivity
-    set D' := D % 10 ^ k with hD'
-    set d := D / 10 ^ k with hd
-    have hsplit : D = D' + d * 10 ^ k := by rw [hD', hd]; exact (Nat.mod_add_div' D (10 ^ k)).symm
-    have hdd : d = 5 ∨ d = 6 := by
-      have := hdig k (by omega)
-      have hlt : d < 10 := by rw [hd]; exact Nat.div_lt_of_lt_mul (by rw [← pow_succ]; exact hD)
-      rwa [Nat.mod_eq_of_lt hlt] at this
-    have hD'eq : D' = x56 k := by
-      apply ih D' (Nat.mod_lt _ hpos)
-      · intro i hi
-        have h1 := hdig i (by omega)
-        have hpi : 0 < 10 ^ i := by positivity
-        have e1 : d * 10 ^ k = d * 10 ^ (k - i - 1) * 10 * 10 ^ i := by
-          rw [mul_assoc, mul_assoc, ← pow_succ', ← pow_add, show k - i - 1 + (i + 1) = k by omega]
-        have : D / 10 ^ i % 10 = D' / 10 ^ i % 10 := by
-          rw [hsplit, e1, Nat.add_mul_div_right _ _ hpi, Nat.add_mul_mod_self_right]
-        rwa [← this]
-      · have h2k : 2 ^ k ∣ D := (pow_dvd_pow 2 (Nat.le_succ k)).trans hdvd
-        have h2 : 2 ^ k ∣ d * 10 ^ k := Dvd.dvd.mul_left (by rw [ten_pow]; exact dvd_mul_right _ _) d
-        rw [hsplit] at h2k
-        exact (Nat.dvd_add_right h2).mp (by rwa [add_comm] at h2k)
-    rw [hsplit, hD'eq]
-    have hpow : 2 ^ (k + 1) = 2 ^ k * 2 := pow_succ 2 k
-    have hdvd' : 2 ^ (k + 1) ∣ x56 k + d * 10 ^ k := by rw [← hD'eq, ← hsplit]; exact hdvd
-    simp only [x56]
-    rcases hdd with h5 | h6
-    · rw [h5] at hdvd' ⊢; rw [if_pos hdvd']
-    · rw [h6] at hdvd' ⊢
-      have hnot : ¬ 2 ^ (k + 1) ∣ x56 k + 5 * 10 ^ k := by
-        intro h5'
-        have : 2 ^ (k + 1) ∣ 10 ^ k := by
-          have := (Nat.dvd_sub hdvd' h5')
-          rwa [show x56 k + 6 * 10 ^ k - (x56 k + 5 * 10 ^ k) = 10 ^ k by omega] at this
-        rw [ten_pow, hpow] at this
-        have h2 : 2 ∣ 5 ^ k := (Nat.mul_dvd_mul_iff_left (by positivity : 0 < 2 ^ k)).mp this
-        exact (Nat.not_even_iff_odd.mpr (odd_five_pow k)) (even_iff_two_dvd.mpr h2)
-      rw [if_neg hnot]
-
 /-- The same uniqueness for the {3,4} number of length k. -/
 lemma unique34 (k D : ℕ) (hD : D < 10 ^ k) (hdig : ∀ i < k, D / 10 ^ i % 10 = 3 ∨ D / 10 ^ i % 10 = 4)
     (hdvd : 2 ^ k ∣ D) : D = x34 k := by
