@@ -1,5 +1,6 @@
 import OMAStatements.S_arxiv_2604_17847
 import Mathlib.NumberTheory.LSeries.PrimesInAP
+import Mathlib.Tactic.NormNum.Prime
 
 namespace OMA.R_arxiv_2604_17847_R1
 
@@ -7,7 +8,7 @@ open OMA.S_arxiv_2604_17847
 
 -- It suffices to find a finite cover in the case of a recurring prime-index rank family.
 def H1 : Prop :=
-  ∀ q r : ℕ, q.Prime → q ≠ 2 → r ∈ S q →
+  ∀ q r : ℕ, q.Prime → 31 < q → r ∈ S q →
     (∃ e : ℕ, e ∣ r.gcd (pisano q) ∧ ∀ B : ℕ, ∃ l > B, ∃ p > B,
       l.Prime ∧ r.gcd (pisano q) * l ≡ r [MOD pisano q] ∧
       p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p = e * l) →
@@ -17,7 +18,7 @@ def H1 : Prop :=
 
 -- Isolate the exceptional square-divisibility case at the period.
 def H2 : Prop :=
-  ∀ q : ℕ, q.Prime → q ≠ 2 → q ^ 2 ∣ Nat.fib (pisano q) →
+  ∀ q : ℕ, q.Prime → 31 < q → q ^ 2 ∣ Nat.fib (pisano q) →
     ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p ∣ pisano q
 
 -- The gcd argument follows the proof for OEIS A000032 (project PR 9447).
@@ -252,16 +253,183 @@ lemma fixed_rank_family {q r : ℕ} (hq : q.Prime) (hr : r ∈ S q)
   obtain ⟨l, hil, p, hip, rest⟩ := hcolor i
   exact ⟨l, hBi.trans hil, p, hBi.trans hip, hi ▸ rest⟩
 
+-- One eligible prime with no possible rank witness excludes the residue.
+lemma not_mem_of_missing_rank {q r l : ℕ} (hq : q.Prime)
+    (hbad : ¬ q ∣ Nat.totient (Nat.fib (pisano q))) (hl : l.Prime)
+    (hlarge : rankOfApparition (q ^ 2) < l)
+    (hmod : r.gcd (pisano q) * l ≡ r [MOD pisano q])
+    (hmiss : ∀ e : ℕ, e ∣ r.gcd (pisano q) → ∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] →
+      rankOfApparition p ≠ e * l) : r ∉ S q := by
+  intro hr
+  obtain ⟨e, he, p, hp, hc, hrank⟩ := prime_index_rank hq hr hbad hl hlarge hmod
+  exact hmiss e he p hp hc hrank
+
+-- Test a period using two consecutive values, as in project PRs 8383 and 9447.
+lemma pisano_eq_of_certificate {q P : ℕ} (hP : 0 < P)
+    (hstart : Nat.fib P ≡ 0 [MOD q] ∧ Nat.fib (P + 1) ≡ 1 [MOD q])
+    (hmin : ∀ k : Fin P, 0 < k.val →
+      ¬ (Nat.fib k.val ≡ 0 [MOD q] ∧ Nat.fib (k.val + 1) ≡ 1 [MOD q])) :
+    pisano q = P := by
+  have hper (n : ℕ) : Nat.fib (n + P) ≡ Nat.fib n [MOD q] := by
+    induction n using Nat.twoStepInduction with
+    | zero => simpa using hstart.1
+    | one => simpa [Nat.add_comm] using hstart.2
+    | more n h0 h1 =>
+      rw [show n + 2 + P = (n + P) + 2 by omega, Nat.fib_add_two, Nat.fib_add_two]
+      simpa only [show n + 1 + P = n + P + 1 by omega] using h0.add h1
+  let periods := {k : ℕ | 0 < k ∧ ∀ n : ℕ, Nat.fib (n + k) ≡ Nat.fib n [MOD q]}
+  have hmem : P ∈ periods := ⟨hP, hper⟩
+  change sInf periods = P
+  apply le_antisymm (Nat.sInf_le hmem)
+  by_contra! hlt
+  obtain ⟨hpos, hperiod⟩ : sInf periods ∈ periods := Nat.sInf_mem ⟨P, hmem⟩
+  apply hmin ⟨sInf periods, hlt⟩ hpos
+  exact ⟨by simpa using hperiod 0, by simpa [Nat.add_comm] using hperiod 1⟩
+
+lemma prime_mem_of_dvd_product {p : ℕ} (hp : p.Prime) (factors : List ℕ)
+    (hpr : ∀ a ∈ factors, Nat.Prime a) (hd : p ∣ factors.prod) : p ∈ factors := by
+  induction factors with
+  | nil => exact (hp.not_dvd_one hd).elim
+  | cons a tail ih =>
+    rcases hp.dvd_mul.mp hd with ha | ht
+    · exact List.mem_cons.mpr (Or.inl ((Nat.prime_dvd_prime_iff_eq hp (hpr a (by simp))).mp ha))
+    · exact List.mem_cons_of_mem a (ih (fun b hb => hpr b (List.mem_cons_of_mem _ hb)) ht)
+
+-- An upper multiple with certified prime factors suffices, even when F_n is large.
+lemma totient_exception_of_factors {q n k : ℕ} (hq : q.Prime) (hn : 0 < n)
+    (safe : List ℕ) (hpr : ∀ a ∈ safe, Nat.Prime a ∧ ¬ a ≡ 1 [MOD q])
+    (hsquare : ¬ q ^ 2 ∣ Nat.fib n) (hdiv : Nat.fib n ∣ safe.prod ^ k) :
+    ¬ q ∣ Nat.totient (Nat.fib n) := by
+  intro htot
+  rcases totient_fib_witness hq htot with hs | ⟨p, hp, hmod, hr⟩
+  · exact hsquare hs
+  · have hpos := Nat.pos_of_dvd_of_pos hr hn
+    have hindices := Nat.nonempty_of_pos_sInf (s := {j : ℕ | 0 < j ∧ p ∣ Nat.fib j}) hpos
+    have hleast : 0 < rankOfApparition p ∧ p ∣ Nat.fib (rankOfApparition p) := Nat.sInf_mem hindices
+    have hd := hp.dvd_of_dvd_pow ((hleast.2.trans (Nat.fib_dvd _ _ hr)).trans hdiv)
+    have hm := prime_mem_of_dvd_product hp safe (fun a ha => (hpr a ha).1) hd
+    exact (hpr p hm).2 hmod
+
+-- A single totient exception rules out the residue of every divisor of its index.
+lemma not_mem_of_divisor_exception {q r n d : ℕ} (hbad : ¬ q ∣ Nat.totient (Nat.fib n))
+    (hd : d ∣ n) (hmod : d ≡ r [MOD pisano q]) : r ∉ S q := by
+  intro hr
+  exact hbad ((hr.2 d hmod).trans (Nat.totient_dvd_of_dvd (Nat.fib_dvd _ _ hd)))
+
+lemma empty_of_exception_table {q P k shifts : ℕ} (hq : q.Prime) (hperiod : pisano q = P)
+    (safe : List ℕ) (hpr : ∀ a ∈ safe, Nat.Prime a ∧ ¬ a ≡ 1 [MOD q])
+    (table : ∀ r : Fin P, ∃ t : Fin shifts, let n := r.val + t.val * P
+      0 < n ∧ ¬ q ^ 2 ∣ Nat.fib n ∧ Nat.fib n ∣ safe.prod ^ k) : S q = ∅ := by
+  apply Set.eq_empty_iff_forall_notMem.mpr
+  intro r hr
+  have hlt : r < P := hperiod ▸ hr.1
+  obtain ⟨t, hn, hs, hd⟩ := table ⟨r, hlt⟩
+  have bad := totient_exception_of_factors hq hn safe hpr hs hd
+  have hm : r + t.val * P ≡ r [MOD pisano q] := by
+    rw [hperiod]
+    exact Nat.add_mul_modulus_modEq_iff.mpr rfl
+  exact not_mem_of_divisor_exception bad (dvd_refl _) hm hr
+
+-- At q = 7, the prime 67 is in residue 3 and exceeds the square-witness threshold.
+lemma prime_index_exception_seven :
+    rankOfApparition (7 ^ 2) < 67 ∧ (67 : ℕ).Prime ∧
+      67 ≡ 3 [MOD pisano 7] ∧ ¬ 7 ∣ Nat.totient (Nat.fib 67) := by
+  have hP : pisano 7 = 16 := pisano_eq_of_certificate (by decide) (by decide) (by decide)
+  have h49 : rankOfApparition (7 ^ 2) ≤ 56 :=
+    Nat.sInf_le (s := {k : ℕ | 0 < k ∧ 7 ^ 2 ∣ Nat.fib k}) (m := 56) (by decide +revert)
+  refine ⟨by omega, by decide, hP ▸ (by decide), ?_⟩
+  apply totient_exception_of_factors (k := 1) (by decide) (by decide) [269, 116849, 1429913]
+  · norm_num [List.forall_mem_cons, Nat.ModEq]
+  · decide
+  · decide
+
+-- The same list of certified primes serves every row. Removing primes congruent
+-- to one gives the allowed factors for that modulus. Up to three additional
+-- periods suffice to find an exception for each residue.
+set_option maxRecDepth 4000 in
+set_option maxHeartbeats 3000000 in
+lemma small_empty_classes {q : ℕ} (hq : q.Prime)
+    (hcase : q ∈ ([7, 11, 13, 17, 19, 29, 31] : List ℕ)) : S q = ∅ := by
+  let primes : List ℕ :=
+    [2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+      31, 37, 41, 47, 53, 61, 71, 89, 107, 109,
+      113, 199, 233, 281, 331, 353, 421, 521, 557, 661,
+      911, 1597, 2207, 2417, 3001, 19801, 28657, 39161, 141961, 474541,
+      514229, 2710260697]
+  have prime_entries : ∀ a ∈ primes, Nat.Prime a := by
+    norm_num [primes, List.forall_mem_cons]
+  let rows : List (ℕ × ℕ) := [(7, 16), (11, 10), (13, 28), (17, 36), (19, 18), (29, 14), (31, 30)]
+  have data : ∀ row ∈ rows, let Q := row.1
+      let P := row.2
+      let safe := primes.filter (fun a => decide (¬ a ≡ 1 [MOD Q]))
+      (0 < P ∧ Nat.fib P ≡ 0 [MOD Q] ∧ Nat.fib (P + 1) ≡ 1 [MOD Q]) ∧
+      (∀ j : Fin P, 0 < j.val → ¬ (Nat.fib j.val ≡ 0 [MOD Q] ∧ Nat.fib (j.val + 1) ≡ 1 [MOD Q])) ∧
+      ∀ r : Fin P, ∃ t : Fin 4, let n := r.val + t.val * P
+        0 < n ∧ ¬ Q ^ 2 ∣ Nat.fib n ∧ Nat.fib n ∣ safe.prod ^ 5 := by decide
+  have hrow : q ∈ rows.map Prod.fst := hcase
+  obtain ⟨⟨Q, P⟩, hmem, rfl⟩ := List.mem_map.mp hrow
+  obtain ⟨⟨hP, h0, h1⟩, hmin, htable⟩ := data _ hmem
+  exact empty_of_exception_table hq (pisano_eq_of_certificate hP ⟨h0, h1⟩ hmin) _
+    (fun a ha => ⟨prime_entries a (List.mem_filter.mp ha).1, of_decide_eq_true (List.mem_filter.mp ha).2⟩)
+    htable
+
+-- A prime factor at the period witnesses the entire zero class, including index zero.
+lemma zero_class_of_period_factor {q P p : ℕ} (hperiod : pisano q = P) (hP : 0 < P)
+    (hp : p.Prime) (hmod : p ≡ 1 [MOD q]) (hdiv : p ∣ Nat.fib P) : 0 ∈ S q := by
+  refine ⟨hperiod ▸ hP, ?_⟩
+  intro m hm
+  rw [hperiod] at hm
+  have hqm : q ∣ Nat.totient p := by rw [Nat.totient_prime hp]; exact hmod.symm.dvd'
+  exact hqm.trans (Nat.totient_dvd_of_dvd (hdiv.trans (Nat.fib_dvd _ _ (Nat.modEq_zero_iff_dvd.mp hm))))
+
+lemma aligned_witness_of_checked_period {q P p : ℕ} (hP : 0 < P)
+    (hstart : Nat.fib P ≡ 0 [MOD q] ∧ Nat.fib (P + 1) ≡ 1 [MOD q])
+    (hmin : ∀ k : Fin P, 0 < k.val →
+      ¬ (Nat.fib k.val ≡ 0 [MOD q] ∧ Nat.fib (k.val + 1) ≡ 1 [MOD q]))
+    (hp : p.Prime) (hc : p ≡ 1 [MOD q]) (hd : p ∣ Nat.fib P) :
+    0 ∈ S q ∧ ∃ w : ℕ, w.Prime ∧ w ≡ 1 [MOD q] ∧ rankOfApparition w ∣ pisano q := by
+  have period := pisano_eq_of_certificate hP hstart hmin
+  refine ⟨zero_class_of_period_factor period hP hp hc hd, p, hp, hc, ?_⟩
+  rw [period]
+  exact rank_dvd_index hP hd
+
+lemma small_positive_classes {q : ℕ} (h : q = 3 ∨ q = 5 ∨ q = 23) :
+    0 ∈ S q ∧ ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p ∣ pisano q := by
+  rcases h with rfl | rfl | rfl
+  · apply aligned_witness_of_checked_period (P := 8) (p := 7) <;> decide
+  · apply aligned_witness_of_checked_period (P := 20) (p := 11) <;> decide
+  · apply aligned_witness_of_checked_period (P := 48) (p := 47) <;> decide
+
+lemma nonempty_through_31 {q : ℕ} (hq : q.Prime) (hodd : q ≠ 2) (hbound : q ≤ 31) :
+    (S q).Nonempty ↔ q = 3 ∨ q = 5 ∨ q = 23 := by
+  constructor
+  · intro hS
+    by_contra h
+    have classify : ∀ t : Fin 32, t.val.Prime → t.val ≠ 2 →
+        ¬ (t.val = 3 ∨ t.val = 5 ∨ t.val = 23) →
+        t.val ∈ ([7, 11, 13, 17, 19, 29, 31] : List ℕ) := by decide
+    rw [small_empty_classes hq (classify ⟨q, by omega⟩ hq hodd h)] at hS
+    exact hS.elim fun _ he => he.elim
+  · exact fun h => ⟨0, (small_positive_classes h).1⟩
+
+lemma converse_through_31 {q : ℕ} (hq : q.Prime) (hodd : q ≠ 2) (hbound : q ≤ 31)
+    (hS : (S q).Nonempty) :
+    ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p ∣ pisano q := by
+  exact (small_positive_classes ((nonempty_through_31 hq hodd hbound).mp hS)).2
+
 theorem main : H1 → H2 → type_of% @OMA.S_arxiv_2604_17847.main := by
   intro finiteCover exceptional q hq hodd hS
+  by_cases hsmall : q ≤ 31
+  · exact converse_through_31 hq hodd hsmall hS
+  have hlarge : 31 < q := by omega
   obtain ⟨r, hr⟩ := hS
   have hP : 0 < pisano q := Nat.zero_lt_of_lt hr.1
   have descend : q ∣ Nat.totient (Nat.fib (pisano q)) := by
     by_contra hbad
     exact hbad ((finite_prime_cover_iff hq hP).mp
-      (finiteCover q r hq hodd hr (fixed_rank_family hq hr hbad)))
+      (finiteCover q r hq hlarge hr (fixed_rank_family hq hr hbad)))
   rcases totient_fib_witness hq descend with hsquare | hwitness
-  · exact exceptional q hq hodd hsquare
+  · exact exceptional q hq hlarge hsquare
   · exact hwitness
 
 end OMA.R_arxiv_2604_17847_R1
