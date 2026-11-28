@@ -1,39 +1,37 @@
 import OMAStatements.S_oeis_a266220
+import Mathlib
 
 -- Credit: @oh-meh
 open OMA.S_oeis_a266220
 
-private theorem update (l c r : Bool) : ruleOut 7 l c r = !(l || (c && r)) := by
-  cases l <;> cases c <;> cases r <;> rfl
-
-private theorem first (i : ℤ) : cell 7 1 i = decide (i ≠ 1) := by
+private theorem first (i : ℤ) : black 1 i = decide (i ≠ 1) := by
   apply Bool.eq_iff_iff.mpr
-  simp [cell, update]
+  simp [black]
   omega
 
 private theorem rows (k : ℕ) :
-    (∀ i, cell 7 (2*k+2) i = false) ∧ (∀ i, cell 7 (2*k+3) i = true) := by
+    (∀ i, black (2*k+2) i = false) ∧ (∀ i, black (2*k+3) i = true) := by
   induction k with
   | zero =>
-    have h (i : ℤ) : cell 7 2 i = false := by
-      change ruleOut 7 (cell 7 1 (i-1)) (cell 7 1 i) (cell 7 1 (i+1)) = false
-      simp [update, first]
+    have h (i : ℤ) : black 2 i = false := by
+      rw [show 2 = 1 + 1 by omega, black]
+      simp [first]
       omega
-    exact ⟨h, fun i => by change ruleOut 7 _ _ _ = true; simp [update, h]⟩
+    exact ⟨h, fun i => by rw [show 3 = 2 + 1 by omega, black]; simp [h]⟩
   | succ k ih =>
-    have h (i : ℤ) : cell 7 (2*(k+1)+2) i = false := by
-      rw [show 2*(k+1)+2 = (2*k+3)+1 by omega, cell]
-      simp [update, ih.2]
+    have h (i : ℤ) : black (2*(k+1)+2) i = false := by
+      rw [show 2*(k+1)+2 = (2*k+3)+1 by omega, black]
+      simp [ih.2]
     refine ⟨h, fun i => ?_⟩
-    rw [cell]
-    simp [update, h]
+    rw [black]
+    simp [h]
 
 private theorem counts (k : ℕ) :
-    a (2*k+2) = 0 ∧ a (2*k+3) = 2*(2*(k : ℤ)+3)+1 := by
-  constructor <;> simp [a, onCount, (rows k).1, (rows k).2]
+    blackCount (2*k+2) = 0 ∧ blackCount (2*k+3) = 2*(2*(k : ℤ)+3)+1 := by
+  constructor <;> simp [blackCount, (rows k).1, (rows k).2]
 
 private theorem formula (n : ℕ) (hn : 2 ≤ n) :
-    (a n : ℚ) = 1/2 * (1-(-1 : ℚ)^n) * (2*(n : ℚ)+1) := by
+    2 * blackCount n = (1-(-1 : ℤ)^n) * (2*(n : ℤ)+1) := by
   obtain ⟨m, rfl⟩ := Nat.exists_eq_add_of_le hn
   rcases Nat.even_or_odd m with ⟨k, hk⟩ | ⟨k, hk⟩
   · rw [show 2+m = 2*k+2 by omega, (counts k).1, pow_add, pow_mul]
@@ -43,22 +41,25 @@ private theorem formula (n : ℕ) (hn : 2 ≤ n) :
     norm_num
 
 private theorem recurrence (n : ℕ) (hn : 6 ≤ n) :
-    (a n : ℚ) = 2*a (n-2) - a (n-4) := by
+    blackCount n = 2*blackCount (n-2) - blackCount (n-4) := by
   obtain ⟨k, rfl⟩ := Nat.exists_eq_add_of_le hn
   rw [show 6+k-2 = 4+k by omega, show 6+k-4 = 2+k by omega]
-  rw [formula _ (by omega), formula _ (by omega), formula _ (by omega)]
-  simp only [pow_add, Nat.cast_add, Nat.cast_ofNat]
-  ring
+  have h₁ := formula (6+k) (by omega)
+  have h₂ := formula (4+k) (by omega)
+  have h₃ := formula (2+k) (by omega)
+  simp only [pow_add, Nat.cast_add, Nat.cast_ofNat] at h₁ h₂ h₃
+  norm_num at h₁ h₂ h₃
+  linarith
 
 open PowerSeries in
 private theorem generating :
-    mk (fun n => (a n : ℚ)) * ((1-X)^2 * (1+X)^2 : ℚ⟦X⟧) =
+    mk blackCount * ((1-X)^2 * (1+X)^2 : ℤ⟦X⟧) =
       1+2*X-2*X^2+3*X^3+X^4-X^5 := by
-  let F := mk (fun n => (a n : ℚ))
+  let F := mk blackCount
   change F * _ = _
   rw [show F * ((1-X)^2 * (1+X)^2) = F - 2*(F*X^2) + F*X^4 by ring]
   ext n
-  simp only [map_add, map_sub, show (3 : ℚ⟦X⟧) = 2+1 by norm_num, add_mul,
+  simp only [map_add, map_sub, show (3 : ℤ⟦X⟧) = 2+1 by norm_num, add_mul,
     two_mul, one_mul, coeff_mul_X_pow', F, coeff_mk, coeff_one, coeff_X, coeff_X_pow]
   by_cases hn : n < 6
   · interval_cases n <;> decide +kernel

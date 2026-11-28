@@ -521,230 +521,143 @@ lemma cert_closed (c : Cert) (valid : c.valid) (scan : c.scanned) : ClosedAt c.m
     obtain ⟨d,mem,lt⟩ := fwd ne
     simpa [step,card,d] using And.intro mem lt
 
+lemma K (c : Cert) (v : c.valid := by set_option maxRecDepth 100000 in set_option maxHeartbeats 10000000 in decide +kernel)
+    (s : c.scanned := by unfold Cert.scanned; set_option maxRecDepth 100000 in set_option maxHeartbeats 10000000 in decide +kernel) : ClosedAt c.m := cert_closed c v s
+
 def c0 : Cert := ⟨1,1,1,[(2,0),(3,0),(5,0),(7,0),(11,0),(13,0)],[1,2],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed0 : ClosedAt 1 := cert_closed c0 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed0 : ClosedAt 1 := K c0
 
 def c1 : Cert := ⟨2,1,2,[(2,1),(3,0),(5,0),(7,0),(11,0),(13,0)],[4,6],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed1 : ClosedAt 2 := cert_closed c1 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed1 : ClosedAt 2 := K c1
 
 def c2 : Cert := ⟨8,1,4,[(2,3),(3,0),(5,0),(7,0),(11,0),(13,0)],[10,12],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed2 : ClosedAt 8 := cert_closed c2 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed2 : ClosedAt 8 := K c2
 
 def c3 : Cert := ⟨12,1,6,[(2,2),(3,1),(5,0),(7,0),(11,0),(13,0)],[20],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed3 : ClosedAt 12 := cert_closed c3 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed3 : ClosedAt 12 := K c3
 
 def c4 : Cert := ⟨80,1,10,[(2,4),(3,0),(5,1),(7,0),(11,0),(13,0)],[28,45],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed4 : ClosedAt 80 := cert_closed c4 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed4 : ClosedAt 80 := K c4
 
 def c5 : Cert := ⟨96,1,12,[(2,5),(3,1),(5,0),(7,0),(11,0),(13,0)],[42],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed5 : ClosedAt 96 := cert_closed c5 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed5 : ClosedAt 96 := K c5
 
 def c6 : Cert := ⟨240,1,20,[(2,4),(3,1),(5,1),(7,0),(11,0),(13,0)],[84],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed6 : ClosedAt 240 := cert_closed c6 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed6 : ClosedAt 240 := K c6
 
 def c7 : Cert := ⟨2240,1,28,[(2,6),(3,0),(5,1),(7,1),(11,0),(13,0)],[96,120],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed7 : ClosedAt 2240 := cert_closed c7 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed7 : ClosedAt 2240 := K c7
 
 def c8 : Cert := ⟨3600,1,45,[(2,4),(3,2),(5,2),(7,0),(11,0),(13,0)],[],[]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed8 : ClosedAt 3600 := cert_closed c8 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed8 : ClosedAt 3600 := K c8
 
 def c9 : Cert := ⟨4032,1,42,[(2,6),(3,2),(5,0),(7,1),(11,0),(13,0)],[96,108,180],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed9 : ClosedAt 4032 := cert_closed c9 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed9 : ClosedAt 4032 := K c9
 
 def c10 : Cert := ⟨20160,1,84,[(2,6),(3,2),(5,1),(7,1),(11,0),(13,0)],[315],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed10 : ClosedAt 20160 := cert_closed c10 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed10 : ClosedAt 20160 := K c10
 
 def c11 : Cert := ⟨215040,1,96,[(2,11),(3,1),(5,1),(7,1),(11,0),(13,0)],[360],[(1,[]),(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed11 : ClosedAt 215040 := cert_closed c11 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed11 : ClosedAt 215040 := K c11
 
 def c12 : Cert := ⟨268800,1,120,[(2,9),(3,1),(5,2),(7,1),(11,0),(13,0)],[],[]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed12 : ClosedAt 268800 := cert_closed c12 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed12 : ClosedAt 268800 := K c12
 
 def c13 : Cert := ⟨387072,1,96,[(2,11),(3,3),(5,0),(7,1),(11,0),(13,0)],[252,360,420],[(1,[]),(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed13 : ClosedAt 387072 := cert_closed c13 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed13 : ClosedAt 387072 := K c13
 
 def c14 : Cert := ⟨435456,1,108,[(2,8),(3,5),(5,0),(7,1),(11,0),(13,0)],[216],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed14 : ClosedAt 435456 := cert_closed c14 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed14 : ClosedAt 435456 := K c14
 
 def c15 : Cert := ⟨725760,1,180,[(2,8),(3,4),(5,1),(7,1),(11,0),(13,0)],[384,504,624,630],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed15 : ClosedAt 725760 := cert_closed c15 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed15 : ClosedAt 725760 := K c15
 
 def c16 : Cert := ⟨6350400,1,315,[(2,6),(3,4),(5,2),(7,2),(11,0),(13,0)],[864],[(1,[])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed16 : ClosedAt 6350400 := cert_closed c16 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed16 : ClosedAt 6350400 := K c16
 
 def c17 : Cert := ⟨77414400,1,360,[(2,14),(3,3),(5,2),(7,1),(11,0),(13,0)],[800],[(1,[]),(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed17 : ClosedAt 77414400 := cert_closed c17 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed17 : ClosedAt 77414400 := K c17
 
 def c18 : Cert := ⟨94058496,1,216,[(2,11),(3,8),(5,0),(7,1),(11,0),(13,0)],[],[(17,[(17,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed18 : ClosedAt 94058496 := cert_closed c18 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed18 : ClosedAt 94058496 := K c18
 
 def c19 : Cert := ⟨97542144,1,252,[(2,13),(3,5),(5,0),(7,2),(11,0),(13,0)],[],[(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed19 : ClosedAt 97542144 := cert_closed c19 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed19 : ClosedAt 97542144 := K c19
 
 def c20 : Cert := ⟨139345920,1,360,[(2,14),(3,5),(5,1),(7,1),(11,0),(13,0)],[1428],[(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed20 : ClosedAt 139345920 := cert_closed c20 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed20 : ClosedAt 139345920 := K c20
 
 def c21 : Cert := ⟨162570240,1,420,[(2,13),(3,4),(5,1),(7,2),(11,0),(13,0)],[1008],[(1,[]),(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed21 : ClosedAt 162570240 := cert_closed c21 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed21 : ClosedAt 162570240 := K c21
 
 def c22 : Cert := ⟨278691840,1,384,[(2,15),(3,5),(5,1),(7,1),(11,0),(13,0)],[],[(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed22 : ClosedAt 278691840 := cert_closed c22 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed22 : ClosedAt 278691840 := K c22
 
 def c23 : Cert := ⟨365783040,1,504,[(2,11),(3,6),(5,1),(7,2),(11,0),(13,0)],[1632],[(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed23 : ClosedAt 365783040 := cert_closed c23 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed23 : ClosedAt 365783040 := K c23
 
 def c24 : Cert := ⟨452874240,1,624,[(2,12),(3,5),(5,1),(7,1),(11,0),(13,1)],[],[(17,[(17,1)]),(19,[(19,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed24 : ClosedAt 452874240 := cert_closed c24 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed24 : ClosedAt 452874240 := K c24
 
 def c25 : Cert := ⟨457228800,1,630,[(2,9),(3,6),(5,2),(7,2),(11,0),(13,0)],[],[]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed25 : ClosedAt 457228800 := cert_closed c25 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed25 : ClosedAt 457228800 := K c25
 
 def c26 : Cert := ⟨5486745600,1,864,[(2,11),(3,7),(5,2),(7,2),(11,0),(13,0)],[],[(17,[(17,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed26 : ClosedAt 5486745600 := cert_closed c26 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed26 : ClosedAt 5486745600 := K c26
 
 def c27 : Cert := ⟨61931520000,1,800,[(2,19),(3,3),(5,4),(7,1),(11,0),(13,0)],[2760],[(23,[(23,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed27 : ClosedAt 61931520000 := cert_closed c27 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed27 : ClosedAt 61931520000 := K c27
 
 def c28 : Cert := ⟨163870801920,1,1008,[(2,17),(3,6),(5,1),(7,3),(11,0),(13,0)],[3500],[(1,[]),(19,[(19,1)]),(23,[(23,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed28 : ClosedAt 163870801920 := cert_closed c28 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed28 : ClosedAt 163870801920 := K c28
 
 def c29 : Cert := ⟨198985973760,17,1428,[(2,16),(3,6),(5,1),(7,2),(11,0),(13,0)],[4416],[(1,[(17,1)]),(19,[(17,1),(19,1)]),(23,[(17,1),(23,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed29 : ClosedAt 198985973760 := cert_closed c29 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed29 : ClosedAt 198985973760 := K c29
 
 def c30 : Cert := ⟨596957921280,17,1632,[(2,16),(3,7),(5,1),(7,2),(11,0),(13,0)],[5040],[(1,[(17,1)]),(19,[(17,1),(19,1)]),(23,[(17,1),(23,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed30 : ClosedAt 596957921280 := cert_closed c30 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed30 : ClosedAt 596957921280 := K c30
 
 def c31 : Cert := ⟨170930995200000,23,2760,[(2,22),(3,4),(5,5),(7,1),(11,0),(13,0)],[7840],[(1,[(23,1)]),(23,[(23,2)]),(29,[(23,1),(29,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed31 : ClosedAt 170930995200000 := cert_closed c31 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed31 : ClosedAt 170930995200000 := K c31
 
 def c32 : Cert := ⟨573547806720000,1,3500,[(2,19),(3,6),(5,4),(7,4),(11,0),(13,0)],[12480],[(1,[]),(23,[(23,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed32 : ClosedAt 573547806720000 := cert_closed c32 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed32 : ClosedAt 573547806720000 := K c32
 
 def c33 : Cert := ⟨878722060124160,391,4416,[(2,22),(3,7),(5,1),(7,2),(11,0),(13,0)],[],[(1,[(17,1),(23,1)]),(23,[(17,1),(23,2)]),(29,[(17,1),(23,1),(29,1)]),(31,[(17,1),(23,1),(31,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed33 : ClosedAt 878722060124160 := cert_closed c33 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed33 : ClosedAt 878722060124160 := K c33
 
 def c34 : Cert := ⟨3008667923251200,17,5040,[(2,20),(3,9),(5,2),(7,3),(11,0),(13,0)],[10240],[(1,[(17,1)]),(23,[(17,1),(23,1)]),(29,[(17,1),(29,1)]),(31,[(17,1),(31,1)]),(391,[(17,2),(23,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed34 : ClosedAt 3008667923251200 := cert_closed c34 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed34 : ClosedAt 3008667923251200 := K c34
 
 def c35 : Cert := ⟨1340099002368000000,23,7840,[(2,27),(3,4),(5,6),(7,3),(11,0),(13,0)],[],[(17,[(17,1),(23,1)]),(19,[(19,1),(23,1)]),(29,[(23,1),(29,1)]),(31,[(23,1),(31,1)]),(37,[(23,1),(37,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed35 : ClosedAt 1340099002368000000 := cert_closed c35 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed35 : ClosedAt 1340099002368000000 := K c35
 
 def c36 : Cert := ⟨7157876627865600000,1,12480,[(2,25),(3,7),(5,5),(7,4),(11,0),(13,1)],[],[(17,[(17,1)]),(29,[(29,1)]),(31,[(31,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed36 : ClosedAt 7157876627865600000 := cert_closed c36 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed36 : ClosedAt 7157876627865600000 := K c36
 
 def c37 : Cert := ⟨30808759534092288000,17,10240,[(2,31),(3,9),(5,3),(7,3),(11,0),(13,0)],[46200,54912],[(1,[(17,1)]),(17,[(17,2)]),(19,[(17,1),(19,1)]),(37,[(17,1),(37,1)]),(41,[(17,1),(41,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed37 : ClosedAt 30808759534092288000 := cert_closed c37 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed37 : ClosedAt 30808759534092288000 := K c37
 
 def c38 : Cert := ⟨1423364690475063705600000,17,46200,[(2,34),(3,10),(5,5),(7,4),(11,1),(13,0)],[],[(19,[(17,1),(19,1)]),(37,[(17,1),(37,1)]),(41,[(17,1),(41,1)]),(43,[(17,1),(43,1)]),(629,[(17,2),(37,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed38 : ClosedAt 1423364690475063705600000 := cert_closed c38 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed38 : ClosedAt 1423364690475063705600000 := K c38
 
 def c39 : Cert := ⟨1691770603536075718656000,17,54912,[(2,38),(3,10),(5,3),(7,3),(11,1),(13,1)],[129600,180480,205920],[(1,[(17,1)]),(23,[(17,1),(23,1)]),(41,[(17,1),(41,1)]),(43,[(17,1),(43,1)]),(47,[(17,1),(47,1)]),(53,[(17,1),(53,1)]),(391,[(17,2),(23,1)]),(731,[(17,2),(43,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed39 : ClosedAt 1691770603536075718656000 := cert_closed c39 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed39 : ClosedAt 1691770603536075718656000 := K c39
 
 def c40 : Cert := ⟨219253470218275413137817600000,17,129600,[(2,44),(3,14),(5,5),(7,3),(11,1),(13,1)],[366336],[(1,[(17,1)]),(17,[(17,2)]),(19,[(17,1),(19,1)]),(29,[(17,1),(29,1)]),(47,[(17,1),(47,1)]),(53,[(17,1),(53,1)]),(59,[(17,1),(59,1)]),(289,[(17,3)]),(323,[(17,2),(19,1)]),(391,[(17,2),(23,1)]),(493,[(17,2),(29,1)]),(799,[(17,2),(47,1)]),(893,[(17,1),(19,1),(47,1)]),(901,[(17,2),(53,1)]),(1003,[(17,2),(59,1)]),(1007,[(17,1),(19,1),(53,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed40 : ClosedAt 219253470218275413137817600000 := cert_closed c40 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed40 : ClosedAt 219253470218275413137817600000 := K c40
 
 def c41 : Cert := ⟨305330758526190945703034880000,799,180480,[(2,46),(3,11),(5,4),(7,3),(11,1),(13,1)],[],[(1,[(17,1),(47,1)]),(17,[(17,2),(47,1)]),(19,[(17,1),(19,1),(47,1)]),(29,[(17,1),(29,1),(47,1)]),(47,[(17,1),(47,2)]),(53,[(17,1),(47,1),(53,1)]),(289,[(17,3),(47,1)]),(901,[(17,2),(47,1),(53,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed41 : ClosedAt 305330758526190945703034880000 := cert_closed c41 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed41 : ClosedAt 305330758526190945703034880000 := K c41
 
 def c42 : Cert := ⟨348369402680148711985643520000,17,205920,[(2,43),(3,12),(5,4),(7,3),(11,2),(13,2)],[],[(17,[(17,2)]),(19,[(17,1),(19,1)]),(23,[(17,1),(23,1)]),(47,[(17,1),(47,1)]),(53,[(17,1),(53,1)]),(289,[(17,3)]),(391,[(17,2),(23,1)]),(437,[(17,1),(19,1),(23,1)]),(799,[(17,2),(47,1)]),(893,[(17,1),(19,1),(47,1)]),(901,[(17,2),(53,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed42 : ClosedAt 348369402680148711985643520000 := cert_closed c42 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed42 : ClosedAt 348369402680148711985643520000 := K c42
 
 def c43 : Cert := ⟨80320439265882141747255548313600000,901,366336,[(2,52),(3,17),(5,5),(7,3),(11,1),(13,1)],[846720],[(1,[(17,1),(53,1)]),(19,[(17,1),(19,1),(53,1)]),(23,[(17,1),(23,1),(53,1)]),(29,[(17,1),(29,1),(53,1)]),(31,[(17,1),(31,1),(53,1)]),(59,[(17,1),(53,1),(59,1)]),(61,[(17,1),(53,1),(61,1)]),(323,[(17,2),(19,1),(53,1)]),(361,[(17,1),(19,2),(53,1)]),(437,[(17,1),(19,1),(23,1),(53,1)]),(551,[(17,1),(19,1),(29,1),(53,1)]),(589,[(17,1),(19,1),(31,1),(53,1)]),(667,[(17,1),(23,1),(29,1),(53,1)]),(713,[(17,1),(23,1),(31,1),(53,1)]),(1121,[(17,1),(19,1),(53,1),(59,1)]),(1159,[(17,1),(19,1),(53,1),(61,1)]),(1219,[(17,1),(23,1),(53,2)]),(1273,[(17,1),(19,1),(53,1),(67,1)]),(1357,[(17,1),(23,1),(53,1),(59,1)]),(1403,[(17,1),(23,1),(53,1),(61,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed43 : ClosedAt 80320439265882141747255548313600000 := cert_closed c43 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed43 : ClosedAt 80320439265882141747255548313600000 := K c43
 
 def c44 : Cert := ⟨68008922335207727060236217868091392000000,901,846720,[(2,59),(3,20),(5,6),(7,5),(11,1),(13,1)],[],[(1,[(17,1),(53,1)]),(17,[(17,2),(53,1)]),(23,[(17,1),(23,1),(53,1)]),(31,[(17,1),(31,1),(53,1)]),(61,[(17,1),(53,1),(61,1)]),(67,[(17,1),(53,1),(67,1)]),(71,[(17,1),(53,1),(71,1)]),(73,[(17,1),(53,1),(73,1)]),(391,[(17,2),(23,1),(53,1)]),(529,[(17,1),(23,2),(53,1)]),(713,[(17,1),(23,1),(31,1),(53,1)]),(851,[(17,1),(23,1),(37,1),(53,1)]),(1403,[(17,1),(23,1),(53,1),(61,1)]),(1541,[(17,1),(23,1),(53,1),(67,1)]),(1633,[(17,1),(23,1),(53,1),(71,1)]),(1679,[(17,1),(23,1),(53,1),(73,1)])]⟩
-set_option maxRecDepth 100000 in
-set_option maxHeartbeats 10000000 in
-theorem closed44 : ClosedAt 68008922335207727060236217868091392000000 := cert_closed c44 (by decide +kernel) (by unfold Cert.scanned; decide +kernel)
+theorem closed44 : ClosedAt 68008922335207727060236217868091392000000 := K c44
 
 end Inverse330
 
@@ -754,48 +667,4 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a330816.main := by
   intro m h
   simp only [OMA.S_oeis_a330816.entries,List.mem_cons,List.not_mem_nil,or_false] at h
   rcases h with rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl | rfl
-  · exact closed0
-  · exact closed1
-  · exact closed2
-  · exact closed3
-  · exact closed4
-  · exact closed5
-  · exact closed6
-  · exact closed7
-  · exact closed8
-  · exact closed9
-  · exact closed10
-  · exact closed11
-  · exact closed12
-  · exact closed13
-  · exact closed14
-  · exact closed15
-  · exact closed16
-  · exact closed17
-  · exact closed18
-  · exact closed19
-  · exact closed20
-  · exact closed21
-  · exact closed22
-  · exact closed23
-  · exact closed24
-  · exact closed25
-  · exact closed26
-  · exact closed27
-  · exact closed28
-  · exact closed29
-  · exact closed30
-  · exact closed31
-  · exact closed32
-  · exact closed33
-  · exact closed34
-  · exact closed35
-  · exact closed36
-  · exact closed37
-  · exact closed38
-  · exact closed39
-  · exact closed40
-  · exact closed41
-  · exact closed42
-  · exact closed43
-  · exact closed44
+  exacts [closed0, closed1, closed2, closed3, closed4, closed5, closed6, closed7, closed8, closed9, closed10, closed11, closed12, closed13, closed14, closed15, closed16, closed17, closed18, closed19, closed20, closed21, closed22, closed23, closed24, closed25, closed26, closed27, closed28, closed29, closed30, closed31, closed32, closed33, closed34, closed35, closed36, closed37, closed38, closed39, closed40, closed41, closed42, closed43, closed44]
