@@ -108,6 +108,16 @@ budget() {  # never let the repository run dry: other jobs (checks, deploys) nee
   if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; touch "$ROOT/budget_low"; nap $(( reset - $(date -u +%s) + 5 )); fi
   if [ "${grem:-999}" -lt 60 ]; then echo "GraphQL budget low ($grem left), waiting for the reset"; touch "$ROOT/budget_low"; nap $(( greset - $(date -u +%s) + 5 )); fi
   rm -f "$ROOT/budget_low"
+  # Spread the budget over the hour: from the burn since the last look, the slots the dispatcher may use until the
+  # reset (all of them while the budget lasts at the current pace; fewer, down to 2, when it would run out first).
+  local NOWB=$(date -u +%s) CAP=$SLOTS
+  if [ -n "${PREV_REM:-}" ] && [ "$NOWB" -gt "${PREV_T:-0}" ] && [ "${rem:-0}" -lt "$PREV_REM" ] && [ "${reset:-0}" -gt "$NOWB" ]; then
+    local BURN=$(( (PREV_REM - rem) * 60 / (NOWB - PREV_T) )) MINS=$(( (reset - NOWB) / 60 + 1 ))
+    [ "$BURN" -gt 0 ] && CAP=$(( SLOTS * (rem - 500) / (BURN * MINS) ))
+    [ "$CAP" -gt "$SLOTS" ] && CAP=$SLOTS; [ "$CAP" -lt 2 ] && CAP=2
+    echo "$(date -u +%H:%M:%S) budget pace: $BURN calls/min, $MINS min to reset, slots allowed $CAP" >> "$ROOT/merger_out.txt"
+  fi
+  echo "$CAP" > "$ROOT/slots_cap"; PREV_REM=$rem; PREV_T=$NOWB
 }
 refresh() {  # main moved on (merges): pull it; each verdict slot's copy is synced when the slot next starts (sync_slot)
   ( flock -w 300 7
@@ -196,7 +206,7 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   [ -e "$ROOT/done/pr.$PR.$SHA" ] && return 0   # this head already has its verdict (from check-proof or the batch checker)
   local RM; RM=$(cat "$ROOT/remerge/$PR" 2>/dev/null || echo 0)
   [ "$MODE" = remerge ] && [ "$RM" = 0 ] && RM=1               # requeued: accepted and reported before, merge again
-  if [ "$OLD" = 1 ] && gh api "repos/$REPO/issues/$PR/comments?per_page=100" --jq '.[].body' 2>/dev/null | grep -qF "$URL"; then
+  if [ "$OLD" = 1 ] && [ "$CONC" != success ] && gh api "repos/$REPO/issues/$PR/comments?per_page=100" --jq '.[].body' 2>/dev/null | grep -qF "$URL"; then
     # already reported (by an earlier merger): a rejection stays reported; an accepted proof still open was not merged
     # (a refused merge whose retries were lost in a restart): merge it now without repeating the verdict
     [ "$CONC" = success ] || return 0
@@ -290,6 +300,14 @@ slow_poll() {
         echo "merger: retried $(wc -l < "$ROOT/credit_todo.txt") credits in the background" ) &
       CPID=$!
     fi
+    # every 10 minutes: the numbers of the open pull requests (complete listings only), so the dispatcher drops queued
+    # runs of pull requests merged or closed since without spending two API calls on each
+    if [ $(( NOW - ${LAST_OPEN:-0} )) -ge 600 ]; then
+      LAST_OPEN=$NOW
+      gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" --jq '.[].number' > open_nums.new 2>/dev/null \
+        && [ -s open_nums.new ] && sort -un open_nums.new > open_nums.tmp && mv open_nums.tmp open_nums.txt
+      rm -f open_nums.new
+    fi
     # every 15 minutes: the open pull requests to the site, so no agent is sent to a problem with a proof waiting
     if [ $(( NOW - LAST_PENDING )) -ge 900 ]; then LAST_PENDING=$NOW; publish_pending; fi
     # backlog: only when no pass is running, at most every 15 minutes, and with budget to spare for the verdicts
@@ -324,6 +342,10 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
     LAST_MERGE=$NOW; ls "$SPOOL"/c.* > spool.list
     { printf '%s\n' "${QL[@]:$QI}"; xargs -r cat < spool.list; } | awk -F'\t' 'NF >= 6 && !seen[$1]++' > all.tsv
     xargs -r rm -f < spool.list
+    # open pull requests as of the last complete listing (at most 20 minutes old); newer pull requests are kept
+    : > open_set.txt; OMAX=0
+    if [ -s open_nums.txt ] && [ $(( NOW - $(stat -c %Y open_nums.txt) )) -lt 1200 ]; then cp open_nums.txt open_set.txt; OMAX=$(tail -n 1 open_set.txt); fi
+    declare -A OPEN=(); while read -r n; do OPEN[$n]=1; done < open_set.txt; DROPPED=0
     : > next.tsv
     while IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE; do
       [ -n "$ID" ] || continue
@@ -332,16 +354,20 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
       [ -e "done/$ID.$ATT" ] && continue
       [ -s pending.txt ] && grep -qx "$SHA" pending.txt 2>/dev/null && { touch "done/$ID.$ATT"; continue; }   # an old verdict job reports it
       N=999999; [[ "$TITLE" =~ ([0-9]+)$ ]] && N=${BASH_REMATCH[1]}
+      if [ "$OMAX" -gt 0 ] && [ "$N" -le "$OMAX" ] && [ -z "${OPEN[$N]:-}" ] && [ -z "${MODE:-}" ]; then
+        touch "done/$ID.$ATT"; DROPPED=$((DROPPED + 1)); continue   # merged or closed since: nothing to report
+      fi
       printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$N" "$ID" "$SHA" "$ATT" "$URL" "$UPD" "$CONC" "$TITLE" "${MODE:-}" >> next.tsv
     done < all.tsv
     mapfile -t QL < <(sort -t$'\t' -k1,1n -k2,2n next.tsv | cut -f2-); QI=0
+    [ "$DROPPED" -gt 0 ] && echo "$(date -u +%H:%M:%S) queue: dropped $DROPPED runs of closed pull requests, ${#QL[@]} left" >> "$ROOT/merger_out.txt"
   fi
   # every free slot takes the next item at once
   BUSY=0
   for i in $(seq 1 "$SLOTS"); do
     if [ -n "${SPID[$i]:-}" ] && kill -0 "${SPID[$i]}" 2>/dev/null; then BUSY=$((BUSY + 1)); continue; fi
     [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""
-    [ "$QI" -lt "${#QL[@]}" ] && [ ! -e "$ROOT/budget_low" ] || continue
+    [ "$QI" -lt "${#QL[@]}" ] && [ ! -e "$ROOT/budget_low" ] && [ "$BUSY" -lt "$(cat "$ROOT/slots_cap" 2>/dev/null || echo "$SLOTS")" ] || continue
     IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE <<< "${QL[$QI]}"; QI=$((QI + 1))
     [ -e "done/$ID.$ATT" ] && continue
     touch "done/$ID.$ATT"

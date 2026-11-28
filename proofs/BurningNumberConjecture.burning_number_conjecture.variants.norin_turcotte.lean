@@ -16,9 +16,8 @@ namespace BurningSpine
 open SimpleGraph
 lemma path_dist {V : Type} {G : SimpleGraph V} (hG : G.IsTree)
     {a b : V} {p : G.Walk a b} (hp : p.IsPath) : p.length = G.dist a b := by
-  obtain ⟨q,hq⟩ := hG.connected.exists_walk_length_eq_dist a b
-  rw [Subtype.mk.inj (hG.isAcyclic.subsingleton_path a b |>.elim ⟨p,hp⟩ ⟨q,q.isPath_of_length_eq_dist hq⟩)]
-  exact hq
+  obtain ⟨q,hq,e⟩ := hG.connected.exists_path_of_dist a b
+  rwa [(hG.existsUnique_path _ _).unique hp hq]
 
 end BurningSpine
 namespace BurningPieces
@@ -52,59 +51,41 @@ theorem coordinates (ht : G.IsTree) (p : G.Walk x y) (hp : p.IsPath) :
     ∀ v, ∃ i h, Tag G x y v p.length i h ∧ G.dist (p.getVert i) v ≤ h ∧
       ∀ k ≤ h, ∃ w, Tag G x y w p.length i k := by
   classical
-  let F (s : Finset V) (v : V) := ∃ (a : G.Walk x v) (b : G.Walk y v),
-    a.IsPath ∧ b.IsPath ∧ (∀ w ∈ a.support, w ∈ s) ∧ (∀ w ∈ b.support, w ∈ s)
   let K (v : V) := ∃ i h, Tag G x y v p.length i h ∧ G.dist (p.getVert i) v ≤ h ∧
     ∀ k ≤ h, ∃ w, Tag G x y w p.length i k
-  suffices grow : ∀ s : Finset V, x ∈ s → (∀ v ∈ s, K v ∧ F s v) → ∀ v, K v by
-    apply grow p.support.toFinset (by simpa using p.start_mem_support)
-    intro v hv
-    have hv' := List.mem_toFinset.mp hv
-    obtain ⟨a,b,ha,hb,rfl⟩ := hp.mem_support_iff_exists_append.mp hv'
-    have hj : (a.append b).getVert a.length = v := by simp [Walk.getVert_append]
-    have key : Tag G x y v (a.append b).length a.length 0 := by
-      have hy := path_dist ht hb.reverse
-      simpa [Tag,Walk.length_append,path_dist ht ha] using hy.symm
-    refine ⟨⟨_,0,key,by simp [hj],fun k hk => ⟨v,by simpa [show k=0 by omega] using key⟩⟩,
-      a,b.reverse,ha,hb.reverse,?_,?_⟩ <;> simp [Walk.mem_support_append_iff] <;> tauto
-  intro s
-  generalize size : Fintype.card V - s.card = n
-  induction n using Nat.strong_induction_on generalizing s with
-  | h n ih =>
-    intro xs hyp
-    by_cases full : ∀ v, v ∈ s
-    · exact fun v => (hyp v (full v)).1
-    obtain ⟨w,hw⟩ := not_forall.mp full
-    obtain ⟨q⟩ := ht.connected x w
-    obtain ⟨u,hu,v,hv,e⟩ := BurningPieces.frontier (↑s) q xs hw
-    change u ∈ s at hu
-    change v ∉ s at hv
-    obtain ⟨⟨i,h,t,hbound,chain⟩,a,b,ha,hb,hsa,hsb⟩ := hyp u hu
-    have extend {z : V} (c : G.Walk z u) (hc : c.IsPath) (hs : ∀ w ∈ c.support, w ∈ s) :
-        (c.concat e).IsPath := hc.concat (fun hh => hv (hs v hh)) e
-    have ha' := extend a ha hsa
-    have hb' := extend b hb hsb
-    have TV : Tag G x y v p.length i (h+1) := by
-      obtain ⟨hi,ex,ey⟩ := t
-      refine ⟨hi,?_,?_⟩
-      · rw [← path_dist ht ha',Walk.length_concat,path_dist ht ha,ex]; omega
-      · rw [← path_dist ht hb',Walk.length_concat,path_dist ht hb,ey]; omega
-    have Kv : K v := ⟨i,h+1,TV,ht.connected.dist_triangle.trans (Nat.add_le_add hbound
-      (dist_eq_one_iff_adj.mpr e).le),fun k hk => by
-        by_cases eq : k=h+1
-        · exact ⟨_,eq ▸ TV⟩
-        · exact chain k (by omega)⟩
-    let s' := insert v s
-    have ct : s'.card = s.card+1 := Finset.card_insert_of_notMem hv
-    apply ih _ (show Fintype.card V-s'.card<n by have := Finset.card_le_univ s'; omega) s' rfl
-      (Finset.mem_insert_of_mem xs)
-    intro j hj
-    rcases Finset.mem_insert.mp hj with rfl | hj
-    · refine ⟨Kv,a.concat e,b.concat e,ha',hb',?_,?_⟩ <;>
-        simp only [Walk.support_concat,List.mem_append,List.mem_singleton,Finset.mem_insert,s'] <;> grind
-    · obtain ⟨k,a',b',ha,hb,hsa,hsb⟩ := hyp j hj
-      exact ⟨k,_,_,ha,hb,fun w hw => Finset.mem_insert_of_mem (hsa w hw),
-        fun w hw => Finset.mem_insert_of_mem (hsb w hw)⟩
+  have grow {v : V} (q : G.Walk v x) (hq : q.IsPath) :
+      K v ∧ ∃ b : G.Walk y v, b.IsPath ∧ ∀ w ∈ b.support, w ∈ p.support ∨ w ∈ q.support := by
+    induction q with
+    | @nil u =>
+      have tag : Tag G u y u p.length 0 0 := by simpa [Tag] using (path_dist ht hp.reverse).symm
+      exact ⟨⟨0,0,tag,by simp,fun k hk => ⟨u,by simpa [show k=0 by omega] using tag⟩⟩,
+        p.reverse,hp.reverse,fun w hw => Or.inl (by simpa using hw)⟩
+    | @cons v u x e q ih =>
+      by_cases hv : v ∈ p.support
+      · obtain ⟨a,b,ha,hb,rfl⟩ := hp.mem_support_iff_exists_append.mp hv
+        have key : Tag G x y v (a.append b).length a.length 0 := by
+          simpa [Tag,Walk.length_append,path_dist ht ha] using (path_dist ht hb.reverse).symm
+        exact ⟨⟨_,0,key,by simp [Walk.getVert_append],fun k hk => ⟨v,by simpa [show k=0 by omega] using key⟩⟩,
+          b.reverse,hb.reverse,by simp [Walk.mem_support_append_iff]; tauto⟩
+      obtain ⟨hq',fresh⟩ := (Walk.cons_isPath_iff _ _).mp hq
+      obtain ⟨⟨i,h,⟨hi,hx,hy⟩,hd,chain⟩,b,hb,hs⟩ := ih p hp hq'
+      have hb' := hb.concat (fun hw => (hs _ hw).elim hv fresh) e.symm
+      have tag : Tag G x y v p.length i (h+1) := by
+        have h1 := path_dist ht hq.reverse
+        have h2 := path_dist ht hq'.reverse
+        have h3 := path_dist ht hb'
+        simp only [Walk.length_reverse,Walk.length_cons,Walk.length_concat,path_dist ht hb] at h1 h2 h3
+        unfold Tag; omega
+      refine ⟨⟨i,h+1,tag,ht.connected.dist_triangle.trans (Nat.add_le_add hd
+        (dist_eq_one_iff_adj.mpr e.symm).le),fun k hk => ?_⟩,_,hb',?_⟩
+      · by_cases eq : k=h+1
+        · exact ⟨_,eq ▸ tag⟩
+        · exact chain k (by omega)
+      · simp only [Walk.support_concat,List.mem_append,List.mem_singleton,Walk.support_cons,List.mem_cons]
+        grind
+  intro v
+  obtain ⟨q,hq⟩ := ht.connected.exists_isPath v x
+  exact (grow q hq).1
 
 end BurningSpine
 
@@ -136,8 +117,7 @@ theorem spine_data {G : SimpleGraph V} (ht : G.IsTree) :
   classical
   let _ := ht.connected.nonempty
   obtain ⟨x,y,hd⟩ := G.exists_dist_eq_diam
-  obtain ⟨p,plen⟩ := ht.connected.exists_walk_length_eq_dist x y
-  have path := p.isPath_of_length_eq_dist plen
+  obtain ⟨p,path,plen⟩ := ht.connected.exists_path_of_dist x y
   choose j h tag dist chain using coordinates ht p path
   have bounds (v) : h v ≤ j v ∧ j v + h v ≤ p.length := by
     have left := G.dist_le_diam (G.connected_iff_ediam_ne_top.mp ht.connected) (u := x) (v := v)
@@ -198,39 +178,26 @@ theorem centre_on_walk {a b : V} (p : T.Walk a b) (hc : T.Connected) (x : ℝ) :
     exact_mod_cast (dist_le q).trans (show q.length ≤ j-i by simp [q, Walk.take_length])
   have move (i j : ℕ) (v : V) :
       (T.dist (p.getVert i) v : ℝ) ≤ |(i : ℝ)-j| + T.dist (p.getVert j) v := by
-    have triangle : (T.dist (p.getVert i) v : ℝ) ≤ T.dist (p.getVert i) (p.getVert j) + (T.dist (p.getVert j) v : ℝ) := by exact_mod_cast hc.dist_triangle
-    rcases le_total i j with h | h
-    · rw [abs_of_nonpos (by exact_mod_cast sub_nonpos.mpr (show (i : ℝ) ≤ j by exact_mod_cast h))]
-      linarith [seg h]
-    · rw [abs_of_nonneg (sub_nonneg.mpr (by exact_mod_cast h))]
-      rw [SimpleGraph.dist_comm (u := p.getVert i) (v := p.getVert j)] at triangle
-      linarith [seg h]
+    have dom (a b : ℕ) : (T.dist (p.getVert a) (p.getVert b) : ℝ) ≤ |(a:ℝ)-b| := by
+      wlog h : a ≤ b generalizing a b
+      · rw [SimpleGraph.dist_comm,abs_sub_comm]; exact this _ _ (by omega)
+      rw [abs_of_nonpos (sub_nonpos.mpr (by exact_mod_cast h)),neg_sub]
+      exact seg h
+    exact (Nat.cast_le (α := ℝ)).mpr hc.dist_triangle |>.trans (by push_cast; linarith [dom i j])
   let n := ⌊x⌋₊
   refine ⟨⟨p.getVert n⟩, fun j w => max_le (by positivity) ?_⟩
   have step := move n j w
+  change (T.dist (p.getVert n) w : ℝ)-1 ≤ _
   by_cases hx : 0 ≤ x
-  · have lo := Nat.floor_le hx
-    have hi := Nat.lt_floor_add_one x
-    change (n:ℝ) ≤ x at lo
-    change x < (n:ℝ)+1 at hi
-    cases abs_cases ((n:ℝ)-j) <;> cases abs_cases (x-j) <;> dsimp at * <;> linarith
+  · have lo : (n:ℝ) ≤ x := Nat.floor_le hx
+    have hi : x < (n:ℝ)+1 := Nat.lt_floor_add_one x
+    grind [abs_eq_max_neg]
   · have hn : n = 0 := Nat.floor_eq_zero.mpr (by linarith)
-    rw [hn,Nat.cast_zero,zero_sub,abs_neg,abs_of_nonneg (Nat.cast_nonneg _)] at step
-    rw [abs_of_nonpos (by linarith [Nat.cast_nonneg (α := ℝ) j])]
-    change (T.dist (p.getVert n) w : ℝ)-1 ≤ _
-    rw [hn]; linarith
+    rw [hn,Nat.cast_zero] at step
+    rw [hn]
+    grind [abs_eq_max_neg]
 
 end BurningBridge
-
-namespace BurningTripod
-
-/- Upper bounds on distances suffice, so this also applies when a vertex is
-off the three arms, up to the common error z. -/
-def NearTripod {V : Type*} (dist : ℝ → V → ℝ) (a b c z : ℝ) : Prop :=
-  ∀ v, (∃ x ∈ Set.Icc 0 (b+c), ∀ p ∈ Set.Icc 0 (b+c), dist p v ≤ |x-p|+z) ∨
-    (∀ p ∈ Set.Icc 0 (b+c), dist p v ≤ |b-p|+a+z)
-
-end BurningTripod
 
 namespace BurningPieces
 open SimpleGraph
@@ -244,61 +211,15 @@ lemma two_parts_bound {X Y : Set V} {d : ℕ} {u v w : V}
 
 end BurningPieces
 namespace BurningTree
-open SimpleGraph BurningBridge BurningTripod
+open SimpleGraph BurningBridge
 
 /- The physical parameters needed to apply the normalized local profile. -/
-def HasPieceProfiles {V : Type} (G : SimpleGraph V) (l L : ℝ) : Prop :=
+def HasPieceProfiles {V W : Type} (dist : W → V → ℝ) (l L : ℝ) : Prop :=
   ∃ m B : ℝ, 0 ≤ m ∧ m ≤ l/2 ∧ B ≤ 2*m ∧ 2*m+B = L ∧
-    (∀ t ≥ B, ∃ u : Centre G, ∀ v, u.reducedDist v ≤ t) ∧
+    (∀ t ≥ B, ∃ u : W, ∀ v, dist u v ≤ t) ∧
     (∀ t ≥ m, ∀ s ≥ 0, B ≤ s+t →
-      (∃ u : Centre G, ∀ v, u.reducedDist v ≤ t) ∨
-      (∃ u w : Centre G, ∀ v, u.reducedDist v ≤ s ∨ w.reducedDist v ≤ t))
-
-private theorem profiles_of_coordinates {V : Type} {G : SimpleGraph V}
-    (centre : ℝ → Centre G) {a b c z l L : ℝ}
-    (ha : 0 ≤ a) (hab : a ≤ b) (hbc : b ≤ c) (hz : 0 ≤ z)
-    (ht : NearTripod (fun p v => (centre p).reducedDist v) a b c z)
-    (hsize : a+b+c+4*z ≤ L) (hmax : L ≤ 2*l) (hshort : a+b+2*z ≤ l) :
-    HasPieceProfiles G l L := by
-  let m := max (L/4) ((a+b)/2+z)
-  let B := L-2*m
-  have hl : L/4 ≤ m := le_max_left ..
-  have hm : (a+b)/2+z ≤ m := le_max_right ..
-  have hB : (b+c)/2+2*z ≤ B := by
-    dsimp [B,m]; rcases max_choice (L/4) ((a+b)/2+z) with h|h <;> rw [h] <;> linarith
-  let mid := (b+c)/2
-  have hmid : mid ∈ Set.Icc 0 (b+c) := by constructor <;> dsimp [mid] <;> linarith
-  have one (t : ℝ) (h : mid+z ≤ t) : ∃ u : Centre G, ∀ v, u.reducedDist v ≤ t := by
-    refine ⟨centre mid, fun v => ?_⟩
-    rcases ht v with ⟨y,⟨hy₀,hy₁⟩,hy⟩ | hy
-    · have := hy mid hmid
-      dsimp [mid] at *
-      cases abs_cases (y-(b+c)/2) <;> linarith
-    · have := hy mid hmid
-      dsimp [mid] at *
-      cases abs_cases (b-(b+c)/2) <;> linarith
-  refine ⟨m,B,by linarith,max_le (by linarith) (by linarith),by dsimp [B]; linarith,
-    by dsimp [B]; ring,fun t h => one t (by dsimp [mid]; linarith),?_⟩
-  intro t hmt s hs hst
-  by_cases h : mid+z ≤ t
-  · exact Or.inl (one t h)
-  right
-  let p := t-z
-  let q := b+c-(B-t-z)
-  have hp : p ∈ Set.Icc 0 (b+c) := by constructor <;> dsimp [p,mid] at * <;> linarith
-  have hq : q ∈ Set.Icc 0 (b+c) := by constructor <;> dsimp [q,mid,B] at * <;> linarith
-  refine ⟨centre q,centre p,fun v => ?_⟩
-  rcases ht v with ⟨y,⟨hy₀,hy₁⟩,hy⟩ | hy
-  · by_cases left : y ≤ 2*p
-    · right
-      have := hy p hp
-      cases abs_cases (y-p) <;> dsimp [p] at * <;> linarith
-    · left
-      have := hy q hq
-      cases abs_cases (y-q) <;> dsimp [p,q] at * <;> linarith
-  · right
-    have := hy p hp
-    cases abs_cases (b-p) <;> dsimp [p] at * <;> linarith
+      (∃ u : W, ∀ v, dist u v ≤ t) ∨
+      (∃ u w : W, ∀ v, dist u v ≤ s ∨ dist w v ≤ t))
 
 /- A finite tree covered by two sets of diameter at most l has the physical
 one/two-ball profiles at any L between its edge count and 2l. -/
@@ -306,86 +227,65 @@ theorem minimal_piece_profiles {V : Type} [Fintype V] (G : SimpleGraph V) (hg : 
     {l : ℕ} {L : ℝ} (hsize : (Fintype.card V : ℝ) ≤ L+1) (hcap : L ≤ 2*l)
     (X Y : Set V) (cover : ∀ v, v ∈ X ∪ Y)
     (diamX : ∀ x ∈ X, ∀ y ∈ X, G.dist x y ≤ l)
-    (diamY : ∀ x ∈ Y, ∀ y ∈ Y, G.dist x y ≤ l) :
-    HasPieceProfiles G l L := by
+    (diamY : ∀ x ∈ Y, ∀ y ∈ Y, G.dist x y ≤ l)
+    {W : Type} (lift : Centre G → W) (dist : W → V → ℝ)
+    (eq : ∀ c v, dist (lift c) v = c.reducedDist v) :
+    HasPieceProfiles dist l L := by
   obtain ⟨x,y,p,I,H,z,j,h,u,hle,hright,hz,hcard,dxy,dx,dy,hv⟩ := BurningSpine.spine_data hg
   have short := BurningPieces.two_parts_bound diamX diamY (cover x) (cover y) (cover u)
   rw [dxy,dx,dy] at short
   have short' : H + min I (p.length-I) ≤ l := by omega
   let D : ℝ := p.length
   let i : ℝ := I
-  let a : ℝ := H-z
-  let b : ℝ := i-z
-  let c : ℝ := D-i-z
-  have len : D+(H:ℝ)+z ≤ L := by
+  have mass : D+(H:ℝ)+z ≤ L := by
     have := Nat.cast_le (α := ℝ).mpr hcard
     dsimp [D]; push_cast at this; linarith
-  have h1 : (H:ℝ) ≤ i := Nat.cast_le.mpr hle
-  have h2 : i+(H:ℝ) ≤ D := by dsimp [i,D]; exact_mod_cast hright
-  have h3 := Nat.cast_le (α := ℝ).mpr hz
-  have ha : 0 ≤ a := sub_nonneg.mpr h3
-  have hab : a ≤ b := by dsimp [a,b]; linarith
-  have hac : a ≤ c := by dsimp [a,c]; linarith
-  have mass : a+b+c+4*z ≤ L := by dsimp [a,b,c]; linarith
-  let centre (s : ℝ) := (centre_on_walk p hg.connected (s+z)).choose
-  have near : NearTripod (fun s v => (centre s).reducedDist v) a b c z := by
-    intro v
-    obtain ⟨hj,hj',hd,casesV⟩ := hv v
-    let k : ℝ := j v
-    let e : ℝ := h v
-    have hk : e ≤ k := Nat.cast_le.mpr hj
-    have he : k+e ≤ D := by dsimp [k,e,D]; exact_mod_cast hj'
-    have bound (s : ℝ) : (centre s).reducedDist v ≤ |s+z-k|+e :=
-      ((centre_on_walk p hg.connected _).choose_spec (j v) v).trans (add_le_add le_rfl (Nat.cast_le.mpr hd))
-    rcases casesV with ⟨eq,hu⟩ | hu
-    · right
-      have eq' : k=i := by dsimp [k,i]; exact_mod_cast eq
-      have hh : e ≤ H := Nat.cast_le.mpr hu
-      intro s hs
-      have hb := bound s
-      rw [show b-s = -(s+z-k) by dsimp [b]; linarith, abs_neg]
-      dsimp [a]; linarith
-    · left
-      have hh : e ≤ z := Nat.cast_le.mpr hu
-      let t := max 0 (min (b+c) (k-z))
-      have nonneg : 0 ≤ b+c := by linarith
-      refine ⟨t,⟨le_max_left ..,max_le nonneg (min_le_left ..)⟩,fun s hs => ?_⟩
-      have hb := bound s
-      obtain ⟨hs₀,hs₁⟩ := hs
-      dsimp [t,b,c] at *
-      rcases le_total (k-(z:ℝ)) 0 with hl | hl
-      · rw [max_eq_left ((min_le_right ..).trans hl),zero_sub,abs_neg,abs_of_nonneg hs₀]
-        rw [abs_of_nonneg (by linarith)] at hb
-        linarith
-      · rcases le_total (k-(z:ℝ)) (i-z+(D-i-z)) with hl' | hl'
-        · rw [min_eq_right hl',max_eq_right hl]
-          rw [show k-z-s = -(s+z-k) by ring,abs_neg]
-          linarith
-        · rw [min_eq_left hl', max_eq_right nonneg,abs_of_nonneg (by linarith)]
-          rw [abs_of_nonpos (by linarith)] at hb
-          linarith
-  have hs : a+min b c+2*z ≤ l := by
-    have nat := (Nat.cast_le (α := ℝ)).mpr short'
-    have hi : I ≤ p.length := by omega
-    push_cast [Nat.cast_sub hi] at nat
-    change (H:ℝ)+min i (D-i) ≤ l at nat
-    dsimp [a,b,c]; rw [min_sub_sub_right]; linarith
-  by_cases sorted : b ≤ c
-  · exact profiles_of_coordinates centre ha hab sorted (Nat.cast_nonneg _) near mass hcap
-      (by simpa [min_eq_left sorted] using hs)
-  · have mirror : NearTripod (fun s v => (centre (b+c-s)).reducedDist v) a c b z := by
-      intro v
-      have flip (s : ℝ) (h : s ∈ Set.Icc 0 (c+b)) : b+c-s ∈ Set.Icc 0 (b+c) := by
-        obtain ⟨_,_⟩ := h; constructor <;> linarith
-      rcases near v with ⟨t,⟨h₀,h₁⟩,ht⟩ | ht
-      · left; refine ⟨b+c-t,⟨by linarith,by linarith⟩,fun s h => ?_⟩
-        have := ht _ (flip s h)
-        rwa [show t-(b+c-s) = -(b+c-t-s) by ring,abs_neg] at this
-      · right; intro s h
-        have := ht _ (flip s h)
-        rwa [show b-(b+c-s) = -(c-s) by ring,abs_neg] at this
-    exact profiles_of_coordinates _ ha hac (le_of_not_ge sorted) (Nat.cast_nonneg _) mirror
-      (by linarith) hcap (by simpa [min_eq_right (le_of_not_ge sorted)] using hs)
+  have hi : (H:ℝ) ≤ i := Nat.cast_le.mpr hle
+  have hj : i+(H:ℝ) ≤ D := by dsimp [i,D]; exact_mod_cast hright
+  have hz' := Nat.cast_le (α := ℝ).mpr hz
+  have hshort : (H:ℝ)+min i (D-i) ≤ l := by
+    have := Nat.cast_le (α := ℝ).mpr short'
+    push_cast [Nat.cast_sub (show I ≤ p.length by omega)] at this
+    exact this
+  let m := max (L/4) (((H:ℝ)+min i (D-i))/2)
+  let B := L-2*m
+  have head : (H:ℝ)+min i (D-i) ≤ 2*m := by dsimp [m]; grind
+  have space : D/2+z ≤ B := by dsimp [B,m]; grind
+  let centre (s : ℝ) := (centre_on_walk p hg.connected s).choose
+  have bound (s : ℝ) (v : V) : dist (lift (centre s)) v ≤ |s-j v|+h v := by
+    rw [eq]; exact ((centre_on_walk p hg.connected _).choose_spec (j v) v).trans
+      (add_le_add le_rfl (Nat.cast_le.mpr (hv v).2.2.1))
+  have geom (v) : (h v : ℝ) ≤ j v ∧ (j v : ℝ)+h v ≤ D := by
+    obtain ⟨k,e,_⟩ := hv v
+    exact ⟨by exact_mod_cast k,by dsimp [D]; exact_mod_cast e⟩
+  have one (t : ℝ) (ht : D/2 ≤ t) : ∃ c : W, ∀ v, dist c v ≤ t := by
+    refine ⟨lift (centre (D/2)),fun v => ?_⟩
+    have := geom v; have := bound (D/2) v; grind [abs_eq_max_neg]
+  refine ⟨m,B,?_,?_,?_,by dsimp [B]; ring,fun t ht => one t (by linarith),?_⟩
+  · dsimp [m]; grind
+  · dsimp [m]; grind
+  · dsimp [B,m]; grind
+  intro t ht s hs hsum
+  by_cases full : D/2 ≤ t
+  · exact Or.inl (one t full)
+  right
+  let flip (x : ℝ) := if i ≤ D-i then x else D-x
+  refine ⟨lift (centre (flip (D-(B-t)))),lift (centre (flip t)),fun v => ?_⟩
+  obtain ⟨_,_,_,htip | hlow⟩ := hv v
+  · right
+    obtain ⟨e₁,e₂⟩ := htip
+    have k : (j v : ℝ) = i := by dsimp [i]; exact_mod_cast e₁
+    have h := Nat.cast_le (α := ℝ).mpr e₂
+    have := bound (flip t) v
+    dsimp [flip] at *
+    grind [abs_eq_max_neg]
+  · have low := Nat.cast_le (α := ℝ).mpr hlow
+    obtain ⟨lo,hi⟩ := geom v
+    have right := bound (flip (D-(B-t))) v
+    have left := bound (flip t) v
+    clear * - low lo hi right left hsum space
+    by_cases side : i ≤ D-i <;> simp [flip,side] at right left ⊢ <;>
+      grind only [abs_eq_max_neg,max_def]
 
 end BurningTree
 
@@ -476,22 +376,10 @@ theorem tree_induce_dist {V : Type} {G : SimpleGraph V} (ht : G.IsTree)
     (G.induce S).dist x y = G.dist x.val y.val := by
   obtain ⟨p,hp,hd⟩ := (hc x y).exists_path_of_dist
   let f := Embedding.induce (G := G) S
-  have hmap : (p.map f.toHom).IsPath := hp.map f.injective
-  obtain ⟨q,hq,he⟩ := (ht.connected x.val y.val).exists_path_of_dist
-  have eq : p.map f.toHom = q := (ht.existsUnique_path _ _).unique hmap hq
   calc
     _ = p.length := hd.symm
-    _ = (p.map f.toHom).length := (p.length_map f.toHom).symm
-    _ = q.length := congrArg (fun z : G.Walk x.val y.val => z.length) eq
-    _ = _ := he
-
-def includeCentre {V : Type} {G : SimpleGraph V} {S : Set V} (c : Centre (G.induce S)) :
-    Centre G := ⟨c.endpoint.val⟩
-
-theorem includeCentre_distance {V : Type} {G : SimpleGraph V} (ht : G.IsTree)
-    {S : Set V} (hc : (G.induce S).Connected) (c : Centre (G.induce S)) (x : S) :
-    (includeCentre c).reducedDist x.val = c.reducedDist x := by
-  cases c <;> simp [includeCentre,Centre.reducedDist,tree_induce_dist ht hc]
+    _ = (p.map f.toHom).length := (p.length_map _).symm
+    _ = _ := BurningSpine.path_dist ht (hp.map f.injective : (p.map f.toHom).IsPath)
 
 /- One- and two-ball profiles for the actual fragment of the spanning-tree
 decomposition. All centres and distances are in the ambient tree. -/
@@ -513,7 +401,7 @@ theorem branch_piece_profiles {V : Type} [Fintype V] [DecidableEq V]
   have hcard : Fintype.card S ≤ u.2.size+1 := by
     have heq : Fintype.card S = u.2.vertices.card := Fintype.card_coe _
     exact heq.le.trans u.2.card
-  obtain ⟨m,B,hm,hm',hB,he,one,two⟩ := minimal_piece_profiles P tree
+  have profiles := minimal_piece_profiles P tree
     (L := u.2.size) (l := l) (by exact_mod_cast hcard) (by exact_mod_cast (show u.2.size ≤ 2*l by omega))
     X Y (by
       intro v
@@ -522,15 +410,9 @@ theorem branch_piece_profiles {V : Type} [Fintype V] [DecidableEq V]
       exact hv)
     (by intro x hx y hy; rw [tree_induce_dist ht hc]; exact (p.2.dist_le hx hy).trans hp)
     (by intro x hx y hy; rw [tree_induce_dist ht hc]; exact (q.2.dist_le hx hy).trans hq)
-  have lift_one {t : ℝ} (h : ∃ c : Centre P, ∀ v, c.reducedDist v ≤ t) :
-      ∃ c : Centre G, ∀ v ∈ u.2.vertices, c.reducedDist v ≤ t := by
-    obtain ⟨c,hc'⟩ := h
-    exact ⟨includeCentre c,fun v hv => (includeCentre_distance ht hc c ⟨v,hv⟩).le.trans (hc' _)⟩
-  refine ⟨m,B,hm,hm',hB,he,fun t h => lift_one (one t h),fun t ht' s hs hst => ?_⟩
-  rcases two t ht' s hs hst with h | ⟨c,d,h⟩
-  · exact Or.inl (lift_one h)
-  · refine Or.inr ⟨includeCentre c,includeCentre d,fun v hv => ?_⟩
-    simpa only [← includeCentre_distance ht hc] using h ⟨v,hv⟩
+    (fun c => (⟨c.endpoint.val⟩ : Centre G)) (fun c v => c.reducedDist v.val)
+    (fun c v => by simp [Centre.reducedDist,P,tree_induce_dist ht hc])
+  simpa [HasPieceProfiles,S,Subtype.forall] using profiles
 
 end BurningTree
 namespace BurningProfiles
@@ -1061,153 +943,6 @@ theorem piece_law (lo hi : Q → ℝ) (ht : G.IsTree) {R δ : ℝ}
       exact (hbin _ _).le
 
 end BurningTree
-namespace BurningTree
-open SimpleGraph BurningBridge BurningPieces BurningProfiles BurningMixture Set
-variable {V Q : Type} [Fintype V] [Fintype Q] [DecidableEq V] {G : SimpleGraph V}
-
-end BurningTree
-
-namespace BurningBridge
-open SimpleGraph BurningNumberConjecture
-variable {V : Type} {T : SimpleGraph V}
-open BurningPieces
-
-private lemma tour [DecidableEq V] {v : V} (t : Branch T v) :
-    ∃ p : T.Walk v v, p.length = 2*t.size ∧ ∀ w ∈ t.vertices, w ∈ p.support := by
-  induction t with
-  | root v => exact ⟨.nil,rfl, by simp [Branch.vertices]⟩
-  | edge e t ih =>
-    obtain ⟨p,hp,hs⟩ := ih
-    refine ⟨.cons e (p.append (.cons e.symm .nil)),by simp [Walk.length_append,Branch.size]; omega,?_⟩
-    intro w hw
-    rcases Finset.mem_insert.mp hw with rfl | h
-    · simp
-    · simp [Walk.mem_support_append_iff,hs _ h]
-  | join a b ha hb =>
-    obtain ⟨p,hp,hs⟩ := ha
-    obtain ⟨q,hq,hz⟩ := hb
-    exact ⟨p.append q,by simp [Walk.length_append,Branch.size,hp,hq]; omega, fun v hv =>
-      by simpa only [Walk.mem_support_append_iff] using (Finset.mem_union.mp hv).imp (hs v) (hz v)⟩
-
-lemma interval_cover {k : ℕ} (r : Fin k → ℝ) (hr : ∀ i, 0 ≤ r i) (hk : 0 < k)
-    {L : ℝ} (hL : 0 ≤ L) (size : L ≤ 2 * ∑ i, r i) :
-    ∃ p : Fin k → ℝ, (∀ i, p i ∈ Set.Icc 0 L) ∧
-      ∀ x ∈ Set.Icc 0 L, ∃ i, |x-p i| ≤ r i := by
-  induction k generalizing L with
-  | zero => omega
-  | succ k ih =>
-    rw [Fin.sum_univ_succ] at size
-    by_cases short : L ≤ 2*r 0
-    · refine ⟨fun _ => L/2,fun _ => ⟨by linarith,by linarith⟩,fun x ⟨hx,hx'⟩ => ⟨0,abs_le.mpr ⟨by linarith,by linarith⟩⟩⟩
-    have hk' : 0 < k := by
-      by_contra! h
-      obtain rfl : k = 0 := by omega
-      simp only [Finset.univ_eq_empty,Finset.sum_empty,add_zero] at size
-      exact short size
-    have h0 := hr 0
-    obtain ⟨q,hq,cover⟩ := ih (fun i => r i.succ) (fun i => hr i.succ) hk'
-      (L := L-2*r 0) (by linarith) (by linarith)
-    refine ⟨Fin.cases (r 0) (fun i => 2*r 0+q i), ?_, fun x ⟨hx,hx'⟩ => ?_⟩
-    · intro i
-      cases i using Fin.cases with
-      | zero => exact ⟨h0,by simp; linarith⟩
-      | succ i =>
-        obtain ⟨h1,h2⟩ := hq i
-        exact ⟨by simp; linarith,by simp; linarith⟩
-    · by_cases left : x ≤ 2*r 0
-      · exact ⟨0,by simp; exact abs_le.mpr ⟨by linarith,by linarith⟩⟩
-      · obtain ⟨i,hi⟩ := cover (x-2*r 0) ⟨by linarith,by linarith⟩
-        exact ⟨i.succ,by simpa [sub_add_eq_sub_sub] using hi⟩
-
-/- The fractional induction base: any nonempty list of nonnegative real radii
-whose sum reaches the number of spanning-tree edges covers the vertex set. -/
-theorem cover_of_sum [DecidableEq V] (hT : T.Connected) {v : V} (t : Branch T v)
-    {k : ℕ} (r : Fin k → ℝ) (hk : 0 < k) (hr : ∀ i, 0 ≤ r i)
-    (sum : (t.size : ℝ) ≤ ∑ i, r i) :
-    ∃ c : Fin k → Centre T, ∀ w ∈ t.vertices, ∃ i, (c i).reducedDist w ≤ r i := by
-  obtain ⟨q,hq,all⟩ := tour t
-  have hlen : (q.length : ℝ) = 2*t.size := by exact_mod_cast hq
-  obtain ⟨p,hp,cover⟩ := interval_cover r hr hk (L := q.length) (by positivity) (by linarith)
-  choose c hc using fun i => centre_on_walk q hT (p i)
-  refine ⟨c,fun w hw => ?_⟩
-  obtain ⟨j,hj,hlen⟩ := Walk.mem_support_iff_exists_getVert.mp (all w hw)
-  obtain ⟨i,hi⟩ := cover (j : ℝ) ⟨by positivity,by exact_mod_cast hlen⟩
-  have bound := hc i j w
-  rw [hj,dist_self,Nat.cast_zero,add_zero,abs_sub_comm] at bound
-  exact ⟨i,bound.trans hi⟩
-
-end BurningBridge
-
-namespace BurningBridge
-open SimpleGraph BurningProfiles BurningMixture MeasureTheory Finset Set
-open scoped unitInterval
-variable {V Q : Type} [Fintype V] [Fintype Q]
-
-/- Use the same uniform parameter for all pairs. Each pair has constant
-total radius R and both coordinates have the uniform law on [0,R]. -/
-theorem fractional_base [DecidableEq V] (T : SimpleGraph V) (ht : T.Connected) {v : V} (u : BurningPieces.Branch T v) (lo hi : Q → ℝ)
-    (L R ε : ℝ) (hR : 0 < R) (hsmall : 2*R ≤ L) (he : 2 ≤ ε)
-    (order : (u.size : ℝ) ≤ L) :
-    Fractional (fun t => Attain (fun q => bin (lo q) (hi q)) T (↑u.vertices) t (L+t))
-      (fun t q => overlap 0 t (lo q) (hi q)) L R ε := by
-  classical
-  let k := ⌈L/R⌉₊
-  have hL : 0 < L := by linarith
-  have hlow : L ≤ (k:ℝ)*R := (div_le_iff₀ hR).mp (Nat.le_ceil _)
-  have hhigh : (k:ℝ)*R ≤ L+R := by
-    have := Nat.ceil_lt_add_one (div_nonneg hL.le hR.le)
-    dsimp [k]
-    calc
-      _ ≤ (L/R+1)*R := mul_le_mul_of_nonneg_right this.le hR.le
-      _ = _ := by field_simp
-  have kpos : 0 < k := Nat.ceil_pos.mpr (div_pos hL hR)
-  let r (y : I) : Fin (k+k) → ℝ := fun i => if i.val < k then R*(y:ℝ) else R-R*(y:ℝ)
-  have inside (y : I) (i) : r y i ∈ Icc 0 R := by
-    have hh := mul_le_mul_of_nonneg_left y.prop.2 hR.le
-    have hp := mul_nonneg hR.le y.prop.1
-    dsimp [r]; split <;> constructor <;> linarith
-  have sumr (y : I) : ∑ i, r y i = k*R := by
-    rw [Fin.sum_univ_add]; simp [r,Fin.is_lt]
-  let X (y : I) (q : Q) := (k : ℝ)*(bin (lo q) (hi q) (R*y) + bin (lo q) (hi q) (R-R*y))
-  have attainable (y) : X y ∈ Attain (fun q => bin (lo q) (hi q)) T (↑u.vertices) R (L+R) := by
-    obtain ⟨c,hc⟩ := cover_of_sum ht u (r y) (by omega) (fun i => (inside y i).1)
-      (by rw [sumr]; exact order.trans hlow)
-    use List.ofFn (fun i => (r y i,c i))
-    refine ⟨?_,?_,?_,?_⟩
-    · intro p hp
-      obtain ⟨i,rfl⟩ := List.mem_ofFn.mp hp
-      apply inside
-    · simpa [List.map_ofFn,List.sum_ofFn,Function.comp_def,sumr] using hhigh
-    · intro v hv
-      obtain ⟨i,hi⟩ := hc v hv
-      exact ⟨_,List.mem_ofFn.mpr ⟨i,rfl⟩,hi.trans (by linarith)⟩
-    · intro q
-      simp [List.map_ofFn,List.sum_ofFn,Function.comp_def,Fin.sum_univ_add,r,X,Fin.is_lt]; ring
-  have ints (q : Q) :
-      Integrable (fun y : I => bin (lo q) (hi q) (R*y)) ∧
-      Integrable (fun y : I => bin (lo q) (hi q) (R-R*y)) := by
-    have int (g : I → ℝ) (hg : Measurable g) :
-        Integrable (fun y => bin (lo q) (hi q) (g y)) volume :=
-      (memLp_of_bounded (Filter.Eventually.of_forall (fun y => bin_mem (lo q) (hi q) (g y)))
-        ((bin_measurable ..).comp hg).aestronglyMeasurable 1).integrable le_rfl
-    exact ⟨int _ (by fun_prop),int _ (by fun_prop)⟩
-  have finite := BurningTree.hist_finite (a := (k:ℝ)) (b := 2*k) X
-    (by intro y q; simp only [X,bin,Set.indicator]; split_ifs <;> norm_num [mul_comm])
-  refine ⟨_,mean_histogram_mem_hull volume X finite attainable
-    (fun q => ((ints q).1.add (ints q).2).const_mul _),fun q => ?_⟩
-  obtain ⟨hu,hd⟩ := affine_bin_means (a := 0) hR (lo q) (hi q)
-  simp only [zero_add,sub_zero,mul_comm _ R] at hu hd
-  simp only [X,integral_const_mul,integral_add (ints q).1 (ints q).2,hu,hd]
-  let u := overlap 0 R (lo q) (hi q)
-  change (k:ℝ)*(u/R+u/R) ≤ (1+ε)*L*u/R^2
-  rw [le_div_iff₀ (sq_pos_of_pos hR)]
-  have hup : 2*(k:ℝ)*R ≤ (1+ε)*L := by nlinarith [mul_nonneg (by linarith : 0 ≤ ε-2) hL.le]
-  have h0 : 0 ≤ u := le_max_left ..
-  calc
-    (k:ℝ)*(u/R+u/R)*R^2 = 2*k*R*u := by field_simp; ring
-    _ ≤ _ := mul_le_mul_of_nonneg_right hup h0
-
-end BurningBridge
 
 namespace BurningBridge
 open SimpleGraph BurningNumberConjecture
@@ -1334,51 +1069,6 @@ theorem exists_rounds_of_bins {I : Type*} [Fintype I] {Q d : ℕ}
 end BurningCover
 
 namespace BurningCover
-open Finset MeasureTheory ProbabilityTheory
-
-/- Select a local cover on each piece and assign a different round to every ball.
-The bound on *total radius* per sample bounds positive-bin counts; it gives no
-pointwise bound on the number of balls in bin zero. -/
-theorem schedule_piece_laws {I : Type*} [Fintype I] {Ω : I → Type*} [∀ i, Finite (Ω i)]
-    [∀ i, MeasurableSpace (Ω i)] [∀ i, MeasurableSingletonClass (Ω i)]
-    (μ : (i : I) → Measure (Ω i)) [∀ i, IsProbabilityMeasure (μ i)]
-    (J : (i : I) → Ω i → Type*) [∀ i x, Fintype (J i x)]
-    {q d : ℕ} (hd : 0 < d) (b : ∀ i x, J i x → Fin (q+1))
-    (r : ∀ i x, J i x → ℝ) (hr : ∀ i x j, 0 ≤ r i x j)
-    (hlo : ∀ i x j, b i x j ≠ 0 → (d : ℝ) ≤ r i x j)
-    (hhi : ∀ i x j, r i x j ≤ (((b i x j : ℕ) + 1)*d : ℕ))
-    {B η : ℝ} (hB : 0 ≤ B) (hη : 0 < η)
-    (load : ∀ i x, (∑ j, r i x j) ≤ B*d)
-    (mean : ∀ k : Fin (q+1), (∑ i, ∫ x, ((univ.filter (fun j => b i x j = k)).card : ℝ) ∂μ i)
-      ≤ (1-η)*d)
-    (large : B*q ≤ η^3*d) :
-    ∃ ω : Π i, Ω i, ∃ t : (Σ i, J i (ω i)) ↪ Fin ((q+1)*d+d),
-      ∀ j, ⌈r j.1 (ω j.1) j.2⌉₊ + (t j : ℕ) < (q+1)*d+d := by
-  classical
-  let N (k : Fin (q+1)) (i : I) (x : Ω i) : ℝ := (univ.filter (fun j => b i x j = k)).card
-  have hd' : 0 < (d : ℝ) := by exact_mod_cast hd
-  have lim (k : Fin q) i x : N k.succ i x ≤ B := by
-    let s := univ.filter (fun j => b i x j = k.succ)
-    apply le_of_mul_le_mul_right _ hd'
-    calc
-      _ = ∑ _j ∈ s, (d : ℝ) := by simp [s,N]
-      _ ≤ ∑ j ∈ s, r i x j := sum_le_sum (fun j hj => hlo i x j (by
-        rw [(mem_filter.mp hj).2]; exact Fin.succ_ne_zero k))
-      _ ≤ ∑ j, r i x j := sum_le_sum_of_subset_of_nonneg (subset_univ _) (fun j _ _ => hr i x j)
-      _ ≤ _ := load i x
-  obtain ⟨ω,cap⟩ := select_counts μ N (fun _ _ _ => Nat.cast_nonneg _) lim hB hη hd' mean large
-  refine ⟨ω, exists_rounds_of_bins (fun j : Σ i, J i (ω i) => b j.1 (ω j.1) j.2)
-    (fun j => ⌈r j.1 (ω j.1) j.2⌉₊) (fun j => Nat.ceil_le.mpr (hhi ..)) ?_⟩
-  intro k
-  have hc := cap k
-  dsimp [N] at hc
-  exact_mod_cast (show ((univ.filter fun j : Σ i, J i (ω i) => b j.1 (ω j.1) j.2 = k).card : ℝ)
-    ≤ d by simpa only [card_filter, Nat.cast_sum, Fintype.sum_sigma, Nat.cast_ite, Nat.cast_one,
-      Nat.cast_zero] using hc)
-
-end BurningCover
-
-namespace BurningCover
 
 theorem outer_parameters {ε : ℝ} (he : 0 < ε) :
     ∃ q : ℕ, ∃ η : ℝ, 0 < η ∧ ∀ B : ℝ, ∃ n₀ : ℕ, ∀ n ≥ n₀, ∃ d : ℕ,
@@ -1440,30 +1130,6 @@ theorem outer_parameters {ε : ℝ} (he : 0 < ε) :
     nlinarith only [dQlt,du,extra,hround]
 
 end BurningCover
-
-namespace BurningBridge
-open SimpleGraph BurningNumberConjecture MeasureTheory Finset
-open BurningCover
-
-/- The finite local cover laws needed at one scale. The radius cutoff is
-(q+1)d, and the probability laws on different pieces will be sampled independently. -/
-structure PieceLaws {V : Type} (T : SimpleGraph V) (q d : ℕ) (A B : ℝ) where
-  pieces : ℕ
-  choices : Fin pieces → ℕ
-  law : ∀ i, PMF (Fin (choices i))
-  balls : ∀ i, Fin (choices i) → ℕ
-  bin : ∀ i x, Fin (balls i x) → Fin (q+1)
-  radius : ∀ i x, Fin (balls i x) → ℝ
-  centre : ∀ i x, Fin (balls i x) → Centre T
-  nonneg : ∀ i x j, 0 ≤ radius i x j
-  lower : ∀ i x j, bin i x j ≠ 0 → (d : ℝ) ≤ radius i x j
-  upper : ∀ i x j, radius i x j ≤ (((bin i x j : ℕ)+1)*d : ℕ)
-  load : ∀ i x, (∑ j, radius i x j) ≤ B*d
-  expected [Fintype V] : ∀ k, (∑ i, ∫ x, ((univ.filter (fun j => bin i x j = k)).card : ℝ)
-      ∂(law i).toMeasure) ≤ A*(Fintype.card V : ℝ)*d / (((q+1 : ℕ):ℝ)*d)^2
-  cover : ∀ (ω : ∀ i, Fin (choices i)) v, ∃ i j, (centre i (ω i) j).reducedDist v ≤ radius i (ω i) j + 1
-
-end BurningBridge
 
 namespace BurningCover
 
@@ -1559,52 +1225,6 @@ theorem list_law {V Q : Type} {T : SimpleGraph V} (f : Q → ℝ → ℝ) {S : S
 
 end BurningBridge
 
-namespace BurningBridge
-open BurningProfiles MeasureTheory Finset SimpleGraph
-
-theorem piece_laws_of_hulls {V : Type} [vfin : Fintype V] {T : SimpleGraph V} (_ht : T.Connected)
-    {q d m : ℕ} (S : Fin m → Set V) (cap : Fin m → ℝ) {A B : ℝ}
-    (all : ∀ v, ∃ i, v ∈ S i) (load : ∀ i, cap i ≤ B*d)
-    (x : Fin m → Fin (q+1) → ℝ)
-    (hx : ∀ i, x i ∈ convexHull ℝ (Attain (fun k => bin (gridLo d k) (gridHi d k)) T
-      (S i) (((q+1)*d : ℕ):ℝ) (cap i)))
-    (mean : ∀ k, ∑ i, x i k ≤ A*(Fintype.card V : ℝ)*d / (((q+1 : ℕ):ℝ)*d)^2) :
-    Nonempty (PieceLaws T q d A B) := by
-  classical
-  choose n p bs data hist using fun i => list_law _ (hx i)
-  let r i j (k : Fin (bs i j).length) := ((bs i j).get k).1
-  have inside i j (k : Fin (bs i j).length) := (data i j).1 _ (List.get_mem (bs i j) k)
-  choose label hlow hhigh hbin using fun i j (k : Fin (bs i j).length) =>
-    grid_pick (q := q) (d := d) (inside i j k).1 (inside i j k).2
-  have sum_map {α : Type} (l : List α) (f : α → ℝ) :
-      ∑ k : Fin l.length, f (l.get k) = (l.map f).sum := by
-    rw [← List.sum_ofFn]; change (List.ofFn (f ∘ l.get)).sum = _
-    rw [← List.map_ofFn, List.ofFn_get]
-  refine ⟨⟨m,n,p,fun i j => (bs i j).length,label,r,fun i j k => ((bs i j).get k).2,
-    fun i j k => (inside i j k).1,hlow,
-    (fun i j k => by simpa [gridHi,r] using hhigh i j k),?_,?_,?_⟩⟩
-  · intro i j
-    exact (sum_map (bs i j) Prod.fst).le.trans ((data i j).2.1.trans (load i))
-  · intro inst k
-    cases Subsingleton.elim inst vfin
-    apply (le_of_eq ?_).trans (mean k)
-    apply sum_congr rfl; intro i _
-    rw [← hist i k]
-    apply integral_congr_ae
-    filter_upwards with j
-    rw [← sum_map, card_filter]
-    push_cast
-    apply sum_congr rfl
-    intro t _
-    simpa using (hbin i j t k).symm
-  · intro ω v
-    obtain ⟨i,hi⟩ := all v
-    obtain ⟨u,hu,hu'⟩ := (data i (ω i)).2.2 v hi
-    obtain ⟨k,rfl⟩ := List.get_of_mem hu
-    exact ⟨i,k,hu'⟩
-
-end BurningBridge
-
 /- Build a rooted description of a spanning tree, then split it into small
 connected pieces. The remaining fragment always contains the attachment vertex. -/
 
@@ -1651,54 +1271,43 @@ lemma spanning [Fintype V] [DecidableEq V] (hc : G.Connected) (r : V) :
     have := Finset.card_le_univ q.vertices
     exact ih _ (by omega) q (by omega) rfl
 
-lemma chop [DecidableEq V] (t : Branch G r) {l : ℕ} (hl : 0 < l) :
+def Cut [DecidableEq V] (t : Branch G r) {l : ℕ} : Prop :=
     ∃ (rest : Branch G r) (pieces : List (Σ r, Branch G r)), rest.size < l ∧
       (∀ u ∈ pieces, Minimal l u) ∧ rest.size+(pieces.map (fun p => p.2.size)).sum = t.size ∧
-      ∀ v ∈ t.vertices, v ∈ rest.vertices ∨ ∃ p ∈ pieces, v ∈ p.2.vertices := by
+      ∀ v ∈ t.vertices, v ∈ rest.vertices ∨ ∃ p ∈ pieces, v ∈ p.2.vertices
+
+lemma chop [DecidableEq V] (t : Branch G r) {l : ℕ} (hl : 0 < l) : Cut t (l := l) := by
   classical
+  have finish {r : V} (t w : Branch G r) (ps : List (Σ r, Branch G r))
+      (hm : l ≤ w.size → Minimal l ⟨_,w⟩) (hp : ∀ u ∈ ps, Minimal l u)
+      (hs : w.size+(ps.map (fun p => p.2.size)).sum = t.size)
+      (hc : ∀ v ∈ t.vertices, v ∈ w.vertices ∨ ∃ p ∈ ps, v ∈ p.2.vertices) : Cut t (l := l) := by
+    by_cases h : w.size < l
+    · exact ⟨w,ps,h,hp,hs,hc⟩
+    · refine ⟨.root _,⟨_,w⟩::ps,hl,by simpa using And.intro (hm (by omega)) hp,
+        by simpa [Branch.size] using hs,fun v hv => Or.inr ?_⟩
+      simpa using hc v hv
   induction t with
   | root => exact ⟨.root _,[],hl,by simp,by simp [Branch.size],by simp⟩
   | @edge a b e t ih =>
     obtain ⟨u,ps,hu,hp,hw,hv⟩ := ih
-    let w := Branch.edge e u
-    by_cases small : w.size < l
-    · refine ⟨w,ps,small,hp,by dsimp [w,Branch.size]; omega,fun v h => ?_⟩
+    refine finish _ (.edge e u) ps ?_ hp (by dsimp [Branch.size]; omega) ?_
+    · intro h
+      refine ⟨h,⟨_,Branch.edge e (.root _)⟩,⟨_,u⟩,hl,hu.le,by dsimp [Branch.size]; omega,?_⟩
+      ext x; simp [Branch.vertices]; have := u.root_mem; grind
+    · intro v h
       rcases Finset.mem_insert.mp h with rfl | h
       · exact Or.inl (Finset.mem_insert_self ..)
-      · exact (hv v h).imp_left (Finset.mem_insert_of_mem)
-    · refine ⟨.root _,⟨_,w⟩::ps,hl,?_,by simp [w,Branch.size]; omega,fun v h => ?_⟩
-      · simp only [List.mem_cons, forall_eq_or_imp]
-        refine ⟨⟨le_of_not_gt small, ⟨_,Branch.edge e (.root _)⟩,⟨_,u⟩,hl,hu.le,by dsimp [w,Branch.size]; omega,?_⟩,hp⟩
-        ext x; simp [w,Branch.vertices]; have := u.root_mem; grind
-      · rcases Finset.mem_insert.mp h with rfl | h
-        · exact Or.inl (by simp [Branch.vertices])
-        · rcases hv v h with h | ⟨p,hp,hv⟩
-          · exact Or.inr ⟨_,List.mem_cons_self ..,Finset.mem_insert_of_mem h⟩
-          · exact Or.inr ⟨_,List.mem_cons_of_mem _ hp,hv⟩
+      · exact (hv v h).imp_left Finset.mem_insert_of_mem
   | join a b ia ib =>
     obtain ⟨u,us,hu,hus,hw,hv⟩ := ia
     obtain ⟨v,vs,hv',hvs,hw',hv''⟩ := ib
-    let w := Branch.join u v
-    let ps := us++vs
-    have hp : ∀ z ∈ ps, Minimal l z := by intro z hz; exact (List.mem_append.mp hz).elim (hus z) (hvs z)
-    have size : w.size + (ps.map (fun p => p.2.size)).sum = (a.join b).size := by
-      simp [w,ps,Branch.size]; omega
-    have cover (x) (hx : x ∈ (a.join b).vertices) : x ∈ w.vertices ∨ ∃ t ∈ ps, x ∈ t.2.vertices := by
-      rcases Finset.mem_union.mp hx with hx | hx
-      · rcases hv x hx with hx | ⟨t,ht,hx⟩
-        · exact Or.inl (Finset.mem_union_left _ hx)
-        · exact Or.inr ⟨t,List.mem_append_left _ ht,hx⟩
-      · rcases hv'' x hx with hx | ⟨t,ht,hx⟩
-        · exact Or.inl (Finset.mem_union_right _ hx)
-        · exact Or.inr ⟨t,List.mem_append_right _ ht,hx⟩
-    by_cases small : w.size < l
-    · exact ⟨w,ps,small,hp,size,cover⟩
-    · refine ⟨.root _,⟨_,w⟩::ps,hl,?_,by simpa [Branch.size] using size, fun x hx => Or.inr ?_⟩
-      · simp only [List.mem_cons,forall_eq_or_imp]
-        exact ⟨⟨le_of_not_gt small,⟨_,u⟩,⟨_,v⟩,hu.le,hv'.le,rfl,rfl⟩,hp⟩
-      · rcases cover x hx with h | ⟨t,ht,h⟩
-        · exact ⟨_,List.mem_cons_self ..,h⟩
-        · exact ⟨_,List.mem_cons_of_mem _ ht,h⟩
+    refine finish _ (.join u v) (us++vs) ?_ ?_ ?_ ?_
+    · exact fun h => ⟨h,⟨_,u⟩,⟨_,v⟩,hu.le,hv'.le,rfl,rfl⟩
+    · intro z hz; exact (List.mem_append.mp hz).elim (hus z) (hvs z)
+    · simp [Branch.size]; omega
+    · simp only [Branch.vertices,Finset.mem_union,List.mem_append]
+      grind
 
 end BurningPieces
 namespace BurningPieces
@@ -1747,43 +1356,10 @@ def OuterBranchEstimate (ξ : ℝ) (q M : ℕ) : Prop :=
       ∃ x ∈ convexHull ℝ (Attain (fun k : Fin (q+1) => bin (gridLo d k) (gridHi d k))
         T (↑t.2.vertices) R (L+R)), ∀ k, x k ≤ (1+ξ)*L*overlap 0 R (gridLo d k) (gridHi d k)/R^2
 
-theorem piece_laws_of_branch_estimate {ξ A : ℝ} (hξ : 0 ≤ ξ) {q M d : ℕ}
-    (hM : 0 < M) (hd : 0 < d) (H : OuterBranchEstimate ξ q M)
-    {V : Type} [Fintype V] [DecidableEq V] {T : SimpleGraph V} (ht : T.IsTree)
-    (hpad : (1+ξ)*((Fintype.card V:ℝ)+M*(((q+1)*d:ℕ):ℝ)) ≤ A*(Fintype.card V:ℝ)) :
-    Nonempty (PieceLaws T q d A (((2*M+1)*(q+1):ℕ):ℝ)) := by
-  classical
-  let R := (q+1)*d
-  let D := M*R
-  have hR : 0 < R := Nat.mul_pos (Nat.succ_pos _) hd
-  obtain ⟨m,s,L,hs,hsum,hcover⟩ := outer_partition ht.connected (Nat.mul_pos hM hR)
-  choose x hx hmean using fun i => H d hd V T ht (s i) (L i) (hs i).1 (hs i).2.1
-  apply piece_laws_of_hulls ht.connected (fun i => (↑(s i).2.vertices : Set V))
-    (fun i => (L i : ℝ)+R) hcover _ x hx
-  · intro k
-    have bound i : x i k ≤ (1+ξ)*(L i:ℝ)*d/(R:ℝ)^2 := by
-      refine (hmean i k).trans (div_le_div_of_nonneg_right ?_ (sq_nonneg _))
-      exact mul_le_mul_of_nonneg_left (overlap_grid_le k R) (by positivity)
-    have hh := sum_le_sum (s := univ) (fun i _ => bound i)
-    simp_rw [← sum_div, ← sum_mul, ← mul_sum, ← Nat.cast_sum] at hh
-    have hc : (∑ i, L i) ≤ Fintype.card V + D := by omega
-    have hc' : ((∑ i, L i : ℕ):ℝ) ≤ (Fintype.card V:ℝ)+M*R := by exact_mod_cast hc
-    rw [← Nat.cast_mul]
-    exact hh.trans (div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_right
-      ((mul_le_mul_of_nonneg_left hc' (by linarith : 0 ≤ 1+ξ)).trans hpad) (Nat.cast_nonneg _)) (sq_nonneg _))
-  · intro i
-    have hh := (hs i).2.2
-    change L i ≤ 2*(M*R) at hh
-    have hh' : L i + R ≤ ((2*M+1)*(q+1))*d := by
-      calc
-        _ ≤ 2*(M*R)+R := Nat.add_le_add_right hh _
-        _ = _ := by dsimp [R]; ring
-    exact_mod_cast hh'
-
 end BurningBridge
 
 namespace BurningBridge
-open BurningCover Finset SimpleGraph BurningNumberConjecture
+open BurningCover BurningPieces BurningProfiles MeasureTheory Finset SimpleGraph BurningNumberConjecture
 
 theorem norin_turcotte_of_outer_branch_estimate
     (branch : ∀ ξ : ℝ, 0 < ξ → ∀ q : ℕ, ∃ M : ℕ, 0 < M ∧ OuterBranchEstimate ξ q M) :
@@ -1798,16 +1374,80 @@ theorem norin_turcotte_of_outer_branch_estimate
   refine ⟨max N n₀, fun V _ G hc hn => ?_⟩
   obtain ⟨T,hTG,hT⟩ := hc.exists_isTree_le
   obtain ⟨d,hd,large,mean,time⟩ := hN (Fintype.card V) ((le_max_right ..).trans hn)
-  have hR : (((q+1)*d:ℕ):ℝ) ≤ (1+ε)*Real.sqrt (Fintype.card V) :=
+  have hcutoff : (((q+1)*d:ℕ):ℝ) ≤ (1+ε)*Real.sqrt (Fintype.card V) :=
     (Nat.cast_le.mpr (show (q+1)*d ≤ (q+1)*d+d+2 by omega)).trans time
-  obtain ⟨p⟩ := piece_laws_of_branch_estimate (by positivity : 0 ≤ ε/4) hM hd H hT
-    (hP _ ((le_max_left ..).trans hn) _ hR)
-  obtain ⟨ω,t,ht⟩ := schedule_piece_laws (fun i => (p.law i).toMeasure)
-    (fun i x => Fin (p.balls i x)) hd p.bin p.radius p.nonneg p.lower p.upper
-    (Nat.cast_nonneg _) hη p.load (fun k => (p.expected k).trans mean) large
+  let R := (q+1)*d
+  let D := M*R
+  have hR : 0 < R := Nat.mul_pos (Nat.succ_pos _) hd
+  obtain ⟨m,s,L,hs,hsum,hcover⟩ := outer_partition hT.connected (Nat.mul_pos hM hR)
+  choose x hx hmean using fun i => H d hd V T hT (s i) (L i) (hs i).1 (hs i).2.1
+  have hpad := hP _ ((le_max_left ..).trans hn) _ hcutoff
+  have hξ : 0 ≤ ε/4 := by positivity
+  have means (k) : ∑ i, x i k ≤ (1-η)*d := by
+    have bound i : x i k ≤ (1+ε/4)*(L i:ℝ)*d/(R:ℝ)^2 := by
+      refine (hmean i k).trans (div_le_div_of_nonneg_right ?_ (sq_nonneg _))
+      exact mul_le_mul_of_nonneg_left (overlap_grid_le k R) (by positivity)
+    have hh := sum_le_sum (s := univ) (fun i _ => bound i)
+    simp_rw [← sum_div, ← sum_mul, ← mul_sum, ← Nat.cast_sum] at hh
+    have hc : (∑ i, L i) ≤ Fintype.card V + D := by omega
+    have hc' : ((∑ i, L i : ℕ):ℝ) ≤ (Fintype.card V:ℝ)+M*R := by exact_mod_cast hc
+    rw [← Nat.cast_mul] at mean
+    apply le_trans _ mean
+    exact hh.trans (div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_right
+      ((mul_le_mul_of_nonneg_left hc' (by linarith : 0 ≤ 1+ε/4)).trans hpad) (Nat.cast_nonneg _)) (sq_nonneg _))
+  have budget (i) : (L i:ℝ)+R ≤ B*d := by
+    have hh := (hs i).2.2
+    change L i ≤ 2*(M*R) at hh
+    have hh' : L i + R ≤ ((2*M+1)*(q+1))*d := by
+      calc
+        _ ≤ 2*(M*R)+R := Nat.add_le_add_right hh _
+        _ = _ := by dsimp [R]; ring
+    dsimp [B]; exact_mod_cast hh'
+  choose n p bs data hist using fun i => list_law _ (hx i)
+  let r i j (k : Fin (bs i j).length) := ((bs i j).get k).1
+  have inside i j (k : Fin (bs i j).length) := (data i j).1 _ (List.get_mem (bs i j) k)
+  choose label hlow hhigh hbin using fun i j (k : Fin (bs i j).length) =>
+    grid_pick (q := q) (d := d) (inside i j k).1 (inside i j k).2
+  have sum_map {α : Type} (l : List α) (f : α → ℝ) :
+      ∑ k : Fin l.length, f (l.get k) = (l.map f).sum := by
+    rw [← List.sum_ofFn]; change (List.ofFn (f ∘ l.get)).sum = _
+    rw [← List.map_ofFn, List.ofFn_get]
+  let N' (k : Fin (q+1)) i (x : Fin (n i)) : ℝ := (univ.filter (fun j => label i x j = k)).card
+  have expected (k) : (∑ i, ∫ j, ((univ.filter fun u => label i j u = k).card : ℝ) ∂(p i).toMeasure) ≤ (1-η)*d := by
+    apply (le_of_eq ?_).trans (means k)
+    apply sum_congr rfl; intro i _
+    rw [← hist i k]
+    apply integral_congr_ae
+    filter_upwards with j
+    rw [← sum_map, card_filter]
+    push_cast
+    exact sum_congr rfl (fun u _ => (hbin i j u k).symm)
+  have hd' : 0 < (d : ℝ) := by exact_mod_cast hd
+  have lim (k : Fin q) i x : N' k.succ i x ≤ B := by
+    let s := univ.filter (fun j => label i x j = k.succ)
+    apply le_of_mul_le_mul_right _ hd'
+    calc
+      _ = ∑ _j ∈ s, (d : ℝ) := by simp [s,N']
+      _ ≤ ∑ j ∈ s, r i x j := sum_le_sum (fun j hj => hlow i x j (by
+        rw [(mem_filter.mp hj).2]; exact Fin.succ_ne_zero k))
+      _ ≤ ∑ j, r i x j := sum_le_sum_of_subset_of_nonneg (subset_univ _) (fun j _ _ => (inside i x j).1)
+      _ ≤ _ := (sum_map _ Prod.fst).le.trans ((data i x).2.1.trans (budget i))
+  obtain ⟨ω,cap⟩ := select_counts (fun i => (p i).toMeasure) N' (fun _ _ _ => Nat.cast_nonneg _) lim (Nat.cast_nonneg _) hη hd' expected large
+  obtain ⟨t,ht⟩ := exists_rounds_of_bins (fun j : Σ i, Fin (bs i (ω i)).length => label j.1 (ω j.1) j.2)
+    (fun j => ⌈r j.1 (ω j.1) j.2⌉₊) (fun j => Nat.ceil_le.mpr (by simpa [gridHi,r] using hhigh j.1 (ω j.1) j.2)) (by
+    intro k
+    have hc := cap k
+    dsimp [N'] at hc
+    exact_mod_cast (show ((univ.filter fun j : Σ i, Fin (bs i (ω i)).length => label j.1 (ω j.1) j.2 = k).card : ℝ)
+      ≤ d by simpa only [card_filter, Nat.cast_sum, Fintype.sum_sigma, Nat.cast_ite, Nat.cast_one,
+        Nat.cast_zero] using hc))
   have hburn := burn_of_scheduled_pieces hTG hT.connected t
-    (fun j => p.centre j.1 (ω j.1) j.2) (fun j => p.radius j.1 (ω j.1) j.2) ht (by
-      intro v; obtain ⟨i,j,h⟩ := p.cover ω v; exact ⟨⟨i,j⟩,h⟩)
+    (fun j => ((bs j.1 (ω j.1)).get j.2).2) (fun j => r j.1 (ω j.1) j.2) ht (by
+      intro v
+      obtain ⟨i,hi⟩ := hcover v
+      obtain ⟨u,hu,hu'⟩ := (data i (ω i)).2.2 v hi
+      obtain ⟨k,rfl⟩ := List.get_of_mem hu
+      exact ⟨⟨i,k⟩,hu'⟩)
   exact (Nat.cast_le (α := ℝ).mpr hburn).trans time
 
 end BurningBridge
@@ -1861,29 +1501,65 @@ lemma glue_piece_list (lo hi : Q → ℝ) (ht : G.IsTree) {R δ : ℝ}
     · simp only [List.map_cons,List.sum_cons,Nat.cast_add,add_div]
       nlinarith only [mul_le_mul_of_nonneg_left ratio hd.le]
 
-/- Controlled law for a whole branch with a real upper budget for its edge count. -/
-theorem controlled_tree (lo hi : Q → ℝ) (ht : G.IsTree) {r : V} (t : Branch G r)
-    {L R ε : ℝ} (hs : (t.size:ℝ) ≤ L) (hr : 0 < R) (he : 0 < ε) (he' : ε ≤ 4)
-    (hsmall : 24*R ≤ ε*L) :
-    Controlled (fun s => Attain (fun q => bin (lo q) (hi q)) G (↑t.vertices) s (L+R))
-      (fun s q => overlap 0 s (lo q) (hi q)) L R ε := by
+theorem branch_law (lo hi : Q → ℝ) (ht : G.IsTree) {r : V} (t : Branch G r)
+    {L R δ : ℝ} (hs : (t.size:ℝ) ≤ L) (hr : 0 < R) (hd : 0 < δ) (hd' : δ ≤ 1/2) :
+    Law lo hi G (↑t.vertices) R (L+R) δ (2+(1+2*δ)*(L/R)) := by
   classical
-  let δ := ε/8
-  have hd : 0 < δ := by dsimp [δ]; positivity
-  have hd' : δ ≤ 1/2 := by dsimp [δ]; linarith
   have hl : 0 < ⌈2*R*(1-δ)⌉₊ := Nat.ceil_pos.mpr (mul_pos (by positivity) (by linarith))
   obtain ⟨rest,ps,hsz,hps,htotal,hcover⟩ := chop t hl
   have h := glue_piece_list lo hi ht hr hd hd' (remainder_law lo hi ht rest hr hd hd' hsz) ps hps
   let s := (ps.map (fun u => u.2.size)).sum
   have hs' : (s:ℝ) ≤ L := (Nat.cast_le.mpr (show s ≤ t.size by dsimp [s]; omega)).trans hs
-  apply Law.controlled lo hi hr he.le
   apply Law.weaken lo hi (fun v hv => hcover v hv) (by change R+(s:ℝ) ≤ L+R; linarith) _ h
-  change 2+(1+2*δ)*((s:ℝ)/R) ≤ (1+ε/3)*(L/R)
-  have h₁ := mul_le_mul_of_nonneg_left (div_le_div_of_nonneg_right hs' hr.le) (show 0 ≤ 1+2*δ by linarith)
-  apply (show 2+(1+2*δ)*(s/R) ≤ 2+(1+2*δ)*(L/R) by linarith only [h₁]).trans
-  dsimp only [δ]
+  exact add_le_add (le_refl 2) (mul_le_mul_of_nonneg_left (div_le_div_of_nonneg_right hs' hr.le)
+    (by linarith : 0 ≤ 1+2*δ))
+
+theorem controlled_tree (lo hi : Q → ℝ) (ht : G.IsTree) {r : V} (t : Branch G r)
+    {L R ε : ℝ} (hs : (t.size:ℝ) ≤ L) (hr : 0 < R) (he : 0 < ε) (he' : ε ≤ 4)
+    (hsmall : 24*R ≤ ε*L) :
+    Controlled (fun s => Attain (fun q => bin (lo q) (hi q)) G (↑t.vertices) s (L+R))
+      (fun s q => overlap 0 s (lo q) (hi q)) L R ε := by
+  apply Law.controlled lo hi hr he.le
+  apply Law.weaken lo hi (fun _ h => h) le_rfl _ (branch_law lo hi ht t hs hr
+    (δ := ε/8) (by positivity) (by linarith))
   field_simp
   nlinarith
+
+/- At δ = 1/2 the local law also starts the bootstrap. Each tail has density
+  at most 4(1+a)/3 times the uniform density, so its first moment suffices. -/
+theorem branch_base (lo hi : Q → ℝ) (ht : G.IsTree) {r : V} (t : Branch G r)
+    {L R ε : ℝ} (hs : (t.size:ℝ) ≤ L) (hr : 0 < R) (hlen : 8*R ≤ L) (he : 2 ≤ ε) :
+    Fractional (fun z => Attain (fun q => bin (lo q) (hi q)) G (↑t.vertices) z (L+z))
+      (fun z q => overlap 0 z (lo q) (hi q)) L R ε := by
+  obtain ⟨n,a,α,hα,ha,hm,x,hx,hbin⟩ := branch_law lo hi ht t hs hr (δ := 1/2) (by norm_num) le_rfl
+  refine ⟨x,hx,fun q => (hbin q).trans ?_⟩
+  let u := overlap 0 R (lo q) (hi q)/R
+  have hu : 0 ≤ u := div_nonneg (le_max_left ..) hr.le
+  calc
+    _ ≤ ∑ i, (α i*(1+a i))*(4/3*u) := by
+      apply Finset.sum_le_sum
+      intro i _
+      obtain ⟨h₀,h₁⟩ := ha i
+      have hpos : 0 < 1-a i := by linarith
+      rw [mul_assoc]
+      apply mul_le_mul_of_nonneg_left _ (hα i)
+      apply (div_le_iff₀ hpos).mpr
+      have sub : overlap (a i) 1 (lo q/R) (hi q/R) ≤ u := by
+        rw [overlap_scale hr,mul_one]
+        exact div_le_div_of_nonneg_right (max_le_max_left _ (sub_le_sub_left
+          (max_le_max_right _ (mul_nonneg hr.le h₀)) _)) hr.le
+      apply sub.trans
+      have h : 0 ≤ (1/2-a i)*(1/2+a i) := mul_nonneg (by linarith) (by linarith)
+      nlinarith only [mul_nonneg h hu]
+    _ = (∑ i, α i*(1+a i))*(4/3*u) := by rw [Finset.sum_mul]
+    _ ≤ (2+(1+2*(1/2))*(L/R))*(4/3*u) := mul_le_mul_of_nonneg_right hm (by positivity)
+    _ ≤ (1+ε)*L*overlap 0 R (lo q) (hi q)/R^2 := by
+      dsimp [u]
+      field_simp
+      have hu' : 0 ≤ overlap 0 R (lo q) (hi q) := le_max_left ..
+      have hL : 0 ≤ L := by linarith
+      nlinarith only [mul_nonneg (sub_nonneg.mpr hlen) hu',
+        mul_nonneg (mul_nonneg (sub_nonneg.mpr he) hL) hu']
 
 end BurningTree
 
@@ -1938,7 +1614,7 @@ variable {V Q : Type} [Fintype V] [Fintype Q] [DecidableEq V] {T : SimpleGraph V
 /- Above the requested accuracy the same length-to-radius ratio suffices for
 every recursive use of the local construction. -/
 theorem fractional_branch (t : Σ r, Branch T r) (lo hi : Q → ℝ) {L R ξ : ℝ}
-    (hξ : 0 < ξ) (hR : 0 < R) (len : 2*R ≤ L) (room : 24*R ≤ ξ*L)
+    (hξ : 0 < ξ) (hR : 0 < R) (len : 8*R ≤ L) (room : 24*R ≤ ξ*L)
     (ht : T.IsTree) (hs : (t.2.size:ℝ) ≤ L) :
     Fractional (fun z => Attain (fun q => bin (lo q) (hi q)) T (↑t.2.vertices) z (L+z))
       (fun z q => overlap 0 z (lo q) (hi q)) L R ξ := by
@@ -1948,7 +1624,7 @@ theorem fractional_branch (t : Σ r, Branch T r) (lo hi : Q → ℝ) {L R ξ : �
   refine fractional_bootstrap_from _ (fun _ _ h => attainable_mono _ h (add_le_add le_rfl h)) _
     (fun s hs q => le_max_left _ _) hz hL ?_ ?_ ξ hξ (le_refl ξ) R ⟨hR,le_rfl⟩
   · intro e he s hs
-    exact fractional_base T ht.connected t.2 _ _ _ _ _ hs.1 (by linarith [hs.2]) he ‹(t.2.size:ℝ) ≤ L›
+    exact BurningTree.branch_base lo hi ht t.2 ‹(t.2.size:ℝ) ≤ L› hs.1 (by linarith [hs.2]) he
   · intro e hlow he he' s hs
     exact BurningTree.controlled_tree _ _ ht t.2 ‹(t.2.size:ℝ) ≤ L› hs.1 he (by linarith)
       (by nlinarith [hs.2,mul_le_mul_of_nonneg_right hlow hL.le])
@@ -1960,13 +1636,13 @@ open SimpleGraph BurningPieces BurningProfiles BurningMixture
 
 theorem branch_estimate {ξ : ℝ} (hξ : 0 < ξ) (q : ℕ) :
     ∃ M : ℕ, 0 < M ∧ OuterBranchEstimate ξ q M := by
-  let M := max 2 ⌈24/ξ⌉₊
-  refine ⟨M,lt_of_lt_of_le (by decide : 0 < 2) (le_max_left ..),?_⟩
+  let M := max 8 ⌈24/ξ⌉₊
+  refine ⟨M,lt_of_lt_of_le (by decide : 0 < 8) (le_max_left ..),?_⟩
   intro d hd V inst dec T ht t L hs hmin
   let R := ((q+1)*d : ℕ)
   have hR : 0 < (R : ℝ) := by exact_mod_cast Nat.mul_pos (Nat.succ_pos _) hd
   have hMR : (M:ℝ)*R ≤ L := by exact_mod_cast hmin
-  have hTwo : (2:ℝ) ≤ M := by exact_mod_cast (le_max_left 2 ⌈24/ξ⌉₊)
+  have hTwo : (8:ℝ) ≤ M := by exact_mod_cast (le_max_left 8 ⌈24/ξ⌉₊)
   have hRatio : 24/ξ ≤ M := (Nat.le_ceil _).trans (Nat.cast_le.mpr (le_max_right ..))
   have hRoom : 24*(R:ℝ) ≤ ξ*L := calc
     _ ≤ ((M:ℝ)*ξ)*R := mul_le_mul_of_nonneg_right ((div_le_iff₀ hξ).mp hRatio) hR.le
