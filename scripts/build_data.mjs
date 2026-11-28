@@ -74,7 +74,22 @@ let mo = e3.rows.filter((r) => !seen.has(`mo-${r[0]}`)).map(([qid, title, fields
 // A MathOverflow question whose Lean statement has been merged becomes a provable problem: it moves to the core
 // tables, which hold Lean sources.
 for (let i = mo.length - 1; i >= 0; i--) if (statements[mo[i].id]) { const [p] = mo.splice(i, 1); delete p.qid; core.push(formalized(p)); }
-const all = [...core, ...mo];
+// Only unsolved problems are listed as open. A problem already settled elsewhere (found by the statement review,
+// content/open_review.json "known"; by the solved-elsewhere scan, data/settled_elsewhere.json; or marked solved in
+// data/status_overrides.json) is not an open problem: with a Lean statement it becomes a known result (formalize the
+// existing proof; work already merged on it keeps its page), without one it is not listed at all.
+const REVIEW_KNOWN = new Set(Object.keys(JSON.parse(fs.readFileSync(path.join(ROOT, "content", "open_review.json"), "utf8")).known ?? {}));
+const ELSEWHERE = fs.existsSync(path.join(ROOT, "data", "settled_elsewhere.json")) ? D("settled_elsewhere.json").entries ?? {} : {};
+const OVERRIDE_SOLVED = new Set(overrides.filter((o) => o.status === "solved").map((o) => o.id));
+const settledElsewhere = (id) => REVIEW_KNOWN.has(id) || id in ELSEWHERE || OVERRIDE_SOLVED.has(id);
+let dropped = 0, relabelled = 0;
+const all = [...core, ...mo].flatMap((p) => {
+  if (!settledElsewhere(p.id) || (p.kind !== "open" && p.kind !== "unformalized")) return [p];
+  if (p.kind === "unformalized") { dropped++; return []; }
+  relabelled++;
+  return [{ ...p, kind: "known", category: "already solved elsewhere", settledElsewhere: ELSEWHERE[p.id] ?? null }];
+});
+console.log(`solved elsewhere: ${relabelled} open problems relabelled known results, ${dropped} unformalized ones no longer listed`);
 
 // Same TeX → Unicode as lib/catalog.ts texPlain, for the one-line excerpt kept in memory.
 const TEX = {
