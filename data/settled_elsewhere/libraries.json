@@ -332,8 +332,8 @@
    "date": "2026-11-28"
   },
   "oeis-a389542": {
-   "reason": "Sorry-free generating_unique, which uses the same A.subst(A^2 - X^2) = 4A^3 normalization as the site, plus hanna_conjecture: for n>1, a(n) = 2 mod 4 iff n = 2^k+1, and otherwise 4 | a(n). This is exactly the site's statement.",
-   "source": "https://github.com/the-omega-institute/trureturing/blob/3fe303d426ff72bfc902c69963b1db4065659313/D5/S1/Recurrence/Parity/QuadraticSquareReversionModFour.lean",
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked blueprint page documents the-omega-institute/trureturing D5/S1/Recurrence/Parity/QuadraticSquareReversionModFour.lean. That file proves hanna_conjecture (a(n) mod 4 = 2 iff n = 2^k+1, else 0) for the normalized solution, plus generating_unique, so the result holds for every A in the site's hypothesis. Its two-file closure contains no sorry or axiom. The math (A = X + 2XK mod 4 with K the Catalan series) is correct, and I confirmed the pattern numerically to n=44.",
+   "source": "https://the-omega-institute.github.io/trureturing-mdbook/Blueprint/D5/S1/Recurrence/Parity/QuadraticSquareReversionModFour.html",
    "date": "2026-11-28"
   },
   "oeis-a219562": {
@@ -587,8 +587,8 @@
    "date": "2026-11-28"
   },
   "oeis-a343260": {
-   "reason": "Sorry-free Lean `bala_conjecture`: for primes p>=5 and r>=1, a(p^r) == 1 mod p^(2r), with a(n) = (Chebyshev.C Z n).eval(n+1), which is the same `term` as the site's.",
-   "source": "https://github.com/thatnealpatel/proofs/blob/main/Proofs/NumberComplexity/A343260ChebyshevPolynomialFirst.lean",
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: PR #9887 adds proofs/oeis-a343260.lean, which I compiled sorry-free against the site's statement (standard axioms only). By Taylor expansion at 1, C_N(N+1) = C_N(1) + N*C_N'(1) + N^2 k, with C_N(1)=1 and C_N'(1)=N*s_N for N = 1,5 mod 6. Hence C_N(N+1) = 1 mod N^2 for N=p^r, p>=5.",
+   "source": "https://github.com/lefttosolve2/open-math-agents/pull/9887",
    "date": "2026-11-28"
   },
   "oeis-a293406": {
@@ -1729,6 +1729,661 @@
   "oeis-a066052": {
    "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.31 proves both Mathar recurrences unconditionally from a(n) = n! - (number of involutions), for n >= 3 and n >= 4: the same ranges as the Lean conjunction.",
    "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "mo-82223": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Bradley (arXiv:1603.08964), Theorem 1(II) (from Bradley-Bryc) and Theorem 2(II) (Peyre), gives sigma-fields with rho(A,B) strictly larger than tau(A,B), the indicator-correlation sup that is the site's delta. Since rho is the sup of rho over finite sub-sigma-fields (simple functions are dense in L^2) while tau only decreases on sub-sigma-fields, some finite pair has rho > delta, so the site's equality is false. Disproved.",
+   "source": "https://arxiv.org/abs/1603.08964",
+   "date": "2026-11-28"
+  },
+  "mo-415111": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: David Speyer's comments give a correct dimension count: there are only n^2 real parameters but binom(n,k) minors (e.g. binom(8,4)=70>64), and when the majorization inequalities are strict they still hold on an open set of the hyperplane, so many majorized tuples are not minor tuples. This disproves the 'if and only if'; the asker accepted the argument.",
+   "source": "https://mathoverflow.net/questions/415111/schur-horn-theorem-for-principal-submatrices#comment1064595_415111",
+   "date": "2026-11-28"
+  },
+  "oeis-a055938": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Yura (arXiv:2607.22202, published in RIMS Kokyuroku Bessatsu B103) proves in Proposition 3.7 that y_{n+1}-y_n = 1 if n is in A055938 and 3 otherwise, with y_1=2, where y_n=A055938(n). That is exactly Stephan's recursion b(n)=a(n) (Theorem 4.1 also gives the A080578 relation).",
+   "source": "https://arxiv.org/abs/2607.22202",
+   "date": "2026-11-28"
+  },
+  "oeis-a350583": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Fang (arXiv:2604.06242) proves the Andrews-Dixit-Schultz-Yee conjecture that the series Sum (-1)^m q^(2mn+m)/((1+q^n)(1-q^(2m-1))) is odd (her (1.2) is the same expansion as the site's index sum) with a short, checkable q-series argument; Cui-Tang (arXiv:2604.08839) prove it independently. Both are preprints, but the proof is elementary.",
+   "source": "https://arxiv.org/abs/2604.06242",
+   "date": "2026-11-28"
+  },
+  "RiemannHypothesis.robin_criterion": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: This is Robin's 1984 theorem, a published result. The linked repo kimihiro64/Robin1984 (pinned commit) proves Robin1984.riemannHypothesis_iff_nativeRobinInequalityAll, and its Solution.lean derives the Mathlib-only statement (forall n > 5040, sigma(n) < e^gamma n log log n) <-> RiemannHypothesis from it. A text scan of the pinned project and vendored sources found no sorry, axiom or native_decide; I did not build it.",
+   "source": "https://github.com/kimihiro64/Robin1984/blob/e3697139babfe0f6cc7a76a08bf41a92aa7a2978/Robin1984/Equivalence/Equivalence.lean#L30",
+   "date": "2026-11-28"
+  },
+  "mo-350476": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The MO answer 350489 identifies L with the lower ideals of a poset P, so J_L = Sum_I |I| and M_L = Sum_I (l - |I|). For P = an a-antichain below a b-chain it gets |J_L - M_L| = b(2^a - a - 1), which is at least l = a+b for a=b=3 (12 vs 6). That disproves the site's strict bound; I checked the computation.",
+   "source": "https://mathoverflow.net/a/350489",
+   "date": "2026-11-28"
+  },
+  "mse-3709724": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The answer shows the asymptotic part fails for n=4: the difference tends to 7/48. I confirmed this with 80-digit numerics (0.1458333 at x=10^6), and for n=5 the difference even diverges. So the site's conjunction (bound AND difference -> 0 for every n >= 3) is false.",
+   "source": "https://math.stackexchange.com/a/5145729",
+   "date": "2026-11-28"
+  },
+  "oeis-a001156": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The OEIS entry itself records the proven Hardy-Ramanujan (1917; rigorous, Wright 1934) asymptotic a(n) ~ 3^(-1/2)(4 pi n)^(-7/6) zeta(3/2)^(2/3) exp(3*2^(-4/3) pi^(1/3) zeta(3/2)^(2/3) n^(1/3)). There alpha = 7/6, beta = 3.307412 and 1/c = 17.496, so the Bohman-Froberg-Riesel conjecture with alpha = 1.16022, beta = 3.30716, 1/c = 18.79656 is false as stated, and its intended asymptotic form is known.",
+   "source": "https://oeis.org/A001156",
+   "date": "2026-11-28"
+  },
+  "oeis-a129453": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: blakestone-x/math A129453/Proof.lean proves square_quotient: G(n) = C(n,k) G(k) G(n-k) t^2 with G(n) = prod_{i,j<=n} gcd(i,j). That is the site's table 2 n identity. There is no sorry, the published build log shows only standard axioms, and the argument is elementary and correct: v_p(G(u)) = Sum_r floor(u/p^r)^2, and with the carries x^2-y^2-z^2-(x-y-z) is even and nonnegative.",
+   "source": "https://github.com/blakestone-x/math/tree/c662a3ae7284ba5a20ee6ef1c04297638b3f694f/A129453",
+   "date": "2026-11-28"
+  },
+  "oeis-a286667": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Dekking's comment on A286667 and the formula in A286665 show that A286665 is Sturmian with slope 2-sqrt(2), so the 1s have density 2-sqrt(2) and their positions satisfy a(n)/n -> 1/(2-sqrt(2)) = 1+sqrt(1/2). The frequency computation is standard and easy to check: Pell-word letter frequencies are sqrt(2)/2 and 1-sqrt(2)/2, and the {0->01} transform gives 1s density 1/(1+sqrt(2)/2).",
+   "source": "https://oeis.org/A286667",
+   "date": "2026-11-28"
+  },
+  "oeis-a336687": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ren's note (OEIS attachment) shows that any solution has m < e^16 (about 8.9e6), using the Nicolas-Robin bound log tau(n) <= 1.5379 log 2 log n/log log n and sigma(n) <= n(1+log n). I checked each numeric step (0.385 + 0.462 + ... < 1). I also ran an exhaustive check myself for m <= 8.9e6 and found only 1, 468, 3240, so the 'iff' holds.",
+   "source": "https://oeis.org/A336687/a336687.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a209723": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ma-Zhang's Zenodo note (10.5281/zenodo.23903301) proves T(n,k) = b(n)+b(k)-2 for all widths, with b = A029744 shifted. The proof is short and correct: the row-compatibility graph is two K_{1,2} stars plus 2b(k)-4 disjoint edges. With k=4 this gives exactly Barker's parity formulas and g.f.; I checked the argument and brute-forced T(n,k) for k<=7, n<=11.",
+   "source": "https://doi.org/10.5281/zenodo.23903301",
+   "date": "2026-11-28"
+  },
+  "oeis-a209725": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The same note's Theorem 1 gives T(n,6) = b(n)+b(6)-2 = b(n)+10, which is exactly Barker's parity formulas and g.f. x(12+x-23x^2)/((1-x)(1-2x^2)). The two-stars-plus-edges argument is correct, and I brute-force checked the formula.",
+   "source": "https://doi.org/10.5281/zenodo.23903301",
+   "date": "2026-11-28"
+  },
+  "oeis-a209726": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The same note's Theorem 1 gives T(n,7) = b(n)+b(7)-2 = b(n)+14, which is exactly Barker's parity formulas and g.f. x(16+x-31x^2)/((1-x)(1-2x^2)). The argument is correct, and I brute-force checked the formula.",
+   "source": "https://doi.org/10.5281/zenodo.23903301",
+   "date": "2026-11-28"
+  },
+  "mo-343532": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Letac-Wesolowski (Ann. Probab. 2000) give the GIG/gamma property: X ~ GIG(-p), Y ~ Gamma(p) independent implies X+Y ~ GIG(p). With u = e^x, f21 and f12 are GIG(-lambda) and GIG(lambda) for lambda = a1-a2, so conditioning on X+Y gives the explicit monotone coupling p_x(y) = e^{a lambda}/Gamma(lambda) e^{-lambda y}(1-e^{y-x})^{lambda-1} exp(e^{a-x}-e^{a-y}) 1_{y<=x}. It reduces to the asker's p^(1) at lambda=1, and I verified it numerically for lambda=2.5. The PDF is a scan, so I relied on the known theorem statement.",
+   "source": "https://pages.mini.pw.edu.pl/~wesolowskij/publikacje/2000LetWes.pdf",
+   "date": "2026-11-28"
+  },
+  "opg-monotone-4-term-arithmetic-progressions": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ho (arXiv:2609.12780) constructs a permutation of the positive integers with no subsequence a, a+r, a+2r, a+3r for any nonzero r, so it has no increasing or decreasing 4AP. That refutes the site's main. I read the short proof (reverse-colex order and the recursive Extension lemma) and found it correct; there is a linked Lean formalization, and formal-conjectures records Erdos 196 as answered no.",
+   "source": "https://arxiv.org/abs/2609.12780",
+   "date": "2026-11-28"
+  },
+  "mo-426935": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Schreib-Yavari (arXiv:2608.09191v3) prove the Imbalance Conjecture: a capacity lemma gives every Erdos-Gallai inequality for M_G, and parity follows from |p-q| = p+q mod 2. I checked each step of the 4-page proof and it is correct; a Lean formalization is also linked.",
+   "source": "https://arxiv.org/abs/2608.09191",
+   "date": "2026-11-28"
+  },
+  "oeis-a267442": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Blair's math-proofs repo proves a267442_eq_a043545 (for n>0) in lean/Mathproofs/Dynamics/Rule129MiddleColumn.lean, and the four-module closure has no sorry or axiom. The argument is elementary and correct: Rule 129 = complement of Rule 126 for n>=1, Rule 126's center cell is C(n, floor(n/2)) mod 2, and by Lucas that is odd iff n = 2^m-1.",
+   "source": "https://github.com/derekblair/math-proofs/tree/master/preprints/rule129",
+   "date": "2026-11-28"
+  },
+  "Erdos5.erdos_5.variants.hildebrand_maier.R1.H1.R1.H1.R1.H2": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: H2 (Bombieri-Vinogradov in the given form implies, for every C>0, positive lower density of n with p_n - p_{n-1} > C log p_{n-1}) is exactly OAI.LargePrimeGaps.index_density_of_bombieriVinogradov at the linked lines. OAI's BombieriVinogradov/endpointError and largeGapIndices unfold to the same expressions as the site's, and the 31-module closure has no sorry or axiom. The theorem is used in the PrimeGaps comparator challenge, which two independent groups report passing Comparator (one with the nanoda kernel).",
+   "source": "https://github.com/openai/math/blob/3344da59991ed94f9ba711217b29c1d760badfa6/lean/OAI/NumberTheory/PrimeGaps/DetectorMoments.lean#L288-L332",
+   "date": "2026-11-28"
+  },
+  "oeis-a003185": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: a(n+1)-a(n) = (4n+5)*8 = 32n+40. Martin's dimension formula (arXiv math/0306128, J. Number Theory 2005) for Gamma_0(96) has index 192, 16 cusps, no elliptic points and genus 9, so dim S_k = 8(k-1) + 16(k/2-1) = 16k-24 for even k>=4. At k = 2n+4 that is 32n+40, so the conjecture follows at once.",
+   "source": "https://arxiv.org/pdf/math/0306128",
+   "date": "2026-11-28"
+  },
+  "Green91.green_91.variants.fknss.R1.H1.R1.H3": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: H3 is FKNSS Lemma 2.4 (Comm. AMS 2 (2022), stated on the linked page and proved in the paper) applied at iterations 1..T+1 from the fixed initial bisection: whp all T+1 iterates of the alpha-swap have |X-Y| = o(n) <= eps*n. Projecting the joint (graph, random swap) event to the graph gives the existential trajectory. The site's swapStep encodes Definition 2.2 exactly (floor(alpha n) least-friendly vertices with fixed tie-break, then arbitrary floor(alpha^4 n)-subsets).",
+   "source": "https://research-explorer.ista.ac.at/download/17077/17230/2022_CommAMS_Ferber.pdf#page=6",
+   "date": "2026-11-28"
+  },
+  "opg-a-sequence-defined-on-multisets": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Erickson's array process is the infinite-base inventory (counting) sequence: an array with distinct first row and positive second row is S_1 of a multiset of positive integers, and one step counts all entries. Cain-Enin (arXiv:2004.00209), building on Bronstein-Fraenkel 1994, prove that every positive start reaches an inventory loop (Cor. 4.5.1) and that no loop is longer than three (Cor. 5.5.1, from the full enumeration in Thms 5.3/5.5). That is exactly the site's period-1/2/3 statement.",
+   "source": "https://arxiv.org/abs/2004.00209",
+   "date": "2026-11-28"
+  },
+  "OeisA212496.conjecture_5": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Mossinghoff-Trudgian (arXiv:2007.14537), Theorem 1.3 / (1.14), prove unconditionally that S_1(x) x^{1/2} > 0.019349 for infinitely many integers x, where S_1(x) = Sum_{n<=x} (-1)^{n-Omega(n)}/n = b(x). So b(n) > 0 > -1/sqrt(n) infinitely often, which disproves conjecture_5.",
+   "source": "https://arxiv.org/abs/2007.14537",
+   "date": "2026-11-28"
+  },
+  "opg-edge-disjoint-hamilton-cycles": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Kuhn-Lapinskas-Osthus-Patel, 'Proof of a conjecture of Thomassen on Hamilton cycles in highly connected tournaments', Proc. LMS 2014 (doi 10.1112/plms/pdu019), prove that every strongly C k^2 log^2 k-connected tournament has k edge-disjoint Hamilton cycles. That gives the required f(k).",
+   "source": "https://doi.org/10.1112/plms/pdu019",
+   "date": "2026-11-28"
+  },
+  "arxiv-2203.02443": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ivanisvili-Zhang (arXiv:2609.27843) prove Holmes-Holroyd-Ramirez Conjecture 1 for all m and r, with the same greedy arrangement as the site's: a_{2i} at i and a_{2i+1} at m-1-i. They show the window-sum vector of the greedy log-arrangement majorizes every other arrangement's and apply Karamata. I read the 10-page elementary argument and found no gap, and brute force over all arrangements (m<=8, random inputs) found no violation.",
+   "source": "https://arxiv.org/abs/2609.27843",
+   "date": "2026-11-28"
+  },
+  "OeisA212496.conjecture_4": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Mossinghoff-Trudgian (arXiv:2007.14537), Theorem 1.3 / (1.14), prove unconditionally that S_1(x) x^{1/2} > 0.019349 for infinitely many integers x, with S_1(x) = Sum_{n<=x} (-1)^{n-Omega(n)}/n = b(x). So b(n) > 0 for infinitely many n, which disproves Sun's b(n) < 0 for all n (their (1.9)).",
+   "source": "https://arxiv.org/abs/2007.14537",
+   "date": "2026-11-28"
+  },
+  "erdos-791": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Kohonen (J. Number Theory 174 (2017); arXiv:1606.04770) gives 2-bases of size k = 42t+7 with range >= 510t^2, so liminf n(k)/k^2 >= 85/294 > 1/4. Since g(n) = min{k : n(k) >= n} and n(k) is monotone, limsup g(n)/sqrt(n) <= sqrt(294/85) ~ 1.86 < 2, which refutes g(n) ~ 2 sqrt(n) (Mrose's 2/7 already did).",
+   "source": "https://arxiv.org/abs/1606.04770",
+   "date": "2026-11-28"
+  },
+  "mo-185796": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked paper, Stoyanov, Math. Scientist 28 (2003) 19-27, Theorem 1, constructs n binary variables realizing any prescribed independence/dependence structure (summarized by Sonin, Ann. Oper. Res. 2025). The published Balek-Mizera (Stat. Probab. Lett. 31 (1997)) states it exactly: for any subselection of the product identities there are events with prescribed probabilities satisfying only those, so every down-closed pattern of mutually independent subfamilies is realizable. The ResearchGate page itself returned 403, so I could not read Stoyanov's text directly.",
+   "source": "https://www.researchgate.net/publication/268868111_Sets_of_binary_random_variables_with_a_prescribed_independencedependence_structure",
+   "date": "2026-11-28"
+  },
+  "opg-geodesic-cycles-and-tuttes-theorem": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked (unrefereed, machine-generated) note gives a counterexample: K4 with a degree-3 vertex added in each face. I checked every step and the argument is correct. Its 12 peripheral cycles are the triangles s_i b_j b_k; after a generic perturbation, geodesic cycles spanning the 11-dimensional cycle space force at least 11 of them to be geodesic. Then at most one core edge is non-tight, so some core triangle T_i is geodesic but not peripheral (s_i is isolated). This refutes the site's affirmative statement.",
+   "source": "https://github.com/graph-theory-AI/Graph-Theory-LLM-Proofs/blob/90ece5e70be9e29418fcc60b42002d58567631e6/to_review_astra/src/geodesic_cycles_and_tuttes_theorem/geodesic_cycles_and_tuttes_theorem.md",
+   "date": "2026-11-28"
+  },
+  "oeis-a233124": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: trureturing HardinA233124SquareStrip.lean defines a(n) as the literal count of n x 3 arrays over 0..5 (horizontal/vertical bonds excluding x and 5-x, top-left 0, Hardin's first-occurrence precedences). Its theorem result proves (1-8x)(1-40x+128x^2) Sum a(n)x^n = x(3-64x+192x^2), i.e. Barker's g.f. (the closed form follows by partial fractions). The 10-module closure has no sorry or axiom, though I did not build it.",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/0bbd266d040a75a5576f9582802b9232461b9d60/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA233124SquareStrip.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a233163": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: trureturing HardinA233163KingStrip.lean (literal n x 3 king-adjacency 8-colour count with the stated precedences) proves Sum a(n)x^n = x(3-64x+288x^2)/((1-8x)(1-16x)), and its closure has no sorry. Independently, Ma-Zhang's note (zenodo 24414706) proves T(n,k) = 2^{nk-4}(2^{n-2}+2^{k-2}-1) by a correct pair-partition plus normalization-fibre argument, which gives a(n) = 8^{n-2}(2^n+4).",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/0bbd266d040a75a5576f9582802b9232461b9d60/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA233163KingStrip.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a233164": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: trureturing HardinA233164KingStrip.lean (literal n x 4 count) proves a(n) = 4^(2n-3)(2^n+12) for n>1, the recurrence, and the g.f. x(11-464x+3840x^2)/((1-16x)(1-32x)), with no sorry in its closure. It is also Corollary 6 (k=4) of the correct Ma-Zhang argument.",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/0bbd266d040a75a5576f9582802b9232461b9d60/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA233164KingStrip.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a233166": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: trureturing HardinA233166KingStrip.lean (literal n x 6 count, via 24 a(n) = 2^{6n-4} * #proper 4-colourings) proves Barker's g.f. and closed form 64^(n-1)(2^n+60), with no sorry in its closure. This matches the correct general formula T(n,6) = 2^{6n-4}(2^{n-2}+15).",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/0bbd266d040a75a5576f9582802b9232461b9d60/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA233166KingStrip.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a233196": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: trureturing HardinA233196Strip.lean (literal n x 2 count with horizontal, vertical and antidiagonal bonds, matching the OEIS definition) proves (1-4x)(1-16x) Sum a(n)x^n = x(1-17x+40x^2), i.e. Barker's g.f. The closed form 2^(2n-7)(4^n+8) follows. There is no sorry in the closure.",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/0bbd266d040a75a5576f9582802b9232461b9d60/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA233196Strip.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a233251": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: trureturing HardinA233251TriangleStrip.lean (literal n x 3 count over 0..5 with horizontal and antidiagonal bonds, matching the OEIS definition) proves (1-8x)(1-48x) Sum a(n)x^n = x(3-64x). That is Barker's g.f., and the closed form 8^(n-1)(6^n+3)/3 follows. The closure has no sorry.",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/0bbd266d040a75a5576f9582802b9232461b9d60/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA233251TriangleStrip.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a233252": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: trureturing HardinA233252TriangleStrip.lean (literal n x 4 count over 0..5 with horizontal and antidiagonal bonds) proves the recurrence, (1-16x)(1-144x) Sum a(n)x^n = 2x(5-208x), and 9a(n+1) = 2^(4n+1)(4*9^(n+1)+9), which is Barker's closed form. The closure has no sorry.",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/0bbd266d040a75a5576f9582802b9232461b9d60/D5/S3/Combinatorics/TraceAvoidingArrays/HardinA233252TriangleStrip.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a233162": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ma-Zhang (zenodo 24414706), Corollary 5: a width-1 path of m cells has S(m-1,j-1) proper pair partitions with j classes and 2^{m-j} normalized colourings each. So L(m) = Sum_j 2^{m-j} S(m-1,j-1) = (5/32)2^m + 4^m/64 + 6^m/288, which is exactly Barker's 2^(m-6)(90+9*2^m+2*3^m)/9 and g.f. (a known Britnell-Wildon count). The argument is short and correct, and I checked values (e.g. L(5)=48).",
+   "source": "https://doi.org/10.5281/zenodo.24414706",
+   "date": "2026-11-28"
+  },
+  "oeis-a233165": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ma-Zhang (zenodo 24414706) prove T(n,k) = 2^{nk-4}(2^{n-2}+2^{k-2}-1) for n,k >= 2. Every 2x2 square uses all 4 complementary pairs; the precedence rules force the first colour of each pair, giving a 2^{nk-4} fibre; Orrick's count gives 2^{n-2}+2^{k-2}-1 pair partitions. I checked the argument. At k=5 this gives 2^(5n-6)(2^n+28) and Barker's g.f.",
+   "source": "https://doi.org/10.5281/zenodo.24414706",
+   "date": "2026-11-28"
+  },
+  "oeis-a233167": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The same correct Ma-Zhang argument (zenodo 24414706), T(n,k) = 2^{nk-4}(2^{n-2}+2^{k-2}-1), gives at k=7 T(n,7) = 2^(7n-6)(2^n+124) for n>=2 and Barker's g.f. 32x(39-13952x+1019904x^2)/((1-128x)(1-256x)), with L(7)=1248 for the first term.",
+   "source": "https://doi.org/10.5281/zenodo.24414706",
+   "date": "2026-11-28"
+  },
+  "oeis-a183899": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Smirnov's preprint (mindscanlabs/NAI-track-record hardin-sumsets) proves, via a correct profile lemma (coverage depends only on residue counts capped at s+1), that the nondecreasing count has the exact rational g.f. Sum over valid profiles of y^e/(1-y)^r. I reimplemented this independently: the profile sum for (q,s)=(5,3) reproduces the OEIS terms and equals Barker's g.f. x(1+51x^2-116x^3+74x^4-2x^5-5x^6-2x^7)/(1-x)^5 exactly as polynomials. That g.f. also gives the stated recurrence for n > numerator degree.",
+   "source": "https://github.com/mindscanlabs/NAI-track-record/tree/84eb1ef26783eaad5ad89c1d2910f6cc89d3fccc/hardin-sumsets",
+   "date": "2026-11-28"
+  },
+  "oeis-a183900": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Smirnov's preprint (mindscanlabs/NAI-track-record hardin-sumsets) proves, via a correct profile lemma (coverage depends only on residue counts capped at s+1), that the nondecreasing count has the exact rational g.f. Sum over valid profiles of y^e/(1-y)^r. I reimplemented this independently: the profile sum for (q,s)=(6,3) reproduces the OEIS terms and equals Barker's g.f. x(3+6x+31x^2-...-6x^9)/(1-x)^6 exactly as polynomials. That g.f. also gives the stated recurrence for n > numerator degree.",
+   "source": "https://github.com/mindscanlabs/NAI-track-record/tree/84eb1ef26783eaad5ad89c1d2910f6cc89d3fccc/hardin-sumsets",
+   "date": "2026-11-28"
+  },
+  "oeis-a183901": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Smirnov's preprint (mindscanlabs/NAI-track-record hardin-sumsets) proves, via a correct profile lemma (coverage depends only on residue counts capped at s+1), that the nondecreasing count has the exact rational g.f. Sum over valid profiles of y^e/(1-y)^r. I reimplemented this independently: the profile sum for (q,s)=(7,3) reproduces the OEIS terms and equals Barker's g.f. x(1-6x+150x^2-...-33x^9)/(1-x)^7 exactly as polynomials. That g.f. also gives the stated recurrence for n > numerator degree.",
+   "source": "https://github.com/mindscanlabs/NAI-track-record/tree/84eb1ef26783eaad5ad89c1d2910f6cc89d3fccc/hardin-sumsets",
+   "date": "2026-11-28"
+  },
+  "oeis-a183907": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Smirnov's preprint (mindscanlabs/NAI-track-record hardin-sumsets) proves, via a correct profile lemma (coverage depends only on residue counts capped at s+1), that the nondecreasing count has the exact rational g.f. Sum over valid profiles of y^e/(1-y)^r. I reimplemented this independently: the profile sum for (q,s)=(5,2) reproduces the OEIS terms and equals Barker's g.f. x(1-3x+20x^2-24x^3+3x^4+4x^5)/(1-x)^5 exactly as polynomials. That g.f. also gives the stated recurrence for n > numerator degree.",
+   "source": "https://github.com/mindscanlabs/NAI-track-record/tree/84eb1ef26783eaad5ad89c1d2910f6cc89d3fccc/hardin-sumsets",
+   "date": "2026-11-28"
+  },
+  "oeis-a183908": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Smirnov's preprint (mindscanlabs/NAI-track-record hardin-sumsets) proves, via a correct profile lemma (coverage depends only on residue counts capped at s+1), that the nondecreasing count has the exact rational g.f. Sum over valid profiles of y^e/(1-y)^r. I reimplemented this independently: the profile sum for (q,s)=(6,2) reproduces the OEIS terms and equals Barker's g.f. x(2-4x+19x^2-...-4x^7)/(1-x)^6 exactly as polynomials. That g.f. also gives the stated recurrence for n > numerator degree.",
+   "source": "https://github.com/mindscanlabs/NAI-track-record/tree/84eb1ef26783eaad5ad89c1d2910f6cc89d3fccc/hardin-sumsets",
+   "date": "2026-11-28"
+  },
+  "oeis-a183909": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Smirnov's preprint (mindscanlabs/NAI-track-record hardin-sumsets) proves, via a correct profile lemma (coverage depends only on residue counts capped at s+1), that the nondecreasing count has the exact rational g.f. Sum over valid profiles of y^e/(1-y)^r. I reimplemented this independently: the profile sum for (q,s)=(7,2) reproduces the OEIS terms and equals Barker's g.f. x(1-6x+36x^2-...+4x^9)/(1-x)^7 exactly as polynomials. That g.f. also gives the stated recurrence for n > numerator degree.",
+   "source": "https://github.com/mindscanlabs/NAI-track-record/tree/84eb1ef26783eaad5ad89c1d2910f6cc89d3fccc/hardin-sumsets",
+   "date": "2026-11-28"
+  },
+  "oeis-a183910": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Smirnov's preprint (mindscanlabs/NAI-track-record hardin-sumsets) proves, via a correct profile lemma (coverage depends only on residue counts capped at s+1), that the nondecreasing count has the exact rational g.f. Sum over valid profiles of y^e/(1-y)^r. I reimplemented this independently: the profile sum for (q,s)=(8,2) reproduces the OEIS terms and equals Barker's g.f. x(2-11x+56x^2-...-10x^10)/(1-x)^8 exactly as polynomials. That g.f. also gives the stated recurrence for n > numerator degree.",
+   "source": "https://github.com/mindscanlabs/NAI-track-record/tree/84eb1ef26783eaad5ad89c1d2910f6cc89d3fccc/hardin-sumsets",
+   "date": "2026-11-28"
+  },
+  "oeis-a298003": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo paper (v3, unrefereed, AI-assisted but with public Walnut command files and an exact-arithmetic certificate checker) proves via Walnut that b(n) = n + sh(n) + g_b(n) with an Ostrowski-automatic g_b, and proves 3/5 < b(n) - n*sqrt(2) < 3 directly in Walnut (exact range (0.621, 2.586)). The site text's 'n*sqrt(2)*n' is the OEIS misprint the paper corrects; read literally it is trivially false (b(2)-4*sqrt(2) < 0). My own computation to n = 3e5 matches the stated extremes.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298004": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Same Walnut proof (Theorem 5 plus the conjectured_bounds command file) proves 7/10 < b(n) - n(-1+sqrt13)/2 < 3 for all n >= 1 (exact range (0.737, 2.697)). This is a decision-procedure proof with public automata; my independent computation to n = 3e5 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298005": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Walnut proof in the Zenodo paper establishes 7/10 < b(n) - n(-1+sqrt5) < 3 (exact range (0.795, 2.764)); numerically corroborated to n = 3e5.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298006": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Walnut proof in the Zenodo paper establishes 9/10 < b(n) - n*sqrt2 < 3 (exact range (0.914, 2.621)); numerically corroborated to n = 3e5.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298007": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Walnut proof in the Zenodo paper establishes 1 < b(n) - n*sqrt2 < 3 (exact range (1.207, 2.914)); numerically corroborated to n = 3e5.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298108": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Walnut proof in the Zenodo paper establishes 3/2 < b(n) - n*sqrt2 < 4, with exact infimum 3/2 not attained (b(n) - n*sqrt2 is irrational); numerically corroborated to n = 3e5.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298109": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Walnut proof in the Zenodo paper establishes 3/2 < b(n) - n*sqrt2 < 4 (exact range (1.793, 3.5)), both for the sequence defined by the equation and for the slightly different sequence in the OEIS data (Remark 6); numerically corroborated to n = 3e5.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298111": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Walnut proof in the Zenodo paper establishes 1/5 < b(n) - n*sqrt2 < 3 (exact range (0.207, 2.586)); numerically corroborated to n = 3e5.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a297836": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: This is a disproof: a(2) = 11 gives a(2) - (5+sqrt13) = 6 - sqrt13 ~ 2.394 > 2. I checked this directly (the bound also fails at n = 3, 9, 12, 15, ...), and the paper proves in Walnut that it fails for infinitely many n.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a297464": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Bosma et al. (J. Integer Seq. 28 (2025), Art. 25.3.8) prove in Walnut, Section 3, the four anti-tribonacci remainder bounds (0 <= 10n-6-3a(n) <= 2, etc., with 1-based indexing) and the recurrence A_{n+4}+A_n = A_{n+3}+A_{n+1}, which is a(n) = a(n-1)+a(n-3)-a(n-4). Simulation to 2e5 terms agrees.",
+   "source": "https://arxiv.org/abs/2503.04122",
+   "date": "2026-11-28"
+  },
+  "oeis-a297466": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The same Walnut proof (Section 3 of the published Bosma et al. paper) proves Kimberling's four anti-tribonacci bounds, including 0 <= 10n+1-3c(n) <= 3 (with the 1-based indexing the formulas need), for all n.",
+   "source": "https://arxiv.org/abs/2503.04122",
+   "date": "2026-11-28"
+  },
+  "oeis-a299405": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Bosma et al. prove the anti-tetranacci system's remainders automatic and find that Kimberling's bound for c is wrong (its remainder reaches 4, not 3). The shared five-line conjecture is therefore false as stated (I confirmed: 17*27-3-4*c = 4 for c = 113), while the a-line 0 <= 17n-11-4a(n) <= 4 is proved. Either way the paper settles the entry.",
+   "source": "https://arxiv.org/abs/2503.04122",
+   "date": "2026-11-28"
+  },
+  "oeis-a299409": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The published paper settles the five-line anti-tetranacci conjecture in Walnut: the e-line 0 <= 17n-5-e(n) <= 3 is proved, and the c-line is false (remainder 4 at c = 113, which I verified), so the conjunction as printed is disproved.",
+   "source": "https://arxiv.org/abs/2503.04122",
+   "date": "2026-11-28"
+  },
+  "oeis-a299637": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The published paper settles the five-line anti-tetranacci conjecture in Walnut: the b-line 0 <= 17n-7-4b(n) <= 4 is proved, and the c-line is false (remainder 4), so the conjunction as printed is disproved.",
+   "source": "https://arxiv.org/abs/2503.04122",
+   "date": "2026-11-28"
+  },
+  "oeis-a299638": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: This is a disproof. The paper shows that the c-remainder 17n-3-4c(n) is bounded by 4, not 3, and I verified that it reaches 4 (n = 27 1-based, c = 113; also n = 91, 155, ...), so Kimberling's conjecture is false.",
+   "source": "https://arxiv.org/abs/2503.04122",
+   "date": "2026-11-28"
+  },
+  "oeis-a299641": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The paper proves 0 <= 17n+1-4d(n) <= 3 in Walnut. Since that remainder is congruent to n+1 mod 4, it equals (n+1) mod 4 exactly, which immediately gives Chai Wah Wu's recurrence d(n) = d(n-1)+d(n-4)-d(n-5) and his g.f. (I checked these numerically to 2e5 terms). The c-line of the shared block is false, which the paper also shows.",
+   "source": "https://arxiv.org/abs/2503.04122",
+   "date": "2026-11-28"
+  },
+  "wp-does-every-convex-polyhedron-have-rupert-s-property": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Steininger and Yurkevich construct the Noperthedron and give a rigorous computer-assisted proof that it is not Rupert, with the same projection-into-interior reformulation the site uses. This answers no, disproving `main`. An independent kernel-checked Lean proof of the same theorem (Renshaw-Reed Noperthedron blueprint) also exists.",
+   "source": "https://arxiv.org/abs/2508.18475",
+   "date": "2026-11-28"
+  },
+  "wp-mckay-conjecture": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Cabanes and Späth complete the proof of the McKay conjecture for all primes (to appear in Annals of Mathematics), finishing the Isaacs-Malle-Navarro reduction. This is exactly the site's statement |Irr_p'(G)| = |Irr_p'(N_G(P))|.",
+   "source": "https://arxiv.org/abs/2410.20392",
+   "date": "2026-11-28"
+  },
+  "wp-journal-of-algebra": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The DOI is Frohardt and Magaard, 'Composition factors of monodromy groups', Ann. of Math. 154 (2001). It completes the proof of the Guralnick-Thompson conjecture: for each g, only finitely many nonabelian simple groups other than alternating groups are composition factors of monodromy groups of genus-g systems.",
+   "source": "https://doi.org/10.2307/3062099",
+   "date": "2026-11-28"
+  },
+  "mse-2000333": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The MO answer (GPT-generated, checked by the poster, score 10) takes F = Q(A_2), where A_2 is Rickard's torsion-free group with A ~ A+Z^2 but A !~ A+Z (J. Algebra 2020). Q[A_2+Z^m] is a UFD by the Gilmer-Parker criterion, and a rigidity theorem recovers G from Q(G) when Q[G] is a UFD, so F ~ F(X,Y) but F !~ F(X). I checked the rigidity argument (units = scalars times monomials, free quotients, equal transcendence degree over the common subfield) and found no gap.",
+   "source": "https://mathoverflow.net/questions/258647",
+   "date": "2026-11-28"
+  },
+  "oeis-a215010": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: This is a disproof. Dawson's 'Arithmetic Polygons' (Amer. Math. Monthly 119 (2012) 695) shows that equiangular polygons with sides in arithmetic progression exist for many n besides 6, so the conjecture that hexagons are the only ones is false. I checked one directly: the equiangular decagon with sides 1,4,5,8,9,2,3,6,7,10 closes exactly (opposite-side differences +-1 sum to -(1+z^5)/(1+z) = 0 with z = e^{i*pi/5}).",
+   "source": "https://doi.org/10.4169/amer.math.monthly.119.08.695",
+   "date": "2026-11-28"
+  },
+  "oeis-a132634": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Marques, Fibonacci Quart. 50(4) (2012), Proposition 4.2, proves that n^k | F_n with n, k > 1 only for (n, k) = (12, 2). So n^2 | F_n iff n in {1, 12}, which is exactly the statement. I checked the proof (5 does not divide n by the 5-adic valuation; then n = 12^a m with a = 1 by the 2-adic valuation, and m = 1 by the order-of-appearance argument).",
+   "source": "https://www.fq.math.ca/Papers1/50-4/MarquesFixedPoint.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a124000": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Su's Zenodo paper, Theorem 4.3, shows that the semiprime values of C(m,k) with 2 <= k <= m-2 are exactly the semiprime triangular numbers t(2t+-1) (t, 2t+-1 prime) plus 35, and that the only even ones are 6 and 10. The proof is short and elementary (largest prime factor s <= m and C(m,k) <= s^2 force k = 2 or C(7,3)); I checked it and it is correct.",
+   "source": "https://doi.org/10.5281/zenodo.23478066",
+   "date": "2026-11-28"
+  },
+  "oeis-a001032": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Pletser derives from Beeckmans' published necessary conditions (Amer. Math. Monthly 1994) that M is not 3,5,6,7,8,10 mod 12, and then (Theorem 5, an elementary mod-12 computation that I re-checked) that M is 0 or 24 (mod 72), 1, 2 or 16 (mod 24), 9 or 33 (mod 72), or 11 (mod 12). That is exactly 0,1,2,9,11,16,23 mod 24. I also re-derived the M = 3 mod 24 exclusion from Beeckmans' conditions, and brute force over small M shows only these residues.",
+   "source": "https://arxiv.org/abs/1409.7969",
+   "date": "2026-11-28"
+  },
+  "mo-122221": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The answer gives M = <a_i,b_i,c_i,d_i | a_i c_j = b_i d_j> (i,j in {0,1}), a submonoid of the free monoid on b0,b1,c0,c1,t (a_i = b_i t, d_i = t c_i). M embeds in its group completion F_5, and its rewriting system a_i c_j -> b_i d_j is complete with no 3-chains. By the Anick-Groves-Squier/Brown theorem, BM is then the 1-vertex 8-edge 4-cell presentation complex. I checked that H_2(BM) = Z (Euler characteristic -3 against free pi_1 of rank 5) while H_2(BF_5) = 0, so the map is not a homotopy equivalence.",
+   "source": "https://mathoverflow.net/questions/122221/is-there-a-discrete-monoid-m-injecting-into-its-group-completion-g-for-which-b/516114#516114",
+   "date": "2026-11-28"
+  },
+  "mo-70391": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: This is a disproof. Nazarov, Ryabogin and Zvavitch (J. Amer. Math. Soc. 2014) construct, in every dimension d > 2 and in particular in R^3, an asymmetric convex body of revolution whose maximal hyperplane sections all have the same volume. Such a body is not a ball, so `main` (constant maximal section function implies ball) is false and Klee's question is answered no.",
+   "source": "https://arxiv.org/html/1201.0393#Thmtheorem1",
+   "date": "2026-11-28"
+  },
+  "mo-140460": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The comment's argument is a complete proof, which I checked. Write f = sum f_n E_nn and g = sum g_m E_mm. By the triangle inequality, ||f F g F*||_1 <= sum_{n,m} |f_n||g_m| ||E_nn F E_mm F*||_1, and each term is rank one with trace norm |F_nm| * ||F e_m|| = 1/sqrt(N). The sum is therefore at most (1/sqrt N)||f||_1 ||g||_1, which is the site's statement (PSD-ness of f is not even needed).",
+   "source": "https://mathoverflow.net/questions/140460/#comment362685_140460",
+   "date": "2026-11-28"
+  },
+  "mo-255880": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The answer (accepted on the near-identical follow-up question 257027 by the same asker) bounds Pr[E_n] = P(R > n) <= E(R)/n <= 2*sqrt(beta)/n with beta = 1/Pr[X1=X2] = 2^{H_2(D)}, using a cited theorem E(R) <= 2 sqrt(beta). This gives the requested nontrivial bound and shows O(2^{k/2}) samples give collision probability >= 1/2. I checked E(R) <= 2 sqrt(beta) numerically on 400 random distributions (maximum ratio 0.9991).",
+   "source": "https://mathoverflow.net/a/257340",
+   "date": "2026-11-28"
+  },
+  "mo-462193": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: This is a disproof. For P = (I+C)/2 with C the 23-cycle (doubly stochastic, uniform pi, P* = P^T) and k = 37, I verified in exact arithmetic that sum_{i=1}^{37} tr(P^T P^i) = 37 - 895587337/2^36, so the average is < 1 and the claimed inequality fails.",
+   "source": "https://mathoverflow.net/a/514262",
+   "date": "2026-11-28"
+  },
+  "mo-197878": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Lemma 2.8 of the PJM paper (quoting Schneider, Convex Bodies, Lemma 2.3.6) says that if B(0,rho) is in K, K is in B(0,R) and 0 < r < rho^2/(4R), then (1 - 4Rr/rho^2)K is contained in K_r. So every x in K is within (4R^2/rho^2) r of K_r, which is the simple upper bound tending to 0 as r -> 0 that the question asks for as its alternative. It does not give the exact supremum.",
+   "source": "https://msp.org/pjm/2017/288-2/pjm-v288-n2-p09-p.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a386703.R1.H3.R1.H1": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Merca (An. St. Univ. Ovidius Constanta 30(3) (2022)), Theorem 7, proves Q(n) = 2 (mod 4) iff tau(24n+1) = 2 (mod 4) for every n. Its proof (recurrence Q(n) + 2 sum(-1)^j Q(n-3j^2) = [n pentagonal] plus Hirschhorn's divisor formula for R(n)) is short and correct. H1 is exactly the forward direction with the extra hypotheses (n > 4096, 24n+1 non-square, p(n) odd) unused.",
+   "source": "https://doi.org/10.2478/auom-2022-0040",
+   "date": "2026-11-28"
+  },
+  "oeis-a152491": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The entry contains Giovanni Resta's proof that the sequence is complete. From 1/c = 1/n + 1/s we get c < s and n = cs/(s-c) <= cs < s^2 with s <= 9*(number of digits), which forces n < 10^4, and Michel Marcus's search to 10^7 finds only 2, 4, 6, 8, 18, 72. This proves Zizka's conjecture that there are no terms after 72.",
+   "source": "https://oeis.org/A152491",
+   "date": "2026-11-28"
+  },
+  "oeis-a354568": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Merino, Mütze and Namrata (STOC 2023) prove that every Kneser graph K(n,k) with n >= 2k+1 has a Hamilton cycle except the Petersen graph K(5,2). This is exactly the site's statement for 1 <= k, 2k < n, (n,k) != (5,2).",
+   "source": "https://arxiv.org/abs/2212.03918",
+   "date": "2026-11-28"
+  },
+  "oeis-a260457": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The iterates satisfy H(x_{n+1}) = x_n for H(x) = x - 1/x, with x_0 = 3. Smyth's Lemma 4 proves that x_n then has degree 2^n (the 2-adic extension is unramified), so Q(x_n) is in Q(x_{n+1}) with relative degree 2. The standard tower formula d(K_{n+1}) = d(K_n)^2 * N(d_{K_{n+1}/K_n}) then gives a(n)^2 | a(n+1) at once.",
+   "source": "https://doi.org/10.1017/S1446788700016426",
+   "date": "2026-11-28"
+  },
+  "oeis-a329512": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The merged PR adds a Lean theorem that the coordination sequence of the honeycomb graph quotiented by translation (n,n) satisfies exactly Sloane's conjectured g.f. G(n), for every n >= 1, with cleared denominators. I checked the module and its whole chain of non-Mathlib imports at the merge commit by text search (no sorry/axiom/native_decide), and my BFS of the formalized cylinder reproduces the A329512 rows 1-6, so the graph is the intended one. The proof is AI-generated but machine-checked.",
+   "source": "https://github.com/the-omega-institute/trureturing/pull/27196",
+   "date": "2026-11-28"
+  },
+  "oeis-a298022": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The merged PR proves in Lean that Barker's g.f. holds for the face-adjacency graph of 3^3.4^2 from a triangle. Its imports were clean by text search, and my BFS of that graph matches the OEIS data. The g.f. implies Spezia's formula for n > 4 (checked to n = 40) and shows that the printed recurrence 'for n > 5' fails at n = 8 (a(8) = 37, not 39; it holds for n >= 9), so all parts of the site's statement are settled.",
+   "source": "https://github.com/the-omega-institute/trureturing/pull/27768",
+   "date": "2026-11-28"
+  },
+  "oeis-a184544": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (binary rows of width 7, with states = pairs of consecutive rows, lumping to 20 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A184/A184544.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250761": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 7 entries in 0..2, lumping to 35 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250761.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250881": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 5 entries in 0..3, lumping to 50 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250881.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250817": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 6 entries in 0..2, lumping to 52 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250817.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250818": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 7 entries in 0..2, lumping to 72 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250818.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250857": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (columns of 6 entries in 0..3, lumping to 186 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250857.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a250895": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code (rows of 6 entries in 0..2, lumping to 128 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A250/A250895.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a269272": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code ((row, pair-count) states, lumping to 9 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A269/A269272.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a269285": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code ((row, pair-count) states, lumping to 9 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A269/A269285.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a268622": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code ((row, pair-count) states, lumping to 4 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A268/A268622.pdf",
+   "date": "2026-11-28"
+  },
+  "oeis-a269103": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Perez Fontelles-Moulinier note gives a transfer-matrix proof: a(n) = w^T M^(n-1) f, a lumped recurrence of bounded degree, then a finite exact residual check. That is a decision procedure, so the argument is rigorous. I re-did it independently with my own code ((row, pair-count) states, lumping to 4 blocks). It reproduces every OEIS term, and the claimed g.f., recurrence and closed form all hold over more than blocks+deg terms, which proves them for all n.",
+   "source": "https://github.com/twentyseventhllc-lgtm/OEIS-Settled/blob/main/papers/A269/A269103.pdf",
+   "date": "2026-11-28"
+  },
+  "mo-341688": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Sorry-free Lean disproof of the site's exact statement (I compiled it against statements/mo-341688.lean; axioms only propext/Classical.choice/Quot.sound). Counterexample n=5 with five 2s and five 1s: K_{5,5} splits into five K_{2,2} and five K_{1,1} (kernel decide), but five 2x2 squares cannot fit disjointly in a 5x5 square (pigeonhole).",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/a49ea2965bbcad0bd45f8b6f3a7cd3eee65d7434/MeyerowitzDisproof.lean",
+   "date": "2026-11-28"
+  },
+  "mo-109343": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked Lean file proves OMA.solution : type_of% main against a statement file identical to the site's statements/mo-109343.lean. I compiled it with Mathlib: no sorry, axioms only propext/Classical.choice/Quot.sound.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/3dfcd77799313b3dd4479bfd6a1879b77182caca/proofs/mo-109343.lean",
+   "date": "2026-11-28"
+  },
+  "mo-337315": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Sorry-free Lean disproof (OMA.disproof : ¬ main) built on the site's statements/mo-337315.lean: an explicit convex body and a 2-rectangle cover with mixed orientation beat every common-orientation cover. I compiled it with Mathlib; axioms only propext/Classical.choice/Quot.sound.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/d38fb47ee3cf5bf04edbb516484ca89adbfad927/proofs/mo-337315.lean",
+   "date": "2026-11-28"
+  },
+  "mo-310296": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Page 2 of the note proves the site's statement. A minimax argument gives X* in D with P=G_A(X*) <= (1/T)I. The kernel argument shows ran P is A-invariant, and the trace identity on the restriction rules out a proper subspace, so P > 0 and lambda_max(P)=1/T. With Q=X* this gives tr Q/l = T = -2 tr A. I checked each step.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/71185716f56c94bf427e8dc9475406ac3267c7d6/lyapunov-trace.pdf",
+   "date": "2026-11-28"
+  },
+  "mo-88547": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The note's proof is the standard Konig argument and it establishes the site's equivalence. A maximum matching of size k+1 gives a cover of size a+b=k+1. Outside vertices grouped by their (nonempty) neighbourhood S give multiplicities p_S, q_S <= m_1 edges, and the cover graph coverEdges H p q is the graph minus isolated vertices, so it has the same matching counts. The converse is immediate.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/f4f685366032ca1235ab3ffcae7f3bf0dc3b436f/research/three-skeptical-problems/matchings.md",
+   "date": "2026-11-28"
+  },
+  "opg-what-is-the-largest-graph-of-positive-curvature": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ghidelli (JCTB 2023, doi 10.1016/j.jctb.2022.08.009; arXiv 1708.08502) proves that every planar PCC graph (not a prism or antiprism, min degree 3) has at most 208 vertices, and 208 is attained by the Nicholson-Sneddon examples. This is exactly IsGreatest {n | PCC graph on n vertices} 208.",
+   "source": "https://arxiv.org/abs/1708.08502",
+   "date": "2026-11-28"
+  },
+  "opg-extremal-problem-on-the-number-of-tree-endomorphism": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Csikvari-Lin, 'Graph homomorphisms between trees' (arXiv 1307.6721, Electron. J. Combin. 2014) prove |End(P_m)| <= |End(T_m)| <= |End(S_m)| for every tree T_m on m vertices. That is exactly Lin's conjecture as the site states it.",
+   "source": "https://arxiv.org/abs/1307.6721",
+   "date": "2026-11-28"
+  },
+  "mo-237342": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked Lean file proves OMA.solution : type_of% main against a statement file identical to the site's statements/mo-237342.lean: the median-load variance is Theta(n p(1-p)) for each fixed k. I compiled it with Mathlib: no sorry, axioms only propext/Classical.choice/Quot.sound.",
+   "source": "https://github.com/LDJAI/open-math-agents/blob/472d9d05ccea08ac65afa1568f3453af2de4f1e4/proofs/mo-237342.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a297830": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297830, sup = 2.914 < 3, so the conjecture holds. My own brute force to n=10^6 reproduces the OEIS terms and the same sup.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "opg-goldbergs-conjecture": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Chen-Jing-Zang prove chi'(G) <= max{Delta+1, ceil(Gamma)} for all loopless multigraphs (arXiv 1901.10316; published in J. Comb. Optim. 50 (2025), doi 10.1007/s10878-025-01348-6). The site's hypotheses k >= Delta+1 and |E(S)| <= k*floor(|S|/2) for all S give Gamma <= k on odd sets, so G is k-edge-colourable.",
+   "source": "https://arxiv.org/abs/1901.10316",
+   "date": "2026-11-28"
+  },
+  "opg-seymours-r-graph-conjecture": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: This follows at once from the published Goldberg-Seymour theorem (Chen-Jing-Zang, J. Comb. Optim. 2025; arXiv 1901.10316). In an r-graph, every odd U has 2|E(U)| = r|U| - |delta(U)| <= r(|U|-1), so Gamma <= r = Delta and chi' <= max{r+1, r} = r+1.",
+   "source": "https://arxiv.org/abs/1901.10316",
+   "date": "2026-11-28"
+  },
+  "opg-universal-highly-arc-transitive-digraphs": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: DeVos-Mohar-Samal (arXiv 1110.2945, Combinatorica 2015) construct a locally finite highly arc-transitive digraph with universal reachability relation: any two edges lie on a common alternating walk. This answers the Cameron-Praeger-Wormald question affirmatively, as the site states it.",
+   "source": "https://arxiv.org/abs/1110.2945",
+   "date": "2026-11-28"
+  },
+  "mo-290816": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The Sai-yr fork's proof file proves the site's exact statement: 311 does not realize mask 30, and every n > 311 realizes all 64 graph masks. Its statement file is identical to statements/mo-290816.lean. I compiled it with Mathlib (decide +kernel certificates, no native_decide, no sorry); axioms only propext/Classical.choice/Quot.sound.",
+   "source": "https://github.com/Sai-yr/open-math-agents/blob/e49b8511c886af10074de92c510fb65148f52e16/proofs/mo-290816.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a297831": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297831, sup = 2.207 < 5/2, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a297833": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297833, the range is (-1.914, 0.793) inside (-2, 1], so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a297834": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297834, the range is (-2.621, 0.086) inside (-3, 1]. Remark 6 shows the bound also holds for the glitched OEIS-listed variant. My brute force of the defined sequence to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a294512": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Foundation-0/math0 PR #1 gives a kernel-checked Lean refutation at n=164: A250400(165)*11 = 165*a(164), so A250400(165)/165 = a(164)/11 != a(164). I confirmed this independently with exact rationals: the conjecture fails exactly when gcd(n+1, num V(n)) > 1, first at n=164 (gcd 11), then at n=2413 (gcd 17). This disproves the site's statement.",
+   "source": "https://github.com/Foundation-0/math0/pull/1",
+   "date": "2026-11-28"
+  },
+  "oeis-a297835": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297835, sup = 3.621 < 7, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a297837": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A297837 (rho = 3+sqrt5), sup = 2.868 < 3, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298000": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A298000, sup = 3.914 < 4, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "opg-a-homomorphism-problem-for-flows": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Arnold (arXiv 2611.16055) disproves DeVos's conjecture with M = Z(P)* = F_2^6, B = {sigma_e}, M' = Even(F_2^64), B' = {eps_x+eps_y : xy in E(X_P)}. h(x) = eps_x0+eps_x is a homomorphism Cay(M,B) -> Cay(M',B'), and e -> sigma_e is a B-flow on the Petersen graph. A B'-flow would give a linear map T with T(sigma_e) in B'. My exhaustive search finds no such T (the same search finds one for planar K4), so the site's statement is false.",
+   "source": "https://arxiv.org/abs/2611.16055",
+   "date": "2026-11-28"
+  },
+  "oeis-a298001": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A298001 (L = (5+sqrt13)/2), sup = 3.869 < 4, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a298002": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Ashburn's Zenodo preprint (10.5281/zenodo.23125012, v3) proves Kimberling's bounds with Walnut. The paper writes a(n)-(k+1)n as a shift plus an Ostrowski-automatic sequence, and the automata and command files are public. It computes the exact inf/sup of x(n)-rho*n; for A298002 (L = 3+sqrt5), sup = 3.868 < 4, so the conjecture holds. My brute force to 10^6 agrees.",
+   "source": "https://doi.org/10.5281/zenodo.23125012",
+   "date": "2026-11-28"
+  },
+  "oeis-a368628": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368628.lean `conjecture`: Odd a(n) iff n=(4^k-1)/3, same as Hanna's parity conjecture; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs), PROOF.md + A368628.lean.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368629": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368629.lean `conjecture`: Odd a(n) iff n=2^k-1, matching statements/oeis-a368629.lean; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368634": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368634.lean `conjecture`: Odd a(n) iff n=2^k-1 for A(x)=1+x(3A(x)^2-A(-x)^2)/2; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a185895": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 185895.lean solves all three Bala conjectures the site lists: sign changes at triangular n for a(n) (conjecture_1, epoch-research LeanOpenProblems-results run) and for A(x)^2 (conjecture_2, github kei825/oeis-a185895-conjecture2), plus the Gauss congruences (conjecture_3, github KitaKen1/oeis-a185895-conjecture3).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a102722": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 102722.lean `conjecture`: a(n) ~ (1-gamma)n, the same statement; Lean proof at github KitaKen1/oeis-102722-asymptotic. This is also a classical Dirichlet-type estimate.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a100434": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: Dement's conjectures (on OEIS: c+d = e+f = g+a and c+d = b) are FC 100434.lean conjecture1-3 (c+d=b, e+f=b, g+a=b); Lean proof at github chy4pro/formal-conjectures. FC fixed the sign of b(2n) (FC issue 5025), because the literal OEIS definition already fails at n=0.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a397588": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 397588.lean `conjecture_parity`: for n>=1, a(n) is odd iff n is a power of 2, matching statements/oeis-a397588.lean (FC also proves 3 | a(n)); Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a093456": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: Disproved. FC 93456.lean `conjecture` proves that the set of n with a(n-1) not dividing a(n) is infinite, the negation of the site's 'finitely many'; Lean proof in epoch-research/LeanOpenProblems-results (run oeis-full-50usd-ant).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368633": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368633.lean `conjecture_1`: Odd a(n) iff n+1=2^k. This is exactly the site statement, and statements/oeis-a368633.lean explicitly leaves out the D-finite recurrence. Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a103885": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 103885.lean `conjecture` proves Bala's general recurrence for b(n)=a(mn): P and Q of degree 2m, P(n)=P(1-n) with real zeros in [0,1], and the zeros of Q(n^2) real in [-1,1]. Only the heuristic 'approximated by ±k/(3m)' remark is left out. Lean proof in epoch-research/LeanOpenProblems-results (oeis-lite run).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368626": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368626.lean `conjecture`: Odd a(n) iff n=2^k-1, matching statements/oeis-a368626.lean; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a112970": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 112970.lean proves every part: a(2^n)=a(2^(n+1)+1), a(2^n)=floor(n^2/4)+1=A033638(n), a(2^n-1)=a(3*2^n-1) and a(2^n-1)=1. Lean proofs at github KitaKen1/oeis-a112970-formal-conjectures and anatoliiohorodnyk/lean-fc-proofs.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a381355": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 381355.lean `conjecture`: prime(n) | a(n) for n>1, same as statements/oeis-a381355.lean; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a112521": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 112521.lean `conjecture`: a(n)=T(n,n) for n>=1, the same diagonal-of-array conjecture; Lean proof at github KitaKen1/oeis-a112521-formal-conjectures.",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
+   "date": "2026-11-28"
+  },
+  "oeis-a368635": {
+   "reason": "google-deepmind/formal-conjectures marks its Lean statement of this conjecture 'research solved' at the pinned commit 9097e2f: FC 368635.lean `conjecture`: Odd a(n) iff n=2^k-1, matching statements/oeis-a368635.lean; Lean proof by Wentao Li, lean-oeis-proofs (github.com/VictorLiwentao/lean-oeis-proofs).",
+   "source": "https://github.com/google-deepmind/formal-conjectures/tree/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS",
    "date": "2026-11-28"
   }
  }

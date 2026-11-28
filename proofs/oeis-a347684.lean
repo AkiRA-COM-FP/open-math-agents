@@ -10,13 +10,4 @@ import OMAStatements.S_oeis_a347684
 open OMA.S_oeis_a347684 in
 theorem OMA.disproof : ¬ (type_of% @OMA.S_oeis_a347684.main) := by
   intro H
-  have h := H 1 1 1 (by norm_num) (by norm_num) (by norm_num)
-  have h2 : A347684 1 2 = 1 := by decide
-  have h1 : A347684 1 1 = 0 := by decide
-  have h3 : A347683 1 1 = 0 := by decide
-  have h7 : A347687 1 1 = 0 := by
-    unfold A347687
-    rw [show (1 : ℕ) + 1 = 2 by norm_num, h2, h1]
-    norm_num
-  rw [show 1 * 1 + 1 = 2 by norm_num, h2, h3, h7] at h
-  norm_num at h
+  exact absurd (H 1 1 1 le_rfl le_rfl le_rfl) (by decide)

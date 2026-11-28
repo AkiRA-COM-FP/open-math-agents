@@ -2,6 +2,9 @@ import FormalConjectures.ErdosProblems.«732»
 
 /-! Polynomial coefficient criterion for pairwise balanced design block-size profiles. -/
 
+-- Original proof by @connoranderson (PR #9192), streamlined by @joshuadc11
+-- (pending PR #14768). The two coefficient projections now use sum APIs.
+
 private abbrev E (n : ℕ) := (Finset (Fin n) → ℕ) × Multiset ℕ
 private def trm {n : ℕ} (T : Finset (Fin n)) : E n := (fun e => if e.card = 2 ∧ e ⊆ T then 1 else 0, {T.card})
 private noncomputable def P (n : ℕ) : AddMonoidAlgebra ℕ (E n) :=
@@ -14,17 +17,13 @@ theorem OMA.solution : Erdos732.erdos_732.parts.i.answer = OMA.answer → type_o
   classical
   intro h; rw [h]; intro n s
   have hsz (H : Finset (Finset (Fin n))) : (∑ T ∈ H, trm T).2 = H.val.map Finset.card := by
-    induction H using Finset.induction_on with
-    | empty => simp
-    | @insert a H ha ih => rw [Finset.sum_insert ha, Prod.snd_add, ih, Finset.insert_val_of_notMem ha]; simp [trm]
+    rw [Prod.snd_sum, Finset.sum_eq_multiset_sum]
+    simpa only [Multiset.map_map, Function.comp_def, trm] using
+      Multiset.sum_map_singleton (H.val.map Finset.card)
   have hct (H : Finset (Finset (Fin n))) (e : Finset (Fin n)) :
       (∑ T ∈ H, trm T).1 e = if e.card = 2 then (H.filter (e ⊆ ·)).card else 0 := by
-    induction H using Finset.induction_on with
-    | empty => simp
-    | @insert a H ha ih =>
-      rw [Finset.sum_insert ha, Prod.fst_add, Pi.add_apply, ih]
-      by_cases he : e.card = 2 <;> by_cases hsub : e ⊆ a <;>
-        simp [trm, he, hsub, Finset.filter_insert, ha, Nat.add_comm]
+    rw [Prod.fst_sum, Finset.sum_apply]
+    by_cases he : e.card = 2 <;> simp [trm, he, Finset.sum_boole]
   have hpos (i : E n) : 0 < (P n).coeff i ↔ ∃ H ⊆ Finset.univ.filter (2 ≤ Finset.card ·), ∑ T ∈ H, trm T = i := by
     unfold P; rw [Finset.prod_one_add]
     simp only [AddMonoidAlgebra.prod_single, Finset.prod_const_one, AddMonoidAlgebra.coeff_sum,
