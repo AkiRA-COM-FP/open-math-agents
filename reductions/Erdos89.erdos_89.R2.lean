@@ -18,8 +18,9 @@ k points and the family covers at most exp(k²) points, bound the number
 of blocks by a constant times the number of distances in their union plus one.
 Assume that any collection of at most k lines or circles contains fewer than
 half the points of the union. At each pin, assume that ordered equidistant
-target pairs in two other distinct blocks exceed k times the number of targets. Bisectors carrying more than k pins must also
-contribute more than twice k times the square of the union size in total. -/
+target pairs in two other distinct blocks exceed k times the number of targets. After deleting any target pairs
+with at most k² deletions per distinct pin pair, rich bisectors must still
+contribute more than twice k times the square of the union size. -/
 def H2 : Prop :=
   ∃ C : ℕ, ∀ (k : ℕ) (F : Finset (Finset ℝ²)), 0 < k →
     (F : Set (Finset ℝ²)).PairwiseDisjoint id →
@@ -33,8 +34,10 @@ def H2 : Prop :=
       let B := G.biUnion id
       k*B.card < ∑ U ∈ G, ∑ x ∈ U, ((B \ U).filter fun y => dist p y = dist p x).card) →
     (let S := F.biUnion id
-      let w := fun x y : ℝ² => (S.filter fun p => dist p y = dist p x).card
-      2*k*S.card^2 < ∑ x ∈ S, ∑ y ∈ S.erase x, if k < w x y then w x y else 0) →
+      let W := fun x y : ℝ² => S.filter fun p => dist p y = dist p x
+      ∀ G : ℝ² → Finset ℝ², (∀ x ∈ S, G x ⊆ S.erase x) →
+        (∀ r ∈ S.offDiag, (∑ x ∈ S, ((G x).filter fun y => r ∈ (W x y).offDiag).card) ≤ k^2) →
+        2*k*S.card^2 < ∑ x ∈ S, ∑ y ∈ S.erase x \ G x, if k < (W x y).card then (W x y).card else 0) →
     F.card ≤ C * (distinctDistances (F.biUnion id)+1)
 
 section Bisectors
@@ -383,6 +386,48 @@ private theorem rich_bisector_bound (S : Finset ℝ²) (k L : ℕ) (hk : 0 < k) 
   exact (Nat.le_of_mul_le_mul_right h (pow_pos (Nat.pos_of_ne_zero hn) 2)).trans
     (Nat.mul_le_mul_left _ (card_insert_le _ _))
 
+/-- Delete any selection of ordered target pairs in which each pair of distinct
+pins occurs at most k² times. Its rich-bisector incidence mass is at most kn². -/
+private theorem low_multiplicity_mass (S : Finset ℝ²) (k : ℕ) (hk : 0 < k)
+    (G : ℝ² → Finset ℝ²) :
+    let W := fun x y : ℝ² => S.filter fun p => dist p y = dist p x
+    (∀ r ∈ S.offDiag, (∑ x ∈ S, ((G x).filter fun y => r ∈ (W x y).offDiag).card) ≤ k^2) →
+    (∑ x ∈ S, ∑ y ∈ G x, if k < (W x y).card then (W x y).card else 0) ≤ k*S.card^2 := by
+  classical
+  intro W hcap
+  let m := fun x y : ℝ² => if k < (W x y).card then (W x y).card else 0
+  let I := fun (r : ℝ² × ℝ²) (x y : ℝ²) => if r ∈ (W x y).offDiag then 1 else (0:ℕ)
+  have hpair (x y : ℝ²) : k*m x y ≤ ∑ r ∈ S.offDiag, I r x y := by
+    have hsub : (W x y).offDiag ⊆ S.offDiag := by
+      intro r hr
+      obtain ⟨h₁,h₂,hne⟩ := mem_offDiag.mp hr
+      exact mem_offDiag.mpr ⟨(mem_filter.mp h₁).1,(mem_filter.mp h₂).1,hne⟩
+    have he : (S.offDiag.filter fun r => r ∈ (W x y).offDiag) = (W x y).offDiag := by
+      ext r; simp only [mem_filter]; exact ⟨And.right,fun h => ⟨hsub h,h⟩⟩
+    simp only [I,sum_boole,Nat.cast_id,he,offDiag_card]
+    dsimp [m]
+    split
+    · rename_i h
+      have hle := Nat.mul_le_mul_right (W x y).card (show k+1 ≤ (W x y).card from h)
+      rw [Nat.add_mul,one_mul] at hle
+      omega
+    · simp
+  have hc (r) (hr : r ∈ S.offDiag) : (∑ x ∈ S, ∑ y ∈ G x, I r x y) ≤ k^2 := by
+    simpa only [I,sum_boole,Nat.cast_id] using hcap r hr
+  have htotal : k*(∑ x ∈ S, ∑ y ∈ G x, m x y) ≤ k*(k*S.card^2) := calc
+    _ = ∑ x ∈ S, ∑ y ∈ G x, k*m x y := by simp only [mul_sum]
+    _ ≤ ∑ x ∈ S, ∑ y ∈ G x, ∑ r ∈ S.offDiag, I r x y :=
+      sum_le_sum fun x _ => sum_le_sum fun y _ => hpair x y
+    _ = ∑ r ∈ S.offDiag, ∑ x ∈ S, ∑ y ∈ G x, I r x y := by
+      rw [sum_comm (s := S.offDiag) (t := S)]
+      exact sum_congr rfl fun _ _ => sum_comm
+    _ ≤ ∑ _r ∈ S.offDiag, k^2 := sum_le_sum hc
+    _ ≤ S.card^2*k^2 := by
+      simp only [sum_const,smul_eq_mul,offDiag_card,pow_two]
+      exact Nat.mul_le_mul_right _ (Nat.sub_le ..)
+    _ = _ := by ring
+  exact Nat.le_of_mul_le_mul_left htotal hk
+
 /-- The remaining packing case implies the unrestricted block estimate. -/
 private theorem packing_from_curves (packing : H2) :
   ∃ C : ℕ, ∀ (k : ℕ) (F : Finset (Finset ℝ²)), 0 < k →
@@ -392,7 +437,7 @@ private theorem packing_from_curves (packing : H2) :
     F.card ≤ C * (distinctDistances (F.biUnion id)+1) := by
   classical
   obtain ⟨C,pack⟩ := packing
-  refine ⟨max C 4,?_⟩
+  refine ⟨max C 5,?_⟩
   intro k F hk hdis hline hcap
   by_cases spread : (∀ G : Finset (Finset ℝ²), G.card ≤ k →
       (∀ T ∈ G, T ⊆ F.biUnion id ∧ (Collinear ℝ (T : Set ℝ²) ∨ Cospherical (T : Set ℝ²))) →
@@ -401,33 +446,51 @@ private theorem packing_from_curves (packing : H2) :
       let G := F.erase T
       let B := G.biUnion id
       k*B.card < ∑ U ∈ G, ∑ x ∈ U, ((B \ U).filter fun y => dist p y = dist p x).card)
-    · by_cases rich : (let S := F.biUnion id
-      let w := fun x y : ℝ² => (S.filter fun p => dist p y = dist p x).card
-      2*k*S.card^2 < ∑ x ∈ S, ∑ y ∈ S.erase x, if k < w x y then w x y else 0)
-      · exact (pack k F hk hdis hline hcap spread many rich).trans
-          (Nat.mul_le_mul_right _ (le_max_left C 4))
+    · by_cases persistent : (let S := F.biUnion id
+      let W := fun x y : ℝ² => S.filter fun p => dist p y = dist p x
+      ∀ G : ℝ² → Finset ℝ², (∀ x ∈ S, G x ⊆ S.erase x) →
+        (∀ r ∈ S.offDiag, (∑ x ∈ S, ((G x).filter fun y => r ∈ (W x y).offDiag).card) ≤ k^2) →
+        2*k*S.card^2 < ∑ x ∈ S, ∑ y ∈ S.erase x \ G x, if k < (W x y).card then (W x y).card else 0)
+      · exact (pack k F hk hdis hline hcap spread many persistent).trans
+          (Nat.mul_le_mul_right _ (le_max_left C 5))
       let S := F.biUnion id
-      have hb := rich_bisector_bound S k 2 hk (le_of_not_gt rich)
+      let W := fun x y : ℝ² => S.filter fun p => dist p y = dist p x
+      let m := fun x y : ℝ² => if k < (W x y).card then (W x y).card else 0
+      dsimp only at persistent
+      push Not at persistent
+      obtain ⟨G,hsub,hcapG,hrest⟩ := persistent
+      have hlow := low_multiplicity_mass S k hk G hcapG
+      change (∑ x ∈ S, ∑ y ∈ G x, m x y) ≤ k*S.card^2 at hlow
+      change (∑ x ∈ S, ∑ y ∈ S.erase x \ G x, m x y) ≤ 2*k*S.card^2 at hrest
+      have he : (∑ x ∈ S, ∑ y ∈ S.erase x, m x y) =
+          (∑ x ∈ S, ∑ y ∈ S.erase x \ G x, m x y) + ∑ x ∈ S, ∑ y ∈ G x, m x y := by
+        rw [← sum_add_distrib]
+        exact sum_congr rfl fun x hx => (sum_sdiff (hsub x hx)).symm
+      have htotal : (∑ x ∈ S, ∑ y ∈ S.erase x, m x y) ≤ 3*k*S.card^2 := by
+        rw [he,Nat.mul_assoc]
+        rw [Nat.mul_assoc] at hrest
+        omega
+      have hb := rich_bisector_bound S k 3 hk htotal
       have hs : S.card = F.card*k := by
         dsimp [S]; rw [card_biUnion hdis]
         calc
           _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => (hline T hT).1
           _ = _ := by simp
-      change S.card ≤ 4*k*(distinctDistances S+1) at hb
-      rw [hs,Nat.mul_right_comm 4 k] at hb
+      change S.card ≤ 5*k*(distinctDistances S+1) at hb
+      rw [hs,Nat.mul_right_comm 5 k] at hb
       exact (Nat.le_of_mul_le_mul_right hb hk).trans
-        (Nat.mul_le_mul_right _ (le_max_right C 4))
+        (Nat.mul_le_mul_right _ (le_max_right C 5))
     push Not at many
     obtain ⟨T,hT,p,hp,hlow⟩ := many
     have h := cross_pin_packing k hk F hdis (fun U hU => (hline U hU).1) T hT p hp
     have hh := h (by simpa using hlow)
     exact hh.trans ((by omega : 2*distinctDistances (F.biUnion id)+1 ≤
-      4*(distinctDistances (F.biUnion id)+1)).trans (Nat.mul_le_mul_right _ (le_max_right C 4)))
+      4*(distinctDistances (F.biUnion id)+1)).trans (Nat.mul_le_mul_right _ (by omega : 4 ≤ max C 5)))
   push Not at spread
   obtain ⟨G,hg,hpieces,hhalf⟩ := spread
   have h := curve_packing k hk F G hdis (fun T hT => (hline T hT).1) hg hpieces hhalf
   exact h.trans ((by omega : 4*distinctDistances (F.biUnion id)+2 ≤
-    4*(distinctDistances (F.biUnion id)+1)).trans (Nat.mul_le_mul_right _ (le_max_right C 4)))
+    4*(distinctDistances (F.biUnion id)+1)).trans (Nat.mul_le_mul_right _ (by omega : 4 ≤ max C 5)))
 
 private theorem finite_bound (sparse : H1) (packing : H2) :
     ∃ C : ℕ, ∀ (S : Finset ℝ²) (k : ℕ), 0 < k → (S.card : ℝ) ≤ Real.exp ((k : ℝ)^2) →
