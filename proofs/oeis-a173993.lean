@@ -1,197 +1,198 @@
 import OMAStatements.S_oeis_a173993
 import Mathlib
 
-namespace OMA.S_oeis_a173993
+/-
+A173993: the coefficients a(n) of A = (U + V S) / W, where S is the square root of
+R = 1 - 4 * X + 12 * X ^ 3 - 8 * X ^ 4 with S(0) = 1, U = -1 + 4 * X - 2 * X ^ 2, V = 1, W = 2 - 8 * X + 6 * X ^ 2,
+satisfy the stated recurrence with polynomial coefficients.
+
+- sqrt_sq: S^2 = R, because the binomial series with exponent 1/2 squares to 1 + X and
+  substitution is a ring homomorphism.
+- ode: differentiating S^2 = R and multiplying by S gives 2 R S' = R' S.
+- odeA: with A W = U + V S this yields the first-order equation
+  2 R V W A' + (2 R V W' - (2 R V' + V R') W) A = 2 R V U' - (2 R V' + V R') U.
+- For the given polynomials this equation is written out, and comparing the coefficient of
+  X^m on both sides gives the recurrence, up to a rational factor.
+-/
+
+namespace OMA.P173993
 
 open PowerSeries
 
-lemma bs_sq (T : PowerSeries ℚ) (hT : constantCoeff T = 0) :
-    ((PowerSeries.binomialSeries ℚ (1 / 2 : ℚ)).subst T) * ((PowerSeries.binomialSeries ℚ (1 / 2 : ℚ)).subst T) = 1 + T := by
-  have hs : HasSubst T := HasSubst.of_constantCoeff_zero' hT
-  rw [← PowerSeries.subst_mul hs, ← PowerSeries.binomialSeries_add]
-  have : ((1 / 2 : ℚ) + 1 / 2) = ((1 : ℕ) : ℚ) := by norm_num
-  rw [this, PowerSeries.binomialSeries_nat]
-  rw [PowerSeries.subst_pow hs, pow_one]
-  rw [PowerSeries.subst_add hs, PowerSeries.subst_X hs]
-  have h1 : (1 : PowerSeries ℚ).subst T = 1 := by
-    have := PowerSeries.subst_C (a := T) (1 : ℚ)
-    simpa using this
-  rw [h1]
-
-lemma sqrt_ode (S R : PowerSeries ℚ) (h : S * S = R) :
-    2 * R * derivative ℚ S = derivative ℚ R * S := by
-  rw [← h, Derivation.leibniz]
-  simp only [smul_eq_mul]
+lemma sqrt_sq (R : PowerSeries ℚ) (hR : constantCoeff R = 1) :
+    ((PowerSeries.binomialSeries ℚ (1 / 2 : ℚ)).subst (R - 1)) ^ 2 = R := by
+  have ha : HasSubst (R - 1) := HasSubst.of_constantCoeff_zero' (by simp [hR])
+  have h1 : PowerSeries.binomialSeries ℚ (1 / 2 : ℚ) ^ 2 = 1 + X := by
+    have h := binomialSeries_add (A := ℚ) (1 / 2 : ℚ) (1 / 2 : ℚ)
+    have h2 := binomialSeries_nat (R := ℚ) (A := ℚ) 1
+    rw [pow_two, ← h, show (1 / 2 : ℚ) + 1 / 2 = ((1 : ℕ) : ℚ) by norm_num, h2, pow_one]
+  rw [← subst_pow ha, h1, subst_add ha, subst_X ha, ← coe_substAlgHom ha, map_one]
   ring
 
-@[simp] lemma dn2 : derivative ℚ (2 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 2
-@[simp] lemma cc2 : constantCoeff (2 : PowerSeries ℚ) = 2 := by simpa using map_natCast (constantCoeff (R := ℚ)) 2
-lemma cm2 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((2 : PowerSeries ℚ) * F) = 2 * coeff m F := by
-  have e : (2 : PowerSeries ℚ) = C (2 : ℚ) := (map_ofNat C 2).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn3 : derivative ℚ (3 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 3
-@[simp] lemma cc3 : constantCoeff (3 : PowerSeries ℚ) = 3 := by simpa using map_natCast (constantCoeff (R := ℚ)) 3
-lemma cm3 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((3 : PowerSeries ℚ) * F) = 3 * coeff m F := by
-  have e : (3 : PowerSeries ℚ) = C (3 : ℚ) := (map_ofNat C 3).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn4 : derivative ℚ (4 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 4
-@[simp] lemma cc4 : constantCoeff (4 : PowerSeries ℚ) = 4 := by simpa using map_natCast (constantCoeff (R := ℚ)) 4
-lemma cm4 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((4 : PowerSeries ℚ) * F) = 4 * coeff m F := by
-  have e : (4 : PowerSeries ℚ) = C (4 : ℚ) := (map_ofNat C 4).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn5 : derivative ℚ (5 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 5
-@[simp] lemma cc5 : constantCoeff (5 : PowerSeries ℚ) = 5 := by simpa using map_natCast (constantCoeff (R := ℚ)) 5
-lemma cm5 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((5 : PowerSeries ℚ) * F) = 5 * coeff m F := by
-  have e : (5 : PowerSeries ℚ) = C (5 : ℚ) := (map_ofNat C 5).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn6 : derivative ℚ (6 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 6
-@[simp] lemma cc6 : constantCoeff (6 : PowerSeries ℚ) = 6 := by simpa using map_natCast (constantCoeff (R := ℚ)) 6
-lemma cm6 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((6 : PowerSeries ℚ) * F) = 6 * coeff m F := by
-  have e : (6 : PowerSeries ℚ) = C (6 : ℚ) := (map_ofNat C 6).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn7 : derivative ℚ (7 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 7
-@[simp] lemma cc7 : constantCoeff (7 : PowerSeries ℚ) = 7 := by simpa using map_natCast (constantCoeff (R := ℚ)) 7
-lemma cm7 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((7 : PowerSeries ℚ) * F) = 7 * coeff m F := by
-  have e : (7 : PowerSeries ℚ) = C (7 : ℚ) := (map_ofNat C 7).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn8 : derivative ℚ (8 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 8
-@[simp] lemma cc8 : constantCoeff (8 : PowerSeries ℚ) = 8 := by simpa using map_natCast (constantCoeff (R := ℚ)) 8
-lemma cm8 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((8 : PowerSeries ℚ) * F) = 8 * coeff m F := by
-  have e : (8 : PowerSeries ℚ) = C (8 : ℚ) := (map_ofNat C 8).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn10 : derivative ℚ (10 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 10
-@[simp] lemma cc10 : constantCoeff (10 : PowerSeries ℚ) = 10 := by simpa using map_natCast (constantCoeff (R := ℚ)) 10
-lemma cm10 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((10 : PowerSeries ℚ) * F) = 10 * coeff m F := by
-  have e : (10 : PowerSeries ℚ) = C (10 : ℚ) := (map_ofNat C 10).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn12 : derivative ℚ (12 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 12
-@[simp] lemma cc12 : constantCoeff (12 : PowerSeries ℚ) = 12 := by simpa using map_natCast (constantCoeff (R := ℚ)) 12
-lemma cm12 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((12 : PowerSeries ℚ) * F) = 12 * coeff m F := by
-  have e : (12 : PowerSeries ℚ) = C (12 : ℚ) := (map_ofNat C 12).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn14 : derivative ℚ (14 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 14
-@[simp] lemma cc14 : constantCoeff (14 : PowerSeries ℚ) = 14 := by simpa using map_natCast (constantCoeff (R := ℚ)) 14
-lemma cm14 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((14 : PowerSeries ℚ) * F) = 14 * coeff m F := by
-  have e : (14 : PowerSeries ℚ) = C (14 : ℚ) := (map_ofNat C 14).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn15 : derivative ℚ (15 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 15
-@[simp] lemma cc15 : constantCoeff (15 : PowerSeries ℚ) = 15 := by simpa using map_natCast (constantCoeff (R := ℚ)) 15
-lemma cm15 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((15 : PowerSeries ℚ) * F) = 15 * coeff m F := by
-  have e : (15 : PowerSeries ℚ) = C (15 : ℚ) := (map_ofNat C 15).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn19 : derivative ℚ (19 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 19
-@[simp] lemma cc19 : constantCoeff (19 : PowerSeries ℚ) = 19 := by simpa using map_natCast (constantCoeff (R := ℚ)) 19
-lemma cm19 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((19 : PowerSeries ℚ) * F) = 19 * coeff m F := by
-  have e : (19 : PowerSeries ℚ) = C (19 : ℚ) := (map_ofNat C 19).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn20 : derivative ℚ (20 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 20
-@[simp] lemma cc20 : constantCoeff (20 : PowerSeries ℚ) = 20 := by simpa using map_natCast (constantCoeff (R := ℚ)) 20
-lemma cm20 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((20 : PowerSeries ℚ) * F) = 20 * coeff m F := by
-  have e : (20 : PowerSeries ℚ) = C (20 : ℚ) := (map_ofNat C 20).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn24 : derivative ℚ (24 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 24
-@[simp] lemma cc24 : constantCoeff (24 : PowerSeries ℚ) = 24 := by simpa using map_natCast (constantCoeff (R := ℚ)) 24
-lemma cm24 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((24 : PowerSeries ℚ) * F) = 24 * coeff m F := by
-  have e : (24 : PowerSeries ℚ) = C (24 : ℚ) := (map_ofNat C 24).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn32 : derivative ℚ (32 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 32
-@[simp] lemma cc32 : constantCoeff (32 : PowerSeries ℚ) = 32 := by simpa using map_natCast (constantCoeff (R := ℚ)) 32
-lemma cm32 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((32 : PowerSeries ℚ) * F) = 32 * coeff m F := by
-  have e : (32 : PowerSeries ℚ) = C (32 : ℚ) := (map_ofNat C 32).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn36 : derivative ℚ (36 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 36
-@[simp] lemma cc36 : constantCoeff (36 : PowerSeries ℚ) = 36 := by simpa using map_natCast (constantCoeff (R := ℚ)) 36
-lemma cm36 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((36 : PowerSeries ℚ) * F) = 36 * coeff m F := by
-  have e : (36 : PowerSeries ℚ) = C (36 : ℚ) := (map_ofNat C 36).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn40 : derivative ℚ (40 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 40
-@[simp] lemma cc40 : constantCoeff (40 : PowerSeries ℚ) = 40 := by simpa using map_natCast (constantCoeff (R := ℚ)) 40
-lemma cm40 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((40 : PowerSeries ℚ) * F) = 40 * coeff m F := by
-  have e : (40 : PowerSeries ℚ) = C (40 : ℚ) := (map_ofNat C 40).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn56 : derivative ℚ (56 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 56
-@[simp] lemma cc56 : constantCoeff (56 : PowerSeries ℚ) = 56 := by simpa using map_natCast (constantCoeff (R := ℚ)) 56
-lemma cm56 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((56 : PowerSeries ℚ) * F) = 56 * coeff m F := by
-  have e : (56 : PowerSeries ℚ) = C (56 : ℚ) := (map_ofNat C 56).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn68 : derivative ℚ (68 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 68
-@[simp] lemma cc68 : constantCoeff (68 : PowerSeries ℚ) = 68 := by simpa using map_natCast (constantCoeff (R := ℚ)) 68
-lemma cm68 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((68 : PowerSeries ℚ) * F) = 68 * coeff m F := by
-  have e : (68 : PowerSeries ℚ) = C (68 : ℚ) := (map_ofNat C 68).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn144 : derivative ℚ (144 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 144
-@[simp] lemma cc144 : constantCoeff (144 : PowerSeries ℚ) = 144 := by simpa using map_natCast (constantCoeff (R := ℚ)) 144
-lemma cm144 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((144 : PowerSeries ℚ) * F) = 144 * coeff m F := by
-  have e : (144 : PowerSeries ℚ) = C (144 : ℚ) := (map_ofNat C 144).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn264 : derivative ℚ (264 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 264
-@[simp] lemma cc264 : constantCoeff (264 : PowerSeries ℚ) = 264 := by simpa using map_natCast (constantCoeff (R := ℚ)) 264
-lemma cm264 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((264 : PowerSeries ℚ) * F) = 264 * coeff m F := by
-  have e : (264 : PowerSeries ℚ) = C (264 : ℚ) := (map_ofNat C 264).symm
-  rw [e, coeff_C_mul]
-@[simp] lemma dn354 : derivative ℚ (354 : PowerSeries ℚ) = 0 := by simpa using Derivation.map_natCast (derivative ℚ) 354
-@[simp] lemma cc354 : constantCoeff (354 : PowerSeries ℚ) = 354 := by simpa using map_natCast (constantCoeff (R := ℚ)) 354
-lemma cm354 (F : PowerSeries ℚ) (m : ℕ) : coeff m ((354 : PowerSeries ℚ) * F) = 354 * coeff m F := by
-  have e : (354 : PowerSeries ℚ) = C (354 : ℚ) := (map_ofNat C 354).symm
-  rw [e, coeff_C_mul]
+lemma ode (R S : PowerSeries ℚ) (hS : S ^ 2 = R) :
+    2 * R * d⁄dX ℚ S = d⁄dX ℚ R * S := by
+  have h := congrArg (d⁄dX ℚ) hS
+  rw [derivative_pow] at h
+  have h' : 2 * S * d⁄dX ℚ S = d⁄dX ℚ R := by simpa using h
+  calc 2 * R * d⁄dX ℚ S = S * (2 * S * d⁄dX ℚ S) := by
+        rw [← hS]
+        ring
+    _ = S * d⁄dX ℚ R := by rw [h']
+    _ = d⁄dX ℚ R * S := mul_comm _ _
 
-lemma S_sq : S * S = R := by
-  have := bs_sq (R - 1) (by simp [R])
-  unfold S; rw [this]; ring
+lemma odeA (R S U V W A : PowerSeries ℚ) (hS : S ^ 2 = R) (hA : A * W = U + V * S) :
+    2 * R * V * W * d⁄dX ℚ A +
+        (2 * R * V * d⁄dX ℚ W - (2 * R * d⁄dX ℚ V + V * d⁄dX ℚ R) * W) * A =
+      2 * R * V * d⁄dX ℚ U - (2 * R * d⁄dX ℚ V + V * d⁄dX ℚ R) * U := by
+  have h1 := ode R S hS
+  have h2 := congrArg (d⁄dX ℚ) hA
+  rw [Derivation.leibniz, map_add, Derivation.leibniz] at h2
+  simp only [smul_eq_mul] at h2
+  linear_combination (2 * R * V) * h2 + V ^ 2 * h1 - (2 * R * d⁄dX ℚ V + V * d⁄dX ℚ R) * hA
 
-noncomputable def DD : PowerSeries ℚ := 2 - 8 * X + 6 * X ^ 2
-noncomputable def NN : PowerSeries ℚ := -1 + 4 * X - 2 * X ^ 2 + S
-noncomputable def AA : PowerSeries ℚ := NN * DD⁻¹
+lemma d_ofNat (n : ℕ) [n.AtLeastTwo] :
+    d⁄dX ℚ (no_index (OfNat.ofNat n) : ℚ⟦X⟧) = 0 := by
+  rw [← map_ofNat (C (R := ℚ)) n, derivative_C]
 
-lemma hA : AA * DD = NN := by
-  unfold AA
-  rw [mul_assoc, PowerSeries.inv_mul_cancel _ (by simp [DD]), mul_one]
 
-lemma hdD : derivative ℚ DD = 12*X - 8 := by
-  simp [DD] <;> ring
-lemma hdR : derivative ℚ R = -32*X^3 + 36*X^2 - 4 := by
-  simp [R] <;> ring
-lemma hdN : derivative ℚ NN = 4 - 4*X + (0) * S + (1) * derivative ℚ S := by
-  simp [NN] <;> ring
-
-lemma ode : ((-2) * X ^ 1 + (14) * X ^ 2 + (-36) * X ^ 3 + (40) * X ^ 4 + (-14) * X ^ 5) * AA + ((1) * X ^ 1 + (-8) * X ^ 2 + (19) * X ^ 3 + (-56) * X ^ 5 + (68) * X ^ 6 + (-24) * X ^ 7) * derivative ℚ AA = ((1) * X ^ 1 + (-6) * X ^ 2 + (15) * X ^ 3 + (-20) * X ^ 4 + (10) * X ^ 5 : PowerSeries ℚ) := by
-  have r1 := hA
-  have r2 : derivative ℚ AA * DD + AA * derivative ℚ DD = derivative ℚ NN := by
-    have := congrArg (derivative ℚ) hA
-    rw [Derivation.leibniz] at this
-    simp only [smul_eq_mul] at this
-    rw [← this]; ring
-  have r4 := sqrt_ode S R S_sq
-  have hK : (2 * R * DD ^ 2 : PowerSeries ℚ) ≠ 0 := by
-    intro h
-    have := congrArg constantCoeff h
-    simp [R, DD] at this
-  apply mul_left_cancel₀ hK
-  rw [hdD, hdN] at r2
-  rw [hdR] at r4
-  unfold NN at r1
-  unfold DD at r1 r2
-  unfold R at r4
-  unfold DD R
-  linear_combination (-4608*X^12 + 24384*X^11 - 51296*X^10 + 51520*X^9 - 18560*X^8 - 10184*X^7 + 12992*X^6 - 4648*X^5 + 128*X^4 + 360*X^3 - 96*X^2 + 8*X) * r1 + (2304*X^13 - 13056*X^12 + 29248*X^11 - 30464*X^10 + 8896*X^9 + 11872*X^8 - 13056*X^7 + 4128*X^6 + 996*X^5 - 1216*X^4 + 408*X^3 - 64*X^2 + 4*X) * r2 + (-144*X^9 + 600*X^8 - 928*X^7 + 584*X^6 + 2*X^5 - 200*X^4 + 108*X^3 - 24*X^2 + 2*X) * r4
-
-lemma ha (n : ℕ) : a n = coeff (n + 1) AA := rfl
-
-lemma rec_a (k : ℕ) : (((k + 6 : ℕ) : ℚ) + 1) * a (k + 6) + (-8*((k + 6 : ℕ) : ℚ) - 2) * a (k + 5) + (19*((k + 6 : ℕ) : ℚ) - 5) * a (k + 4) + (-36) * a (k + 3) + (208 - 56*((k + 6 : ℕ) : ℚ)) * a (k + 2) + (68*((k + 6 : ℕ) : ℚ) - 286) * a (k + 1) + (120 - 24*((k + 6 : ℕ) : ℚ)) * a (k + 0) = 0 := by
-  have h := congrArg (coeff (k + 7)) ode
-  simp only [add_mul, sub_mul, neg_mul, one_mul, map_add, map_sub, map_neg, mul_assoc, cm2, cm3, cm4, cm5, cm6, cm7, cm8, cm10, cm12, cm14, cm15, cm19, cm20, cm24, cm32, cm36, cm40, cm56, cm68, cm144, cm264, cm354, coeff_X_pow_mul', coeff_derivative] at h
-  simp [PowerSeries.coeff_X] at h
-  simp only [ha]
-  simp only [Nat.add_assoc, Nat.reduceAdd] at h ⊢
-  push_cast at h ⊢
-  linear_combination h
-
-end OMA.S_oeis_a173993
-
-theorem OMA.solution : type_of% @OMA.S_oeis_a173993.main := by
+lemma main' (R S : PowerSeries ℚ) (hR : R = 1 - 4 * X + 12 * X ^ 3 - 8 * X ^ 4)
+    (hSdef : S = (PowerSeries.binomialSeries ℚ (1 / 2 : ℚ)).subst (R - 1))
+    (a : ℕ → ℚ)
+    (ha : ∀ n, a n =
+  coeff (n + 1)
+    ((-1 + 4 * X - 2 * X ^ 2 + S)
+      * (2 - 8 * X + 6 * X ^ 2 : PowerSeries ℚ)⁻¹)) :
+    ∀ n : ℕ, 6 ≤ n →
+    ((n : ℚ) + 1) * a n + (-8 * (n : ℚ) - 2) * a (n - 1) + (19 * (n : ℚ) - 5) * a (n - 2)
+      + (-36) * a (n - 3) + (-56 * (n : ℚ) + 208) * a (n - 4)
+      + (68 * (n : ℚ) - 286) * a (n - 5) + (-24 * (n : ℚ) + 120) * a (n - 6) = 0 := by
+  have hR1 : constantCoeff R = 1 := by
+    rw [hR]
+    simp [map_ofNat]
+  have hS : S ^ 2 = R := by
+    rw [hSdef]
+    exact sqrt_sq R hR1
+  obtain ⟨A, hAdef⟩ : ∃ A : PowerSeries ℚ, A = (-1 + 4 * X - 2 * X ^ 2 + S) * (2 - 8 * X + 6 * X ^ 2 : PowerSeries ℚ)⁻¹ :=
+    ⟨_, rfl⟩
+  have ha' : ∀ n, a n = coeff (n + 1) A := fun n => by rw [ha, hAdef]
+  have hW0 : constantCoeff (2 - 8 * X + 6 * X ^ 2 : PowerSeries ℚ) ≠ 0 := by simp [map_ofNat]
+  have hA : A * (2 - 8 * X + 6 * X ^ 2) = (-1 + 4 * X - 2 * X ^ 2) + (1) * S := by
+    rw [hAdef, mul_assoc, PowerSeries.inv_mul_cancel _ hW0]
+    ring
+  have hode := odeA R S (-1 + 4 * X - 2 * X ^ 2) (1) (2 - 8 * X + 6 * X ^ 2) A hS hA
+  have dR : d⁄dX ℚ R = -4 + 36 * X ^ 2 - 32 * X ^ 3 := by
+    rw [hR]
+    simp [Derivation.leibniz, d_ofNat] <;> ring
+  have dU : d⁄dX ℚ (-1 + 4 * X - 2 * X ^ 2 : ℚ⟦X⟧) = 4 - 4 * X := by
+    simp [Derivation.leibniz, d_ofNat] <;> ring
+  have dV : d⁄dX ℚ (1 : ℚ⟦X⟧) = 0 := by
+    simp [Derivation.leibniz, d_ofNat] <;> ring
+  have dW : d⁄dX ℚ (2 - 8 * X + 6 * X ^ 2 : ℚ⟦X⟧) = -8 + 12 * X := by
+    simp [Derivation.leibniz, d_ofNat] <;> ring
+  rw [dR] at hode
+  simp only [dU, dV, dW] at hode
+  rw [hR] at hode
+  have key : C (4 : ℚ) * (d⁄dX ℚ A * X ^ 0) +
+      C (-32 : ℚ) * (d⁄dX ℚ A * X ^ 1) +
+      C (76 : ℚ) * (d⁄dX ℚ A * X ^ 2) +
+      C (-224 : ℚ) * (d⁄dX ℚ A * X ^ 4) +
+      C (272 : ℚ) * (d⁄dX ℚ A * X ^ 5) +
+      C (-96 : ℚ) * (d⁄dX ℚ A * X ^ 6) +
+      C (-8 : ℚ) * (A * X ^ 0) +
+      C (56 : ℚ) * (A * X ^ 1) +
+      C (-144 : ℚ) * (A * X ^ 2) +
+      C (160 : ℚ) * (A * X ^ 3) +
+      C (-56 : ℚ) * (A * X ^ 4) =
+      C (4 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 0) +
+      C (-24 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 1) +
+      C (60 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 2) +
+      C (-80 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 3) +
+      C (40 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 4) := by
+    simp only [map_neg, map_ofNat, map_one, map_zero]
+    linear_combination (1 : ℚ⟦X⟧) * hode
   intro n hn
   obtain ⟨k, rfl⟩ : ∃ k, n = k + 6 := ⟨n - 6, by omega⟩
-  simp only [show k + 6 - 1 = k + 5 from by omega, show k + 6 - 2 = k + 4 from by omega, show k + 6 - 3 = k + 3 from by omega, show k + 6 - 4 = k + 2 from by omega, show k + 6 - 5 = k + 1 from by omega, show k + 6 - 6 = k + 0 from by omega]
-  have h := OMA.S_oeis_a173993.rec_a k
-  push_cast at h ⊢
-  linear_combination h
+  have tp0 : coeff (k + 6) (C (4 : ℚ) * (d⁄dX ℚ A * X ^ 0)) =
+      (4 : ℚ) * (coeff (k + 7) A * ((k : ℚ) + 7)) := by
+    have e : k + 6 = k + 6 + 0 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_derivative]
+    all_goals (rw [show k + 6 + 1 = k + 7 by omega]; push_cast; ring)
+  have tp1 : coeff (k + 6) (C (-32 : ℚ) * (d⁄dX ℚ A * X ^ 1)) =
+      (-32 : ℚ) * (coeff (k + 6) A * ((k : ℚ) + 6)) := by
+    have e : k + 6 = k + 5 + 1 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_derivative]
+    all_goals (rw [show k + 5 + 1 = k + 6 by omega]; push_cast; ring)
+  have tp2 : coeff (k + 6) (C (76 : ℚ) * (d⁄dX ℚ A * X ^ 2)) =
+      (76 : ℚ) * (coeff (k + 5) A * ((k : ℚ) + 5)) := by
+    have e : k + 6 = k + 4 + 2 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_derivative]
+    all_goals (rw [show k + 4 + 1 = k + 5 by omega]; push_cast; ring)
+  have tp4 : coeff (k + 6) (C (-224 : ℚ) * (d⁄dX ℚ A * X ^ 4)) =
+      (-224 : ℚ) * (coeff (k + 3) A * ((k : ℚ) + 3)) := by
+    have e : k + 6 = k + 2 + 4 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_derivative]
+    all_goals (rw [show k + 2 + 1 = k + 3 by omega]; push_cast; ring)
+  have tp5 : coeff (k + 6) (C (272 : ℚ) * (d⁄dX ℚ A * X ^ 5)) =
+      (272 : ℚ) * (coeff (k + 2) A * ((k : ℚ) + 2)) := by
+    have e : k + 6 = k + 1 + 5 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_derivative]
+    all_goals (rw [show k + 1 + 1 = k + 2 by omega]; push_cast; ring)
+  have tp6 : coeff (k + 6) (C (-96 : ℚ) * (d⁄dX ℚ A * X ^ 6)) =
+      (-96 : ℚ) * (coeff (k + 1) A * ((k : ℚ) + 1)) := by
+    have e : k + 6 = k + 6 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_derivative]
+    all_goals (push_cast; ring)
+  have tq0 : coeff (k + 6) (C (-8 : ℚ) * (A * X ^ 0)) = (-8 : ℚ) * coeff (k + 6) A := by
+    have e : k + 6 = k + 6 + 0 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow]
+  have tq1 : coeff (k + 6) (C (56 : ℚ) * (A * X ^ 1)) = (56 : ℚ) * coeff (k + 5) A := by
+    have e : k + 6 = k + 5 + 1 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow]
+  have tq2 : coeff (k + 6) (C (-144 : ℚ) * (A * X ^ 2)) = (-144 : ℚ) * coeff (k + 4) A := by
+    have e : k + 6 = k + 4 + 2 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow]
+  have tq3 : coeff (k + 6) (C (160 : ℚ) * (A * X ^ 3)) = (160 : ℚ) * coeff (k + 3) A := by
+    have e : k + 6 = k + 3 + 3 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow]
+  have tq4 : coeff (k + 6) (C (-56 : ℚ) * (A * X ^ 4)) = (-56 : ℚ) * coeff (k + 2) A := by
+    have e : k + 6 = k + 2 + 4 := by omega
+    conv_lhs => rw [e, coeff_C_mul, coeff_mul_X_pow]
+  have th0 : coeff (k + 6) (C (4 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 0)) = 0 := by
+    have e : k + 6 = k + 6 + 0 := by omega
+    rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_one, if_neg (by omega), mul_zero]
+  have th1 : coeff (k + 6) (C (-24 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 1)) = 0 := by
+    have e : k + 6 = k + 5 + 1 := by omega
+    rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_one, if_neg (by omega), mul_zero]
+  have th2 : coeff (k + 6) (C (60 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 2)) = 0 := by
+    have e : k + 6 = k + 4 + 2 := by omega
+    rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_one, if_neg (by omega), mul_zero]
+  have th3 : coeff (k + 6) (C (-80 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 3)) = 0 := by
+    have e : k + 6 = k + 3 + 3 := by omega
+    rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_one, if_neg (by omega), mul_zero]
+  have th4 : coeff (k + 6) (C (40 : ℚ) * ((1 : ℚ⟦X⟧) * X ^ 4)) = 0 := by
+    have e : k + 6 = k + 2 + 4 := by omega
+    rw [e, coeff_C_mul, coeff_mul_X_pow, coeff_one, if_neg (by omega), mul_zero]
+  have hc := congrArg (coeff (k + 6)) key
+  simp only [map_add, map_zero, tp0, tp1, tp2, tp4, tp5, tp6, tq0, tq1, tq2, tq3, tq4, th0, th1, th2, th3, th4] at hc
+  have g0 : a (k + 6) = coeff (k + 7) A := by
+    rw [ha', show k + 6 + 1 = k + 7 by omega]
+  have g1 : a (k + 6 - 1) = coeff (k + 6) A := by
+    rw [ha', show k + 6 - 1 + 1 = k + 6 by omega]
+  have g2 : a (k + 6 - 2) = coeff (k + 5) A := by
+    rw [ha', show k + 6 - 2 + 1 = k + 5 by omega]
+  have g3 : a (k + 6 - 3) = coeff (k + 4) A := by
+    rw [ha', show k + 6 - 3 + 1 = k + 4 by omega]
+  have g4 : a (k + 6 - 4) = coeff (k + 3) A := by
+    rw [ha', show k + 6 - 4 + 1 = k + 3 by omega]
+  have g5 : a (k + 6 - 5) = coeff (k + 2) A := by
+    rw [ha', show k + 6 - 5 + 1 = k + 2 by omega]
+  have g6 : a (k + 6 - 6) = coeff (k + 1) A := by
+    rw [ha', show k + 6 - 6 + 1 = k + 1 by omega]
+  rw [g0, g1, g2, g3, g4, g5, g6]
+  push_cast at hc ⊢
+  linear_combination (1 / 4 : ℚ) * hc
+
+end OMA.P173993
+
+theorem OMA.solution : type_of% @OMA.S_oeis_a173993.main :=
+  OMA.P173993.main' OMA.S_oeis_a173993.R OMA.S_oeis_a173993.S rfl rfl OMA.S_oeis_a173993.a (fun _ => rfl)
