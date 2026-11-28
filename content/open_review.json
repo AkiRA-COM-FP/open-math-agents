@@ -9291,6 +9291,993 @@
     "https://oeis.org/A111999"
    ],
    "note": "Mathar's 2017 first-order recurrence for a(n) = A111999(n+4,3)/4. The formal triangle uses A111999's recurrence, and the formalizer rightly reads the formula line's A112492 as a slip for A111999. It reproduces all 16 data terms, and the recurrence holds for 1 <= n < 40. The proof uses closed forms of the first four columns (hypergeometric); routine. No prior proof found. Second review: Faithful, true, routine."
+  },
+  "oeis-a121696": {
+   "date": "2026-11-28",
+   "pr": 27650,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121696",
+    "https://oeis.org/A121696"
+   ],
+   "note": "The formal a uses the entry's defining recurrence a(n)=a(n-2)+n(n-2)!floor((n-1)/2), a(1)=0, a(2)=1; the padded a(0) is unused. It reproduces the data. Mathar's a(n)-(n-1)^2a(n-2)-n(n-2)a(n-3)=0 holds for n>=4 (checked to 40). The proof goes via a(m+2)+a(m+1)=(m+1)!floor((m+3)/2). Second review: Faithful; true numerically; routine recurrence manipulation. No prior proof found."
+  },
+  "oeis-a121725": {
+   "date": "2026-11-28",
+   "pr": 25721,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121725",
+    "https://oeis.org/A121725"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the rationalized g.f. reproduces the data, and the recurrence (n+1)a(n)=10(n+1)a(n-1)+36(n-2)a(n-2)-360(n-2)a(n-3) checks for n>=3. No prior proof found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
+  },
+  "oeis-a123516": {
+   "date": "2026-11-28",
+   "pr": 24930,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A123516",
+    "https://oeis.org/A123516",
+    "https://arxiv.org/html/2508.18229v1"
+   ],
+   "note": "Bala's identity P(n,1/2+x)=p(n,x^2) or x*p(n,x^2), his Conjecture 1 (zeros on Re=1/2, n>=1) and Conjecture 2 (zeros of p(n,u) negative and interlacing, n>=2) are stated faithfully. Root counts are floor(n/2), the ordering is fixed and m>=1. The results reduce to classical Legendre facts: P(n,x) ~ (x^2-x)^(n/2)*P_n((2x-1)/(2sqrt(x^2-x))). I found no published proof (searched OEIS and the web). Second review: Faithful and true; no prior proof found. Caveat for the announcement: both conjectures follow quickly from a classical Legendre-polynomial representation, so this is an easy result rather than a deep one."
+  },
+  "oeis-a123722": {
+   "date": "2026-11-28",
+   "pr": 26991,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A123722",
+    "https://oeis.org/A000224",
+    "https://oeis.org/A123722",
+    "https://oeis.org/A000224"
+   ],
+   "note": "qualifies(m) means #squares mod m = ceil((m+1)/3); 'preceding >= 2' encodes Layman's n>2. My computation reproduces the data, has no composite m/3 among the terms below 3000, and finds 3p qualifying for every odd prime p<900. The proof uses multiplicativity of A000224 and a sharp bound for odd moduli. No prior proof found. Second review: Faithful, true, short elementary argument via the known formula for the number of squares mod n. No prior proof found."
+  },
+  "oeis-a123723": {
+   "date": "2026-11-28",
+   "pr": 26936,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A123723",
+    "https://oeis.org/A123723",
+    "https://oeis.org/A000224"
+   ],
+   "note": "The faithful analogue for ceil((m+1)/4) with n>4 (at least four earlier terms). The data are reproduced, and there are no counterexamples below 3000. The proof (squares mod 4q represented by 0..q, plus a collision u+v vs |u-v| for composite q) is elementary but genuine. No prior proof found. Second review: Faithful, true, elementary. No prior proof found."
+  },
+  "oeis-a124869": {
+   "date": "2026-11-28",
+   "pr": 10098,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A124869",
+    "https://oeis.org/A124869"
+   ],
+   "note": "a(n) = reduced numerator of Re(((-1-3i)/10)^n) reproduces the data. Both Barker conjectures check to n=80: the g.f. with denominator (1-8x^2+25x^4)(1+8x^2+25x^4), and a(n)=14a(n-4)-625a(n-8) for n>10. The proof controls the 2- and 5-adic cancellation explicitly. No prior proof found. Second review: Faithful and true; routine (denominator/valuation analysis of a rational linear recurrence). No prior proof found."
+  },
+  "oeis-a125267": {
+   "date": "2026-11-28",
+   "pr": 25723,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A125267",
+    "https://oeis.org/A125267"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the rationalized g.f. reproduces the data, and the expanded coefficients match Mathar's (n>=4). No prior proof found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
+  },
+  "oeis-a126089": {
+   "date": "2026-11-28",
+   "pr": 25604,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A126089",
+    "https://oeis.org/A126089"
+   ],
+   "note": "The e.g.f. (1-2x)sqrt(1-4x) is pinned down by F^2 and constant term 1. Mathar's first-order recurrence (4-n)a(n)+2(2n-5)(n-3)a(n-1)=0 holds for n>=1 and reproduces the data. It is a routine e.g.f. ODE computation, and no prior proof was found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
+  },
+  "oeis-a126932": {
+   "date": "2026-11-28",
+   "pr": 26212,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A126932",
+    "https://oeis.org/A126932"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; Barry's g.f. (sqrt(1-2x-3x^2)+3(1-3x))/(2(2-13x+21x^2)) reproduces the data, and the recurrence matches (n>=3). No prior proof found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
+  },
+  "oeis-a127276": {
+   "date": "2026-11-28",
+   "pr": 27115,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A127276",
+    "https://oeis.org/A127275",
+    "https://oeis.org/A127276",
+    "https://oeis.org/A127275"
+   ],
+   "note": "term(n) = C(2n,n)-(4^n-0^n)/4 is Barry's A127275 formula and matches its data. My exact determinants reproduce A127276 and Mathar's closed form 2^n(1-n(n+1)/4) for n<=11 (the g.f. is equivalent). The proof says it adapts a proof technique from other trureturing modules (MO442285, Cigler moments), not an earlier solution of this problem, and A127276 is not in the trureturing id list. No published evaluation found. Second review: Faithful and true; genuine Hankel-determinant evaluation, no prior proof found. Technique adapted from TrureTuring (Apache-2.0), credited in the file."
+  },
+  "oeis-a128153": {
+   "date": "2026-11-28",
+   "pr": 25251,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A128153",
+    "https://oeis.org/A128127",
+    "https://oeis.org/A128127/a128127.pdf",
+    "https://oeis.org/A128153",
+    "https://oeis.org/A128127/a128127.pdf"
+   ],
+   "note": "The model counts translated positive and negative dilates of the pentagon whose 5 side lines come from the two offset progressions in Priluck's second construction (with vertex chords). It is intricate, but my brute force of the model gives 9,20,37,58,85,116,153 for n=1..7, matching the data. Priluck's paper (A128127 PDF) states Z5 = (10p^2+16p+9-(-1)^p)/4 only as a conjecture from experiments. The proof gives the formula, Wu's recurrence and the g.f. Second review: Formula, recurrence and g.f. proved for the modelled count; the model matches all 13 data terms. Residual risk is only model fidelity for larger n, which I could not derive independently in full."
+  },
+  "oeis-a128424": {
+   "date": "2026-11-28",
+   "pr": 25091,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A128424",
+    "https://oeis.org/A128424",
+    "https://oeis.org/A020711"
+   ],
+   "note": "The formal recurrence is a(n)=floor(sqrt(a(n-1)^2+a(n-2)^2+a(n-1)a(n-2))) with a(1)=1, a(2)=3 (padded a(0)=0). Barker's recurrence (n>7) and g.f. hold: exact computation to n=400, and the data match. The proof shows a(n+4)-1 satisfies b(n+3)=b(n+2)+b(n) with explicit error margins bracketing the square root. No prior proof found. (A020711 agreeing only for n<=41 concerns that Pisot sequence, not this one.) Second review: Faithful and true; no prior proof found."
+  },
+  "oeis-a128726": {
+   "date": "2026-11-28",
+   "pr": 25858,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A128726",
+    "https://oeis.org/A128726"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the series used is the negative of the printed g.f.; the docstring says the printed version expands to -a(n), and the recurrence is homogeneous. It reproduces the data, and the coefficients match (n>=3). No prior proof found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
+  },
+  "oeis-a128734": {
+   "date": "2026-11-28",
+   "pr": 24999,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A128734",
+    "https://oeis.org/A128734"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the rationalized g.f. reproduces the data, and the expanded coefficients match Mathar's (n>=3). No prior proof found. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
+  },
+  "oeis-a128828": {
+   "date": "2026-11-28",
+   "pr": 27814,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A128828",
+    "https://oeis.org/A128127/a128127.pdf",
+    "https://oeis.org/A128828",
+    "https://oeis.org/A128127/a128127.pdf"
+   ],
+   "note": "The disproof of Priluck's n == 2 (mod 3) hexagon formula is sound. The model (first construction: lines at integer offsets -m..m except 0, integral apothem and center) gives 1,2,15,28,65,120, matching the data, and agrees with all three of Priluck's formulas for n<=14. With offset 0 allowed it gives Priluck's second-construction count (n+1)^3, an independent check. At n=15, 16, 17 all classes fail, and a(17)=4734 against the formula's 4950. A period-3 quartic has 15 free coefficients, so the formulas just interpolate n=0..14. Priluck's paper calls them conjectures. Second review: Valid disproof: Priluck's quartic formula fails (first at n=15 overall; the formalized n=2 mod 3 branch at n=17). Robust: the true count grows cubically. No earlier report of the failure found."
+  },
+  "oeis-a131607": {
+   "date": "2026-11-28",
+   "pr": 16083,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A131607",
+    "https://oeis.org/A131607",
+    "https://oeis.org/A001333"
+   ],
+   "note": "a(n)=floor(A001333(n)/10), with the g.f. stated from index 0 (terms 0 for n<4, matching the x^4 factor) and the recurrence for n>12. Checked to n=80 against the data. The proof is the standard argument that A001333 mod 10 has period 12, so it is routine. No prior proof found. Second review: Faithful, true, routine periodicity argument. No prior proof found."
+  },
+  "oeis-a135231": {
+   "date": "2026-11-28",
+   "pr": 16445,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A135231",
+    "https://oeis.org/A135231",
+    "https://oeis.org/A135230"
+   ],
+   "note": "The triple product A103451 * signed A000012 * Pascal and the row sums reproduce the data. Wu's recurrence (n>3), the g.f. and Mathar's a(n)=A001045(n+1)+1 follow from 3a(n)=3+2^(n+1)+(-1)^n (n>=1), checked to 30. Routine, and no prior proof was found. Second review: Faithful, true, a short closed-form computation. No prior proof found."
+  },
+  "oeis-a214385": {
+   "date": "2026-11-28",
+   "pr": 27223,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214385",
+    "https://oeis.org/A214384",
+    "https://oeis.org/A214385",
+    "https://oeis.org/A214384"
+   ],
+   "note": "Barker's g.f. 2x(4+19x-17x^2+4x^3)/(1-x)^7 and the order-7 recurrence for the 3-row triangular 0..n arrays. My brute force of the formal predicate (cells numbered row by row, each upper cell between its sw/se neighbours, no equal horizontal neighbours) gives 8, 94, 456, 1506, 3976, 9044, which matches the data. Parent A214384 has no proof, and I found none elsewhere. The proof is a finite pattern count by rank decomposition, giving a degree-6 polynomial. Second review: Faithful and true for all n (exact pattern-sum polynomial). Routine finite enumeration. No prior proof found."
+  },
+  "oeis-a214449": {
+   "date": "2026-11-28",
+   "pr": 27345,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214449",
+    "https://oeis.org/A118168",
+    "https://oeis.org/A214449",
+    "https://oeis.org/A118168"
+   ],
+   "note": "This is a disproof of Kimberling's conjecture that A214449 is A118168 with its first two 1s deleted. The offsets are right: A214449 has offset 1 and A118168 has offset 0, so the claim is A214449(n) = A118168(n+1). I confirmed the counterexample: 158^158 < 188! <= 159^159 gives A214449(188) = 159, while 189! is closer to 158^158 than to 159^159, so A118168(189) = 158. Further failures occur at n = 248, 271 and 310. A118168 lists only about 27 terms, and I found no earlier report of the failure. The disproof is a direct numerical check. Second review: Valid disproof by an exact finite check at n=188 (also fails at 248, 271). A118168 has no b-file and the failure is not noted anywhere I found."
+  },
+  "oeis-a214944": {
+   "date": "2026-11-28",
+   "pr": 26168,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214944",
+    "https://oeis.org/A214943",
+    "https://oeis.org/A214944",
+    "https://oeis.org/A214943"
+   ],
+   "note": "Barker's g.f. and recurrence for squarefree words of length 5 over n+1 letters. The formal definition (no factor uu with u nonempty, words over Fin(n+1)) reproduces the data with the right offset: a(1) = 0 for binary, then a(2), a(3), ... Lean's extra a(0) = 0 is harmless. Parent A214943 (Shur's growth-rate results) has no proof of the row polynomials. A fixed-length count is a finite sum over squarefree patterns times falling factorials, so the proof is routine. Second review: Faithful and true for all n (exact pattern-sum polynomial). Routine finite enumeration. No prior proof found."
+  },
+  "oeis-a214945": {
+   "date": "2026-11-28",
+   "pr": 26183,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214945",
+    "https://oeis.org/A214943",
+    "https://oeis.org/A214945",
+    "https://oeis.org/A214943"
+   ],
+   "note": "Barker's g.f. and recurrence for squarefree words of length 6 over n+1 letters. The formal definition (no factor uu with u nonempty, words over Fin(n+1)) reproduces the data with the right offset: a(1) = 0 for binary, then a(2), a(3), ... Lean's extra a(0) = 0 is harmless. Parent A214943 (Shur's growth-rate results) has no proof of the row polynomials. A fixed-length count is a finite sum over squarefree patterns times falling factorials, so the proof is routine. Second review: Faithful and true for all n (exact pattern-sum polynomial). Routine finite enumeration. No prior proof found."
+  },
+  "oeis-a214946": {
+   "date": "2026-11-28",
+   "pr": 26189,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A214946",
+    "https://oeis.org/A214943",
+    "https://oeis.org/A214946",
+    "https://oeis.org/A214943"
+   ],
+   "note": "Barker's g.f. and recurrence for squarefree words of length 7 over n+1 letters. The formal definition (no factor uu with u nonempty, words over Fin(n+1)) reproduces the data with the right offset: a(1) = 0 for binary, then a(2), a(3), ... Lean's extra a(0) = 0 is harmless. Parent A214943 (Shur's growth-rate results) has no proof of the row polynomials. A fixed-length count is a finite sum over squarefree patterns times falling factorials, so the proof is routine. Second review: Faithful and true for all n (exact pattern-sum polynomial). Routine finite enumeration. No prior proof found."
+  },
+  "oeis-a215095": {
+   "date": "2026-11-28",
+   "pr": 27706,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A215095",
+    "https://oeis.org/A215095"
+   ],
+   "note": "Scambler's g.f. (x+2x^2)/(1-x-x^2-x^3-2x^4) for the greedy Jacobsthal-sum sequence. The statement's greedy definition reproduces the data, and I checked that it equals the g.f. series for 80 terms. I found no prior proof. The proof locates each greedy step between consecutive Jacobsthal numbers, an elementary induction. Second review: Faithful and true; inductive argument on the greedy rule. No prior proof found."
+  },
+  "oeis-a217333": {
+   "date": "2026-11-28",
+   "pr": 25299,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A217333",
+    "https://oeis.org/A217333"
+   ],
+   "note": "Mathar's order-4 D-finite recurrence for the algebraic g.f. (1-2x-sqrt(1-4x+4x^2-4x^3+4x^4))/(2x^3). The statement defines a(n) as coefficient n+3 of (1-2X-S)/2, with S the binomial-series square root. I checked that this reproduces the data 1,1,2,5,12,29,72,... (offset 0). I found no prior proof (not in Blanco Gomez or Fried). Deriving a P-recurrence from an algebraic g.f. is a standard computation. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
+  },
+  "oeis-a217866": {
+   "date": "2026-11-28",
+   "pr": 25365,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A217866",
+    "https://oeis.org/A217865",
+    "https://oeis.org/A217976",
+    "https://oeis.org/A217866",
+    "https://oeis.org/A217976"
+   ],
+   "note": "The conjecture says the last n in A217865 (first differences of floor(k log k)) comes before the first n+2. As formalized, every index with value n is below every index with value n+2, which is faithful. The proof is elementary: each difference lies strictly within 1 of D(k) = f(k+1)-f(k), and D is increasing by convexity of x log x. I found no prior proof. Short, but not definitional. Second review: Faithful and true via a short monotonicity argument. Same statement as oeis-a217976 (A217976 carries the same conjecture); A217866 is the earlier of the two, so A217976 should not be counted as a separate solve."
+  },
+  "oeis-a220018": {
+   "date": "2026-11-28",
+   "pr": 25500,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A220018",
+    "https://oeis.org/A221855",
+    "https://oeis.org/A006694",
+    "https://oeis.org/A220018",
+    "https://arxiv.org/pdf/2410.12122"
+   ],
+   "note": "Barker's a(n) = 8n^2-14n-1 (n>2) and the order-3 recurrence for the number of cyclotomic cosets of 3 mod 10^n. The formal orbit-minimum count matches the definition. I checked the data both by brute force (n <= 5) and by the orbit formula Sum_{d|10^n} phi(d)/ord_d(3), which gives the formula for n = 3..39. I found no published proof; a web search found only the conjectures. The proof is a genuine orbit count using orders of 3 modulo 2^a 5^b. Second review: Faithful, true, routine multiplicative-order computation. No prior proof found."
+  },
+  "oeis-a220019": {
+   "date": "2026-11-28",
+   "pr": 26506,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A220019",
+    "https://oeis.org/A220468",
+    "https://oeis.org/A220019",
+    "https://arxiv.org/pdf/2410.12122"
+   ],
+   "note": "Barker's a(n) = 5(16n^2-60n+37) for n>3 and the order-3 recurrence for n>6, for the number of cyclotomic cosets of 7 mod 10^n. The statement counts orbits of the cyclic group generated by 7 acting on ZMod(10^n), which is faithful. The orbit formula reproduces the data, matches brute force for n <= 5, and gives the formula for n = 4..39. I found no prior proof. The proof counts orbits via orders of 7 modulo 2^a 5^b. Second review: Faithful, true, routine multiplicative-order computation. No prior proof found."
+  },
+  "oeis-a220020": {
+   "date": "2026-11-28",
+   "pr": 27356,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A220020",
+    "https://oeis.org/A220468",
+    "https://oeis.org/A220020",
+    "https://arxiv.org/pdf/2410.12122"
+   ],
+   "note": "Barker's closed form 4(4n^2-7n-1) (n>2), the recurrence (n>5) and the g.f. 2x(8x^4-13x^3-7x^2-x-3)/(x-1)^3 for cyclotomic cosets of 9 mod 10^n. The orbit-quotient definition is faithful and reproduces 6,20,56,140,256 (brute force). The orbit formula confirms the closed form for n = 3..39. I found no prior proof. The proof shares its orbit-counting library with the A220019/A221855 solves, but it covers a different statement. Second review: Faithful, true, routine multiplicative-order computation. No prior proof found."
+  },
+  "oeis-a221855": {
+   "date": "2026-11-28",
+   "pr": 27190,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221855",
+    "https://oeis.org/A220018",
+    "https://oeis.org/A221855",
+    "https://arxiv.org/pdf/2410.12122"
+   ],
+   "note": "Barker's a(n) = 2n(4n-7) (n>2), the recurrence and the g.f. for cyclotomic cosets of 13 mod 10^n. The orbit-quotient definition reproduces the data (brute force n <= 5) and the closed form for n = 3..39. The entry's unproved formula line a(n) = A220018(n)+1 links it to A220018, whose closed form was also only a conjecture until the site's PR 25500. No independent prior proof exists. The proof is a direct orbit count for multiplier 13. Second review: Faithful, true, routine multiplicative-order computation. No prior proof found."
+  },
+  "oeis-a221516": {
+   "date": "2026-11-28",
+   "pr": 27481,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221516",
+    "https://oeis.org/A221515",
+    "https://oeis.org/A221516",
+    "https://oeis.org/A221515"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 5, starting with 0, in which each element differs from at least one neighbour by 2 or more. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221515 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221517": {
+   "date": "2026-11-28",
+   "pr": 27495,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221517",
+    "https://oeis.org/A221515",
+    "https://oeis.org/A221517",
+    "https://oeis.org/A221515"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 6, starting with 0, in which each element differs from at least one neighbour by 2 or more. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221515 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221518": {
+   "date": "2026-11-28",
+   "pr": 27245,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221518",
+    "https://oeis.org/A221515",
+    "https://oeis.org/A221518",
+    "https://oeis.org/A221515"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 7, starting with 0, in which each element differs from at least one neighbour by 2 or more. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221515 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221525": {
+   "date": "2026-11-28",
+   "pr": 27457,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221525",
+    "https://oeis.org/A221524",
+    "https://oeis.org/A221525",
+    "https://oeis.org/A221524"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 5 in which each element differs from at least one neighbour by 2 or more. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221524 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221526": {
+   "date": "2026-11-28",
+   "pr": 27467,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221526",
+    "https://oeis.org/A221524",
+    "https://oeis.org/A221526",
+    "https://oeis.org/A221524"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 6 in which each element differs from at least one neighbour by 2 or more. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221524 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221527": {
+   "date": "2026-11-28",
+   "pr": 27474,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221527",
+    "https://oeis.org/A221524",
+    "https://oeis.org/A221527",
+    "https://oeis.org/A221524"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 7 in which each element differs from at least one neighbour by 2 or more. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221524 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221543": {
+   "date": "2026-11-28",
+   "pr": 27418,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221543",
+    "https://oeis.org/A221542",
+    "https://oeis.org/A221543",
+    "https://oeis.org/A221542"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 5, starting with 0, in which each element differs from at least one neighbour by something other than 1. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221542 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221544": {
+   "date": "2026-11-28",
+   "pr": 27423,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221544",
+    "https://oeis.org/A221542",
+    "https://oeis.org/A221544",
+    "https://oeis.org/A221542"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 6, starting with 0, in which each element differs from at least one neighbour by something other than 1. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221542 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221545": {
+   "date": "2026-11-28",
+   "pr": 27455,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221545",
+    "https://oeis.org/A221542",
+    "https://oeis.org/A221545",
+    "https://oeis.org/A221542"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 7, starting with 0, in which each element differs from at least one neighbour by something other than 1. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221542 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221575": {
+   "date": "2026-11-28",
+   "pr": 27402,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221575",
+    "https://oeis.org/A221573",
+    "https://oeis.org/A221575",
+    "https://oeis.org/A221573"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 5 in which each element differs from at least one neighbour by something other than 1. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221573 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221576": {
+   "date": "2026-11-28",
+   "pr": 27242,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221576",
+    "https://oeis.org/A221573",
+    "https://oeis.org/A221576",
+    "https://oeis.org/A221573"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 6 in which each element differs from at least one neighbour by something other than 1. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221573 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221577": {
+   "date": "2026-11-28",
+   "pr": 27230,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221577",
+    "https://oeis.org/A221573",
+    "https://oeis.org/A221577",
+    "https://oeis.org/A221573"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 7 in which each element differs from at least one neighbour by something other than 1. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221573 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221597": {
+   "date": "2026-11-28",
+   "pr": 27498,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221597",
+    "https://oeis.org/A221596",
+    "https://oeis.org/A221597",
+    "https://oeis.org/A221596"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 5 in which each element differs from at least one neighbour by 1 or less. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221596 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a221598": {
+   "date": "2026-11-28",
+   "pr": 27505,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221598",
+    "https://oeis.org/A221596",
+    "https://oeis.org/A221598",
+    "https://oeis.org/A221596"
+   ],
+   "note": "Barker's g.f. and recurrence (with his stated range) for 0..n arrays of length 6 in which each element differs from at least one neighbour by 1 or less. The formal predicate is the literal reading, and my brute force of it reproduces the listed data (offset 1, a(0) set to 0 in the series). Parent table A221596 has only empirical formulas, with no proof added, and I found nothing in the Lean libraries, Palomar, Blanco Gomez or Fried. For large n the count is eventually polynomial, so this is a routine transfer/pattern count. Second review: Faithful and true numerically to n=44; routine fixed-length counting. No prior proof found."
+  },
+  "oeis-a252834": {
+   "date": "2026-11-28",
+   "pr": 26828,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A252834",
+    "https://oeis.org/A252836",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A252834",
+    "https://oeis.org/A252836",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 6 arrays (within 2, no corner condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A252836 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A252836. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a252932": {
+   "date": "2026-11-28",
+   "pr": 26613,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A252932",
+    "https://oeis.org/A252938",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A252932",
+    "https://oeis.org/A252938",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 2 arrays (within 3, no corner condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A252938 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A252938. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a252933": {
+   "date": "2026-11-28",
+   "pr": 26617,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A252933",
+    "https://oeis.org/A252938",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A252933",
+    "https://oeis.org/A252938",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 3 arrays (within 3, no corner condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A252938 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A252938. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a252934": {
+   "date": "2026-11-28",
+   "pr": 26754,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A252934",
+    "https://oeis.org/A252938",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A252934",
+    "https://oeis.org/A252938",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 4 arrays (within 3, no corner condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A252938 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A252938. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a252935": {
+   "date": "2026-11-28",
+   "pr": 26782,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A252935",
+    "https://oeis.org/A252938",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A252935",
+    "https://oeis.org/A252938",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 5 arrays (within 3, no corner condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A252938 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A252938. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a252978": {
+   "date": "2026-11-28",
+   "pr": 26869,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A252978",
+    "https://oeis.org/A252983",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A252978",
+    "https://oeis.org/A252983",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 3 arrays (lower right = king distance - 2, no within condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A252983 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A252983. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a252979": {
+   "date": "2026-11-28",
+   "pr": 26878,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A252979",
+    "https://oeis.org/A252983",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A252979",
+    "https://oeis.org/A252983",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 4 arrays (lower right = king distance - 2, no within condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A252983 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A252983. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a253006": {
+   "date": "2026-11-28",
+   "pr": 26883,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A253006",
+    "https://oeis.org/A253011",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A253006",
+    "https://oeis.org/A253011",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 3 arrays (lower right = king distance - 3, no within condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A253011 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A253011. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a253007": {
+   "date": "2026-11-28",
+   "pr": 26886,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A253007",
+    "https://oeis.org/A253011",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://oeis.org/A253007",
+    "https://oeis.org/A253011",
+    "https://arxiv.org/abs/2309.00487",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf"
+   ],
+   "note": "The n X 4 arrays (lower right = king distance - 3, no within condition; upper-left 0; steps right, down and se add 0 or 1) are formalised faithfully, with Barker's g.f. and the recurrence threshold copied from the entry. My own row-transfer count matches the OEIS data up to n=11-14. This is not a Hardinian array in the Dougherty-Bliss-Kauers sense (that needs both the within and the corner conditions), so neither their paper nor the Spahn-Dougherty-Bliss note covers it, and the parent A253011 has no proof. Eventual polynomiality follows by the standard triangular transfer-matrix argument (the Spahn-Dougherty-Bliss method), so I rate it routine. Second review: Faithful formalization of Barker's conjecture for column of A253011. The closest prior work (Hardinian arrays, Spahn & Dougherty-Bliss 2024 transfer-matrix note) covers only the corner-and-within variant, and its method would extend here, so the result is routine (lower-triangular transfer matrix, eventually polynomial)."
+  },
+  "oeis-a267228": {
+   "date": "2026-11-28",
+   "pr": 27397,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267228",
+    "https://oeis.org/A267232",
+    "https://oeis.org/A267228",
+    "https://oeis.org/A267232"
+   ],
+   "note": "Barker's g.f. and closed form (n>1) for column 4 of Hardin's A267232 are stated faithfully. 'First repeated value' is the first adjacent equal pair, which the entry's examples force, and later entries must be < it. My DP reproduces the data and rows of A267232, and both formulas hold for n<150. The proof is a transfer recurrence, so it is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267230": {
+   "date": "2026-11-28",
+   "pr": 27323,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267230",
+    "https://oeis.org/A267232",
+    "https://oeis.org/A267230",
+    "https://oeis.org/A267232"
+   ],
+   "note": "Barker's g.f. and closed form (n>1) for column 6 of Hardin's A267232 are stated faithfully. 'First repeated value' is the first adjacent equal pair, which the entry's examples force, and later entries must be < it. My DP reproduces the data and rows of A267232, and both formulas hold for n<150. The proof is a transfer recurrence, so it is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267465": {
+   "date": "2026-11-28",
+   "pr": 23946,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267465",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267465",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and closed form (n>=1, 2^(n-2) as an integer power) for column 2 of Hardin's A267471 are stated faithfully. 'First repeated value' is the first adjacent equal pair, which the entry's examples force, and later entries must be <= it. My DP reproduces the data and rows of A267471, and both formulas hold for n<150. The proof is a transfer recurrence, so it is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267466": {
+   "date": "2026-11-28",
+   "pr": 27383,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267466",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267466",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and closed form for column 3 of Hardin's A267471 are stated faithfully. 'First repeated value' is the first adjacent equal pair, which the entry's examples force, and later entries must be <= it. My DP reproduces the data and rows of A267471, and both formulas hold for n<150. The proof is a transfer recurrence, so it is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267467": {
+   "date": "2026-11-28",
+   "pr": 27385,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267467",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267467",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and closed form (4^(n-2) as an integer power) for column 4 of Hardin's A267471 are stated faithfully. 'First repeated value' is the first adjacent equal pair, which the entry's examples force, and later entries must be <= it. My DP reproduces the data and rows of A267471, and both formulas hold for n<150. The proof is a transfer recurrence, so it is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267468": {
+   "date": "2026-11-28",
+   "pr": 27593,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267468",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267468",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and closed form for column 5 of Hardin's A267471 are stated faithfully. 'First repeated value' is the first adjacent equal pair, which the entry's examples force, and later entries must be <= it. My DP reproduces the data and rows of A267471, and both formulas hold for n<150. The proof is a transfer recurrence, so it is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267470": {
+   "date": "2026-11-28",
+   "pr": 27628,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267470",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267470",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and closed form for column 7 of Hardin's A267471 are stated faithfully. 'First repeated value' is the first adjacent equal pair, which the entry's examples force, and later entries must be <= it. My DP reproduces the data and rows of A267471, and both formulas hold for n<150. The proof is a transfer recurrence, so it is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267233": {
+   "date": "2026-11-28",
+   "pr": 27504,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267233",
+    "https://oeis.org/A267232",
+    "https://oeis.org/A267233",
+    "https://oeis.org/A267232"
+   ],
+   "note": "Hardin's quartic, Barker's g.f. and recurrence (n>5) for row 4 (length-4 arrays over 0..n) of Hardin's A267232 are stated faithfully, using the adjacent-pair reading of 'first repeated value'. My count matches the data and the formulas for n<80. A fixed-length count is a polynomial in n, so this is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267235": {
+   "date": "2026-11-28",
+   "pr": 23566,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267235",
+    "https://oeis.org/A267232",
+    "https://oeis.org/A267235",
+    "https://oeis.org/A267232"
+   ],
+   "note": "Barker's recurrence (n>7) and g.f. (a(0)=0 kept, consistent with the factor x) for row 6 (length-6 arrays over 0..n) of Hardin's A267232 are stated faithfully, using the adjacent-pair reading of 'first repeated value'. My count matches the data and the formulas for n<80. A fixed-length count is a polynomial in n, so this is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267472": {
+   "date": "2026-11-28",
+   "pr": 27139,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267472",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267472",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and recurrence (n>5), via an explicit case-split count for row 4 (length-4 arrays over 0..n) of Hardin's A267471 are stated faithfully, using the adjacent-pair reading of 'first repeated value'. My count matches the data and the formulas for n<80. A fixed-length count is a polynomial in n, so this is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267473": {
+   "date": "2026-11-28",
+   "pr": 27120,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267473",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267473",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and recurrence (n>6) for row 5 (length-5 arrays over 0..n) of Hardin's A267471 are stated faithfully, using the adjacent-pair reading of 'first repeated value'. My count matches the data and the formulas for n<80. A fixed-length count is a polynomial in n, so this is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267474": {
+   "date": "2026-11-28",
+   "pr": 27129,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267474",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267474",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and recurrence (n>7) for row 6 (length-6 arrays over 0..n) of Hardin's A267471 are stated faithfully, using the adjacent-pair reading of 'first repeated value'. My count matches the data and the formulas for n<80. A fixed-length count is a polynomial in n, so this is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a267475": {
+   "date": "2026-11-28",
+   "pr": 27134,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267475",
+    "https://oeis.org/A267471",
+    "https://oeis.org/A267475",
+    "https://oeis.org/A267471"
+   ],
+   "note": "Barker's g.f. and recurrence (n>8) for row 7 (length-7 arrays over 0..n) of Hardin's A267471 are stated faithfully, using the adjacent-pair reading of 'first repeated value'. My count matches the data and the formulas for n<80. A fixed-length count is a polynomial in n, so this is routine. No prior proof found: the entry and parent table are unchanged since 2016 (live OEIS), and nothing turned up in BG/Fried, trureturing, thatnealpatel/proofs, openai/math, Palomar, Epoch or Zenodo. Second review: Elementary counting (condition on the position of the first adjacent repeat gives a sum of geometric terms or a polynomial in the alphabet size); no prior proof found. Routine."
+  },
+  "oeis-a254701": {
+   "date": "2026-11-28",
+   "pr": 26529,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A254701",
+    "https://oeis.org/A254698",
+    "https://oeis.org/A254701",
+    "https://oeis.org/A254698"
+   ],
+   "note": "Barker's g.f. and order-7 recurrence for row 3 of Hardin's A254698: length-7 arrays over 0..n in which each 5-window has two terms whose max equals the min of the other three. The Lean window condition is the entry's, and my DP count reproduces a(1..12) of the data. The count is a polynomial in n (order patterns), so the formulas are a routine finite check. No prior proof found (Fried's papers, trureturing, Epoch and Palomar have no match). Second review: Counting a fixed-length order-type condition over 0..n is a polynomial in n determined by finitely many values; faithful and new as far as I can find. Routine."
+  },
+  "oeis-a254703": {
+   "date": "2026-11-28",
+   "pr": 26857,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A254703",
+    "https://oeis.org/A254698",
+    "https://oeis.org/A254703",
+    "https://oeis.org/A254698"
+   ],
+   "note": "Row 5 of A254698 (length 9): Barker's g.f. with (1-x)^8 and the order-8 recurrence. The definition is faithful, and my DP count matches a(1..12). It is a polynomial-in-n count, so routine. No prior proof found. Second review: Counting a fixed-length order-type condition over 0..n is a polynomial in n determined by finitely many values; faithful and new as far as I can find. Routine."
+  },
+  "oeis-a254704": {
+   "date": "2026-11-28",
+   "pr": 26976,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A254704",
+    "https://oeis.org/A254698",
+    "https://oeis.org/A254704",
+    "https://oeis.org/A254698"
+   ],
+   "note": "Row 6 of A254698 (length 10): Barker's g.f. and the order-8 recurrence. The definition is faithful, and my DP count matches a(1..12). Routine polynomial count; no prior proof found. Second review: Counting a fixed-length order-type condition over 0..n is a polynomial in n determined by finitely many values; faithful and new as far as I can find. Routine."
+  },
+  "oeis-a254705": {
+   "date": "2026-11-28",
+   "pr": 27063,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A254705",
+    "https://oeis.org/A254698",
+    "https://oeis.org/A254705",
+    "https://oeis.org/A254698"
+   ],
+   "note": "Row 7 of A254698 (length 11): Barker's g.f. with (1-x)^9 and the order-9 recurrence. The definition is faithful, and my DP count matches a(1..12). Routine polynomial count; no prior proof found. Second review: Counting a fixed-length order-type condition over 0..n is a polynomial in n determined by finitely many values; faithful and new as far as I can find. Routine."
+  },
+  "oeis-a255437": {
+   "date": "2026-11-28",
+   "pr": 24978,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A255437",
+    "https://oeis.org/A068722",
+    "https://oeis.org/A255437",
+    "https://oeis.org/A068722"
+   ],
+   "note": "Zumkeller's comment that (2n+1)^2 first occurs at position A068722(n) is stated faithfully, including 'no earlier position'. blk/pre reproduce the data, and I checked n <= 14 directly. A068722's own comment states a garbled version, 2n+1 instead of (2n+1)^2, but the formalization follows A255437. The proof is a short block-length count. Routine; no prior proof found. Second review: Short explicit argument: (2n+1)^2 is itself a square, so it first appears as an odd number inside the block of k^2 with k = 2n^2+2n+1, at position (2n^2+2n+1)(3n^2+3n+1) = A068722(n). Faithful, no prior proof found; routine."
+  },
+  "oeis-a257104": {
+   "date": "2026-11-28",
+   "pr": 25168,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A257104",
+    "https://oeis.org/A257104",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence for Motzkin paths with no peaks at level 3. I checked that the normalised algebraic g.f. equals the entry's continued fraction to 40 terms and reproduces the data. The recurrence holds for 7 <= n < 40 and fails at n = 6 (residual 3), so the n >= 7 range is the correct reading, not a weakening. Routine guess-and-check of an algebraic g.f.; no prior proof found. Second review: Algebraic g.f., so the D-finite recurrence is a routine certified computation; no specific prior proof."
+  },
+  "oeis-a257106": {
+   "date": "2026-11-28",
+   "pr": 25641,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A257106",
+    "https://oeis.org/A257106"
+   ],
+   "note": "Curtz's two period-3 conjectures on the denominators of the inverse binomial transform of Bernoulli numbers with B(1)=2/3 are stated faithfully, and the definition reproduces the data. My check covers n < 120. By the entry's formula c(n) = B_n - (-1)^n n/6, both claims reduce to von Staudt-Clausen at the prime 3. Routine; no prior proof found. Second review: Follows quickly from the entry's own formula plus von Staudt-Clausen (3-part of the denominator cancels exactly when n=2 mod 3). Routine."
+  },
+  "oeis-a257300": {
+   "date": "2026-11-28",
+   "pr": 25617,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A257300",
+    "https://oeis.org/A257300",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence (n >= 6) for Motzkin paths with no peaks at level 2. I checked that the normalised algebraic g.f. equals the entry's continued fraction to 40 terms and matches the data. The recurrence holds for all 6 <= n < 40. Routine algebraic-g.f. verification; no prior proof found. Second review: Same as A257104: routine D-finite recurrence of an algebraic g.f.; no specific prior proof found."
+  },
+  "oeis-a259056": {
+   "date": "2026-11-28",
+   "pr": 22451,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A259056",
+    "https://oeis.org/A034976",
+    "https://oeis.org/A259056",
+    "https://oeis.org/A034976"
+   ],
+   "note": "Wolfdieter Lang's conjecture a(2m-1) = (-1)^(m-1) A034976(m) = (-1)^(m-1) 8^(m-1) m!. The unified entry formula r(n+1-r)+|i-j|+1 equals the entry's upper-wedge rule with its bisymmetric extension (I checked n <= 12), and the determinants match the data and the claim up to n = 21. The proof evaluates the determinant via a symmetric/antisymmetric block split. No prior proof found. Second review: Determinant evaluation for all odd sizes; faithful and apparently new. Not a finite check (general column-operation argument)."
+  },
+  "oeis-a259057": {
+   "date": "2026-11-28",
+   "pr": 20943,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A259057",
+    "https://oeis.org/A259056",
+    "https://oeis.org/A259057",
+    "https://oeis.org/A259056"
+   ],
+   "note": "The conjecture that A259057 is integral (3 | det B_{2m}) is stated faithfully with the same matrix as A259056. I checked divisibility for m <= 11. The 93-line proof sums mirrored columns to expose a factor 3. Routine; no prior proof found. Second review: Short column-operation argument (two central minus two adjacent columns gives a column 0 mod 3). Routine."
+  },
+  "oeis-a259226": {
+   "date": "2026-11-28",
+   "pr": 25984,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A259226",
+    "https://oeis.org/A157480",
+    "https://oeis.org/A259232",
+    "https://oeis.org/A259226",
+    "https://oeis.org/A157480",
+    "https://oeis.org/A259232"
+   ],
+   "note": "Disproof of Seidov's 'strong conjecture' that A259226 (keyword fini,full) ends at a(99)=9867. n = 10538 is a further term: prime(10538) = 111031, s^2 - 111031 is composite for 334 <= s <= 497, so A157480 = A259232 = 136973. I recomputed this; 10789 is another term. The b-files stop at n = 10000, and no prior report was found. Routine finite computation. Second review: The 'strong conjecture' that A259226 is complete is false; 10538, 10789, 12653, 16879 are further terms. Valid, new, purely computational disproof."
+  },
+  "oeis-a259243": {
+   "date": "2026-11-28",
+   "pr": 27318,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A259243",
+    "https://oeis.org/A259250",
+    "https://oeis.org/A259243",
+    "https://oeis.org/A259250"
+   ],
+   "note": "Barker's g.f. 3x(3+4x)/(1-x-3x^2) and Binet form for (n+1) X 2 binary arrays whose 2 X 2 blocks are rotations of 0000, 0011 or 0111. validBlock lists exactly those 9 clockwise patterns, and my transfer count matches the data (n <= 19). Routine 4-state transfer matrix; no prior proof found. Second review: Two-column transfer matrix; routine rational g.f."
+  },
+  "oeis-a261594": {
+   "date": "2026-11-28",
+   "pr": 26806,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A261594",
+    "https://oeis.org/A135756",
+    "https://oeis.org/A261594",
+    "https://oeis.org/A135756"
+   ],
+   "note": "Hanna's mod-3 conjecture. 9*A005836+{0,1,3,4} is just A005836, and mod 3 the series is 1/(1+x), whose square root is prod(1+x^(3^i)), so the proof is short. Caveat: the statement assumes an integer square root A exists rather than proving it (vacuous otherwise). I checked integrality and the residue pattern for n < 120, and A135756 asserts integrality. No prior proof found; routine. Second review: Short argument: 2^(k(k-1)) = 1 mod 3 gives F = 1/(1-2x) mod 3, whose square root is prod (1+x^(3^k)). Routine."
+  },
+  "oeis-a262415": {
+   "date": "2026-11-28",
+   "pr": 27625,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A262415",
+    "https://oeis.org/A262420",
+    "https://oeis.org/A262415",
+    "https://oeis.org/A262420"
+   ],
+   "note": "Barker's g.f. and parity closed forms for (n+1) X 4 binary arrays with every row divisible by 3 and no column divisible by 3 (binary, top/left most significant). The definition is faithful, and my mod-3 transfer count matches the data and both closed forms for n <= 24. Routine; no prior proof found. Second review: Finite-state count (6 admissible 4-bit rows, column residues mod 3); routine rational g.f."
+  },
+  "oeis-a266429": {
+   "date": "2026-11-28",
+   "pr": 26193,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266429",
+    "https://oeis.org/A266428",
+    "https://oeis.org/A266429",
+    "https://oeis.org/A266428"
+   ],
+   "note": "Hardin's degree-6 polynomial and Barker's g.f. and recurrence for 3 X n binary arrays with rows and columns lexicographically nondecreasing and column sums nondecreasing (row 3 of A266428). The list-of-columns encoding is faithful, and my DP reproduces the data and the polynomial for n <= 21. Routine; no prior proof found. Second review: Fixed number of rows, so the count is a polynomial in n determined by finitely many values once the structure is fixed; faithful, no prior proof found. Routine."
+  },
+  "oeis-a266430": {
+   "date": "2026-11-28",
+   "pr": 26341,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266430",
+    "https://oeis.org/A266428",
+    "https://oeis.org/A266430",
+    "https://oeis.org/A266428"
+   ],
+   "note": "Row 4 of A266428: Hardin's degree-11 polynomial, Barker's g.f. with (1-x)^12 and the order-12 recurrence. The encoding is faithful, and my DP matches the data and the polynomial for n <= 21. Routine; no prior proof found. Second review: Fixed number of rows, so the count is a polynomial in n determined by finitely many values once the structure is fixed; faithful, no prior proof found. Routine."
+  },
+  "oeis-a266471": {
+   "date": "2026-11-28",
+   "pr": 26618,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266471",
+    "https://oeis.org/A266470",
+    "https://oeis.org/A266471",
+    "https://oeis.org/A266470"
+   ],
+   "note": "Row 4 of A266470 (column sums nonincreasing): Hardin's quintic, Barker's g.f. and order-6 recurrence. The encoding (columns lex nondecreasing with top most significant, rows lex nondecreasing downward, sums nonincreasing) reproduces the data, and my DP matches the polynomial for n <= 21. Routine; no prior proof found. Second review: Fixed number of rows, so the count is a polynomial in n determined by finitely many values once the structure is fixed; faithful, no prior proof found. Routine."
   }
  },
  "flagged": {
@@ -24176,6 +25163,55 @@
     "https://github.com/kolinhuang0427/open-math-results/commits/main"
    ],
    "reason": "Second review: PRIOR PUBLIC PROOF: kolinhuang0427/open-math-results (row 51, targets/oeis-A108449/PROOF.md, labelled 'Proved (audited)', AUDIT timestamp 2026-11-27T09:24Z, pushed in commit 5697c5a dated Nov 27 2026) proves exactly Mathar's recurrence for n>=8 via the cubic algebraic equation and an ODE. The site's statement/proof commits are 2026-11-28 04:20-04:30Z (PR #25520 merged 12:40Z), so the external proof is earlier by roughly a day (exact push time not visible to me)."
+  },
+  "oeis-a131439": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A131439",
+    "https://oeis.org/A131438",
+    "https://oeis.org/A073760"
+   ],
+   "reason": "Second review: The entry already states the claimed behaviour as fact (Barker's unlabelled g.f./recurrence and the A073760 cross-reference), and the result is immediate from A131438's closed form. Not a meaningful open problem; I would not announce it. If the owner treats unlabelled Barker lines as unproved, downgrade to confirmed with routine:true."
+  },
+  "oeis-a253218": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A253218",
+    "https://oeis.org/A253223",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://arxiv.org/abs/2309.00487"
+   ],
+   "reason": "Second review: A253223 is the H_2 Hardinian-array table, and column 3 (Hardin's polynomial, equivalent to Barker's g.f.) was publicly confirmed in the 2024 Spahn-Dougherty-Bliss note via a transfer-matrix algorithm. The note is an informal course-project write-up, so the Lean proof is the first formal one, but the conjecture was already settled."
+  },
+  "oeis-a253219": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A253219",
+    "https://oeis.org/A253223",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://arxiv.org/abs/2309.00487"
+   ],
+   "reason": "Second review: A253223 is the H_2 Hardinian-array table, and column 4 (Hardin's polynomial, equivalent to Barker's g.f.) was publicly confirmed in the 2024 Spahn-Dougherty-Bliss note via a transfer-matrix algorithm. The note is an informal course-project write-up, so the Lean proof is the first formal one, but the conjecture was already settled."
+  },
+  "oeis-a253220": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A253220",
+    "https://oeis.org/A253223",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://arxiv.org/abs/2309.00487"
+   ],
+   "reason": "Second review: A253223 is the H_2 Hardinian-array table, and column 5 (Hardin's polynomial, equivalent to Barker's g.f.) was publicly confirmed in the 2024 Spahn-Dougherty-Bliss note via a transfer-matrix algorithm. The note is an informal course-project write-up, so the Lean proof is the first formal one, but the conjecture was already settled."
+  },
+  "oeis-a253221": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A253221",
+    "https://oeis.org/A253223",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://arxiv.org/abs/2309.00487"
+   ],
+   "reason": "Second review: A253223 is the H_2 Hardinian-array table, and column 6 (Hardin's polynomial, equivalent to Barker's g.f.) was publicly confirmed in the 2024 Spahn-Dougherty-Bliss note via a transfer-matrix algorithm. The note is an informal course-project write-up, so the Lean proof is the first formal one, but the conjecture was already settled."
   }
  },
  "reviewed": "2026-11-28"
