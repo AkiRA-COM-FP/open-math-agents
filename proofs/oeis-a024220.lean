@@ -1,6 +1,7 @@
 import OMAStatements.S_oeis_a024220
+import Mathlib
 
--- Problem: OEIS A024220, Mathar's recurrence and g.f. for floor(e_3(S(n)) / e_1(S(n))), where S(n) is
+-- Problem: OEIS A024220 (statement with the recursive e m k), Mathar's recurrence and g.f. for floor(e_3(S(n)) / e_1(S(n))), where S(n) is
 -- the first N = n + 2 numbers 3i + 1. By induction on N (e_k(c :: s) = e_k(s) + c e_(k-1)(s)):
 -- 2 e_1 = N (3N - 1), 8 e_2 = N (N - 1)(9N^2 - 9N - 2), 48 e_3 = N (N - 1)(N - 2)(3N - 1)(9N^2 - 15N - 8).
 -- Hence 24 e_3 = e_1 T with T = n (n + 1)(9N^2 - 15N - 8), and T = 8 [n = 1 mod 3] (mod 24), so
@@ -10,29 +11,19 @@ namespace OMA.A024220
 
 open OMA.S_oeis_a024220
 
-lemma esymm_cons {R : Type*} [CommSemiring R] (c : R) (s : Multiset R) (k : ℕ) :
-    (c ::ₘ s).esymm (k + 1) = s.esymm (k + 1) + c * s.esymm k := by
-  simp [Multiset.esymm, Multiset.powersetCard_cons, Multiset.sum_map_mul_left]
+lemma e_zero (m : ℕ) : e m 0 = 1 := by cases m <;> rfl
 
-def s (N : ℕ) : Multiset ℕ := (Multiset.range N).map (fun i => 3 * i + 1)
-
-lemma s_succ (N : ℕ) : s (N + 1) = (3 * N + 1) ::ₘ s N := by
-  simp [s, Multiset.range_succ]
+lemma e_succ (m k : ℕ) : e (m + 1) (k + 1) = e m (k + 1) + (3 * (m : ℤ) + 1) * e m k := rfl
 
 lemma closed (N : ℕ) :
-    2 * ((s N).esymm 1 : ℤ) = N * (3 * N - 1) ∧
-    8 * ((s N).esymm 2 : ℤ) = N * (N - 1) * (9 * N ^ 2 - 9 * N - 2) ∧
-    48 * ((s N).esymm 3 : ℤ) = N * (N - 1) * (N - 2) * (3 * N - 1) * (9 * N ^ 2 - 15 * N - 8) := by
+    2 * e N 1 = N * (3 * N - 1) ∧
+    8 * e N 2 = N * (N - 1) * (9 * N ^ 2 - 9 * N - 2) ∧
+    48 * e N 3 = N * (N - 1) * (N - 2) * (3 * N - 1) * (9 * N ^ 2 - 15 * N - 8) := by
   induction N with
-  | zero =>
-    have z1 : (s 0).esymm 1 = 0 := by decide
-    have z2 : (s 0).esymm 2 = 0 := by decide
-    have z3 : (s 0).esymm 3 = 0 := by decide
-    simp [z1, z2, z3]
+  | zero => refine ⟨rfl, rfl, rfl⟩
   | succ N ih =>
     obtain ⟨h1, h2, h3⟩ := ih
-    have e0 : (s N).esymm 0 = 1 := by simp [Multiset.esymm]
-    rw [s_succ, esymm_cons, esymm_cons, esymm_cons, e0]
+    rw [e_succ, e_succ, e_succ, e_zero]
     push_cast
     refine ⟨by linear_combination h1, by linear_combination h2 + 4 * (3 * (N : ℤ) + 1) * h1,
       by linear_combination h3 + 6 * (3 * (N : ℤ) + 1) * h2⟩
@@ -63,15 +54,13 @@ lemma floor_lemma (E1 E3 Tn k r : ℤ) (hE : 0 < E1) (h : 24 * E3 = E1 * Tn) (hk
 lemma a_closed (n : ℕ) : 24 * (a n : ℤ) = T n - 8 * ind n := by
   obtain ⟨h1, -, h3⟩ := closed (n + 2)
   obtain ⟨k, hk⟩ := T_mod n
-  have hS : S n = s (n + 2) := rfl
-  have ha : (a n : ℤ) = ((s (n + 2)).esymm 3 : ℤ) / ((s (n + 2)).esymm 1 : ℤ) := by
-    simp only [a, hS]; push_cast; rfl
-  have hE : (0 : ℤ) < ((s (n + 2)).esymm 1 : ℤ) := by push_cast at h1; nlinarith
+  have ha : a n = e (n + 2) 3 / e (n + 2) 1 := rfl
+  have hE : (0 : ℤ) < e (n + 2) 1 := by push_cast at h1; nlinarith
   have hind : 0 ≤ ind n ∧ ind n ≤ 1 := by unfold ind; split_ifs <;> norm_num
   rw [ha, floor_lemma _ _ (T n) k (8 * ind n) hE ?_ (by linarith) (by linarith) (by linarith)]
   · linarith
   · simp only [T]; push_cast at h1 h3 ⊢
-    have h48 : 48 * ((s (n + 2)).esymm 3 : ℤ) = 2 * ((s (n + 2)).esymm 1 : ℤ) *
+    have h48 : 48 * e (n + 2) 3 = 2 * e (n + 2) 1 *
         ((n : ℤ) * (n + 1) * (9 * (n + 2) ^ 2 - 15 * (n + 2) - 8)) := by
       linear_combination h3 - ((n : ℤ) + 1) * n * (9 * ((n : ℤ) + 2) ^ 2 - 15 * ((n : ℤ) + 2) - 8) * h1
     linarith
@@ -122,26 +111,21 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a024220.main := by
     intro f c k n
     rw [show f * (C c * X ^ k) = f * X ^ k * C c by ring, coeff_mul_C, coeff_mul_X_pow']
     split_ifs <;> simp [mul_comm]
-  have hpoly : ((1 : PowerSeries ℤ) + X + X ^ 2) * (X - 1) ^ 5 =
-      C 1 * X ^ 7 + C (-4) * X ^ 6 + C 6 * X ^ 5 + C (-5) * X ^ 4 + C 5 * X ^ 3 + C (-6) * X ^ 2 +
-        C 4 * X ^ 1 + C (-1) * X ^ 0 := by
+  have hpoly : ((1 : PowerSeries ℤ) - X) ^ 4 * (1 - X ^ 3) =
+      C (-1) * X ^ 7 + C 4 * X ^ 6 + C (-6) * X ^ 5 + C 5 * X ^ 4 + C (-5) * X ^ 3 + C 6 * X ^ 2 +
+        C (-4) * X ^ 1 + C 1 * X ^ 0 := by
     simp only [map_ofNat, map_neg, map_one]; ring
-  have hrhs : (X : PowerSeries ℤ) * (-2 - 11 * X - 7 * X ^ 2 - 8 * X ^ 3 + X ^ 4) =
-      C (-2) * X ^ 1 + C (-11) * X ^ 2 + C (-7) * X ^ 3 + C (-8) * X ^ 4 + C 1 * X ^ 5 := by
+  have hrhs : (2 * X + 11 * X ^ 2 + 7 * X ^ 3 + 8 * X ^ 4 - X ^ 5 : PowerSeries ℤ) =
+      C 2 * X ^ 1 + C 11 * X ^ 2 + C 7 * X ^ 3 + C 8 * X ^ 4 + C (-1) * X ^ 5 := by
     simp only [map_ofNat, map_neg, map_one]; ring
-  have v : ∀ n, (OMA.S_oeis_a024220.a n : ℤ) = (OMA.A024220.T n - 8 * OMA.A024220.ind n) / 24 :=
+  have v : ∀ n, OMA.S_oeis_a024220.a n = (OMA.A024220.T n - 8 * OMA.A024220.ind n) / 24 :=
     OMA.A024220.val
-  rw [hpoly, hrhs]
+  rw [mul_comm, hpoly, hrhs]
   ext n
   simp only [mul_add, map_add, coeff_mk, coeff_C_mul_X_pow, hco]
   rcases n with _ | _ | _ | _ | _ | _ | _ | m
   all_goals try (simp [v, OMA.A024220.T, OMA.A024220.ind]; done)
   have h := OMA.A024220.rec m
-  have hz : ∀ k, (if k = 0 then (0 : ℤ) else (OMA.S_oeis_a024220.a k : ℤ)) = OMA.S_oeis_a024220.a k := by
-    intro k; split_ifs with hk
-    · subst hk; simp [v, OMA.A024220.T, OMA.A024220.ind]
-    · rfl
-  simp only [hz]
   simp only [show 7 ≤ m + 7 by omega, show 6 ≤ m + 7 by omega, show 5 ≤ m + 7 by omega,
     show 4 ≤ m + 7 by omega, show 3 ≤ m + 7 by omega, show 2 ≤ m + 7 by omega, show 1 ≤ m + 7 by omega,
     show 0 ≤ m + 7 by omega, if_true, show m + 7 - 7 = m by omega, show m + 7 - 6 = m + 1 by omega,
@@ -149,4 +133,4 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a024220.main := by
     show m + 7 - 2 = m + 5 by omega, show m + 7 - 1 = m + 6 by omega, Nat.sub_zero,
     show m + 7 ≠ 1 by omega, show m + 7 ≠ 2 by omega, show m + 7 ≠ 3 by omega, show m + 7 ≠ 4 by omega,
     show m + 7 ≠ 5 by omega, if_false]
-  linear_combination -h
+  linear_combination h
