@@ -8,13 +8,13 @@ namespace OMA.R_arxiv_2604_17847_R1_H1_R1
 open OMA.S_arxiv_2604_17847
 open OMA.R_arxiv_2604_17847_R1 (finite_prime_cover_iff fixed_rank_family totient_fib_witness)
 
--- When the common Fibonacci factor is prime to q, the quotient must avoid q².
+-- When the common factor is prime to q, exclude multiples of the normalized square rank.
 def H1 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
     let g := r.gcd (pisano q)
     ¬ q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
       let c := Nat.fib (g * t) / Nat.fib g
-      ¬ q ^ 2 ∣ c ∧ ∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] → ¬ p ∣ c
+      ¬ rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t ∧ ∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] → ¬ p ∣ c
 
 -- When the common factor supplies one copy of q, the multiplier must avoid q.
 def H2 : Prop :=
@@ -126,6 +126,93 @@ lemma square_in_product {q a c : ℕ} (hq : q.Prime) (hs : ¬ q ^ 2 ∣ a) :
   · exact ⟨((hq.coprime_iff_not_dvd.mpr ha).pow_left 2).dvd_of_dvd_mul_left,
       fun h => dvd_mul_of_dvd_right h _⟩
 
+-- The sInf convention also gives divisibility at index zero if the rank is zero.
+lemma fib_at_rank (b : ℕ) : b ∣ Nat.fib (rankOfApparition b) := by
+  by_cases h : rankOfApparition b = 0
+  · simp [h]
+  · have ex := Nat.nonempty_of_pos_sInf (s := {j : ℕ | 0 < j ∧ b ∣ Nat.fib j})
+        (Nat.pos_of_ne_zero h)
+    exact (Nat.sInf_mem ex).2
+
+lemma rank_dvd_iff_fib {b n : ℕ} : rankOfApparition b ∣ n ↔ b ∣ Nat.fib n := by
+  constructor
+  · exact fun h => (fib_at_rank b).trans (Nat.fib_dvd _ _ h)
+  · by_cases h : n = 0
+    · simp [h]
+    · exact OMA.R_arxiv_2604_17847_R1.rank_dvd_index (Nat.pos_of_ne_zero h)
+
+-- At an ordinary prime the next zero modulo q² is reached at multiplier q.
+lemma square_rank {q : ℕ} (hq : q.Prime) :
+    rankOfApparition (q ^ 2) =
+      if q ^ 2 ∣ Nat.fib (rankOfApparition q) then rankOfApparition q
+      else q * rankOfApparition q := by
+  let z := rankOfApparition q
+  let w := rankOfApparition (q ^ 2)
+  have first : q ∣ Nat.fib z := fib_at_rank q
+  have second : q ^ 2 ∣ Nat.fib w := fib_at_rank _
+  have sub : z ∣ w := rank_dvd_iff_fib.mpr ((dvd_pow_self q (by decide : 2 ≠ 0)).trans second)
+  split_ifs with he
+  · exact Nat.dvd_antisymm (rank_dvd_iff_fib.mpr he) sub
+  · have hz : 0 < z := by
+      by_contra! hz
+      have eq : z = 0 := by omega
+      exact he (by change q ^ 2 ∣ Nat.fib z; simp [eq])
+    have lift (t : ℕ) : q ^ 2 ∣ Nat.fib (z * t) ↔ q ∣ t := by
+      calc
+        q ^ 2 ∣ Nat.fib (z * t) ↔ q ^ 2 ∣ Nat.fib z * (Nat.fib (z * t) / Nat.fib z) := by
+          rw [fib_quotient_product]
+        _ ↔ q ∣ Nat.fib (z * t) / Nat.fib z := by
+          simpa only [if_pos first] using square_in_product (a := Nat.fib z) (c := Nat.fib (z * t) / Nat.fib z) hq he
+        _ ↔ q ∣ t := prime_dvd_quotient_iff hq hz first t
+    apply Nat.dvd_antisymm
+    · exact rank_dvd_iff_fib.mpr (by simpa [Nat.mul_comm] using (lift q).mpr (dvd_refl q))
+    · obtain ⟨t, ht⟩ := sub
+      rw [ht] at second
+      change q * z ∣ w
+      rw [ht, Nat.mul_comm q z]
+      exact Nat.mul_dvd_mul_left z ((lift t).mp second)
+
+lemma normalized_square_test {q g t : ℕ} (hg : 0 < g) :
+    q ^ 2 ∣ Nat.fib (g * t) ↔
+      rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t := by
+  rw [← rank_dvd_iff_fib]
+  let w := rankOfApparition (q ^ 2)
+  let d := w.gcd g
+  have hd : 0 < d := Nat.gcd_pos_of_pos_right _ hg
+  obtain ⟨a, b, cop, ha, hb⟩ := Nat.exists_coprime w g
+  have quot : w / d = a := by
+    calc
+      w / d = (a * d) / d := congrArg (· / d) ha
+      _ = a := Nat.mul_div_cancel _ hd
+  change w ∣ g * t ↔ w / d ∣ t
+  rw [quot]
+  have left : w = d * a := ha.trans (Nat.mul_comm ..)
+  have right : g = d * b := hb.trans (Nat.mul_comm ..)
+  constructor
+  · intro h
+    rw [left, right, Nat.mul_assoc] at h
+    exact cop.dvd_of_dvd_mul_left (Nat.dvd_of_mul_dvd_mul_left hd h)
+  · intro h
+    rw [left, right, Nat.mul_assoc]
+    exact Nat.mul_dvd_mul_left d (dvd_mul_of_dvd_right h _)
+
+-- At a prime multiplier, only the normalized square rank itself can introduce a square.
+lemma square_at_prime_multiplier {q g l : ℕ} (hg : 0 < g) (hl : l.Prime)
+    (hbase : ¬ q ^ 2 ∣ Nat.fib g) :
+    q ^ 2 ∣ Nat.fib (g * l) ↔ rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g = l := by
+  have hunit : ¬ rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ 1 := by
+    intro h
+    exact hbase (by simpa using (normalized_square_test (t := 1) hg).mpr h)
+  rw [normalized_square_test hg, Nat.dvd_prime hl]
+  exact ⟨fun h => h.resolve_left (fun e => hunit (by rw [e])), Or.inr⟩
+
+lemma square_quotient_test {q g t : ℕ} (hq : q.Prime) (hg : 0 < g) (hd : ¬ q ∣ Nat.fib g) :
+    q ^ 2 ∣ Nat.fib (g * t) / Nat.fib g ↔
+      rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t := by
+  rw [← normalized_square_test hg, ← fib_quotient_product g t]
+  rw [Nat.mul_div_cancel_left _ (Nat.fib_pos.mpr hg)]
+  exact ⟨fun h => dvd_mul_of_dvd_right h _, ((hq.coprime_iff_not_dvd.mpr hd).pow_left 2).dvd_of_dvd_mul_left⟩
+
 lemma quotient_exception_iff {q g P t : ℕ} (hq : q.Prime) (hP : 0 < P)
     (hgP : g ∣ P) (ht : 0 < t) (hbad : ¬ q ∣ (Nat.fib P).totient) :
     let c := Nat.fib (g * t) / Nat.fib g
@@ -176,7 +263,8 @@ theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H1 := by
     have no := mt (prime_dvd_quotient_iff hq hg hd t).mp hs
     exact fail t ht hc ⟨by simpa only [if_pos hd] using no, hp⟩
   · obtain ⟨t, ht, hc, hs, hp⟩ := first q r hq hlarge hr.1 hbad hd
-    exact fail t ht hc ⟨by simpa only [if_neg hd] using hs, hp⟩
+    have no := mt (square_quotient_test (t := t) hq (Nat.gcd_pos_of_pos_right r hP) hd).mp hs
+    exact fail t ht hc ⟨by simpa only [if_neg hd] using no, hp⟩
 
 -- Conversely, failure of descent supplies the recurring rank family used by the parent.
 lemma quotient_problems_of_cover (cover : OMA.R_arxiv_2604_17847_R1.H1) : H1 ∧ H2 := by
@@ -197,7 +285,9 @@ lemma quotient_problems_of_cover (cover : OMA.R_arxiv_2604_17847_R1.H1) : H1 ∧
   · intro q r hq hl hr hbad
     dsimp only
     intro hd
-    simpa only [if_neg hd] using pick q r hq hl hr hbad
+    obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
+    rw [if_neg hd, square_quotient_test hq (Nat.gcd_pos_of_pos_right r (Nat.zero_lt_of_lt hr)) hd] at hs
+    exact ⟨t, ht, hc, hs, hp⟩
   · intro q r hq hl hr hbad
     dsimp only
     intro hd
