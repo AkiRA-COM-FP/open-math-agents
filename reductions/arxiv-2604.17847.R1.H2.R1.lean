@@ -14,21 +14,26 @@ open OMA.R_arxiv_2604_17847_R1 (rank_dvd_index pisano_eq_of_certificate)
 -- Exclude exceptional square divisibility away from the necessary companion residue.
 def H1 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
-    (¬ q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient) → q % 15 ≠ 8 →
+    let h := pisano q / 2
+    (¬ (q ∣ (ordCompl[q] (Nat.fib h)).totient ∨
+        q ∣ (ordCompl[q] (ordCompl[2*q+1] (2*Nat.fib (h+1) - Nat.fib h))).totient)) → q % 15 ≠ 8 →
     ¬ q ^ 2 ∣ Nat.fib (if q % 5 = 1 ∨ q % 5 = 4 then q-1 else q+1)
 
--- On the remaining class, the square test uses only the upper neighbor.
+-- On the remaining class, the square test uses the Fibonacci half-period factor.
 def H2 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
-    (¬ q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient) → q % 15 = 8 →
-    q ^ 2 ∣ Nat.fib (q+1) → (2*q+1).Prime
+    let h := pisano q / 2
+    (¬ (q ∣ (ordCompl[q] (Nat.fib h)).totient ∨
+        q ∣ (ordCompl[q] (ordCompl[2*q+1] (2*Nat.fib (h+1) - Nat.fib h))).totient)) → q % 15 = 8 →
+    q ^ 2 ∣ Nat.fib h → (2*q+1).Prime
 
 def H3 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
-    (¬ q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient) → q % 15 = 8 →
-    q ^ 2 ∣ Nat.fib (q+1) → (2*q+1).Prime →
-    ∀ l : ℕ, l.Prime → 2 < l → l ∣ (2*(q+1) / pisano q) →
-      (rankOfApparition (2*q+1)).factorization l ≤ (pisano q).factorization l
+    let h := pisano q / 2
+    (¬ (q ∣ (ordCompl[q] (Nat.fib h)).totient ∨
+        q ∣ (ordCompl[q] (ordCompl[2*q+1] (2*Nat.fib (h+1) - Nat.fib h))).totient)) → q % 15 = 8 →
+    q ^ 2 ∣ Nat.fib h → (2*q+1).Prime →
+    ((2*Nat.fib (h+1) - Nat.fib h) + 2)/q^4 ≡ 32 [MOD (2*q+1)]
 
 -- Consecutive values form a finite reversible orbit for every positive modulus.
 lemma fib_pair_iterate (q n : ℕ) :
@@ -1116,6 +1121,175 @@ lemma stripped_period_large_iff {q : ℕ} (hq : q.Prime) (hl : 53 < q) :
     have := Nat.mul_lt_mul_of_pos_right (show 2 < k by omega) hq.pos
     omega
 
+-- An aligned prime companion cannot occur in the Fibonacci factor at the half period.
+lemma companion_not_in_fibonacci_half {q : ℕ} (hq : q.Prime) (hl : 53 < q)
+    (hp : (2*q+1).Prime) : ¬ 2*q+1 ∣ Nat.fib (pisano q / 2) := by
+  intro half
+  have twice : 2*(pisano q / 2) = pisano q :=
+    Nat.mul_div_cancel' (even_iff_two_dvd.mp (even_period (by omega : 2 < q)))
+  have aligned := half.trans (Nat.fib_dvd _ _ (twice ▸ dvd_mul_left (pisano q / 2) 2))
+  have residue := aligned_companion_residue hq hl hp aligned
+  have full := (nonsplit_period_cofactor hq (by omega) (by omega)).1
+  have dh : pisano q / 2 ∣ q+1 := Nat.dvd_of_mul_dvd_mul_left (by decide : 0 < 2)
+    (show 2*(pisano q/2) ∣ 2*(q+1) by rwa [twice])
+  have next := half.trans (Nat.fib_dvd _ _ dh)
+  have odd := hq.eq_two_or_odd.resolve_left (by omega)
+  have even : Even (q+1) := even_iff_two_dvd.mpr (by omega)
+  let : NeZero (2*q+1) := ⟨hp.ne_zero⟩
+  have ret := (period_dvd_double_iff (2*q+1) (q+1)).mpr (by simpa [even] using next)
+  have no := (nonsplit_period_cofactor hp (by omega) (by omega)).2.1
+  exact no (by rwa [show 2*q+1+1 = 2*(q+1) by omega])
+
+lemma companion_in_lucas_half_iff {q : ℕ} (hq : q.Prime) (hl : 53 < q) (hp : (2*q+1).Prime) :
+    let h := pisano q / 2
+    2*q+1 ∣ Nat.fib (pisano q) ↔ 2*q+1 ∣ 2*Nat.fib (h+1) - Nat.fib h := by
+  dsimp only
+  have twice : 2*(pisano q / 2) = pisano q :=
+    Nat.mul_div_cancel' (even_iff_two_dvd.mp (even_period (by omega : 2 < q)))
+  have prod := Nat.fib_two_mul (pisano q/2)
+  rw [twice] at prod
+  rw [prod]
+  exact ⟨fun d => (hp.dvd_mul.mp d).resolve_left (companion_not_in_fibonacci_half hq hl hp),
+    fun d => dvd_mul_of_dvd_right d _⟩
+
+lemma other_witness_half_tests {q : ℕ} (hq : q.Prime) (hl : 53 < q) :
+    let h := pisano q / 2
+    q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient ↔
+      q ∣ (ordCompl[q] (Nat.fib h)).totient ∨
+      q ∣ (ordCompl[q] (ordCompl[2*q+1] (2*Nat.fib (h+1) - Nat.fib h))).totient := by
+  dsimp only
+  let h := pisano q / 2
+  let a := Nat.fib h
+  let b := 2*Nat.fib (h+1) - a
+  let : NeZero q := ⟨hq.ne_zero⟩
+  have pos := (period_and_returns q).1
+  have twice : 2*h = pisano q :=
+    Nat.mul_div_cancel' (even_iff_two_dvd.mp (even_period (by omega : 2 < q)))
+  have prod : Nat.fib (pisano q) = a*b := twice ▸ Nat.fib_two_mul h
+  have nz := (Nat.fib_pos.mpr pos).ne'
+  have both : a*b ≠ 0 := prod ▸ nz
+  rw [companion_removed_witness hq nz, stripped_totient_witness hq (left_ne_zero_of_mul both),
+    companion_removed_witness hq (right_ne_zero_of_mul both)]
+  change (∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ p ∣ Nat.fib (pisano q) ∧ p ≠ 2*q+1) ↔
+    (∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ p ∣ a) ∨
+    (∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ p ∣ b ∧ p ≠ 2*q+1)
+  rw [prod]
+  constructor
+  · rintro ⟨p,hp,cong,divides,other⟩
+    rcases hp.dvd_mul.mp divides with left | right
+    · exact Or.inl ⟨p,hp,cong,left⟩
+    · exact Or.inr ⟨p,hp,cong,right,other⟩
+  · rintro (⟨p,hp,cong,left⟩ | ⟨p,hp,cong,right,other⟩)
+    · refine ⟨p,hp,cong,dvd_mul_of_dvd_left left _,?_⟩
+      rintro rfl
+      exact companion_not_in_fibonacci_half hq hl hp left
+    · exact ⟨p,hp,cong,dvd_mul_of_dvd_right right _,other⟩
+
+-- On the remaining residue class the half period is even. Hence the square
+-- test lies in the Fibonacci factor, while the companion test lies in Lucas.
+lemma even_half_in_companion_class {q : ℕ} (hq : q.Prime) (hl : 5 < q) (residue : q%15 = 8) :
+    Even (pisano q/2) := by
+  obtain ⟨full, _, odd⟩ := nonsplit_period_cofactor hq hl (by omega)
+  let c := 2*(q+1)/pisano q
+  have twice : 2*(pisano q/2) = pisano q :=
+    Nat.mul_div_cancel' (even_iff_two_dvd.mp (even_period (by omega : 2 < q)))
+  have product : 2*((pisano q/2)*c) = 2*(q+1) := by
+    rw [← Nat.mul_assoc, twice]
+    exact Nat.mul_div_cancel' full
+  have half : (pisano q/2)*c = q+1 := by omega
+  have qo := hq.eq_two_or_odd.resolve_left (by omega)
+  have evenprod : 2 ∣ (pisano q/2)*c := by rw [half]; omega
+  exact even_iff_two_dvd.mpr ((Nat.prime_two.dvd_mul.mp evenprod).resolve_right odd.not_two_dvd_nat)
+
+lemma stable_residue_half_iff {q : ℕ} (hq : q.Prime) (hl : 5 < q) (residue : q%15 = 8) :
+    pisano (q^2) = pisano q ↔ q^2 ∣ Nat.fib (pisano q/2) := by
+  simpa only [if_pos (even_half_in_companion_class hq hl residue)] using stable_half_period_iff (m := q) (j := 2) (by omega) (by decide)
+
+-- Cassini doubles the precision on the Lucas side of a square-zero half period.
+lemma lucas_half_lift {q : ℕ} (hq : q.Prime) (hl : 2 < q)
+    (even : Even (pisano q/2)) (square : q^2 ∣ Nat.fib (pisano q/2)) :
+    let h := pisano q/2
+    q^4 ∣ (2*Nat.fib (h+1) - Nat.fib h) + 2 := by
+  let h := pisano q/2
+  let a := Nat.fib h
+  let b := Nat.fib (h+1)
+  let L := 2*b-a
+  let : NeZero q := ⟨hq.ne_zero⟩
+  have pos := (period_and_returns q).1
+  have twice : 2*h = pisano q := Nat.mul_div_cancel' (even_iff_two_dvd.mp (even_period hl))
+  have hp : 0 < h := by omega
+  have h2 : 2 ≤ h := by obtain ⟨t,ht⟩ := even; change h = t+t at ht; omega
+  have ab : a ≤ b := Nat.fib_le_fib_succ
+  have bound : a ≤ 2*b := by omega
+  have b2 : 2 ≤ b := (Nat.fib_mono (show 3 ≤ h+1 by omega) : Nat.fib 3 ≤ b)
+  have L2 : 2 ≤ L := by dsimp [L]; omega
+  have zd := (dvd_pow_self q (by decide : 2 ≠ 0)).trans square
+  have no : ¬ q ∣ L-2 := by
+    intro d
+    let : Fact q.Prime := ⟨hq⟩
+    have zero : (a : ZMod q) = 0 := (ZMod.natCast_eq_zero_iff ..).mpr zd
+    have rel := (ZMod.natCast_eq_zero_iff ..).mpr d
+    change (((2*b-a-2 : ℕ) : ZMod q)) = 0 at rel
+    rw [Nat.cast_sub L2, Nat.cast_sub bound, Nat.cast_mul, Nat.cast_ofNat, zero, sub_zero] at rel
+    have two : (2 : ZMod q) ≠ 0 := CharP.cast_ne_zero_of_ne_of_prime (ZMod q) Nat.prime_two (show q ≠ 2 by omega)
+    have one : (b : ZMod q) = 1 := by
+      apply mul_left_cancel₀ two
+      linear_combination rel
+    have ret : pisano q ∣ h := ((period_and_returns q).2 _).mpr
+      ⟨zd, (ZMod.natCast_eq_natCast_iff _ _ _).mp (by simpa using one)⟩
+    have := Nat.le_of_dvd hp ret
+    omega
+  have prod : q^4 ∣ (L+2)*(L-2) := by
+    apply (ZMod.natCast_eq_zero_iff ..).mp
+    have sqzero : (a : ZMod (q^4))^2 = 0 := by
+      rw [← Nat.cast_pow, ZMod.natCast_eq_zero_iff]
+      simpa only [← pow_mul] using (pow_dvd_pow_of_dvd square 2)
+    have det := cassini_signed (q^4) h
+    change (b : ZMod (q^4))^2 - a*b - a^2 = (-1)^h at det
+    rw [show (-1 : ZMod (q^4))^h = 1 from even.neg_one_pow] at det
+    rw [Nat.cast_mul, Nat.cast_add, Nat.cast_sub L2]
+    dsimp only [L]
+    rw [Nat.cast_sub bound, Nat.cast_mul, Nat.cast_ofNat]
+    linear_combination 4*det + 5*sqzero
+  exact ((hq.coprime_iff_not_dvd.mpr no).pow_left 4).dvd_of_dvd_mul_right prod
+
+-- Since 16*q^4 is 1 modulo 2q+1, the companion test on a lifted Lucas
+-- number is the residue 32 test on its smaller quotient.
+lemma companion_quotient_test {q L : ℕ} (hq : 2 < q) (prime : (2*q+1).Prime)
+    (lift : q^4 ∣ L+2) :
+    2*q+1 ∣ L ↔ (L+2)/q^4 ≡ 32 [MOD (2*q+1)] := by
+  let c := 2*q+1
+  let : Fact c.Prime := ⟨prime⟩
+  let T := (L+2)/q^4
+  have product : q^4*T = L+2 := Nat.mul_div_cancel' lift
+  have modulus : (2 : ZMod c)*(q : ZMod c)+1 = 0 := by
+    calc (2 : ZMod c)*(q : ZMod c)+1 = ((2*q+1 : ℕ) : ZMod c) := by push_cast; rfl
+         _ = 0 := ZMod.natCast_self c
+  have inv : (16 : ZMod c)*(q : ZMod c)^4 = 1 := by
+    calc (16 : ZMod c)*(q : ZMod c)^4 = (2*(q : ZMod c))^4 := by ring
+         _ = 1 := by rw [show 2*(q : ZMod c) = -1 by linear_combination modulus]; norm_num
+  have eq := congrArg (fun n : ℕ => (n : ZMod c)) product
+  push_cast at eq
+  have relation : (T : ZMod c) = 16*(L : ZMod c)+32 := by
+    linear_combination 16*eq - (T : ZMod c)*inv
+  have two : (2 : ZMod c) ≠ 0 := CharP.cast_ne_zero_of_ne_of_prime (ZMod c) Nat.prime_two (by dsimp [c]; omega)
+  have unit : (16 : ZMod c) ≠ 0 := by rw [show (16 : ZMod c) = 2^4 by norm_num]; exact pow_ne_zero _ two
+  change c ∣ L ↔ T ≡ 32 [MOD c]
+  rw [← ZMod.natCast_eq_zero_iff, ← ZMod.natCast_eq_natCast_iff, relation, Nat.cast_ofNat]
+  constructor
+  · intro z; simp [z]
+  · intro e
+    exact (mul_eq_zero.mp (show (16 : ZMod c)*(L : ZMod c) = 0 by linear_combination e)).resolve_left unit
+
+
+lemma stable_companion_quotient_iff {q : ℕ} (hq : q.Prime) (hl : 53 < q) (residue : q%15 = 8)
+    (square : q^2 ∣ Nat.fib (pisano q/2)) (prime : (2*q+1).Prime) :
+    let h := pisano q/2
+    2*q+1 ∣ Nat.fib (pisano q) ↔ ((2*Nat.fib (h+1) - Nat.fib h) + 2)/q^4 ≡ 32 [MOD (2*q+1)] :=
+  (companion_in_lucas_half_iff hq hl prime).trans
+    (companion_quotient_test (by omega) prime
+      (lucas_half_lift hq (by omega) (even_half_in_companion_class hq (by omega) residue) square))
+
 -- When the reduced totient is prime to q, only the canonical witness can work.
 lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
     ∀ q : ℕ, q.Prime → 53 < q → pisano (q^2) = pisano q →
@@ -1123,26 +1297,30 @@ lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
       (2*q+1).Prime ∧ 2*q+1 ∣ Nat.fib (pisano q) := by
   constructor
   · rintro ⟨exclude, prime, align⟩ q hq hl stable noLarge
+    have halves := mt (other_witness_half_tests hq hl).mpr noLarge
     have large := large_prime_of_stability hq (by omega) stable
     have long := large_period_of_stability hq hl stable
     have square := (stable_selected_iff hq (by omega)).mp stable
     have residue : q % 15 = 8 := by
       by_contra h
-      exact exclude q hq large long noLarge h square
-    rw [if_neg (by omega)] at square
-    have hp := prime q hq large long noLarge residue square
-    exact ⟨hp, (companion_odd_tests_iff hq (by omega) residue hp).mpr (align q hq large long noLarge residue square hp)⟩
+      exact exclude q hq large long halves h square
+    have halfSquare := (stable_residue_half_iff hq (by omega) residue).mp stable
+    have hp := prime q hq large long halves residue halfSquare
+    exact ⟨hp, (stable_companion_quotient_iff hq (by omega) residue halfSquare hp).mpr (align q hq large long halves residue halfSquare hp)⟩
   · intro canonical
     refine ⟨?_, ?_, ?_⟩
-    · intro q hq large _ noLarge outside square
+    · intro q hq large _ h noLarge outside square
+      have noFull := mt (other_witness_half_tests hq (by omega)).mp noLarge
       have stable := (stable_selected_iff hq (by omega)).mpr square
-      obtain ⟨hp, aligned⟩ := canonical q hq (by omega) stable noLarge
+      obtain ⟨hp, aligned⟩ := canonical q hq (by omega) stable noFull
       exact outside (aligned_companion_residue hq (by omega) hp aligned)
-    · intro q hq large _ noLarge _ square
-      exact (canonical q hq (by omega) ((stable_neighbor_iff hq (by omega)).mpr (Or.inr square)) noLarge).1
-    · intro q hq large _ noLarge residue square hp
-      have stable := (stable_neighbor_iff hq (by omega)).mpr (Or.inr square)
-      exact (companion_odd_tests_iff hq (by omega) residue hp).mp (canonical q hq (by omega) stable noLarge).2
+    · intro q hq large _ h noLarge residue square
+      have noFull := mt (other_witness_half_tests hq (by omega)).mp noLarge
+      exact (canonical q hq (by omega) ((stable_residue_half_iff hq (by omega) residue).mpr square) noFull).1
+    · intro q hq large _ h noLarge residue square hp
+      have noFull := mt (other_witness_half_tests hq (by omega)).mp noLarge
+      have stable := (stable_residue_half_iff hq (by omega) residue).mpr square
+      exact (stable_companion_quotient_iff hq (by omega) residue square hp).mp (canonical q hq (by omega) stable noFull).2
 
 lemma parent_iff : (H1 ∧ H2 ∧ H3) ↔ OMA.R_arxiv_2604_17847_R1.H2 := by
   rw [canonical_companion_iff]
