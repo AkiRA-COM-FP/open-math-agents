@@ -1,22 +1,22 @@
 import OMAStatements.S_oeis_a108225
 
+open OMA.S_oeis_a108225
+
 theorem OMA.solution : type_of% @OMA.S_oeis_a108225.main := by
-  have key : ∀ n : ℕ, OMA.S_oeis_a108225.a (n + 1) = OMA.S_oeis_a108225.b (n + 1) + 1 ∧
-      OMA.S_oeis_a108225.a (n + 2) = OMA.S_oeis_a108225.b (n + 2) + 1 := by
+  have key : ∀ n : ℕ, a (n + 1) = b (n + 1) + 1 ∧
+      a (n + 2) = b (n + 2) + 1 := by
     intro n
     induction n with
     | zero => decide
     | succ n ih =>
       obtain ⟨h1, h2⟩ := ih
       refine ⟨h2, ?_⟩
-      show (OMA.S_oeis_a108225.a (n + 2) + OMA.S_oeis_a108225.a (n + 1)) *
-        (OMA.S_oeis_a108225.a (n + 2) - OMA.S_oeis_a108225.a (n + 1) + 1) / 2 =
-        OMA.S_oeis_a108225.b (n + 2 + 1) + 1
-      have hb2 : OMA.S_oeis_a108225.b (n + 2) = OMA.S_oeis_a108225.b (n + 1) * (OMA.S_oeis_a108225.b (n + 1) + 1) / 2 + 1 := rfl
-      have hb3 : OMA.S_oeis_a108225.b (n + 2 + 1) = OMA.S_oeis_a108225.b (n + 2) * (OMA.S_oeis_a108225.b (n + 2) + 1) / 2 + 1 := rfl
+      show (a (n + 2) + a (n + 1)) * (a (n + 2) - a (n + 1) + 1) / 2 = b (n + 2 + 1) + 1
+      have hb2 : b (n + 2) = b (n + 1) * (b (n + 1) + 1) / 2 + 1 := rfl
+      have hb3 : b (n + 2 + 1) = b (n + 2) * (b (n + 2) + 1) / 2 + 1 := rfl
       rw [h1, h2, hb3]
-      generalize OMA.S_oeis_a108225.b (n + 1) = x at hb2 ⊢
-      generalize OMA.S_oeis_a108225.b (n + 2) = y at hb2 hb3 ⊢
+      generalize b (n + 1) = x at hb2 ⊢
+      generalize b (n + 2) = y at hb2 hb3 ⊢
       obtain ⟨k, hk⟩ := Nat.even_mul_succ_self x
       have hk2 : x * (x + 1) / 2 = k := by omega
       rw [hk2] at hb2
