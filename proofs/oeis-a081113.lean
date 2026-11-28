@@ -225,7 +225,8 @@ private theorem encode_surjective (m : ℕ) : Function.Surjective (encode m) := 
   have hstep (k : ℕ) (hk : k < m) : |col (k+1)-col k| ≤ 1 := by
     unfold col
     rw [dif_pos (by omega), dif_pos (by omega)]
-    exact p.prop ⟨k, by omega⟩ (show k+1<m+1 by omega)
+    have hsucc : k + 1 < m + 1 := by omega
+    exact p.prop ⟨k, by omega⟩ hsucc
   let w := readWalk m col hstep
   have hp (k : ℕ) (hk : k ≤ m) : position w k = col k-col 0 :=
     read_positions m col hstep k hk
@@ -289,7 +290,9 @@ private theorem total_add (m : ℕ) (f g : Walk m → ℤ) :
     total m (fun w => f w+g w) = total m f + total m g := Finset.sum_add_distrib
 
 private theorem total_sub (m : ℕ) (f g : Walk m → ℤ) :
-    total m (fun w => f w-g w) = total m f - total m g := Finset.sum_sub_distrib
+    total m (fun w => f w-g w) = total m f - total m g := by
+  unfold total
+  rw [Finset.sum_sub_distrib]
 
 private theorem total_mul (m : ℕ) (r : ℤ) (f : Walk m → ℤ) :
     total m (fun w => r * f w) = r*total m f := (Finset.mul_sum _ _ _).symm
