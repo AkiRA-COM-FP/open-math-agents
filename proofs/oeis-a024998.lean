@@ -33,9 +33,7 @@ private theorem pos_end (n : ℕ) : (a n : ℤ) = ways n (n+1) := by
     simp [weight, Finset.sum_sub_distrib]
   have ht : (weight w : ℤ) - n = 1 ↔ n + 1 = weight w := by omega
   simp only [h, ht, permitted]
-  split_ifs with hw
-  · exact (if_pos hw).symm
-  · exact (if_neg hw).symm
+  by_cases good : (∀ i : Fin n, i.val < 2 → w i ≠ 1) ∧ n + 1 = weight w <;> simp [good]
 
 private theorem reflection (m : ℕ) : ways (m+2) (m+1) = ways (m+2) (m+3) := by
   let e := Equiv.piCongrRight fun _ : Fin (m+2) => (Fin.revPerm : Equiv.Perm (Fin 3))
