@@ -1,4 +1,5 @@
 import FormalConjectures.ErdosProblems.«5»
+import Mathlib.Data.ZMod.Basic
 
 -- Reduction Erdos5.erdos_5.variants.banks_freiberg_maynard.R2 of Erdős Problem 5 — banks freiberg maynard
 -- Credit: @hiattco
@@ -99,5 +100,62 @@ theorem strict_grid_approx : H2 := by
 /-- Only the strictly increasing rational-grid sieve input remains. -/
 theorem of_grid (h : H1) : type_of% @Erdos5.erdos_5.variants.banks_freiberg_maynard :=
   main h strict_grid_approx
+
+/-- These shifts omit a residue modulo every prime. The primes at most nine divide
+210, and nine residues cannot cover a larger prime field. -/
+theorem admissible_nine (a : Fin 9 → ℕ) (ha : ∀ i, 210 ∣ a i) :
+    ∀ p : ℕ, p.Prime → ∃ x : ℕ, ∀ i, ¬ p ∣ x + a i := by
+  intro p hp
+  let _ : Fact p.Prime := ⟨hp⟩
+  have missing : ∃ y : ZMod p, ∀ i, (a i : ZMod p) ≠ y := by
+    by_cases hsmall : p ≤ 9
+    · have small_primes : ∀ j : Fin 10, j.val.Prime → j.val ∣ 210 := by decide
+      have hdiv := small_primes ⟨p, by omega⟩ hp
+      refine ⟨1, fun i => ?_⟩
+      have hd : (p : ℤ) ∣ (a i : ℤ) := by exact_mod_cast hdiv.trans (ha i)
+      have hz := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr hd
+      simpa using hz.trans_ne (zero_ne_one : (0 : ZMod p) ≠ 1)
+    · by_contra! hfull
+      have hsurj : Function.Surjective (fun i => (a i : ZMod p)) := hfull
+      have hcard := Fintype.card_le_of_surjective _ hsurj
+      rw [ZMod.card, Fintype.card_fin] at hcard
+      omega
+  obtain ⟨y, hy⟩ := missing
+  refine ⟨(-y).val, fun i hbad => hy i ?_⟩
+  have hd : (p : ℤ) ∣ ((-y).val : ℤ) + (a i : ℤ) := by exact_mod_cast hbad
+  have hz := (ZMod.intCast_zmod_eq_zero_iff_dvd _ _).mpr hd
+  rw [Int.cast_add, Int.cast_natCast, Int.cast_natCast, ZMod.natCast_zmod_val] at hz
+  exact eq_of_sub_eq_zero (by simpa [sub_eq_add_neg, add_comm] using hz)
+
+/-- It suffices to treat admissible integer shifts starting at zero, all divisible by 210.
+Rescaling the common denominator preserves every difference on the original rational grid. -/
+theorem of_admissible_grid
+    (sieve : ∀ (d : ℕ) (a : Fin 9 → ℕ), 0 < d → 210 ∣ d →
+      a 0 = 0 → StrictMono a → (∀ i, 210 ∣ a i) →
+      (∀ p : ℕ, p.Prime → ∃ x : ℕ, ∀ i, ¬ p ∣ x + a i) →
+        ∃ i j, i < j ∧ ((a j : ℝ) - (a i : ℝ)) / d ∈ Erdos5.limitPointSet) :
+    type_of% @Erdos5.erdos_5.variants.banks_freiberg_maynard := by
+  apply of_grid
+  intro n a ha
+  let b (i : Fin 9) := 210 * (a i - a 0)
+  have hbase (i : Fin 9) : a 0 ≤ a i := ha.monotone (Fin.zero_le i)
+  have hmono : StrictMono b := by
+    intro i j hij
+    have h := ha hij
+    have h₀ := hbase i
+    have h₁ : a i - a 0 < a j - a 0 := by omega
+    exact Nat.mul_lt_mul_of_pos_left h₁ (by decide)
+  have hdiv (i : Fin 9) : 210 ∣ b i := dvd_mul_right _ _
+  obtain ⟨i, j, hij, hgap⟩ := sieve (210*(n+1)) b (by omega)
+    (dvd_mul_right _ _) (by simp [b]) hmono hdiv (admissible_nine b hdiv)
+  refine ⟨i, j, hij, ?_⟩
+  have difference :
+      ((b j : ℝ) - (b i : ℝ)) / ((210*(n+1) : ℕ) : ℝ) =
+      (a j : ℝ) / ((n : ℝ)+1) - (a i : ℝ) / ((n : ℝ)+1) := by
+    simp only [b, Nat.cast_mul, Nat.cast_sub (hbase _), Nat.cast_add, Nat.cast_one,
+      Nat.cast_ofNat]
+    rw [← mul_sub, mul_div_mul_left _ _ (by norm_num : (210 : ℝ) ≠ 0), ← sub_div]
+    ring_nf
+  rwa [difference] at hgap
 
 end OMA.R_Erdos5_erdos_5_variants_banks_freiberg_maynard_R2
