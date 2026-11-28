@@ -1,4 +1,4 @@
-import Mathlib
+import Mathlib.Algebra.Polynomial.Coeff
 
 /-!
 # Two conjectures on the polynomial triangle OEIS A260056
@@ -14,10 +14,10 @@ namespace OMA.S_oeis_a260056
 
 open Polynomial
 
-def row (n : ℕ) : ℤ[X] :=
+noncomputable def row (n : ℕ) : ℤ[X] :=
   ∑ j ∈ Finset.range (n + 1), (1 + Polynomial.X + Polynomial.X ^ 2) ^ j
 
-def T (n k : ℕ) : ℤ := (row n).coeff k
+noncomputable def T (n k : ℕ) : ℤ := (row n).coeff k
 
 theorem main :
     (∀ n : ℕ, (∑ k ∈ Finset.range (n + 1), (-1 : ℤ)^k * T (n-k) k) =
