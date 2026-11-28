@@ -2847,6 +2847,143 @@ lemma class_two_outer_fixed_kernel_count (K : FiniteGrp.{0}) {m : ℕ} (hm : 0 <
   let _ : IsMulCommutative (O ⧸ Subgroup.center O) := comm
   exact (outer_cyclic_quotient_count K m).trans (Nat.mul_le_mul_right _ (class_two_outer_class_bound O m hm))
 
+/-- Transport the count of conjugacy classes killed by m through a group isomorphism. -/
+lemma torsion_class_count_congr {G H : Type u} [Group G] [Group H] [Finite G] [Finite H]
+    (e : G ≃* H) (m : ℕ) :
+    (ConjClasses.mk '' {x : G | x^m = 1}).ncard = (ConjClasses.mk '' {x : H | x^m = 1}).ncard := by
+  classical
+  have bound {X Y : Type u} [Group X] [Group Y] [Finite X] (f : X ≃* Y) :
+      (ConjClasses.mk '' {y : Y | y^m = 1}).ncard ≤ (ConjClasses.mk '' {x : X | x^m = 1}).ncard := by
+    let _ : Finite (ConjClasses X) := Finite.of_surjective _ ConjClasses.mk_surjective
+    let S := ConjClasses.mk '' {x : X | x^m = 1}
+    have sub : ConjClasses.mk '' {y : Y | y^m = 1} ⊆ ConjClasses.map f.toMonoidHom '' S := by
+      rintro _ ⟨y,hy,rfl⟩
+      have hx : (f.symm y)^m = 1 := by rw [← map_pow,show y^m = 1 from hy,map_one]
+      exact ⟨_,⟨f.symm y,hx,rfl⟩,congrArg ConjClasses.mk (f.apply_symm_apply y)⟩
+    exact (Set.ncard_le_ncard sub ((Set.toFinite S).image _)).trans (Set.ncard_image_le (Set.toFinite S))
+  exact Nat.le_antisymm (bound e.symm) (bound e)
+
+/-- Removing the center of an upper-central quotient advances the series by one. -/
+private lemma upper_central_successor_equiv (O : Type*) [Group O] (n : ℕ) :
+    let Q (i : ℕ) := O ⧸ Subgroup.upperCentralSeries O i
+    Nonempty ((Q n ⧸ Subgroup.center (Q n)) ≃* Q (n+1)) := by
+  let U := Subgroup.upperCentralSeries O
+  let Q (i : ℕ) := O ⧸ U i
+  let Z (i : ℕ) := Subgroup.center (Q i)
+  have step : U (n+1) = (Z n).comap (QuotientGroup.mk' (U n)) :=
+    Subgroup.upperCentralSeriesStep_eq_comap_center (U n)
+  have mapped : (U (n+1)).map (QuotientGroup.mk' (U n)) = Z n := by
+    rw [step,Subgroup.map_comap_eq_self_of_surjective (QuotientGroup.mk'_surjective _) _]
+  have le : U n ≤ U (n+1) := by
+    rw [step]
+    intro x hx
+    change QuotientGroup.mk' (U n) x ∈ Z n
+    rw [show QuotientGroup.mk' (U n) x = 1 from (QuotientGroup.eq_one_iff _).mpr hx]
+    exact (Z n).one_mem
+  let e : Q n ⧸ Z n ≃* Q (n+1) :=
+    (QuotientGroup.quotientMulEquivOfEq mapped.symm).trans
+      (QuotientGroup.quotientQuotientEquivQuotient (U n) (U (n+1)) le)
+  exact ⟨e⟩
+
+/-- The upper central series gives a product bound up to any depth. The unprocessed
+quotient stays explicit, so the estimate also applies when the series does not exhaust O. -/
+lemma upper_central_torsion_partial (O : Type u) [Group O] [Finite O] {m : ℕ} (hm : 0 < m) (n : ℕ) :
+    let Q (i : ℕ) := O ⧸ Subgroup.upperCentralSeries O i
+    let Z (i : ℕ) := Subgroup.center (Q i)
+    (ConjClasses.mk '' {x : O | x^m = 1}).ncard ≤
+      (ConjClasses.mk '' {x : Q n | x^m = 1}).ncard *
+        ∏ i ∈ Finset.range n, (m.gcd (Monoid.exponent (Z i)))^Group.rank (Z i) := by
+  classical
+  let U := Subgroup.upperCentralSeries O
+  let Q (i : ℕ) := O ⧸ U i
+  let Z (i : ℕ) := Subgroup.center (Q i)
+  let b (X : Type u) [Group X] := (ConjClasses.mk '' {x : X | x^m = 1}).ncard
+  let weight (i : ℕ) := (m.gcd (Monoid.exponent (Z i)))^Group.rank (Z i)
+  change b O ≤ b (Q n) * ∏ i ∈ Finset.range n, weight i
+  induction n with
+  | zero =>
+    rw [Finset.prod_range_zero,mul_one]
+    exact (torsion_class_count_congr (QuotientGroup.quotientBot (G := O)) m).symm.le
+  | succ n ih =>
+    obtain ⟨e⟩ := upper_central_successor_equiv O n
+    let _ : CommGroup (Z n) := { (inferInstance : Group (Z n)) with
+      mul_comm := fun a c => Subtype.ext (Subgroup.mem_center_iff.mp a.property c.val).symm }
+    have layer : b (Q n) ≤ b (Q (n+1)) * weight n := by
+      have h := central_torsion_class_lift (Q n) (Z n) le_rfl m
+      rw [torsion_class_count_congr e m] at h
+      exact h.trans (Nat.mul_le_mul_left _ (abelian_torsion_gcd_rank_count (Z n) hm))
+    exact ih.trans ((Nat.mul_le_mul_right _ layer).trans_eq (by rw [Finset.prod_range_succ]; ring))
+
+/-- An initial segment of central layers of orders coprime to m may be
+removed without changing the eligible-class count. -/
+lemma upper_central_coprime_class_count (O : Type u) [Group O] [Finite O] (m n : ℕ)
+    (cop : ∀ i < n, (Nat.card (Subgroup.center (O ⧸ Subgroup.upperCentralSeries O i))).Coprime m) :
+    (ConjClasses.mk '' {x : O | x^m = 1}).ncard =
+      (ConjClasses.mk '' {x : O ⧸ Subgroup.upperCentralSeries O n | x^m = 1}).ncard := by
+  let Q (i : ℕ) := O ⧸ Subgroup.upperCentralSeries O i
+  let b (X : Type u) [Group X] := (ConjClasses.mk '' {x : X | x^m = 1}).ncard
+  change b O = b (Q n)
+  induction n with
+  | zero => exact (torsion_class_count_congr (QuotientGroup.quotientBot (G := O)) m).symm
+  | succ n ih =>
+    obtain ⟨e⟩ := upper_central_successor_equiv O n
+    calc
+      b O = b (Q n) := ih (fun i hi => cop i (by omega))
+      _ = b (Q n ⧸ Subgroup.center (Q n)) :=
+        central_coprime_torsion_class_count (Q n) _ le_rfl m (cop n (by omega))
+      _ = b (Q (n+1)) := torsion_class_count_congr e m
+
+/-- Once the upper central series reaches the group, the last quotient has one class. -/
+lemma nilpotent_outer_series_count (O : Type*) [Group O] [Finite O] [Group.IsNilpotent O]
+    {m : ℕ} (hm : 0 < m) :
+    (ConjClasses.mk '' {x : O | x^m = 1}).ncard ≤
+      ∏ i ∈ Finset.range (Group.nilpotencyClass O),
+        let Z := Subgroup.center (O ⧸ Subgroup.upperCentralSeries O i)
+        (m.gcd (Monoid.exponent Z))^Group.rank Z := by
+  classical
+  let n := Group.nilpotencyClass O
+  let Q := O ⧸ Subgroup.upperCentralSeries O n
+  have trivial : Subsingleton Q := by
+    dsimp [Q,n]; rw [Subgroup.upperCentralSeries_nilpotencyClass]
+    exact QuotientGroup.subsingleton_quotient_top
+  have one : (ConjClasses.mk '' {x : Q | x^m = 1}).ncard ≤ 1 := by
+    apply (Set.ncard_image_le (Set.toFinite _)).trans
+    exact Set.ncard_le_one_iff_subsingleton.mpr (fun _ _ _ _ => Subsingleton.elim ..)
+  apply (upper_central_torsion_partial O hm n).trans
+  exact (Nat.mul_le_mul_right _ one).trans_eq (one_mul _)
+
+/-- Layers whose exponent is coprime to m cost no rank in the cyclic-quotient induction. -/
+lemma nilpotent_outer_active_rank_bound (O : Type*) [Group O] [Finite O] [Group.IsNilpotent O]
+    {m : ℕ} (hm : 0 < m) :
+    let Z (i : ℕ) := Subgroup.center (O ⧸ Subgroup.upperCentralSeries O i)
+    (ConjClasses.mk '' {x : O | x^m = 1}).ncard ≤
+      m^(∑ i ∈ Finset.range (Group.nilpotencyClass O),
+        if m.Coprime (Monoid.exponent (Z i)) then 0 else Group.rank (Z i)) := by
+  classical
+  let Z (i : ℕ) := Subgroup.center (O ⧸ Subgroup.upperCentralSeries O i)
+  apply (nilpotent_outer_series_count O hm).trans
+  rw [← Finset.prod_pow_eq_pow_sum]
+  apply Finset.prod_le_prod'
+  intro i _
+  change (m.gcd (Monoid.exponent (Z i)))^Group.rank (Z i) ≤ m^(if m.Coprime (Monoid.exponent (Z i)) then 0 else Group.rank (Z i))
+  by_cases cop : m.Coprime (Monoid.exponent (Z i))
+  · rw [show m.gcd (Monoid.exponent (Z i)) = 1 from cop,if_pos cop,one_pow,pow_zero]
+  · simp only [if_neg cop]
+    exact Nat.pow_le_pow_left (Nat.gcd_le_left _ hm) _
+
+/-- Fixed-kernel extension count for nilpotent outer automorphism groups of arbitrary class. -/
+lemma nilpotent_outer_fixed_kernel_count (K : FiniteGrp.{0}) {m : ℕ} (hm : 0 < m)
+    [(MulAut.conj : K →* MulAut K).range.Normal]
+    [Group.IsNilpotent (MulAut K ⧸ (MulAut.conj : K →* MulAut K).range)] :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+        N.index = m ∧ Nonempty (K ≃* N)}).ncard ≤
+      let O := MulAut K ⧸ (MulAut.conj : K →* MulAut K).range
+      (∏ i ∈ Finset.range (Group.nilpotencyClass O),
+        let Z := Subgroup.center (O ⧸ Subgroup.upperCentralSeries O i)
+        (m.gcd (Monoid.exponent Z))^Group.rank Z) * Nat.card (Subgroup.center K) :=
+  (outer_cyclic_quotient_count K m).trans (Nat.mul_le_mul_right _ (nilpotent_outer_series_count _ hm))
+
 private lemma cyclic_rank_power_budget {k m t c : ℕ} (hk : 0 < k) (hm : 1 < m)
     (rk : t ≤ c * Nat.log 2 k) : m^t ≤ k^((2*c)*Nat.log 2 m) := by
   have d : 1 ≤ Nat.log 2 m := Nat.le_log_of_pow_le (by decide) (by simpa using (show 2 ≤ m by omega))
@@ -3449,6 +3586,28 @@ theorem class_two_outer_cyclic_induction_step {q r E c : ℕ} (hr : q < 2^r) (od
   rw [← pow_add] at count
   rw [pow_succ]
   exact Nat.mul_le_mul (count.trans (cyclic_rank_power_budget Nat.card_pos big rk))
+    (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective)
+
+/-- All nilpotency classes are allowed when the total rank of layers sharing a
+prime with the quotient order is controlled by the kernel order. -/
+theorem nilpotent_outer_cyclic_induction_step {q r E c : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : 2*c+6 ≤ E)
+    (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
+      (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+        {G : FiniteGrp.{0} | Nat.card G = n ∧ Group.IsSolvable G}).ncard ≤
+        2^(E*(s+1)^2) * ∏ p ∈ n.primeFactors, g (p^n.factorization p)) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧ let J := (MulAut.conj : N →* MulAut N).range; ∃ _ : J.Normal, let O := MulAut N ⧸ J; let Z (i : ℕ) := Subgroup.center (O ⧸ Subgroup.upperCentralSeries O i); Group.IsNilpotent O ∧ (∑ i ∈ Finset.range (Group.nilpotencyClass O), if N.index.Coprime (Monoid.exponent (Z i)) then 0 else Group.rank (Z i)) ≤ c * Nat.log 2 (Nat.card N))}).ncard ≤
+      2^(E*(r+1)^2-6) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
+  apply le_trans _ (outer_cyclic_quotient_induction_step (B := 2*c) hr odd hE ih)
+  apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono fun _ h => h.1))
+  rintro _ ⟨G,⟨hg,hs,N,hn,cyc,big,hJ,nil,rk⟩,rfl⟩
+  let _ : (MulAut.conj : N →* MulAut N).range.Normal := hJ
+  let O := MulAut N ⧸ (MulAut.conj : N →* MulAut N).range
+  let _ : Group.IsNilpotent O := nil
+  refine ⟨G,⟨hg,hs,N,hn,cyc,big,hJ,?_⟩,rfl⟩
+  rw [pow_succ]
+  exact Nat.mul_le_mul ((nilpotent_outer_active_rank_bound O (by omega : 0 < N.index)).trans
+    (cyclic_rank_power_budget Nat.card_pos big rk))
     (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective)
 
 theorem eligible_cyclic_quotient_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
