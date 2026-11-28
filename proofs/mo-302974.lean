@@ -1,5 +1,4 @@
 import OMAStatements.S_mo_302974
-import Mathlib
 
 -- Problem mo-302974: for every prime p there is a commutative ring R such that the ring W(R) of p-typical Witt
 -- vectors has a nonzero element killed by p.
@@ -25,14 +24,6 @@ theorem OMA.solution : type_of% @OMA.S_mo_302974.main := by
     simp only [WittVector.teichmuller_coeff_zero, WittVector.zero_coeff] at h1
     have h2 := congrArg TrivSqZeroExt.snd h1
     simp at h2
-  · rw [mul_comm]
-    apply WittVector.ext
-    intro n
-    cases n with
-    | zero => rw [WittVector.mul_charP_coeff_zero, WittVector.zero_coeff]
-    | succ i =>
-      rw [WittVector.mul_charP_coeff_succ, WittVector.zero_coeff]
-      cases i with
-      | zero => rw [WittVector.teichmuller_coeff_zero, heps]
-      | succ j =>
-        rw [WittVector.teichmuller_coeff_pos p _ (j + 1) (Nat.succ_pos j), zero_pow hp.out.ne_zero]
+  · rw [mul_comm, ← WittVector.verschiebung_frobenius,
+      WittVector.frobenius_eq_map_frobenius, WittVector.map_teichmuller,
+      frobenius_def, heps, WittVector.teichmuller_zero, map_zero]
