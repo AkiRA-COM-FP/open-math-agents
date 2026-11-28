@@ -103,18 +103,6 @@
    ],
    "note": "The Lean statement is exactly the question asked: for all n>=1, every convex set in R^(n+1) has VC_n dimension at most 3, using the standard HasAddVCNDimAtMost definition, which is non-trivial. The proof is a real 4,300-line argument: a Borsuk-Ulam theorem proved from scratch via Ky Fan parity, Radon for n=1, and chamber surgery for n>=3. As a by-product it proves the sharper bound VC_n <= 2 for n >= 2, which also settles the separately listed open lemma hasAddVCNDimAtMost_two_two_of_convex_r3. The PR does not claim to port earlier work. The only prior results I found are Kitamura's finite bound 2^(8(n+2)^n)-1 and his counterexample to <=1, and I found nothing in the literature on this question. Caveat: the question was posed inside formal-conjectures ('What's not in the literature'), not in a published source, and the argument has no human-written exposition. No earlier proof was found as of this review; corrections welcome."
   },
-  "oeis-a262779": {
-   "date": "2026-11-27",
-   "pr": 5722,
-   "evidence": [
-    "https://oeis.org/A262779",
-    "https://oeis.org/A265186",
-    "https://oeis.org/A266678",
-    "https://oeis.org/A266680",
-    "https://atlas.wolfram.com/01/01/175/"
-   ],
-   "note": "The formal statement is the conjunction of Colin Barker's two OEIS conjectures for Rule 175 from a single ON cell: a(n) = 101a(n-1) - 100a(n-2) for n > 2, and the g.f. (1+9x+x^2)/((1-x)(1-100x)). Here a(n) is the row of cells -n..n read in base 10, the automaton runs on Z with the rule applied to the background, and the definition reproduces the OEIS data (1, 110, 11011, 1101111, ...). The formalization is faithful; I checked the low-order g.f. coefficients by hand. The proof is genuine. It shows ruleOut 175 = (not l) or r. Induction then shows that for t >= 1 every cell is ON except position 2-t, giving 9a(n) = 10^(2n+1) - 1 - 9*10^(2n-2), from which both claims follow. The entry still lists these as unproved conjectures; OEIS editors in 2022 removed claims that Barker's CA conjectures are proved. I found no earlier proof: A266678 only gives the middle column, and Macfarlane's 2016 paper treats even rule numbers only. Caveat: this is an elementary curve-fit conjecture, not a substantial research problem."
-  },
   "gillibert-equal-halves": {
    "date": "2026-11-27",
    "pr": 5576,
@@ -124,14 +112,6 @@
     "https://github.com/GuillaumeBAUD-coder/open-math-agents/pull/5576"
    ],
    "note": "The formal statement is exactly Gillibert's Equal Halves conjecture (17/11/2026): every finite connected vertex-transitive graph of even order splits as A and its complement, both nonempty, with G[A] and G[Ac] connected and isomorphic. Mathlib's Connected, induce and graph isomorphism are used with no extra hypotheses; the source proves only the Cayley case and leaves the general case open. The disproof exhibits a 28-vertex, 9-regular, non-Cayley vertex-transitive graph (Aut = PSL(2,8), order 504, from the Holt-Royle census). It proves connectivity and vertex-transitivity from explicit automorphisms. An isomorphism of the halves would give a side-swapping involution preserving same-side degree, triangle and distance-2 counts, forcing equal counts of 15 derived predicates on both sides. A kernel-checked bit-plane computation (decide +kernel, no native_decide) shows every balanced 2-colouring violates one of them. This is a real argument, not an encoding exploit. The conjecture is recent and AI-assisted, but it was open at the source, and I found no earlier counterexample. The author's README describes the list as conjectures with nothing known in the literature."
-  },
-  "oeis-a263244": {
-   "date": "2026-11-27",
-   "pr": 5842,
-   "evidence": [
-    "https://oeis.org/A263244"
-   ],
-   "note": "The formal statement defines the Rule 155 evolution from one ON cell on an OFF background, with every cell updated each step, including the background. It reads cells -n..n as a base-10 digit string. This reproduces the OEIS data (1, 101, 10011, 1011111, ...). It then asserts the conjunction of all conjectured formulas in the entry: Colin Barker's recurrence a(n) = a(n-1) + 10000a(n-2) - 10000a(n-3) for n > 3, his generating function (I checked the coefficients 1, 100, -90, 1100 by hand), and Karl V. Keller's floor formulas for odd and even n. These are exactly the conjectures in the entry, which still labels them as conjectures. The proof is a genuine argument and exploits no loophole: it proves the cell pattern by induction (cell_155_formula), derives closed forms for 9a(n), and from them the step a(n+2) = 10000a(n) + 1111, the recurrence, the power-series identity and the floor formulas. Caveat: this is a routine verification of an empirically fitted formula for a Wolfram class-2 automaton, not a research-level problem. As of this review I found no earlier published proof of these formulas."
   },
   "mo-236762": {
    "date": "2026-11-27",
@@ -161,17 +141,6 @@
     "https://oeis.org/A354479"
    ],
    "note": "The statement defines rowSum n = Sum_{k=1..n} 1/s(n,k) with signed Stirling numbers of the first kind. This matches Mathematica StirlingS1 and the OEIS data: n=2 gives 0, n=3 gives 7/6. It asserts num/den of rowSum n -> 1, which is exactly Kotesovec's conjecture 'a(n)/A354479(n) tends to 1' (Jun 2022), and the entry still marks it as a conjecture. The proof is a genuine elementary argument. It proves by induction on the Stirling recurrence that n(n-1) <= 2|s(n,k)| for 1 <= k < n and n >= 4, so the n-1 off-diagonal terms contribute at most 2/n while the diagonal term is 1; it exploits no encoding artefact. Neither A354478, A354479 nor a web search turned up an earlier written proof as of this review. Caveat: the result is easy (essentially |s(n,k)| >= C(n,2) off the diagonal), so it is a valid but very minor settlement of an OEIS remark."
-  },
-  "oeis-a263245": {
-   "date": "2026-11-27",
-   "pr": 5827,
-   "evidence": [
-    "https://oeis.org/A263245",
-    "https://oeis.org/A263245/b263245.txt",
-    "https://oeis.org/A263244",
-    "https://oeis.org/A263243"
-   ],
-   "note": "The statement defines Rule 155 from a single ON cell. The rule is applied to the background too, so the background turns ON after step 1, as in the OEIS data. Cells -n..n are read in base 2, and I checked that this reproduces all 1001 b-file terms. It states the conjunction of Colin Barker's conjectured recurrence and g.f. with Karl V. Keller's odd and even closed forms (the ℤ-division exponents are exact under the parity hypotheses), so it faithfully captures the conjectures in the entry. Barker's separate 'Empirical' formula is omitted, but it follows from the g.f. The proof is a genuine induction. It shows that for t ≥ 1 the row is all ON except at position 1-t (odd t), or except at positions 1-t and 2-t (even t). From this it computes a(n) = 3*2^(2n-1) - 1 and 5*2^(2n-2) - 1, then a(n+2) = 16a(n) + 15, and derives the recurrence and g.f. coefficientwise. It uses no native_decide or other tricks. A263245 and its companions A263243/A263244 still label all these formulas as conjectures or empirical, and I found no earlier proof as of this review. The result is mathematically routine (a trivially eventually-periodic automaton), so it is a confirmation of an OEIS-level conjecture, not a significant open problem."
   },
   "oeis-a379181": {
    "date": "2026-11-27",
@@ -581,42 +550,6 @@
    ],
    "note": "Hanna's 2015 conjectures on the 2-adic valuation of sum_{d|n} 2^{d^2}(n/d)^2. The d=1 term has valuation 2v_2(n)+1, strictly smaller than every other term, which gives both claims at once. Routine."
   },
-  "oeis-a266249": {
-   "date": "2026-11-28",
-   "pr": 13537,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266249"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the ON cells of Rule 9. The conventions follow the entry's Mathematica program (background updated, cells -n..n) and reproduce the data. An eventually periodic pattern proved by induction. Routine."
-  },
-  "oeis-a266607": {
-   "date": "2026-11-28",
-   "pr": 10102,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266607"
-   ],
-   "note": "Barker's recurrence and g.f. for the Rule 39 row values. The conventions follow the entry's program and reproduce the controls. Routine pattern induction."
-  },
-  "oeis-a267262": {
-   "date": "2026-11-28",
-   "pr": 10301,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267262"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the cumulative OFF cells of Rule 111. The conventions follow the program, and the controls match. Routine."
-  },
-  "oeis-a267774": {
-   "date": "2026-11-28",
-   "pr": 10121,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267774"
-   ],
-   "note": "Barker's recurrence and g.f. for the Rule 207 row values. The conventions follow the program, and the controls match. Routine."
-  },
   "oeis-a273446": {
    "date": "2026-11-28",
    "pr": 13582,
@@ -1010,42 +943,6 @@
    ],
    "note": "Barker's recurrence and g.f. for a convolution recurrence with periodic weights (k mod 5). The definition matches the data. A rational g.f. identity. Routine."
   },
-  "oeis-a266251": {
-   "date": "2026-11-28",
-   "pr": 10277,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266251"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the OFF cells of Rule 9, with the background evolving as in the entry's program and the data controls matching. The pattern becomes periodic, so this is a finite-structure induction. Routine."
-  },
-  "oeis-a266790": {
-   "date": "2026-11-28",
-   "pr": 10190,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266790"
-   ],
-   "note": "Barker's closed form and g.f. for the middle column of Rule 61 read in base 10, with the data controls matching. The column becomes eventually periodic. Routine."
-  },
-  "oeis-a267461": {
-   "date": "2026-11-28",
-   "pr": 10327,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267461"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the cumulative OFF cells of Rule 133, with the controls matching. Eventually periodic rows. Routine."
-  },
-  "oeis-a267920": {
-   "date": "2026-11-28",
-   "pr": 11172,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267920"
-   ],
-   "note": "Barker's recurrence and g.f. for Rule 243 rows read in base 10. The background turning ON at t=1 matches the data (101, 11101, ...). Routine."
-  },
   "oeis-a275667": {
    "date": "2026-11-28",
    "pr": 10843,
@@ -1376,33 +1273,6 @@
    ],
    "note": "Sun's 2015 conjecture says a(n) = 1 only for n in {3,5,7,35,37,217,7439,10381}. The statement adds 590, because the entry's own example has a(590) = 1. That weakens the claim, so a disproof of it refutes Sun's version too. The disproof shows a(7872413) = 1 with the single pair (15015, 4749). I reproduced this with an independent numpy sieve to 1.39e8: pi(112732620) = 6450605, pi(22553001) = 1421808, and exactly one representation. Sun had checked only to 120000, and I found no earlier report. A computational counterexample, so routine."
   },
-  "oeis-a266438": {
-   "date": "2026-11-28",
-   "pr": 10181,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266438"
-   ],
-   "note": "De Vlieger's g.f. and Barker's closed form and recurrence for the cumulative ON cells of Rule 23. The background evolves as in the entry's program, which I simulated: it reproduces the data (1,4,4,11,11,22,...) and both formulas for n <= 40. The proof uses the rule 'ON iff at most one neighbour is ON', which gives an eventually periodic pattern. Routine, like the other Barker CA items in earlier batches."
-  },
-  "oeis-a266795": {
-   "date": "2026-11-28",
-   "pr": 10293,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266795"
-   ],
-   "note": "Barker's closed form (n > 3), recurrence (n > 8) and g.f. for the cumulative OFF cells of Rule 61, with the background evolving. My simulation reproduces the data (0,1,4,6,11,15,23,...) and both formulas in their stated ranges. An eventually periodic CA pattern. Routine."
-  },
-  "oeis-a267923": {
-   "date": "2026-11-28",
-   "pr": 10212,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267923"
-   ],
-   "note": "Barker's recurrence a(n) = 101a(n-1) - 100a(n-2) (n > 2) and g.f. for the Rule 245 rows read in base 10. The background evolves (000 -> ON) as in the entry's program, which I simulated: it gives 1, 11, 11011, 1111011, ..., and the recurrence holds for n = 3..30. The proof shows row n is ON everywhere except cell n-2. Routine."
-  },
   "oeis-a276646": {
    "date": "2026-11-28",
    "pr": 7859,
@@ -1645,42 +1515,6 @@
     "https://oeis.org/A259914"
    ],
    "note": "Mathar's order-3 P-recurrence for the staircase path through iterated partial sums of cubes. The path definition reproduces the data (checked, offset 1). A routine holonomic identity."
-  },
-  "oeis-a265430": {
-   "date": "2026-11-28",
-   "pr": 13591,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A265430"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the OFF cells of Rule 188. I re-simulated the formal automaton (background evolving), which matches the data. The pattern is eventually periodic: routine."
-  },
-  "oeis-a266450": {
-   "date": "2026-11-28",
-   "pr": 10284,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266450"
-   ],
-   "note": "Barker's formulas for the cumulative OFF cells of Rule 25. The simulation matches the data and the closed form for n>2. Routine CA pattern verification."
-  },
-  "oeis-a266844": {
-   "date": "2026-11-28",
-   "pr": 10272,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266844"
-   ],
-   "note": "Barker's formulas for the Rule 70 rows read in base 10. The simulation matches the data and 198a(n) = 209*100^n - 9(-100)^n - 2*10^n. Routine."
-  },
-  "oeis-a267941": {
-   "date": "2026-11-28",
-   "pr": 10143,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267941"
-   ],
-   "note": "Barker's recurrence and g.f. for the Rule 253 rows in binary. The simulation (background turns ON) matches the data, and a(n) = 2^(2n+1)-1 for n>1. Routine."
   },
   "oeis-a306948": {
    "date": "2026-11-28",
@@ -2049,33 +1883,6 @@
    ],
    "note": "McEachen's bitwise formula for n IMPL 2n is a direct bit identity. Routine."
   },
-  "oeis-a266461": {
-   "date": "2026-11-28",
-   "pr": 10052,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266461"
-   ],
-   "note": "Barker's recurrence and g.f. and Keller's closed form for Rule 27 rows, from the explicit periodic row pattern (the background is evolved as in the entry's program). Routine."
-  },
-  "oeis-a267041": {
-   "date": "2026-11-28",
-   "pr": 13586,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267041"
-   ],
-   "note": "Barker's recurrence and g.f. for Rule 91 rows read in base 10, from the explicit row pattern. Routine."
-  },
-  "oeis-a267538": {
-   "date": "2026-11-28",
-   "pr": 13532,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267538"
-   ],
-   "note": "Barker's recurrence and g.f. and Keller's floor formula for the Rule 143 middle column (eventually all ON). Routine."
-  },
   "oeis-a281648": {
    "date": "2026-11-28",
    "pr": 13233,
@@ -2377,33 +2184,6 @@
     "https://oeis.org/A261682"
    ],
    "note": "Mathar's order-4 P-recursive recurrence for a(n)=2^n+(1+(n mod 2)/2)C(n+1,floor((n+n mod 2)/2))-1. The formal statement over Q for n>=4 is faithful. The proof splits by parity and uses the central binomial ratio. Routine holonomic identity."
-  },
-  "oeis-a266594": {
-   "date": "2026-11-28",
-   "pr": 10063,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266594"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the ON-cell totals of Rule 37 from a single cell. A Python simulation of the formal conventions (Wolfram numbering, evolving background, cells -k..k) reproduces the data 1,2,5,7,10,16,... The rows are eventually periodic, so the identities are routine."
-  },
-  "oeis-a267044": {
-   "date": "2026-11-28",
-   "pr": 10132,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267044"
-   ],
-   "note": "Barker's closed form, corrected recurrence and g.f. for the Rule 91 middle column read in base 10. A simulation of the formal definition gives 1, 10, 100, 1000, 10001, 100010, ..., matching the data. The column is eventually periodic (0101...), so this is routine."
-  },
-  "oeis-a267613": {
-   "date": "2026-11-28",
-   "pr": 10113,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267613"
-   ],
-   "note": "Barker's recurrence a(n)=101a(n-1)-100a(n-2) and g.f. for the Rule 185 rows read in base 10. A simulation of the formal definition gives 1, 1, 1011, 101111, ..., matching the data. The rows have the eventual shape 1011...1, so this is routine."
   },
   "oeis-a273400": {
    "date": "2026-11-28",
@@ -3095,15 +2875,6 @@
    ],
    "note": "Velin Yanev's 2017 identity sigma_n(2n) = sigma_n(n)*((2^n-1)/(2^(n(v+1))-1) + 2^n) with v = v_2(n), stated over Q for n>0 with Mathlib's sigma and padicValNat. It is faithful. It is trivial by multiplicativity: writing n = 2^v m, the right side simplifies to sigma_n(2^(v+1))/sigma_n(2^v), i.e. (2^(n(v+2))-1)/(2^(n(v+1))-1). Still marked 'Conjecture' in the OEIS (last edited 2022), and I found no earlier proof. Statement PR #6704, proof PR #8883."
   },
-  "oeis-a267623": {
-   "date": "2026-11-28",
-   "pr": 8776,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267623"
-   ],
-   "note": "The statement faithfully encodes Barker's recurrence a(n) = 11a(n-1) - 10a(n-2) and g.f. for the middle column of Rule 187, read as decimal digits as in the entry's Mathematica program. The proof shows the state at time n+1 is ON except at site -n, and derives both identities. Elementary; I found no recorded earlier proof."
-  },
   "oeis-a156695": {
    "date": "2026-11-28",
    "pr": 8526,
@@ -3199,15 +2970,6 @@
    ],
    "note": "This disproves Barker's 2019 fitted g.f./closed form/recurrence for round(n^2·10^10/R). The statement fixes R = 10973731.568527 as in the entry's own Maple program, and that reproduces all 13 listed terms. The recurrence fails at n=15 (205035 vs predicted 205034). I checked that it also fails at n=15 for every CODATA Rydberg value (2018/2022). Trivial: a curve fit to 13 terms of a rounding sequence (Mathar already notes the entry is ill-defined), but the refutation is correct and robust."
   },
-  "oeis-a265723": {
-   "date": "2026-11-28",
-   "pr": 6419,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A265723"
-   ],
-   "note": "The Rule 1 simulation (with the background updated, cells -n..n) reproduces the data, and the statement conjoins Barker's closed form, recurrence and g.f., all still labelled as conjectures. Caveat: trivial, since the Rule 1 pattern has period 2 after the first step, so this verifies curve-fitted formulas for an eventually periodic automaton."
-  },
   "oeis-a383307": {
    "date": "2026-11-28",
    "pr": 6324,
@@ -3216,15 +2978,6 @@
     "https://oeis.org/A383307"
    ],
    "note": "The definition (n-digit numbers, with 0 as a one-digit number, whose digit range equals the unique mode) reproduces the data 1, 0, 30, 631, 8318, which I recomputed. The claim lim a(n+1)/a(n) = 10 is Spezia's 2025 conjecture, still listed. It is expected heuristically (the range is almost surely 9, and 9 is the unique mode with limiting probability 1/10), but proving the ratio limit takes real estimates (1,135 lines). Correct, new and modest."
-  },
-  "oeis-a263806": {
-   "date": "2026-11-28",
-   "pr": 6450,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A263806"
-   ],
-   "note": "Colin Barker's conjectured recurrence and g.f. for the decimal value of row n of Rule 157 from a single ON cell. The Lean CA runs on Z with the rule applied to the background too (157 maps 000 to 1). My simulation reproduces all OEIS terms and the recurrence, so the statement is faithful. It is trivial: the rows have an explicit periodic shape, proved by induction. Still a conjecture in the OEIS, and I found no earlier proof. Statement PR #959, proof PR #6450."
   },
   "oeis-a039799": {
    "date": "2026-11-28",
@@ -3243,15 +2996,6 @@
     "https://oeis.org/A093345"
    ],
    "note": "Mathar's 2014 recurrence a(n) - 2n a(n-1) + (n^2-2)a(n-2) - (n-2)^2 a(n-3) = 0 (n >= 3) is stated faithfully, with the defining sum computed in Q; I checked that it reproduces the data. Still labelled a conjecture, and it is not in the Ekhad-Yang-Zeilberger list. Trivial finite algebra."
-  },
-  "oeis-a267921": {
-   "date": "2026-11-28",
-   "pr": 11159,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267921"
-   ],
-   "note": "Barker's recurrence a(n) = 5a(n-1) - 4a(n-2) (n > 2) and g.f. (1+8x^2)/((1-x)(1-4x)) for Rule 243 are stated faithfully: the background flips, and the binary readout covers cells -n..n. I re-simulated and matched all 25 data terms. Trivial: a(n) = 2^(2n+1) - 3 for n >= 1."
   },
   "oeis-a240558": {
    "date": "2026-11-28",
@@ -3457,15 +3201,6 @@
    ],
    "note": "Murthy's 2003 conjecture is that only one term of the triangle (row n = first n n-digit multiples of n with digit sum n, padded with 0) is zero. It is stated equivalently: row 2 is {20} only, and every other row n >= 1 has at least n such numbers. Still a conjecture (entry last edited 2014). Elementary digit-block construction plus small cases."
   },
-  "oeis-a267622": {
-   "date": "2026-11-28",
-   "pr": 7360,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267622"
-   ],
-   "note": "Barker's recurrence a(n) = 101a(n-1) - 100a(n-2) and g.f. (1+10x^2)/((1-x)(1-100x)) for Rule 187 (cells -n..n read in decimal, as in the entry's program) are stated faithfully. I re-simulated the data. Trivial: after step 1 the row is all ON except one cell."
-  },
   "oeis-a276674": {
    "date": "2026-11-28",
    "pr": 7381,
@@ -3483,33 +3218,6 @@
     "https://oeis.org/A340896"
    ],
    "note": "Lowell's 2021 conjecture is stated faithfully: n^2 lies in row n (multiples of n with fewer than 2d(n) divisors) iff n is a prime power, with 1 included as in A000961. Trivial: d(n^2) = prod(2e+1) < 2 prod(e+1) iff n has at most one prime factor."
-  },
-  "oeis-a265722": {
-   "date": "2026-11-28",
-   "pr": 6382,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A265722"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the ON-count of Rule 1 from a single ON cell are stated faithfully, with the background flipping on Z. My simulation matches the data. Trivial: the state has period 2."
-  },
-  "oeis-a265427": {
-   "date": "2026-11-28",
-   "pr": 6396,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A265427"
-   ],
-   "note": "Barker's recurrence and g.f. and Keller's floor formula for the decimal readout of Rule 188 are stated faithfully; my simulation matches all data terms. Trivial: an explicit periodic pattern by induction."
-  },
-  "oeis-a265380": {
-   "date": "2026-11-28",
-   "pr": 6340,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A265380"
-   ],
-   "note": "Barker's recurrence and g.f. for the decimal-read middle column of Rule 158 from a single ON cell are stated faithfully; my simulation matches the data. Trivial: an explicit space-time pattern by induction."
   },
   "mo-364377": {
    "date": "2026-11-28",
@@ -3890,15 +3598,6 @@
    ],
    "note": "If (n!-1) mod n^2 is prime (n != 4), then n and n^2-n-1 are prime. The entry already notes, via Wilson, that a(p) = p^2-p-1 for prime p. The remaining composite case is trivial: n^2 | n! for composite n != 4, so a(n) = n^2-1 is composite. Faithful and routine."
   },
-  "oeis-a266072": {
-   "date": "2026-11-28",
-   "pr": 8756,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266072"
-   ],
-   "note": "Barker's closed form and recurrence and De Vlieger's g.f. for elementary Rule 3, counted on sites -n..n with the background evolving. These match the data 1,1,1,5,1,9,... Explicit description. Routine."
-  },
   "oeis-a362069": {
    "date": "2026-11-28",
    "pr": 7697,
@@ -3952,15 +3651,6 @@
     "https://oeis.org/A394454"
    ],
    "note": "Both claims (every prime divides C(2n,n) for infinitely many n, and the sum of distinct prime divisors is unbounded) follow at once from Kummer/Legendre and from primes in (n,2n]. Faithful and trivial."
-  },
-  "oeis-a263805": {
-   "date": "2026-11-28",
-   "pr": 6407,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A263805"
-   ],
-   "note": "Barker's recurrence and g.f. and Keller's parity closed forms for the Rule 157 rows read as base-10 numbers. The automaton runs on the full line with the background evolving, and the definition reproduces the listed terms. Explicit row description. Routine."
   },
   "oeis-a216971": {
    "date": "2026-11-28",
@@ -4645,83 +4335,6 @@
    ],
    "note": "Barker's g.f. and recurrence for the left x-axis of 2D Rule 597 read in binary, as in the entry's program; simulation matches all 127 b-file terms and both formulas. No prior settlement found. Routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 597). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
   },
-  "oeis-a267270": {
-   "date": "2026-11-28",
-   "pr": 22825,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267270",
-    "https://oeis.org/A267270",
-    "https://oeis.org/A267270/b267270.txt"
-   ],
-   "note": "Keller's 2022 closed forms for the decimal reading of row n of Rule 115 (background evolving as CellularAutomaton[...,{{1},0}] does; cells -n..n). Exponents with natural division are the exact integer values. Simulation matches all 1001 b-file terms and both formulas. No prior settlement found. Routine. Second review: Faithful and true. A267270 (Rule 115) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine. The statement covers only Keller's 2022 closed forms, not Barker's empirical g.f. (which I also checked numerically)."
-  },
-  "oeis-a266449": {
-   "date": "2026-11-28",
-   "pr": 22788,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266449",
-    "https://oeis.org/A266449",
-    "https://oeis.org/A266449/b266449.txt"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the OFF cells (cells -n..n) of Rule 25 with evolving background, as in the entry's program; simulation matches 1001 b-file terms and all formulas. No prior settlement found. Routine. Second review: Barker conjectures for the Rule 25 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
-  },
-  "oeis-a267057": {
-   "date": "2026-11-28",
-   "pr": 22751,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267057",
-    "https://oeis.org/A267057",
-    "https://oeis.org/A267057/b267057.txt"
-   ],
-   "note": "Barker's recurrence and g.f. for the decimal reading of row n of Rule 97; conventions follow the program, simulation matches 1001 b-file terms and both formulas. No prior settlement found. Routine. Second review: Faithful and true. A267057 (Rule 97) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine. The entry records (De Vlieger, 2022) the removal of an unjustified claim that the conjectures were correct, which confirms they were still open."
-  },
-  "oeis-a267054": {
-   "date": "2026-11-28",
-   "pr": 22739,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267054",
-    "https://oeis.org/A267054",
-    "https://oeis.org/A267054/b267054.txt"
-   ],
-   "note": "Barker's recurrence and g.f. for the decimal reading of row n of Rule 93; conventions follow the program, simulation matches 1001 b-file terms and both formulas. No prior settlement found. Routine. Second review: Barker conjectures for the Rule 93 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
-  },
-  "oeis-a266842": {
-   "date": "2026-11-28",
-   "pr": 22708,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266842",
-    "https://oeis.org/A266842",
-    "https://oeis.org/A266842/b266842.txt"
-   ],
-   "note": "Barker's recurrence and g.f. for the binary value of row n of Rule 69; conventions follow the program, simulation matches 1001 b-file terms and both formulas. No prior settlement found. Routine. Second review: Faithful and true. A266842 (Rule 69) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
-  },
-  "oeis-a266447": {
-   "date": "2026-11-28",
-   "pr": 22567,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266447",
-    "https://oeis.org/A266447",
-    "https://oeis.org/A266447/b266447.txt"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the ON cells (cells -n..n) of Rule 25; simulation matches 1001 b-file terms and all formulas. No prior settlement found. Routine. Second review: Barker conjectures for the Rule 25 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
-  },
-  "oeis-a266724": {
-   "date": "2026-11-28",
-   "pr": 22128,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266724",
-    "https://oeis.org/A266724",
-    "https://oeis.org/A266724/b266724.txt"
-   ],
-   "note": "Barker's closed form, recurrence and g.f. for the OFF cells of Rule 59; simulation matches 1001 b-file terms and all formulas. No prior settlement found. Routine. Second review: Faithful and true. A266724 (Rule 59) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
-  },
   "oeis-a286050": {
    "date": "2026-11-28",
    "pr": 22978,
@@ -4847,39 +4460,6 @@
    ],
    "note": "Rule 5 x-axis from the origin to the right edge, read in binary with the origin most significant (Range[i,2i-1]). Barker's closed forms (n>1), the recurrence (n>5) and the g.f. are stated faithfully. My simulation matches all 43 listed terms and the claims to n=70. No prior proof found; routine. Second review: Faithful and true. A277929 (Rule 5) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
   },
-  "oeis-a266793": {
-   "date": "2026-11-28",
-   "pr": 22724,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266793",
-    "https://oeis.org/A266793",
-    "https://oeis.org/A266793/b266793.txt"
-   ],
-   "note": "Cumulative ON count in the [-t,t] windows for elementary Rule 61 from a single cell, with the background evolving on Z as in CellularAutomaton. Barker's closed form (n>3), order-5 recurrence (n>8) and g.f. are stated as in the entry. My simulation matches 53 listed terms and all claims to n=80. No prior proof found; routine. Second review: Faithful and true. A266793 (Rule 61) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
-  },
-  "oeis-a266515": {
-   "date": "2026-11-28",
-   "pr": 22694,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266515",
-    "https://oeis.org/A266515",
-    "https://oeis.org/A266515/b266515.txt"
-   ],
-   "note": "Rule 29 elementary CA rows over [-n,n], read as binary digits in base 10 with the left cell most significant; the background evolves on Z. Barker's order-6 recurrence (n>5) and g.f., plus Keller's closed forms (odd and even n), are stated faithfully. My simulation matches all listed terms and the claims to n=80. No prior proof found; routine. Second review: Barker conjectures for the Rule 29 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
-  },
-  "oeis-a266590": {
-   "date": "2026-11-28",
-   "pr": 22688,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266590",
-    "https://oeis.org/A266590",
-    "https://oeis.org/A266590/b266590.txt"
-   ],
-   "note": "Rule 37 rows read in binary. Barker's recurrence (n>7) and g.f., and Keller's closed forms for odd and even n>1, are stated as in the entry. My simulation matches 28 listed terms and all claims to n=80. No prior proof found; routine. Second review: Faithful and true. A266590 (Rule 37) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
-  },
   "oeis-a278760": {
    "date": "2026-11-28",
    "pr": 23116,
@@ -4999,78 +4579,6 @@
     "https://oeis.org/A287468/b287468.txt"
    ],
    "note": "Rule 276 diagonal from corner to origin (binary digits), Barker: g.f., even/odd closed forms and recurrence for n>3. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 276). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
-  },
-  "oeis-a266787": {
-   "date": "2026-11-28",
-   "pr": 23095,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266787",
-    "https://oeis.org/A266787/b266787.txt",
-    "https://oeis.org/A266787",
-    "https://oeis.org/A266787/b266787.txt"
-   ],
-   "note": "Elementary Rule 61 row (binary digits), Barker: recurrence for n>10 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A266787 (Rule 61) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
-  },
-  "oeis-a266788": {
-   "date": "2026-11-28",
-   "pr": 22821,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266788",
-    "https://oeis.org/A266788/b266788.txt",
-    "https://oeis.org/A266788",
-    "https://oeis.org/A266788/b266788.txt"
-   ],
-   "note": "Elementary Rule 61 row (decimal), Barker: recurrence for n>10 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker conjectures for the Rule 61 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
-  },
-  "oeis-a267293": {
-   "date": "2026-11-28",
-   "pr": 22814,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267293",
-    "https://oeis.org/A267293/b267293.txt",
-    "https://oeis.org/A267293",
-    "https://oeis.org/A267293/b267293.txt"
-   ],
-   "note": "Elementary Rule 121 row (binary digits), Barker: recurrence for n>12 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A267293 (Rule 121) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
-  },
-  "oeis-a267360": {
-   "date": "2026-11-28",
-   "pr": 22777,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267360",
-    "https://oeis.org/A267360/b267360.txt",
-    "https://oeis.org/A267360",
-    "https://oeis.org/A267360/b267360.txt"
-   ],
-   "note": "Elementary Rule 125 row (decimal), Barker: recurrence for n>8 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker conjectures for the Rule 125 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
-  },
-  "oeis-a267042": {
-   "date": "2026-11-28",
-   "pr": 22746,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267042",
-    "https://oeis.org/A267042/b267042.txt",
-    "https://oeis.org/A267042",
-    "https://oeis.org/A267042/b267042.txt"
-   ],
-   "note": "Elementary Rule 91 row (decimal), Barker: recurrence for n>8 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A267042 (Rule 91) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine. The entry records (De Vlieger, 2022) the removal of an unjustified claim that the conjectures were correct, which confirms they were still open."
-  },
-  "oeis-a266667": {
-   "date": "2026-11-28",
-   "pr": 22712,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266667",
-    "https://oeis.org/A266667/b266667.txt",
-    "https://oeis.org/A266667",
-    "https://oeis.org/A266667/b266667.txt"
-   ],
-   "note": "Elementary Rule 51 row (binary digits), Barker closed form and g.f. plus Keller odd/even closed forms. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker conjectures for the Rule 51 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
   },
   "oeis-a286051": {
    "date": "2026-11-28",
@@ -5774,30 +5282,6 @@
    ],
    "note": "Barker's g.f. 3x(3-2x)/(1-15x+6x^2) and Binet closed form are stated faithfully. Horizontal, diagonal and antidiagonal neighbours may not sum to 3, vertical pairs are free, and the top-left cell is 0. Controls proved in Lean reproduce all 9 data terms. A transfer-matrix argument, so routine; no prior proof found. Second review: Faithful and true. It is a finite transfer-matrix computation followed by Binet, so routine."
   },
-  "oeis-a266979": {
-   "date": "2026-11-28",
-   "pr": 22733,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266979",
-    "https://oeis.org/A266979",
-    "https://oeis.org/A266979/b266979.txt",
-    "https://oeis.org/history?seq=A266979"
-   ],
-   "note": "Barker's recurrence (n > 5) and g.f. for Rule 79 (cells -n..n as binary digits read in base 10, background evolving) are stated faithfully. My ECA simulation reproduces all 17 terms, and both claims hold to n = 60. Eventually periodic structure, so routine. Second review: Faithful and true. Barker/Keller's formulas for A266979 (Rule 79) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
-  },
-  "oeis-a266668": {
-   "date": "2026-11-28",
-   "pr": 22702,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266668",
-    "https://oeis.org/A266668",
-    "https://oeis.org/A266668/b266668.txt",
-    "https://oeis.org/history?seq=A266668"
-   ],
-   "note": "Barker's closed form and g.f. and Keller's odd and even closed forms for Rule 51 (decimal value of the cells -n..n) are stated faithfully. My ECA simulation matches all 29 terms, and all four claims hold to n = 60. Rule 51 is complementation, so this is trivial in substance and routine. Second review: Faithful and true. Barker/Keller's formulas for A266668 (Rule 51) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
-  },
   "oeis-a285360": {
    "date": "2026-11-28",
    "pr": 22657,
@@ -5825,18 +5309,6 @@
    ],
    "note": "Kimberling's bound -2 < n sqrt3 - a(n) < 4 for the fixed point of 0->1, 1->1100 is stated faithfully. Data controls are proved, and over 2.78 million positions the observed range is [-1.548, 3.133]. Routine discrepancy argument; no prior proof found. Second review: Faithful and numerically sound (Kimberling 2017). Dvořáková-Pelantová-Shallit (arXiv:2510.11318) and the recent Wythoff/Fibonacci-word proof paper (arXiv:2610.04842) settle other Kimberling conjectures, not A284507. I found no earlier proof. Not routine."
   },
-  "oeis-a266448": {
-   "date": "2026-11-28",
-   "pr": 22506,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266448",
-    "https://oeis.org/A266448",
-    "https://oeis.org/A266448/b266448.txt",
-    "https://oeis.org/history?seq=A266448"
-   ],
-   "note": "Barker's closed form (n > 2), recurrence (n > 7) and g.f. for the cumulative ON count of Rule 25 are stated faithfully. Cells are counted in -t..t, as the program's Total does, since the background turns ON at odd steps. My simulation matches all 53 terms, and all three claims hold to n = 60. Routine. Second review: Faithful and true. Barker/Keller's formulas for A266448 (Rule 25) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
-  },
   "oeis-a289763": {
    "date": "2026-11-28",
    "pr": 22361,
@@ -5847,18 +5319,6 @@
     "https://oeis.org/A289763/b289763.txt"
    ],
    "note": "Barker's g.f. for 2D Rule 597 (diagonal, origin to corner, base-10 digits) is stated faithfully, following the name and the data rather than the middle-row program. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. The g.f. identity holds to n = 34. Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A289763 (Rule 597) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
-  },
-  "oeis-a266460": {
-   "date": "2026-11-28",
-   "pr": 22049,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266460",
-    "https://oeis.org/A266460",
-    "https://oeis.org/A266460/b266460.txt",
-    "https://oeis.org/history?seq=A266460"
-   ],
-   "note": "Barker's recurrence and g.f. and Keller's odd and even closed forms for Rule 27 (cells -n..n as binary digits read in base 10) are stated faithfully. My ECA simulation matches all 18 terms, and all four claims hold to n = 60. Routine. Second review: Faithful and true. Barker/Keller's formulas for A266460 (Rule 27) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
   },
   "oeis-a284235": {
    "date": "2026-11-28",
@@ -5950,18 +5410,6 @@
     "https://oeis.org/A192069"
    ],
    "note": "Mathar's g.f. is stated faithfully: p(n,x) = Sum B(k+4,4) x^k reduced mod x^2-x-1, the coefficient of x, offset 1, data 0, 5, 20, 90, ... I checked it numerically for 58 terms. The same conjecture (scaled by 1/5) remains unproved in A192069, and no prior proof was found. Routine Fibonacci-weighted sum manipulation. Second review: Faithful and true, and routine (a Fibonacci-binomial convolution). Duplicate warning: the open site id oeis-a192069 (A192069 = A192249/5, the same g.f. divided by 5) is the same mathematical statement. It should be closed by this proof, but this proof came first, so the novelty is unaffected."
-  },
-  "oeis-a267158": {
-   "date": "2026-11-28",
-   "pr": 22884,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267158",
-    "https://oeis.org/A267158",
-    "https://oeis.org/A267158/b267158.txt",
-    "https://oeis.org/history?seq=A267158"
-   ],
-   "note": "Barker's recurrence (n > 12) and g.f. for the ON-cell count of elementary Rule 107 (cells -n..n, background evolving) are stated faithfully, and the data is reproduced. I checked both numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true. Barker/Keller's formulas for A267158 (Rule 107) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
   },
   "oeis-a285353": {
    "date": "2026-11-28",
@@ -6108,58 +5556,6 @@
    ],
    "note": "Barker's g.f. (stated as A*D = N) and recurrence (n>5) for the right x-axis of 2D Rule 597 read in binary; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Wu's conjectured formulas for A283217 (Rule 597) agree with an independent exact simulation far beyond the b-file. The only open content is a self-similar growth pattern, settled by a finite induction, so it is routine."
   },
-  "oeis-a266723": {
-   "date": "2026-11-28",
-   "pr": 22830,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266723",
-    "https://oeis.org/A266723/b266723.txt",
-    "https://oeis.org/A266723",
-    "https://oeis.org/A266723/b266723.txt",
-    "https://oeis.org/history?seq=A266723"
-   ],
-   "note": "Barker's closed form, order-5 recurrence and g.f. for the cumulative ON-cell count (cells -t..t at stage t) of Rule 59; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A266723 (Rule 59) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
-  },
-  "oeis-a267055": {
-   "date": "2026-11-28",
-   "pr": 22773,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267055",
-    "https://oeis.org/A267055/b267055.txt",
-    "https://oeis.org/A267055",
-    "https://oeis.org/A267055/b267055.txt",
-    "https://oeis.org/history?seq=A267055"
-   ],
-   "note": "Barker's recurrence (n>5) and g.f. for the binary value of row n of Rule 93; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A267055 (Rule 93) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
-  },
-  "oeis-a266980": {
-   "date": "2026-11-28",
-   "pr": 22727,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266980",
-    "https://oeis.org/A266980/b266980.txt",
-    "https://oeis.org/A266980",
-    "https://oeis.org/A266980/b266980.txt",
-    "https://oeis.org/history?seq=A266980"
-   ],
-   "note": "Barker's recurrence (n>5) and g.f. for the binary value of row n of Rule 79; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A266980 (Rule 79) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
-  },
-  "oeis-a266446": {
-   "date": "2026-11-28",
-   "pr": 22555,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266446",
-    "https://oeis.org/A266446/b266446.txt",
-    "https://oeis.org/A266446",
-    "https://oeis.org/A266446/b266446.txt",
-    "https://oeis.org/history?seq=A266446"
-   ],
-   "note": "Barker's closed form (n>10) and g.f., plus Keller's floor formula floor(6661*2^n/6144) for all n, for the Rule 25 middle column read in binary; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A266446 (Rule 25) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
-  },
   "oeis-a175033": {
    "date": "2026-11-28",
    "pr": 23237,
@@ -6227,17 +5623,6 @@
     "https://oeis.org/A277866/b277866.txt"
    ],
    "note": "Barker's g.f. and closed form -1-(-2)^n+2(-1)^n+2^n for 2D Rule 3 (decimal value of the left half of the x-axis) are stated faithfully, for all n >= 0. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. Both hold to n = 34. Period-2 pattern, so routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a267154": {
-   "date": "2026-11-28",
-   "pr": 22807,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267154",
-    "https://oeis.org/A267154",
-    "https://oeis.org/A267154/b267154.txt"
-   ],
-   "note": "Barker's recurrence (n > 12) and degree-12 g.f. for Rule 107 (rows -n..n read in binary, background evolving as in CellularAutomaton) are stated faithfully. My own ECA simulation reproduces all 30 listed terms, and both claims hold to n = 60. The entry notes that an earlier unjustified 'proved' claim was removed (2022). Routine; no prior proof found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
   },
   "oeis-a126114": {
    "date": "2026-11-28",
@@ -6344,28 +5729,6 @@
    ],
    "note": "For an n X 1 column only vertical neighbours exist, so a(n) counts 0..6 words with exactly one adjacent pair summing to 6. The empirical recurrence (n>=3), Barker's g.f. and the closed form 7*6^(n-2)*(n-1) are stated faithfully (a(1)=0 handled). I brute-forced n<=7. Elementary counting; no prior proof found. Second review: Faithful and true; for each value x exactly one partner 6-x, so the count is (n-1)*7*6^(n-2). Routine."
   },
-  "oeis-a267139": {
-   "date": "2026-11-28",
-   "pr": 22352,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267139",
-    "https://oeis.org/A267139",
-    "https://oeis.org/A267139/b267139.txt"
-   ],
-   "note": "Rule 103 elementary CA rows over [-n,n] read in binary, with the background evolving on Z. Barker's recurrence (n>10) and degree-10 g.f. are stated faithfully; my simulation matches 29 listed terms and the claims to n=80. No prior proof found; routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a266718": {
-   "date": "2026-11-28",
-   "pr": 22098,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266718",
-    "https://oeis.org/A266718",
-    "https://oeis.org/A266718/b266718.txt"
-   ],
-   "note": "Rule 59 elementary CA rows read in binary. Barker's recurrence (n>6) and g.f. are stated faithfully; my simulation matches 31 listed terms and the claims to n=80. No prior proof found; routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
   "oeis-a094061": {
    "date": "2026-11-28",
    "pr": 21649,
@@ -6425,17 +5788,6 @@
    ],
    "note": "Barker's g.f. and closed form for 2D Rule 3, read in base 2, are stated faithfully, and I checked them numerically for n <= 40. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
   },
-  "oeis-a266671": {
-   "date": "2026-11-28",
-   "pr": 22869,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266671",
-    "https://oeis.org/A266671",
-    "https://oeis.org/A266671/b266671.txt"
-   ],
-   "note": "Barker's recurrence (n > 5) and g.f. for elementary Rule 53 read in base 2 are stated faithfully, and I checked them numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
   "oeis-a237978": {
    "date": "2026-11-28",
    "pr": 22817,
@@ -6450,39 +5802,6 @@
     "https://oeis.org/A366063"
    ],
    "note": "Kimberling's conjecture (2^d is the least n with a partition of depth d) is stated faithfully. A brute-force check over n <= 32 gives least n = 1, 2, 4, 8, 16, 32 for d = 0..5. The same conjecture is repeated, still open, in A237685, A237750 and A366063, and none of them is solved on the site. The proof is a short doubling and induction argument, and no prior proof was found. Second review: Faithful and true. Proof: [1,1,2,4,...,2^(d-1)] has depth d, and a repeated part at level j is >= 2x for a repeated part x at level j-1, giving n >= 2^d; short argument, routine."
-  },
-  "oeis-a266589": {
-   "date": "2026-11-28",
-   "pr": 22698,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266589",
-    "https://oeis.org/A266589",
-    "https://oeis.org/A266589/b266589.txt"
-   ],
-   "note": "Barker's recurrence and g.f. and Keller's two closed forms for elementary Rule 37 (base-10 reading of the binary row) are stated faithfully, with the data reproduced. I checked all four numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a267138": {
-   "date": "2026-11-28",
-   "pr": 22664,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267138",
-    "https://oeis.org/A267138",
-    "https://oeis.org/A267138/b267138.txt"
-   ],
-   "note": "Barker's recurrence (n > 10) and g.f. for elementary Rule 103 (base-10 reading) are stated faithfully, and I checked them numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a266445": {
-   "date": "2026-11-28",
-   "pr": 22561,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266445",
-    "https://oeis.org/A266445",
-    "https://oeis.org/A266445/b266445.txt"
-   ],
-   "note": "Barker's closed form (n > 10) and g.f. and Keller's floor formula for the middle column of elementary Rule 25 are stated faithfully, and I checked all three numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine. Related to A266444 (same automaton) but a different statement."
   },
   "oeis-a284237": {
    "date": "2026-11-28",
@@ -6579,66 +5898,6 @@
     "https://oeis.org/A283589/b283589.txt"
    ],
    "note": "Barker's g.f., closed form (n>2) and recurrence (n>4) for the left x-axis of 2D Rule 657 read in base 10; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a267258": {
-   "date": "2026-11-28",
-   "pr": 23226,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267258",
-    "https://oeis.org/A267258/b267258.txt",
-    "https://oeis.org/A267258",
-    "https://oeis.org/A267258/b267258.txt"
-   ],
-   "note": "Barker's closed form (n>5) and g.f. for the middle column of Rule 111 read as a binary number (stage 0 most significant); conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a267153": {
-   "date": "2026-11-28",
-   "pr": 22797,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267153",
-    "https://oeis.org/A267153/b267153.txt",
-    "https://oeis.org/A267153",
-    "https://oeis.org/A267153/b267153.txt"
-   ],
-   "note": "Barker's recurrence (n>12) and degree-12 g.f. for row n of Rule 107 read in base 10 (leftmost cell first); conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a267052": {
-   "date": "2026-11-28",
-   "pr": 22762,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267052",
-    "https://oeis.org/A267052/b267052.txt",
-    "https://oeis.org/A267052",
-    "https://oeis.org/A267052/b267052.txt"
-   ],
-   "note": "Barker's closed form (n>0), recurrence (n>3) and g.f. for the binary value of row n of Rule 92; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a266516": {
-   "date": "2026-11-28",
-   "pr": 22684,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266516",
-    "https://oeis.org/A266516/b266516.txt",
-    "https://oeis.org/A266516",
-    "https://oeis.org/A266516/b266516.txt"
-   ],
-   "note": "Keller's parity closed forms (odd n: 2(4^n-2^n)-1, even n: 2^n) for the binary value of row n of Rule 29; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry; Librandi's empirical recurrence and Barker's g.f. are not included, but they follow from Keller's forms. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
-  },
-  "oeis-a266444": {
-   "date": "2026-11-28",
-   "pr": 22452,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266444",
-    "https://oeis.org/A266444/b266444.txt",
-    "https://oeis.org/A266444",
-    "https://oeis.org/A266444/b266444.txt"
-   ],
-   "note": "Barker's closed form (n>11), recurrence (n>13) and g.f. for the middle column of Rule 25; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
   },
   "oeis-a121584": {
    "date": "2026-11-28",
@@ -9045,318 +8304,6 @@
    ],
    "note": "Yanev's 2017 conjecture a(n) = n(n+3)/2 - v2(A293290(n)) for n > 0 is encoded faithfully (reversed binary words, 0 as [0], List.Lex, S_n = {0..n}); the definition reproduces the whole b-file (n = 0..599) and the identity holds against the b-file up to n = 2999. The proof derives Heinz's recurrence from the lexicographic definition and a recursion for the row sums of v2(k^2+j^2). trureturing mentions A264596 only in a different A030101 identity; no prior proof found. Second review: Yanev's 2017 conjectured formula for the reversed-binary sort position, now proved via the 2-adic valuation of k^2+j^2 and Heinz's recurrence. No prior proof found anywhere. The argument is elementary but not a pure recurrence identity."
   },
-  "oeis-a266221": {
-   "date": "2026-11-28",
-   "pr": 22095,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266221",
-    "https://oeis.org/A266221/b266221.txt",
-    "https://oeis.org/A266221",
-    "https://oeis.org/A266221/b266221.txt"
-   ],
-   "note": "Elementary Rule 7 total ON cells, Barker's conjectures: closed form (n>0, since it fails at n=0), recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 7 (total ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. The site adds n>0 to the closed form because the entry formula is false at n=0. This is the only correct reading, not a weakening that the proof exploits."
-  },
-  "oeis-a266222": {
-   "date": "2026-11-28",
-   "pr": 22093,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266222",
-    "https://oeis.org/A266222/b266222.txt",
-    "https://oeis.org/A266222",
-    "https://oeis.org/A266222/b266222.txt"
-   ],
-   "note": "Elementary Rule 7 OFF cells, Barker's conjectures: closed form for n>1, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 7 (OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266223": {
-   "date": "2026-11-28",
-   "pr": 22153,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266223",
-    "https://oeis.org/A266223/b266223.txt",
-    "https://oeis.org/A266223",
-    "https://oeis.org/A266223/b266223.txt"
-   ],
-   "note": "Elementary Rule 7 total OFF cells, Barker's conjectures: closed form for n>0, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 7 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266256": {
-   "date": "2026-11-28",
-   "pr": 22097,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266256",
-    "https://oeis.org/A266256/b266256.txt",
-    "https://oeis.org/A266256",
-    "https://oeis.org/A266256/b266256.txt"
-   ],
-   "note": "Elementary Rule 11 ON cells, Barker's conjectures: closed form for n>0, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 11 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266257": {
-   "date": "2026-11-28",
-   "pr": 22136,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266257",
-    "https://oeis.org/A266257/b266257.txt",
-    "https://oeis.org/A266257",
-    "https://oeis.org/A266257/b266257.txt"
-   ],
-   "note": "Elementary Rule 11 total ON cells, Barker's conjectures: closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 11 (total ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266258": {
-   "date": "2026-11-28",
-   "pr": 22122,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266258",
-    "https://oeis.org/A266258/b266258.txt",
-    "https://oeis.org/A266258",
-    "https://oeis.org/A266258/b266258.txt"
-   ],
-   "note": "Elementary Rule 11 OFF cells, Barker's conjectures: closed form for n>0, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 11 (OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266259": {
-   "date": "2026-11-28",
-   "pr": 22137,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266259",
-    "https://oeis.org/A266259/b266259.txt",
-    "https://oeis.org/A266259",
-    "https://oeis.org/A266259/b266259.txt"
-   ],
-   "note": "Elementary Rule 11 total OFF cells, Barker's conjectures: closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 11 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266303": {
-   "date": "2026-11-28",
-   "pr": 22130,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266303",
-    "https://oeis.org/A266303/b266303.txt",
-    "https://oeis.org/A266303",
-    "https://oeis.org/A266303/b266303.txt"
-   ],
-   "note": "Elementary Rule 15 ON cells, Barker's conjectures: closed form for all n, recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 15 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266304": {
-   "date": "2026-11-28",
-   "pr": 22131,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266304",
-    "https://oeis.org/A266304/b266304.txt",
-    "https://oeis.org/A266304",
-    "https://oeis.org/A266304/b266304.txt"
-   ],
-   "note": "Elementary Rule 15 total OFF cells, Barker's conjectures: closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 15 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266327": {
-   "date": "2026-11-28",
-   "pr": 22381,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266327",
-    "https://oeis.org/A266327/b266327.txt",
-    "https://oeis.org/A266327",
-    "https://oeis.org/A266327/b266327.txt"
-   ],
-   "note": "Elementary Rule 20 row (binary digits), Barker's conjectures: closed form 6-5(-1)^n, a(n)=a(n-2) for n>1 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 20 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266437": {
-   "date": "2026-11-28",
-   "pr": 22132,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266437",
-    "https://oeis.org/A266437/b266437.txt",
-    "https://oeis.org/A266437",
-    "https://oeis.org/A266437/b266437.txt"
-   ],
-   "note": "Elementary Rule 23 ON cells, Barker's conjectures: De Vlieger's empirical g.f., Barker's closed form for n>0 and recurrence for n>4. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 23 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266439": {
-   "date": "2026-11-28",
-   "pr": 22143,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266439",
-    "https://oeis.org/A266439/b266439.txt",
-    "https://oeis.org/A266439",
-    "https://oeis.org/A266439/b266439.txt"
-   ],
-   "note": "Elementary Rule 23 OFF cells, Barker's conjectures: closed form for n>0, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 23 (OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. Note A266439(n)=A266222(n) for n>1 (Mathar), but it is a different sequence and a separate site id, not a duplicate statement."
-  },
-  "oeis-a266440": {
-   "date": "2026-11-28",
-   "pr": 22151,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266440",
-    "https://oeis.org/A266440/b266440.txt",
-    "https://oeis.org/A266440",
-    "https://oeis.org/A266440/b266440.txt"
-   ],
-   "note": "Elementary Rule 23 total OFF cells, Barker's conjectures: closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 23 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266592": {
-   "date": "2026-11-28",
-   "pr": 22477,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266592",
-    "https://oeis.org/A266592/b266592.txt",
-    "https://oeis.org/A266592",
-    "https://oeis.org/A266592/b266592.txt"
-   ],
-   "note": "Elementary Rule 37 middle column (binary digits), Barker's conjectures: closed form for n>0, recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 37 (middle column read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266593": {
-   "date": "2026-11-28",
-   "pr": 22159,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266593",
-    "https://oeis.org/A266593/b266593.txt",
-    "https://oeis.org/A266593",
-    "https://oeis.org/A266593/b266593.txt"
-   ],
-   "note": "Elementary Rule 37 ON cells, Barker's conjectures: closed form for n>1, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 37 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266596": {
-   "date": "2026-11-28",
-   "pr": 22202,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266596",
-    "https://oeis.org/A266596/b266596.txt",
-    "https://oeis.org/A266596",
-    "https://oeis.org/A266596/b266596.txt"
-   ],
-   "note": "Elementary Rule 37 total OFF cells, Barker's conjectures: closed form for n>0, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 37 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266606": {
-   "date": "2026-11-28",
-   "pr": 22574,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266606",
-    "https://oeis.org/A266606/b266606.txt",
-    "https://oeis.org/A266606",
-    "https://oeis.org/A266606/b266606.txt"
-   ],
-   "note": "Elementary Rule 39 row (binary digits), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 39 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. The entry history records that an unjustified claim that these conjectures were proved was removed, so there is no prior proof."
-  },
-  "oeis-a266662": {
-   "date": "2026-11-28",
-   "pr": 22142,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266662",
-    "https://oeis.org/A266662/b266662.txt",
-    "https://oeis.org/A266662",
-    "https://oeis.org/A266662/b266662.txt"
-   ],
-   "note": "Elementary Rule 47 ON cells, Barker's conjectures: closed form for n>1, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 47 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. A266662=A266256 for n>1 (Mathar): different sequence, not a duplicate."
-  },
-  "oeis-a266663": {
-   "date": "2026-11-28",
-   "pr": 22154,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266663",
-    "https://oeis.org/A266663/b266663.txt",
-    "https://oeis.org/A266663",
-    "https://oeis.org/A266663/b266663.txt"
-   ],
-   "note": "Elementary Rule 47 total ON cells, Barker's conjectures: closed form for n>0, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 47 (total ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266664": {
-   "date": "2026-11-28",
-   "pr": 22155,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266664",
-    "https://oeis.org/A266664/b266664.txt",
-    "https://oeis.org/A266664",
-    "https://oeis.org/A266664/b266664.txt"
-   ],
-   "note": "Elementary Rule 47 OFF cells, Barker's conjectures: closed form for n>1, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 47 (OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. A266664=A266258 for n>1 (Mathar): different sequence, not a duplicate."
-  },
-  "oeis-a266670": {
-   "date": "2026-11-28",
-   "pr": 22554,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266670",
-    "https://oeis.org/A266670/b266670.txt",
-    "https://oeis.org/A266670",
-    "https://oeis.org/A266670/b266670.txt"
-   ],
-   "note": "Elementary Rule 53 row (binary digits), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 53 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266717": {
-   "date": "2026-11-28",
-   "pr": 22560,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266717",
-    "https://oeis.org/A266717/b266717.txt",
-    "https://oeis.org/A266717",
-    "https://oeis.org/A266717/b266717.txt"
-   ],
-   "note": "Elementary Rule 59 row (binary digits), Barker's conjectures: recurrence for n>6 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 59 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266849": {
-   "date": "2026-11-28",
-   "pr": 22368,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266849",
-    "https://oeis.org/A266849/b266849.txt",
-    "https://oeis.org/A266849",
-    "https://oeis.org/A266849/b266849.txt"
-   ],
-   "note": "Elementary Rule 71 row (binary digits), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 71 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266850": {
-   "date": "2026-11-28",
-   "pr": 22467,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266850",
-    "https://oeis.org/A266850/b266850.txt",
-    "https://oeis.org/A266850",
-    "https://oeis.org/A266850/b266850.txt"
-   ],
-   "note": "Elementary Rule 71 row (decimal), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 71 (row read in decimal), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266872": {
-   "date": "2026-11-28",
-   "pr": 22546,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266872",
-    "https://oeis.org/A266872/b266872.txt",
-    "https://oeis.org/A266872",
-    "https://oeis.org/A266872/b266872.txt"
-   ],
-   "note": "Elementary Rule 77 row (binary digits), Barker's conjectures: recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 77 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
-  "oeis-a266873": {
-   "date": "2026-11-28",
-   "pr": 22528,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266873",
-    "https://oeis.org/A266873/b266873.txt",
-    "https://oeis.org/A266873",
-    "https://oeis.org/A266873/b266873.txt"
-   ],
-   "note": "Elementary Rule 77 row (decimal), Barker's conjectures: closed form for all n, recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 77 (row read in decimal), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
-  },
   "oeis-a188861": {
    "date": "2026-11-28",
    "pr": 24601,
@@ -9410,114 +8357,6 @@
     "https://oeis.org/A239171/b239171.txt"
    ],
    "note": "The same array condition as A238923 over 0..2: Barker's g.f. 6x/(1-2x-2x^2) and a(n) = sqrt3((1+sqrt3)^n - (1-sqrt3)^n). My DP matches 6, 12, 36, 96, ..., 5376. Routine. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
-  },
-  "oeis-a266984": {
-   "date": "2026-11-28",
-   "pr": 22369,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266984",
-    "https://oeis.org/A266984/b266984.txt",
-    "https://oeis.org/A266984",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A266/A266984.seq"
-   ],
-   "note": "Elementary Rule 81 row (decimal), Barker's conjectures: closed form for n>0, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 81 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
-  },
-  "oeis-a267002": {
-   "date": "2026-11-28",
-   "pr": 22562,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267002",
-    "https://oeis.org/A267002/b267002.txt",
-    "https://oeis.org/A267002",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A267/A267002.seq"
-   ],
-   "note": "Elementary Rule 83 row (binary digits), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 83 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
-  },
-  "oeis-a267003": {
-   "date": "2026-11-28",
-   "pr": 22611,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A267003",
-    "https://oeis.org/A267003/b267003.txt",
-    "https://oeis.org/A267003",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A267/A267003.seq"
-   ],
-   "note": "Elementary Rule 83 row (decimal), Barker's conjectures: recurrence for n>5 and g.f. (Spezia's e.g.f. omitted; it follows from the g.f.). The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 83 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
-  },
-  "oeis-a265428": {
-   "date": "2026-11-28",
-   "pr": 23462,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A265428",
-    "https://oeis.org/A265428/b265428.txt",
-    "https://oeis.org/A265428",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A265/A265428.seq"
-   ],
-   "note": "Elementary Rule 188 ON cells, Barker's conjectures: complex closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 188 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
-  },
-  "oeis-a265431": {
-   "date": "2026-11-28",
-   "pr": 23548,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A265431",
-    "https://oeis.org/A265431/b265431.txt",
-    "https://oeis.org/A265431",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A265/A265431.seq"
-   ],
-   "note": "Elementary Rule 188 total OFF cells, Barker's conjectures: complex closed form for all n and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 188 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
-  },
-  "oeis-a266791": {
-   "date": "2026-11-28",
-   "pr": 23452,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266791",
-    "https://oeis.org/A266791/b266791.txt",
-    "https://oeis.org/A266791",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A266/A266791.seq"
-   ],
-   "note": "Elementary Rule 61 middle column (decimal), Barker's conjectures: closed form for n>9 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 61 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
-  },
-  "oeis-a266841": {
-   "date": "2026-11-28",
-   "pr": 23610,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266841",
-    "https://oeis.org/A266841/b266841.txt",
-    "https://oeis.org/A266841",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A266/A266841.seq"
-   ],
-   "note": "Elementary Rule 69 row (binary digits), Barker's conjectures: Barker's recurrence for n>5 and g.f. plus Keller's odd/even closed forms. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 69 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
-  },
-  "oeis-a266846": {
-   "date": "2026-11-28",
-   "pr": 24550,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266846",
-    "https://oeis.org/A266846/b266846.txt",
-    "https://oeis.org/A266846",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A266/A266846.seq"
-   ],
-   "note": "Elementary Rule 70 row (decimal), Barker's conjectures: closed form for all n, recurrence for n>2 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 70 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
-  },
-  "oeis-a266976": {
-   "date": "2026-11-28",
-   "pr": 24589,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A266976",
-    "https://oeis.org/A266976/b266976.txt",
-    "https://oeis.org/A266976",
-    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A266/A266976.seq"
-   ],
-   "note": "Elementary Rule 78 row (decimal), Barker's conjectures: closed form for n>0, recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker-type identities for the Rule 78 elementary CA; faithful, numerically true far past the data, no earlier proof located. Routine: eventually periodic row pattern => linear recurrence/g.f."
   },
   "mo-381970": {
    "date": "2026-11-28",
@@ -12498,6 +11337,25 @@
     "https://oeis.org/A273312"
    ],
    "reason": "Disproof of a printed range slip. Barker's closed form 8 - (-1)^n + 8n holds for n > 1, but the recurrence a(n) = a(n-1) + a(n-2) - a(n-3) is printed 'for n>2'. At n = 4 it gives 33 + 23 - 13 = 43, while a(4) = 39. It holds for n > 4, consistent with the degree-4 g.f. numerator. The disproof is this one evaluation."
+  },
+  "oeis-a247031": {
+   "date": "2026-11-28",
+   "pr": 26323,
+   "evidence": [
+    "https://oeis.org/A247031",
+    "https://oeis.org/A245658"
+   ],
+   "reason": "The 'conjecture' is that a(3n) == 2 (mod 3) iff b(n) == 2 (mod 3), where b = A245658 is the cube root. It holds for every integer series B with A = B^3, by the Frobenius identity B(x)^3 == B(x^3) (mod 3). The Lean statement quantifies over all such A, B, and the proof is that one-line freshman's-dream fact. It says nothing specific about the sequence and follows directly from A = B^3, so I flag it as trivial."
+  },
+  "oeis-a249596": {
+   "date": "2026-11-28",
+   "pr": 26090,
+   "evidence": [
+    "https://oeis.org/A249596",
+    "https://oeis.org/A165781",
+    "https://oeis.org/history?seq=A165781"
+   ],
+   "reason": "This is a disproof that exploits an index slip. Mathar's 'a(n) = n*A165781(n)' fails at n=2 (2 vs 6) only because A165781 has offset 0, which it has had since 2009. The data match a(n) = n*A165781(n-1) for every term I checked, and the same proof file proves that corrected form as lemma `corrected`. The statement's comment admits the sides 'already differ at n = 2'. It refutes a typo, not the intended conjecture, which is true."
   }
  },
  "known": {
@@ -23447,6 +22305,1007 @@
     "https://doi.org/10.5281/zenodo.24384895"
    ],
    "reason": "Disproof of a printed range slip that is already public: Barker's a(n) = 1 - 2^(n+2) + 3*4^n has no range and gives 0 at n = 0, while a(0) = 1. The 10-line disproof is decide at n = 0. Cohen's aixiv 2611.02474 (Sec. 7.2, Nov 2026) records this error and proves the formula for n >= 1 and all 16 companion rules. This is also a flag-worthy trivial exploit."
+  },
+  "oeis-a241620": {
+   "date": "2026-11-28",
+   "pr": 25957,
+   "evidence": [
+    "https://oeis.org/A241620",
+    "https://oeis.org/A241619"
+   ],
+   "reason": "Barker's g.f./recurrence for row 5 of A241619 is stated faithfully, and the definition matches the data. The parent A241619 has Robert Israel's Sep 2019 comment: row n is the Ehrhart polynomial (degree n+2) of the polytope x_i>=0, x_i+x_(i+1)+x_(i+2)<=1, whose vertices are 0/1. That interval matrix is totally unimodular, so the g.f. with (1-x)^(n+3) follows once the numerator is fixed from the data. That is what the formula says, so the result was already settled in the parent entry."
+  },
+  "oeis-a241621": {
+   "date": "2026-11-28",
+   "pr": 26039,
+   "evidence": [
+    "https://oeis.org/A241621",
+    "https://oeis.org/A241619"
+   ],
+   "reason": "Barker's g.f./recurrence for row 6 of A241619 is stated faithfully, and the definition matches the data. The parent A241619 has Robert Israel's Sep 2019 comment: row n is the Ehrhart polynomial (degree n+2) of the polytope x_i>=0, x_i+x_(i+1)+x_(i+2)<=1, whose vertices are 0/1. That interval matrix is totally unimodular, so the g.f. with (1-x)^(n+3) follows once the numerator is fixed from the data. That is what the formula says, so the result was already settled in the parent entry."
+  },
+  "oeis-a241622": {
+   "date": "2026-11-28",
+   "pr": 26023,
+   "evidence": [
+    "https://oeis.org/A241622",
+    "https://oeis.org/A241619"
+   ],
+   "reason": "Barker's g.f./recurrence for row 7 of A241619 is stated faithfully, and the definition matches the data. The parent A241619 has Robert Israel's Sep 2019 comment: row n is the Ehrhart polynomial (degree n+2) of the polytope x_i>=0, x_i+x_(i+1)+x_(i+2)<=1, whose vertices are 0/1. That interval matrix is totally unimodular, so the g.f. with (1-x)^(n+3) follows once the numerator is fixed from the data. That is what the formula says, so the result was already settled in the parent entry."
+  },
+  "oeis-a241756": {
+   "date": "2026-11-28",
+   "pr": 25883,
+   "evidence": [
+    "https://oeis.org/A241756",
+    "https://doi.org/10.1137/1035147",
+    "https://oeis.org/A005187"
+   ],
+   "reason": "Mathar's conjecture is that den(Grosjean sum) = 8^A005187(n). The statement is faithful. The cited Flajolet-Salvy-Prodinger solution of SIAM problem 92-18 (1993) evaluates the sum in closed form; that is the entry's formula line, and it equals (C(2n,n)/4^n)^3 (I checked this for n<12). C(2n,n)/4^n has an odd numerator over 2^A005187(n), which is A005187's defining property via Legendre's formula, so the denominator is exactly 8^A005187(n). The result follows directly from a published evaluation."
+  },
+  "oeis-a244884": {
+   "date": "2026-11-28",
+   "pr": 25772,
+   "evidence": [
+    "https://oeis.org/A244884",
+    "https://oeis.org/A002026",
+    "https://oeis.org/A105695"
+   ],
+   "reason": "Mathar's 2020 recurrence (n+2)a(n) - (3n+1)a(n-1) - n a(n-2) + 3(n-3)a(n-3) = 0 is stated for n>=5. It really fails at n=3,4, so that range is fair. A244884(n) = A002026(n-1) = A105695(n+1) (the entry says 'apart from initial terms, same as'). Under those shifts this is exactly the recurrence that A002026 lists as D-finite (Mathar 2012) and that A105695 lists. In A105695, Peter Bala (Oct 2015) proves a 3-term recurrence from an explicit Catalan sum and notes that the 4-term one follows easily."
+  },
+  "oeis-a245871": {
+   "date": "2026-11-28",
+   "pr": 25625,
+   "evidence": [
+    "https://oeis.org/A245871",
+    "https://oeis.org/A245869",
+    "https://oeis.org/A245869/a245869.pdf",
+    "https://math.stackexchange.com/questions/4952174"
+   ],
+   "reason": "Barker's g.f. and parity-split polynomials for row 2 of A245869 are stated faithfully, and my DP reproduces the data. The parent links Robert Israel's Aug 2024 'Maple-assisted verification of empirical formulas for rows and columns of A245869'. It gives exact transfer matrices M(k), v0(k), symbolic in k, for odd and even k, with T(n,k) = e^T M^n v0. Expanding e^T M^2 v0 symbolically (I did this) gives exactly Barker's two polynomials, so the row formula is already settled there."
+  },
+  "oeis-a245872": {
+   "date": "2026-11-28",
+   "pr": 26674,
+   "evidence": [
+    "https://oeis.org/A245872",
+    "https://oeis.org/A245869",
+    "https://oeis.org/A245869/a245869.pdf",
+    "https://math.stackexchange.com/questions/4952174"
+   ],
+   "reason": "Barker's g.f. and parity-split polynomials for row 3 of A245869 are stated faithfully, and my DP reproduces the data. The parent links Robert Israel's Aug 2024 'Maple-assisted verification of empirical formulas for rows and columns of A245869'. It gives exact transfer matrices M(k), v0(k), symbolic in k, for odd and even k, with T(n,k) = e^T M^n v0. Expanding e^T M^3 v0 symbolically (I did this) gives exactly Barker's two polynomials, so the row formula is already settled there."
+  },
+  "oeis-a245874": {
+   "date": "2026-11-28",
+   "pr": 26356,
+   "evidence": [
+    "https://oeis.org/A245874",
+    "https://oeis.org/A245869",
+    "https://oeis.org/A245869/a245869.pdf",
+    "https://math.stackexchange.com/questions/4952174"
+   ],
+   "reason": "Barker's g.f. and parity-split polynomials for row 5 of A245869 are stated faithfully, and my DP reproduces the data. The parent links Robert Israel's Aug 2024 'Maple-assisted verification of empirical formulas for rows and columns of A245869'. It gives exact transfer matrices M(k), v0(k), symbolic in k, for odd and even k, with T(n,k) = e^T M^n v0. Expanding e^T M^5 v0 symbolically (I did this) gives exactly Barker's two polynomials, so the row formula is already settled there."
+  },
+  "oeis-a246048": {
+   "date": "2026-11-28",
+   "pr": 9967,
+   "evidence": [
+    "https://oeis.org/A246048",
+    "https://oeis.org/A057599",
+    "https://oeis.org/A096126"
+   ],
+   "reason": "The statement (no prime power p^(k+1) is a term) faithfully renders the 'no primes nor powers of primes' observation. The entry itself points to A057599, whose comment says that for n = p^k, (n^2)!/(n!)^(n+1) is not divisible by p, i.e. v_p((n^2)!) = (n+1)v_p(n!). Since v_p((2n)!) > v_p(n!) (2n is a multiple of p^k), the claim follows at once. It is a two-line Legendre argument already present via the cross-referenced comment."
+  },
+  "oeis-a249114": {
+   "date": "2026-11-28",
+   "pr": 21011,
+   "evidence": [
+    "https://oeis.org/A249114"
+   ],
+   "reason": "The statement (every n>=1 needs at least 6 steps to reach four primes, and some n has a(n)=6) is Michel Marcus's 2014 observation. The entry already contains Jon Perry's Oct 2014 parity proof (for odd n, n+1, n+3 and n+15 are even; for even n, n+6 and n+10 are even), and a(2)=6. Settled in the source."
+  },
+  "oeis-a249265": {
+   "date": "2026-11-28",
+   "pr": 25325,
+   "evidence": [
+    "https://oeis.org/A249265",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Combinatorics/A249265GreedyDistinctNonnegative.lean"
+   ],
+   "reason": "Barker's recurrence a(n) = 2a(n-2)+a(n-4)-2a(n-6)-a(n-8) for n>15 is stated faithfully (greedy distinct terms, prefix average = Fibonacci with F(0)=0 allowed). thatnealpatel/proofs, Proofs/Combinatorics/A249265GreedyDistinctNonnegative.lean, proves the same theorem `barker` (n>15) via the closed form, with no sorry. It was first committed Oct 21, 2026, before this site's merge on Nov 28, 2026."
+  },
+  "oeis-a249303": {
+   "date": "2026-11-28",
+   "pr": 26347,
+   "evidence": [
+    "https://oeis.org/A249303",
+    "https://www.mathstat.dal.ca/FQ/Scanned/7-5/webb.pdf",
+    "https://www.mathstat.dal.ca/FQ/Scanned/12-2/hoggatt1.pdf"
+   ],
+   "reason": "Kimberling's general conjecture (for any c, the numerator p(n,x) of f(n)=1+(x+c)/f(n-1) is irreducible iff n+2 is prime) is encoded faithfully as U_{n+2} with U_{m+2} = U_{m+1}+(x+c)U_m, checked against the rows. U_m(t) is the Fibonacci polynomial in t=x+c (F_m(y) = y^(m-1) U_m(1/y^2)). Webb-Parberry (Fib. Quart. 7, 1969) prove F_m irreducible over Q iff m is prime, and Hoggatt-Long (1974) prove the bivariate version, which covers this shifted form. A classical result."
+  },
+  "oeis-a249760": {
+   "date": "2026-11-28",
+   "pr": 25933,
+   "evidence": [
+    "https://oeis.org/A249760",
+    "https://oeis.org/A023194"
+   ],
+   "reason": "Conjectures (2) and (3) (k+1 is a Fermat prime and sigma(k) is a Mersenne prime whenever both are prime) are stated faithfully. The entry contains Jeppe Stig Nielsen's Jan 2015 comment: each term lies in A023194, so it is a prime power (here a power of 2), and (2), (3) 'easily follow'. The Lean proof is exactly that argument (k = 2^e, 2^e+1 prime forces e = 2^m). Settled in the source."
+  },
+  "oeis-a262779": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>2. | G.f.: (1+9*x+x^2) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a263244": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = a(n-1)+10000*a(n-2)-10000*a(n-3) for n>3. | G.f.: (1+100*x-90*x^2+1100*x^3) / ((1-x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a263245": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = a(n-1)+16*a(n-2)-16*a(n-3) for n>3. | G.f.: (1+4*x-2*x^2+12*x^3) / ((1-x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a263805": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 11*a(n-1)+9990*a(n-2)-110000*a(n-3)+100000*a(n-4) for n>4. | G.f.: (1-10000*x^2+100000*x^3-100000*x^4) / ((1-x)*(1-10*x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a263806": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 3*a(n-1)+14*a(n-2)-48*a(n-3)+32*a(n-4) for n>4. | G.f.: (1-16*x^2+32*x^3-32*x^4) / ((1-x)*(1-2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a265380": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10*a(n-1) + a(n-4) - 10*a(n-5) for n>4. | G.f.: (1+x+x^2) / ((1-x)*(1+x)*(1-10*x)*(1+x^2)).)"
+  },
+  "oeis-a265427": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = a(n-2) + 10000*a(n-4) - 10000*a(n-6) for n>5. | G.f.: (1+11*x+100*x^2+1100*x^3+1000*x^4-1000*x^5) / ((1-x)*(1+x)*(1-10*x)*(1+10*x)*(1+100*x^2)).)"
+  },
+  "oeis-a265428": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (1/8)*(6*n-3*(-1)^n+(1-i)*(-i)^n+(1+i)*i^n+9) where i = sqrt(-1). | a(n) = a(n-1) + a(n-4) - a(n-5) for n > 4.)"
+  },
+  "oeis-a265430": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 1/8*(10*n+3*(-1)^n-(1-i)*(-i)^n-(1+i)*i^n-1) where i = sqrt(-1). | a(n) = a(n-1) + a(n-4) - a(n-5) for n>4.)"
+  },
+  "oeis-a265431": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 1/16*(10*n^2+8*n+3*(-1)^n-2*(-i)^n-2*i^n+1) where i = sqrt(-1). | G.f.: x*(1+2*x+2*x^3) / ((1-x)^3*(1+x)*(1+x^2)).)"
+  },
+  "oeis-a265722": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 1/2*(-2*(-1)^n*n+2*n+3*(-1)^n-1). | a(n) = 2*a(n-2) - a(n-4) for n>3.)"
+  },
+  "oeis-a265723": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 1/2*((2*(-1)^n+2)*n-3*((-1)^n-1)). | a(n) = 2*a(n-2) - a(n-4) for n>3.)"
+  },
+  "oeis-a265724": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 1/2*(n^2+(-1)^n*n+4*n-(-1)^n+1). | a(n) = 1/2*(n^2+5*n) for n even.)"
+  },
+  "oeis-a266072": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: Conjectured g.f.: (1 + x - x^2 + 3*x^3)/(-1 + x^2)^2. - _Michael De Vlieger_, Dec 21 2015 | a(n) = n-(-1)^n*(n-1).)"
+  },
+  "oeis-a266221": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>5. | G.f.: (1+2*x-2*x^2+3*x^3+x^4-x^5) / ((1-x)^3*(1+x)^2).)"
+  },
+  "oeis-a266222": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 1/2*(1+(-1)^n)*(1+2*n) for n>1. | a(n) = 2*a(n-2) - a(n-4) for n>5.)"
+  },
+  "oeis-a266223": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 1/2*(n+1)*(n+(-1)^n+1) for n>0. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>5.)"
+  },
+  "oeis-a266249": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-2*(-1)^n*n+2*n+9*(-1)^n-1)/2 for n>3. | a(n) = 2*a(n-2)-a(n-4) for n>7.)"
+  },
+  "oeis-a266251": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2*(-1)^n*n+2*n-9*(-1)^n+3)/2 for n>3. | a(n) = 2*a(n-2)-a(n-4) for n>7.)"
+  },
+  "oeis-a266252": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = ((-1)^n*(n-4)+n*(n+4))/2 for n>2. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>7.)"
+  },
+  "oeis-a266256": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-2*((-1)^n-1)*n+3*(-1)^n+1)/2 for n>0. | a(n) = 2*a(n-2)-a(n-4) for n>4.)"
+  },
+  "oeis-a266257": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = ((n+1)^2-(-1)^n*(n-1))/2. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>4.)"
+  },
+  "oeis-a266258": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2*(-1)^n*n+2*n-3*(-1)^n+1)/2 for n>0 | a(n) = 2*a(n-2)-a(n-4) for n>4.)"
+  },
+  "oeis-a266259": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = ((n+1)^2+(-1)^n*(n-1))/2. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>4.)"
+  },
+  "oeis-a266303": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (1+(-1)^n-2*(-1+(-1)^n)*n)/2. | a(n) = 2*a(n-2)-a(n-4) for n>3.)"
+  },
+  "oeis-a266304": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = n*(n+(-1)^n+2)/2. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>4.)"
+  },
+  "oeis-a266327": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 6-5*(-1)^n. | a(n) = a(n-2) for n>1.)"
+  },
+  "oeis-a266437": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (1-(-1)^n)*(2*n+1)/2 for n>0. | a(n) = 2*a(n-2)-a(n-4) for n>4.)"
+  },
+  "oeis-a266438": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: Conjectured g.f.: (-(1 + x)^(-2) + (-3 + 3*x - 2*x^2)/(-1 + x)^3)/2. - _Michael De Vlieger_, Dec 29 2015 | a(n) = (n^2+2*n-(-1)^n*(n+1)+3)/2.)"
+  },
+  "oeis-a266439": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = ((-1)^n+1)*(2*n+1)/2 for n>0. | a(n) = 2*a(n-2)-a(n-4) for n>4.)"
+  },
+  "oeis-a266440": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (n^2+((-1)^n+2)*n+(-1)^n-1)/2. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>4.)"
+  },
+  "oeis-a266444": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (1-(-1)^n)/2 for n>11. | a(n) = a(n-2) for n>13.)"
+  },
+  "oeis-a266445": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-9*(-1)^n+9901000008901*2^(n-10)*5^(n-11)-11)/198 for n>10. | G.f.: (1-x^2+x^4+x^9-x^10-x^11+x^13) / ((1-x)*(1+x)*(1-10*x)).)"
+  },
+  "oeis-a266446": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-(-1)^n+6661*2^(n-10)-3)/6 for n>10. | G.f.: (1-x^2+x^4+x^9-x^10-x^11+x^13) / ((1-x)*(1+x)*(1-2*x)).)"
+  },
+  "oeis-a266447": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = n-(-1)^n*(n-4) for n>3. | a(n) = 2*a(n-2)-a(n-4) for n>7.)"
+  },
+  "oeis-a266448": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2*n^2+2*n+(-1)^n*(7-2*n)+5)/4 for n>2. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>7.)"
+  },
+  "oeis-a266449": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-1)^n*(n-4)+n+1 for n>3. | a(n) = 2*a(n-2)-a(n-4) for n>7.)"
+  },
+  "oeis-a266450": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2*n^2+2*((-1)^n+3)*n-7*(-1)^n-1)/4 for n>2. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>7.)"
+  },
+  "oeis-a266460": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10011*a(n-2)-110010*a(n-4)+100000*a(n-6) for n>5. | G.f.: (1+101*x-10001*x^2+99900*x^3+10000*x^4-110000*x^5) / ((1-x)*(1+x)*(1-100*x)*(1+100*x)*(1-10*x^2)).)"
+  },
+  "oeis-a266461": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 19*a(n-2)-50*a(n-4)+32*a(n-6) for n>5. | G.f.: (1+5*x-17*x^2+28*x^3+16*x^4-48*x^5) / ((1-x)*(1+x)*(1-4*x)*(1+4*x)*(1-2*x^2)).)"
+  },
+  "oeis-a266515": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10101*a(n-2)-1010100*a(n-4)+1000000*a(n-6) for n>5. | G.f.: (1+11*x-10001*x^2+990000*x^3+10000*x^4-1100000*x^5) / ((1-x)*(1+x)*(1-10*x)*(1+10*x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a266516": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: Conjecture: a(n) = 2*(4^n - 2^n) - 1 for odd n; a(n) = 2^n for even n. - _Karl V. Keller, Jr._, Oct 03 2021)"
+  },
+  "oeis-a266589": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10101*a(n-2)-1010100*a(n-4)+1000000*a(n-6) for n>7. | G.f.: (1 +10*x -8991*x^2 +898991*x^3 -10091010*x^4 +1009091010*x^5 +10100000*x^6 -1010100000*x^7) / ((1 -x)*(1 +x)*(1 -1)"
+  },
+  "oeis-a266590": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 21*a(n-2)-84*a(n-4)+64*a(n-6) for n>7. | G.f.: (1+2*x-7*x^2+23*x^3-154*x^4+602*x^5+160*x^6-672*x^7) / ((1-x)*(1+x)*(1-2*x)*(1+2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a266592": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (45*(-1)^n+1099*10^n-55)/990 for n>0. | a(n) = 10*a(n-1)+a(n-2)-10*a(n-3) for n>3.)"
+  },
+  "oeis-a266593": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-2*(-1)^n*n+2*n+7*(-1)^n-1)/2 for n>1. | a(n) = 2*a(n-2)-a(n-4) for n>5.)"
+  },
+  "oeis-a266594": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (n^2-(-1)^n*(n-3)+5)/2 for n>0. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>5.)"
+  },
+  "oeis-a266596": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (n^2+4*n+(-1)^n*(n-3)-3)/2 for n>0. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>5.)"
+  },
+  "oeis-a266606": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10011*a(n-2)-110010*a(n-4)+100000*a(n-6) for n>5. | G.f.: (1+110*x-10001*x^2+9891*x^3+10000*x^4-20000*x^5) / ((1-x)*(1+x)*(1-100*x)*(1+100*x)*(1-10*x^2)).)"
+  },
+  "oeis-a266607": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 19*a(n-2)-50*a(n-4)+32*a(n-6) for n>5. | G.f.: (1+6*x-17*x^2+11*x^3+16*x^4-32*x^5) / ((1-x)*(1+x)*(1-4*x)*(1+4*x)*(1-2*x^2)).)"
+  },
+  "oeis-a266662": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-2*(-1)^n*n+2*n+3*(-1)^n+1)/2 for n>1. | a(n) = 2*a(n-2)-a(n-4) for n>5.)"
+  },
+  "oeis-a266663": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (n^2-(-1)^n*n+2*n+(-1)^n+3)/2 for n>0. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>5.)"
+  },
+  "oeis-a266664": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2*(-1)^n*n+2*n-3*(-1)^n+1)/2 for n>1. | a(n) = 2*a(n-2)-a(n-4) for n>5.)"
+  },
+  "oeis-a266667": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-1+(-1)^n+9*(-5)^n*2^(1+n)+10^(1+2*n)-(-1)^n*10^(1+2*n))/18. | G.f.: (1+111*x-8891*x^2+1000*x^3+20000*x^4) / ((1-x)*(1+x)*(1+10*x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a266668": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-1/2-(-4)^n+(-2)^n+(-1)^n/2+4^n). | G.f.: (1+7*x-3*x^2+8*x^3+32*x^4) / ((1-x)*(1+x)*(1+2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a266670": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 11001*a(n-2) - 10011000*a(n-4) + 10000000*a(n-6) for n>5. | G.f.: (1+11*x-10001*x^2+890100*x^3+10000*x^4-2000000*x^5) / ((1-x)*(1+x)*(1-100*x)*(1+100*x)*(1-1000*x^2)).)"
+  },
+  "oeis-a266671": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 25*a(n-2) - 152*a(n-4) + 128*a(n-6) for n>5. | G.f.: (1+3*x-17*x^2+20*x^3+16*x^4-128*x^5) / ((1-x)*(1+x)*(1-4*x)*(1+4*x)*(1-8*x^2)).)"
+  },
+  "oeis-a266717": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10011*a(n-2)-110010*a(n-4)+100000*a(n-6) for n>6. | G.f.: (1+101*x-9901*x^2+99900*x^3-990100*x^4-110000*x^5+1000000*x^6) / ((1-x)*(1+x)*(1-100*x)*(1+100*x)*(1-10*x^2)).)"
+  },
+  "oeis-a266718": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 19*a(n-2)-50*a(n-4)+32*a(n-6) for n>6. | G.f.: (1-2*x)*(1+7*x+x^2+30*x^3+8*x^4-32*x^5) / ((1-x)*(1+x)*(1-4*x)*(1+4*x)*(1-2*x^2)).)"
+  },
+  "oeis-a266723": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (3+(-1)^n-2*(-3+(-1)^n)*n+2*n^2)/4. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>4.)"
+  },
+  "oeis-a266724": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-1)^n*(n-1)+n for n>0. | a(n) = 2*a(n-2)-a(n-4) for n>4.)"
+  },
+  "oeis-a266787": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 11001*a(n-2)-10011000*a(n-4)+10000000*a(n-6) for n>10. | G.f.: (1 +11*x -9901*x^2 +889100*x^3 -979100*x^4 +7891000*x^5 -109001000*x^6 +1090110000*x^7 +9990000*x^8 -1100000000*x^)"
+  },
+  "oeis-a266788": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 25*a(n-2)-152*a(n-4)+128*a(n-6) for n>10. | G.f.: (1+3*x-13*x^2+12*x^3-28*x^4-40*x^5-328*x^6+688*x^7+112*x^8 -768*x^9+256*x^10) / ((1-x)*(1+x)*(1-4*x)*(1+4*x)*(1-8*)"
+  },
+  "oeis-a266790": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-9*(-1)^n+1098999991099*2^(n-9)*5^(n-10)-11)/198 for n>9. | G.f.: (1+x-x^3-x^8+x^9+x^10-x^12) / ((1-x)*(1+x)*(1-10*x)).)"
+  },
+  "oeis-a266791": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-(-1)^n+5627*2^(n-9)-3)/6 for n>9. | G.f.: (1+x-x^3-x^8+x^9+x^10-x^12) / ((1-x)*(1+x)*(1-2*x)).)"
+  },
+  "oeis-a266793": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (1+7*(-1)^n-2*(-3+(-1)^n)*n+2*n^2)/4 for n>3. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>8.)"
+  },
+  "oeis-a266795": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2*n*(n+(-1)^n+1)-7*(-1)^n+3)/4 for n>3. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>8.)"
+  },
+  "oeis-a266841": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10101*a(n-2)-1010100*a(n-4)+1000000*a(n-6) for n>5. | G.f.: (1+10*x-x^2+x^3-110000*x^5) / ((1-x)*(1+x)*(1-10*x)*(1+10*x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a266842": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 21*a(n-2)-84*a(n-4)+64*a(n-6) for n>5. | G.f.: (1+2*x-x^2+x^3-48*x^5) / ((1-x)*(1+x)*(1-2*x)*(1+2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a266844": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2^(n-1)*(-9*(-50)^n-2*5^n+209*50^n))/99. | a(n) = 10*a(n-1)+10000*a(n-2)-100000*a(n-3) for n>2.)"
+  },
+  "oeis-a266846": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 2*a(n-1)+16*a(n-2)-32*a(n-3) for n>2. | G.f.: (1+4*x-8*x^2) / ((1-2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a266849": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10101*a(n-2)-1010100*a(n-4)+1000000*a(n-6) for n>5. | G.f.: (1+110*x-10001*x^2-99*x^3+10000*x^4-110000*x^5) / ((1-x)*(1+x)*(1-10*x)*(1+10*x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a266850": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 21*a(n-2)-84*a(n-4)+64*a(n-6) for n>5. | G.f.: (1+6*x-17*x^2-3*x^3+16*x^4-48*x^5) / ((1-x)*(1+x)*(1-2*x)*(1+2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a266872": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10001*a(n-2) - 10000*a(n-4) for n>3. | G.f.: (1+10*x)*(1+100*x^2) / ((1-x)*(1+x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a266873": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = ((-1)^n + 3*2^(2*n+1) + (-1)^n*2^(2*n+1) - 3)/6. | a(n) = 17*a(n-2) - 16*a(n-4) for n>3.)"
+  },
+  "oeis-a266975": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 2^(n-2)*5^(n-1)*(9*(-10)^n+2189*10^n-20)/99 for n>0. | a(n) = 10*a(n-1)+10000*a(n-2)-100000*a(n-3) for n>3.)"
+  },
+  "oeis-a266976": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 2*a(n-1) + 16*a(n-2) - 32*a(n-3) for n>3. | G.f.: (1+4*x-16*x^3) / ((1-2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a266979": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10101*a(n-2)-1010100*a(n-4)+1000000*a(n-6) for n>5. | G.f.: (1+110*x-10000*x^2-100*x^3-100000*x^5) / ((1-x)*(1+x)*(1-10*x)*(1+10*x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a266980": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 21*a(n-2)-84*a(n-4)+64*a(n-6) for n>5. | G.f.: (1+6*x-16*x^2-4*x^3-32*x^5) / ((1-x)*(1+x)*(1-2*x)*(1+2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a266984": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = ((-4)^n+(-1)^n-1)/2+4^n for n>0. | a(n) = 17*a(n-2)-16*a(n-4) for n>4.)"
+  },
+  "oeis-a267002": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 11001*a(n-2)-10011000*a(n-4)+10000000*a(n-6) for n>5. | G.f.: (1+101*x-10001*x^2-9990*x^3+10000*x^4-1100000*x^5) / ((1-x)*(1+x)*(1-100*x)*(1+100*x)*(1-1000*x^2)).)"
+  },
+  "oeis-a267003": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 25*a(n-2)-152*a(n-4)+128*a(n-6) for n>5. | G.f.: (1+2*x)*(1+3*x-23*x^2+32*x^3-48*x^4) / ((1-x)*(1+x)*(1-4*x)*(1+4*x)*(1-8*x^2)).)"
+  },
+  "oeis-a267035": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10001*a(n-2)-10000*a(n-4) for n>3. | G.f.: (1+11*x-x^2+1100*x^3) / ((1-x)*(1+x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a267036": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = ((-1)^n-1)/2+4^n. | a(n) = 4*a(n-1)+a(n-2)-4*a(n-3) for n>2.)"
+  },
+  "oeis-a267041": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10101*a(n-2)-1010100*a(n-4)+1000000*a(n-6) for n>8. | G.f.: (1 +101*x-9091*x^2 +79810*x^3 -8080810*x^4 +100810100*x^5 -10092910100*x^6 -101000000*x^7 +10101000000*x^8) / ((1 )"
+  },
+  "oeis-a267042": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 21*a(n-2)-84*a(n-4)+64*a(n-6) for n>8. | G.f.: (1+5*x-11*x^2-6*x^3-2*x^4+276*x^5-1332*x^6-320*x^7+1344*x^8) / ((1-x)*(1+x)*(1-2*x)*(1+2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a267044": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (-550+450*(-1)^n+9901*10^n)/9900 for n>1. | a(n) = 10*a(n-1)+a(n-2)-10*a(n-3) for n>4. [Typo corrected by _Karl V. Keller, Jr._, Mar 16 2022])"
+  },
+  "oeis-a267045": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2*(-1)^n+13*2^n-6)/12 for n>1. | a(n) = 2*a(n-1)+a(n-2)-2*a(n-3) for n>4. [Typo corrected by _Karl V. Keller, Jr._, Mar 16 2022])"
+  },
+  "oeis-a267046": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 3/2+(7*(-1)^n)/2+n-(-1)^n*n for n>2. | a(n) = 2*a(n-2)-a(n-4) for n>6.)"
+  },
+  "oeis-a267047": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (n^2+4*n-(-1)^n*(n-3)-3)/2 for n>1. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>6.)"
+  },
+  "oeis-a267052": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (3+2*(-1)^n+2^(2+n))/3 for n>0. | a(n) = 2*a(n-1)+a(n-2)-2*a(n-3) for n>3.)"
+  },
+  "oeis-a267054": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10101*a(n-2)-1010100*a(n-4)+1000000*a(n-6) for n>5. | G.f.: (1+11*x-x^2-10000*x^3-100000*x^5) / ((1-x)*(1+x)*(1-10*x)*(1+10*x)*(1-100*x)*(1+100*x)).)"
+  },
+  "oeis-a267055": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 21*a(n-2)-84*a(n-4)+64*a(n-6) for n>5. | G.f.: (1+3*x-x^2-16*x^3-32*x^5) / ((1-x)*(1+x)*(1-2*x)*(1+2*x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a267057": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = a(n-2)+100000000*a(n-4)-100000000*a(n-6) for n>5. | G.f.: (1+10099*x^2+10011*x^3-10100*x^4+11101100*x^5) / ((1-x)*(1+x)*(1-100*x)*(1+100*x)*(1+10000*x^2)).)"
+  },
+  "oeis-a267138": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10011*a(n-2) - 110010*a(n-4) + 100000*a(n-6) for n > 10.)"
+  },
+  "oeis-a267139": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 19*a(n-2) - 50*a(n-4) + 32*a(n-6) for n > 10.)"
+  },
+  "oeis-a267153": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10000*a(n-2)+a(n-4)-10000*a(n-6) for n>12. | G.f.: (1 +100*x -8989*x^2 +101110*x^3 -8999890*x^4 +99010910*x^5 -10990090000*x^6 +9900910000*x^7 -1099001110000*x^8 +98)"
+  },
+  "oeis-a267154": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 16*a(n-2)+a(n-4)-16*a(n-6) for n>12. | G.f.: (1+4*x-5*x^2+46*x^3-58*x^4+214*x^5-1424*x^6+816*x^7-5744*x^8 +2624*x^9 -20416*x^10 +19456*x^11 -103424*x^12) / ((1)"
+  },
+  "oeis-a267158": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = a(n-2)+a(n-4)-a(n-6) for n>12. | G.f.: (1+x+2*x^2+4*x^3+2*x^4+2*x^5-x^6+x^7-4*x^8-x^9+x^10+x^11-x^12) / ((1-x)^2*(1+x)^2*(1+x^2)).)"
+  },
+  "oeis-a267209": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 10*a(n-1)+a(n-3)-10*a(n-4) for n>3. | G.f.: (1+x+x^2-x^3) / ((1-x)*(1-10*x)*(1+x+x^2)).)"
+  },
+  "oeis-a267210": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 2*a(n-1)+a(n-3)-2*a(n-4) for n>3. | G.f.: (1+x+x^2-x^3) / ((1-x)*(1-2*x)*(1+x+x^2)).)"
+  },
+  "oeis-a267258": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (383*2^n-32*((-1)^n+3))/192 for n>5. | G.f.: (1+x-x^8) / ((1-x)*(1+x)*(1-2*x)).)"
+  },
+  "oeis-a267262": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (n^2+(-1)^n*(n-4)+2)/2 for n>3. | a(n) = a(n-1)+2*a(n-2)-2*a(n-3)-a(n-4)+a(n-5) for n>8.)"
+  },
+  "oeis-a267270": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: Conjecture: a(n) = (10^(2*n + 1) - 9*10^(3*n/2 - 1/2) - 1)/9 for odd n; a(n) = 1100*10^(3*n/2 - 3) for even n > 0. - _Ka)"
+  },
+  "oeis-a267293": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = a(n-2)+100000000*a(n-4)-100000000*a(n-6) for n>12. | G.f.: (1 +x +11009*x^2 +111010*x^3 +11000090*x^4 +910990100*x^5 +90098900*x^6 +9099010000*x^7 -1109990110000*x^8 +979901)"
+  },
+  "oeis-a267360": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 17*a(n-2)-16*a(n-4) for n>8. | G.f.: (1+3*x+11*x^2-4*x^3+36*x^4-176*x^5+16*x^6+192*x^7-64*x^8) / ((1-x)*(1+x)*(1-4*x)*(1+4*x)).)"
+  },
+  "oeis-a267461": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = (2*n^2+12*n-(-1)^n-7)/4 for n>0. | a(n) = 2*a(n-1) - 2*a(n-3) + a(n-4) for n>4.)"
+  },
+  "oeis-a267538": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 11*a(n-1)-10*a(n-2) for n > 4. [n range correction by _Karl V. Keller, Jr._, Apr 23 2022] | G.f.: (1-x^2+x^4) / ((1-x)*(1-10*x)).)"
+  },
+  "oeis-a267613": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1) - 100*a(n-2) for n>3. | G.f.: (1-100*x+1010*x^2-900*x^3) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267622": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>2. | G.f.: (1+10*x^2) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267623": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 11*a(n-1)-10*a(n-2) for n>2. | G.f.: (1-x+x^2) / ((1-x)*(1-10*x)).)"
+  },
+  "oeis-a267774": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 7*a(n-1)-14*a(n-2)+8*a(n-3) for n>3. | G.f.: (1-x+x^2-4*x^3) / ((1-x)*(1-2*x)*(1-4*x)).)"
+  },
+  "oeis-a267887": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>3. | G.f.: (1-91*x+10201*x^2-10100*x^3) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267888": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 5*a(n-1)-4*a(n-2) for n>3. | G.f.: (1-3*x+25*x^2-20*x^3) / ((1-x)*(1-4*x)).)"
+  },
+  "oeis-a267889": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>3. | G.f.: (1+9*x+101*x^2-100*x^3) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267890": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 5*a(n-1)-4*a(n-2) for n>3. | G.f.: (1+x+5*x^2-4*x^3) / ((1-x)*(1-4*x)).)"
+  },
+  "oeis-a267920": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>2. | G.f.: (1+1000*x^2) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267921": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 5*a(n-1)-4*a(n-2) for n>2. | G.f.: (1+8*x^2) / ((1-x)*(1-4*x)).)"
+  },
+  "oeis-a267923": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>2. | G.f.: (1-90*x+10000*x^2) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267934": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>4. | G.f.: (1-100*x+11010*x^2-900*x^3-10000*x^4) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267935": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 5*a(n-1)-4*a(n-2) for n>4. | G.f.: (1-4*x+26*x^2-4*x^3-16*x^4) / ((1-x)*(1-4*x)).)"
+  },
+  "oeis-a267937": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>3. | G.f.: (1+1010*x^2-1000*x^3) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267938": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 5*a(n-1)-4*a(n-2) for n>3. | G.f.: (1+10*x^2-8*x^3) / ((1-x)*(1-4*x)).)"
+  },
+  "oeis-a267940": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 101*a(n-1)-100*a(n-2) for n>3. | G.f.: (1-90*x+10100*x^2-10000*x^3) / ((1-x)*(1-100*x)).)"
+  },
+  "oeis-a267941": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://zenodo.org/records/24552741"
+   ],
+   "reason": "Proved before this site's proof in F. J. Muñoz, 'Finite certificates for eventually regular elementary cellular automata, with proofs of 575 conjectures from the OEIS' (Zenodo 24552741, 26 Nov 2026 07:34 UTC; results/claims.json: a(n) = 5*a(n-1)-4*a(n-2) for n>3. | G.f.: (1-2*x+20*x^2-16*x^3) / ((1-x)*(1-4*x)).)"
   }
  },
  "reviewed": "2026-11-28"
