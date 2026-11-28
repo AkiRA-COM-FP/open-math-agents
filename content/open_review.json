@@ -5409,18 +5409,6 @@
    ],
    "note": "Barker's g.f. and closed form are faithful: n X 2 arrays on the bowtie graph with edges 01, 12, 20, 03, 34, 40, offset 1, and zpow for 2^(1-n). The definition reproduces the b-file (transfer matrix, n<60). Routine transfer-matrix proof. Second review: Barker's g.f. and Binet form for a Hardin graph-coloring count. Faithful, verified, no prior proof. Routine."
   },
-  "oeis-a205342": {
-   "date": "2026-11-28",
-   "pr": 21637,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A205342",
-    "https://oeis.org/A205342/b205342.txt",
-    "https://oeis.org/A205342",
-    "https://oeis.org/A205342/b205342.txt"
-   ],
-   "note": "Barker's g.f. and recurrence (n>4) are faithful, with a(0)=0 consistent with the factor x. The definition reproduces the b-file (brute force n<25) and matches Hardin's cubic. The proof is an explicit count: a(n) = sum over y of c(y)^2, giving 6a(n) + 3n^2 = 8n^3 + 7n. Second review: Faithful; numerically verified; no prior proof found. Routine (a cubic polynomial count)."
-  },
   "mo-191547": {
    "date": "2026-11-28",
    "pr": 19929,
@@ -8010,17 +7998,6 @@
    ],
    "note": "Hardin's quadratic (n>9) with Barker's g.f. and recurrence (n>12) for 6-step asymmetric quasi-queen tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (6 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..11. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
   },
-  "oeis-a188861": {
-   "date": "2026-11-28",
-   "pr": 24601,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A188861",
-    "https://oeis.org/A188861",
-    "https://oeis.org/A188866"
-   ],
-   "note": "Hardin's a(n)=27n-13 (n>1) with Barker's g.f. and recurrence is stated as a(1)=16 and a(n)=27n-13 for n>=2. That is equivalent to all three claims. The definition (no 0 with a 1 directly, diagonally or antidiagonally below it in the next row) reproduces the data in my brute force for n<=5. It is a routine transfer-matrix argument. No prior proof found. Second review: Definition reproduces the data; linear formula verified; no prior proof. Routine transfer-matrix argument."
-  },
   "oeis-a190154": {
    "date": "2026-11-28",
    "pr": 23534,
@@ -8404,49 +8381,6 @@
     "https://oeis.org/A218852"
    ],
    "note": "Infinitude of positive integers not in A218852 (sigma(n) = sigma(x)+sigma(y)+sigma(z), n = x+y+z, x,y,z >= 1), stated faithfully. Proof: for a prime p == 2 mod 3, p > 5, sigma(x) >= x+1 for x>1 forces two of x,y,z to be 1 and the third p-2 prime, impossible as 3 | p-2; Dirichlet supplies infinitely many such p. Short elementary argument; routine. No prior proof found (entries, Palomar, libraries, formal-conjectures issues/PRs, BG/Fried, Epoch). Second review: Perry's 'this sequence is infinite' is easy: for prime p, sigma(m)-m>=1 for m>=2 forces p = q+2 with q prime, so primes p=2 mod 3 (p>5) are excluded from A218852; a short argument (A218852's comment on twin primes already points to it). Different from site id oeis-a218981 (four summands)."
-  },
-  "oeis-a221465": {
-   "date": "2026-11-28",
-   "pr": 24302,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A221465",
-    "https://oeis.org/A221463",
-    "https://oeis.org/A221465"
-   ],
-   "note": "Barker's order-6 recurrence (n>6) and g.f. x(5+58x+60x^2-2x^3-x^4)/(1-x)^6 for length-6 arrays over 0..n starting with 0 in which each element differs from at least one neighbour; the definition (ends have one neighbour) is faithful and my brute force matches data n=1..9 (a(0)=0 harmlessly included in the g.f.). Polynomial count, routine. No prior proof found (entry, A221463, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./recurrence; polynomial count via transfer matrix, routine."
-  },
-  "oeis-a222139": {
-   "date": "2026-11-28",
-   "pr": 24077,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222139",
-    "https://oeis.org/A222144",
-    "https://oeis.org/A222139"
-   ],
-   "note": "Barker's g.f. 4x(4-11x)/(1-45x+116x^2) and Binet form for n X 3 arrays over 0..4 with no entry increasing mod 5 by 4 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 8 data terms. Order-2 recurrence for a 125-state transfer matrix is a routine (if computational) verification. No prior proof found (entry, A222144, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
-  },
-  "oeis-a222276": {
-   "date": "2026-11-28",
-   "pr": 24067,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222276",
-    "https://oeis.org/A222281",
-    "https://oeis.org/A222276"
-   ],
-   "note": "Barker's g.f. 5x(5-19x)/(1-92x+335x^2) and Binet form for n X 3 arrays over 0..5 with no entry increasing mod 6 by 5 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 7 data terms. Routine transfer-matrix result. No prior proof found (entry, its table, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
-  },
-  "oeis-a222459": {
-   "date": "2026-11-28",
-   "pr": 24585,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A222459",
-    "https://oeis.org/A222459"
-   ],
-   "note": "Barker's g.f. 7x(7-41x)/(1-270x+1547x^2) and Binet form for n X 3 arrays over 0..7 with no entry increasing mod 8 by 7 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 6 data terms. Routine. No prior proof found (entry, its table, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
   },
   "oeis-a222939": {
    "date": "2026-11-28",
@@ -8909,17 +8843,6 @@
     "https://oeis.org/A238923/b238923.txt"
    ],
    "note": "Barker's g.f. 12x/(1-3x-3x^2) and closed form for (n+1) X 2 arrays over 0..3 with no element greater than all its horizontal neighbors or equal to all its vertical neighbors. The neighbor quantifiers are faithful (each cell has 1 horizontal and 1 or 2 vertical neighbors), my DP matches 12, 36, 144, ..., 111780, and the closed form gives 12 at n=1. Routine transfer matrix. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
-  },
-  "oeis-a239171": {
-   "date": "2026-11-28",
-   "pr": 23748,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A239171",
-    "https://oeis.org/A239171",
-    "https://oeis.org/A239171/b239171.txt"
-   ],
-   "note": "The same array condition as A238923 over 0..2: Barker's g.f. 6x/(1-2x-2x^2) and a(n) = sqrt3((1+sqrt3)^n - (1-sqrt3)^n). My DP matches 6, 12, 36, 96, ..., 5376. Routine. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
   },
   "oeis-a243514": {
    "date": "2026-11-28",
@@ -21457,6 +21380,53 @@
     "https://github.com/lefttosolve2/open-math-agents/pull/25365"
    ],
    "reason": "This is a duplicate. The formal theorem is word for word the one for A217866 (the same 'last n before first n+2' conjecture, which both entries carry), and the proof file is identical. The A217866 solve (PR 25365, same author) was committed first, so this is an earlier solve on this site of the same statement."
+  },
+  "oeis-a252999": {
+   "date": "2026-11-28",
+   "pr": 26632,
+   "evidence": [
+    "https://oeis.org/A252999",
+    "https://oeis.org/A253004",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://arxiv.org/abs/2309.00487"
+   ],
+   "reason": "The statement is faithful: n X 3 Hardinian arrays with r=3 (corner = king distance - 3, every value within 3, steps of 0 or 1), Barker's g.f. and threshold; my count matches the data. A253004 is the r=3 Hardinian table (Dougherty-Bliss-Kauers, cited in A253004). Spahn and Dougherty-Bliss, 'Rectangular Hardinian Arrays' (Rutgers, May 2024), Theorem 1, prove that H_r(n,k) is a polynomial of degree r for large n for every fixed k, and give an algorithm (hardinPoly) for it. That family result covers this column without naming it. It is an informal project note and does not print the k=3 polynomial, so treat this as a family-coverage call."
+  },
+  "oeis-a253000": {
+   "date": "2026-11-28",
+   "pr": 26762,
+   "evidence": [
+    "https://oeis.org/A253000",
+    "https://oeis.org/A253004",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://arxiv.org/abs/2309.00487"
+   ],
+   "reason": "The statement is faithful: n X 4 Hardinian arrays with r=3 (corner = king distance - 3, every value within 3, steps of 0 or 1), Barker's g.f. and threshold; my count matches the data. A253004 is the r=3 Hardinian table (Dougherty-Bliss-Kauers, cited in A253004). Spahn and Dougherty-Bliss, 'Rectangular Hardinian Arrays' (Rutgers, May 2024), Theorem 1, prove that H_r(n,k) is a polynomial of degree r for large n for every fixed k, and give an algorithm (hardinPoly) for it. That family result covers this column without naming it. It is an informal project note and does not print the k=4 polynomial, so treat this as a family-coverage call."
+  },
+  "oeis-a253001": {
+   "date": "2026-11-28",
+   "pr": 26810,
+   "evidence": [
+    "https://oeis.org/A253001",
+    "https://oeis.org/A253004",
+    "https://sites.math.rutgers.edu/~zeilberg/EM24/projects/proj9.pdf",
+    "https://arxiv.org/abs/2309.00487"
+   ],
+   "reason": "The statement is faithful: n X 5 Hardinian arrays with r=3 (corner = king distance - 3, every value within 3, steps of 0 or 1), Barker's g.f. and threshold; my count matches the data. A253004 is the r=3 Hardinian table (Dougherty-Bliss-Kauers, cited in A253004). Spahn and Dougherty-Bliss, 'Rectangular Hardinian Arrays' (Rutgers, May 2024), Theorem 1, prove that H_r(n,k) is a polynomial of degree r for large n for every fixed k, and give an algorithm (hardinPoly) for it. That family result covers this column without naming it. It is an informal project note and does not print the k=5 polynomial, so treat this as a family-coverage call."
+  },
+  "oeis-a205342": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A205341"
+   ],
+   "reason": "Proved on the parent table before this site's proof: Parent A205341: non-empirical general formula T(n,m)=1/n*Sum_{i=1..n}(...)*T(n-i,m) by Vladimir Kruchinin, Apr 07 2017; at n=4 the j-range is constant for m>=1 and it evaluates to (4/3)m^3-(1/2)m^2+(7/6)m (checked), which gives Barker's g.f./recurrence. No derivation is written in the entry."
+  },
+  "oeis-a221465": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A221463"
+   ],
+   "reason": "Proved on the parent table before this site's proof: Parent A221463: %A line 'general recursion proved by Robert Israel in the Sequence Fans Mailing List, Jan 17 2013' (column recursion a(n)=k*a(n-1)+k*a(n-2)); with T(2,k)=k, T(3,k)=k^2 it forces T(6,k)=k^5+3k^4+k^3, hence Barker's g.f. and recurrence."
   }
  },
  "reviewed": "2026-11-28"
