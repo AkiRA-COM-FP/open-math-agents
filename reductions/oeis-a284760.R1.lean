@@ -8,8 +8,10 @@ import OMAStatements.S_oeis_a284760
 --   H1: `n ≡ 2 (mod 4)`. Easy: the sum is odd while `n^4` is even.
 --   H2: `4 ∣ n`. A 2-adic argument: the even terms vanish to high 2-adic order, the odd ones
 --       can be controlled.
---   H3: `n` odd and composite. If a prime `p` divides `n` exactly once and `p - 1 ∣ n - 2`,
---       the sum is `≢ 0 (mod p)`; the remaining odd composites need more.
+--   H3: `n` odd and composite. The sum is divisible by `n`. If a prime `p` divides `n` exactly
+--       once and `p - 1 ∣ n - 3`, then `p²` does not divide the sum; if `p^k ∥ n` with `k ≥ 2`
+--       and `p - 1 ∣ n - 3`, numerically `p^(2k-1) ∥` the sum. When no prime factor satisfies
+--       `p - 1 ∣ n - 3`, the valuations depend on `B_{n-3}`, as in H4.
 --   H4: `n` an odd prime `p`. For `p ≥ 5` the sum is divisible by `p²` but, generically, not by
 --       `p³`; its `p`-adic valuation is governed by the Bernoulli number `B_{p-3}` (compare
 --       Wolstenholme primes). This is the open core.
