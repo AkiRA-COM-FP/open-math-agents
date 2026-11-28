@@ -14515,6 +14515,347 @@
     "https://oeis.org/A321334"
    ],
    "note": "Jackson's 'finite and full' conjecture for squarefree complements (11 terms) is stated faithfully, matching the program. Recomputed up to 30000. No prior proof found. Routine: for large n, some upper-half squarefree s has 4 | n-s. Second review: Finiteness of Jackson's squarefree-complement list; true to 40000, no earlier proof."
+  },
+  "mo-205907": {
+   "date": "2026-11-28",
+   "pr": 28448,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/205907",
+    "https://mathoverflow.net/questions/205907"
+   ],
+   "note": "Exact answer: a polynomial of degree <= d with f(0)=0 and f in [1-a/2,1+a/2] on [1-a,1+a] exists iff d >= ceil(arcosh(2/a)/arcosh(1/a)). This is the classical Chebyshev extremal property: min max |1-f| = 1/T_d(1/a), so we need T_d(1/a) >= 2/a. Faithful, and checked by hand at a=1/2 (d=2). The MO question has no answers. It is a textbook consequence, so routine. Second review: Faithful and correct. The answer is a direct corollary of the classical Chebyshev extremal growth bound (the question title even names Chebyshev). Not settled on MO."
+  },
+  "mo-217457": {
+   "date": "2026-11-28",
+   "pr": 28432,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/217457",
+    "https://arxiv.org/abs/1601.01153",
+    "https://mathoverflow.net/questions/217457"
+   ],
+   "note": "I checked the recurrences index by index against the question: seq(n+3) uses s_1..s_{n+2}, the force terms are -a_{n-2} and -a_{n-2}c_0 + c_0 sum a_k b_{n-1-k}, and alpha_2, beta_2 match. The hypotheses are a joint PMF (arbitrary dependence, as the asker allowed) and 0<s_0<1. The statement covers both D_{n+1}>D_n>0 and the tilde-D claim. The proof is a ~1000-line random-walk / substochastic-matrix argument. No MO answer, and the source paper (Grigutis–Korvel–Šiaulys, arXiv:1601.01153) defines alpha, beta but does not prove the determinant property. Non-routine. Second review: Disproof valid within the stated hypotheses. The Lean counterexample is a degenerate equality case (two claims identically zero). The claim also fails strictly for dependent laws, so the negative answer is robust. The proof file also proves weak monotonicity for independent claims."
+  },
+  "mo-290383": {
+   "date": "2026-11-28",
+   "pr": 28848,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/290383",
+    "https://mathoverflow.net/questions/290383"
+   ],
+   "note": "Disproof by M = I_2 (rank 2, r=1). If I = P - Q with P, Q nonnegative of rank <= 1, then det Q = 0 and det P = det(I+Q) = 1 + tr Q >= 1, so P has rank 2. Faithful to the question (rational nonnegative M of rank 2r, nonnegative rational parts of rank <= r). Unanswered on MO but elementary, so routine. Second review: Valid, very short counterexample (the 2x2 identity) to the question as asked. Nobody had pointed this out on MO."
+  },
+  "mo-319396": {
+   "date": "2026-11-28",
+   "pr": 28516,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/319396",
+    "https://mathoverflow.net/questions/319396"
+   ],
+   "note": "Answer: mu([-1,1]) = mu{0} + sum_j sum_i (-1)^i C(j,i) m_{2i+2}, from sum_j x^2(1-x^2)^j = 1 for 0<|x|<=1. So finiteness is decided by the atom at 0 plus that moment series. delta_0 vs infinity*delta_0 have identical positive moments, answering the edit's question. Correct and faithful (positive Borel measures on [-1,1], moments n >= 1). Elementary, so routine. Second review: Faithful and correct. The answer (no condition from moments alone, because of the atom at 0; otherwise an explicit series) is short and elementary. The second conjunct relies on an infinite atom at 0, which the asker's framework allows (they use non-locally-finite densities)."
+  },
+  "mo-335694": {
+   "date": "2026-11-28",
+   "pr": 10157,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/335694",
+    "https://mathoverflow.net/questions/335694"
+   ],
+   "note": "Seva Lev's question asks whether pairs (f,m), 2 <= m <= deg f/2, other than f = c(x-a)^d + r with deg r < m admit a non-constant Q with (Qf)^{(k)} = P_k f + R_k, deg R_k < m, for 1 <= k <= deg Q. The theorem proves that iff over any characteristic-0 field, so there are no others. The 'two last derivative orders' argument is a genuine proof. No MO answers and no prior source found. Non-routine. The relaxed variants in the question are not covered. Second review: Faithful iff-classification that answers 'are there other pairs?' (No). It drops the optional relaxed variants (k up to deg Q/2 or k<=100), but those were only an extra wish."
+  },
+  "mo-364129": {
+   "date": "2026-11-28",
+   "pr": 28444,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/364129",
+    "https://mathoverflow.net/questions/364129"
+   ],
+   "note": "The statement matches the question: v in Q^(N-1) (as v on ZMod N with v 0 = 0) lies in the kernel of M_Gamma = (zeta^(nir) - zeta^(ni)) exactly when v is constant on Gamma-orbits. Exponents are taken via ZMod.val, which is harmless since zeta^N = 1. The question has 0 answers and no settling comments. The result is a direct discrete-Fourier argument: the conditions say the transform of v is Gamma-invariant on nonzero frequencies, and Fourier inversion moves this invariance to v. Second review: Correct and faithful. The answer is an immediate discrete-Fourier-inversion argument, so it is routine."
+  },
+  "mo-387067": {
+   "date": "2026-11-28",
+   "pr": 16418,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/387067",
+    "https://mathoverflow.net/a/387112",
+    "https://mathoverflow.net/questions/387067",
+    "https://mathoverflow.net/a/387067",
+    "https://mathoverflow.net/questions/89765"
+   ],
+   "note": "The statement transcribes the first (real-rank) question with blowUp built faithfully (identity for +1, anti-identity for -1) and O(r) with constants depending on m. The only answer (2021) proved rank f(M) = ceil(m/2) rank|M| + floor(m/2) rank M but left open whether rank|M| = O(rank M) for {0,+-1} matrices. The disproof settles this. On the r x r grid it takes M = B - D (B, D record equal first and second coordinates): rank M <= 2r, while |M| = B + D - 2I has rank about r^2, so with m = 2 the rank of f(M) is not O(rank M). It is a short Kronecker-product construction. Second review: Valid disproof (answer No) that completes the partial MO answer with an explicit {0,+-1} family where rank|M| is quadratic in rank M. Fidelity is fine."
+  },
+  "mo-400876": {
+   "date": "2026-11-28",
+   "pr": 29170,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/400876",
+    "https://mathoverflow.net/a/396795",
+    "https://mathoverflow.net/a/398124",
+    "https://mathoverflow.net/questions/400876",
+    "https://mathoverflow.net/a/396795",
+    "https://mathoverflow.net/a/398124"
+   ],
+   "note": "The statement is faithful: a factor is (1-t)P + tQ with P, Q permutation matrices and t in [0,1]; products form the generated submonoid; it claims an open neighbourhood of N_n whose doubly stochastic members are all such products, for every n >= 1. The question has 0 answers. Van Name's linked answers only factor N_n itself and prove that F_n lies in the closure of its interior, which does not give N_n in the interior (N_n is singular, so his inverse-function argument does not apply there). The 877-line proof builds a local surjectivity argument at the rank-one point. It is a port of @connoranderson's own earlier site proof, which is credited in the header. Second review: Faithful; affirmative answer. No prior solution found in gossip/consensus literature searches."
+  },
+  "mo-421810": {
+   "date": "2026-11-28",
+   "pr": 28853,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/421810",
+    "https://mathoverflow.net/questions/421810"
+   ],
+   "note": "The statement is faithful: G on n+1 labelled vertices, G-i is the principal submatrix deleting row and column i, and a common complex root of phi'(G) and phi'(G-i) is a root of phi(G). The question has 0 answers or comments. The proof differentiates P adj(P) = f I to get Q^2 + fQ' = f'Q. At a common critical point the i-th diagonal entry gives sum_j Q_ij^2 = 0, so row i of the adjugate vanishes and f = 0; real-rootedness comes from Rolle and the spectral theorem. This is essentially Godsil's walk-generating identity phi(G-i)phi'(G) - phi'(G-i)phi(G) = sum_j phi_ij^2, so it is a short consequence of a standard identity. Second review: Correct, short argument from a standard Christoffel-Darboux-type identity (the statement implicitly answers Yes). Not found as a stated result."
+  },
+  "mo-472069": {
+   "date": "2026-11-28",
+   "pr": 10255,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/472069",
+    "https://mathoverflow.net/questions/472069"
+   ],
+   "note": "The statement is faithful: A generates G, A^2 is a union of left H-cosets, H is inclusion-maximal with this property among overgroups, |A^2| < 2|A|, and the claim is that H is normal. The disproof is in D_5 with A = {r1, r4, sr1, sr4} and H = {1, sr0}. I checked it independently: |A^2| = 6 < 8, A^2 is H-right-invariant, the only proper overgroup is D_5 itself, and H is not normal. The question has 0 answers, and its comments only note AA^-1 = A^-1A and Tao's lemma. It is a small explicit counterexample. Second review: Valid small counterexample; the OP expected a simple one to exist. Finite check."
+  },
+  "mo-478522": {
+   "date": "2026-11-28",
+   "pr": 29016,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/478522",
+    "https://mathoverflow.net/questions/478522"
+   ],
+   "note": "The statement is faithful: C symmetric positive definite with entries in [0,1] and unit diagonal, f(x) = sum_i x_i log((Cx)_i), and the claim that f is convex on the open simplex. The disproof uses C = [[1,0,5/8],[0,1,3/4],[5/8,3/4,1]] (det 3/64 > 0) and a midpoint violation at x = (1/5,1/5,3/5), y = (2/5,2/5,1/5). I confirmed numerically that f is not midpoint-convex for this C. The question has 0 answers. One comment splits f into convex and concave parts without deciding, and the asker's 'my conjecture is incorrect' reply was walked back by the commenter ('Not necessarily'). It is a single explicit counterexample. Second review: Valid explicit counterexample; numerically confirmed."
+  },
+  "mo-503562": {
+   "date": "2026-11-28",
+   "pr": 28589,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/503562",
+    "https://mathoverflow.net/questions/503562"
+   ],
+   "note": "The statement matches the asker's first request: for an injective union-closed family covering [q], det M = P * prod_k x_k^{f(k)} with no x_k dividing P. The proof factors prod_{k in A_i} x_k from row i (giving the exponent f(k), as one comment noted) and shows that the remaining matrix has constant term det[A_j subset A_i] = 1 (unitriangular), so P has constant coefficient 1. The question has 0 answers; the only comment gives the lower bound. Short and elementary; it does not even need union-closure. The 'interpretation of P' part is not formalised. Second review: Correct and faithful for the exponent claim. The argument is short (constant term 1) and also follows from the Lindstrom-Wilf determinant the asker cites."
+  },
+  "mse-2172922": {
+   "date": "2026-11-28",
+   "pr": 10362,
+   "routine": false,
+   "evidence": [
+    "https://math.stackexchange.com/questions/2172922",
+    "https://math.stackexchange.com/questions/2110014",
+    "https://math.stackexchange.com/questions/2172922",
+    "https://math.stackexchange.com/questions/2110014"
+   ],
+   "note": "The statement (for every eps > 0 there are infinitely many N with frac(sum_{n=2}^N log n) < eps) is faithful. The question has 0 answers. Ofir's answer to the linked question only explains the 'parabolas' heuristically: increments are nearly integers when n is near e^k. The proof makes this rigorous. For n in [e^(m+delta), e^(m+2delta)), f(i) = logSum(N+i) - m i rises by steps in [delta, 2delta), so it crosses an integer with small fractional part. Correct and elementary. Second review: Faithful; the elementary 'small fractional steps near e^k' argument settles density of {log N!} near 0. No prior solution found."
+  },
+  "mse-886041": {
+   "date": "2026-11-28",
+   "pr": 28619,
+   "routine": true,
+   "evidence": [
+    "https://math.stackexchange.com/questions/886041",
+    "https://oeis.org/A126959",
+    "https://oeis.org/A101459",
+    "https://math.stackexchange.com/questions/886041",
+    "https://oeis.org/A126959",
+    "https://oeis.org/A101459"
+   ],
+   "note": "The statement is faithful: beta(n,k) is the largest d <= k dividing n, S(k) = sum_{n<=k!} beta(n,k), T(k) = #{ij : i <= k, j <= k!}, and also the lcm(1..k) variant, for every k >= 1. I checked S = T numerically for k <= 8 (matching A126959: 1,3,12,58,352,... and A101459: 1,3,12,29,176,...). The question (2014, score 23) has 0 answers, and the asker's 'fails at k=10, 17' comment refers to his own data comparisons, not to the identity. The proof is short: x <= km is in the table iff x <= beta(x,k) m, and beta is m-periodic. Second review: Identity true for every k; short periodicity argument. The asker's own 'fails' comment is wrong."
+  },
+  "opg-outward-reloid-of-composition-vs-composition-of-outward-reloids": {
+   "date": "2026-11-28",
+   "pr": 14753,
+   "routine": true,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/outward_reloid_of_composition_vs_composition_of_outward_reloids",
+    "https://ipfs.desci.com/ipfs/bafybeihljh5umfclsb2b2hctvhlr6zsincutdkc23emm6atba5btzhnxlm",
+    "https://www.openproblemgarden.org/op/outward_reloid_of_composition_vs_composition_of_outward_reloids",
+    "https://portonmath.wordpress.com/2016/09/10/conjecture-outward-funcoids/",
+    "https://www.openproblemgarden.org/op/distributivity_of_outward_reloid_over_composition_of_funcoids"
+   ],
+   "note": "The statement is faithful: funcoid composition is X[g o f]Z iff <f>X meets <g^-1>Z, (RLD)_out f is the filter generated by up f, reloid composition is generated by the G o F, and Mathlib's filter order is Porton's order. It is still listed as Conjecture 1356 in Porton's current book. The disproof takes f = Omega x^FCD {pt} and g = {pt} x^FCD Omega. Then (RLD)_out g o (RLD)_out f = Omega x^RLD Omega, while (RLD)_out(g o f) = (RLD)_out(Omega x^FCD Omega) contains the off-diagonal. This is a short consequence of Porton's own observation that the 'second product' (RLD)_out(A x^FCD B) can be strictly below A x^RLD B (book Examples 1368/1370), though he never connected the two. Second review: The disproof is valid given Porton's definitions as encoded (I checked each against what I know of Algebraic General Topology). Residual risk: I could not open the book to confirm (RLD)out = meet of up f verbatim. The counterexample is surprisingly simple for a posed conjecture."
+  },
+  "oeis-a110514": {
+   "date": "2026-11-28",
+   "pr": 13428,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A110514",
+    "https://oeis.org/A110514",
+    "https://oeis.org/A110515",
+    "https://oeis.org/A106249"
+   ],
+   "note": "Faithful: coefficient of the rational g.f. equals Sum_{k<=n/2} Jacobi(2^(n-2k),2(n-2k)+1). The proof uses the second supplementary law to show the summand is 4-periodic (1,-1,1,1) and then checks the g.f. denominator recurrence. No prior proof found in the entry, sister entries or the searched collections; elementary. Second review: Faithful and true; a finite periodicity check. Related site ids a110515/a106249 share the same mechanism (not duplicates; this one was first)."
+  },
+  "oeis-a113023": {
+   "date": "2026-11-28",
+   "pr": 16075,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A113023",
+    "https://oeis.org/A095810",
+    "https://oeis.org/A113022",
+    "https://oeis.org/A113023",
+    "https://oeis.org/A095810"
+   ],
+   "note": "Statement counts n-digit m with 2^j mod 10^n = m, equivalent to A095810 membership (longer suffixes give the same n-digit residue). Yaseen's 18*5^(n-2) follows by counting n-digit multiples of 2^n coprime to 5, using the characterization in A095810 (Salinas 2004 / Corneth PARI) and the count in A113022 (Corneth 2021); no explicit proof of this count was found. Verified numerically for n=2..7. Second review: True, an elementary consequence of the structure of 2^j mod 10^n (also implicit in the A095810 comment)."
+  },
+  "oeis-a120860": {
+   "date": "2026-11-28",
+   "pr": 28663,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A120860",
+    "https://oeis.org/A187968",
+    "https://oeis.org/A098021",
+    "https://oeis.org/A120860",
+    "https://oeis.org/A187968",
+    "https://oeis.org/A098021",
+    "https://oeis.org/A187967"
+   ],
+   "note": "Formalizes Hadjicostas's conjecture (first column of the Q=8 fixed-j dispersion = A187968) plus Kimberling's two complement conjectures, with the row recursion and least-unused rule exactly as in the entry's corrected %F. Proof shows f(f(n))=6f(n)-n (rows are f-orbits) and that the range of f=3n+2floor(n sqrt2) is the zero set of A187967. Checked numerically to 200000; no prior proof found in Kimberling's JIS paper description, sister entries or searched collections. Second review: Faithful and true. Conjunct (2) is trivial, but kept together with the substantive claim (1)/(3), so this is not a partial-trivial case."
+  },
+  "oeis-a127800": {
+   "date": "2026-11-28",
+   "pr": 16007,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A127800",
+    "https://oeis.org/A069517",
+    "https://oeis.org/A127800",
+    "https://oeis.org/A069517"
+   ],
+   "note": "The entry's name/example define A127800 as the inverse of the triangle with entries 1/2 (1 at n=0) for k<=n<=2k; its row sums r satisfy Sum_{ceil(n/2)<=k<=n} r(k)=2 (n>0), r(0)=1, as encoded. The theorem shows any solution is 1,2 at n=2^k-1, 0 elsewhere, i.e. A069517(n+1). Short induction; no prior proof found. Second review: Faithful and true; a short recursion argument."
+  },
+  "oeis-a128939": {
+   "date": "2026-11-28",
+   "pr": 16231,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A128939",
+    "https://oeis.org/A128939"
+   ],
+   "note": "IsGreatest formulation (attained and optimal) of Layman's formula for the maximal product of a partition of n into parts 3k+1 is faithful (offset 1). Elementary: optimal parts are 1,4 and at most one 7. Verified by DP to n=199; no prior proof found in the entry or searched collections. Second review: Faithful and true."
+  },
+  "oeis-a131137": {
+   "date": "2026-11-28",
+   "pr": 28616,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A131137",
+    "https://oeis.org/A131137"
+   ],
+   "note": "Faithful to Meeussen's indexing (his Mathematica program pairs a(n+1) with polylog(-n,1/4)/4, n>=1; the statement notes the other pairing fails at a(2)). The proof writes polylog(-n,1/4)/4 as numer(n)/3^(n+1) and compares 3-adic valuations with (1-(2/3)^n)(n-1)!. Exact check of the identity for n=1..119; no prior proof found. Second review: Faithful and true."
+  },
+  "oeis-a152932": {
+   "date": "2026-11-28",
+   "pr": 27850,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A152932",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL12/Schlicker/schlicker.pdf",
+    "https://oeis.org/A152932",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL12/Schlicker/schlicker.html"
+   ],
+   "note": "Definition transcribes the entry's Maple program (Schlicker et al.'s R*lambda^2+S*delta^2 with k=m=3, Maple's fibonacci(-1)=1) and reproduces all 22 OEIS terms; both Barker conjectures (g.f. and recurrence for n>3) are stated. The proof reduces the value to a quadratic form in consecutive Fibonacci numbers, which forces the order-3 recurrence. Checked numerically; no prior proof found (the JIS paper gives no recurrence in l). Second review: Faithful; routine consequence of the closed form."
+  },
+  "oeis-a152939": {
+   "date": "2026-11-28",
+   "pr": 27855,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A152939",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL12/Schlicker/schlicker.pdf",
+    "https://oeis.org/A152939",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL12/Schlicker/schlicker.html"
+   ],
+   "note": "Definition transcribes the Maple program (k=4, m=2, F(-1)=1 as in Maple) and reproduces the 20 OEIS terms; both Barker conjectures (g.f. and order-4 recurrence for n>4) are stated. The value is a cubic form in consecutive Fibonacci-type terms, giving the recurrence with roots phi^3,-phi,-psi,psi^3. Checked numerically; no prior proof found. Second review: Faithful; routine consequence of the closed form."
+  },
+  "oeis-a155858": {
+   "date": "2026-11-28",
+   "pr": 29012,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A155858",
+    "https://oeis.org/A155858"
+   ],
+   "note": "Faithful: the definition is the entry's explicit sum Sum binomial(2n-3k,k)(n-2k)!, and Mathar's order-7 recurrence is stated for n>=7. The proof writes the g.f. as Sum j! X^j/(1-X^2)^(2j+1) (an Euler-series composition) and extracts a first-order ODE, a standard D-finite argument. No prior proof found (the proof notes a LODA program encodes a 6th-order recurrence, which is not a proof). Second review: Faithful and true; holonomic recurrence."
+  },
+  "oeis-a162024": {
+   "date": "2026-11-28",
+   "pr": 16694,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A162024",
+    "https://oeis.org/A162024/b162024.txt",
+    "https://oeis.org/A162024",
+    "https://oeis.org/A128445"
+   ],
+   "note": "Faithful Hardin array definition (row/column binary readings; the statement notes 4 of 16 conventions reproduce the data, all reflection-equivalent). Barker's g.f. and a(n)=4(n^2-2n+2) for n>2 are proved by a structural parametrization of the good arrays. Brute force confirms a(2..6)=7,20,40,68,104; not in the isitsolved Hardin papers or the searched libraries. Second review: Faithful and true; direct counting."
+  },
+  "oeis-a175243": {
+   "date": "2026-11-28",
+   "pr": 13237,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A175243",
+    "https://doi.org/10.1007/BF01788093",
+    "https://oeis.org/A175243"
+   ],
+   "note": "Bala's conjecture that column m satisfies a linear recurrence of order 4m-2, stated as existence of a monic integer polynomial of degree exactly 4m-2 annihilating the Boesch-Prodinger Chebyshev formula n(2T_n(1+m/2)-2)^(m-1)/m. With r+1/r=m+2 the column is n times a combination of r^(jn), |j|<=m-1, giving the characteristic polynomial prod (x-r^j)^2 of degree 4m-2. Minimality is not claimed (nor clearly by Bala). No prior proof found; routine. Second review: Faithful (existence reading) and true; routine from the entry's Chebyshev formula."
+  },
+  "oeis-a181674": {
+   "date": "2026-11-28",
+   "pr": 16995,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A181674",
+    "https://oeis.org/A181674"
+   ],
+   "note": "Disproof. Greathouse's 'average order Theta(log log n)' is formalized as summatory count Theta(N log log N), the standard reading. The proof shows along N=2^(2^k) the count is O(N) (O(2^k/k) primorials times O(Nk/2^k) semiprimes via Chebyshev bounds), so the lower bound fails. Heuristically and numerically (N<=2e6, ratio ~1.57) the true average order is constant. No prior refutation found. Second review: Disproof valid (the true average order is Theta(1)); numerics agree."
+  },
+  "oeis-a184145": {
+   "date": "2026-11-28",
+   "pr": 27895,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A184145",
+    "https://oeis.org/A184153",
+    "https://oeis.org/A184145",
+    "https://oeis.org/A184153"
+   ],
+   "note": "Faithful Hardin array count (1/4 of (n+1)x2 arrays over 0..3 with each 2x2 block having a horizontally/vertically adjacent equal pair); Barker's g.f. and Binet form are stated. Transfer-matrix proof of a(n)=9a(n-1)+28a(n-2); checked by transfer computation to n=29. Not in the parent table A184153, the isitsolved Hardin papers, or the searched libraries. Second review: Faithful; transfer-matrix routine."
+  },
+  "oeis-a184223": {
+   "date": "2026-11-28",
+   "pr": 28701,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A184223",
+    "https://oeis.org/A184231",
+    "https://oeis.org/A184223",
+    "https://oeis.org/A184231"
+   ],
+   "note": "Faithful Hardin array count (half the (n+1)x2 arrays over 0..3 with |diag-antidiag|>3 in every 2x2 block); Barker's recurrence (n>=4) and g.f. are stated. Transfer-matrix proof; checked to n=29. Not in the parent table A184231, the isitsolved Hardin papers, or the searched libraries. Second review: Faithful; transfer-matrix routine."
+  },
+  "oeis-a097154": {
+   "date": "2026-11-28",
+   "pr": 28321,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A097154",
+    "https://oeis.org/A097155",
+    "https://oeis.org/A097154"
+   ],
+   "note": "Faithful: f(x)=reverse(x)-maxdigit(x) in base 10 (trailing zeros dropped on reversal, as in the entry's 89->98 example), fixed-point set stated as {0,89}. Since reverse(x) is congruent to x mod 9 and maxdigit<=9, a nonzero fixed point needs reverse(x)=x+9, and a digit argument leaves only 89. Brute force to 10^7 finds only 0 and 89; the conjecture is still open in A097154/A097155/A097157 and no proof was found elsewhere. Second review: Faithful and true; elementary digit argument."
   }
  },
  "flagged": {
@@ -17657,6 +17998,46 @@
     "https://oeis.org/A227017"
    ],
    "reason": "Accepted as a disproof that exploits an offset error: the printed closed form (1-(-1)^n+4n+6n^2)/4 is a(n+1), not a(n) (it gives 3 at n=1 and 8 at n=2 against data 1,3), and the disproof just evaluates a(2)=3. The substantive content (the shifted closed form, recurrence and g.f. from the midpoint bound) is in the proof file but not in main. No earlier public correction found (blakestone covers only the quartic A227013)."
+  },
+  "mo-266728": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://mathoverflow.net/questions/266728"
+   ],
+   "reason": "Second review: Correct, but the statement is a near-tautological reformulation of the defining property (A^{-1} nonnegative). The asker wanted explicit configurations, like the rays given for R^3, in R^4 and R^n. This does not resolve the open-ended question in any meaningful sense."
+  },
+  "mo-464279": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://mathoverflow.net/questions/464279",
+    "https://oeis.org/A169945",
+    "https://math.stackexchange.com/questions/4865032",
+    "https://math.stackexchange.com/questions/4109091"
+   ],
+   "reason": "Second review: Keeps only a trivial sub-observation of an open-ended question and drops the substantive parts. Announcing it as solving MO 464279 would overstate it."
+  },
+  "mo-48770": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://mathoverflow.net/questions/48770"
+   ],
+   "reason": "Second review: Correct and faithful, but not a genuine open problem: the thread treats it as an easy exercise, which the asker accepted. It should not be announced as a solved open problem."
+  },
+  "oeis-a127751": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A127751",
+    "https://oeis.org/A127752"
+   ],
+   "reason": "Second review: True but a duplicate of the already-solved oeis-a127752 (identical statement). It should not count as a separate new solve."
+  },
+  "oeis-a177025": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A177025",
+    "https://oeis.org/A129654"
+   ],
+   "reason": "Second review: True, but mathematically the same conjecture as the already-solved oeis-a129654, shifted by the trivial identity A177025 = A129654 - 1. Not a separate new solve."
   }
  },
  "known": {
