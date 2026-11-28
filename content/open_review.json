@@ -2450,17 +2450,6 @@
    ],
    "note": "ws(y)+ws(reverse y) = (k+1)n, so n divides one iff it divides the other. Trivial."
   },
-  "oeis-a368773": {
-   "date": "2026-11-28",
-   "pr": 9167,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A368773",
-    "https://oeis.org/A059450",
-    "https://arxiv.org/abs/2511.13446"
-   ],
-   "note": "Mathar's D-finite recurrence. Caveat: the statement defines a(n) by the algebraic g.f. sqrt(1-10x^2+9x^4)/(4x(1-3x)) - (1-x)/(4x), not by antidiagonal sums of A059450. That is exactly A(t,t) for Somos's g.f. of A059450 (checked algebraically and on 15 terms), so it is faithful given that known g.f. The recurrence then follows routinely."
-  },
   "oeis-a372991": {
    "date": "2026-11-28",
    "pr": 9063,
@@ -3784,16 +3773,6 @@
    ],
    "note": "The statement faithfully encodes Chai Wah Wu's 2022 conjectures for a(n) = floor(1/(1/n - pi^2/6 + H_n^(2))): the order-5 recurrence for n > 5, and the g.f. x(x+1)^2(x+2)/((1-x)^3(1+x+x^2)) with a(0) = 0. This needs explicit two-sided bounds on the tail of zeta(2) that are sharp enough to pin down the floor, which the 366-line proof provides. The entry still says conjecture and I found no earlier proof. Non-trivial but elementary analysis."
   },
-  "oeis-a145647": {
-   "date": "2026-11-28",
-   "pr": 6374,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A145647",
-    "https://oeis.org/A145646"
-   ],
-   "note": "Barker's 2019 g.f./closed form/recurrence for the first differences of the hydrogen series-limit wavelengths A145646 was fitted to the 13 listed terms. The statement defines the wavelengths by the entry's own formula and Maple program, round(n^2*10^10/R) with R = 10973731.568527, and the disproof is the single computation gap(14) = 26427 vs 26426 predicted. The refutation is robust. The conjectured slope 7290/4 = 1822.5 differs from 2*10^10/R ≈ 1822.53, so the quasi-linear formula must fail eventually for any value of the Rydberg constant. Caveats: trivial; it uses a term beyond the OEIS data; and Mathar's 2008 comment on A145646 already calls the sequence ill-defined, with 'rounding effects prevent high-term predictability of the differences'. Statement PR #1084, disproof PR #6374."
-  },
   "oeis-a145646": {
    "date": "2026-11-28",
    "pr": 6346,
@@ -3915,15 +3894,6 @@
    ],
    "note": "Mathar's 2016 recurrence n a(n) = 4(2n+1)(2n-3) a(n-1) (n >= 2) is stated faithfully for the closed form (2n+1)!(2n-2)!/((n-1)! n!^2 6), computed in Q; the definition reproduces the data. Trivial: a ratio of hypergeometric terms."
   },
-  "arxiv-1805.03186": {
-   "date": "2026-11-28",
-   "pr": 7252,
-   "routine": true,
-   "evidence": [
-    "https://arxiv.org/abs/1805.03186"
-   ],
-   "note": "Question 1 of Goodrich-Mbirika-Nielsen asks whether every hidden forest has a quasiprime matrix on which the CRT algorithm yields it. Following the previous review, the statement asserts a valid placement exists and that for every placement the CRT solutions are exactly (x,y) modulo the common period. That matches the paper's 'unique modulo M' reading; a stricter least-residue reading is false. Trivial under that reading: the retained prime powers are pairwise coprime. The authors wrote that 'a formal proof still awaits', and no earlier proof was found."
-  },
   "oeis-a260911": {
    "date": "2026-11-28",
    "pr": 8057,
@@ -4001,16 +3971,6 @@
     "https://github.com/epoch-research/LeanOpenProblems-results/tree/main/runs/oeis-full-50usd-ant-j0j0g4uzligm1k41/oeis_179537_conjecture_sun_part2a_mod_n"
    ],
    "note": "The upstream conjecture3 (n | sum_{k<n} (42k+37)(-1)^k a(k) for all n >= 1, a(k) = sum C(k,j)^2 C(k-j,j)^2 (-16)^j) is Z.-W. Sun's July 2010 conjecture as recorded in the entry. It is tagged research open at the pinned commit. In Epoch's OEIS Open data this exact conjecture (part2a_mod_n) was attempted by four models and failed (scores 'I'); only the mod p^2 companion part2b was 'accepted'. I found no proof in the divisibility-of-Sun-sums literature (Guo-Liu, Mao and others). The 480-line proof is a genuine argument (column decomposition, binomial recurrences, Abel summation, Catalan integrality)."
-  },
-  "oeis-a023105": {
-   "date": "2026-11-28",
-   "pr": 8218,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A023105",
-    "https://oeis.org/A004215"
-   ],
-   "note": "Neumann's 2020 conjecture a(n) = 2 + #{A004215 terms < 2^n} (n > 0) is stated faithfully: a(n) counts x^2 mod 2^n, and A004215 is defined literally as sums of four but no fewer positive squares. Mathematically it is a routine consequence of classical facts: Legendre's three-square theorem (A004215 = 4^a(8b+7)) and the closed form a(n) = floor((2^n+10)/6) already in the entry. The 1650-line proof is long only because it ports a formal three-square theorem."
   },
   "oeis-a088862": {
    "date": "2026-11-28",
@@ -5523,6 +5483,34 @@
     "https://mathoverflow.net/questions/81816"
    ],
    "reason": "The source literally allows exponents n_i >= 0, and the formal 'valid' predicate allows a i = 0. The proof takes all p_i = 3 and all a_i = 0, so 0 = prod(p^0 - 1) divides prod p^0 - 1 = 0, which is trivially true for every m. The question is plainly about positive exponents (it comes from a finite-ring conjecture, and the comments list solutions such as (3,3), (3^4) and 3,3,3,3,5,5,89). The 'proof' exploits the degenerate zero exponents and says nothing about the real question."
+  },
+  "arxiv-1805.03186": {
+   "date": "2026-11-28",
+   "pr": 7252,
+   "evidence": [
+    "https://arxiv.org/abs/1805.03186",
+    "https://arxiv.org/pdf/1805.03186v2"
+   ],
+   "reason": "Second review: The Lean theorem is true but is a direct CRT observation (selected prime powers divide the coordinates and are pairwise coprime). Read the way the paper uses the algorithm (least solution), Question 1 is false by a one-line counterexample (224,230). Either way this is not a substantive solved open problem; do not announce it as one."
+  },
+  "oeis-a368773": {
+   "date": "2026-11-28",
+   "pr": 9167,
+   "evidence": [
+    "https://oeis.org/A368773",
+    "https://oeis.org/A059450",
+    "https://arxiv.org/abs/2511.13446"
+   ],
+   "reason": "Second review: The statement replaces the OEIS definition (antidiagonal sums of A059450) with an algebraic g.f. that the entry marks as only apparent. The numbers agree and the identity is very likely true (e.g. from Somos's g.f. for A059450), but as stated the theorem does not settle Mathar's conjecture for A368773. To fix, define a(n) from A059450 or also prove the g.f."
+  },
+  "oeis-a145647": {
+   "date": "2026-11-28",
+   "pr": 6374,
+   "evidence": [
+    "https://oeis.org/A145647",
+    "https://oeis.org/A145646"
+   ],
+   "reason": "Second review: The disproof is arithmetically correct but refutes a fit to an explicitly ill-defined physical sequence, using terms beyond its published data; the entry itself warns that the differences are unpredictable. That makes the 'open problem' essentially vacuous, so it should not be announced as a solved conjecture. At most it is a trivial finite check (routine)."
   }
  },
  "known": {
@@ -10427,6 +10415,15 @@
     "https://mathoverflow.net/questions/108726/getting-a-bound-on-the-coefficients-of-the-factor-polynomial"
    ],
    "reason": "Second review: Previously settled: the exact bound and finiteness appear in a 2012 MathOverflow answer (MO 108726), to which this question's own answer points. The Lean proof is a correct formalization of a known result, not a new solve."
+  },
+  "oeis-a023105": {
+   "date": "2026-11-28",
+   "pr": 8218,
+   "evidence": [
+    "https://oeis.org/A023105",
+    "https://oeis.org/A004215"
+   ],
+   "reason": "Second review: Correct but a duplicate of oeis-a004215 (identical statement, same solver, same day). It should not be counted as a separate new result."
   }
  },
  "reviewed": "2026-11-28"
