@@ -1,90 +1,113 @@
 import OMAStatements.S_oeis_a127752
 
--- Credit: @oh-meh
-open OMA.S_oeis_a127752 Matrix Finset
+/-
+# A127752: proof of the OEIS conjecture (row sums mod 2 = A035263, shifted)
 
-private def sumBefore : ℕ → ℤ
-  | 0 => 0
-  | n+1 => 3*n+1+sumBefore ((n+1)/2)
+Credit: @ShadowAlzazel
+Prepared by the Fang and Fox Lemma Office: https://shadowalzazel.github.io/Fang-and-Fox-Lemma-Office/
 
-private def u (n : ℕ) : ℤ := sumBefore (n+1)-sumBefore n
+Proof.
+1. The row sums a of the inverse triangle solve A a = 1. Row n of that system reads
+   (1/(3n+1)) Σ_(ceil(n/2) ≤ k ≤ n) a(k) = 1, i.e. the window sum is 3n+1.
+2. Differencing consecutive windows gives a doubling recursion
+   r(0) = 1, r(2m+1) = r(m) + 3, r(2m+2) = 3, and r solves the window identity (blockSum_r).
+   The truncated triangle is lower triangular with nonzero diagonal, hence invertible, so the
+   row sums of its inverse are exactly r (rowSum_inv_tri), for every truncation size.
+3. Mod 2: r(2m+2) is odd and r(2m+1) has the opposite parity of r(m); by strong induction
+   r(n) mod 2 = (exponent of 2 in 2(n+1)) mod 2 = A035263(n+1) (r_mod_two).
+-/
 
-private theorem sumBefore_succ (n : ℕ) : sumBefore (n+1) = 3*n+1+sumBefore ((n+1)/2) := by
-  rw [sumBefore]
+open Matrix Finset OMA.S_oeis_a127752
 
-private theorem base_u : u 0 = 1 := by norm_num [u,sumBefore]
+namespace FFL_A127752
 
-private theorem even_u (k : ℕ) (hk : 0<k) : u (2*k) = 3 := by
-  obtain ⟨j,rfl⟩ := Nat.exists_eq_succ_of_ne_zero hk.ne'
-  unfold u
-  rw [sumBefore_succ, show 2*(j+1)=2*j+1+1 by omega, sumBefore_succ (2*j+1)]
-  rw [show (2*j+1+1+1)/2=j+1 by omega, show (2*j+1+1)/2=j+1 by omega]
-  push_cast
-  ring
+/-- The doubling recursion: `r 0 = 1`, `r (2m+1) = r m + 3`, `r (2m+2) = 3`. -/
+def r : ℕ → ℕ
+  | 0 => 1
+  | n + 1 => if (n + 1) % 2 = 1 then r (n / 2) + 3 else 3
 
-private theorem odd_u (k : ℕ) : u (2*k+1) = 3+u k := by
-  unfold u
-  rw [sumBefore_succ (2*k+1), sumBefore_succ (2*k)]
-  rw [show (2*k+1+1)/2=k+1 by omega,show (2*k+1)/2=k by omega]
-  push_cast
-  ring
+lemma r_zero : r 0 = 1 := by simp [r]
 
-private theorem rows (N : ℕ) (i : Fin N) : a N i = (u i.val : ℚ) := by
-  classical
-  let A := triangle N
-  let v : Fin N → ℚ := fun k => u k.val
-  have hsum (m : ℕ) : ∑ j ∈ range m, (u j:ℚ) = (sumBefore m:ℚ) := by
-    induction m with
-    | zero => simp [sumBefore]
-    | succ m ih => rw [sum_range_succ,ih,u,Int.cast_sub]; ring
-  have hdiag : A.IsLowerTriangular := by
-    intro j k h
-    have hk : ¬ k.val ≤ j.val := by exact not_le_of_gt (show j.val<k.val from h)
-    simp [A,triangle,hk]
-  have hunit : IsUnit A.det := by
-    rw [A.det_of_isLowerTriangular hdiag, isUnit_iff_ne_zero]
-    apply Finset.prod_ne_zero_iff.mpr
-    intro j _
-    simp [A,triangle,show j.val≤2*j.val by omega]
-    positivity
-  have hv : A *ᵥ v = fun _ => 1 := by
-    funext j
-    change (∑ k : Fin N, (if k.val≤j.val ∧ j.val≤2*k.val then (1:ℚ)/(3*j.val+1) else 0) * (u k.val:ℚ))=1
-    simp only [ite_mul,zero_mul]
-    rw [Fin.sum_univ_eq_sum_range (fun k : ℕ => if k ≤ j.val ∧ j.val ≤ 2*k then
-      (1:ℚ)/(3*j.val+1)*(u k:ℚ) else 0), ← Finset.sum_filter]
-    have hf : (range N).filter (fun k => k ≤ j.val ∧ j.val ≤ 2*k) = Ico ((j.val+1)/2) (j.val+1) := by
-      ext k
-      simp only [mem_filter,mem_range,mem_Ico]
-      have := j.isLt
+lemma r_odd (m : ℕ) : r (2 * m + 1) = r m + 3 := by
+  rw [r, if_pos (by omega)]
+  congr 2; omega
+
+lemma r_even (m : ℕ) : r (2 * m + 2) = 3 := by
+  rw [r, if_neg (by omega)]
+
+/-- Window sums: `Σ_(ceil(n/2) ≤ k ≤ n) r k = 3n + 1`. -/
+lemma blockSum_r (n : ℕ) : ∑ k ∈ Ico ((n + 1) / 2) (n + 1), r k = 3 * n + 1 := by
+  induction n with
+  | zero => simp [r_zero]
+  | succ n ih =>
+    obtain ⟨m, rfl | rfl⟩ := Nat.even_or_odd' n
+    · have h1 : (2 * m + 1) / 2 = m := by omega
+      have h2 : (2 * m + 1 + 1) / 2 = m + 1 := by omega
+      rw [h1] at ih; rw [h2]
+      have e : ∑ k ∈ Ico m (2 * m + 1 + 1), r k
+          = r m + ∑ k ∈ Ico (m + 1) (2 * m + 1 + 1), r k :=
+        Finset.sum_eq_sum_Ico_succ_bot (by omega) _
+      rw [Finset.sum_Ico_succ_top (by omega), ih, r_odd] at e
       omega
-    rw [hf, ← mul_sum, sum_Ico_eq_sub _ (by omega),hsum,hsum,sumBefore_succ j.val]
-    push_cast
-    field_simp
-    ring
-  have hinv := congrArg (fun w => A⁻¹ *ᵥ w) hv
-  rw [mulVec_mulVec,nonsing_inv_mul _ hunit,one_mulVec] at hinv
-  simpa [a,A,v,mulVec,dotProduct] using (congrFun hinv i).symm
+    · have h1 : (2 * m + 1 + 1) / 2 = m + 1 := by omega
+      have h2 : (2 * m + 1 + 1 + 1) / 2 = m + 1 := by omega
+      rw [h1] at ih; rw [h2, Finset.sum_Ico_succ_top (by omega), ih,
+        show 2 * m + 1 + 1 = 2 * m + 2 from rfl, r_even]
+      omega
 
-private theorem doubled_val (m : ℕ) (hm : 0 < m) :
-    padicValNat 2 (2*m) = 1+padicValNat 2 m := by
-  rw [padicValNat.mul (by decide : 2≠0) hm.ne',padicValNat_self]
+lemma tri_mulVec_r (N : ℕ) :
+    triangle N *ᵥ (fun k : Fin N => (r k : ℚ)) = fun _ => 1 := by
+  funext i
+  simp only [mulVec, dotProduct, triangle, ite_mul, zero_mul]
+  rw [Fin.sum_univ_eq_sum_range
+    (fun x => if x ≤ (i : ℕ) ∧ (i : ℕ) ≤ 2 * x then 1 / (3 * (i : ℚ) + 1) * (r x : ℚ) else 0)]
+  rw [← Finset.sum_filter, ← Finset.mul_sum]
+  have hf : (range N).filter (fun x => x ≤ (i : ℕ) ∧ (i : ℕ) ≤ 2 * x)
+      = Ico (((i : ℕ) + 1) / 2) ((i : ℕ) + 1) := by
+    ext x; simp only [mem_filter, mem_range, mem_Ico]; omega
+  rw [hf, ← Nat.cast_sum, blockSum_r]
+  push_cast
+  field_simp
 
-private theorem parity (n : ℕ) : u n % 2 = (A035263 (n+1):ℤ) := by
+lemma tri_lower (N : ℕ) : (triangle N).IsLowerTriangular := by
+  intro i j hij
+  have : (i : ℕ) < j := hij
+  simp only [triangle]; rw [if_neg (by omega)]
+
+lemma tri_det_isUnit (N : ℕ) : IsUnit (triangle N).det := by
+  rw [det_of_isLowerTriangular _ (tri_lower N), isUnit_iff_ne_zero,
+    Finset.prod_ne_zero_iff]
+  intro i _
+  simp only [triangle, le_refl, true_and]
+  rw [if_pos (by omega)]
+  positivity
+
+/-- Row sums of the inverse of every truncation are given by `r`. -/
+theorem rowSum_inv_tri (N : ℕ) (n : Fin N) : a N n = r n := by
+  have h : (triangle N)⁻¹ *ᵥ (fun _ => (1 : ℚ)) = fun k : Fin N => (r k : ℚ) := by
+    rw [← tri_mulVec_r, mulVec_mulVec, nonsing_inv_mul _ (tri_det_isUnit N), one_mulVec]
+  have := congrFun h n
+  simpa [a, mulVec, dotProduct] using this
+
+theorem r_mod_two (n : ℕ) : r n % 2 = A035263 (n + 1) := by
   induction n using Nat.strong_induction_on with
-  | h n ih =>
-    by_cases hn : n=0
-    · subst n; rw [base_u]; norm_num [A035263,padicValNat_self]
-    rcases Nat.even_or_odd n with ⟨k,hk⟩ | ⟨k,hk⟩
-    · rw [show n=2*k by omega, even_u _ (by omega), A035263, doubled_val _ (by omega),
-        padicValNat.eq_zero_of_not_dvd (by omega : ¬ 2 ∣ 2*k+1)]
-      decide
-    · have hind := ih k (by omega)
-      rw [A035263] at hind
-      rw [show n=2*k+1 by omega, odd_u,A035263,
-        show 2*k+1+1=2*(k+1) by omega, doubled_val (2*(k+1)) (by omega)]
+  | _ n ih =>
+    unfold A035263
+    rcases n with _ | n
+    · simp [r_zero]
+    obtain ⟨m, rfl | rfl⟩ := Nat.even_or_odd' n
+    · have ihm := ih m (by omega)
+      unfold A035263 at ihm
+      rw [r_odd, show 2 * (2 * m + 1 + 1) = 2 * (2 * (m + 1)) by ring,
+        padicValNat.mul (by norm_num) (by omega), padicValNat.self (by norm_num)]
       omega
+    · rw [show 2 * m + 1 + 1 = 2 * m + 2 from rfl, r_even,
+        padicValNat.mul (by norm_num) (by omega), padicValNat.self (by norm_num),
+        padicValNat.eq_zero_of_not_dvd (by omega)]
+
+end FFL_A127752
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a127752.main := by
   intro N n
-  exact ⟨u n,rows N n,parity n⟩
+  refine ⟨FFL_A127752.r n, by rw [FFL_A127752.rowSum_inv_tri]; norm_cast, ?_⟩
+  rw [← FFL_A127752.r_mod_two]; push_cast; rfl
