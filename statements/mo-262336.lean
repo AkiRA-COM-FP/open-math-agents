@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # The permanent after adding a constant to every entry
 
-Source: Turbo, https://mathoverflow.net/questions/262336 (CC BY-SA 4.0).
+Source: Turbo, https://mathoverflow.net/questions/262336 (CC BY-SA 3.0).
 Zach Teitler's answer gives the formula by grouping products in the expansion.
 Credit: @connoranderson.
 
