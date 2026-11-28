@@ -1867,10 +1867,10 @@ private theorem small_coordinate_cutoff {a n X : ℕ} (hn : n<X)
   · have l := Real.log_le_sub_one_of_pos (show 0<(X:ℝ)+1 by positivity)
     let s := Real.sqrt X
     have ss : s^2=(X:ℝ) := Real.sq_sqrt (Nat.cast_nonneg _)
-    have sp : 0≤s := Real.sqrt_nonneg _
+    have sp : 0 ≤ s := Real.sqrt_nonneg _
     have one : (1:ℝ) ≤ X := by exact_mod_cast (show 1 ≤ X by omega)
-    have s1 : 1≤s := by nlinarith only [one,ss,sp]
-    have ns : (n:ℝ)≤s := by nlinarith only [close,ss,sp,Nat.cast_nonneg (α := ℝ) n]
+    have s1 : 1 ≤ s := by nlinarith only [one,ss,sp]
+    have ns : (n:ℝ) ≤ s := by nlinarith only [close,ss,sp,Nat.cast_nonneg (α := ℝ) n]
     have rs : r X ≤ s := by nlinarith only [rr X,ss,l,rp X,sp]
     have aa : 4*(a:ℝ)^2 ≤ n := by nlinarith only [h,mul_nonneg (sq_nonneg (a:ℝ)) (rp n)]
     calc
