@@ -1,157 +1,58 @@
 import OMAStatements.S_oeis_a392943
-import Mathlib
-
-/-!
-# OEIS A392943: a primitive Heronian triangle never has an integer circumradius
-
-Let `a, b, c` be the sides of a triangle with `gcd(a, b, c) = 1`, integer area `K`
-(`16 K² = (a+b+c)(-a+b+c)(a-b+c)(a+b-c)`) and circumradius `R` (`4 R K = a b c`). We show
-that `R` cannot be an integer.
-
-**Parity.** Modulo 2 the four factors of `16 K²` are all congruent to `a + b + c`, so the
-perimeter is even. As the sides are not all even, exactly one side is even; call it `c`.
-
-**Setting up the descent.** Since `a b` is odd and `4 ∣ a b c`, we get `c = 4 c'`. Heron's
-formula can be written `(4K)² + (b² + c² - a²)² = (2bc)²`. Here `b² - a² ≡ 0 (mod 8)`, so
-`b² + c² - a² = 8 w'`, which forces `K = 2 K'` and leaves
-
-  `K'² + w'² = b² c'²`   and   `2 R K' = a b c'`.
-
-**Descent.** In any integer solution of these two equations with `a, b` odd, `c'` is even
-(second equation), hence `K'² + w'² ≡ 0 (mod 4)`, hence `K'` and `w'` are even, and halving
-all three gives another solution. So `c'` is divisible by every power of two: `c' = 0`,
-contradicting `c > 0`.
--/
-
-open OMA.S_oeis_a392943
+import Mathlib.Data.Rat.Lemmas
+import Mathlib.Tactic.FieldSimp
+import Mathlib.Tactic.LinearCombination
+import Mathlib.Tactic.Ring
+import Mathlib.Tactic.Positivity
 
 namespace OMA.A392943
 
-/-- The descent: with `a`, `b` odd, the system `K² + w² = b² c²`, `2 R K = a b c` forces `c = 0`. -/
-lemma descent {a b R : ℤ} (ha : Odd a) (hb : Odd b) :
-    ∀ n : ℕ, ∀ c K w : ℤ, c.natAbs ≤ n → K ^ 2 + w ^ 2 = b ^ 2 * c ^ 2 →
-      2 * R * K = a * b * c → c = 0 := by
-  intro n
-  induction n with
-  | zero =>
-    intro c K w hc _ _
-    omega
-  | succ n ih =>
-    intro c K w hc h1 h2
-    -- `c` is even, because `a * b * c = 2 * (R * K)` and `a`, `b` are odd
-    have hc_even : Even c := by
-      have h : Even (a * b * c) := ⟨R * K, by linear_combination (-1 : ℤ) * h2⟩
-      rcases Int.even_mul.1 h with h | h
-      · rcases Int.even_mul.1 h with h | h
-        · exact absurd h (Int.not_even_iff_odd.2 ha)
-        · exact absurd h (Int.not_even_iff_odd.2 hb)
-      · exact h
-    obtain ⟨c', rfl⟩ := hc_even
-    -- `K² + w² ≡ 0 (mod 4)` forces `K` and `w` to be even
-    have hKw : Even K ∧ Even w := by
-      rcases Int.even_or_odd K with ⟨p, hp⟩ | ⟨p, hp⟩ <;>
-        rcases Int.even_or_odd w with ⟨q, hq⟩ | ⟨q, hq⟩
-      · exact ⟨⟨p, hp⟩, ⟨q, hq⟩⟩
-      · exfalso
-        subst hp hq
-        have e : 4 * (p * p) + 4 * (q * q) + 4 * q + 1 = 4 * (b ^ 2 * (c' * c')) := by
-          linear_combination h1
-        omega
-      · exfalso
-        subst hp hq
-        have e : 4 * (p * p) + 4 * p + 1 + 4 * (q * q) = 4 * (b ^ 2 * (c' * c')) := by
-          linear_combination h1
-        omega
-      · exfalso
-        subst hp hq
-        have e : 4 * (p * p) + 4 * p + 4 * (q * q) + 4 * q + 2 = 4 * (b ^ 2 * (c' * c')) := by
-          linear_combination h1
-        omega
-    obtain ⟨⟨K', rfl⟩, ⟨w', rfl⟩⟩ := hKw
-    -- the halved triple is again a solution
-    have hc' : c' = 0 :=
-      ih c' K' w' (by omega) (by linarith [h1]) (by linarith [h2])
-    rw [hc']
-    norm_num
+/-- An integral leg of a rational right triangle with even integral hypotenuse is even. -/
+theorem even_leg {r x : ℤ} (h : IsSquare (((2 * r) ^ 2 - x ^ 2 : ℤ) : ℚ)) :
+    2 ∣ x := by
+  obtain ⟨w, hw⟩ := Rat.isSquare_intCast_iff.mp h
+  by_contra hx
+  obtain ⟨u, hu⟩ := Int.not_even_iff_odd.mp (fun he => hx (even_iff_two_dvd.mp he))
+  rcases Int.even_or_odd w with ⟨v, hv⟩ | ⟨v, hv⟩ <;>
+    rw [hu, hv] at hw <;> ring_nf at hw <;> omega
 
-/-- If `a` and `b` are odd, Heron's formula and `4 R K = a b c` force `c = 0`. -/
-lemma core {a b c K R : ℤ} (ha : Odd a) (hb : Odd b)
-    (hA : (4 * K) ^ 2 = (a + b + c) * (-a + b + c) * (a - b + c) * (a + b - c))
-    (hR : 4 * R * K = a * b * c) : c = 0 := by
-  obtain ⟨k, rfl⟩ := ha
-  obtain ⟨l, rfl⟩ := hb
-  -- `4 ∣ c`, because `a * b` is odd
-  obtain ⟨c', rfl⟩ : (4 : ℤ) ∣ c :=
-    ⟨(2 * k + 1) * (2 * l + 1) * R * K - (2 * k * l + k + l) * (2 * k * l + k + l + 1) * c, by
-      linear_combination (-((2 * k + 1) * (2 * l + 1))) * hR⟩
-  -- `k (k + 1)` and `l (l + 1)` are even; this gives `b² - a² ≡ 0 (mod 8)`
-  obtain ⟨r, hr⟩ := Int.even_mul_succ_self k
-  obtain ⟨s, hs⟩ := Int.even_mul_succ_self l
-  -- Heron's formula becomes `16 K² + 64 w'² = 64 b² c'²` with `w' = s - r + 2 c'²`
-  have h16 : 16 * K ^ 2 + (8 * s - 8 * r + 16 * c' ^ 2) ^ 2
-      = 64 * ((2 * l + 1) ^ 2 * c' ^ 2) := by
-    linear_combination hA
-      + (-4 * ((8 * s - 8 * r + 16 * c' ^ 2)
-          + (4 * (l * (l + 1)) - 4 * (k * (k + 1)) + 16 * c' ^ 2))) * hs
-      + (4 * ((8 * s - 8 * r + 16 * c' ^ 2)
-          + (4 * (l * (l + 1)) - 4 * (k * (k + 1)) + 16 * c' ^ 2))) * hr
-  -- hence `K` is even
-  have hK : Even K := by
-    have h : Even (K * K) :=
-      ⟨2 * ((2 * l + 1) ^ 2 * c' ^ 2 - (s - r + 2 * c' ^ 2) ^ 2), by linarith [h16]⟩
-    exact (Int.even_mul.1 h).elim id id
-  obtain ⟨K', rfl⟩ := hK
-  -- and the descent applies
-  have hc' : c' = 0 :=
-    descent (odd_two_mul_add_one k) (odd_two_mul_add_one l) c'.natAbs c' K'
-      (s - r + 2 * c' ^ 2) le_rfl (by linarith [h16]) (by linarith [hR])
-  rw [hc']
-  norm_num
-
-/-- Modulo 2, Heron's formula says the perimeter is even. -/
-lemma perimeter_even_aux : ∀ α β γ κ : ZMod 2,
-    (4 * κ) ^ 2 = (α + β + γ) * (-α + β + γ) * (α - β + γ) * (α + β - γ) → α + β + γ = 0 := by
-  decide
+/-- Heron's polynomial and the circumradius equation supply the rational complementary leg.
+The third side is integral; the other two sides may be rational. -/
+theorem even_side {a b : ℚ} {c r : ℤ} (ha : a ≠ 0) (hb : b ≠ 0)
+    (h : (a * b * c) ^ 2 =
+      (r : ℚ) ^ 2 * ((a + b + c) * (-a + b + c) * (a - b + c) * (a + b - c))) :
+    2 ∣ c := by
+  apply even_leg (r := r)
+  refine ⟨r * (a ^ 2 + b ^ 2 - c ^ 2) / (a * b), ?_⟩
+  push_cast
+  field_simp
+  linear_combination -h
 
 end OMA.A392943
 
-open OMA.A392943 in
+open OMA.A392943 OMA.S_oeis_a392943 in
 theorem OMA.solution : type_of% @OMA.S_oeis_a392943.main := by
-  rintro ⟨a, b, c, K, R, ha, hb, hc, -, -, -, hgcd, -, hArea, -, hR⟩
-  have hA : (4 * (K : ℤ)) ^ 2
-      = ((a : ℤ) + b + c) * (-(a : ℤ) + b + c) * ((a : ℤ) - b + c) * ((a : ℤ) + b - c) := hArea
-  have hR' : 4 * (R : ℤ) * K = (a : ℤ) * b * c := by exact_mod_cast hR
-  -- the perimeter is even
-  have hper : (a + b + c) % 2 = 0 := by
-    have h2 := congrArg (Int.cast : ℤ → ZMod 2) hA
-    push_cast at h2
-    have h0 : ((a + b + c : ℕ) : ZMod 2) = 0 := by
-      push_cast
-      exact perimeter_even_aux _ _ _ _ h2
-    have := (ZMod.natCast_eq_zero_iff (a + b + c) 2).1 h0
-    omega
-  -- the sides are not all even
-  have hnot : ¬ (a % 2 = 0 ∧ b % 2 = 0 ∧ c % 2 = 0) := by
-    rintro ⟨h1, h2, h3⟩
-    have hdvd : 2 ∣ Nat.gcd (Nat.gcd a b) c :=
-      Nat.dvd_gcd (Nat.dvd_gcd (Nat.dvd_of_mod_eq_zero h1) (Nat.dvd_of_mod_eq_zero h2))
-        (Nat.dvd_of_mod_eq_zero h3)
-    rw [hgcd] at hdvd
-    omega
-  -- so exactly one side is even; apply `core` with that side in the last position
-  have hcases : (a % 2 = 1 ∧ b % 2 = 1) ∨ (a % 2 = 1 ∧ c % 2 = 1) ∨ (b % 2 = 1 ∧ c % 2 = 1) := by
-    omega
-  rcases hcases with ⟨h1, h2⟩ | ⟨h1, h2⟩ | ⟨h1, h2⟩
-  · have h0 : (c : ℤ) = 0 :=
-      core (Nat.odd_iff.2 h1).natCast (Nat.odd_iff.2 h2).natCast hA hR'
-    omega
-  · have h0 : (b : ℤ) = 0 :=
-      core (a := (a : ℤ)) (b := (c : ℤ)) (c := (b : ℤ)) (K := (K : ℤ)) (R := (R : ℤ))
-        (Nat.odd_iff.2 h1).natCast (Nat.odd_iff.2 h2).natCast
-        (by linear_combination hA) (by linear_combination hR')
-    omega
-  · have h0 : (a : ℤ) = 0 :=
-      core (a := (b : ℤ)) (b := (c : ℤ)) (c := (a : ℤ)) (K := (K : ℤ)) (R := (R : ℤ))
-        (Nat.odd_iff.2 h1).natCast (Nat.odd_iff.2 h2).natCast
-        (by linear_combination hA) (by linear_combination hR')
-    omega
+  rintro ⟨a, b, c, K, R, ha, hb, hc, _, _, _, hg, _, hK, _, hR⟩
+  dsimp [hasArea] at hK
+  have area : (4 * (K : ℚ)) ^ 2 =
+      (a + b + c : ℚ) * (- (a : ℚ) + b + c) * (a - b + c : ℚ) * (a + b - c : ℚ) := by
+    have mapped := congrArg (fun t : ℤ => (t : ℚ)) hK
+    push_cast at mapped
+    exact mapped
+  have radius : 4 * (R : ℚ) * K = a * b * c := by exact_mod_cast hR
+  have h : ((a : ℚ) * b * c) ^ 2 =
+      (R : ℚ) ^ 2 * ((a + b + c : ℚ) * (- (a : ℚ) + b + c) *
+        (a - b + c : ℚ) * (a + b - c : ℚ)) := by
+    rw [← radius, ← area]
+    ring
+  have evenC : 2 ∣ c := by
+    exact_mod_cast even_side (c := (c : ℤ)) (r := (R : ℤ))
+      (a := (a : ℚ)) (b := (b : ℚ)) (by positivity) (by positivity) (by push_cast; exact h)
+  have evenA : 2 ∣ a := by
+    exact_mod_cast even_side (c := (a : ℤ)) (r := (R : ℤ))
+      (a := (b : ℚ)) (b := (c : ℚ)) (by positivity) (by positivity) (by push_cast; linear_combination h)
+  have evenB : 2 ∣ b := by
+    exact_mod_cast even_side (c := (b : ℤ)) (r := (R : ℤ))
+      (a := (a : ℚ)) (b := (c : ℚ)) (by positivity) (by positivity) (by push_cast; linear_combination h)
+  have hd := Nat.dvd_gcd (Nat.dvd_gcd evenA evenB) evenC
+  omega

@@ -1469,6 +1469,28 @@
       ],
       "check": "library-match",
       "silent": true
+    },
+    {
+      "id": "oeis-a284946",
+      "status": "claimed",
+      "summary": "github.com/joaquimmj/oeis-conjectures (paper 'Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026) reports this entry settled ($-2 + \\sqrt{2}$: $\\sqrt{2}$). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/joaquimmj/oeis-conjectures"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a033485",
+      "status": "claimed",
+      "summary": "github.com/joaquimmj/oeis-conjectures (paper 'Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026) reports this entry settled (false: limit of $a(2n)/a(n)\\cdot\\log n/n$ is $1.64\\ldots$). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/joaquimmj/oeis-conjectures"
+      ],
+      "check": "library-match",
+      "silent": true
     }
   ]
 }
