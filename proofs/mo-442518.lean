@@ -13,6 +13,9 @@ clique 4..7 (or 8..11), and a clique can only be left towards s or towards its c
 already used.
 -/
 
+-- Original Lean proof by @zarnab222-dev (PR #17723; statement #13337).
+-- Reachability transport now uses the standard reflexive-transitive closure APIs.
+
 namespace OMA.S_mo_442518.Cex
 
 /-- Out-neighbour lists of the counterexample. -/
@@ -79,19 +82,6 @@ lemma reach_from {V : Type} (R : V → V → Prop) (X : V → Prop) (r : V) (rk 
     · rw [h1]
     · exact (ih (rk p) (hn ▸ hlt) p rfl hp).tail hR
 
-/-- If every vertex of `X` other than `r` has an `R`-successor in `X` of smaller rank, then
-every vertex of `X` reaches `r`. -/
-lemma reach_to {V : Type} (R : V → V → Prop) (X : V → Prop) (r : V) (rk : V → ℕ)
-    (h : ∀ u, X u → u = r ∨ ∃ p, X p ∧ R u p ∧ rk p < rk u) :
-    ∀ n u, rk u = n → X u → Relation.ReflTransGen R u r := by
-  intro n
-  induction n using Nat.strong_induction_on with
-  | _ n ih =>
-    intro u hn hu
-    rcases h u hu with h1 | ⟨p, hp, hR, hlt⟩
-    · rw [h1]
-    · exact Relation.ReflTransGen.head hR (ih (rk p) (hn ▸ hlt) p rfl hp)
-
 /-- The digraph with the vertex encoded by `c` deleted is strongly connected. -/
 lemma strongC (c : Fin 13) : ∀ u w : Fin 12, u.val ≠ c.val → w.val ≠ c.val →
     Relation.ReflTransGen
@@ -99,7 +89,8 @@ lemma strongC (c : Fin 13) : ∀ u w : Fin 12, u.val ≠ c.val → w.val ≠ c.v
   intro u w hu hw
   have h1 : Relation.ReflTransGen
       (fun a b : Fin 12 => G.Adj a b ∧ a.val ≠ c.val ∧ b.val ≠ c.val) u (root c) := by
-    refine reach_to _ (fun x : Fin 12 => x.val ≠ c.val) (root c) (rkIn c) ?_ _ u rfl hu
+    apply Relation.reflTransGen_swap.mp
+    refine reach_from _ (fun x : Fin 12 => x.val ≠ c.val) (root c) (rkIn c) ?_ _ u rfl hu
     intro x hx
     rcases certIn c x hx with h | ⟨p, hp, hA, hlt⟩
     · exact Or.inl h
@@ -121,22 +112,17 @@ lemma twoStrong : IsKStrong G 2 := by
   · have hS0 : S = ∅ := Finset.card_eq_zero.mp h0
     subst hS0
     have key := strongC (Fin.last 12) u w (Nat.ne_of_lt u.isLt) (Nat.ne_of_lt w.isLt)
-    clear hw
-    induction key with
-    | refl => exact Relation.ReflTransGen.refl
-    | tail _ hab ih =>
-      exact ih.tail ⟨hab.1, Finset.notMem_empty _, Finset.notMem_empty _⟩
+    exact Relation.ReflTransGen.mono
+      (fun _ _ hab => ⟨hab.1, Finset.notMem_empty _, Finset.notMem_empty _⟩) _ _ key
+
   · obtain ⟨x, rfl⟩ := Finset.card_eq_one.mp h1
     have hx : x.val < 13 := by have := x.isLt; omega
     have hux : u.val ≠ x.val := fun h => hu (Finset.mem_singleton.mpr (Fin.ext h))
     have hwx : w.val ≠ x.val := fun h => hw (Finset.mem_singleton.mpr (Fin.ext h))
     have key := strongC ⟨x.val, hx⟩ u w hux hwx
-    clear hw hwx
-    induction key with
-    | refl => exact Relation.ReflTransGen.refl
-    | tail _ hab ih =>
-      exact ih.tail ⟨hab.1, fun ha => hab.2.1 (congrArg Fin.val (Finset.mem_singleton.mp ha)),
-        fun hb => hab.2.2 (congrArg Fin.val (Finset.mem_singleton.mp hb))⟩
+    exact Relation.ReflTransGen.mono (fun _ _ hab => ⟨hab.1,
+      fun ha => hab.2.1 (congrArg Fin.val (Finset.mem_singleton.mp ha)),
+      fun hb => hab.2.2 (congrArg Fin.val (Finset.mem_singleton.mp hb))⟩) _ _ key
 
 /-! No path from 0 to 1 with three or more arcs. -/
 

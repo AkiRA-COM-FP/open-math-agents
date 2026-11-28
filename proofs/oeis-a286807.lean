@@ -1,5 +1,7 @@
 import OMAStatements.S_oeis_a286807
 
+-- Based on @jleguina's original verified proof. Track weighted word length directly.
+
 namespace OMA.S_oeis_a286807
 
 open Finset
@@ -33,12 +35,7 @@ lemma step_flat : ∀ ts : List Bool, step (flat ts) = flat (ts.flatMap tau)
     have h0 : step (0 :: flat ts) = 0 :: step (flat ts) := by
       cases ts with
       | nil => rfl
-      | cons b ts' =>
-        cases b
-        · show step (0 :: 1 :: 0 :: flat ts') = 0 :: step (1 :: 0 :: flat ts')
-          rfl
-        · show step (0 :: 1 :: flat ts') = 0 :: step (1 :: flat ts')
-          rfl
+      | cons b ts => cases b <;> rfl
     rw [h0, step_flat ts]
     rfl
 
@@ -56,33 +53,25 @@ lemma iter_eq (n : ℕ) : iter n = [0, 0] ++ flat (R n) := by
     rw [step, step_flat]
     rfl
 
-lemma length_flat (ts : List Bool) : (flat ts).length = ts.count true + 2 * ts.count false := by
+lemma count_true_and_length_tau (ts : List Bool) :
+    (ts.flatMap tau).count true = ts.count true ∧
+      (flat (ts.flatMap tau)).length = 2 * (flat ts).length + ts.count true := by
   induction ts with
-  | nil => rfl
+  | nil => decide
   | cons b ts ih =>
-    cases b <;> simp [flat, tok, List.count_cons] at ih ⊢ <;> omega
-
-lemma count_tau (ts : List Bool) : (ts.flatMap tau).count true = ts.count true ∧
-    (ts.flatMap tau).count false = ts.count true + 2 * ts.count false := by
-  induction ts with
-  | nil => simp
-  | cons b ts ih =>
-    cases b <;> simp [tau, List.count_cons, List.count_append] at ih ⊢ <;> omega
-
-lemma counts_R (n : ℕ) : (R n).count true = n ∧ (R n).count false + n + 1 = 2 ^ n := by
-  induction n with
-  | zero => simp [R]
-  | succ n ih =>
-    obtain ⟨h1, h2⟩ := count_tau (R n)
-    simp only [R, List.count_cons]
-    rw [h1, h2, pow_succ]
-    simp
-    omega
+    obtain ⟨hc, hl⟩ := ih
+    cases b <;> simp [flat, tok, tau] at * <;> omega
 
 lemma length_iter (n : ℕ) : (iter n).length + n = 2 ^ (n + 1) := by
-  rw [iter_eq, List.length_append, length_flat]
-  obtain ⟨h1, h2⟩ := counts_R n
-  rw [pow_succ]
+  have h (k : ℕ) : (R k).count true = k ∧ (flat (R k)).length + k + 2 = 2 ^ (k + 1) := by
+    induction k with
+    | zero => decide
+    | succ k ih =>
+      obtain ⟨ht, hd⟩ := count_true_and_length_tau (R k)
+      simp [R, flat, tok, pow_succ' 2 (k + 1)] at *
+      omega
+  rw [iter_eq, List.length_append]
+  have := (h n).2
   simp only [List.length_cons, List.length_nil]
   omega
 
@@ -90,7 +79,7 @@ lemma A132045_succ (m : ℕ) : A132045 (m + 1) + (m + 1) = 2 ^ (m + 1) + 1 := by
   unfold A132045
   have hsum : ∑ k ∈ range (m + 2), (m + 1).choose k = 2 ^ (m + 1) := Nat.sum_range_choose (m + 1)
   rw [sum_range_succ, sum_range_succ'] at hsum ⊢
-  simp only [T, show m + 1 + 1 - 1 = m + 1 by omega, true_or, or_true, if_true, Nat.choose_self,
+  simp only [T, true_or, or_true, if_true, Nat.choose_self,
     Nat.choose_zero_right] at hsum ⊢
   have hmid : ∀ k ∈ range m, T (m + 1) (k + 1) + 1 = (m + 1).choose (k + 1) := by
     intro k hk
@@ -99,10 +88,9 @@ lemma A132045_succ (m : ℕ) : A132045 (m + 1) + (m + 1) = 2 ^ (m + 1) + 1 := by
     rw [if_neg (by omega)]
     have : 0 < (m + 1).choose (k + 1) := Nat.choose_pos (by omega)
     omega
-  have hmid' : ∑ k ∈ range m, (if k + 1 = 0 ∨ k + 1 = m + 1 then 1 else (m + 1).choose (k + 1) - 1)
-      + m = ∑ k ∈ range m, (m + 1).choose (k + 1) := by
+  have hmid' : (∑ k ∈ range m, T (m + 1) (k + 1)) + m = ∑ k ∈ range m, (m + 1).choose (k + 1) := by
     rw [← sum_congr rfl hmid, sum_add_distrib, sum_const, card_range, smul_eq_mul, mul_one]
-    rfl
+  simp only [T] at hmid'
   omega
 
 /-- Kimberling's conjecture: the n-th iterate (counting 00 as the first) has A132045(n) letters. -/
