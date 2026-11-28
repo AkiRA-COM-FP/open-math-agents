@@ -5177,6 +5177,54 @@
     "https://oeis.org/A014143"
    ],
    "reason": "Mathar's 'conjecture' follows almost from the definitions. Column 1 of the Riordan array is x*C(x)/(1-x)^2, which is the definition of A014140 (Catalan numbers partial-summed twice) shifted by one. Column 2 is x^2*C(x)^2/(1-x)^2, and with C = 1 + x*C^2 this is A014143 shifted by two. The statement is faithful, and the numerics agree with the data; the flag is for triviality only."
+  },
+  "oeis-a236305": {
+   "date": "2026-11-28",
+   "pr": 23004,
+   "evidence": [
+    "https://oeis.org/A236305"
+   ],
+   "reason": "The disproof uses n = 1: a(1) = 4 but Baruchel's formula gives 1. I checked that his formula equals a(n-1) for every n from 1 to 199, and a(n) for none, so this is an offset slip (he likely worked from A256534(n+1)/4). The intended identity is untouched, and the entry's own correct formula uses c = n+1-2^b."
+  },
+  "oeis-a377110": {
+   "date": "2026-11-28",
+   "pr": 23136,
+   "evidence": [
+    "https://oeis.org/A377110"
+   ],
+   "reason": "The disproof refutes only the displayed period for p = 2: (4). Actually 2 | a(n) exactly for even n, so the gaps are all 2. My computation shows the printed period words belong to the wrong primes: (4) is the period for p = 3, the 'p = 3' word is the one for p = 5, the 'p = 5' word is the one for p = 11, and the 'p = 7' word is the one for p = 17. This is the same double Prime[] transcription bug noted for A377109. The main conjecture (every prime divides infinitely many terms, with eventually periodic gaps) is untouched."
+  },
+  "oeis-a347684": {
+   "date": "2026-11-28",
+   "pr": 22160,
+   "evidence": [
+    "https://oeis.org/A347684"
+   ],
+   "reason": "The disproof uses only the degenerate row n = 1 (j = i = 1). There every modular inverse mod 1 is 0, T(1,1) = 0 and T(1,k) = 1 for k >= 2, so no value of A347687(1,1) could work. Integer division gives 0, matching the listed data. I checked that Sloane's identity holds for every n from 2 to 59, i from 1 to n and j < 30. The substantive conjecture (n >= 2) is open and untouched; this exploits a trivial boundary row."
+  },
+  "oeis-a175368": {
+   "date": "2026-11-28",
+   "pr": 21720,
+   "evidence": [
+    "https://oeis.org/A175368"
+   ],
+   "reason": "Trivial. The g.f. of the number of integer 4-tuples with |x|^3+|y|^3+|z|^3+|u|^3 = n is by definition theta(x)^4 with theta = 1+2 sum x^(j^3). The box -n..n is automatic, since |x|^3 <= n forces |x| <= n. The 'conjectured' g.f. follows directly from the definition, and the proof is just this coefficient comparison."
+  },
+  "oeis-a238879": {
+   "date": "2026-11-28",
+   "pr": 21525,
+   "evidence": [
+    "https://oeis.org/A238879"
+   ],
+   "reason": "Stephan's formula is stated with the printed indices, and as the statement's own docstring notes, those are one too low against the entry's data: a(2) = 2 but Catalan(1) = 1. The disproof uses only this index slip. The shifted identity a(2n) = C(n+1), a(2n+1) = A002054(n+1) fits all listed terms and remains unaddressed."
+  },
+  "oeis-a068073": {
+   "date": "2026-11-28",
+   "pr": 21712,
+   "evidence": [
+    "https://oeis.org/A068073"
+   ],
+   "reason": "Barry's formula is stated literally, with n where k was clearly meant in the summand, so the sum is (n+1) times a sign. The disproof (n = 3 gives -4, not 2) exploits only this typo. The statement's docstring itself notes that the k-version holds for n < 400. The intended identity is untouched."
   }
  },
  "known": {
@@ -11480,6 +11528,59 @@
     "https://oeis.org/A158460"
    ],
    "reason": "The entry itself proves the last-digit claim in the comment right after the conjecture ('This is so because ...': squares mod 10, then p+6 prime rules out a final digit 9). The remaining twin step is immediate (p+4 is a multiple of 5, so prime(k) = p+2). The formalization is faithful, but the claim is a trivial observation that the source already settles."
+  },
+  "oeis-a383250": {
+   "date": "2026-11-28",
+   "pr": 23203,
+   "evidence": [
+    "https://oeis.org/A383250",
+    "https://www.overleaf.com/read/xztfqhxspjcr#67e2ba"
+   ],
+   "reason": "The statement (the terms of A342045 are exactly the A383250 set) is faithful. The OEIS entry already records it as a theorem, by Quinn Savitt (Apr 29 2025), with a linked formal proof. The proof file also says it is adapted from the site's earlier A383246 proof."
+  },
+  "oeis-a090524": {
+   "date": "2026-11-28",
+   "pr": 23111,
+   "evidence": [
+    "https://oeis.org/A090524",
+    "https://oeis.org/A090523"
+   ],
+   "reason": "'No term is zero' is stated faithfully. It was already settled in the sister entry A090523: Franklin T. Adams-Watters (Jul 28 2011) gives the Bertrand argument (a prime p in (n!/4, n!/2] makes floor(n!/p) equal to 2 or 3), which is exactly the proof used here."
+  },
+  "oeis-a400216": {
+   "date": "2026-11-28",
+   "pr": 22990,
+   "evidence": [
+    "https://oeis.org/A400216",
+    "https://github.com/the-omega-institute/trureturing/pull/10219",
+    "https://github.com/the-omega-institute/trureturing/issues/10182"
+   ],
+   "reason": "Kagey's x-coordinate g.f. is stated faithfully. It was already proved in Lean in the-omega-institute/trureturing, PR #10219 'Prove OEIS A400216-A400218 tetrahelix generating functions' (merged 2026-09-26; D5/S1/Recurrence/BoerdijkCoxeterGeneratingFunctions.lean, theorem result, which covers the x, y and z series). The site's proof landed on 2026-11-28."
+  },
+  "oeis-a006172": {
+   "date": "2026-11-28",
+   "pr": 21909,
+   "evidence": [
+    "https://oeis.org/A006172"
+   ],
+   "reason": "The statement says Plouffe's g.f. is wrong and Berselli's is right, which is faithful. The entry already settles both: Hendel's Feb 2015 comments derive the order-5 recurrence and Berselli's g.f. by annihilators, and observe that Plouffe's P(x) = (H(x)-4)/x is the g.f. of the shifted sequence. The proof repeats that computation."
+  },
+  "oeis-a126198": {
+   "date": "2026-11-28",
+   "pr": 21631,
+   "evidence": [
+    "https://oeis.org/A126198",
+    "https://oeis.org/A007059",
+    "https://oeis.org/A039671"
+   ],
+   "reason": "Jeffery's conjecture (row sums of T equal A039671) is stated faithfully. It is immediate from the source: Ollerton's comment in A007059 already says the postage-stamp entry F(n,m) counts the ordered ways to make n from parts at most m, i.e. T(n,m). A039671 is the diagonal row sum of F, and F(n,0) = 0. The proof only re-derives the standard bounded-part composition recursion."
+  },
+  "oeis-a400217": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/pull/10219"
+   ],
+   "reason": "Already proved in Lean in trureturing PR #10219 (merged 2026-09-26), which covers the x, y and z series of the helix (A400216-A400218)."
   }
  },
  "reviewed": "2026-11-28"
