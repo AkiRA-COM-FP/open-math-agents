@@ -7,7 +7,7 @@ namespace OMA.R_Erdos89_erdos_89_R1_H2_R1
 
 /-- Packing for squarefree diagonal forms. Count disjoint collinear k-point
 blocks using all form values realized on their union, including cross-block
-differences. Assume any k lines cover less than half the union and its squared
+differences. Assume any k lines cover less than half the union and, after each nonzero integral similarity below, its squared
 horizontal span exceeds d times its vertical span times k when its height is positive.
 The constant is independent of the form and the block size. -/
 def H1 : Prop :=
@@ -19,8 +19,10 @@ def H1 : Prop :=
       (∀ T ∈ G, T ⊆ F.biUnion id ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
       2*(G.biUnion id).card < (F.biUnion id).card) →
     (let S := F.biUnion id
-     (∀ p ∈ S, ∀ t ∈ S, p.2 < t.2 →
-      ∃ z ∈ S, ∃ u ∈ S, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)) →
+     (∀ a b : ℤ, (a ≠ 0 ∨ b ≠ 0) →
+      let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
+      ∀ p ∈ R, ∀ t ∈ R, p.2 < t.2 →
+        ∃ z ∈ R, ∃ u ∈ R, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)) →
     let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
     F.card ≤ C * (((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card+1)
 
@@ -366,23 +368,70 @@ private theorem two_extreme_rows_bound (K : ℕ) (hK : 0 < K) (d : ℤ) (hd : 0 
     _ ≤ _ := add_le_add hP hT
     _ = _ := by ring
 
-/-- Two rows certify the packing bound for a union of disjoint equal-size blocks. -/
-private theorem narrow_packing (d : ℤ) (hd : 0 < d) (k : ℕ) (hk : 0 < k)
+/-- Multiplication by a nonzero integral element scales all values of the diagonal
+form by its positive norm, preserving both cardinalities. -/
+private theorem tilted_values (d a b : ℤ) (hd : 0 < d) (hab : a ≠ 0 ∨ b ≠ 0)
+    (S : Finset (ℤ × ℤ)) :
+    let f := fun p : ℤ × ℤ => (a*p.1-d*b*p.2, b*p.1+a*p.2)
+    let q := fun z : ℤ × ℤ => z.1^2+d*z.2^2
+    let V := fun T : Finset (ℤ × ℤ) => T.offDiag.image fun xy => q (xy.1-xy.2)
+    (S.image f).card = S.card ∧ (V (S.image f)).card = (V S).card := by
+  classical
+  intro f q V
+  let m := a^2+d*b^2
+  have hm : 0 < m := by dsimp [m]; rcases hab with ha|hb <;> positivity
+  have scale (p r : ℤ × ℤ) : q (f p-f r) = m*q (p-r) := by
+    dsimp [q,f,m]; ring
+  have inj : Function.Injective f := by
+    intro p r h
+    have hx := congrArg Prod.fst h
+    have hy := congrArg Prod.snd h
+    dsimp [f] at hx hy
+    have e₁ : m*(p.1-r.1)=0 := by dsimp [m]; linear_combination a*hx+d*b*hy
+    have e₂ : m*(p.2-r.2)=0 := by dsimp [m]; linear_combination a*hy-b*hx
+    exact Prod.ext (sub_eq_zero.mp ((mul_eq_zero.mp e₁).resolve_left hm.ne'))
+      (sub_eq_zero.mp ((mul_eq_zero.mp e₂).resolve_left hm.ne'))
+  refine ⟨card_image_of_injective _ inj,?_⟩
+  have hv : V (S.image f) = (V S).image (m * ·) := by
+    ext v
+    constructor
+    · intro h
+      obtain ⟨⟨p,r⟩,hpr,rfl⟩ := mem_image.mp h
+      obtain ⟨hp,hr,hne⟩ := mem_offDiag.mp hpr
+      obtain ⟨p,hp0,rfl⟩ := mem_image.mp hp
+      obtain ⟨r,hr0,rfl⟩ := mem_image.mp hr
+      exact mem_image.mpr ⟨q (p-r),mem_image.mpr ⟨(p,r),
+        mem_offDiag.mpr ⟨hp0,hr0,fun he => hne (congrArg f he)⟩,rfl⟩,(scale p r).symm⟩
+    · intro h
+      obtain ⟨v,hv,rfl⟩ := mem_image.mp h
+      obtain ⟨⟨p,r⟩,hpr,rfl⟩ := mem_image.mp hv
+      obtain ⟨hp,hr,hne⟩ := mem_offDiag.mp hpr
+      exact mem_image.mpr ⟨(f p,f r),mem_offDiag.mpr ⟨mem_image_of_mem _ hp,
+        mem_image_of_mem _ hr,inj.ne hne⟩,scale p r⟩
+  rw [hv,card_image_of_injective _ (mul_right_injective₀ hm.ne')]
+
+/-- Two rows certify the packing bound for a union of disjoint equal-size blocks after an integral similarity. -/
+private theorem narrow_packing (d a b : ℤ) (hd : 0 < d) (hab : a ≠ 0 ∨ b ≠ 0) (k : ℕ) (hk : 0 < k)
     (F : Finset (Finset (ℤ × ℤ))) (hdis : (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id)
     (hcard : ∀ T ∈ F, T.card = k) :
     let S := F.biUnion id
-    ∀ p ∈ S, ∀ t ∈ S, p.2 < t.2 →
-      (∀ z ∈ S, ∀ u ∈ S, (z.1-u.1)^2 ≤ d*(t.2-p.2)*k) →
+    let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
+    ∀ p ∈ R, ∀ t ∈ R, p.2 < t.2 →
+      (∀ z ∈ R, ∀ u ∈ R, (z.1-u.1)^2 ≤ d*(t.2-p.2)*k) →
       F.card ≤ 4*(S.offDiag.image fun xy => (fun z : ℤ × ℤ => z.1^2+d*z.2^2) (xy.1-xy.2)).card := by
   classical
-  intro S p hp t ht hpt hw
+  intro S R p hp t ht hpt hw
   have hsize : S.card = F.card*k := by
     dsimp [S]; rw [card_biUnion hdis]
     calc
       _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => hcard T hT
       _ = _ := by simp
-  have h := two_extreme_rows_bound k hk d hd S p t hp ht hpt hw
-  rw [hsize] at h
+  obtain ⟨hc,hv⟩ := tilted_values d a b hd hab S
+  have h := two_extreme_rows_bound k hk d hd R p t hp ht hpt hw
+  change (S.image _).card ≤ _ at h
+  rw [hc,hsize] at h
+  change F.card*k ≤ 4*k*((S.image _).offDiag.image _).card at h
+  rw [hv] at h
   apply Nat.le_of_mul_le_mul_right _ hk
   simpa only [Nat.mul_right_comm 4 k] using h
 
@@ -404,13 +453,18 @@ private theorem packing_from_width (packing : H1) :
   let S := F.biUnion id
   let D := (S.offDiag.image fun xy => q (xy.1-xy.2)).card
   change F.card ≤ max C 4 * (D+1)
-  by_cases hw : (∀ p ∈ S, ∀ t ∈ S, p.2 < t.2 →
-      ∃ z ∈ S, ∃ u ∈ S, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)
+  by_cases hw : (∀ a b : ℤ, (a ≠ 0 ∨ b ≠ 0) →
+      let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
+      ∀ p ∈ R, ∀ t ∈ R, p.2 < t.2 →
+        ∃ z ∈ R, ∃ u ∈ R, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)
   · exact (pack d k F hd hsq hk hdis hline hsize hspread hw).trans
       (Nat.mul_le_mul_right _ (le_max_left C 4))
   push Not at hw
-  obtain ⟨p,hp,t,ht,hpt,hwidth⟩ := hw
-  have h : F.card ≤ 4*D := narrow_packing d (by exact_mod_cast hd) k hk F hdis
+  obtain ⟨a,b,hab,hbad⟩ := hw
+  dsimp only at hbad
+  push Not at hbad
+  obtain ⟨p,hp,t,ht,hpt,hwidth⟩ := hbad
+  have h : F.card ≤ 4*D := narrow_packing d a b (by exact_mod_cast hd) hab k hk F hdis
     (fun T hT => (hline T hT).1) p hp t ht hpt hwidth
   exact h.trans (Nat.mul_le_mul (le_max_right C 4) (Nat.le_succ D))
 
