@@ -14,15 +14,15 @@ def H1 : Prop :=
   ∀ (f : ℕ → Metric.sphere (0 : ℂ) 1) (C : ℝ), 0 < C →
     (∀ d ≥ 1, ∀ m ≥ 1, ‖∑ k ∈ Finset.Icc 1 m, (f (k * d)).1‖ ≤ C) →
     ∃ B : ℝ, ∀ N : ℕ, ∃ μ : ProbabilityMeasure (ℕ → Metric.sphere (0 : ℂ) 1),
-      ∀ n ≤ N, (∫ z, ‖∑ j ∈ Finset.Icc 1 n,
-        ∏ p ∈ j.primeFactors, (z p).1 ^ j.factorization p‖ ^ 2 ∂(μ : Measure _)) ≤ B
+      ∀ n ≤ N, (∫ z : (ℕ → Metric.sphere (0 : ℂ) 1), ‖∑ j ∈ Finset.Icc 1 n,
+        ∏ p ∈ j.primeFactors, (z p).1 ^ j.factorization p‖ ^ 2 ∂(μ : Measure (ℕ → Metric.sphere (0 : ℂ) 1))) ≤ B
 
 /-- The stochastic discrepancy theorem for completely multiplicative functions,
 with the probability law expressed in prime coordinates. -/
 def H2 : Prop :=
   ∀ (μ : ProbabilityMeasure (ℕ → Metric.sphere (0 : ℂ) 1)) (B : ℝ), ∃ n : ℕ,
-    B < ∫ z, ‖∑ j ∈ Finset.Icc 1 n,
-      ∏ p ∈ j.primeFactors, (z p).1 ^ j.factorization p‖ ^ 2 ∂(μ : Measure _)
+    B < ∫ z : (ℕ → Metric.sphere (0 : ℂ) 1), ‖∑ j ∈ Finset.Icc 1 n,
+      ∏ p ∈ j.primeFactors, (z p).1 ^ j.factorization p‖ ^ 2 ∂(μ : Measure (ℕ → Metric.sphere (0 : ℂ) 1))
 
 /-- Closed moment constraints that can be met up to each finite horizon can
 all be met by the same point of a compact space. -/
@@ -55,7 +55,7 @@ theorem main : H1 → H2 → type_of% @Erdos67.erdos_67.variants.complex := by
     ⟨fun z => ‖∑ j ∈ Finset.Icc 1 n,
       ∏ p ∈ j.primeFactors, (z p).1 ^ j.factorization p‖ ^ 2, by fun_prop⟩
   let M (n : ℕ) (μ : ProbabilityMeasure (ℕ → Metric.sphere (0 : ℂ) 1)) :=
-    ∫ z, energy n z ∂(μ : Measure _)
+    ∫ z : (ℕ → Metric.sphere (0 : ℂ) 1), energy n z ∂(μ : Measure (ℕ → Metric.sphere (0 : ℂ) 1))
   have cont (n : ℕ) : Continuous (M n) :=
     ProbabilityMeasure.continuous_integral_continuousMap (energy n)
   obtain ⟨μ, hμ⟩ := exists_uniform_law M cont B hB
