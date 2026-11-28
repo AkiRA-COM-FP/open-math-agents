@@ -20,3 +20,4 @@ theorem main : H1 → H2 → type_of% @Erdos556.erdos_556.variants.kss_large_odd
       (fun n hn hodd => le_antisymm (hn.1 hodd) (hn.2 hodd))
 
 end OMA.R_Erdos556_erdos_556_variants_kss_large_odd_R1
+-- ci: re-run check-proof
