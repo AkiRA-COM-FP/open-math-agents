@@ -366,3 +366,5 @@ end Erdos357EpochAssembly
 
 theorem OMA.solution : OMA.R_Erdos357_erdos_357_variants_infinite_set_sum_R1.H1 :=
   Erdos357EpochAssembly.analytic_step
+
+-- Re-run after the reduction R1 merged upstream.
