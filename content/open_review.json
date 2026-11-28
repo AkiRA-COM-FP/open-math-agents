@@ -9085,6 +9085,354 @@
     "https://oeis.org/A254702/b254702.txt"
    ],
    "note": "Barker's g.f. with (1-x)^8 and order-8 recurrence (n >= 9) for length-8 arrays over 0..n where every 5-window has a 2|3 split. My count over ordered set partitions reproduces the data (86, 1140, ..., 3282224) and exactly Barker's numerator. Routine. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "mo-359937": {
+   "date": "2026-11-28",
+   "pr": 10339,
+   "routine": true,
+   "evidence": [
+    "https://mathoverflow.net/questions/359937",
+    "https://mathoverflow.net/a/359955",
+    "https://mathoverflow.net/questions/359937",
+    "https://mathoverflow.net/a/359955"
+   ],
+   "note": "This is the revised (Edit 2) question: irreducible plus the cubic row/column identities imply equal nonzero absolute values. Disproof: the Householder matrix 2J/n - I (n>=3, n!=4) is orthogonal and dense. Its entrywise cube lies in span{I,J}, so the identities hold, but |2/n-1| != 2/n. Correct and faithful; no one in the thread gave it. Elementary. Second review: A clean explicit counterexample (dense Householder reflection 2J/n - I, n=3 suffices) to the open re-asked question. The proof claims to cover all n>=3 except n=4. It is a finite check once the example is found."
+  },
+  "mo-371405": {
+   "date": "2026-11-28",
+   "pr": 25795,
+   "routine": false,
+   "evidence": [
+    "https://mathoverflow.net/questions/371405",
+    "https://arxiv.org/abs/2607.16940",
+    "https://mathoverflow.net/questions/371405"
+   ],
+   "note": "MO has no answers. The comments give only the form (geometric sum)^2+2x^n (Alekseyev, which matches the stated coefficients) and the Cafure-Cesaratto reduction (Sil); kodlu checked n<=660 numerically. The proof shows the trace polynomial irreducible via an f^2+2 factorization argument over Z[sqrt(-2)]. Searches (MO/MSE, Palomar, recent arXiv including Dilcher-Kim-Stolarsky 2607.16940, which treats different polynomials) found no prior proof. Second review: A genuine general proof (f^2+2 irreducibility via Z[sqrt(-2)] factorization for a Chebyshev-type trace polynomial with distinct real roots, plus the Cafure-Cesaratto criterion). The proof credits Alekseyev's and Sil's MO comments for the reduction, and those are only partial. No prior settlement found."
+  },
+  "oeis-a264596": {
+   "date": "2026-11-28",
+   "pr": 24618,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A264596",
+    "https://oeis.org/A293290",
+    "https://oeis.org/A264596",
+    "https://oeis.org/A264596/b264596.txt",
+    "https://oeis.org/A293290"
+   ],
+   "note": "Yanev's 2017 conjecture a(n) = n(n+3)/2 - v2(A293290(n)) for n > 0 is encoded faithfully (reversed binary words, 0 as [0], List.Lex, S_n = {0..n}); the definition reproduces the whole b-file (n = 0..599) and the identity holds against the b-file up to n = 2999. The proof derives Heinz's recurrence from the lexicographic definition and a recursion for the row sums of v2(k^2+j^2). trureturing mentions A264596 only in a different A030101 identity; no prior proof found. Second review: Yanev's 2017 conjectured formula for the reversed-binary sort position, now proved via the 2-adic valuation of k^2+j^2 and Heinz's recurrence. No prior proof found anywhere. The argument is elementary but not a pure recurrence identity."
+  },
+  "oeis-a266221": {
+   "date": "2026-11-28",
+   "pr": 22095,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266221",
+    "https://oeis.org/A266221/b266221.txt",
+    "https://oeis.org/A266221",
+    "https://oeis.org/A266221/b266221.txt"
+   ],
+   "note": "Elementary Rule 7 total ON cells, Barker's conjectures: closed form (n>0, since it fails at n=0), recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 7 (total ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. The site adds n>0 to the closed form because the entry formula is false at n=0. This is the only correct reading, not a weakening that the proof exploits."
+  },
+  "oeis-a266222": {
+   "date": "2026-11-28",
+   "pr": 22093,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266222",
+    "https://oeis.org/A266222/b266222.txt",
+    "https://oeis.org/A266222",
+    "https://oeis.org/A266222/b266222.txt"
+   ],
+   "note": "Elementary Rule 7 OFF cells, Barker's conjectures: closed form for n>1, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 7 (OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266223": {
+   "date": "2026-11-28",
+   "pr": 22153,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266223",
+    "https://oeis.org/A266223/b266223.txt",
+    "https://oeis.org/A266223",
+    "https://oeis.org/A266223/b266223.txt"
+   ],
+   "note": "Elementary Rule 7 total OFF cells, Barker's conjectures: closed form for n>0, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 7 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266256": {
+   "date": "2026-11-28",
+   "pr": 22097,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266256",
+    "https://oeis.org/A266256/b266256.txt",
+    "https://oeis.org/A266256",
+    "https://oeis.org/A266256/b266256.txt"
+   ],
+   "note": "Elementary Rule 11 ON cells, Barker's conjectures: closed form for n>0, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 11 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266257": {
+   "date": "2026-11-28",
+   "pr": 22136,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266257",
+    "https://oeis.org/A266257/b266257.txt",
+    "https://oeis.org/A266257",
+    "https://oeis.org/A266257/b266257.txt"
+   ],
+   "note": "Elementary Rule 11 total ON cells, Barker's conjectures: closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 11 (total ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266258": {
+   "date": "2026-11-28",
+   "pr": 22122,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266258",
+    "https://oeis.org/A266258/b266258.txt",
+    "https://oeis.org/A266258",
+    "https://oeis.org/A266258/b266258.txt"
+   ],
+   "note": "Elementary Rule 11 OFF cells, Barker's conjectures: closed form for n>0, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 11 (OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266259": {
+   "date": "2026-11-28",
+   "pr": 22137,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266259",
+    "https://oeis.org/A266259/b266259.txt",
+    "https://oeis.org/A266259",
+    "https://oeis.org/A266259/b266259.txt"
+   ],
+   "note": "Elementary Rule 11 total OFF cells, Barker's conjectures: closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 11 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266303": {
+   "date": "2026-11-28",
+   "pr": 22130,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266303",
+    "https://oeis.org/A266303/b266303.txt",
+    "https://oeis.org/A266303",
+    "https://oeis.org/A266303/b266303.txt"
+   ],
+   "note": "Elementary Rule 15 ON cells, Barker's conjectures: closed form for all n, recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 15 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266304": {
+   "date": "2026-11-28",
+   "pr": 22131,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266304",
+    "https://oeis.org/A266304/b266304.txt",
+    "https://oeis.org/A266304",
+    "https://oeis.org/A266304/b266304.txt"
+   ],
+   "note": "Elementary Rule 15 total OFF cells, Barker's conjectures: closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 15 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266327": {
+   "date": "2026-11-28",
+   "pr": 22381,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266327",
+    "https://oeis.org/A266327/b266327.txt",
+    "https://oeis.org/A266327",
+    "https://oeis.org/A266327/b266327.txt"
+   ],
+   "note": "Elementary Rule 20 row (binary digits), Barker's conjectures: closed form 6-5(-1)^n, a(n)=a(n-2) for n>1 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 20 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266437": {
+   "date": "2026-11-28",
+   "pr": 22132,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266437",
+    "https://oeis.org/A266437/b266437.txt",
+    "https://oeis.org/A266437",
+    "https://oeis.org/A266437/b266437.txt"
+   ],
+   "note": "Elementary Rule 23 ON cells, Barker's conjectures: De Vlieger's empirical g.f., Barker's closed form for n>0 and recurrence for n>4. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 23 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266439": {
+   "date": "2026-11-28",
+   "pr": 22143,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266439",
+    "https://oeis.org/A266439/b266439.txt",
+    "https://oeis.org/A266439",
+    "https://oeis.org/A266439/b266439.txt"
+   ],
+   "note": "Elementary Rule 23 OFF cells, Barker's conjectures: closed form for n>0, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 23 (OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. Note A266439(n)=A266222(n) for n>1 (Mathar), but it is a different sequence and a separate site id, not a duplicate statement."
+  },
+  "oeis-a266440": {
+   "date": "2026-11-28",
+   "pr": 22151,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266440",
+    "https://oeis.org/A266440/b266440.txt",
+    "https://oeis.org/A266440",
+    "https://oeis.org/A266440/b266440.txt"
+   ],
+   "note": "Elementary Rule 23 total OFF cells, Barker's conjectures: closed form for all n, recurrence for n>4 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 23 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266592": {
+   "date": "2026-11-28",
+   "pr": 22477,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266592",
+    "https://oeis.org/A266592/b266592.txt",
+    "https://oeis.org/A266592",
+    "https://oeis.org/A266592/b266592.txt"
+   ],
+   "note": "Elementary Rule 37 middle column (binary digits), Barker's conjectures: closed form for n>0, recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 37 (middle column read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266593": {
+   "date": "2026-11-28",
+   "pr": 22159,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266593",
+    "https://oeis.org/A266593/b266593.txt",
+    "https://oeis.org/A266593",
+    "https://oeis.org/A266593/b266593.txt"
+   ],
+   "note": "Elementary Rule 37 ON cells, Barker's conjectures: closed form for n>1, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 37 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266596": {
+   "date": "2026-11-28",
+   "pr": 22202,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266596",
+    "https://oeis.org/A266596/b266596.txt",
+    "https://oeis.org/A266596",
+    "https://oeis.org/A266596/b266596.txt"
+   ],
+   "note": "Elementary Rule 37 total OFF cells, Barker's conjectures: closed form for n>0, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 37 (total OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266606": {
+   "date": "2026-11-28",
+   "pr": 22574,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266606",
+    "https://oeis.org/A266606/b266606.txt",
+    "https://oeis.org/A266606",
+    "https://oeis.org/A266606/b266606.txt"
+   ],
+   "note": "Elementary Rule 39 row (binary digits), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 39 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. The entry history records that an unjustified claim that these conjectures were proved was removed, so there is no prior proof."
+  },
+  "oeis-a266662": {
+   "date": "2026-11-28",
+   "pr": 22142,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266662",
+    "https://oeis.org/A266662/b266662.txt",
+    "https://oeis.org/A266662",
+    "https://oeis.org/A266662/b266662.txt"
+   ],
+   "note": "Elementary Rule 47 ON cells, Barker's conjectures: closed form for n>1, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 47 (ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. A266662=A266256 for n>1 (Mathar): different sequence, not a duplicate."
+  },
+  "oeis-a266663": {
+   "date": "2026-11-28",
+   "pr": 22154,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266663",
+    "https://oeis.org/A266663/b266663.txt",
+    "https://oeis.org/A266663",
+    "https://oeis.org/A266663/b266663.txt"
+   ],
+   "note": "Elementary Rule 47 total ON cells, Barker's conjectures: closed form for n>0, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 47 (total ON cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266664": {
+   "date": "2026-11-28",
+   "pr": 22155,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266664",
+    "https://oeis.org/A266664/b266664.txt",
+    "https://oeis.org/A266664",
+    "https://oeis.org/A266664/b266664.txt"
+   ],
+   "note": "Elementary Rule 47 OFF cells, Barker's conjectures: closed form for n>1, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 47 (OFF cells), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established. A266664=A266258 for n>1 (Mathar): different sequence, not a duplicate."
+  },
+  "oeis-a266670": {
+   "date": "2026-11-28",
+   "pr": 22554,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266670",
+    "https://oeis.org/A266670/b266670.txt",
+    "https://oeis.org/A266670",
+    "https://oeis.org/A266670/b266670.txt"
+   ],
+   "note": "Elementary Rule 53 row (binary digits), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 53 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266717": {
+   "date": "2026-11-28",
+   "pr": 22560,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266717",
+    "https://oeis.org/A266717/b266717.txt",
+    "https://oeis.org/A266717",
+    "https://oeis.org/A266717/b266717.txt"
+   ],
+   "note": "Elementary Rule 59 row (binary digits), Barker's conjectures: recurrence for n>6 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 59 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266849": {
+   "date": "2026-11-28",
+   "pr": 22368,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266849",
+    "https://oeis.org/A266849/b266849.txt",
+    "https://oeis.org/A266849",
+    "https://oeis.org/A266849/b266849.txt"
+   ],
+   "note": "Elementary Rule 71 row (binary digits), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 71 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266850": {
+   "date": "2026-11-28",
+   "pr": 22467,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266850",
+    "https://oeis.org/A266850/b266850.txt",
+    "https://oeis.org/A266850",
+    "https://oeis.org/A266850/b266850.txt"
+   ],
+   "note": "Elementary Rule 71 row (decimal), Barker's conjectures: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 71 (row read in decimal), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266872": {
+   "date": "2026-11-28",
+   "pr": 22546,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266872",
+    "https://oeis.org/A266872/b266872.txt",
+    "https://oeis.org/A266872",
+    "https://oeis.org/A266872/b266872.txt"
+   ],
+   "note": "Elementary Rule 77 row (binary digits), Barker's conjectures: recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 77 (row read as binary digits), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
+  },
+  "oeis-a266873": {
+   "date": "2026-11-28",
+   "pr": 22528,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266873",
+    "https://oeis.org/A266873/b266873.txt",
+    "https://oeis.org/A266873",
+    "https://oeis.org/A266873/b266873.txt"
+   ],
+   "note": "Elementary Rule 77 row (decimal), Barker's conjectures: closed form for all n, recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word, and every conjecture of the entry's formula section is included. The Z-indexed definition evolves the background (Wolfram's CellularAutomaton[rule,{{1},0}] convention, window -n..n) and reproduces the whole b-file in my simulation; every stated identity holds numerically to n = 150. No prior proof found in the entry, trureturing, thatnealpatel/proofs, openai/math, Palomar or Epoch's OEIS Open. Second review: Barker's empirical formulas for Rule 77 (row read in decimal), proved from the eventually periodic row shape. No prior proof found by A-number or by rule number. Routine once the row shape is established."
   }
  },
  "flagged": {
@@ -20884,6 +21232,14 @@
     "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Analysis/A189786Refutation.lean"
    ],
    "reason": "Dale's conjecture (values = positive evens not of the form 8x+6) is formalized faithfully. The entry already has R. J. Mathar's comment (Aug 25 2025) that a(143)=382 occurs, and 382 = 8*47+6, so it was refuted before the PR. thatnealpatel/proofs also has a Lean refutation (Oct 2026). The site proof uses a(350)=934 and itself notes Mathar's a(143)."
+  },
+  "oeis-a265210": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A265210",
+    "https://arxiv.org/abs/1307.1188"
+   ],
+   "reason": "Second review: Both parts of the conjecture follow directly from the classical fact that 2 is a primitive root mod 3^k (LeVeque). They are spelled out, up to the one-line minimality step for the single digit, in de Faria and Tresser (2013), two years before the OEIS conjecture. The site proof is correct, but this is essentially a known/folklore result, not a new resolution."
   }
  },
  "reviewed": "2026-11-28"
