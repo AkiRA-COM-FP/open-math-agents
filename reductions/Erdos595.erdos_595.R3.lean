@@ -184,6 +184,88 @@ theorem combine_painters {I K : Type} [LinearOrder I] (part : I → K)
       cases i <;> cases j <;> cases k <;> decide
     exact impossible _ _ _ dab dac dbc
 
+open Filter
+
+/-- A family of bounded natural numbers is constant on a member of an
+ultrafilter. The bound can be different for each Painter decision. -/
+private theorem bounded_value {A : Type} (u : Ultrafilter A) (v : A → ℕ) (n : ℕ)
+    (h : ∀ᶠ t in u, v t ≤ n) : ∃ k ≤ n, ∀ᶠ t in u, v t = k := by
+  induction n with
+  | zero => exact ⟨0,by omega,h.mono (fun _ ht => by omega)⟩
+  | succ n ih =>
+    have cases' : ∀ᶠ t in u, v t ≤ n ∨ v t = n+1 := h.mono fun _ ht => by omega
+    rcases Ultrafilter.eventually_or.mp cases' with low | top
+    · obtain ⟨k,hk,eq⟩ := ih low
+      exact ⟨k,by omega,eq⟩
+    · exact ⟨n+1,le_rfl,top⟩
+
+/-- Prefix Painters need not agree on common histories. They give a global
+Painter exactly when they can be chosen with one finite bound per decision,
+independent of the cutoff. No uniform bound across decisions is required. -/
+theorem prefix_budget_iff {I : Type} [LinearOrder I] [Nonempty I] :
+    let safe := fun (p : I → Set (I × I) → I → ℕ) (c : I) =>
+      ∀ (G : SimpleGraph I), G.CliqueFree 4 → ∀ a b,
+        a < b → b < c → G.Adj a b → G.Adj a c → G.Adj b c →
+        let past := fun j => {q : I × I | q.1 ≤ j ∧ q.2 ≤ j ∧ G.Adj q.1 q.2}
+        p b (past b) a = p c (past c) a → p b (past b) a ≠ p c (past c) b
+    (∃ p, ∀ c, safe p c) ↔ ∃ budget : I → Set (I × I) → I → ℕ,
+      ∀ t : I, ∃ p, (∀ j ≤ t, ∀ s i, p j s i ≤ budget j s i) ∧ ∀ c ≤ t, safe p c := by
+  classical
+  intro safe
+  constructor
+  · rintro ⟨p,win⟩
+    exact ⟨p,fun _ => ⟨p,fun _ _ _ _ => le_rfl,fun c _ => win c⟩⟩
+  · rintro ⟨budget,h⟩
+    choose rule bound ok using h
+    let u := Ultrafilter.of (Filter.atTop : Filter I)
+    have tail (i : I) : ∀ᶠ t in u, i ≤ t := Ultrafilter.of_le _ (Filter.eventually_ge_atTop i)
+    have stable (j : I) (s : Set (I × I)) (i : I) :=
+      bounded_value u (fun t => rule t j s i) (budget j s i)
+        ((tail j).mono fun t hj => bound t j hj s i)
+    let p j s i := (stable j s i).choose
+    have agree (j s i) : ∀ᶠ t in u, rule t j s i = p j s i := (stable j s i).choose_spec.2
+    refine ⟨p,?_⟩
+    intro c G legal a b ab bc eab eac ebc past x y
+    obtain ⟨t,ht,h₁,h₂,h₃⟩ :=
+      ((tail c).and ((agree b (past b) a).and ((agree c (past c) a).and (agree c (past c) b)))).exists
+    exact ok t c ht G legal a b ab bc eab eac ebc
+      (h₁.trans (x.trans h₂.symm)) (h₁.trans (y.trans h₃.symm))
+
+/-- A test names a legal play and three chronologically ordered vertices.
+For a fixed budget, finite simultaneous satisfiability suffices, even when
+different tests use different plays but share decisions on identical prefixes. -/
+theorem finite_triangle_tests {I : Type} [LinearOrder I]
+    (budget : I → Set (I × I) → I → ℕ) :
+    let bounded := fun (p : I → Set (I × I) → I → ℕ) => ∀ j s i, p j s i ≤ budget j s i
+    let passes := fun (p : I → Set (I × I) → I → ℕ) (t : SimpleGraph I × I × I × I) =>
+      let (G,a,b,c) := t
+      G.CliqueFree 4 → a < b → b < c → G.Adj a b → G.Adj a c → G.Adj b c →
+        let past := fun j => {q : I × I | q.1 ≤ j ∧ q.2 ≤ j ∧ G.Adj q.1 q.2}
+        p b (past b) a = p c (past c) a → p b (past b) a ≠ p c (past c) b
+    (∀ S : Finset (SimpleGraph I × I × I × I), ∃ p, bounded p ∧ ∀ t ∈ S, passes p t) ↔
+      ∃ p, bounded p ∧ ∀ t, passes p t := by
+  classical
+  intro bounded passes
+  constructor
+  · intro finiteOK
+    choose rule cap ok using finiteOK
+    let T := SimpleGraph I × I × I × I
+    let u := Ultrafilter.of (Filter.atTop : Filter (Finset T))
+    have stable (j : I) (s : Set (I × I)) (i : I) :=
+      bounded_value u (fun S => rule S j s i) (budget j s i)
+        (Filter.Eventually.of_forall fun S => cap S j s i)
+    let p j s i := (stable j s i).choose
+    have agree (j s i) : ∀ᶠ S in u, rule S j s i = p j s i := (stable j s i).choose_spec.2
+    refine ⟨p,fun j s i => (stable j s i).choose_spec.1,?_⟩
+    rintro ⟨G,a,b,c⟩ legal ab bc eab eac ebc past x y
+    have fine : ∀ᶠ (S : Finset T) in u, (G,a,b,c) ∈ S :=
+      Ultrafilter.of_le _ (Filter.eventually_finset_mem_atTop _)
+    obtain ⟨S,mem,h₁,h₂,h₃⟩ :=
+      (fine.and ((agree b (past b) a).and ((agree c (past c) a).and (agree c (past c) b)))).exists
+    exact ok S _ mem legal ab bc eab eac ebc (h₁.trans (x.trans h₂.symm)) (h₁.trans (y.trans h₃.symm))
+  · rintro ⟨p,cap,ok⟩
+    exact fun _ => ⟨p,cap,fun t _ => ok t⟩
+
 /-- Simultaneously realize all legal presentations, identifying the vertex at
 a stage whenever the entire revealed history at that stage is identical. -/
 def H2 : Prop :=
