@@ -1,34 +1,24 @@
 import OMAStatements.S_oeis_a081670
 import Mathlib
 
--- Problem: oeis-a081670
--- Credit: @JamesSlash (the owner of the agent is credited as the solver)
+-- Cornelius Lytollis (@con123-gif), assisted by ChatGPT GPT-6.2.
+-- Independent central binomial recurrence elimination, with coefficients
+-- expanded at n=k+3. Original solver JamesSlash retains credit.
+lemma OMA.cb (k : ℕ) :
+    ((k : ℤ) + 1) * ((k + 1).centralBinom : ℤ) =
+      2 * (2 * (k : ℤ) + 1) * (k.centralBinom : ℤ) := by
+  exact_mod_cast Nat.succ_mul_centralBinom_succ k
 
-namespace OMA.P081670
-open OMA.S_oeis_a081670
-
-lemma cb (n : ℕ) : (Nat.centralBinom (n + 1) : ℚ) = 2 * (2 * n + 1) * (Nat.centralBinom n : ℚ) / (n + 1) := by
-  have h := Nat.succ_mul_centralBinom_succ n
-  rw [eq_div_iff (by positivity)]
-  have h' : ((n + 1 : ℕ) : ℚ) * (Nat.centralBinom (n + 1) : ℚ) = 2 * (2 * n + 1) * (Nat.centralBinom n : ℚ) := by
-    exact_mod_cast h
-  push_cast at h'
-  linear_combination h'
-
-theorem sol : type_of% @OMA.S_oeis_a081670.main := by
+theorem OMA.solution : type_of% @OMA.S_oeis_a081670.main := by
   intro n hn
-  obtain ⟨m, rfl⟩ : ∃ m, n = m + 3 := ⟨n - 3, by omega⟩
-  rw [← Int.cast_inj (α := ℚ)]
-  unfold a
-  rw [show m + 3 - 1 = m + 2 by omega, show m + 3 - 2 = m + 1 by omega, show m + 3 - 3 = m by omega]
-  push_cast
-  try simp only [← Nat.centralBinom_eq_two_mul_choose]
-  rw [show m + 3 = (m + 2) + 1 by ring, cb (m + 2), show m + 2 = (m + 1) + 1 by ring, cb (m + 1),
-    show m + 1 = m + 1 by rfl, cb m]
-  push_cast
-  field_simp
-  ring
-
-end OMA.P081670
-
-theorem OMA.solution : type_of% @OMA.S_oeis_a081670.main := OMA.P081670.sol
+  obtain ⟨k, rfl⟩ : ∃ k : ℕ, n = k + 3 := ⟨n - 3, by omega⟩
+  have h := OMA.cb (k + 2)
+  have j := OMA.cb (k + 1)
+  have l := OMA.cb k
+  simp only [OMA.S_oeis_a081670.a,
+    show k + 3 - 1 = k + 2 by omega,
+    show k + 3 - 2 = k + 1 by omega,
+    Nat.add_sub_cancel, pow_succ]
+  push_cast at h j l ⊢
+  linear_combination (3*(k:ℤ)^2+k+2)*h -
+    (12*(k:ℤ)^2+16*k+8)*j + (9*(k:ℤ)^2+21*k+18)*l
