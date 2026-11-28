@@ -14,6 +14,8 @@ open OMA.R_arxiv_2604_17847_R1 (finite_prime_cover_iff fixed_rank_family totient
 def H1 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
     ¬ pisano q ∣ 96 → 48 < r → (Odd r → 4 * q < Nat.fib r) →
+    (∀ m : Fin (q * rankOfApparition q), 0 < m.val → m.val ≡ r [MOD pisano q] →
+      q ∣ (Nat.fib m.val / Nat.fib (r.gcd (pisano q))).totient) →
     let g := r.gcd (pisano q)
     ¬ q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
       ¬ rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t ∧
@@ -23,6 +25,8 @@ def H1 : Prop :=
 def H2 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
     ¬ pisano q ∣ 96 → 48 < r → (Odd r → 4 * q < Nat.fib r) →
+    (∀ m : Fin (q * rankOfApparition q), 0 < m.val → m.val ≡ r [MOD pisano q] →
+      q ∣ (Nat.fib m.val / Nat.fib (r.gcd (pisano q))).totient) →
     let g := r.gcd (pisano q)
     q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
       ¬ q ∣ t ∧
@@ -742,6 +746,126 @@ lemma large_residue_of_failed_descent {q r : ℕ} (hq : q.Prime) (hl : 53 < q) (
   obtain ⟨rfl,rfl⟩ := (positive_through_48 hq hl (Nat.pos_of_ne_zero hz) hb).mp good
   exact hbad descent_at_1103
 
+lemma rank_dvd_period_of_pos {q : ℕ} (hP : 0 < pisano q) : rankOfApparition q ∣ pisano q := by
+  have periodic : 0 < pisano q ∧ ∀ n : ℕ, Nat.fib (n + pisano q) ≡ Nat.fib n [MOD q] :=
+    Nat.sInf_mem (Nat.nonempty_of_pos_sInf (s := {k : ℕ | 0 < k ∧ ∀ n : ℕ, Nat.fib (n+k) ≡ Nat.fib n [MOD q]}) hP)
+  have atP : q ∣ Nat.fib (pisano q) := Nat.modEq_zero_iff_dvd.mp (by simpa using periodic.2 0)
+  exact rank_dvd_iff_fib.mpr atP
+
+-- The recurrence at four times the first zero gives a period, uniformly in q.
+lemma period_le_four_rank {q : ℕ} (hP : 0 < pisano q) :
+    pisano q ≤ 4 * rankOfApparition q := by
+  let z := rankOfApparition q
+  have hz : 0 < z := Nat.pos_of_dvd_of_pos (rank_dvd_period_of_pos hP) hP
+  have first := fib_at_rank q
+  have twice := first.trans (Nat.fib_dvd _ _ (dvd_mul_left z 2))
+  have fourth := twice.trans (Nat.fib_dvd _ _ (dvd_mul_left (2*z) 2))
+  have zero := (ZMod.natCast_eq_zero_iff ..).mpr first
+  have zero2 := (ZMod.natCast_eq_zero_iff ..).mpr twice
+  have det := congrArg (fun x : ZMod q => x^2) (signed_cassini q z)
+  change (((Nat.fib (z+1) : ZMod q)^2 - (Nat.fib z : ZMod q) * Nat.fib (z+1) - (Nat.fib z : ZMod q)^2)^2) = _ at det
+  change (Nat.fib z : ZMod q) = 0 at zero
+  have sign : (((-1 : ZMod q)^z)^2) = 1 := by
+    rw [← pow_mul, Nat.mul_comm z 2, pow_mul, neg_one_sq, one_pow]
+  have one : ((Nat.fib (z+1) : ZMod q)^2)^2 = 1 := by
+    simpa [zero, sign] using det
+  have ret : Nat.fib (2*(2*z)+1) ≡ 1 [MOD q] := by
+    apply (ZMod.natCast_eq_natCast_iff ..).mp
+    simpa [Nat.fib_two_mul_add_one, Nat.cast_add, Nat.cast_pow, zero2, zero] using one
+  have alln (n : ℕ) : Nat.fib (n+2*(2*z)) ≡ Nat.fib n [MOD q] := by
+    induction n using Nat.twoStepInduction with
+    | zero => simpa using Nat.modEq_zero_iff_dvd.mpr fourth
+    | one => simpa [Nat.add_comm] using ret
+    | more n h0 h1 =>
+      rw [show n+2+2*(2*z) = (n+2*(2*z))+2 by omega, Nat.fib_add_two, Nat.fib_add_two]
+      simpa only [show n+1+2*(2*z) = n+2*(2*z)+1 by omega] using h0.add h1
+  change sInf {k : ℕ | 0 < k ∧ ∀ n, Nat.fib (n+k) ≡ Nat.fib n [MOD q]} ≤ 4*z
+  rw [show 4*z = 2*(2*z) by omega]
+  exact Nat.sInf_le ⟨by omega, alln⟩
+
+lemma first_square_after_period {q : ℕ} (hq : q.Prime) (hl : 4 < q) (hP : 0 < pisano q)
+    (absent : ¬ q ∣ (Nat.fib (pisano q)).totient) :
+    rankOfApparition (q^2) = q * rankOfApparition q ∧ pisano q < q * rankOfApparition q := by
+  have rank := rank_dvd_period_of_pos hP
+  have noSquare : ¬ q^2 ∣ Nat.fib (rankOfApparition q) := fun h =>
+    absent ((totient_witness_iff hq hP).mpr (Or.inl (h.trans (Nat.fib_dvd _ _ rank))))
+  exact ⟨by rw [square_rank hq, if_neg noSquare], (period_le_four_rank hP).trans_lt
+    (Nat.mul_lt_mul_of_pos_right hl (Nat.pos_of_dvd_of_pos rank hP))⟩
+
+-- Every early representative of a good class needs a prime outside the common factor.
+lemma early_quotient_witness {q r m : ℕ} (hq : q.Prime) (hl : 4 < q) (good : r ∈ S q)
+    (absent : ¬ q ∣ (Nat.fib (pisano q)).totient) (hm : 0 < m)
+    (early : m < q * rankOfApparition q) (cong : m ≡ r [MOD pisano q]) :
+    ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ p ∣ Nat.fib m / Nat.fib (r.gcd (pisano q)) := by
+  let g := r.gcd (pisano q)
+  have hP := Nat.zero_lt_of_lt good.1
+  rcases (totient_witness_iff hq hm).mp (good.2 m cong) with square | ⟨p,hp,hc,divides⟩
+  · have bound := Nat.le_of_dvd hm (rank_dvd_iff_fib.mpr square)
+    rw [(first_square_after_period hq hl hP absent).1] at bound
+    omega
+  · have base : ¬ p ∣ Nat.fib g := fun h => absent ((totient_witness_iff hq hP).mpr
+        (Or.inr ⟨p,hp,hc,h.trans (Nat.fib_dvd _ _ (Nat.gcd_dvd_right _ _))⟩))
+    have prod := Nat.mul_div_cancel' (Nat.fib_dvd _ _ (gcd_dvd_class cong))
+    exact ⟨p,hp,hc,(hp.dvd_mul.mp (prod.symm ▸ divides : p ∣ Nat.fib g * (Nat.fib m / Nat.fib g))).resolve_left base⟩
+
+lemma early_quotient_test {q r : ℕ} (hq : q.Prime) (hl : 4 < q) (good : r ∈ S q)
+    (absent : ¬ q ∣ (Nat.fib (pisano q)).totient) :
+    ∀ m : Fin (q * rankOfApparition q), 0 < m.val → m.val ≡ r [MOD pisano q] →
+      q ∣ (Nat.fib m.val / Nat.fib (r.gcd (pisano q))).totient := by
+  intro m pos cong
+  obtain ⟨p,hp,hc,divides⟩ := early_quotient_witness hq hl good absent pos m.isLt cong
+  have pred : q ∣ p.totient := by rw [Nat.totient_prime hp]; exact hc.symm.dvd'
+  exact pred.trans (Nat.totient_dvd_of_dvd divides)
+
+-- Consecutive representatives have gcd equal to the common index. Their two
+-- quotient witnesses must therefore be different primes.
+lemma consecutive_early_witnesses {q r m : ℕ} (hq : q.Prime) (hl : 4 < q)
+    (good : r ∈ S q) (absent : ¬ q ∣ (Nat.fib (pisano q)).totient) (hm : 0 < m)
+    (early : m + pisano q < q * rankOfApparition q) (cong : m ≡ r [MOD pisano q]) :
+    ∃ p s : ℕ, p ≠ s ∧ p.Prime ∧ s.Prime ∧ p ≡ 1 [MOD q] ∧ s ≡ 1 [MOD q] ∧
+      p ∣ Nat.fib m ∧ s ∣ Nat.fib (m+pisano q) := by
+  let P := pisano q
+  let g := r.gcd P
+  have hP := Nat.zero_lt_of_lt good.1
+  have next : m+P ≡ r [MOD P] := (Nat.add_modEq_right (a := m) (n := P)).trans cong
+  obtain ⟨p,hp,cp,dp⟩ := early_quotient_witness hq hl good absent hm (by omega) cong
+  obtain ⟨s,hs,cs,ds⟩ := early_quotient_witness hq hl good absent (Nat.add_pos_left hm _) early next
+  have left := dp.trans (Nat.div_dvd_of_dvd (Nat.fib_dvd _ _ (gcd_dvd_class cong)))
+  have right := ds.trans (Nat.div_dvd_of_dvd (Nat.fib_dvd _ _ (gcd_dvd_class next)))
+  refine ⟨p,s,?_,hp,hs,cp,cs,left,right⟩
+  intro eq
+  rw [← eq] at right
+  have common := Nat.dvd_gcd left right
+  rw [← Nat.fib_gcd, Nat.gcd_self_add_right] at common
+  have atP := common.trans (Nat.fib_dvd _ _ (Nat.gcd_dvd_right m P))
+  exact absent ((totient_witness_iff hq hP).mpr (Or.inr ⟨p,hp,cp,atP⟩))
+
+-- Already the first two positive representatives force a square in a totient
+-- at their common multiple, although q does not divide the totient at P.
+lemma square_totient_at_first_lcm {q r : ℕ} (hq : q.Prime) (hl : 8 < q)
+    (good : r ∈ S q) (absent : ¬ q ∣ (Nat.fib (pisano q)).totient) :
+    q^2 ∣ (Nat.fib (r.lcm (r+pisano q))).totient := by
+  have hP := Nat.zero_lt_of_lt good.1
+  have positive : 0 < r := by
+    by_contra! h
+    have zero : r = 0 := by omega
+    subst r
+    exact absent (good.2 _ (Nat.modEq_zero_iff_dvd.mpr (dvd_refl _)))
+  have bound := period_le_four_rank hP
+  have zpos : 0 < rankOfApparition q := by omega
+  have later := Nat.mul_lt_mul_of_pos_right hl zpos
+  have early : r + pisano q < q * rankOfApparition q := by have := good.1; omega
+  obtain ⟨p,s,distinct,hp,hs,cp,cs,left,right⟩ :=
+    consecutive_early_witnesses hq (by omega) good absent positive early (Nat.ModEq.refl _)
+  have cop := (Nat.coprime_primes hp hs).mpr distinct
+  have product := cop.mul_dvd_of_dvd_of_dvd
+    (left.trans (Nat.fib_dvd _ _ (Nat.dvd_lcm_left r (r+pisano q))))
+    (right.trans (Nat.fib_dvd _ _ (Nat.dvd_lcm_right r (r+pisano q))))
+  have both : q^2 ∣ (p*s).totient := by
+    rw [pow_two, Nat.totient_mul cop, Nat.totient_prime hp, Nat.totient_prime hs]
+    exact Nat.mul_dvd_mul cp.symm.dvd' cs.symm.dvd'
+  exact both.trans (Nat.totient_dvd_of_dvd product)
+
 theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H1 := by
   intro first second q r hq hlarge hr _
   have hP := Nat.zero_lt_of_lt hr.1
@@ -758,11 +882,11 @@ theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H1 := by
   have large (h : Odd r) := odd_totient_lower_bound hq (by omega) h (hr.2 r rfl)
   have sieve (t : ℕ) := witness_sieve_iff (t := t) hq hP (Nat.gcd_dvd_right r _) hbad
   by_cases hd : q ∣ Nat.fib (r.gcd (pisano q))
-  · obtain ⟨t, ht, hc, hs, hp⟩ := second q r hq hlarge hr.1 hbad outside (large_residue_of_failed_descent hq hlarge hr hbad) large hd
+  · obtain ⟨t, ht, hc, hs, hp⟩ := second q r hq hlarge hr.1 hbad outside (large_residue_of_failed_descent hq hlarge hr hbad) large (early_quotient_test hq (by omega) hr hbad) hd
     have hg := Nat.gcd_pos_of_pos_right r hP
     have no := mt (prime_dvd_quotient_iff hq hg hd t).mp hs
     exact fail t ht hc ⟨by simpa only [if_pos hd] using no, (sieve t).mpr hp⟩
-  · obtain ⟨t, ht, hc, hs, hp⟩ := first q r hq hlarge hr.1 hbad outside (large_residue_of_failed_descent hq hlarge hr hbad) large hd
+  · obtain ⟨t, ht, hc, hs, hp⟩ := first q r hq hlarge hr.1 hbad outside (large_residue_of_failed_descent hq hlarge hr hbad) large (early_quotient_test hq (by omega) hr hbad) hd
     have no := mt (square_quotient_test (t := t) hq (Nat.gcd_pos_of_pos_right r hP) hd).mp hs
     exact fail t ht hc ⟨by simpa only [if_neg hd] using no, (sieve t).mpr hp⟩
 
@@ -782,13 +906,13 @@ lemma quotient_problems_of_cover (cover : OMA.R_arxiv_2604_17847_R1.H1) : H1 ∧
     obtain ⟨t, ht, hc, he⟩ := exception_multiplier missing
     exact ⟨t, ht, hc, (quotient_exception_iff hq hP (Nat.gcd_dvd_right r _) ht hbad).mp he⟩
   constructor
-  · intro q r hq hl hr hbad _ _ _
+  · intro q r hq hl hr hbad _ _ _ _
     dsimp only
     intro hd
     obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
     rw [if_neg hd, square_quotient_test hq (Nat.gcd_pos_of_pos_right r (Nat.zero_lt_of_lt hr)) hd] at hs
     exact ⟨t, ht, hc, hs, (witness_sieve_iff hq (Nat.zero_lt_of_lt hr) (Nat.gcd_dvd_right r _) hbad).mp hp⟩
-  · intro q r hq hl hr hbad _ _ _
+  · intro q r hq hl hr hbad _ _ _ _
     dsimp only
     intro hd
     obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
