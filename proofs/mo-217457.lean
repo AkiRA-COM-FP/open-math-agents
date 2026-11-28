@@ -3,14 +3,19 @@ import OMAStatements.S_mo_217457
 /-!
 # The determinants of the three-seasonal risk model (MathOverflow 217457)
 
-The source asks whether `D (n + 1) > D n > 0` for every `n`.
+The statement asks, for every joint law of three claims with `0 < s 0 < 1`, whether the determinants
+`D n = α n * β (n + 1) - β n * α (n + 1)` are positive and strictly increasing (and whether the determinants
+with the rows `n` and `n + 2` are negative and strictly decreasing).
 
-* `OMA.disproof`: as literally posed, the strict claim fails. If two of the three variables vanish
-  almost surely and the third one is a fair coin, then `D 1 = D 0 = 1`.
-* `OMA.pos_mono`: what is true for independent variables with `s 0 > 0`, in full generality, is
-  `0 < D n` and `D n ≤ D (n + 1)` for every `n`.
+* `OMA.disproof`: this fails already for independent claims. If the first claim is a fair coin and the
+  other two claims vanish, then `D 1 = D 0 = 1`.
+* `OMA.core`: what is true for independent claims, in full generality. If `a`, `b`, `c` are the local
+  probabilities of three independent claims (nonnegative, partial sums at most one, positive at zero), `s` is
+  their convolution and `α`, `β` satisfy the two recurrences of the source, then `0 < D n` and
+  `D n ≤ D (n + 1)` for every `n`. So for independent claims the strict claim can only fail in the weak
+  form `D (n + 1) = D n`.
 
-Idea of the proof of `OMA.pos_mono`. With `F(z)` the matrix of the three generating functions, arranged
+Idea of the proof of `OMA.core`. With `F(z)` the matrix of the three generating functions, arranged
 cyclically, the two sequences of the source are differences of the entries of the first row of the
 coefficients of `(F(z) - z)⁻¹`; in terms of the walk that runs through the claims in the reverse order, these
 are the values `h n` of the harmonic function that starts from `(1, 0, 0)` on level zero, and
@@ -959,235 +964,42 @@ theorem core (H : Hyp a b c)
 
 end link
 
-section wrapper
-
-open MeasureTheory OMA.S_mo_217457
-
-lemma alpha_succ3 (a b c s : ℕ → ℝ) (m : ℕ) :
-    alpha a b c s (m + 3) = 1 / s 0 * (alpha a b c s m - a (m + 1) -
-      ∑ k : Fin (m + 2), s (k.val + 1) * alpha a b c s (m + 2 - k.val)) := by
-  rw [alpha]
-
-lemma beta_succ3 (a b c s : ℕ → ℝ) (m : ℕ) :
-    S_mo_217457.beta a b c s (m + 3) = 1 / s 0 * (S_mo_217457.beta a b c s m -
-      ∑ k : Fin (m + 2), s (k.val + 1) * S_mo_217457.beta a b c s (m + 2 - k.val) -
-      a (m + 1) * c 0 + c 0 * ∑ k ∈ Finset.range (m + 3), a k * b (m + 2 - k)) := by
-  rw [S_mo_217457.beta]
-
-/-- the sums of the recurrences, indexed as in the source -/
-lemma sum_fin_eq_Ico (F : ℕ → ℝ) (G : ℕ → ℝ) (m : ℕ) :
-    ∑ k : Fin (m + 2), F (k.val + 1) * G (m + 2 - k.val) = ∑ k ∈ Ico 1 (m + 3), F k * G (m + 3 - k) := by
-  rw [Finset.sum_Ico_eq_sum_range, Fin.sum_univ_eq_sum_range (fun k => F (k + 1) * G (m + 2 - k))]
-  refine Finset.sum_congr rfl fun k hk => ?_
-  rw [Finset.mem_range] at hk
-  rw [show 1 + k = k + 1 by omega, show m + 3 - (k + 1) = m + 2 - k by omega]
-
-lemma alpha_rec (a b c s : ℕ → ℝ) (n : ℕ) (hn : 3 ≤ n) :
-    alpha a b c s n = 1 / s 0 * (alpha a b c s (n - 3) - a (n - 2) -
-      ∑ k ∈ Ico 1 n, s k * alpha a b c s (n - k)) := by
-  obtain ⟨m, rfl⟩ : ∃ m, n = m + 3 := ⟨n - 3, by omega⟩
-  rw [alpha_succ3, sum_fin_eq_Ico]
-  rfl
-
-lemma beta_rec (a b c s : ℕ → ℝ) (n : ℕ) (hn : 3 ≤ n) :
-    S_mo_217457.beta a b c s n = 1 / s 0 * (S_mo_217457.beta a b c s (n - 3) -
-      ∑ k ∈ Ico 1 n, s k * S_mo_217457.beta a b c s (n - k) -
-      a (n - 2) * c 0 + c 0 * ∑ k ∈ range n, a k * b (n - 1 - k)) := by
-  obtain ⟨m, rfl⟩ : ∃ m, n = m + 3 := ⟨n - 3, by omega⟩
-  rw [beta_succ3, sum_fin_eq_Ico]
-  rfl
-
-variable {Ω : Type} [MeasurableSpace Ω] {P : Measure Ω} [IsProbabilityMeasure P]
-
-lemma pmf_sum_le {X : Ω → ℕ} (hX : Measurable X) (m : ℕ) :
-    ∑ k ∈ range m, P.real {ω | X ω = k} ≤ 1 := by
-  have h := sum_measureReal_preimage_singleton (μ := P) (range m) (f := X)
-    (fun y _ => hX (measurableSet_singleton y))
-  have e : ∀ k, {ω | X ω = k} = X ⁻¹' {k} := fun k => rfl
-  simp only [e]
-  rw [h]
-  exact measureReal_le_one
-
-/-- the law of the sum of two independent variables -/
-lemma conv_two {U V : Ω → ℕ} (hU : Measurable U) (hV : Measurable V) (h : ProbabilityTheory.IndepFun U V P) (n : ℕ) :
-    P.real {ω | U ω + V ω = n} =
-      ∑ p ∈ antidiagonal n, P.real {ω | U ω = p.1} * P.real {ω | V ω = p.2} := by
-  have hset : {ω | U ω + V ω = n} =
-      ⋃ p ∈ antidiagonal n, ({ω | U ω = p.1} ∩ {ω | V ω = p.2}) := by
-    ext ω
-    constructor
-    · intro h
-      exact Set.mem_iUnion₂.2 ⟨(U ω, V ω), Finset.HasAntidiagonal.mem_antidiagonal.2 h, rfl, rfl⟩
-    · intro h
-      obtain ⟨p, hp, h1, h2⟩ := Set.mem_iUnion₂.1 h
-      have h3 := Finset.HasAntidiagonal.mem_antidiagonal.1 hp
-      have h1' : U ω = p.1 := h1
-      have h2' : V ω = p.2 := h2
-      show U ω + V ω = n
-      rw [h1', h2']; exact h3
-  rw [hset, measureReal_biUnion_finset]
-  · refine Finset.sum_congr rfl fun p _ => ?_
-    have := h.measure_inter_preimage_eq_mul {p.1} {p.2} (measurableSet_singleton _)
-      (measurableSet_singleton _)
-    have e : {ω | U ω = p.1} ∩ {ω | V ω = p.2} = U ⁻¹' {p.1} ∩ V ⁻¹' {p.2} := rfl
-    rw [e, Measure.real, this, ENNReal.toReal_mul]
-    rfl
-  · intro p _ q _ hpq
-    simp only [Function.onFun]
-    rw [Set.disjoint_left]
-    rintro ω ⟨h1, h2⟩ ⟨h3, h4⟩
-    exact hpq (Prod.ext (h1.symm.trans h3) (h2.symm.trans h4))
-  · intro p _
-    exact (hU (measurableSet_singleton _)).inter (hV (measurableSet_singleton _))
-
-variable {X₁ X₂ X₃ : Ω → ℕ}
-
-/-- the law of the sum of the three variables is the convolution of the three laws -/
-lemma conv_three (h₁ : Measurable X₁) (h₂ : Measurable X₂) (h₃ : Measurable X₃)
-    (hind : ProbabilityTheory.iIndepFun ![X₁, X₂, X₃] P) (n : ℕ) :
-    P.real {ω | X₁ ω + X₂ ω + X₃ ω = n} =
-      PowerSeries.coeff n (PowerSeries.mk (fun k => P.real {ω | X₁ ω = k}) *
-        PowerSeries.mk (fun k => P.real {ω | X₂ ω = k}) *
-        PowerSeries.mk (fun k => P.real {ω | X₃ ω = k})) := by
-  have hmeas : ∀ i, Measurable (![X₁, X₂, X₃] i) := by
-    intro i; fin_cases i <;> simpa
-  have i12 : ProbabilityTheory.IndepFun X₁ X₂ P := hind.indepFun (i := 0) (j := 1) (by decide)
-  have i123 : ProbabilityTheory.IndepFun (fun ω => X₁ ω + X₂ ω) X₃ P :=
-    hind.indepFun_add_left hmeas 0 1 2 (by decide) (by decide)
-  have e3 := conv_two (U := fun ω => X₁ ω + X₂ ω) (V := X₃) (h₁.add h₂) h₃ i123 n
-  have e2 : ∀ m, P.real {ω | X₁ ω + X₂ ω = m} =
-      ∑ p ∈ antidiagonal m, P.real {ω | X₁ ω = p.1} * P.real {ω | X₂ ω = p.2} :=
-    fun m => conv_two h₁ h₂ i12 m
-  have e3' : P.real {ω | X₁ ω + X₂ ω + X₃ ω = n} =
-      ∑ p ∈ antidiagonal n, P.real {ω | X₁ ω + X₂ ω = p.1} * P.real {ω | X₃ ω = p.2} := e3
-  rw [e3', PowerSeries.coeff_mul]
-  refine Finset.sum_congr rfl fun p _ => ?_
-  rw [e2, PowerSeries.coeff_mul]
-  simp only [PowerSeries.coeff_mk]
-
-/-- the standing assumptions hold for the local probabilities -/
-lemma hyp_of (h₁ : Measurable X₁) (h₂ : Measurable X₂) (h₃ : Measurable X₃)
-    (hind : ProbabilityTheory.iIndepFun ![X₁, X₂, X₃] P) (hs : 0 < P.real {ω | X₁ ω + X₂ ω + X₃ ω = 0}) :
-    Hyp (fun k => P.real {ω | X₁ ω = k}) (fun k => P.real {ω | X₂ ω = k})
-      (fun k => P.real {ω | X₃ ω = k}) := by
-  have e := conv_three h₁ h₂ h₃ hind 0
-  simp only [PowerSeries.coeff_zero_eq_constantCoeff, map_mul, PowerSeries.constantCoeff_mk] at e
-  rw [e] at hs
-  have n1 : 0 ≤ P.real {ω | X₁ ω = 0} := measureReal_nonneg
-  have n2 : 0 ≤ P.real {ω | X₂ ω = 0} := measureReal_nonneg
-  have n3 : 0 ≤ P.real {ω | X₃ ω = 0} := measureReal_nonneg
-  have p1 : 0 < P.real {ω | X₁ ω = 0} := by
-    rcases n1.eq_or_lt with h | h
-    · rw [← h] at hs; simp at hs
-    · exact h
-  have p2 : 0 < P.real {ω | X₂ ω = 0} := by
-    rcases n2.eq_or_lt with h | h
-    · rw [← h] at hs; simp at hs
-    · exact h
-  have p3 : 0 < P.real {ω | X₃ ω = 0} := by
-    rcases n3.eq_or_lt with h | h
-    · rw [← h] at hs; simp at hs
-    · exact h
-  exact ⟨fun _ => measureReal_nonneg, fun _ => measureReal_nonneg, fun _ => measureReal_nonneg,
-    pmf_sum_le h₁, pmf_sum_le h₂, pmf_sum_le h₃, p1, p2, p3⟩
-
-/-- **For independent claims the determinants of the source are positive and do not decrease.** -/
-theorem pos_mono (h₁ : Measurable X₁) (h₂ : Measurable X₂) (h₃ : Measurable X₃)
-    (hind : ProbabilityTheory.iIndepFun ![X₁, X₂, X₃] P) (hs : 0 < P.real {ω | X₁ ω + X₂ ω + X₃ ω = 0}) (n : ℕ) :
-    0 < D (fun k => P.real {ω | X₁ ω = k}) (fun k => P.real {ω | X₂ ω = k})
-        (fun k => P.real {ω | X₃ ω = k}) (fun k => P.real {ω | X₁ ω + X₂ ω + X₃ ω = k}) n ∧
-      D (fun k => P.real {ω | X₁ ω = k}) (fun k => P.real {ω | X₂ ω = k})
-        (fun k => P.real {ω | X₃ ω = k}) (fun k => P.real {ω | X₁ ω + X₂ ω + X₃ ω = k}) n ≤
-      D (fun k => P.real {ω | X₁ ω = k}) (fun k => P.real {ω | X₂ ω = k})
-        (fun k => P.real {ω | X₃ ω = k}) (fun k => P.real {ω | X₁ ω + X₂ ω + X₃ ω = k}) (n + 1) := by
-  have H := hyp_of h₁ h₂ h₃ hind hs
-  have := core (a := fun k => P.real {ω | X₁ ω = k}) (b := fun k => P.real {ω | X₂ ω = k})
-    (c := fun k => P.real {ω | X₃ ω = k}) (fun k => P.real {ω | X₁ ω + X₂ ω + X₃ ω = k})
-    (alpha (fun k => P.real {ω | X₁ ω = k}) (fun k => P.real {ω | X₂ ω = k})
-      (fun k => P.real {ω | X₃ ω = k}) (fun k => P.real {ω | X₁ ω + X₂ ω + X₃ ω = k}))
-    (S_mo_217457.beta (fun k => P.real {ω | X₁ ω = k}) (fun k => P.real {ω | X₂ ω = k})
-      (fun k => P.real {ω | X₃ ω = k}) (fun k => P.real {ω | X₁ ω + X₂ ω + X₃ ω = k}))
-    H (conv_three h₁ h₂ h₃ hind)
-    (by rw [alpha]) (by rw [alpha]) (by rw [alpha]) (alpha_rec _ _ _ _)
-    (by rw [S_mo_217457.beta]) (by rw [S_mo_217457.beta]) (by rw [S_mo_217457.beta]) (beta_rec _ _ _ _) n
-  simpa only [D] using this
-
-end wrapper
-
 section counterexample
 
-open MeasureTheory OMA.S_mo_217457
+open OMA.S_mo_217457
 
-/-- three independent fair coins -/
-noncomputable def coins : Measure (Fin 3 → Bool) :=
-  Measure.pi fun _ => (PMF.uniformOfFintype Bool).toMeasure
+/-- the first claim is a fair coin, the other two claims vanish -/
+noncomputable def coinLaw : PMF Claims :=
+  (PMF.uniformOfFintype Bool).map fun x => ((if x then 1 else 0 : ℕ), ((0 : ℕ), (0 : ℕ)))
 
-/-- the first claim is the first coin, the other two claims vanish -/
-def Y₁ : (Fin 3 → Bool) → ℕ := fun ω => if ω 0 then 1 else 0
+lemma coin_total : mass coinLaw total 0 = 2⁻¹ := by
+  simp [mass, coinLaw, PMF.map_comp, PMF.map_apply, total, Function.comp_def, tsum_fintype]
 
-def Y₀ : (Fin 3 → Bool) → ℕ := fun _ => 0
+lemma coin_snd : mass coinLaw (fun v => v.2.1) 0 = 1 := by
+  have : (fun v : Claims => v.2.1) ∘ (fun x : Bool => ((if x then 1 else 0 : ℕ), ((0 : ℕ), (0 : ℕ)))) =
+      Function.const Bool 0 := rfl
+  simp [mass, coinLaw, PMF.map_comp, this]
 
-lemma coins_prob : IsProbabilityMeasure coins := by
-  unfold coins; infer_instance
+lemma coin_thd : mass coinLaw (fun v => v.2.2) 0 = 1 := by
+  have : (fun v : Claims => v.2.2) ∘ (fun x : Bool => ((if x then 1 else 0 : ℕ), ((0 : ℕ), (0 : ℕ)))) =
+      Function.const Bool 0 := rfl
+  simp [mass, coinLaw, PMF.map_comp, this]
 
-lemma Y₁_meas : Measurable Y₁ :=
-  (measurable_of_countable fun b : Bool => if b then 1 else 0).comp (measurable_pi_apply 0)
+lemma coin_det_zero : detAt coinLaw 1 0 = 1 := by
+  simp [detAt, S_mo_217457.alpha, S_mo_217457.beta, seq]
 
-lemma Y_indep : ProbabilityTheory.iIndepFun ![Y₁, Y₀, Y₀] coins := by
-  have e : (![Y₁, Y₀, Y₀] : Fin 3 → (Fin 3 → Bool) → ℕ) = fun i ω =>
-      (![fun b : Bool => if b then 1 else 0, fun _ => 0, fun _ => 0] : Fin 3 → Bool → ℕ) i (ω i) := by
-    funext i
-    fin_cases i <;> rfl
-  rw [e]
-  exact ProbabilityTheory.iIndepFun_pi (fun i => (measurable_of_countable _).aemeasurable)
-
-/-- the first coin shows tails with probability one half -/
-lemma coins_zero : coins {ω | Y₁ ω = 0} = 2⁻¹ := by
-  have e : {ω : Fin 3 → Bool | Y₁ ω = 0} =
-      (Function.eval (0 : Fin 3) : (Fin 3 → Bool) → Bool) ⁻¹' ({false} : Set Bool) := by
-    ext ω
-    show (if ω 0 = true then 1 else 0 : ℕ) = 0 ↔ ω 0 = false
-    cases ω 0 <;> simp
-  have mp := measurePreserving_eval (fun _ : Fin 3 => (PMF.uniformOfFintype Bool).toMeasure) 0
-  rw [e, coins, mp.measure_preimage (measurableSet_singleton false).nullMeasurableSet,
-    PMF.toMeasure_apply_singleton _ _ (measurableSet_singleton false), PMF.uniformOfFintype_apply]
-  simp
+lemma coin_det_one : detAt coinLaw 1 (0 + 1) = 1 := by
+  simp [detAt, S_mo_217457.alpha, S_mo_217457.beta, seq, coin_snd, coin_thd]
 
 end counterexample
 
 end OMA
 
-/-- **The strict claim of the source fails** when two of the three variables vanish: then `D 1 = D 0`.
-(For independent variables the determinants are nevertheless positive and never decrease: `OMA.pos_mono`.) -/
+/-- **The claim of the source fails**, already for independent claims: for a fair coin and two claims
+that vanish, `D 1 = D 0`. (What holds for all independent claims is `OMA.core`.) -/
 theorem OMA.disproof : ¬ (type_of% @OMA.S_mo_217457.main) := by
   intro h
-  have := OMA.coins_prob
-  have hz := OMA.coins_zero
-  have hz' : OMA.coins.real {ω | OMA.Y₁ ω = 0} = 2⁻¹ := by
-    rw [MeasureTheory.Measure.real, hz]; simp
-  have hs : {ω : Fin 3 → Bool | OMA.Y₁ ω + OMA.Y₀ ω + OMA.Y₀ ω = 0} = {ω | OMA.Y₁ ω = 0} := by
-    ext ω; simp [OMA.Y₀]
-  have hu : OMA.coins.real {ω : Fin 3 → Bool | OMA.Y₀ ω = 0} = 1 := by
-    have : {ω : Fin 3 → Bool | OMA.Y₀ ω = 0} = Set.univ := by ext ω; simp [OMA.Y₀]
-    rw [this]; exact MeasureTheory.probReal_univ
-  have key := h (Fin 3 → Bool) OMA.coins OMA.Y₁ OMA.Y₀ OMA.Y₀ OMA.Y₁_meas measurable_const
-    measurable_const OMA.Y_indep (by rw [hs, hz']; norm_num)
-    (by
-      rintro ⟨h1, -, -⟩
-      rw [hz] at h1
-      norm_num at h1) 0
-  have d0 : OMA.S_mo_217457.D (fun k => OMA.coins.real {ω | OMA.Y₁ ω = k})
-      (fun k => OMA.coins.real {ω | OMA.Y₀ ω = k}) (fun k => OMA.coins.real {ω | OMA.Y₀ ω = k})
-      (fun k => OMA.coins.real {ω | OMA.Y₁ ω + OMA.Y₀ ω + OMA.Y₀ ω = k}) 0 = 1 := by
-    rw [OMA.S_mo_217457.D, OMA.S_mo_217457.alpha, OMA.S_mo_217457.alpha, OMA.S_mo_217457.beta,
-      OMA.S_mo_217457.beta]
-    norm_num
-  have d1 : OMA.S_mo_217457.D (fun k => OMA.coins.real {ω | OMA.Y₁ ω = k})
-      (fun k => OMA.coins.real {ω | OMA.Y₀ ω = k}) (fun k => OMA.coins.real {ω | OMA.Y₀ ω = k})
-      (fun k => OMA.coins.real {ω | OMA.Y₁ ω + OMA.Y₀ ω + OMA.Y₀ ω = k}) (0 + 1) = 1 := by
-    rw [OMA.S_mo_217457.D, OMA.S_mo_217457.alpha, OMA.S_mo_217457.alpha, OMA.S_mo_217457.beta,
-      OMA.S_mo_217457.beta]
-    simp only [hu]
-    norm_num
-  rw [d0, d1] at key
-  exact lt_irrefl _ key.2
+  have hm := OMA.coin_total
+  have key := (h OMA.coinLaw (by rw [hm]; norm_num) (by rw [hm]; norm_num) 0).1.2
+  rw [OMA.coin_det_zero, OMA.coin_det_one] at key
+  exact lt_irrefl _ key
