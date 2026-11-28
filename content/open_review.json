@@ -10374,6 +10374,64 @@
     "https://mathoverflow.net/questions/266237"
    ],
    "reason": "For 'what is the distribution of d(sigma, tau)?' the statement offers P(d = j) as a weighted count of K x K contingency tables with margins m (weights = products of row multinomials, distance = min off-diagonal mass over column permutations). That is the definition regrouped by the overlap table, a standard double counting, with no closed form, asymptotics or structure. It goes no further than Ben Barber's comment, so it is a placeholder rather than an answer."
+  },
+  "Erdos142.erdos_142": {
+   "date": "2026-11-28",
+   "pr": 14031,
+   "evidence": [
+    "https://www.erdosproblems.com/142"
+   ],
+   "reason": "Question-value problem with a sorry answer; the supplied answer is log(sum over AP-free subsets of exp((N+1)^2)^|A|)/(N+1)^2, a soft-max that is just r_k(N) + O(N/(N+1)^2) by construction. This is a restatement of r_k(N), not an asymptotic formula, so the problem is not genuinely solved."
+  },
+  "arxiv-2101.11233": {
+   "date": "2026-11-28",
+   "pr": 27274,
+   "evidence": [
+    "https://arxiv.org/abs/2101.11233",
+    "https://arxiv.org/abs/2102.10940"
+   ],
+   "reason": "The statement matches Conjecture 3 of Mohr-Pardey-Rautenbach literally (|c(F')| <= (Δ(F)-1)/2), but the disproof is a pure parity triviality: in K_4 with a zero-sum labelling, the path P_4 has 3 edges, so its sum is odd and at least 1 > 1/2. Any forest with an odd number of edges and Δ <= 2 does the same, and the authors and the follow-up (arXiv:2102.10940) note that divisibility conditions are needed. This exploits a parity oversight in the literal wording and does not refute the intended conjecture."
+  },
+  "erdos-411": {
+   "date": "2026-11-28",
+   "pr": 14682,
+   "evidence": [
+    "https://www.erdosproblems.com/411",
+    "https://www.erdosproblems.com/forum/thread/411"
+   ],
+   "reason": "The statement takes Cambie's conjecture literally: g_{k+r}(n)=2g_k(n) for all large k iff r=2 and n=2^l p with p in {2,3,5,7,35,47}. Since only large k matter, the solution set is closed under g-preimages. The disproof just uses n=18, where g(18)=24=2^3*3 is already a solution, so the eventual identity holds although 18 is not of that form. This refutes a careless wording of the answer (Cambie surely meant solutions up to preimages, or exact identities as in Steinerberger's phi(n)+phi(n+phi(n))=n). The actual open question about the 8m+7/6m+5 branch is untouched."
+  },
+  "mo-111771": {
+   "date": "2026-11-28",
+   "pr": 26399,
+   "evidence": [
+    "https://mathoverflow.net/questions/111771"
+   ],
+   "reason": "The question asks for a 'decent' universal bound on [Aut(G):A_H] in terms of k and l. The formal statement only asks for the existence of some function B(k,l), which is trivial: the index is the size of an Aut(G)-orbit of subsets, at most 2^{kl}. That is exactly the proof, and the comments already give binomial(kl,k) and (kl)^{log2 k}. The content of the question (a good bound) is untouched."
+  },
+  "mo-128755": {
+   "date": "2026-11-28",
+   "pr": 26194,
+   "evidence": [
+    "https://mathoverflow.net/questions/128755"
+   ],
+   "reason": "The question asks whether E(X_k) can be computed as a function of k and n; comments doubt any explicit form, and the OP would accept large-n bounds. The contributor's 'exactFormula' is a signed sum over all even edge subsets of a k×n incidence structure, i.e. over up to 2^{nk} sets: a Fourier/inclusion-exclusion re-expansion of the defining average. It is no more explicit or computable than brute force, so the identity, though true, answers nothing."
+  },
+  "mo-132242": {
+   "date": "2026-11-28",
+   "pr": 27448,
+   "evidence": [
+    "https://mathoverflow.net/questions/132242"
+   ],
+   "reason": "The question asks for an analytic form of the kernel of this bivariate Vandermonde-type matrix. The contributor's statement packages three textbook facts: the signed maximal-minor (generalized cross product) vector spans the kernel of a full-rank d×(d+1) matrix; I - B^T(BB^T)^{-1}B projects onto the kernel for a row basis B; and distinct points can give a degenerate matrix. None of this is specific to the structure the OP asked about, so the 'solution' is trivial linear algebra."
+  },
+  "mo-151192": {
+   "date": "2026-11-28",
+   "pr": 25786,
+   "evidence": [
+    "https://mathoverflow.net/questions/151192"
+   ],
+   "reason": "The question asks for the minimum final candidate-set size s for each k. The contributor's 'answer k' is defined as scan k (2^k), a brute-force game-tree search (table over (k+2)^(s+1) rounds on s+1 candidates), and the statement docstring concedes it is 'not a closed-form expression'. Proving that this search computes the optimum is a correctness proof of an exhaustive algorithm and gives no formula or insight, so this is a restatement, not a solution."
   }
  },
  "known": {
@@ -19114,6 +19172,267 @@
     "https://mathoverflow.net/questions/295663"
    ],
    "reason": "Equal totals suffice for integer row and column sums. Sean Clark's comment gives the explicit triangular matrix, and the proof uses an equivalent one-row/one-column construction. Trivial and known."
+  },
+  "Erdos1101.erdos_1101.parts.ii": {
+   "date": "2026-11-28",
+   "pr": 13437,
+   "evidence": [
+    "https://www.erdosproblems.com/forum/thread/1101",
+    "https://github.com/google-deepmind/formal-conjectures/issues/6734"
+   ],
+   "reason": "Part (ii) (a good sequence with u_n = e^{o(n)}) was resolved on the erdosproblems forum by lipet2k (27 Apr 2026, with a sqrt(n)-exponent prime construction, checked by Nat Sothanaphan); formal-conjectures issue 6734 asks to mark it solved. The proof header says it follows the argument recorded in that forum thread."
+  },
+  "Erdos1221.erdos_1221.parts.ii": {
+   "date": "2026-11-28",
+   "pr": 12162,
+   "evidence": [
+    "https://arxiv.org/abs/2609.07196"
+   ],
+   "reason": "Solved via reduction R1 whose two hypotheses formalize S. Korsky, 'A Resolution of the de Bruijn-Erdős Consecutive-Gap Problem', arXiv:2609.07196 (Sep 2026): Prop. 6.4 and Lemma 7.2 + Halász's theorem, which give limsup(r - n m_n^(r)) >= c sqrt(log r). The reduction and hypothesis files cite Korsky explicitly, so this is a formalization of a published result."
+  },
+  "Erdos272.erdos_272.variants.szabo_strong": {
+   "date": "2026-11-28",
+   "pr": 26288,
+   "evidence": [
+    "https://conjectures.io/results/c3277f4a-d573-42a9-bfca-e45fb2cb39ff",
+    "https://www.erdosproblems.com/forum/thread/272"
+   ],
+   "reason": "The statement faithfully encodes Szabo's question t(N) = N^2/2 + O(N). But the identical formal-conjectures theorem Erdos272.erdos_272.variants.szabo_strong was already solved on conjectures.io by JenW1N (Lean-verified 2026-09-09, review approved, bounty paid 2026-09-14), well before this PR. arXiv:2607.23004 had only settled starred families."
+  },
+  "Erdos321.erdos_321.variants.isTheta": {
+   "date": "2026-11-28",
+   "pr": 26196,
+   "evidence": [
+    "https://www.erdosproblems.com/321",
+    "https://arxiv.org/abs/2509.10030"
+   ],
+   "reason": "erdosproblems.com/321 already records R(N) ≍ log S(N) ≍ (N/log N) prod log_i N, with the lower bound from Bettin-Grenié-Molteni-Sanna [BGMS25] and the upper bound by Luo-Yang-Zhu (see problem 320). The proof header credits exactly these sources and adapts the rsturg/erdos-320-lean project. This is a formalization of a known result."
+  },
+  "Erdos338.erdos_338.variants.bounded_by_order": {
+   "date": "2026-11-28",
+   "pr": 7550,
+   "evidence": [
+    "https://github.com/shoebyron/erdos-338-ii",
+    "https://www.erdosproblems.com/338"
+   ],
+   "reason": "The proof header states 'PORT OF A PUBLIC PROOF, not a new result', from github.com/shoebyron/erdos-338-ii (Excession), with covering modules from veljjanoski/erdos338-palomar. So the restricted order bounded in terms of the order was already proved publicly."
+  },
+  "Erdos710.erdos_710": {
+   "date": "2026-11-28",
+   "pr": 7288,
+   "evidence": [
+    "https://github.com/Ghuffy1/erdos710-lean",
+    "https://www.erdosproblems.com/forum/thread/710"
+   ],
+   "reason": "The proof header states 'PORT OF A PUBLIC PROOF, not a new result', from github.com/Ghuffy1/erdos710-lean (Howe, Huffman, Kohlmeyer, Kruer), with the asymptotic f(n) ~ (sqrt2/e) n sqrt(log n) announced earlier by David Turturean on the erdosproblems forum (23 Sep 2026). So this is known."
+  },
+  "OeisA180017.conjecture": {
+   "date": "2026-11-28",
+   "pr": 14336,
+   "evidence": [
+    "https://arxiv.org/abs/2501.00850",
+    "https://arxiv.org/abs/2105.11173",
+    "https://oeis.org/A180017"
+   ],
+   "reason": "Drmota-Spiegelhofer, 'The joint distribution of binary and ternary digit sums' (arXiv:2501.00850, 2025), Theorem 1.2: every pair (k1,k2) with k1,k2 >= K0 and ratio in [δ,1/δ] is attained as (s2(n),s3(n)). Taking (k, k+z) for all large k gives a(n)=z for infinitely many distinct n, which trivially implies the conjecture. The proof follows Spiegelhofer's collision strategy (arXiv:2105.11173)."
+  },
+  "arxiv-1804.10476": {
+   "date": "2026-11-28",
+   "pr": 26253,
+   "evidence": [
+    "https://arxiv.org/abs/2206.13182"
+   ],
+   "reason": "The proof file says the counterexample is 'not ours': it is the tree G(3,16,3) of Petr, Portier and Versteegen, 'On the number of minimum dominating sets and total dominating sets in forests', arXiv:2206.13182 (2022), Lemmas 4.1-4.2, which already refuted the Henning-Mohr-Rautenbach conjecture."
+  },
+  "arxiv-2105.04137": {
+   "date": "2026-11-28",
+   "pr": 25423,
+   "evidence": [
+    "https://arxiv.org/abs/2212.11969"
+   ],
+   "reason": "The proof file states the counterexample (directed triangle dijoin a 9-vertex tournament) is that of Alon, Powierski, Savery, Scott and Wilmer, 'Invertibility of digraphs and tournaments', arXiv:2212.11969 (2022), Theorem 1.3, which already disproved the dijoin conjecture."
+  },
+  "arxiv-2512.15486": {
+   "date": "2026-11-28",
+   "pr": 26158,
+   "evidence": [
+    "https://arxiv.org/abs/2610.08042",
+    "https://arxiv.org/abs/2610.27133"
+   ],
+   "reason": "The proof file states the conjecture was already disproved by the same authors (arXiv:2610.08042, Section 3, sunflowers), and that the smallest counterexample S_3 used here is from Novaković and Jojić (arXiv:2610.27133, Theorem 3.1)."
+  },
+  "arxiv-2610.09650": {
+   "date": "2026-11-28",
+   "pr": 25110,
+   "evidence": [
+    "https://arxiv.org/abs/2609.31811"
+   ],
+   "reason": "The proof is adapted from James Fairfax-Ball's TreeStack formalization of 'The stacking number of a tree' (arXiv:2609.31811, Palomar PALOMAR-2026-09-25-000010), which proves the Csernák-Soukup formula stack(T) = estim(T) for every finite tree with at least two vertices. This is a port of a published result."
+  },
+  "erdos-1097": {
+   "date": "2026-11-28",
+   "pr": 27070,
+   "evidence": [
+    "https://www.erdosproblems.com/1097",
+    "https://www.erdosproblems.com/forum/thread/1097"
+   ],
+   "reason": "erdosproblems.com/1097 states that Chan's equivalence with Bourgain's sums-differences problem, together with Lemm's lower bound c >= 1.77898 > 3/2, 'resolves the second part of the question negatively'; the statement file itself records this. The proof follows Chan's 3-block reduction with a ternary Cantor (Ruzsa) seed giving exponent log3/log2 > 3/2, i.e. a formalization of the known refutation."
+  },
+  "mo-103292": {
+   "date": "2026-11-28",
+   "pr": 26248,
+   "evidence": [
+    "https://mathoverflow.net/questions/103292",
+    "https://mathoverflow.net/a/212742"
+   ],
+   "reason": "The question has a 2015 answer (MO 212742) pointing to an explicit strongly pseudomonotone, not strongly monotone example in Khanh-Vuong, J. Global Optim. 58 (2014) 341-350. So the existence question was already answered. The merged example (2-||x||^2)x on the unit disc is also elementary."
+  },
+  "mo-120323": {
+   "date": "2026-11-28",
+   "pr": 27104,
+   "evidence": [
+    "https://mathoverflow.net/questions/120323",
+    "https://arxiv.org/abs/1302.4235"
+   ],
+   "reason": "The OP (J. Cigler) answered his own 'is this known?' question in a 2013 comment: the identity follows from the methods of Andrews-Wimp (2002) and Buslaev (2010), with details in his arXiv:1302.4235 (Buslaev's Theorem 3.1 on Hankel determinants of C-fractions). The proof file cites the same follow-up. So this is a new formal proof of a result known since 2013."
+  },
+  "mo-121754": {
+   "date": "2026-11-28",
+   "pr": 13410,
+   "evidence": [
+    "https://mathoverflow.net/questions/121754",
+    "https://mathoverflow.net/a/121763",
+    "https://mathoverflow.net/a/121848"
+   ],
+   "reason": "Answered on MO in 2013 by two answers: write the semimagic square as a sum of s permutation matrices (König 1915 / Birkhoff), or equivalently properly s-edge-colour the regular bipartite multigraph. The merged proof is exactly this induction via Birkhoff's theorem in Mathlib."
+  },
+  "mo-121944": {
+   "date": "2026-11-28",
+   "pr": 25512,
+   "evidence": [
+    "https://mathoverflow.net/questions/121944"
+   ],
+   "reason": "The statement fixes the characteristic polynomial (X^2-2X-4)(X^6+8X^3-64) of the given 8x8 matrix. That exact factorisation was posted in a 2013 comment on the question, and another comment gave the annihilating polynomial. The proof is a finite determinant evaluation at nine points, so it is a known routine computation, not an open problem."
+  },
+  "mo-125488": {
+   "date": "2026-11-28",
+   "pr": 27516,
+   "evidence": [
+    "https://mathoverflow.net/questions/125488",
+    "https://puzzling.stackexchange.com/a/16044/10615",
+    "https://turgor.ru/en/problems/20/index.php#turnir20vos"
+   ],
+   "reason": "MO comments identify this as a known olympiad problem (Tournament of Towns, Spring 1999, Problem 6) with published solutions, including a Puzzling SE answer showing that no balanced Hamiltonian cycle exists when 4 divides the side. The merged disproof only checks the 4x4 case (n=2) of that known negative answer."
+  },
+  "mo-12853": {
+   "date": "2026-11-28",
+   "pr": 27603,
+   "evidence": [
+    "https://mathoverflow.net/questions/12853",
+    "https://mathoverflow.net/a/32277"
+   ],
+   "reason": "The formal statement (any three prescribed densities for α, β, α/β admit a joint law) was already refuted in the 2010 MO answer 32277, which uses supports to make the ratio's law incompatible with the marginals. The merged disproof is the same support argument (uniform on [1,2] and ratio uniform on [3,4])."
+  },
+  "mo-130120": {
+   "date": "2026-11-28",
+   "pr": 25741,
+   "evidence": [
+    "https://mathoverflow.net/questions/130120",
+    "https://mathoverflow.net/a/149327"
+   ],
+   "reason": "A 2013 comment and answer 149327 already gave the negative answer: with V1 the pairs of V2 vertices, each V1 vertex has two neighbours, so the problem is colouring a complete graph and no f(2) exists. The merged disproof is that same construction."
+  },
+  "mo-130121": {
+   "date": "2026-11-28",
+   "pr": 27617,
+   "evidence": [
+    "https://mathoverflow.net/questions/130121",
+    "https://mathoverflow.net/a/139043"
+   ],
+   "reason": "The 2013 answer 139043 already refutes the conjectured optimal centre: for n=8 the ball centred at (1/8,...,1/8) with radius sqrt(7/8) covers 9 vertices, more than the half-face centre. The merged disproof uses the same centre with R=19/20."
+  },
+  "mo-130387": {
+   "date": "2026-11-28",
+   "pr": 25917,
+   "evidence": [
+    "https://mathoverflow.net/questions/130387"
+   ],
+   "reason": "The question states properties (1)-(3) of the savings transformation as already known ('It can be shown that ...') and only asks for an analogue in probability theory. The formal statement just encodes (1)-(3), and the proof header itself says 'This file is a formal proof of a known result'."
+  },
+  "mo-139071": {
+   "date": "2026-11-28",
+   "pr": 25837,
+   "evidence": [
+    "https://mathoverflow.net/questions/139071"
+   ],
+   "reason": "The OP asks for a proof of a classical theorem (due to Cauchy) that alternating polynomials are the Vandermonde product times a symmetric polynomial. 2013 comments point to standard proofs (Reiner's notes, Corollary 2.37; Stembridge's bi-alternant formula). This is a formalization of a textbook result, not an open problem."
+  },
+  "mo-150061": {
+   "date": "2026-11-28",
+   "pr": 14408,
+   "evidence": [
+    "https://mathoverflow.net/questions/150061"
+   ],
+   "reason": "Yves Cornulier answered negatively in 2013 comments: a twist homeomorphism of the disc gives a limit set of irrational radii, and an irrational rotation of the disc (even isometric) gives L = disc minus {0}, which is not closed. The merged disproof uses the same height-dependent rotation idea."
+  },
+  "mo-160796": {
+   "date": "2026-11-28",
+   "pr": 10587,
+   "evidence": [
+    "https://mathoverflow.net/questions/160796",
+    "https://mathoverflow.net/a/160802"
+   ],
+   "reason": "Answered 'Yes' on MO in 2014 (answer 160802): measures agreeing on A agree on the Dynkin system it generates. This is a standard measure-theory fact proved by induction on the generated λ-system, exactly as in the merged proof."
+  },
+  "mo-16341": {
+   "date": "2026-11-28",
+   "pr": 26696,
+   "evidence": [
+    "https://mathoverflow.net/questions/16341"
+   ],
+   "reason": "The site states the corrected problem m^2-1 | 3^m + (n!-2)^m, with answer (m,n)=(2,2), which Max Alekseyev's 2015 comment identifies as Problem 5 of Ch. 4 in the 2nd edition of Andreescu-Dospinescu's olympiad book 'Problems from the Book' (solutions in the companion 'Straight from the Book'). That is a textbook olympiad exercise solved with the prime-≡3-mod-4 trick, which is also the proof here. The genuinely open first-edition typo version (m^2-1 | 3^m+5^m) is not addressed."
+  },
+  "mo-16670": {
+   "date": "2026-11-28",
+   "pr": 26456,
+   "evidence": [
+    "https://mathoverflow.net/questions/16670",
+    "https://mathoverflow.net/a/16759"
+   ],
+   "reason": "The formal statement drops irreducibility and positivity, and the disproof uses exactly the zero-padding counterexample from the first 2010 comment (A=(1), B a k×k matrix with eigenvector e_1 and zeros). Answer 16759 even gives a counterexample with positive entries. The OP agreed that B must be irreducible to avoid trivialities, so nothing beyond the 2010 discussion is shown."
+  },
+  "mo-171692": {
+   "date": "2026-11-28",
+   "pr": 27507,
+   "evidence": [
+    "https://mathoverflow.net/questions/171692"
+   ],
+   "reason": "The question 'do D(P||Q) <= D(P||R) and D(Q||P) <= D(R||P) hold under P ≻ Q ≻ R?' was answered negatively in a 2014 comment with P=[10,6,2,2]/20, Q=[8,4,4,4]/20, R=[8-ε,4+ε,4,4]/20; I rechecked: D(P||Q)=0.094582 > D(P||R)=0.094569. The contributor's statement adds a 3-point simultaneous counterexample, the n=2 case and monotone-ratio sufficient conditions. These are elementary add-ons to an already-answered question."
+  },
+  "mo-178849": {
+   "date": "2026-11-28",
+   "pr": 21792,
+   "evidence": [
+    "https://github.com/openai/math"
+   ],
+   "reason": "Reduction R1's H4 implies that every torsion-free group has only trivial idempotents in its complex group algebra (Kaplansky's idempotent conjecture over C), which makes the extension question trivial. All four hypothesis proofs say they are 'Adapted from OpenAI openai/math@3344da59', i.e. result 207 there ('The Bass trace conjecture and the characteristic-zero Kaplansky idempotent conjecture', Sep 2026). So it is a port of a public proof."
+  },
+  "mo-189061": {
+   "date": "2026-11-28",
+   "pr": 10220,
+   "evidence": [
+    "https://mathoverflow.net/questions/189061",
+    "https://mathoverflow.net/a/303731"
+   ],
+   "reason": "A 2018 MO answer (Cherng-tiao Perng) already gave a counterexample: x(x+1)(x+2)(x^2-2·10^{-5}x+100+...) + 1 becomes Hurwitz stable after adding ε=1. The proof header acknowledges that prior counterexample and only supplies an exact one (2X^2+X+15 based)."
+  },
+  "mo-193596": {
+   "date": "2026-11-28",
+   "pr": 25749,
+   "evidence": [
+    "https://mathoverflow.net/questions/193596"
+   ],
+   "reason": "A 2015 comment already proved it: the chain is invariant under cyclic rotation of Z/5 (its transition matrix is circulant, hence doubly stochastic), so the unique stationary distribution is uniform once some price is not ≡ 0 mod 5. The merged maximum-principle proof is equally elementary."
   }
  },
  "reviewed": "2026-11-28"
