@@ -18385,6 +18385,123 @@
     "https://oeis.org/A319303"
    ],
    "reason": "Second review: The conditional is vacuous as stated: the Collatz hypothesis is never used, and the conclusion holds outright by the encoding's injectivity. This is the entry author's remark about the construction, not an open problem. Related site id oeis-a319303 states the companion remark."
+  },
+  "oeis-a270684": {
+   "date": "2026-11-28",
+   "pr": 28274,
+   "evidence": [
+    "https://oeis.org/A270684",
+    "https://oeis.org/A270684/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 190. Barker's recurrence is printed 'n>3', but his own g.f. has numerator degree 5, so it can only hold beyond n=5; the disproof only plays the recurrence against the g.f. coefficient at n=5. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>5 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a271006": {
+   "date": "2026-11-28",
+   "pr": 26894,
+   "evidence": [
+    "https://oeis.org/A271006",
+    "https://oeis.org/A271006/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 245. Barker's recurrence is printed 'n>9', but his own g.f. has numerator degree 11, so it can only hold beyond n=11; the disproof only plays the recurrence against the g.f. coefficient at n=11. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>11 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a271007": {
+   "date": "2026-11-28",
+   "pr": 27823,
+   "evidence": [
+    "https://oeis.org/A271007",
+    "https://oeis.org/A271007/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 245. Barker's recurrence is printed 'n>8', but his own g.f. has numerator degree 10, so it can only hold beyond n=10; the disproof only plays the recurrence against the g.f. coefficient at n=10. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>10 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a272564": {
+   "date": "2026-11-28",
+   "pr": 28013,
+   "evidence": [
+    "https://oeis.org/A272564",
+    "https://oeis.org/A272564/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 501. Barker's recurrence is printed 'n>5', but his own g.f. has numerator degree 11, so it can only hold beyond n=11; the disproof only plays the recurrence against the g.f. coefficient at n=7. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>11 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a272566": {
+   "date": "2026-11-28",
+   "pr": 28028,
+   "evidence": [
+    "https://oeis.org/A272566",
+    "https://oeis.org/A272566/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 501. Barker's recurrence is printed 'n>9', but his own g.f. has numerator degree 11, so it can only hold beyond n=11; the disproof only plays the recurrence against the g.f. coefficient at n=11. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>11 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a272567": {
+   "date": "2026-11-28",
+   "pr": 28044,
+   "evidence": [
+    "https://oeis.org/A272567",
+    "https://oeis.org/A272567/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 501. Barker's recurrence is printed 'n>4', but his own g.f. has numerator degree 10, so it can only hold beyond n=10; the disproof only plays the recurrence against the g.f. coefficient at n=6. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>10 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a279499": {
+   "date": "2026-11-28",
+   "pr": 27831,
+   "evidence": [
+    "https://oeis.org/A279499",
+    "https://oeis.org/A279499/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 161. Barker's recurrence is printed 'n>6', but his own g.f. has numerator degree 10, so it can only hold beyond n=10; the disproof only plays the recurrence against the g.f. coefficient at n=10. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>10 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a279500": {
+   "date": "2026-11-28",
+   "pr": 27844,
+   "evidence": [
+    "https://oeis.org/A279500",
+    "https://oeis.org/A279500/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 161. Barker's recurrence is printed 'n>6', but his own g.f. has numerator degree 10, so it can only hold beyond n=10; the disproof only plays the recurrence against the g.f. coefficient at n=10. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>10 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a279501": {
+   "date": "2026-11-28",
+   "pr": 27860,
+   "evidence": [
+    "https://oeis.org/A279501",
+    "https://oeis.org/A279501/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 161. Barker's recurrence is printed 'n>6', but his own g.f. has numerator degree 10, so it can only hold beyond n=10; the disproof only plays the recurrence against the g.f. coefficient at n=10. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>10 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a279877": {
+   "date": "2026-11-28",
+   "pr": 28213,
+   "evidence": [
+    "https://oeis.org/A279877",
+    "https://oeis.org/A279877/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 213. Barker's recurrence is printed 'n>6', but his own g.f. has numerator degree 8, so it can only hold beyond n=8; the disproof only plays the recurrence against the g.f. coefficient at n=8. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>8 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a279878": {
+   "date": "2026-11-28",
+   "pr": 27946,
+   "evidence": [
+    "https://oeis.org/A279878",
+    "https://oeis.org/A279878/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 213. Barker's recurrence is printed 'n>6', but his own g.f. has numerator degree 8, so it can only hold beyond n=8; the disproof only plays the recurrence against the g.f. coefficient at n=8. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>8 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a279879": {
+   "date": "2026-11-28",
+   "pr": 27974,
+   "evidence": [
+    "https://oeis.org/A279879",
+    "https://oeis.org/A279879/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 213. Barker's recurrence is printed 'n>6', but his own g.f. has numerator degree 8, so it can only hold beyond n=8; the disproof only plays the recurrence against the g.f. coefficient at n=8. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>8 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
+  },
+  "oeis-a279880": {
+   "date": "2026-11-28",
+   "pr": 27990,
+   "evidence": [
+    "https://oeis.org/A279880",
+    "https://oeis.org/A279880/internal"
+   ],
+   "reason": "Disproof of a printed range slip for 2D Rule 213. Barker's recurrence is printed 'n>6', but his own g.f. has numerator degree 8, so it can only hold beyond n=8; the disproof only plays the recurrence against the g.f. coefficient at n=8. My simulation reproduces the entry's data; the g.f. holds and the recurrence holds for every n>8 up to the tested range (n<=300, or 120 for x-axis readouts). The intended conjecture is true and not addressed."
   }
  },
  "known": {
@@ -34293,6 +34410,96 @@
     "https://github.com/iwasborninbali/athanor-oeis"
    ],
    "reason": "Second review: Schoenfield's conjecture was proved in a public Zenodo notebook on 2026-11-12, before the site's proof. Attribute it, or mark it known."
+  },
+  "oeis-a270490": {
+   "date": "2026-11-28",
+   "pr": 28052,
+   "evidence": [
+    "https://isitsolved.com/journal/c70942720d40",
+    "https://oeis.org/A270490"
+   ],
+   "reason": "Statement is faithful (polynomial coefficients expanded correctly from Mathar's recurrence, n>=4). But isitsolved iis:2611.00226 (filed 2026-11-28 04:01 UTC) lists A270490 as 'true, all n>=4', decided from its g.f.; the site proof was committed 11:24 UTC the same day."
+  },
+  "oeis-a271356": {
+   "date": "2026-11-28",
+   "pr": 28146,
+   "evidence": [
+    "https://www.fq.math.ca/Papers1/42-1/quartkimberling01_2004.pdf",
+    "https://oeis.org/A271354",
+    "https://oeis.org/A049998"
+   ],
+   "reason": "Statement is faithful and numerically true. Kimberling, 'Orderings of products of Fibonacci numbers', Fib. Quart. 42 (2004) 28-35, Theorem 1 lists the chains F_iF_j (i+j fixed) with Fibonacci gaps and Corollary 2 handles distinct factors; dropping the factor F_2 merges two neighbouring gaps into F_(m-1) (A271354's own comment gives the endpoints 3F(n-3), 2F(n-2)). An immediate corollary of a published theorem, so not new."
+  },
+  "oeis-a271719": {
+   "date": "2026-11-28",
+   "pr": 29144,
+   "evidence": [
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/NumberComplexity/A271719GcdPerfectSquare.lean"
+   ],
+   "reason": "Faithful to Sun's conjecture (a(n)>0 for n>10; a(n)=1 iff n in {11,12,14,18,24,54}). thatnealpatel/proofs already proves exactly this, sorry-free (theorem a271719_conjecture, promoted 2026-10-21, commit cfd243f), a month before the site proof."
+  },
+  "oeis-a273311": {
+   "date": "2026-11-28",
+   "pr": 27897,
+   "evidence": [
+    "https://oeis.org/A273311",
+    "https://lefttosolve.com/p/oeis-a273309"
+   ],
+   "reason": "Faithful, and my simulation matches. But the content was already settled on this site: the Rule 641 per-stage count closed form (n>1), whose partial sums give these formulas (oeis-a273309, proof committed 10:40 UTC, before this one). The remaining conjuncts follow from finitely many initial values. Cohen's digit automaton for this rule (Zenodo 24384895) is a second prior source."
+  },
+  "oeis-a273315": {
+   "date": "2026-11-28",
+   "pr": 27904,
+   "evidence": [
+    "https://oeis.org/A273315",
+    "https://lefttosolve.com/p/oeis-a273481"
+   ],
+   "reason": "Faithful, and my simulation matches. But the content was already settled on this site: A273481, A273745 and A273791 each prove that the Rule 643 first differences aOf 643 n equal 8(1+n) for n>1, which is this entry's first conjunct verbatim; the recurrence and g.f. follow (oeis-a273481, proof committed 08:08 UTC, before this one). The remaining conjuncts follow from finitely many initial values. Cohen's digit automaton for this rule (Zenodo 24384895) is a second prior source."
+  },
+  "oeis-a273448": {
+   "date": "2026-11-28",
+   "pr": 27926,
+   "evidence": [
+    "https://oeis.org/A273448",
+    "https://lefttosolve.com/p/oeis-a273443"
+   ],
+   "reason": "Faithful, and my simulation matches. But the content was already settled on this site: the Rule 721 count 4n(n+1) for n>3, so the differences are 8(n+1) for n>3 (oeis-a273443, proof committed 07:37 UTC, before this one). The remaining conjuncts follow from finitely many initial values. Cohen's digit automaton for this rule (Zenodo 24384895) is a second prior source."
+  },
+  "oeis-a273480": {
+   "date": "2026-11-28",
+   "pr": 27928,
+   "evidence": [
+    "https://oeis.org/A273480",
+    "https://lefttosolve.com/p/oeis-a273481"
+   ],
+   "reason": "Faithful, and my simulation matches. But the content was already settled on this site: the Rule 737 first differences 8(1+n) for n>1, whose double summation gives this partial-sum formula (oeis-a273481, proof committed 08:08 UTC, before this one). The remaining conjuncts follow from finitely many initial values. Cohen's digit automaton for this rule (Zenodo 24384895) is a second prior source."
+  },
+  "oeis-a273849": {
+   "date": "2026-11-28",
+   "pr": 27997,
+   "evidence": [
+    "https://oeis.org/A273849",
+    "https://lefttosolve.com/p/oeis-a273847"
+   ],
+   "reason": "Faithful, and my simulation matches. But the content was already settled on this site: the Rule 969 count (2n+1)^2 for n>4, whose partial sums give this formula (oeis-a273847, proof committed 07:36 UTC, before this one). The remaining conjuncts follow from finitely many initial values. Cohen's digit automaton for this rule (Zenodo 24384895) is a second prior source."
+  },
+  "oeis-a273850": {
+   "date": "2026-11-28",
+   "pr": 28004,
+   "evidence": [
+    "https://oeis.org/A273850",
+    "https://lefttosolve.com/p/oeis-a273847"
+   ],
+   "reason": "Faithful, and my simulation matches. But the content was already settled on this site: the Rule 969 count (2n+1)^2 for n>4, so the differences are 8(n+1) for n>4 (oeis-a273847, proof committed 07:36 UTC, before this one). The remaining conjuncts follow from finitely many initial values. Cohen's digit automaton for this rule (Zenodo 24384895) is a second prior source."
+  },
+  "oeis-a277403": {
+   "date": "2026-11-28",
+   "pr": 28918,
+   "evidence": [
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Recurrence/Residue/HannaIntegralCompositionDivTen.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/h277403-div10.md"
+   ],
+   "reason": "Statement is faithful (the functional equation determines a uniquely; offset 1, n>2). trureturing's HannaIntegralCompositionDivTen.result (sorry-free, added 2026-10-29) proves the same claim for every solution pair (A,G), integrality included."
   }
  },
  "reviewed": "2026-11-28"
