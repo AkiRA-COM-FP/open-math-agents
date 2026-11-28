@@ -10,7 +10,7 @@ def term : ℕ → ℕ
     if previous % 2 = 1 then 7 * previous + 1 else previous / 2
 
 /-- No term equals an earlier term. Source: https://oeis.org/A271623 -/
-theorem main (j k : ℕ) (h : j < k) : term k ≠ term j := by
+theorem main : ∀ j k : ℕ, j < k → term k ≠ term j := by
   sorry
 
 end OMA.S_oeis_a271623
