@@ -34,10 +34,12 @@ lemma nth_kept (i : ℕ) : Nat.nth kept i = survivor i := by
   symm
   apply Nat.eq_nth_of_strictMonoOn_of_mapsTo_of_surjOn survivor
   · intro j hj
+    change j ∈ setOf kept at hj
     rw [← hr] at hj
     obtain ⟨x, hx⟩ := hj
     exact ⟨x, fun hf => (hi hf).elim, hx⟩
   · intro x _
+    change survivor x ∈ setOf kept
     rw [← hr]
     exact ⟨x, rfl⟩
   · exact hm.strictMonoOn _
