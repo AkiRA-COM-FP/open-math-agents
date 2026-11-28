@@ -3,7 +3,7 @@ import Mathlib
 /-!
 # Orthogonal matrices minimizing squared bilinear measurements
 
-Source: Matt, https://mathoverflow.net/questions/149350 (CC BY-SA 4.0).
+Source: Matt, https://mathoverflow.net/questions/149350 (CC BY-SA 3.0).
 Credit: @connoranderson.
 
 For dimension two an explicit minimum is obtained from the smaller eigenvalues
