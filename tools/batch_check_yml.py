@@ -6,7 +6,7 @@ ROUNDS identical pairs of steps: "publish" (waits up to two minutes for new verd
 bv-<shard> (overwritten each time; the merger reads the newest). GitHub Actions has no loop over steps, hence the
 generated list. Usage: python3 tools/batch_check_yml.py > .github/workflows/batch-check.yml
 """
-SHARDS = 96         # parallel jobs; a pull request goes to shard crc32(its file) % SHARDS (tools/batch_verdicts.sh reads this line)
+SHARDS = 64         # parallel jobs; a pull request goes to shard crc32(its file) % SHARDS (tools/batch_verdicts.sh reads this line)
 MAX_SHARDS = 96     # the census reads the artifacts bv-0 .. bv-<MAX_SHARDS - 1>: keep it >= every shard count used so far
 LANES = 2           # checks at once in a job; 3 overran the 16 GB runner (shards killed, exit 143); 2 with the cap: no deaths,
                     # ~29 verdicts per shard-hour, about 1 in 10 checks redone alone
