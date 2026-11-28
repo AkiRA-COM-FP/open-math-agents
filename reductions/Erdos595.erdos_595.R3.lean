@@ -41,6 +41,149 @@ theorem small_horizon {I : Type} [LinearOrder I] (code : I ↪ (ℕ → Bool)) :
     cases i <;> cases j <;> cases k <;> decide
   exact impossible _ _ _ x y z
 
+/-- On a fixed ordered witness, every chronological rule induces a countable
+edge colouring. Sorting a monochromatic triangle gives its three actual moves. -/
+theorem fixed_play {I : Type} [LinearOrder I] (G : SimpleGraph I)
+    (bad : ¬ Erdos595.IsCountableUnionOfTriangleFree G)
+    (paint : I → Set (I × I) → I → ℕ) :
+    ∃ a b c : I, a < b ∧ b < c ∧ G.Adj a b ∧ G.Adj a c ∧ G.Adj b c ∧
+      let past := fun j => {p : I × I | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2}
+      paint b (past b) a = paint c (past c) a ∧ paint b (past b) a = paint c (past c) b := by
+  classical
+  let past (j : I) := {p : I × I | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2}
+  let colour (a b : I) := paint (max a b) (past (max a b)) (min a b)
+  let L (n : ℕ) : SimpleGraph I := {
+    Adj a b := G.Adj a b ∧ colour a b = n
+    symm := ⟨fun a b h => ⟨h.1.symm, by simpa only [colour,max_comm b a,min_comm b a] using h.2⟩⟩
+    loopless := ⟨fun _ h => h.1.ne rfl⟩ }
+  have union_eq : G = ⨆ n,L n := by
+    ext a b
+    rw [iSup_adj]
+    exact ⟨fun h => ⟨colour a b,h,rfl⟩,fun ⟨_,h⟩ => h.1⟩
+  have exists_triple : ∃ n s, (L n).IsNClique 3 s := by
+    by_contra! none
+    exact bad ⟨L,none,union_eq⟩
+  obtain ⟨n,s,cl⟩ := exists_triple
+  let v := s.orderEmbOfFin cl.card_eq
+  have edge (i j : Fin 3) (h : i < j) :
+      G.Adj (v i) (v j) ∧ paint (v j) (past (v j)) (v i) = n := by
+    have adj : (L n).Adj (v i) (v j) := cl.isClique
+      (s.orderEmbOfFin_mem _ i) (s.orderEmbOfFin_mem _ j) (v.strictMono h).ne
+    exact ⟨adj.1, by simpa only [colour,max_eq_right (v.monotone h.le), min_eq_left (v.monotone h.le)] using adj.2⟩
+  have ab := edge 0 1 (by decide)
+  have ac := edge 0 2 (by decide)
+  have bc := edge 1 2 (by decide)
+  exact ⟨_,_,_,v.strictMono (by decide : (0 : Fin 3) < 1),v.strictMono (by decide : (1 : Fin 3) < 2),
+    ab.1,ac.1,bc.1,ab.2.trans ac.2.symm,ab.2.trans bc.2.symm⟩
+
+/-- Passing to the online subproblem loses no fixed witness in the base universe. -/
+theorem from_fixed_witness {V : Type} [Infinite V] (G : SimpleGraph V)
+    (free : G.CliqueFree 4) (bad : ¬ Erdos595.IsCountableUnionOfTriangleFree G) : H1 := by
+  obtain ⟨order,wf⟩ := exists_wellFoundedLT V
+  let : LinearOrder V := order
+  exact ⟨V,order,wf,inferInstance,fun paint => ⟨G,free,fixed_play G bad paint⟩⟩
+
+/-- A Painter on a larger order can be simulated on any order-embedded
+horizon. Unused stages are isolated; the embedding need not be an initial
+segment. The same simulation works for every play on the smaller horizon. -/
+theorem horizon_simulation {I J : Type} [LinearOrder I] [LinearOrder J]
+    (e : I ↪o J) (paint : J → Set (J × J) → J → ℕ) :
+    ∃ run : I → Set (I × I) → I → ℕ, ∀ (G : SimpleGraph I) (i j : I),
+      run j {p | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2} i =
+        paint (e j) {p | p.1 ≤ e j ∧ p.2 ≤ e j ∧ (G.map e.toEmbedding).Adj p.1 p.2} (e i) := by
+  let extend (s : Set (I × I)) := (fun p : I × I => (e p.1,e p.2)) '' s
+  refine ⟨fun j s i => paint (e j) (extend s) (e i),?_⟩
+  intro G i j
+  apply congrArg (fun s => paint (e j) s (e i))
+  ext ⟨u,v⟩
+  constructor
+  · rintro ⟨⟨a,b⟩,⟨ha,hb,ab⟩,eq⟩
+    rw [←eq]
+    exact ⟨e.monotone ha,e.monotone hb,map_adj_apply.mpr ab⟩
+  · rintro ⟨hu,hv,uv⟩
+    obtain ⟨a,b,ab,rfl,rfl⟩ := (map_adj e.toEmbedding G u v).mp uv
+    exact ⟨(a,b),⟨e.le_iff_le.mp hu,e.le_iff_le.mp hv,ab⟩,rfl⟩
+
+/-- Losing horizons are upward closed under order embeddings. -/
+theorem losing_horizon_mono {I J : Type} [LinearOrder I] [LinearOrder J] [Nonempty I] (e : I ↪o J) :
+    let loses (X : Type) [LinearOrder X] := ∀ paint : X → Set (X × X) → X → ℕ,
+      ∃ G : SimpleGraph X, G.CliqueFree 4 ∧ ∃ a b c : X,
+        a < b ∧ b < c ∧ G.Adj a b ∧ G.Adj a c ∧ G.Adj b c ∧
+        let past := fun j => {p : X × X | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2}
+        paint b (past b) a = paint c (past c) a ∧ paint b (past b) a = paint c (past c) b
+    loses I → loses J := by
+  intro loses small paint
+  obtain ⟨run,matchRun⟩ := horizon_simulation e paint
+  obtain ⟨G,free,a,b,c,ab,bc,hab,hac,hbc,h⟩ := small run
+  refine ⟨G.map e.toEmbedding,cliqueFree_map_iff.mpr free,e a,e b,e c,
+    e.strictMono ab,e.strictMono bc,map_adj_apply.mpr hab,map_adj_apply.mpr hac,
+    map_adj_apply.mpr hbc,?_⟩
+  exact ⟨(matchRun G a b).symm.trans (h.1.trans (matchRun G a c)),
+    (matchRun G a b).symm.trans (h.2.trans (matchRun G b c))⟩
+
+/-- Winning on each induced set of stages suffices when the set of pieces
+injects into binary sequences. The pieces may interleave in the stage order. -/
+theorem combine_painters {I K : Type} [LinearOrder I] (part : I → K)
+    (code : K ↪ (ℕ → Bool)) :
+    let wins (X : Type) [LinearOrder X] := ∃ paint : X → Set (X × X) → X → ℕ,
+      ∀ (G : SimpleGraph X), G.CliqueFree 4 → ∀ a b c,
+        a < b → b < c → G.Adj a b → G.Adj a c → G.Adj b c →
+        let past := fun j => {p : X × X | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2}
+        paint b (past b) a = paint c (past c) a → paint b (past b) a ≠ paint c (past c) b
+    (∀ k, wins {i // part i = k}) → wins I := by
+  classical
+  intro wins localWins
+  choose inner safe using localWins
+  let fibre k := {i // part i = k}
+  let restrict (k : K) (s : Set (I × I)) := {p : fibre k × fibre k | (p.1.val,p.2.val) ∈ s}
+  have split {k l : K} (ne : k ≠ l) : ∃ n, code k n ≠ code l n := by
+    by_contra! same
+    exact ne (code.injective (funext same))
+  let paint (j : I) (s : Set (I × I)) (i : I) :=
+    if h : part i = part j then
+      2 * inner (part j) ⟨j,rfl⟩ (restrict _ s) ⟨i,h⟩
+    else 2 * (split h).choose + 1
+  have cross {i j : I} (h : part i ≠ part j) (s) :
+      ∃ n, paint j s i = 2*n+1 ∧ code (part i) n ≠ code (part j) n :=
+    ⟨_,dif_neg h,(split h).choose_spec⟩
+  have within (k : K) {i j : I} (hi : part i = k) (hj : part j = k) (s) :
+      paint j s i = 2 * inner k ⟨j,hj⟩ (restrict k s) ⟨i,hi⟩ := by
+    cases hj
+    simp [paint,hi]
+  refine ⟨paint,?_⟩
+  intro G legal a b c ab bc hab hac hbc
+  let past (j : I) := {p : I × I | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2}
+  change paint b (past b) a = paint c (past c) a → paint b (past b) a ≠ paint c (past c) b
+  intro x y
+  by_cases eq : part a = part b
+  · have even := within _ eq rfl (past b)
+    by_cases eq' : part b = part c
+    · let k := part c
+      let inc : fibre k ↪ I := Function.Embedding.subtype _
+      let F := G.comap inc
+      have free := legal.comap (SimpleGraph.Embedding.comap inc G).isContained
+      have ok := safe k F free ⟨a,eq.trans eq'⟩ ⟨b,eq'⟩ ⟨c,rfl⟩ ab bc hab hac hbc
+      rw [within k (eq.trans eq') eq',within k (eq.trans eq') rfl] at x
+      rw [within k (eq.trans eq') eq',within k eq' rfl] at y
+      exact ok (by exact Nat.eq_of_mul_eq_mul_left (by decide : 0 < 2) x)
+        (by exact Nat.eq_of_mul_eq_mul_left (by decide : 0 < 2) y)
+    · obtain ⟨n,odd,_⟩ := cross eq' (past c)
+      omega
+  · obtain ⟨n,odd,dab⟩ := cross eq (past b)
+    by_cases ac : part a = part c
+    · have even := within _ ac rfl (past c)
+      omega
+    by_cases bc' : part b = part c
+    · have even := within _ bc' rfl (past c)
+      omega
+    obtain ⟨m,om,dac⟩ := cross ac (past c)
+    obtain ⟨l,ol,dbc⟩ := cross bc' (past c)
+    obtain rfl : m = n := by omega
+    obtain rfl : l = m := by omega
+    have impossible (i j k : Bool) : i ≠ j → i ≠ k → j ≠ k → False := by
+      cases i <;> cases j <;> cases k <;> decide
+    exact impossible _ _ _ dab dac dbc
+
 /-- Simultaneously realize all legal presentations, identifying the vertex at
 a stage whenever the entire revealed history at that stage is identical. -/
 def H2 : Prop :=
@@ -146,5 +289,16 @@ theorem main : H1 → H2 → type_of% @Erdos595.erdos_595 := by
   rw [←same.1] at xz
   rw [←same.2] at yz
   exact noTriangle _ _ (is3Clique_triple_iff.mpr ⟨xy,xz,yz⟩)
+
+/-- The chronological formulation is equivalent to the original witness
+problem in the base universe. The two implications may use different hosts. -/
+theorem online_iff_witness : H1 ↔
+    ∃ (V : Type) (_ : Infinite V) (G : SimpleGraph V),
+      G.CliqueFree 4 ∧ ¬ Erdos595.IsCountableUnionOfTriangleFree G := by
+  constructor
+  · exact fun h => main h history_amalgamation
+  · rintro ⟨V,hV,G,free,bad⟩
+    let : Infinite V := hV
+    exact from_fixed_witness G free bad
 
 end OMA.R_Erdos595_erdos_595_R3
