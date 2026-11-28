@@ -6,7 +6,8 @@ import Mathlib
 Source: https://oeis.org/A106272
 Credit: @ivillar
 
-Status: recorded in the entry as a conjecture; no proof or verification is noted there.
+Status: known result. The comments of the entry record a proof of Mathar's conjecture from the g.f.
+(Petros Hadjicostas, Jul 15 2019).
 
 A106272 (offset 0): antidiagonal sums of number triangle A106270;
 data 1, -1, -1, -6, -15, -48, -147, -477, -1577, -5339, -18373, -64125, ...
