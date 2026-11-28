@@ -169,7 +169,9 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
   : > watch.txt
   # 3b. verdicts of the batch checker (batch-check.yml), every 90 seconds at most (tools/batch_verdicts.sh: ~4 API calls)
   if [ -f base/tools/batch_verdicts.sh ] && [ $(( NOW - ${LAST_BATCH:-0} )) -ge 90 ]; then
-    LAST_BATCH=$NOW; ROOT="$ROOT" START="$START" FLOOR=$(( START - INITIAL_BACK )) timeout 240 bash base/tools/batch_verdicts.sh >> cand.tsv 2>> batchv.log || true
+    # three hours back even after a hand-over: a queue lost with the previous merger is found again (cheaply: verdicts
+    # of pull requests merged or closed since are dropped without an API call)
+    LAST_BATCH=$NOW; ROOT="$ROOT" START="$START" FLOOR=$(( START - 10800 )) timeout 240 bash base/tools/batch_verdicts.sh >> cand.tsv 2>> batchv.log || true
   fi
   # verdict jobs queued by the old per-proof trigger still run: leave their commits to them (no double report)
   if [ "$OLDJOBS" = 1 ] && [ $(( NOW - LAST_OLD )) -ge 300 ]; then
