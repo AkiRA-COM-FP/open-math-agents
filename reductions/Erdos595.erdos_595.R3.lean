@@ -713,6 +713,75 @@ theorem blocked_degree_tower {I : Type} (R : I → I → Prop) (loop : ∀ x, ¬
   obtain ⟨a,_,ha,_⟩ := (seq k).prop (fun _ => 0)
   exact ⟨(step k (seq k)).choose_spec.1,⟨a,ha⟩,(step k (seq k)).choose_spec.2.1,(seq k).prop⟩
 
+/-- Reserve the odd assignment indices at the outset. Round k tests the
+indices 2*pair k n. The intersection of the successive high-degree sets
+still blocks every assignment from the reserved palette. Neighbour counts
+in round k are taken inside S k. -/
+theorem blocked_degree_intersection {I : Type} (R : I → I → Prop) (loop : ∀ x, ¬ R x x)
+    (old : I → I → ℕ)
+    (blocked : ∀ d : I → ℕ, ∃ a b, R a b ∧ d a = d b ∧ old a b = 2*d a) :
+    let near := fun (S : Set I) x k n => {y | y ∈ S ∧
+      ((R x y ∧ old x y = 4*Nat.pair k n) ∨ (R y x ∧ old y x = 4*Nat.pair k n))}
+    ∃ S : ℕ → Set I, S 0 = Set.univ ∧
+      (∀ k, S (k+1) = {x | x ∈ S k ∧ ∃ m : ℕ, ∀ n > m, ¬ (near (S k) x k n).Countable}) ∧
+      ∀ h : I → ℕ, ∃ a b, (∀ k, a ∈ S k) ∧ (∀ k, b ∈ S k) ∧ R a b ∧
+        h a = h b ∧ old a b = 4*h a+2 := by
+  classical
+  intro near
+  let S : ℕ → Set I := Nat.rec Set.univ (fun k s =>
+    {x | x ∈ s ∧ ∃ m : ℕ, ∀ n > m, ¬ (near s x k n).Countable})
+  refine ⟨S,rfl,fun _ => rfl,?_⟩
+  let core (x : I) : Prop := ∀ k : ℕ, x ∈ S k
+  have leaves (x : I) (hx : ¬core x) : ∃ k, x ∈ S k ∧ x ∉ S (k+1) := by
+    by_contra! stays
+    apply hx
+    intro k
+    induction k with
+    | zero => exact Set.mem_univ _
+    | succ k ih => exact stays k ih
+  let inst (x : I) : Decidable (core x) := Classical.propDecidable _
+  let rank (x : I) : ℕ := if hx : core x then 0 else (leaves x hx).choose
+  have exitAt x (hx : ¬ core x) : x ∈ S (rank x) ∧ x ∉ S (rank x+1) := by
+    simpa only [rank,dif_neg hx] using (leaves x hx).choose_spec
+  let N (x : I) (n : ℕ) := near (S (rank x)) x (rank x) n
+  let L (x : I) (n : ℕ) := (N x n).Countable
+  have lists x m : ∃ n, m < n ∧ (core x ∨ L x n) := by
+    by_cases hx : core x
+    · exact ⟨m+1,by omega,Or.inl hx⟩
+    · obtain ⟨mem,gone⟩ := exitAt x hx
+      by_contra! bounded
+      exact gone ⟨mem,m,fun n lt => (bounded n lt).2⟩
+  let F (x y : I) := ¬core x ∧ ¬core y ∧ rank x = rank y ∧
+    ∃ n, L x n ∧ L y n ∧ y ∈ N x n ∧ x ∈ N y n
+  have sym x y (e : F x y) : F y x := by
+    obtain ⟨hx,hy,r,n,lx,ly,xy,yx⟩ := e
+    exact ⟨hy,hx,r.symm,n,ly,lx,yx,xy⟩
+  have irr x (e : F x x) : False := by
+    obtain ⟨_,_,_,n,_,_,⟨_,hit | hit⟩,_⟩ := e <;> exact loop x hit.1
+  have small x : Set.Countable {y | F x y} := by
+    let B (n : ℕ) : Set I := if L x n then N x n else ∅
+    have hb n : (B n).Countable := by
+      by_cases l : L x n
+      · simpa [B,l] using (show (N x n).Countable from l)
+      · simp [B,l]
+    apply (Set.countable_iUnion hb).mono
+    rintro y ⟨_,_,_,n,l,_,xy,_⟩
+    exact Set.mem_iUnion.mpr ⟨n,by simpa [B,l] using xy⟩
+  obtain ⟨g,allowed,proper⟩ := component_list_colouring F sym irr small _ lists
+  intro h
+  let d (x : I) := if core x then 2*h x+1 else 2*Nat.pair (rank x) (g x)
+  obtain ⟨a,b,edge,same,hit⟩ := blocked d
+  by_cases ha : core a <;> by_cases hb : core b <;> simp only [d,ha,hb,if_true,if_false] at same hit
+  · exact ⟨a,b,ha,hb,edge,by omega,by omega⟩
+  · omega
+  · omega
+  · obtain ⟨r,c⟩ := Nat.pair_eq_pair.mp (show Nat.pair (rank a) (g a) = Nat.pair (rank b) (g b) by omega)
+    have col : old a b = 4*Nat.pair (rank a) (g a) := by omega
+    have ab : b ∈ N a (g a) := ⟨r ▸ (exitAt b hb).1,Or.inl ⟨edge,col⟩⟩
+    have ba : a ∈ N b (g a) := ⟨r ▸ (exitAt a ha).1,Or.inr ⟨edge,r ▸ col⟩⟩
+    exact (proper a b ⟨ha,hb,r,g a,(allowed a).resolve_left ha,
+      c ▸ (allowed b).resolve_left hb,ab,ba⟩ c).elim
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
