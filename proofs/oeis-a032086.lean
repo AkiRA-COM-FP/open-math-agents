@@ -11,7 +11,6 @@ every coefficient from x⁵ on, and the first five come from a(0..4) = 0, 3, 3, 
 formulas are the defining formula with ceil(n/2) = n/2 or (n+1)/2.
 -/
 
-namespace PA032086
 open OMA.S_oeis_a032086
 
 theorem a_ge (k : ℕ) (hk : 2 ≤ k) : a k = ((3:ℚ)^k - (3:ℚ)^((k+1)/2))/2 := by
@@ -26,32 +25,28 @@ theorem rec (m : ℕ) : a (m + 5) = 3 * a (m + 4) + 3 * a (m + 3) - 9 * a (m + 2
   generalize (m + 2 + 1) / 2 = B
   ring
 
-end PA032086
-
 open PowerSeries in
 theorem OMA.solution : type_of% @OMA.S_oeis_a032086.main := by
-  have hrec : ∀ n : ℕ, 4 < n → OMA.S_oeis_a032086.a n = 3 * OMA.S_oeis_a032086.a (n - 1) +
-      3 * OMA.S_oeis_a032086.a (n - 2) - 9 * OMA.S_oeis_a032086.a (n - 3) := by
+  have hrec : ∀ n : ℕ, 4 < n → a n = 3 * a (n - 1) + 3 * a (n - 2) - 9 * a (n - 3) := by
     intro n hn
     obtain ⟨m, rfl⟩ : ∃ m, n = m + 5 := ⟨n - 5, by omega⟩
     rw [show m + 5 - 1 = m + 4 by omega, show m + 5 - 2 = m + 3 by omega,
       show m + 5 - 3 = m + 2 by omega]
-    exact PA032086.rec m
+    exact rec m
   refine ⟨hrec, ?_, ?_, ?_⟩
-  · have v0 : OMA.S_oeis_a032086.a 0 = 0 := by simp [OMA.S_oeis_a032086.a]
-    have v1 : OMA.S_oeis_a032086.a 1 = 3 := by simp [OMA.S_oeis_a032086.a]
-    have v2 : OMA.S_oeis_a032086.a 2 = 3 := by rw [PA032086.a_ge 2 (by omega)]; norm_num
-    have v3 : OMA.S_oeis_a032086.a 3 = 9 := by rw [PA032086.a_ge 3 (by omega)]; norm_num
-    have v4 : OMA.S_oeis_a032086.a 4 = 36 := by rw [PA032086.a_ge 4 (by omega)]; norm_num
-    have hexp : ((1 - C 3 * X) * (1 - C 3 * X ^ 2)) * OMA.S_oeis_a032086.series =
-        OMA.S_oeis_a032086.series - C 3 * (X ^ 1 * OMA.S_oeis_a032086.series) -
-          C 3 * (X ^ 2 * OMA.S_oeis_a032086.series) + C 9 * (X ^ 3 * OMA.S_oeis_a032086.series) := by
+  · have v0 : a 0 = 0 := by simp [a]
+    have v1 : a 1 = 3 := by simp [a]
+    have v2 : a 2 = 3 := by rw [a_ge 2 (by omega)]; norm_num
+    have v3 : a 3 = 9 := by rw [a_ge 3 (by omega)]; norm_num
+    have v4 : a 4 = 36 := by rw [a_ge 4 (by omega)]; norm_num
+    have hexp : ((1 - C 3 * X) * (1 - C 3 * X ^ 2)) * series =
+        series - C 3 * (X ^ 1 * series) - C 3 * (X ^ 2 * series) + C 9 * (X ^ 3 * series) := by
       have h9 : (C 9 : ℚ⟦X⟧) = C 3 * C 3 := by rw [← map_mul]; norm_num
       rw [h9]
       ring
     rw [hexp]
     ext n
-    unfold OMA.S_oeis_a032086.series
+    unfold series
     simp only [map_sub, map_add, coeff_C_mul, coeff_X_pow_mul', coeff_mk, coeff_X_pow, coeff_X]
     rcases Nat.lt_or_ge n 5 with hn | hn
     · interval_cases n <;> simp [v0, v1, v2, v3, v4] <;> norm_num
@@ -60,8 +55,8 @@ theorem OMA.solution : type_of% @OMA.S_oeis_a032086.main := by
         show n ≠ 4 by omega, if_false]
       ring
   · intro n hn he
-    rw [PA032086.a_ge n (by omega), show (n + 1) / 2 = n / 2 by obtain ⟨k, rfl⟩ := he; omega]
+    rw [a_ge n (by omega), show (n + 1) / 2 = n / 2 by obtain ⟨k, rfl⟩ := he; omega]
     ring
   · intro n hn ho
-    rw [PA032086.a_ge n (by omega)]
+    rw [a_ge n (by omega)]
     ring
