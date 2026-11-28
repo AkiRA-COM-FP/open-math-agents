@@ -6,6 +6,8 @@ import Mathlib
 Source: https://oeis.org/A127974
 Credit: @bmendonca3
 
+[Lean proof of this statement](https://github.com/bmendonca3/open-math-agents/blob/f5b84522329d2f50466241787254d5bf4b0fafe1/proofs/oeis-a127974.lean)
+
 Entry A127974 (Paul Barry, Feb 09 2007), offset 0, data 1, 2, 5, 40, 110, 308, 2618, 7480, ...
 Formula section:
 Conjecture: a(n-1) = the numerator of (1/(2*sqrt(3)*Pi)) * Integral_{x >= 0} 1/(1 + x^3)^n.
