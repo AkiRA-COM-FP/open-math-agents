@@ -12,6 +12,12 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ a b c : P, (¬ a ≤ b ∧ ¬ b ≤ a) ∧ (¬ a ≤ c ∧ ¬ c ≤ a) ∧ (¬ b ≤ c ∧ ¬ c ≤ b)) →
     (∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ 6) →
+    (let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+     ¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [])) →
     let ext : Finset (P ≃ Fin (Fintype.card P)) := by
       classical
       exact Finset.univ.filter (fun rank => StrictMono rank)
@@ -813,74 +819,6 @@ lemma fixed_of_preserves_total {P : Type} [Fintype P] (R : P → P → Prop)
 
 -- Pouzet's symmetry argument. Without a balanced pair, the more-than-two-thirds
 -- comparisons form a strict total order preserved by every poset automorphism.
-lemma automorphism_balanced (P : Type) [PartialOrder P] [Fintype P]
-    (moves : ∃ (e : P ≃o P) (x : P), e x ≠ x) :
-    let ext : Finset (P ≃ Fin (Fintype.card P)) := by
-      classical
-      exact Finset.univ.filter (fun r => StrictMono r)
-    ∃ x y : P, x ≠ y ∧
-      let p := ((ext.filter (fun r => r x < r y)).card : ℚ) / ext.card
-      1 / 3 ≤ p ∧ p ≤ 2 / 3 := by
-  classical
-  intro ext
-  let before (a b : P) := ext.filter (fun r => r a < r b)
-  let R (a b : P) := 2 * ext.card < 3 * (before a b).card
-  obtain ⟨r, hr⟩ := rank_exists P
-  have pos : 0 < ext.card := Finset.card_pos.mpr ⟨r, Finset.mem_filter.mpr ⟨Finset.mem_univ _, hr⟩⟩
-  have posq : (0 : ℚ) < ext.card := by exact_mod_cast pos
-  have partition (a b : P) (ne : a ≠ b) :
-      (before a b).card + (before b a).card = ext.card := by
-    have flip : before b a = ext.filter (fun r => ¬ r a < r b) := by
-      apply Finset.filter_congr
-      intro f _
-      exact ⟨fun h => not_lt_of_gt h, fun h => lt_of_le_of_ne (le_of_not_gt h) (f.injective.ne ne.symm)⟩
-    rw [flip]
-    exact Finset.card_filter_add_card_filter_not _
-  have triangle (a b c : P) : (before a b).card ≤ (before a c).card + (before c b).card := by
-    apply le_trans (Finset.card_le_card ?_) (Finset.card_union_le (before a c) (before c b))
-    intro f hf
-    obtain ⟨he, hab⟩ := Finset.mem_filter.mp hf
-    rcases lt_or_ge (f a) (f c) with hac | hca
-    · exact Finset.mem_union_left _ (Finset.mem_filter.mpr ⟨he, hac⟩)
-    · exact Finset.mem_union_right _ (Finset.mem_filter.mpr ⟨he, lt_of_le_of_lt hca hab⟩)
-  by_contra noPair
-  have dichotomy (a b : P) : 3 * (before a b).card < ext.card ∨ R a b := by
-    by_cases eq : a = b
-    · subst b
-      left
-      simpa [before] using pos
-    by_contra! both
-    apply noPair
-    have lo : (ext.card : ℚ) ≤ 3 * ((before a b).card : ℚ) := by exact_mod_cast both.1
-    have upper : 3 * (before a b).card ≤ 2 * ext.card := Nat.le_of_not_lt both.2
-    have hi : 3 * ((before a b).card : ℚ) ≤ 2 * (ext.card : ℚ) := by exact_mod_cast upper
-    refine ⟨a, b, eq, (le_div_iff₀ posq).2 ?_, (div_le_iff₀ posq).2 ?_⟩ <;> linarith
-  have irrefl (a : P) : ¬ R a a := by simp [R, before]
-  have total (a b : P) (ne : a ≠ b) : R a b ∨ R b a := by
-    rcases dichotomy a b with h | h
-    · right
-      have := partition a b ne
-      dsimp only [R]
-      omega
-    · exact Or.inl h
-  have transitive {a b c : P} (ab : R a b) (bc : R b c) : R a c := by
-    have ne : b ≠ c := fun eq => irrefl c (eq ▸ bc)
-    have sum := partition b c ne
-    have cover := triangle a b c
-    rcases dichotomy a c with small | large
-    · dsimp only [R] at ab bc
-      omega
-    · exact large
-  obtain ⟨e, x, moved⟩ := moves
-  have invariant (a b : P) : R a b ↔ R (e a) (e b) := by
-    have ratio := count_transport e a b
-    change ((before a b).card : ℚ) / ext.card = ((before (e a) (e b)).card : ℚ) / ext.card at ratio
-    have counts : (before a b).card = (before (e a) (e b)).card := by
-      exact_mod_cast (div_left_inj' posq.ne').mp ratio
-    dsimp only [R]
-    rw [counts]
-  exact moved (fixed_of_preserves_total R irrefl transitive total e.toEquiv invariant x)
-
 -- The local count is the body of numExt from the gold-partition statement
 -- (#6289). Keeping it local permits the reduction's single problem import.
 lemma comparison_counts (P : Type) [PartialOrder P] [Fintype P] :
@@ -1028,6 +966,139 @@ lemma balanced_triple_gold (P : Type) [PartialOrder P] [Fintype P] :
     have flip : count [(y, z), (x, y)] = count [(x, y), (y, z)] := (cells _ _).2.2
     exact chooseFirst y z x y yz xy h (flip.trans_le middle) half
 
+-- A rank satisfying both comparisons puts x before z by transitivity.
+lemma chain_count_le (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y z : P, count [(x, y), (y, z)] ≤ count [(x, z)] := by
+  intro count x y z
+  let ranks (l : List (P × P)) := {σ : P ≃ Fin (Fintype.card P) //
+    (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ l, σ c.1 < σ c.2}
+  let forget (r : ranks [(x, y), (y, z)]) : ranks [(x, z)] := ⟨r.1, r.2.1, by
+    intro p hp
+    obtain rfl : p = (x, z) := by simpa using hp
+    exact lt_trans (r.2.2 (x, y) (by simp)) (r.2.2 (y, z) (by simp))⟩
+  exact Nat.card_le_card_of_injective forget (fun _ _ h => Subtype.ext (congrArg (fun r : ranks [(x, z)] => r.val) h))
+
+-- Peczarski, Fact 3. Rotate the cycle so the omitted edge has a reverse
+-- count at most the larger reverse count of the other two edges.
+lemma majority_cycle_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y z : P, x ≠ y → y ≠ z → z ≠ x →
+      count [] < 2 * count [(x, y)] → count [] < 2 * count [(y, z)] →
+      count [] < 2 * count [(z, x)] → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  intro count x y z xy yz zx a b c
+  obtain ⟨_, _, split, _⟩ := comparison_counts P
+  have half (i j : P) (ne : i ≠ j) (h : count [] < 2 * count [(i, j)]) :
+      2 * count [(j, i)] ≤ count [] := by
+    have part : count [(i, j)] + count [(j, i)] = count [] := split [] i j ne
+    omega
+  have h₁ := half x y xy a
+  have h₂ := half y z yz b
+  have h₃ := half z x zx c
+  have fit (i j k : P) (ij : i ≠ j) (jk : j ≠ k) (ik : i ≠ k)
+      (m : count [(i, k)] ≤ max (count [(j, i)]) (count [(k, j)]))
+      (halfMax : 2 * max (count [(j, i)]) (count [(k, j)]) ≤ count []) :=
+    balanced_triple_gold P i j k ij jk ik ((chain_count_le P i j k).trans m) halfMax
+  by_cases h : count [(x, z)] ≤ max (count [(y, x)]) (count [(z, y)])
+  · exact fit x y z xy yz zx.symm h (by omega)
+  · exact fit y z x yz zx xy.symm (by omega) (by omega)
+
+lemma tied_comparison_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y : P, x ≠ y → 2 * count [(x, y)] = count [] → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  intro count x y xy tie
+  obtain ⟨_, _, split, cells⟩ := comparison_counts P
+  have part : count [(x, y)] + count [(y, x)] = count [] := split [] x y xy
+  refine ⟨x, y, x, y, xy, xy, ?_⟩
+  intro p hp q _
+  have bound : count [p, q] ≤ count [p] := (cells p q).1
+  simp only [List.mem_cons, List.not_mem_nil, or_false] at hp
+  rcases hp with rfl | rfl <;> omega
+
+lemma no_gold_majority_order (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ¬ (∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count []) →
+    let R (x y : P) := count [] < 2 * count [(x, y)]
+    (∀ x, ¬ R x x) ∧ (∀ x y, x ≠ y → R x y ∨ R y x) ∧
+      (∀ {x y z}, R x y → R y z → R x z) := by
+  classical
+  intro count noGold R
+  obtain ⟨_, num, split, _⟩ := comparison_counts P
+  have irr (x : P) : ¬ R x x := by
+    have zero : count [(x, x)] = 0 := (num x x).trans (by simp)
+    simp [R, zero]
+  have total (x y : P) (ne : x ≠ y) : R x y ∨ R y x := by
+    have part : count [(x, y)] + count [(y, x)] = count [] := split [] x y ne
+    have untied : 2 * count [(x, y)] ≠ count [] := fun h => noGold (tied_comparison_gold P x y ne h)
+    dsimp only [R]
+    omega
+  refine ⟨irr, total, ?_⟩
+  intro x y z a b
+  have xy : x ≠ y := fun h => irr y (h ▸ a)
+  have yz : y ≠ z := fun h => irr z (h ▸ b)
+  have xz : x ≠ z := by
+    rintro rfl
+    have part : count [(x, y)] + count [(y, x)] = count [] := split [] x y xy
+    dsimp only [R] at a b
+    omega
+  rcases total x z xz with h | h
+  · exact h
+  · exact (noGold (majority_cycle_gold P x y z xy yz xz.symm a b h)).elim
+
+-- Peczarski, section 3. In the absence of gold a finite strict majority
+-- order is total, so an automorphism preserving its counts fixes each point.
+lemma automorphism_gold (P : Type) [PartialOrder P] [Fintype P]
+    (moves : ∃ (e : P ≃o P) (x : P), e x ≠ x) :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  classical
+  intro count
+  by_contra noGold
+  obtain ⟨irr, total, transitive⟩ := no_gold_majority_order P noGold
+  obtain ⟨den, num, _, _⟩ := comparison_counts P
+  obtain ⟨e, x, moved⟩ := moves
+  let ext := Finset.univ.filter (fun r : P ≃ Fin (Fintype.card P) => StrictMono r)
+  obtain ⟨r, hr⟩ := rank_exists P
+  have pos : 0 < ext.card := Finset.card_pos.mpr ⟨r, Finset.mem_filter.mpr ⟨Finset.mem_univ _, hr⟩⟩
+  have posq : (0 : ℚ) < ext.card := by exact_mod_cast pos
+  have invariant (a b : P) : count [(a, b)] = count [(e a, e b)] := by
+    have ratio := count_transport e a b
+    exact (num a b).trans (Eq.trans (by
+      exact_mod_cast (div_left_inj' posq.ne').mp ratio) (num (e a) (e b)).symm)
+  apply moved
+  apply fixed_of_preserves_total (fun a b => count [] < 2 * count [(a, b)]) irr transitive total e.toEquiv _ x
+  intro a b
+  change (count [] < 2 * count [(a, b)]) ↔ count [] < 2 * count [(e a, e b)]
+  rw [invariant]
+
+lemma automorphism_balanced (P : Type) [PartialOrder P] [Fintype P]
+    (moves : ∃ (e : P ≃o P) (x : P), e x ≠ x) :
+    let ext : Finset (P ≃ Fin (Fintype.card P)) := by
+      classical
+      exact Finset.univ.filter (fun r => StrictMono r)
+    ∃ x y : P, x ≠ y ∧
+      let p := ((ext.filter (fun r => r x < r y)).card : ℚ) / ext.card
+      1 / 3 ≤ p ∧ p ≤ 2 / 3 := by
+  exact gold_balanced P (automorphism_gold P moves)
+
 -- The six-thin gold-partition theorem would discharge the existing H1.
 lemma six_thin_gold_suffices (sixThin : ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∃ a b : P, ¬ a ≤ b ∧ ¬ b ≤ a) →
@@ -1038,9 +1109,9 @@ lemma six_thin_gold_suffices (sixThin : ∀ (P : Type) [PartialOrder P] [Fintype
     ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
       ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
         count [p] + count [p, q] ≤ count []) : H1 := by
-  intro P _ _ _ _ _ three thin
+  intro P _ _ _ _ _ three thin noGold
   obtain ⟨x, y, _, xy, _, _⟩ := three
-  exact gold_balanced P (sixThin P ⟨x, y, xy⟩ thin)
+  exact (noGold (sixThin P ⟨x, y, xy⟩ thin)).elim
 
 theorem main : H1 → H2 → type_of% @OMA.S_wp_1_3_2_3_conjecture.main := by
   classical
@@ -1068,17 +1139,15 @@ theorem main : H1 → H2 → type_of% @OMA.S_wp_1_3_2_3_conjecture.main := by
       have three : ∃ i j k : Q,
           (¬ i ≤ j ∧ ¬ j ≤ i) ∧ (¬ i ≤ k ∧ ¬ k ≤ i) ∧ (¬ j ≤ k ∧ ¬ k ≤ j) :=
         ⟨a, b, c, ⟨ab, ba⟩, ⟨ac, ca⟩, bc, cb⟩
-      by_cases rigid : ∀ (e : Q ≃o Q) (x : Q), e x = x
-      · by_cases thin : ∀ x : Q, ({y : Q | ¬ x ≤ y ∧ ¬ y ≤ x} : Set Q).ncard ≤ 6
-        · exact thinCase Q hn hi rigid three thin
-        · obtain ⟨x, hx⟩ := not_forall.mp thin
-          by_contra noPair
-          apply noPair
-          apply remaining Q hn hi rigid three ⟨x, by omega⟩
-          intro count certificate
-          exact noPair (gold_balanced Q certificate)
-      · simp only [not_forall] at rigid
-        exact automorphism_balanced Q rigid
+      by_contra noPair
+      have noGold := fun h => noPair (gold_balanced Q h)
+      have rigid (e : Q ≃o Q) (x : Q) : e x = x := by
+        by_contra moved
+        exact noGold (automorphism_gold Q ⟨e, x, moved⟩)
+      by_cases thin : ∀ x : Q, ({y : Q | ¬ x ≤ y ∧ ¬ y ≤ x} : Set Q).ncard ≤ 6
+      · exact noPair (thinCase Q hn hi rigid three thin noGold)
+      · obtain ⟨x, hx⟩ := not_forall.mp thin
+        exact noPair (remaining Q hn hi rigid three ⟨x, by omega⟩ noGold)
   obtain ⟨x, y, hxy, hbounds⟩ := core S hS hcut
   have eqProb := (hprob x y).trans (count_transport e x.val y.val)
   exact ⟨e x.val, e y.val, fun h => hxy (Subtype.ext (e.injective h)),
