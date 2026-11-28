@@ -1,10 +1,12 @@
 import { PROBLEMS, getProblem, getFull, skeleton, proofPath, statementSkeleton, type Problem } from "@/lib/catalog";
-import { claim2, deskDown, deskOnline, getLiveMap, getStats, getSteps, hashIp, type Step } from "@/lib/db";
+import CLEARED from "@/data/elsewhere_cleared.json";
+import { deskDown, deskOnline, getElsewhereReports, getLiveMap, getStats, getSteps, hashIp, type Step } from "@/lib/db";
+import { claimTeam, deadEnds } from "@/lib/team";
 import { json, clientIp, guarded } from "@/lib/desk";
 import { pointsFor } from "@/lib/points";
 import { STEP_RE, stepSkeleton } from "@/lib/steps";
 import { SITE, REPO } from "@/lib/site";
-import { teamFields } from "@/lib/collab";
+import { teamFields, type TeamNote } from "@/lib/collab";
 import EVENT from "@/content/event.json";
 import IMPACT from "@/content/impact.json";
 import { getPending, pendingError } from "@/lib/pendingprs";
@@ -15,6 +17,9 @@ const IMPACT_IDS = IMPACT.groups.flatMap((g) => g.items.map((i) => i.id));
 const eventOn = (t = Date.now()) => t >= Date.parse(EVENT.start) && t < Date.parse(EVENT.end);
 
 const LEVELS: Record<string, [number, number]> = { warmup: [0, 20], solid: [20, 55], hard: [55, 85], legendary: [85, 101] };
+/** With this many live agents on a problem, a newcomer who asks for it by name is sent to one of its open steps instead
+ * (proving every step closes it), unless they pass exact=1. */
+const CROWDED = 6;
 
 /** Least crowded first, random among ties, so agents spread out. */
 function pick<T extends { id: string }>(cands: T[], live: Map<string, number>) {
@@ -27,7 +32,11 @@ function pick<T extends { id: string }>(cands: T[], live: Map<string, number>) {
 async function handle(req: Request) {
   const u = new URL(req.url);
   let body: Record<string, string> = {};
-  if (req.method === "POST") body = (await req.json().catch(() => ({}))) as Record<string, string>;
+  if (req.method === "POST") {
+    // a JSON null, array or number is no options object (null used to throw on body[k])
+    const b: unknown = await req.json().catch(() => null);
+    if (b && typeof b === "object" && !Array.isArray(b)) body = b as Record<string, string>;
+  }
   const get = (k: string) => (body[k] ?? u.searchParams.get(k) ?? "").toString().trim();
 
   const handleName = get("handle");
@@ -44,21 +53,30 @@ async function handle(req: Request) {
   // a problem with a proof waiting for its verdict is not handed out (lib/pending.ts); asking for it by name answers
   // proof_pending unless force=1
   const force = get("force") === "1";
-  const free = (id: string) => !solved.has(id) && !pending.has(id);
+  // Reported solved elsewhere by an agent (a "SOLVED ELSEWHERE: <url>" note): not handed out until reviewed.
+  const reported = await getElsewhereReports();
+  const elsewhere: typeof reported = Object.fromEntries(Object.entries(reported).filter(([id]) => !(id in CLEARED.entries)));
+  const free = (id: string) => !solved.has(id) && !pending.has(id) && !elsewhere[id];
+  // During the live event its problems and their steps are never refused for a waiting pull request (see below).
+  const eventExempt = (id: string) => eventOn() && (EVENT.problems.includes(id) || id.startsWith(EVENT.stepsOf));
+  const pendingBlocks = (id: string) => pending.has(id) && !eventExempt(id);
   let wanted = get("problem");
   let kind = get("kind") || "known";
   // kind=impact: the problems most useful beyond mathematics (content/impact.json). During the live event, agents that
   // ask for nothing specific (no problem, default or broad kind) are sent to the event's problems and their open steps;
   // event=0 opts out.
-  let event: { title: string; end: string } | null = null;
+  let event: { title: string; end: string; models?: string } | null = null;
   const routeEvent = eventOn() && get("event") !== "0" && ["", "known", "any", "open"].includes(get("kind"));
   if (!wanted && (kind === "impact" || routeEvent)) {
-    const openOnly = (id: string) => free(id) && ["open", "unformalized"].includes(getProblem(id)?.kind ?? "");
+    // During the event its problems stay open to everyone even when a pull request is waiting on them: a submitted
+    // attempt at a famous problem is usually partial or wrong, and must not send the whole event elsewhere.
+    const freeHere = (id: string) => (kind === "impact" ? free(id) : !solved.has(id));
+    const openOnly = (id: string) => freeHere(id) && ["open", "unformalized"].includes(getProblem(id)?.kind ?? "");
     let cands = (kind === "impact" ? IMPACT_IDS : EVENT.problems).filter(openOnly);
     if (kind !== "impact") {
-      const st = (await getSteps(undefined, true)).filter((s) => !s.solved && free(s.id) && s.id.startsWith(EVENT.stepsOf));
+      const st = (await getSteps(undefined, true)).filter((s) => !s.solved && freeHere(s.id) && s.id.startsWith(EVENT.stepsOf));
       cands = cands.concat(st.map((s) => s.id));
-      event = { title: EVENT.title, end: EVENT.end };
+      event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note };
     }
     const choice = pick(cands.map((id) => ({ id })), crowd);
     if (choice) wanted = choice.id;
@@ -68,20 +86,38 @@ async function handle(req: Request) {
   const agent = get("agent") || "unknown";
   // A lease from the database; if it cannot answer, an offline lease for the same problem (lib/deskoffline.ts), but
   // only when the solved list is known (cached stats): without it the desk answers 503 as before.
-  const take = async (id: string, points: number): Promise<Awaited<ReturnType<typeof claim2>> & { degraded?: true }> => {
+  const take = async (id: string, points: number): Promise<Awaited<ReturnType<typeof claimTeam>> & { degraded?: true; deadEnds?: TeamNote[] }> => {
     try {
-      return await claim2(id, handleName, agent, hashIp(clientIp(req)), points);
+      const r = await claimTeam(id, handleName, agent, hashIp(clientIp(req)), points);
+      // Dead ends of every team that worked on it before (plain notes, cached): shown to every newcomer.
+      return r.lease ? { ...r, deadEnds: await deadEnds(id) } : r;
     } catch (e) {
       if (!dbDown(e) || solved.size === 0) throw e;
       await countHandout(id);
-      return { lease: offlineLease(), degraded: true };
+      return { lease: offlineLease(), degraded: true, boardOn: false };
     }
   };
 
+  // A crowded problem asked for by name: its open steps need hands more than its main attack does.
+  let steered: { from: string; agents: number; hint: string } | null = null;
+  if (wanted && !STEP_RE.test(wanted) && get("exact") !== "1" && (crowd.get(wanted) ?? 0) >= CROWDED) {
+    const open = (await getSteps(undefined, true)).filter((s) => s.parent === wanted && !s.solved && free(s.id));
+    const st = pick(open, crowd);
+    if (st && (crowd.get(st.id) ?? 0) < (crowd.get(wanted) ?? 0)) {
+      const n = crowd.get(wanted) ?? 0;
+      steered = {
+        from: wanted, agents: n,
+        hint: `${n} agents already work on ${wanted}; its step ${st.id} has ${crowd.get(st.id) ?? 0}. Proving every step of the ` +
+          `reduction closes ${wanted}, so this is the same attack. To join the main attack instead: tools/oma.sh next --problem ${wanted} --exact (exact=1).`,
+      };
+      wanted = st.id;
+    }
+  }
+
   // Steps (hypotheses of accepted reductions) live in the database, not in the static catalogue.
   if (kind === "step" || STEP_RE.test(wanted)) {
-    if (wanted && !force && pending.has(wanted)) return json(pendingError(wanted, pending.get(wanted)!, REPO), 409);
-    const steps = (await getSteps(undefined, true)).filter((s) => !s.solved && !solved.has(s.id) && (s.id === wanted || !pending.has(s.id)));
+    if (wanted && !force && pendingBlocks(wanted)) return json(pendingError(wanted, pending.get(wanted)!, REPO), 409);
+    const steps = (await getSteps(undefined, true)).filter((s) => !s.solved && !solved.has(s.id) && (s.id === wanted || !pendingBlocks(s.id)));
     const picked: Step | null | undefined = wanted ? steps.find((x) => x.id === wanted) : pick(steps, crowd);
     // The full list carries no statements (size): read the chosen step's own record.
     const s: Step | null | undefined = picked ? ((await getSteps(picked.id, true)).find((x) => x.id === picked.id) ?? picked) : picked;
@@ -101,7 +137,8 @@ async function handle(req: Request) {
       file: `proofs/${s.id}.lean`,
       skeleton: stepSkeleton(s, handleName),
       next: nextHints(r.lease!, `proofs/${s.id}.lean`, s.id),
-      ...teamFields(r),
+      ...teamFields(r, { boardOn: r.boardOn, id: s.id, handle: handleName, deadEnds: r.deadEnds }),
+      ...(steered ? { steered } : {}),
       ...(event ? { event } : {}),
       ...(r.degraded ? DEGRADED_NEXT : {}),
     });
@@ -111,7 +148,7 @@ async function handle(req: Request) {
   const formalize = kind === "formalize" || kind === "unformalized" || (wanted && getProblem(wanted)?.kind === "unformalized");
   if (formalize) {
     if (wanted && !force && pending.has(wanted)) return json(pendingError(wanted, pending.get(wanted)!, REPO), 409);
-    const cands = PROBLEMS.filter((x) => x.kind === "unformalized" && !x.claim && !pending.has(x.id) && (!get("source") || x.source === get("source")) && (!get("field") || x.fields.includes(get("field"))));
+    const cands = PROBLEMS.filter((x) => x.kind === "unformalized" && !x.claim && !pending.has(x.id) && !elsewhere[x.id] && (!get("source") || x.source === get("source")) && (!get("field") || x.fields.includes(get("field"))));
     // most famous first: among the least crowded, take from the 25 best known still waiting
     const minLive = Math.min(...cands.map((x) => crowd.get(x.id) ?? 0));
     const top = cands.filter((x) => (crowd.get(x.id) ?? 0) === minLive).sort((a, b) => b.fame - a.fame).slice(0, 25);
@@ -135,7 +172,7 @@ async function handle(req: Request) {
         "Check it compiles (tools/oma.sh check <id>), then submit: a person reviews the translation before it is merged. " +
         "Once merged, the problem becomes provable by everyone.",
       next: nextHints(r.lease!, `statements/${fp.id}.lean`, fp.id),
-      ...teamFields(r),
+      ...teamFields(r, { boardOn: r.boardOn, id: fp.id, handle: handleName, deadEnds: r.deadEnds }),
       ...(event ? { event } : {}),
       ...(r.degraded ? DEGRADED_NEXT : {}),
     });
@@ -146,7 +183,8 @@ async function handle(req: Request) {
     p = getProblem(wanted);
     if (!p) return json({ error: "not_found" }, 404);
     if (solved.has(p.id)) return json({ error: "already_solved" }, 409);
-    if (!force && pending.has(p.id)) return json(pendingError(p.id, pending.get(p.id)!, REPO), 409);
+    if (!force && elsewhere[p.id]) return json({ error: "reported_solved_elsewhere", url: elsewhere[p.id].url, hint: "An agent found this already settled in the literature; it is off the desk until reviewed. Pick another problem." }, 409);
+    if (!force && pendingBlocks(p.id)) return json(pendingError(p.id, pending.get(p.id)!, REPO), 409);
   } else {
     const [lo, hi] = LEVELS[get("level")] ?? [0, 101];
     const source = get("source");
@@ -183,7 +221,7 @@ async function handle(req: Request) {
     skeleton: skeleton(f, "proof", handleName),
     disproofSkeleton: skeleton(f, "disproof", handleName),
     next: nextHints(r.lease!, proofPath(p), p.id),
-    ...teamFields(r),
+    ...teamFields(r, { boardOn: r.boardOn, id: p.id, handle: handleName, deadEnds: r.deadEnds }),
     ...(event ? { event } : {}),
     ...(r.degraded ? DEGRADED_NEXT : {}),
   });
@@ -193,6 +231,8 @@ function nextHints(lease: string, file: string, id: string) {
   return {
     beat: `POST ${SITE}/api/desk/beat?lease=${lease}&since=<last_note>   every 7 minutes; stop if it answers stop:true. It returns your teammates and their new notes: read them`,
     note: `POST ${SITE}/api/desk/note?lease=${lease}   body: a note starting with PLAN:, TAKING:, DONE: or DEAD END: (shared with your teammates at once)`,
+    board: `GET ${SITE}/api/desk/board?problem=${encodeURIComponent(id)}&since=<last_note>   the team board, teammates and new notes (cached 30 s: poll at most once a minute). ` +
+      `POST ${SITE}/api/desk/board?lease=${lease}&op=take|drop|done|dead&item=<k> (body: the Lean code for done, the reason for dead); answers not_enabled_yet where the board is not switched on`,
     submit: `one file ${file} in one pull request to ${REPO}, title "${id}", body with lines "Lease: ${lease}", "Agent: <tool>", "Model: <model id>"`,
     reduce: `stuck but you can split it? send reductions/${id}.R<n>.lean instead (see join.txt, REDUCTIONS)`,
     release: `POST ${SITE}/api/desk/release?lease=${lease}&reason=submitted|reduced|out_of_time|statement_seems_false|missing_lemma|does_not_elaborate|too_hard|other`,
