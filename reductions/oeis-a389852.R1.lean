@@ -7,22 +7,41 @@ Eight explicit families come from perturbing the cube identities
 terms cancel. The eight progressions have distinct residues modulo 18,
 and jointly occupy 3294 of the 16380 residues in their common period.
 The cases up to 1000 have independently checkable witnesses.
+
+Every arithmetic progression contains arbitrarily large represented integers,
+with three of the four positive bases fixed at values at most the modulus.
+For each input, the equation also has positive bounded witnesses modulo every
+positive modulus. The remaining cube-free cases are therefore local-to-integral
+implications. These statements do not assert an integral solution for each input.
+
+For context, Colliot-Thélène and Wittenberg, Lemma 4.5 (arXiv:0911.3539),
+and the repository's three-cube result in PR #7060 establish the local
+criterion for three cubes. The proof below works directly with four bases.
+It combines two elementary cubic identities away from three, a digit lift at
+three, and the Chinese remainder theorem.
+
+Agent: codex
+Model: gpt-6.2-astra (progression and local-solubility update)
 -/
 
 namespace OMA.R_oeis_a389852_R1
 
-/-- Remaining cube-free multiples of three, outside the two covered progressions. -/
+/-- Integral lifting for the remaining cube-free multiples of three. -/
 def H1 : Prop := ∀ n : ℕ, 1000 < n →
     (∀ k : ℕ, 2 ≤ k → ¬ k ^ 3 ∣ n) → n % 3 = 0 →
     n % 126 ≠ 63 → n % 234 ≠ 0 →
+    (∀ m : ℕ, 0 < m → ∃ d x y z : ℕ, 0 < d ∧ d ≤ m ∧ 0 < x ∧ x ≤ m ∧
+      0 < y ∧ y ≤ m ∧ 0 < z ∧ z ≤ m ∧ n + d^3 ≡ x^3 + y^3 + z^3 [MOD m]) →
     ∃ d x y z : ℕ, 0 < d ∧ 0 < x ∧ 0 < y ∧ 0 < z ∧
       n + d ^ 3 = x ^ 3 + y ^ 3 + z ^ 3
 
-/-- Remaining cube-free integers coprime to three. -/
+/-- Integral lifting for the remaining cube-free integers coprime to three. -/
 def H2 : Prop := ∀ n : ℕ, 1000 < n →
     (∀ k : ℕ, 2 ≤ k → ¬ k ^ 3 ∣ n) → n % 3 ≠ 0 →
     n % 18 ≠ 7 → n % 18 ≠ 11 → n % 36 ≠ 1 → n % 36 ≠ 35 →
     n % 90 ≠ 26 → n % 90 ≠ 64 →
+    (∀ m : ℕ, 0 < m → ∃ d x y z : ℕ, 0 < d ∧ d ≤ m ∧ 0 < x ∧ x ≤ m ∧
+      0 < y ∧ y ≤ m ∧ 0 < z ∧ z ≤ m ∧ n + d^3 ≡ x^3 + y^3 + z^3 [MOD m]) →
     ∃ d x y z : ℕ, 0 < d ∧ 0 < x ∧ 0 < y ∧ 0 < z ∧
       n + d ^ 3 = x ^ 3 + y ^ 3 + z ^ 3
 
@@ -191,6 +210,164 @@ theorem progressions {n : ℕ} (hn : 0 < n)
   · refine ⟨6 * t + 5, 3 * t + 2, 4 * t + 7, 5 * t + 2, ?_⟩
     exact ⟨by positivity, by positivity, by positivity, by positivity, by ring⟩
 
+/-- A congruence-preserving perturbation of the identity by a multiple of q
+is surjective modulo every power of q. Each substitution gains one power. -/
+theorem lift_perturbed_identity (q w : ℤ) (f : ℤ → ℤ)
+    (hf : ∀ a b : ℤ, a - b ∣ f a - f b) (k : ℕ) :
+    ∃ t : ℤ, q^k ∣ w - (t + q * f t) := by
+  induction k with
+  | zero => exact ⟨0, by simp⟩
+  | succ k ih =>
+    obtain ⟨t, ht⟩ := ih
+    let u := w - q * f t
+    have hu : q^k ∣ u - t := by
+      convert ht using 1
+      dsimp [u]
+      ring
+    obtain ⟨c, hc⟩ := hu.trans (hf u t)
+    refine ⟨u, -c, ?_⟩
+    dsimp [u] at hc ⊢
+    rw [pow_succ]
+    linear_combination -q * hc
+
+/-- A unit seed s = ±1 lifts every cube target in its residue modulo nine. -/
+private theorem lift_unit_cube (s N : ℤ) (hs : s^2 = 1) (h : (9 : ℤ) ∣ N - s^3)
+    (k : ℕ) : ∃ x : ℤ, (3 : ℤ)^k ∣ N - x^3 := by
+  obtain ⟨w, hw⟩ := h
+  let f (t : ℤ) := s*t^2 + t^3
+  have hf (a b : ℤ) : a - b ∣ f a - f b := by
+    refine ⟨s*(a+b) + a^2 + a*b + b^2, ?_⟩
+    dsimp [f]
+    ring
+  obtain ⟨t, c, hc⟩ := lift_perturbed_identity 3 w f hf k
+  refine ⟨s + 3*t, 9*c, ?_⟩
+  dsimp [f] at hc
+  linear_combination hw + 9 * hc - 9 * t * hs
+
+private theorem three_power_residues (n : ℤ) (k : ℕ) :
+    ∃ d x y z : ZMod (3^k), (n : ZMod (3^k)) + d^3 = x^3 + y^3 + z^3 := by
+  have seed : ∀ j : Fin 9, ∃ s : Fin 2, ∃ a b : Fin 3, ∃ c : Fin 2,
+      (9 : ℤ) ∣ ((j.val : ℤ) + ((c.val : ℤ)+1)^3 -
+        (a.val : ℤ)^3 - (b.val : ℤ)^3) - (1 - 2*(s.val : ℤ))^3 := by decide +kernel
+  let j : Fin 9 := ⟨(n % 9).toNat, by omega⟩
+  obtain ⟨i, a, b, c, hseed⟩ := seed j
+  let s : ℤ := 1 - 2*(i.val : ℤ)
+  let d : ℤ := c.val + 1
+  let N : ℤ := n + d^3 - (a.val : ℤ)^3 - (b.val : ℤ)^3
+  have hs : s^2 = 1 := by
+    have hi : i.val = 0 ∨ i.val = 1 := by omega
+    rcases hi with h | h <;> simp [s, h]
+  have hj : (j.val : ℤ) = n % 9 := Int.toNat_of_nonneg (Int.emod_nonneg _ (by decide))
+  have h : (9 : ℤ) ∣ N - s^3 := by
+    obtain ⟨b₀, hb₀⟩ := hseed
+    refine ⟨n / 9 + b₀, ?_⟩
+    dsimp [N, s, d]
+    rw [hj] at hb₀
+    have hdiv : n = n % 9 + 9 * (n / 9) := by omega
+    linear_combination hb₀ + hdiv
+  obtain ⟨x, hx⟩ := lift_unit_cube s N hs h k
+  have castEq : ((x^3 : ℤ) : ZMod (3^k)) = (N : ZMod (3^k)) :=
+    (ZMod.intCast_eq_intCast_iff_dvd_sub _ _ _).2 (by simpa using hx)
+  refine ⟨d, x, a.val, b.val, ?_⟩
+  dsimp [N] at castEq
+  push_cast at castEq
+  linear_combination -castEq
+
+/-- Away from three, the even targets use the second difference of a cube.
+For odd targets the affine identity giving 18t+25 works with nine inverted. -/
+private theorem coprime_three_residues (n : ℤ) (m : ℕ) (hm : Nat.Coprime 3 m) :
+    ∃ d x y z : ZMod m, (n : ZMod m) + d^3 = x^3 + y^3 + z^3 := by
+  let u : (ZMod m)ˣ := ZMod.unitOfCoprime 3 hm
+  have hu : (3 : ZMod m) * (↑u⁻¹ : ZMod m) = 1 := by
+    exact u.mul_inv_of_eq (ZMod.coe_unitOfCoprime 3 hm)
+  by_cases even : n % 2 = 0
+  · let t : ZMod m := ((n / 2 : ℤ) : ZMod m) * (↑u⁻¹ : ZMod m)
+    have h : (n : ZMod m) = 6*t := by
+      have he : n = 2 * (n/2) := by omega
+      have hc := congrArg (fun z : ℤ => (z : ZMod m)) he
+      push_cast at hc
+      dsimp [t]
+      linear_combination hc - 2 * ((n/2 : ℤ) : ZMod m) * hu
+    exact ⟨t, t+1, t-1, -t, by rw [h]; ring⟩
+  · let a := (n - 25) / 2
+    let t : ZMod m := (a : ZMod m) * (↑u⁻¹ : ZMod m)^2
+    have ha : n = 2*a + 25 := by dsimp [a]; omega
+    have hc := congrArg (fun z : ℤ => (z : ZMod m)) ha
+    push_cast at hc
+    have hu2 : (9 : ZMod m) * (↑u⁻¹ : ZMod m)^2 = 1 := by
+      linear_combination (3*(↑u⁻¹ : ZMod m)+1) * hu
+    have h : (n : ZMod m) = 18*t+25 := by
+      dsimp [t]
+      linear_combination hc - 2*(a : ZMod m)*hu2
+    exact ⟨9*t+7, t+3, 6*t+5, 8*t+6, by rw [h]; ring⟩
+
+/-- Every residue has the A389852 sign pattern over every finite modulus. -/
+theorem four_cubes_mod (n : ℤ) (m : ℕ) (hm : 0 < m) :
+    ∃ d x y z : ZMod m, (n : ZMod m) + d^3 = x^3 + y^3 + z^3 := by
+  obtain ⟨k, u, hu, rfl⟩ := Nat.exists_eq_pow_mul_and_not_dvd hm.ne' 3 (by decide)
+  have cop : Nat.Coprime 3 u := Nat.prime_three.coprime_iff_not_dvd.mpr hu
+  let e := ZMod.chineseRemainder (cop.pow_left k)
+  obtain ⟨d, x, y, z, h⟩ := three_power_residues n k
+  obtain ⟨D, X, Y, Z, H⟩ := coprime_three_residues n u cop
+  refine ⟨e.symm (d,D), e.symm (x,X), e.symm (y,Y), e.symm (z,Z), e.injective ?_⟩
+  simp only [map_add, map_pow, map_intCast, RingEquiv.apply_symm_apply]
+  exact Prod.ext h H
+
+private theorem positive_rep {m : ℕ} (hm : 0 < m) (v : ZMod m) : ∃ a : ℕ, 0 < a ∧ a ≤ m ∧ (a : ZMod m) = v := by
+  let : NeZero m := ⟨hm.ne'⟩
+  by_cases hv : v = 0
+  · exact ⟨m, hm, le_rfl, by simp [hv]⟩
+  · have hz : v.val ≠ 0 := fun e => hv ((ZMod.val_eq_zero v).mp e)
+    exact ⟨v.val, Nat.pos_of_ne_zero hz, v.val_lt.le, ZMod.natCast_zmod_val v⟩
+
+/-- Every arithmetic progression contains arbitrarily large actual values
+of three positive cubes minus one positive cube. The three remaining bases
+can be chosen once for the progression, all between 1 and its modulus.
+Only the first positive base varies. -/
+theorem positive_cubes_in_progression (r : ℤ) (m : ℕ) (hm : 0 < m) :
+    ∃ d y z : ℕ, 0 < d ∧ d ≤ m ∧ 0 < y ∧ y ≤ m ∧ 0 < z ∧ z ≤ m ∧
+      ∀ B : ℕ, ∃ n x : ℕ, B < n ∧ 0 < x ∧ (n : ZMod m) = (r : ZMod m) ∧
+        n + d^3 = x^3 + y^3 + z^3 := by
+  obtain ⟨D, X, Y, Z, h⟩ := four_cubes_mod r m hm
+  obtain ⟨d, hd, hdle, hdcast⟩ := positive_rep hm D
+  obtain ⟨x₀, _, _, hx₀cast⟩ := positive_rep hm X
+  obtain ⟨y, hy, hyle, hycast⟩ := positive_rep hm Y
+  obtain ⟨z, hz, hzle, hzcast⟩ := positive_rep hm Z
+  refine ⟨d, y, z, hd, hdle, hy, hyle, hz, hzle, ?_⟩
+  intro B
+  let K := B + d^3 + 1
+  let x := x₀ + m*K
+  have hk : K ≤ x := by
+    have hmul := Nat.mul_le_mul_right K (show 1 ≤ m from hm)
+    dsimp [x]
+    omega
+  have hxcast : (x : ZMod m) = X := by simp [x, hx₀cast]
+  have hxpow : x ≤ x^3 := Nat.le_self_pow (by decide) x
+  let n := x^3 + y^3 + z^3 - d^3
+  have hn : n + d^3 = x^3 + y^3 + z^3 := by
+    dsimp [K] at hk
+    dsimp [n]
+    omega
+  have hlarge : B < n := by dsimp [K] at hk; omega
+  have hc := congrArg (fun t : ℕ => (t : ZMod m)) hn
+  push_cast at hc
+  rw [hdcast, hxcast, hycast, hzcast] at hc
+  exact ⟨n, x, hlarge, by dsimp [K] at hk; omega, add_right_cancel (hc.trans h.symm), hn⟩
+
+/-- The strict sign pattern is locally soluble for each positive input.
+The residue representatives are positive and at most the modulus. -/
+theorem bounded_local_witnesses (n m : ℕ) (hm : 0 < m) :
+    ∃ d x y z : ℕ, 0 < d ∧ d ≤ m ∧ 0 < x ∧ x ≤ m ∧ 0 < y ∧ y ≤ m ∧
+      0 < z ∧ z ≤ m ∧ n + d^3 ≡ x^3 + y^3 + z^3 [MOD m] := by
+  obtain ⟨D, X, Y, Z, h⟩ := four_cubes_mod (n : ℤ) m hm
+  obtain ⟨d, dp, db, dc⟩ := positive_rep hm D
+  obtain ⟨x, xp, xb, xc⟩ := positive_rep hm X
+  obtain ⟨y, yp, yb, yc⟩ := positive_rep hm Y
+  obtain ⟨z, zp, zb, zc⟩ := positive_rep hm Z
+  refine ⟨d, x, y, z, dp, db, xp, xb, yp, yb, zp, zb, ?_⟩
+  apply (ZMod.natCast_eq_natCast_iff _ _ _).mp
+  simpa only [Nat.cast_add, Nat.cast_pow, dc, xc, yc, zc, Int.cast_natCast] using h
+
 end ProvenCases
 
 theorem main : H1 → H2 → type_of% @OMA.S_oeis_a389852.main := by
@@ -208,8 +385,8 @@ theorem main : H1 → H2 → type_of% @OMA.S_oeis_a389852.main := by
     · push Not at hit
       obtain ⟨h7, h11, h1, h35, h26, h64, h63, h0⟩ := hit
       by_cases h3 : n % 3 = 0
-      · exact h₁ n large free h3 h63 h0
-      · exact h₂ n large free h3 h7 h11 h1 h35 h26 h64
+      · exact h₁ n large free h3 h63 h0 (bounded_local_witnesses n)
+      · exact h₂ n large free h3 h7 h11 h1 h35 h26 h64 (bounded_local_witnesses n)
     · push Not at free
       obtain ⟨k, hk, m, hm⟩ := free
       have hmpos : 0 < m := by
