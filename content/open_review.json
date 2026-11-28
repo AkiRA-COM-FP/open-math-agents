@@ -10492,6 +10492,168 @@
     "https://oeis.org/A014664"
    ],
    "reason": "Trivial given the entry. Schmidt's 2013 comment in the entry states a(prime(n)) = A014664(n), the multiplicative order of 2 mod p, and that order divides p-1 by Fermat's little theorem. The proof re-derives a(p) = ord_p(2) via Cauchy and |GL(m,2)| = prod (2^m-2^i), then applies Fermat. The formalization (IsLeast over k with an element of order p in GL(k,ZMod 2)) is faithful."
+  },
+  "oeis-a004001": {
+   "date": "2026-11-28",
+   "pr": 25999,
+   "evidence": [
+    "https://oeis.org/A004001"
+   ],
+   "reason": "The disproof uses a formalization bug. The Lean `a` feeds `hcStep` the constant function `fun k => prev`, so it is not the Hofstadter-Conway recursion: it gives a n = n + 2 for n >= 1, and a 2 = 4. The proof file says so itself ('refutes the statement as written ... not the OEIS A004001 conjecture'). Forgues' conjecture a(n) = n/2 iff n = 2^k is untouched."
+  },
+  "oeis-a005310": {
+   "date": "2026-11-28",
+   "pr": 26566,
+   "evidence": [
+    "https://oeis.org/A005310",
+    "https://oeis.org/A005309"
+   ],
+   "reason": "The refutation is immediate from the entry's own data: Plouffe's g.f. 2(1-2z+2z^2)/((1-2z)(1-z)) gives 2(2^n - 1) = 254 at n = 7, but the listed a(7) is 246. Also, the Lean definition A005310(n) = 2*Sum_{j<=n} A005309(j) is invented (the entry gives no such formula). It matches the data only up to n = 7 and gives 474, not 472, at n = 8, so the formal object is not the OEIS sequence. The sister entry A005309 already calls the analogous Plouffe g.f. 'not correct'."
+  },
+  "oeis-a006356": {
+   "date": "2026-11-28",
+   "pr": 25977,
+   "evidence": [
+    "https://oeis.org/A006356"
+   ],
+   "reason": "The disproof uses the degenerate edge case k = 1, which the statement author put in on purpose ('the positive plate-count range includes one plate'). There the g.f. F_0(-x)/F_1(x) = 1/(1-x), w(1) = (1/2)/cos(pi/3) = 1 and z(1) = 1, so the requirement 1 < z fails trivially. The substantive conjecture, that for k >= 2 plates (A000045, A006356, A006357, ...) z(k) is algebraic of degree phi(2k+1)/2, is untouched."
+  },
+  "oeis-a008956": {
+   "date": "2026-11-28",
+   "pr": 25428,
+   "evidence": [
+    "https://oeis.org/A008956",
+    "https://oeis.org/A101927"
+   ],
+   "reason": "Trivial as formalized. The statement swaps |A101927(n+1)| (odd e.g.f. coefficients of sin(arcsinh x)) for Slattery's product formula Prod_{j<n}((2j+1)^2+1). The remaining claim, that the row sums of Meijer's recurrence triangle equal that product, is the row polynomial Prod_{i<n}(x+(2i+1)^2) of the entry's first comment evaluated at x = 1. The proof is a 51-line telescoping of the recurrence. The e.g.f. side, which is the only nontrivial part (and is classical anyway), is not touched."
+  },
+  "oeis-a016777": {
+   "date": "2026-11-28",
+   "pr": 14075,
+   "evidence": [
+    "https://oeis.org/A016777",
+    "https://arxiv.org/abs/2301.07065"
+   ],
+   "reason": "The disproof uses a convention mismatch. The Lean property P requires x != y, so {1, 2} satisfies P vacuously and refutes the bound at n = 2. Under the entry's wording ('for x, y, and z in the set and z < x, y'), x = y is allowed. Then {1,2} fails P (1 | 2+2), and the minimum maximum at n = 2 is 4 = 3n-2, consistent with Greathouse's 'exact for all known n; verified up to 12'. The Erdős–Sárközy / Greathouse statement is untouched."
+  },
+  "oeis-a025060": {
+   "date": "2026-11-28",
+   "pr": 27659,
+   "evidence": [
+    "https://oeis.org/A025060"
+   ],
+   "reason": "Trivial. Perry's claim that every integer is ij+jk+ki with i, j, k distinct and nonzero is settled by the one-parameter identity 2*(-1) + (-1)(z+2) + (z+2)*2 = z, with a second triple for the three z where z+2 collides with 2 or -1 or is 0. The 11-line proof is exactly that. The statement is faithful, but there is no open content."
+  },
+  "oeis-a026377": {
+   "date": "2026-11-28",
+   "pr": 27671,
+   "evidence": [
+    "https://oeis.org/A026377"
+   ],
+   "reason": "The disproof uses an offset mismatch. Mathar's recurrence n(n+4)a(n) - 3(n+2)(2n+3)a(n-1) + 5(n+2)(n+1)a(n-2) = 0 holds for all n when the terms are indexed from 0 (a(n) -> a(n+2)), as the statement's own reviewer remark says and as I checked to n = 60. The refutation at n = 4 only uses the entry's offset 2. The intended recurrence is untouched."
+  },
+  "oeis-a027088": {
+   "date": "2026-11-28",
+   "pr": 27673,
+   "evidence": [
+    "https://oeis.org/A027088",
+    "https://oeis.org/A027082"
+   ],
+   "reason": "The disproof uses a sign typo. I fitted the unique order-6, degree-2 recurrence to 59 terms of T(n,2n-1). All seven coefficient polynomials match Mathar's except the leading one, which is -3(n+1)(18n-85), not +3(n+1)(18n-85). The refutation at n = 7 only exploits this printed sign. The corrected D-finite recurrence is untouched."
+  },
+  "oeis-a034387": {
+   "date": "2026-11-28",
+   "pr": 24843,
+   "evidence": [
+    "https://oeis.org/A034387"
+   ],
+   "reason": "Trivial. Irwin's g.f. Sum_{i>0} Sum_{j>=i} Sum_{k>=j, i-j+k prime} x^k has x^n coefficient #{1 <= i <= j <= n : i+n-j prime}. Reflecting j -> i+n-j turns this into Sum_i #{primes in [i,n]} = Sum_{p<=n} p, a plain double count of the definitions. The statement is faithful and the 67-line proof is exactly this reindexing, but there is no open content."
+  },
+  "oeis-a034917": {
+   "date": "2026-11-28",
+   "pr": 14057,
+   "evidence": [
+    "https://oeis.org/A034917"
+   ],
+   "reason": "The disproof uses a definition mismatch. The entry defines 'persymmetric' as Hankel ('M[i,j] = M[i-k,j+k], constant along antidiagonals'), but the Lean `Adm` uses symmetry about the anti-diagonal (M i j = M j.rev i.rev), a different matrix class. Under the Lean class the 2x2 minimum is -1, attained by [[0,1],[1,0]], which has zeros; this contradicts the data a(2) = 2. Alcover's conjectures (no zero entries; a(10), a(11), a(12)) for Hankel matrices are untouched."
+  },
+  "oeis-a052130": {
+   "date": "2026-11-28",
+   "pr": 13969,
+   "evidence": [
+    "https://oeis.org/A052130",
+    "https://oeis.org/A126281"
+   ],
+   "reason": "The disproof uses a garbled inequality. Corneth's comment says 'sufficiently large precisely when 2^m > 3^(m-n), i.e., when m >= floor(n*log(3)/log(1.5))'. But 2^m > 3^(m-n) holds for small m, so the printed inequality points the wrong way. The 'i.e.' threshold is the intended claim, and I checked numerically that it is the exact stabilization point for n = 2..7. The Lean statement encodes the literal inequality and is refuted at m = n = 2; the actual threshold conjecture is untouched."
+  },
+  "oeis-a052736": {
+   "date": "2026-11-28",
+   "pr": 27669,
+   "evidence": [
+    "https://oeis.org/A052736",
+    "https://oeis.org/A006319"
+   ],
+   "reason": "The disproof uses the n = 1 boundary. Mathar's a(n) = n!*A006319(n-1) fails only at n = 1 (a(1) = 0 but A006319(0) = 1), as the statement itself notes, and the formalization deliberately includes n = 1 in its g.f. form. I checked that the identity holds for 2 <= n < 20. The evidently intended conjecture (n >= 2) is untouched."
+  },
+  "oeis-a053735": {
+   "date": "2026-11-28",
+   "pr": 27623,
+   "evidence": [
+    "https://oeis.org/A053735",
+    "https://oeis.org/A173523",
+    "https://oeis.org/A000120"
+   ],
+   "reason": "Trivial. Pol's triangle remark for the base-3 digit sum says that row k+1 consists of a(3^k + j), and that the rows converge to A173523(n) = 1 + a(n-1). This is immediate from a(3^k + j) = 1 + a(j) for j < 3^k: prepending the leading digit 1 adds 1 to the digit sum, and that is the whole proof. The A000120 analogue is printed as an observation, not a conjecture. In A053735 itself, Adams-Watters already 'changed conjectures to statements' in 2015, so the entry no longer calls this a conjecture."
+  },
+  "oeis-a053824": {
+   "date": "2026-11-28",
+   "pr": 27370,
+   "evidence": [
+    "https://oeis.org/A053824",
+    "https://oeis.org/A173525",
+    "https://oeis.org/A000120"
+   ],
+   "reason": "Trivial. Pol's triangle remark for the base-5 digit sum says that row k+1 consists of a(5^k + j), and that the rows converge to A173525(n) = 1 + a(n-1). This is immediate from a(5^k + j) = 1 + a(j) for j < 5^k: prepending the leading digit 1 adds 1 to the digit sum, and that is the whole proof. The A000120 analogue is printed as an observation, not a conjecture. The formalization is faithful, but there is no open content."
+  },
+  "oeis-a053827": {
+   "date": "2026-11-28",
+   "pr": 26378,
+   "evidence": [
+    "https://oeis.org/A053827",
+    "https://oeis.org/A173526",
+    "https://oeis.org/A000120"
+   ],
+   "reason": "Trivial. Pol's triangle remark for the base-6 digit sum says that row k+1 consists of a(6^k + j), and that the rows converge to A173526(n) = 1 + a(n-1). This is immediate from a(6^k + j) = 1 + a(j) for j < 6^k: prepending the leading digit 1 adds 1 to the digit sum, and that is the whole proof. The A000120 analogue is printed as an observation, not a conjecture. The formalization is faithful, but there is no open content."
+  },
+  "oeis-a053828": {
+   "date": "2026-11-28",
+   "pr": 26382,
+   "evidence": [
+    "https://oeis.org/A053828",
+    "https://oeis.org/A173527",
+    "https://oeis.org/A000120"
+   ],
+   "reason": "Trivial. Pol's triangle remark for the base-7 digit sum says that row k+1 consists of a(7^k + j), and that the rows converge to A173527(n) = 1 + a(n-1). This is immediate from a(7^k + j) = 1 + a(j) for j < 7^k: prepending the leading digit 1 adds 1 to the digit sum, and that is the whole proof. The A000120 analogue is printed as an observation, not a conjecture. The formalization is faithful, but there is no open content."
+  },
+  "oeis-a053829": {
+   "date": "2026-11-28",
+   "pr": 26390,
+   "evidence": [
+    "https://oeis.org/A053829",
+    "https://oeis.org/A173528",
+    "https://oeis.org/A000120"
+   ],
+   "reason": "Trivial. Pol's triangle remark for the base-8 digit sum says that row k+1 consists of a(8^k + j), and that the rows converge to A173528(n) = 1 + a(n-1). This is immediate from a(8^k + j) = 1 + a(j) for j < 8^k: prepending the leading digit 1 adds 1 to the digit sum, and that is the whole proof. The A000120 analogue is printed as an observation, not a conjecture. The formalization is faithful, but there is no open content. The same statement was also solved separately on the site as oeis-a173528, merged later the same day."
+  },
+  "oeis-a053830": {
+   "date": "2026-11-28",
+   "pr": 26396,
+   "evidence": [
+    "https://oeis.org/A053830",
+    "https://oeis.org/A173529",
+    "https://oeis.org/A000120"
+   ],
+   "reason": "Trivial. Pol's triangle remark for the base-9 digit sum says that row k+1 consists of a(9^k + j), and that the rows converge to A173529(n) = 1 + a(n-1). This is immediate from a(9^k + j) = 1 + a(j) for j < 9^k: prepending the leading digit 1 adds 1 to the digit sum, and that is the whole proof. The A000120 analogue is printed as an observation, not a conjecture. The formalization is faithful, but there is no open content."
   }
  },
  "known": {
@@ -19619,6 +19781,95 @@
     "https://doi.org/10.1016/j.exmath.2021.12.002"
    ],
    "reason": "The formal statement is faithful: n = s + k^2 with s >= 1 squarefree and k >= 1, and only 1 and 13 fail. Jimenez Urroz (Expo. Math. 40 (2022) 665-678, arXiv:2010.15580), cited in the proof header, proves r*(n) > 0 for n >= 1375077. r*(n) counts x coprime to n, so x >= 1 for n >= 2, which is the positive-square version. Below that bound the rest is a finite check (his paper checks the zero-allowed r(n) there). So the conjecture was essentially settled before; the new proof follows the same prime-square sieve."
+  },
+  "oeis-a005573": {
+   "date": "2026-11-28",
+   "pr": 14082,
+   "evidence": [
+    "https://oeis.org/A005573",
+    "https://www.jstor.org/stable/2695431"
+   ],
+   "reason": "Phillabaum's 6^n 2F1(1/2,-n;2;2/3) is a notational rewriting of the formula already in the entry. Since (1/2)_k/(2)_k = Catalan(k)/4^k and (-n)_k/k! = (-1)^k C(n,k), the series term by term is a(n) = Sum_k (-1)^k C(n,k) Catalan(k) 6^(n-k), and the entry lists that (with the companion Deutsch/Bacher sum). The walk count itself was settled long ago (Amer. Math. Monthly Problem 10795, Deutsch-Brawner; Guy's 'Catwalks'). The Lean statement (walk enumeration, terminating 2F1) is faithful and the 331-line proof is a valid re-derivation, but nothing open remains."
+  },
+  "oeis-a006697": {
+   "date": "2026-11-28",
+   "pr": 14251,
+   "evidence": [
+    "https://arxiv.org/abs/1605.02361",
+    "https://github.com/google-deepmind/formal-conjectures/blob/main/FormalConjectures/OEIS/6697.lean"
+   ],
+   "reason": "Stephan's conjectured g.f. follows from the closed form a(n) = Sum_{i<=n} min(2^i, n-i+1) of the subword complexity, which Allouche and Shallit proved (arXiv:1605.02361, cited in the entry). formal-conjectures marks OeisA6697 'research solved' on that basis, with a formal proof of the g.f. step at AxiomMath/gdm-formal-conjectures. The Lean statement (offset-1 coefficient form for n >= 2) is faithful and the 671-line proof is a valid independent formal proof, but the result is not new."
+  },
+  "oeis-a008278": {
+   "date": "2026-11-28",
+   "pr": 14887,
+   "evidence": [
+    "https://oeis.org/A008278",
+    "https://doi.org/10.1215/S0012-7094-46-01324-5"
+   ],
+   "reason": "Wiseman's divisor conjecture reduces, by the bijection he gives in the entry itself (vectors 0 <= v_i <= i with k-1 distinct nonzero entries), to non-attacking rook placements on the staircase board (1,2,...,n-1). That the rook numbers of this board are S(n, n-j) is classical (Kaplansky-Riordan 1946; Stanley, EC1, Sec. 2.4). The Lean statement is faithful and the proof is correct, but it re-derives a textbook result."
+  },
+  "oeis-a008590": {
+   "date": "2026-11-28",
+   "pr": 25612,
+   "evidence": [
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A008590GcdSecondLargest.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/oeis-a008590-gcd-sum-parity-characterization.md"
+   ],
+   "reason": "Ratajczak's parity characterization (for m >= 2 both gcd_2 and lcd_2 sums are even iff 8 | m) is stated faithfully. Exactly this theorem, with the same m >= 2 range, is already proved sorry-free as `ratajczak_conjecture` in thatnealpatel/proofs (file present by Oct 25 2026). trureturing also has it, as D5/S3/ArithSums/RatajczakGcdSumParityCharacterization. The site proof was merged Nov 28 2026."
+  },
+  "oeis-a010503": {
+   "date": "2026-11-28",
+   "pr": 15140,
+   "evidence": [
+    "https://oeis.org/A010503",
+    "https://oeis.org/A139820",
+    "https://en.wikipedia.org/wiki/Theta_function"
+   ],
+   "reason": "Plouffe's 2025 'conjecture' 1/sqrt2 = Sum A139820(k) e^{-k pi} says (theta_4/theta_3)^2 at q = e^{-pi} equals 1/sqrt2. That is the classical identity k' = theta_4^2/theta_3^2 with the self-dual singular value k = k' = 1/sqrt2 at tau = i (equivalently Jacobi's theta_3^4 = theta_2^4 + theta_4^4 with theta_2 = theta_4 at q = e^{-pi}). It is the same pattern as the earlier verdicts on A000122 and A201488. The formalization is faithful and the 797-line proof is a valid re-derivation of classical facts."
+  },
+  "oeis-a014549": {
+   "date": "2026-11-28",
+   "pr": 14757,
+   "evidence": [
+    "https://oeis.org/A014549",
+    "https://oeis.org/A104794"
+   ],
+   "reason": "Plouffe's conjecture G = Sum A104794(k) e^{-k pi} is, since A104794 is by definition the q-expansion of theta_4(q)^2, exactly Spezia's 2022 formula line 'Equals theta4(exp(-Pi))^2' already in the entry. That is the classical AGM/theta relation (M(theta_3^2, theta_4^2) = 1 and theta_3^2/theta_4^2 = sqrt2 at q = e^{-pi}; Borwein-Borwein, Pi and the AGM). The Lean statement is faithful and the proof is correct, but the content is classical."
+  },
+  "oeis-a021004": {
+   "date": "2026-11-28",
+   "pr": 27678,
+   "evidence": [
+    "https://sites.math.rutgers.edu/~zeilberg/tokhniot/oPisot2.txt",
+    "https://arxiv.org/abs/1609.05570"
+   ],
+   "reason": "P(4,10) has one tie, at the first step (25^2/10 = 62.5, rounded down to 62), and from (25, 62) on it is the Pisot E-sequence E(25,62). The Ekhad-Sloane-Zeilberger output file lists PISOT(25,62) = [[25,62,154,383,953,2371],[2,1,1,-1,0,-1]] among the recurrences it proved rigorously. That is exactly Dale's a(n) = 2a(n-1)+a(n-2)+a(n-3)-a(n-4)-a(n-6), and the g.f. follows. Same pattern as the earlier A048625 verdict. The statement and proof are fine, but the result was published in 2016."
+  },
+  "oeis-a031149": {
+   "date": "2026-11-28",
+   "pr": 25221,
+   "evidence": [
+    "https://oeis.org/A031149"
+   ],
+   "reason": "Barker's recurrence a(n) = 38a(n-7) - a(n-14) and g.f. are stated faithfully (Nat.nth of floor(x^2/10) square, offset 1, a(0) = 0). But Robert Israel's 2016 comment in the entry already proves them. It solves x^2 = 10y^2 + j for j in {0,1,4,6,9} with the Pell matrix M = [19,60;6,19] and seven base solutions, shows they interleave in a fixed order, and says 'From this follow my formulas below and the G.f.' The 293-line proof formalizes exactly that argument."
+  },
+  "oeis-a039622": {
+   "date": "2026-11-28",
+   "pr": 25020,
+   "evidence": [
+    "https://oeis.org/A039622",
+    "https://github.com/NoahW314/KostkaNumbers/tree/135e49269833f4a760717b30777046d9629240df"
+   ],
+   "reason": "The statement is the hook-length count of n x n standard Young tableaux, (n^2)! Prod_{j<n} j!/(n+j)!. That is a classical theorem (Frame-Robinson-Thrall; the entry's own formula lines), not an open problem. The 'conjectured' part of the entry is the zeta-moment formula, which is not formalized. The 5014-line proof says it is adapted from Noah Walker's public KostkaNumbers formalization of the Greene-Nijenhuis-Wilf proof."
+  },
+  "oeis-a051250": {
+   "date": "2026-11-28",
+   "pr": 25104,
+   "evidence": [
+    "https://oeis.org/A051250"
+   ],
+   "reason": "Zumkeller's conjecture (60 is the largest n whose reduced residues other than 1 are all prime powers) was already proved in the entry by Charles R Greathouse IV (Jul 14 2011). He uses Dusart's bounds to show phi(n) > pi*(n) for n > 420 and checks finitely many cases below, concluding 'Hence 60 is the last term in the sequence.' The Lean statement (IsGreatest) is faithful; the site proof is a different elementary (Bonse-type) argument for a known result."
   }
  },
  "reviewed": "2026-11-28"
