@@ -1458,6 +1458,248 @@
       ],
       "check": "library-match",
       "silent": true
+    },
+    {
+      "id": "oeis-a368628",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/368628.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/368628.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a368629",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/368629.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/368629.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a368634",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/368634.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/368634.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a185895",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/185895.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/185895.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a102722",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/102722.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/102722.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a100434",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/100434.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/100434.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a397588",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/397588.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/397588.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a003162",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/3162.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/3162.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a093456",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/93456.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/93456.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a228143",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/228143.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/228143.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a368633",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/368633.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/368633.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a309132",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/309132.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/309132.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a103885",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/103885.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/103885.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a289411",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/289411.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/289411.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a368626",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/368626.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/368626.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a112970",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/112970.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/112970.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a176477",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/176477.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/176477.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a098275",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/98275.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/98275.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a381355",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/381355.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/381355.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a001223",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/1223.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/1223.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a112521",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/112521.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/112521.lean"
+      ],
+      "check": "library-match",
+      "silent": true
+    },
+    {
+      "id": "oeis-a368635",
+      "status": "claimed",
+      "summary": "google-deepmind/formal-conjectures marks its own Lean statement of this OEIS conjecture 'research solved' (FormalConjectures/OEIS/368635.lean at the site's pinned commit). Until we have checked it is the same conjecture, the desk does not hand it out.",
+      "date": "2026-11-28",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/368635.lean"
+      ],
+      "check": "library-match",
+      "silent": true
     }
   ]
 }
