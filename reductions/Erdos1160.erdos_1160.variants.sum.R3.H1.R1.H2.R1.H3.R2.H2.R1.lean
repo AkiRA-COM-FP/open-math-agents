@@ -2686,18 +2686,21 @@ lemma abelian_torsion_rank_count (A : Type*) [CommGroup A] [Finite A] {m : ℕ} 
   exact (Nat.le_of_dvd (pow_pos hm _) (card_dvd_exponent_pow_rank' Q torsion)).trans
     (Nat.pow_le_pow_right hm (Group.rank_le_of_surjective _ (QuotientGroup.mk'_surjective f.range)))
 
+/-- Replacing m by its gcd with the exponent preserves all m-torsion. -/
+lemma abelian_torsion_gcd_rank_count (A : Type*) [CommGroup A] [Finite A] {m : ℕ} (hm : 0 < m) :
+    Nat.card {x : A // x^m = 1} ≤ (m.gcd (Monoid.exponent A))^Group.rank A := by
+  let d := m.gcd (Monoid.exponent A)
+  have sub : {x : A | x^m = 1} ⊆ {x : A | x^d = 1} := fun x hx =>
+    orderOf_dvd_iff_pow_eq_one.mp (Nat.dvd_gcd (orderOf_dvd_of_pow_eq_one hx) (Monoid.order_dvd_exponent x))
+  exact (Set.ncard_le_ncard sub).trans (abelian_torsion_rank_count A (Nat.gcd_pos_of_pos_left _ hm))
+
 /-- Only the common part of m and the exponent of an abelian outer group
 contributes to its admissible conjugacy classes. -/
 lemma abelian_outer_class_bound (O : Type*) [Group O] [Finite O] [IsMulCommutative O]
     {m : ℕ} (hm : 0 < m) :
     (ConjClasses.mk '' {x : O | x^m = 1}).ncard ≤ (m.gcd (Monoid.exponent O)) ^ Group.rank O := by
   let _ : CommGroup O := { (inferInstance : Group O) with mul_comm := IsMulCommutative.is_comm.comm }
-  let d := m.gcd (Monoid.exponent O)
-  have sub : {x : O | x^m = 1} ⊆ {x : O | x^d = 1} := by
-    intro x hx
-    exact orderOf_dvd_iff_pow_eq_one.mp (Nat.dvd_gcd (orderOf_dvd_of_pow_eq_one hx) (Monoid.order_dvd_exponent x))
-  exact (Set.ncard_image_le (Set.toFinite _)).trans
-    ((Set.ncard_le_ncard sub).trans (abelian_torsion_rank_count O (Nat.gcd_pos_of_pos_left _ hm)))
+  exact (Set.ncard_image_le (Set.toFinite _)).trans (abelian_torsion_gcd_rank_count O hm)
 
 /-- Cyclic quotient extensions with an abelian outer automorphism group.
 The estimate applies to every positive quotient order, including nonsplit extensions. -/
@@ -2711,6 +2714,150 @@ lemma abelian_outer_fixed_kernel_count (K : FiniteGrp.{0}) {m : ℕ} (hm : 0 < m
       (m.gcd (Monoid.exponent O))^Group.rank O * Nat.card (Subgroup.center K) := by
   exact (outer_cyclic_quotient_count K m).trans (Nat.mul_le_mul_right _ (abelian_outer_class_bound _ hm))
 
+/-- Above a fixed quotient element, any two lifts killed by m differ by
+an m-torsion element of the central subgroup. -/
+lemma central_power_fiber_bound (G : Type*) [Group G] [Finite G] (A : Subgroup G)
+    [A.Normal] (central : A ≤ Subgroup.center G) (m : ℕ) (y : G ⧸ A) :
+    Nat.card {x : G // QuotientGroup.mk' A x = y ∧ x^m = 1} ≤
+      Nat.card {a : A // a^m = 1} := by
+  classical
+  let X := {x : G // QuotientGroup.mk' A x = y ∧ x^m = 1}
+  by_cases inhabited : Nonempty X
+  · let b := inhabited.some
+    let diff (x : X) : A := ⟨x.val / b.val, QuotientGroup.eq_iff_div_mem.mp
+      (x.property.1.trans b.property.1.symm)⟩
+    have prod (x : X) : (diff x).val * b.val = x.val := div_mul_cancel _ _
+    have power (x : X) : (diff x)^m = 1 := by
+      apply Subtype.ext
+      change (diff x).val^m = 1
+      have comm : Commute (diff x).val b.val :=
+        (Subgroup.mem_center_iff.mp (central (diff x).property) b.val).symm
+      have eq := comm.mul_pow m
+      rw [prod,x.property.2,b.property.2,mul_one] at eq
+      exact eq.symm
+    let f (x : X) : {a : A // a^m = 1} := ⟨diff x,power x⟩
+    apply Nat.card_le_card_of_injective f
+    intro x z eq
+    have h : (diff x).val = (diff z).val := congrArg (fun u : {a : A // a^m = 1} => u.val.val) eq
+    exact Subtype.ext ((prod x).symm.trans ((congrArg (· * b.val) h).trans (prod z)))
+  · let _ : IsEmpty X := not_nonempty_iff.mp inhabited
+    change Nat.card X ≤ _
+    simp
+
+/-- Central lifting costs at most the m-torsion of the central subgroup
+per eligible conjugacy class of the quotient, even for nonsplit extensions. -/
+lemma central_torsion_class_lift (G : Type*) [Group G] [Finite G] (A : Subgroup G)
+    [A.Normal] (central : A ≤ Subgroup.center G) (m : ℕ) :
+    (ConjClasses.mk '' {x : G | x^m = 1}).ncard ≤
+      (ConjClasses.mk '' {y : G ⧸ A | y^m = 1}).ncard * Nat.card {a : A // a^m = 1} := by
+  classical
+  let π := QuotientGroup.mk' A
+  let C := ConjClasses.mk '' {y : G ⧸ A | y^m = 1}
+  let _ : Finite (ConjClasses (G ⧸ A)) := Finite.of_surjective _ ConjClasses.mk_surjective
+  let _ : Finite (ConjClasses G) := Finite.of_surjective _ ConjClasses.mk_surjective
+  let _ := Fintype.ofFinite C
+  let rep (c : C) := c.property.choose
+  let S (c : C) := ConjClasses.mk '' {x : G | π x = rep c ∧ x^m = 1}
+  have cover : ConjClasses.mk '' {x : G | x^m = 1} ⊆ ⋃ c : C, S c := by
+    rintro _ ⟨x,hx,rfl⟩
+    have hp : (π x)^m = 1 := by rw [← map_pow,show x^m = 1 from hx,map_one]
+    let c : C := ⟨_,π x,hp,rfl⟩
+    have eq : ConjClasses.mk (π x) = ConjClasses.mk (rep c) := c.property.choose_spec.2.symm
+    obtain ⟨v,hv⟩ := isConj_iff.mp (ConjClasses.mk_eq_mk_iff_isConj.mp eq)
+    obtain ⟨u,hu⟩ := QuotientGroup.mk'_surjective A v
+    let z := MulAut.conj u x
+    have proj : π z = rep c := by
+      change π (u*x*u⁻¹) = _
+      rw [map_mul,map_mul,map_inv,show π u = v from hu,hv]
+    have hz : z^m = 1 := by change (MulAut.conj u x)^m = 1; rw [← map_pow,show x^m = 1 from hx,map_one]
+    exact Set.mem_iUnion.mpr ⟨c,z,⟨proj,hz⟩,(ConjClasses.mk_eq_mk_iff_isConj.mpr (isConj_iff.mpr ⟨u,rfl⟩)).symm⟩
+  calc
+    _ ≤ (⋃ c : C, S c).ncard := Set.ncard_le_ncard cover
+    _ ≤ ∑ c : C, (S c).ncard := Set.ncard_iUnion_le_of_fintype _
+    _ ≤ ∑ _ : C, Nat.card {a : A // a^m = 1} := Finset.sum_le_sum fun c _ =>
+      (Set.ncard_image_le (Set.toFinite _)).trans (central_power_fiber_bound G A central m (rep c))
+    _ = _ := by change _ = Nat.card C * _; simp [Nat.card_eq_fintype_card]
+
+/-- A central subgroup of order coprime to m preserves the number of conjugacy
+classes killed by m. A lift can be corrected by a central m-th root. -/
+lemma central_coprime_torsion_class_count (G : Type*) [Group G] [Finite G] (A : Subgroup G)
+    [A.Normal] (central : A ≤ Subgroup.center G) (m : ℕ) (cop : (Nat.card A).Coprime m) :
+    (ConjClasses.mk '' {x : G | x^m = 1}).ncard =
+      (ConjClasses.mk '' {y : G ⧸ A | y^m = 1}).ncard := by
+  classical
+  let π := QuotientGroup.mk' A
+  let S := ConjClasses.mk '' {x : G | x^m = 1}
+  let _ : Finite (ConjClasses G) := Finite.of_surjective _ ConjClasses.mk_surjective
+  apply Nat.le_antisymm
+  · have h : {a : A | a^m = 1} = {1} := by
+      ext a
+      change a^m = 1 ↔ a = 1
+      constructor
+      · intro ha
+        apply (powCoprime cop).injective
+        simpa only [powCoprime_apply,one_pow] using ha
+      · rintro rfl
+        exact one_pow _
+    have one : Nat.card {a : A // a^m = 1} = 1 := by
+      change {a : A | a^m = 1}.ncard = 1
+      rw [h,Set.ncard_singleton]
+    simpa only [one,mul_one] using central_torsion_class_lift G A central m
+  · have sub : ConjClasses.mk '' {y : G ⧸ A | y^m = 1} ⊆ ConjClasses.map π '' S := by
+      rintro _ ⟨y,hy,rfl⟩
+      obtain ⟨x,hx⟩ := QuotientGroup.mk'_surjective A y
+      have mem : x^m ∈ A := (QuotientGroup.eq_one_iff _).mp (by
+        change π (x^m) = 1
+        rw [map_pow,show π x = y from hx]; exact hy)
+      let t : A := ⟨x^m,mem⟩
+      obtain ⟨b,hb⟩ := (powCoprime cop).surjective t⁻¹
+      have root : b.val^m = (x^m)⁻¹ := congrArg Subtype.val hb
+      have comm : Commute b.val x := (Subgroup.mem_center_iff.mp (central b.property) x).symm
+      have lifted : (b.val*x)^m = 1 := by rw [comm.mul_pow,root,inv_mul_cancel]
+      have same : π (b.val*x) = y := by
+        have z : π b.val = 1 := (QuotientGroup.eq_one_iff _).mpr b.property
+        rw [map_mul,z,one_mul]; exact hx
+      exact ⟨_,⟨b.val*x,lifted,rfl⟩,congrArg ConjClasses.mk same⟩
+    exact (Set.ncard_le_ncard sub ((Set.toFinite S).image _)).trans (Set.ncard_image_le (Set.toFinite S))
+
+/-- For a central-by-abelian group the two torsion factors can be bounded
+separately, retaining their individual exponents. -/
+lemma class_two_outer_class_bound (O : Type*) [Group O] [Finite O] (m : ℕ) (hm : 0 < m)
+    [IsMulCommutative (O ⧸ Subgroup.center O)] :
+    (ConjClasses.mk '' {x : O | x^m = 1}).ncard ≤
+      (m.gcd (Monoid.exponent (O ⧸ Subgroup.center O)))^Group.rank (O ⧸ Subgroup.center O) *
+      (m.gcd (Monoid.exponent (Subgroup.center O)))^Group.rank (Subgroup.center O) := by
+  let Z := Subgroup.center O
+  let _ : CommGroup Z := { (inferInstance : Group Z) with mul_comm := fun a b => Subtype.ext (Subgroup.mem_center_iff.mp a.property b.val).symm }
+  exact (central_torsion_class_lift O Z le_rfl m).trans
+    (Nat.mul_le_mul (abelian_outer_class_bound _ hm) (abelian_torsion_gcd_rank_count Z hm))
+
+/-- Fixed kernel and cyclic quotient with a class-at-most-two outer automorphism group. -/
+lemma class_two_outer_fixed_kernel_count (K : FiniteGrp.{0}) {m : ℕ} (hm : 0 < m)
+    [(MulAut.conj : K →* MulAut K).range.Normal]
+    (comm : let O := MulAut K ⧸ (MulAut.conj : K →* MulAut K).range
+            IsMulCommutative (O ⧸ Subgroup.center O)) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+        N.index = m ∧ Nonempty (K ≃* N)}).ncard ≤
+      let O := MulAut K ⧸ (MulAut.conj : K →* MulAut K).range
+      let Z := Subgroup.center O
+      ((m.gcd (Monoid.exponent (O ⧸ Z)))^Group.rank (O ⧸ Z) *
+        (m.gcd (Monoid.exponent Z))^Group.rank Z) * Nat.card (Subgroup.center K) := by
+  let O := MulAut K ⧸ (MulAut.conj : K →* MulAut K).range
+  let _ : IsMulCommutative (O ⧸ Subgroup.center O) := comm
+  exact (outer_cyclic_quotient_count K m).trans (Nat.mul_le_mul_right _ (class_two_outer_class_bound O m hm))
+
+private lemma cyclic_rank_power_budget {k m t c : ℕ} (hk : 0 < k) (hm : 1 < m)
+    (rk : t ≤ c * Nat.log 2 k) : m^t ≤ k^((2*c)*Nat.log 2 m) := by
+  have d : 1 ≤ Nat.log 2 m := Nat.le_log_of_pow_le (by decide) (by simpa using (show 2 ≤ m by omega))
+  have size : m ≤ 2^(2 * Nat.log 2 m) := (Nat.lt_pow_succ_log_self (by decide) m).le.trans
+    (Nat.pow_le_pow_right (by decide) (by omega))
+  calc
+    _ ≤ (2^(2 * Nat.log 2 m))^(c * Nat.log 2 k) :=
+      (Nat.pow_le_pow_left size _).trans (Nat.pow_le_pow_right (by positivity) rk)
+    _ = (2^Nat.log 2 k)^((2*c)*Nat.log 2 m) := by rw [← pow_mul,← pow_mul]; congr 1; ring
+    _ ≤ _ := Nat.pow_le_pow_left (Nat.pow_log_le_self _ hk.ne') _
+
 /-- A rank bound proportional to log₂ |K| is sufficient for the cyclic-quotient
 induction. The proportionality constant is uniform across orders. -/
 lemma abelian_outer_induction_budget (K : Type*) [Group K] [Finite K] {m c : ℕ}
@@ -2720,14 +2867,7 @@ lemma abelian_outer_induction_budget (K : Type*) [Group K] [Finite K] {m c : ℕ
     (ConjClasses.mk '' {x : MulAut K ⧸ (MulAut.conj : K →* MulAut K).range | x^m = 1}).ncard *
       Nat.card (Subgroup.center K) ≤ Nat.card K^((2*c) * Nat.log 2 m + 1) := by
   let O := MulAut K ⧸ (MulAut.conj : K →* MulAut K).range
-  have d : 1 ≤ Nat.log 2 m := Nat.le_log_of_pow_le (by decide) (by simpa using (show 2 ≤ m by omega))
-  have size : m ≤ 2^(2 * Nat.log 2 m) := (Nat.lt_pow_succ_log_self (by decide) m).le.trans
-    (Nat.pow_le_pow_right (by decide) (by omega))
-  have budget : m^Group.rank O ≤ Nat.card K^((2*c) * Nat.log 2 m) := calc
-    _ ≤ (2^(2 * Nat.log 2 m))^(c * Nat.log 2 (Nat.card K)) :=
-      (Nat.pow_le_pow_left size _).trans (Nat.pow_le_pow_right (by positivity) rk)
-    _ = (2^Nat.log 2 (Nat.card K))^((2*c)*Nat.log 2 m) := by rw [← pow_mul,← pow_mul]; congr 1; ring
-    _ ≤ _ := Nat.pow_le_pow_left (Nat.pow_log_le_self _ Nat.card_pos.ne') _
+  have budget := cyclic_rank_power_budget (k := Nat.card K) Nat.card_pos hm rk
   rw [pow_succ]
   exact Nat.mul_le_mul (((abelian_outer_class_bound O (by omega : 0 < m)).trans
     (Nat.pow_le_pow_left (Nat.gcd_le_left _ (by omega)) _)).trans budget)
@@ -3284,6 +3424,32 @@ theorem abelian_outer_cyclic_induction_step {q r E c : ℕ} (hr : q < 2^r) (odd 
   let _ : (MulAut.conj : N →* MulAut N).range.Normal := hJ
   let _ : IsMulCommutative (MulAut N ⧸ (MulAut.conj : N →* MulAut N).range) := comm
   exact ⟨G,⟨hg,hs,N,hn,cyc,big,hJ,abelian_outer_induction_budget N big rk⟩,rfl⟩
+
+/-- Induct past cyclic quotients whose kernel has class-at-most-two outer automorphism
+group with total central and quotient rank bounded by a fixed multiple of log₂ of the kernel order. -/
+theorem class_two_outer_cyclic_induction_step {q r E c : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : 2*c+6 ≤ E)
+    (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
+      (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+        {G : FiniteGrp.{0} | Nat.card G = n ∧ Group.IsSolvable G}).ncard ≤
+        2^(E*(s+1)^2) * ∏ p ∈ n.primeFactors, g (p^n.factorization p)) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧ (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧ let J := (MulAut.conj : N →* MulAut N).range; ∃ _ : J.Normal, let O := MulAut N ⧸ J; let Z := Subgroup.center O; IsMulCommutative (O ⧸ Z) ∧ Group.rank (O ⧸ Z) + Group.rank Z ≤ c * Nat.log 2 (Nat.card N))}).ncard ≤
+      2^(E*(r+1)^2-6) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
+  apply le_trans _ (outer_cyclic_quotient_induction_step (B := 2*c) hr odd hE ih)
+  apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono fun _ h => h.1))
+  rintro _ ⟨G,⟨hg,hs,N,hn,cyc,big,hJ,comm,rk⟩,rfl⟩
+  let _ : (MulAut.conj : N →* MulAut N).range.Normal := hJ
+  let O := MulAut N ⧸ (MulAut.conj : N →* MulAut N).range
+  let Z := Subgroup.center O
+  let _ : IsMulCommutative (O ⧸ Z) := comm
+  refine ⟨G,⟨hg,hs,N,hn,cyc,big,hJ,?_⟩,rfl⟩
+  have hm : 0 < N.index := by omega
+  have count := (class_two_outer_class_bound O N.index hm).trans (Nat.mul_le_mul
+    (Nat.pow_le_pow_left (Nat.gcd_le_left _ hm) _) (Nat.pow_le_pow_left (Nat.gcd_le_left _ hm) _))
+  rw [← pow_add] at count
+  rw [pow_succ]
+  exact Nat.mul_le_mul (count.trans (cyclic_rank_power_budget Nat.card_pos big rk))
+    (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective)
 
 theorem eligible_cyclic_quotient_induction_step {q r E B : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : B+6 ≤ E)
     (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
