@@ -11,10 +11,14 @@ open OMA.R_arxiv_2604_17847_R1 (rank_dvd_index pisano_eq_of_certificate)
 
 -- The two remaining assertions concern only primes whose period is unchanged at the square modulus.
 def H1 : Prop :=
-  ∀ q : ℕ, q.Prime → 53 < q → pisano (q ^ 2) = pisano q → (2 * q + 1).Prime
+  ∀ q : ℕ, q.Prime → 53 < q → 96 < pisano q →
+    let k := pisano q / 2
+    q ^ 2 ∣ (if Even k then Nat.fib k else 2 * Nat.fib (k+1) - Nat.fib k) → (2 * q + 1).Prime
 
 def H2 : Prop :=
-  ∀ q : ℕ, q.Prime → 53 < q → pisano (q ^ 2) = pisano q →
+  ∀ q : ℕ, q.Prime → 53 < q → 96 < pisano q →
+    let k := pisano q / 2
+    q ^ 2 ∣ (if Even k then Nat.fib k else 2 * Nat.fib (k+1) - Nat.fib k) →
     (2 * q + 1).Prime → 2 * q + 1 ∣ Nat.fib (pisano q)
 
 -- Consecutive values form a finite reversible orbit for every positive modulus.
@@ -54,18 +58,93 @@ lemma period_and_returns (q : ℕ) [NeZero q] :
   rw [eq]
   exact ⟨pos, fun n => Function.isPeriodicPt_iff_minimalPeriod_dvd.symm.trans (ret n)⟩
 
+-- Cassini gives the determinant of the Fibonacci recurrence after k steps.
+lemma cassini_signed (q n : ℕ) :
+    let a : ZMod q := Nat.fib n
+    let b : ZMod q := Nat.fib (n + 1)
+    b ^ 2 - a * b - a ^ 2 = (-1) ^ n := by
+  dsimp
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Nat.fib_add_two, Nat.cast_add, pow_succ]
+    linear_combination -ih
+
+-- The odd half-index test uses the Lucas number L_k = 2 F_(k+1) - F_k.
+lemma period_dvd_double_iff (m k : ℕ) [NeZero m] :
+    pisano m ∣ 2 * k ↔ m ∣ (if Even k then Nat.fib k else 2 * Nat.fib (k+1) - Nat.fib k) := by
+  let a : ZMod m := Nat.fib k
+  let b : ZMod m := Nat.fib (k+1)
+  have le : Nat.fib k ≤ 2 * Nat.fib (k+1) := by have := Nat.fib_le_fib_succ (n := k); omega
+  have pair : pisano m ∣ 2 * k ↔ a * (2*b-a) = 0 ∧ b^2 + a^2 = 1 := by
+    rw [(period_and_returns m).2, ← ZMod.natCast_eq_zero_iff, ← ZMod.natCast_eq_natCast_iff,
+      Nat.fib_two_mul, Nat.fib_two_mul_add_one, Nat.cast_mul, Nat.cast_sub le]
+    simp [a, b]
+  rw [pair]
+  by_cases he : Even k
+  · rw [if_pos he, ← ZMod.natCast_eq_zero_iff]
+    change _ ↔ a = 0
+    have det : b^2 - a*b - a^2 = 1 := by simpa only [he.neg_one_pow] using cassini_signed m k
+    constructor
+    · rintro ⟨hy, hx⟩
+      linear_combination (b-a) * hx - a * hy - b * det
+    · intro h
+      exact ⟨by rw [h, zero_mul], by simpa [h] using det⟩
+  · rw [if_neg he, ← ZMod.natCast_eq_zero_iff, Nat.cast_sub le, Nat.cast_mul, Nat.cast_ofNat]
+    change _ ↔ 2*b-a = 0
+    have odd : Odd k := Nat.not_even_iff_odd.mp he
+    have det : b^2 - a*b - a^2 = -1 := by simpa only [odd.neg_one_pow] using cassini_signed m k
+    constructor
+    · rintro ⟨hy,hx⟩
+      linear_combination (a-b) * hx + a * hy + b * det
+    · intro h
+      exact ⟨by rw [h, mul_zero], by linear_combination b * h - det⟩
+
+-- The gcd of the two return coordinates has the same closed form as the period test.
+lemma double_return_gcd (k : ℕ) :
+    (Nat.fib (2*k)).gcd (Nat.fib (2*k+1) - 1) =
+      (if Even k then Nat.fib k else 2 * Nat.fib (k+1) - Nat.fib k) := by
+  by_cases hk : k = 0
+  · subst k; decide
+  let G := (Nat.fib (2*k)).gcd (Nat.fib (2*k+1) - 1)
+  let C := if Even k then Nat.fib k else 2 * Nat.fib (k+1) - Nat.fib k
+  have first : 0 < Nat.fib (2*k) := Nat.fib_pos.mpr (by omega)
+  have next : 1 ≤ Nat.fib (2*k+1) := Nat.fib_pos.mpr (by omega)
+  have hg : 0 < G := Nat.gcd_pos_of_pos_left _ first
+  have hc : 0 < C := by
+    have pos := Nat.fib_pos.mpr (Nat.pos_of_ne_zero hk)
+    have le := Nat.fib_le_fib_succ (n := k)
+    dsimp [C]
+    split <;> omega
+  have equiv (m : ℕ) (hm : 0 < m) : m ∣ G ↔ m ∣ C := by
+    let : NeZero m := ⟨hm.ne'⟩
+    rw [show m ∣ C ↔ pisano m ∣ 2*k from (period_dvd_double_iff m k).symm,
+      (period_and_returns m).2]
+    change m ∣ (Nat.fib (2*k)).gcd _ ↔ _
+    rw [Nat.dvd_gcd_iff, ← Nat.modEq_iff_dvd' next]
+    exact and_congr_right fun _ => Nat.ModEq.comm
+  exact Nat.dvd_antisymm ((equiv G hg).mp (dvd_refl _)) ((equiv C hc).mpr (dvd_refl _))
+
+lemma even_period {m : ℕ} (hm : 2 < m) : Even (pisano m) := by
+  let : NeZero m := ⟨by omega⟩
+  by_contra he
+  have odd := Nat.not_even_iff_odd.mp he
+  have ret := ((period_and_returns m).2 _).mp (dvd_refl (pisano m))
+  have zero := (ZMod.natCast_eq_zero_iff ..).mpr ret.1
+  have one : (Nat.fib (pisano m + 1) : ZMod m) = 1 := by
+    simpa only [Nat.cast_one] using (ZMod.natCast_eq_natCast_iff _ 1 m).mpr ret.2
+  have bad : (1 : ZMod m) = -1 := by simpa [zero, one, odd.neg_one_pow] using cassini_signed m (pisano m)
+  have two : ((2 : ℕ) : ZMod m) = 0 := by push_cast; linear_combination bad
+  exact (Nat.not_le_of_lt hm) (Nat.le_of_dvd (by decide) ((ZMod.natCast_eq_zero_iff ..).mp two))
+
 -- Each Fibonacci step negates the Cassini expression and preserves its square.
 lemma cassini_square (q n : ℕ) :
     let a : ZMod q := Nat.fib n
     let b : ZMod q := Nat.fib (n + 1)
     (b ^ 2 - a * b - a ^ 2) ^ 2 = 1 := by
-  dsimp
-  induction n with
-  | zero => simp
-  | succ n ih =>
-    rw [Nat.fib_add_two, Nat.cast_add]
-    convert ih using 1
-    ring
+  have h := congrArg (fun x : ZMod q => x ^ 2) (cassini_signed q n)
+  apply h.trans
+  rw [← pow_mul, Nat.mul_comm n 2, pow_mul, neg_one_sq, one_pow]
 
 lemma fourfold_return {q n : ℕ} [NeZero q] (hz : q ∣ Nat.fib n) :
     pisano q ∣ 2 * (2 * n) := by
@@ -228,12 +307,59 @@ lemma period_square_formula {q : ℕ} (hq : q.Prime) (hodd : 2 < q) :
   · exact stable.mpr h
   · exact (period_square_dichotomy hq).resolve_left (mt stable.mp h)
 
+-- No primality is needed: the old modulus divides its positive powers.
+lemma stable_half_period_iff {m j : ℕ} (hm : 2 < m) (hj : 0 < j) :
+    pisano (m ^ j) = pisano m ↔
+    let k := pisano m / 2
+    m ^ j ∣ (if Even k then Nat.fib k else 2 * Nat.fib (k+1) - Nat.fib k) := by
+  let : NeZero m := ⟨by omega⟩
+  have lower := period_dvd_of_dvd (dvd_pow_self m hj.ne')
+  have half : 2 * (pisano m / 2) = pisano m := Nat.mul_div_cancel' (even_iff_two_dvd.mp (even_period hm))
+  dsimp only
+  rw [← period_dvd_double_iff, half]
+  exact ⟨fun h => h ▸ dvd_refl _, fun h => Nat.dvd_antisymm h lower⟩
+
+-- For a prime above 53, no half-index value through k=48 contains its square.
+-- The product bound certifies that the table includes every possible prime divisor.
+set_option maxRecDepth 4000 in
+set_option maxHeartbeats 3000000 in
+lemma large_period_of_stability {q : ℕ} (hq : q.Prime) (hl : 53 < q)
+    (stable : pisano (q ^ 2) = pisano q) : 96 < pisano q := by
+  let : NeZero q := ⟨hq.ne_zero⟩
+  let k := pisano q / 2
+  let value (i : ℕ) := if Even i then Nat.fib i else 2 * Nat.fib (i+1) - Nat.fib i
+  have square : q ^ 2 ∣ value k := (stable_half_period_iff (by omega : 2 < q) (by decide : 0 < 2)).mp stable
+  have half : 2 * k = pisano q := Nat.mul_div_cancel' (even_iff_two_dvd.mp (even_period (by omega : 2 < q)))
+  have pos := (period_and_returns q).1
+  by_contra! short
+  have hk : 0 < k := by omega
+  let factors : List ℕ :=
+    [2, 3, 5, 7, 11, 13, 17, 19, 23, 29,
+     31, 37, 41, 43, 47, 59, 61, 71, 79, 89,
+     101, 107, 113, 139, 151, 181, 199, 211, 233, 281,
+     307, 421, 461, 521, 541, 859, 911, 1103, 1597, 2161,
+     2207, 3571, 5779, 6709, 9349, 9901, 19489, 28657, 144481, 3010349,
+     54018521, 370248451, 6643838879]
+  have primes : ∀ p ∈ factors, Nat.Prime p := by norm_num [factors, List.forall_mem_cons]
+  have bound : ∀ i : Fin 49, 0 < i.val → value i.val ∣ factors.prod ^ 8 := by decide
+  have j : k < 49 := by omega
+  have member := OMA.R_arxiv_2604_17847_R1.prime_mem_of_dvd_product hq factors primes
+    (hq.dvd_of_dvd_pow (((dvd_pow_self q (by decide : 2 ≠ 0)).trans square).trans (bound ⟨k,j⟩ hk)))
+  have test : ∀ p ∈ factors, 53 < p → ∀ i : Fin 49, 0 < i.val → ¬ p ^ 2 ∣ value i.val := by decide
+  exact test q member hl ⟨k,j⟩ hk square
+
+lemma period_square_through_96 {q : ℕ} (hq : q.Prime) (hl : 53 < q) (hs : pisano q ≤ 96) :
+    pisano (q ^ 2) = q * pisano q :=
+  (period_square_dichotomy hq).resolve_left (fun h => (Nat.not_lt_of_ge hs) (large_period_of_stability hq hl h))
+
 theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H2 := by
   intro primality divides q hq hlarge hs
   let : NeZero q := ⟨hq.ne_zero⟩
   have stable := (period_power_eq_iff_at_period hq (by omega) (by decide : 0 < 2)).mpr hs
-  have hp := primality q hq hlarge stable
-  refine ⟨2 * q + 1, hp, ?_, rank_dvd_index (period_and_returns q).1 (divides q hq hlarge stable hp)⟩
+  have long := large_period_of_stability hq hlarge stable
+  have half := (stable_half_period_iff (by omega : 2 < q) (by decide : 0 < 2)).mp stable
+  have hp := primality q hq hlarge long half
+  refine ⟨2 * q + 1, hp, ?_, rank_dvd_index (period_and_returns q).1 (divides q hq hlarge long half hp)⟩
   simp [Nat.ModEq, Nat.add_mod]
 
 end OMA.R_arxiv_2604_17847_R1_H2_R1
