@@ -125,6 +125,17 @@ case "$VERDICT" in
         echo "$OUT" | grep -qiE "base branch was modified|try the merge again|is not mergeable|still a draft|timeout|502|503" || break
         sleep $(( (RANDOM % 20) + 5 * TRY ))
       done
+      # Both merge APIs refuse this token for some pull requests ("Resource not accessible by integration": #7514,
+      # #7562, #7031 stayed open for a day): the same merge by git (tools/git_merge.sh: one commit on main adding exactly
+      # the checked file, the pull request's head as second parent, so GitHub marks it merged; duplicate and
+      # shortest-proof rules again against main at push time). Exit 2 there: a rule says no, handled below.
+      if [ "$MERGED" = 0 ] && printf '%s' "$OUT" | grep -q "not accessible by integration" && [ -f base/tools/git_merge.sh ]; then
+        if GM="$(PR="$PR" HEAD_SHA="$HEAD_SHA" FPATH="$FPATH" MODE="$MODE" TITLE="$(jq -r '.title // ""' pr.json)" bash base/tools/git_merge.sh 2> git_merge.log)"; then
+          MERGED=1; MERGE_SHA="$GM"; echo "merged by git: $GM"
+        else
+          echo "git merge: $(tail -c 300 git_merge.log)"
+        fi
+      fi
       if [ "$MERGED" = 1 ]; then
         # A merge made with GITHUB_TOKEN triggers no other workflow, so credit it here.
         CREDIT_FILES=files.json CREDIT_PR=pr.json MERGE_SHA="${MERGE_SHA:-}" bash base/tools/credit.sh "$PR" || true
