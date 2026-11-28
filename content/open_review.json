@@ -989,15 +989,6 @@
    ],
    "note": "The fixed points of sum (#digits)^digit are only 1 and 4624. A bound (L <= 11 digits) plus an exhaustive kernel check over digit-count vectors. A finite check, routine."
   },
-  "oeis-a366860": {
-   "date": "2026-11-28",
-   "pr": 10645,
-   "routine": false,
-   "evidence": [
-    "https://oeis.org/A366860"
-   ],
-   "note": "The slope (sqrt(21)-3)/2 for the nested recurrence a(n) = n - a(floor(a(n-1)/3)). The formal statement includes the continued-fraction limit and the ratio limit. The proof uses strong induction with an O(sqrt n) error bound and a contraction of the two-level CF map. No earlier proof in the entry (revised Nov 9 2026). A modest but genuine analysis."
-  },
   "oeis-a372313": {
    "date": "2026-11-28",
    "pr": 9843,
@@ -1290,17 +1281,6 @@
     "https://oeis.org/A330080"
    ],
    "note": "Cicuttin's 2019 conjecture 0 <= floor(b(n)) <= 5 for b(n) = (b(n-1)+b(n-2))/b(n-3) with b(1) = b(2) = b(3) = 1. The proof uses the conserved quantity (1+x)(1+y)(1+z)(x+y+z)/(xyz) = 24 of this third-order Lyness-type map, which is classical (Cima-Gasull-Manosa), and a polynomial inequality showing every term is below 6. No proof is in the entry. Routine given the known invariant."
-  },
-  "oeis-a366870": {
-   "date": "2026-11-28",
-   "pr": 10651,
-   "routine": false,
-   "evidence": [
-    "https://oeis.org/A366870",
-    "https://oeis.org/A366860",
-    "https://oeis.org/A366871"
-   ],
-   "note": "Gutkovskiy's 2023 conjecture a(n) ~ 2(sqrt 2 - 1) n for a(n) = n - a(floor(a(n-1)/4)), a Hofstadter-G variant. The definition and the continued-fraction limit match the entry. The entry and its siblings (denominators 3 and 5) still list it as a conjecture, and I found no proof. The proof bounds the error from the linear slope by 16 sqrt(n) by strong induction, for any denominator >= 3, using contraction of the two-level continued-fraction map. A genuine asymptotic argument."
   },
   "oeis-a372430": {
    "date": "2026-11-28",
@@ -1745,15 +1725,6 @@
     "https://oeis.org/A163280"
    ],
    "note": "Mathar's a(n) = n(n+11) for n > 36: for large n, the numbers with largest divisor <= sqrt equal to n are n(n+i), since a divisor n+r of n(n+i) would divide r(i-r) < n. So the 12th is n(n+11). Elementary and routine."
-  },
-  "oeis-a173614": {
-   "date": "2026-11-28",
-   "pr": 12977,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A173614"
-   ],
-   "note": "lcm(p-1 : p | n) = lambda(rad n), by the standard formula for the Carmichael function of a squarefree number. Routine."
   },
   "oeis-a178295": {
    "date": "2026-11-28",
@@ -2857,15 +2828,6 @@
    ],
    "note": "The statement faithfully encodes the comment that odd values of ceil(2^(2^k mod k)/3) are Jacobsthal numbers and even values are Jacobsthal + 1. It holds for any exponent m: 3J(m) + (-1)^m = 2^m gives ceil(2^m/3) = J(m) (odd) for odd m and J(m)+1 for even m. The value 2^k mod k plays no role. Trivial; I found no earlier written proof."
   },
-  "oeis-a179504": {
-   "date": "2026-11-28",
-   "pr": 8883,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A179504"
-   ],
-   "note": "Velin Yanev's 2017 identity sigma_n(2n) = sigma_n(n)*((2^n-1)/(2^(n(v+1))-1) + 2^n) with v = v_2(n), stated over Q for n>0 with Mathlib's sigma and padicValNat. It is faithful. It is trivial by multiplicativity: writing n = 2^v m, the right side simplifies to sigma_n(2^(v+1))/sigma_n(2^v), i.e. (2^(n(v+2))-1)/(2^(n(v+1))-1). Still marked 'Conjecture' in the OEIS (last edited 2022), and I found no earlier proof. Statement PR #6704, proof PR #8883."
-  },
   "oeis-a156695": {
    "date": "2026-11-28",
    "pr": 8526,
@@ -3543,15 +3505,6 @@
     "https://oeis.org/A004215"
    ],
    "note": "Neumann's count conjecture (#{m < 2^n in A004215} = A023105(n) - 2 for n >= 1) is stated faithfully. Membership is defined literally, and A023105 is the number of squares mod 2^n. Given Legendre's three-square theorem (the terms are 4^a(8b+7)), this is a direct count. The proof formalizes Legendre via Ankeny's argument, but the mathematical content beyond the classical theorem is routine."
-  },
-  "oeis-a366871": {
-   "date": "2026-11-28",
-   "pr": 7963,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A366871"
-   ],
-   "note": "The asymptotic a(n) ~ ((3sqrt5-5)/2) n for a(n) = n - a(floor(a(n-1)/5)) is stated over every function satisfying the recurrence, which determines it uniquely. The proof is a short strong induction giving |a(n) - cn| <= 10 sqrt(n), using c^2 + 5c = 5. Routine."
   },
   "oeis-a067576": {
    "date": "2026-11-28",
@@ -6434,16 +6387,6 @@
    ],
    "note": "Faithful: the entry's g.f. (z-1)(z+2)/(2z^2) + P/(2z^2 sqrt(R)) is rationalized correctly, with (z^2+z-2)R expanded and checked. The series reproduces the data. Mathar's large order-6 recurrence is expanded correctly ((n+2)(60283n-319055) and (166729n-863288)(n-6)) and holds for n = 6..57. Routine certificate proof; no prior proof found. Second review: Faithful and true; routine (big coefficients, same method)."
   },
-  "oeis-a166300": {
-   "date": "2026-11-28",
-   "pr": 24083,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A166300",
-    "https://oeis.org/A166300"
-   ],
-   "note": "Faithful: 2/(1+z+z^2+sqrt(R)) = (1+z+z^2-sqrt R)/(2z(1+z+z^2)), since (1+z+z^2)^2 - R = 4z(1+z+z^2); this is the coefficient shift used, and it reproduces the data. Mathar's recurrence holds for n = 4..58. Routine; no prior proof found. Second review: Faithful and true; routine."
-  },
   "oeis-a166694": {
    "date": "2026-11-28",
    "pr": 22545,
@@ -6784,16 +6727,6 @@
    ],
    "note": "Mathar's first-order recurrence n(4n+5)a(n) + (2n+3)(n+2)(4n+9)a(n-1) = 0 is stated faithfully for n>=1, with a(n) = A111999(n+3,2)/2 and A111999 given by its formula-section recurrence (it reproduces rows -1; 3,2; -15,-20,-6). Checked for n<40. The proof finds closed forms for columns 0-2 by induction; routine. Second review: Routine closed form."
   },
-  "oeis-a114584": {
-   "date": "2026-11-28",
-   "pr": 24401,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A114584",
-    "https://oeis.org/A114584"
-   ],
-   "note": "Mathar's order-7 recurrence for n>=7 is transcribed correctly, with Deutsch's g.f. (1-z+z^3-sqrt((1+z+z^3)(1-3z+z^3)))/(2z^2) as the definition (the radicand is expanded correctly); it holds for n<42. The path-counting interpretation is not used; the g.f. is published (Asinowski et al.). Routine certificate proof; no prior proof found. The statement credits @vivanpoddar, the PR ivillar. Second review: Routine."
-  },
   "oeis-a116383": {
    "date": "2026-11-28",
    "pr": 24402,
@@ -6891,26 +6824,6 @@
     "https://oeis.org/A073409"
    ],
    "note": "Ordowski's characterization (a(n) is the largest prime r <= 2n+1 with r*num(B_2n) == -den(B_2n) mod r^2) is stated faithfully over Mathlib's bernoulli. I checked it exactly for n <= 40. It is a short corollary of von Staudt-Clausen (in Mathlib): the primes satisfying the congruence are exactly those with (r-1) | 2n, and the den is their product. Routine. Second review: Faithful and true; Ordowski's characterization is a direct restatement of von Staudt-Clausen. Routine."
-  },
-  "oeis-a074358": {
-   "date": "2026-11-28",
-   "pr": 24248,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A074358",
-    "https://oeis.org/A074358"
-   ],
-   "note": "Wu's g.f., Barker's Binet closed form (n > 0) and order-4 recurrence (n > 4) are stated faithfully for the q^1 coefficient of nu(n) with (b, lambda) = (2,2). nu reproduces the example polynomials and the data. I checked the g.f. identity, the recurrence (n < 60) and the closed form numerically. Routine coefficient-extraction / g.f. argument. Second review: Faithful and true; rational g.f. for a low q-coefficient of a q-recurrence. Routine."
-  },
-  "oeis-a074359": {
-   "date": "2026-11-28",
-   "pr": 24246,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A074359",
-    "https://oeis.org/A074359"
-   ],
-   "note": "Mathar's g.f. 4x^4(-3+2x+8x^2+4x^3)/(2x^2+2x-1)^3 is stated faithfully for the q^2 coefficient of the same nu(n) polynomials, with (b, lambda) = (2,2). The definition reproduces the data, and I checked the cleared identity to x^60. Routine coefficient-extraction g.f. argument (the companion of oeis-a074358). Second review: Faithful and true; Mathar's rational g.f. Routine."
   },
   "oeis-a187298": {
    "date": "2026-11-28",
@@ -8769,16 +8682,6 @@
    ],
    "note": "Wilson's conjecture, sigma(n) < floor(6 n sqrt(n)/pi^2) for n>12, is stated faithfully. I checked it numerically for 13 <= n < 10^5. The proof uses sigma(n) <= n(1+log n) for n>=100 and decide below. No prior proof found. Routine. Second review: A short bound sigma(n) <= n(1+log n) plus a finite check. Routine."
   },
-  "oeis-a060973": {
-   "date": "2026-11-28",
-   "pr": 14566,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A060973",
-    "https://oeis.org/A060973"
-   ],
-   "note": "Bala's two nested identities, for a(n-a(n)) and for b=a∘a, are stated with the entry's recurrence (a(1)=0, a(2)=1). The Lean definition reproduces the data, and I checked both identities for n <= 2*10^5. I found no proof in the entry, the linked Hwang-Janson-Tsai, Shallit and Alekseyev papers, or the proof collections. The proof uses the step-0/1 structure of a and the dyadic-block formula. Second review: The entry gives an explicit piecewise formula, so these identities reduce to case analysis. Routine."
-  },
   "oeis-a061002": {
    "date": "2026-11-28",
    "pr": 14867,
@@ -8842,36 +8745,6 @@
    ],
    "note": "Barker's g.f. and order-8 recurrence (n>10) for the q^3 coefficient of nu(n) with (b,lambda)=(1,2) are stated faithfully, and the nu recursion matches the name. I checked the data, the g.f. to x^30 and the recurrence. Routine coefficient-extraction g.f. argument, consistent with the earlier confirmations of A074358/A074359. Second review: A g.f. identity for a rational g.f. Routine."
   },
-  "oeis-a074356": {
-   "date": "2026-11-28",
-   "pr": 24954,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A074356",
-    "https://oeis.org/A074356"
-   ],
-   "note": "Barker's g.f. 3x^4(2-3x)(2+4x+3x^2)/(1-x-3x^2)^3 and order-6 recurrence (n>7) for the q^2 coefficient with (b,lambda)=(1,3) are stated faithfully. I checked the data, the g.f. and the recurrence. Routine. Second review: A g.f. identity. Routine."
-  },
-  "oeis-a074357": {
-   "date": "2026-11-28",
-   "pr": 24894,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A074357",
-    "https://oeis.org/A074357"
-   ],
-   "note": "Mathar's g.f. 3x^5(3x+1)(36x^4+24x^3-29x^2-14x+10)/(3x^2+x-1)^4 for the q^3 coefficient with (b,lambda)=(1,3) is stated faithfully in cleared form. I checked it against the data to x^30. Routine. Second review: A g.f. identity. Routine."
-  },
-  "oeis-a074360": {
-   "date": "2026-11-28",
-   "pr": 24885,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A074360",
-    "https://oeis.org/A074360"
-   ],
-   "note": "Mathar's g.f. 8x^5(1+x)(12x^4+24x^3-2x^2-16x+5)/(2x^2+2x-1)^4 for the q^3 coefficient with (b,lambda)=(2,2) is stated faithfully in cleared form. I checked it against the data to x^30. Routine. Second review: A g.f. identity. Routine."
-  },
   "oeis-a075125": {
    "date": "2026-11-28",
    "pr": 25695,
@@ -8904,17 +8777,6 @@
     "https://oeis.org/A004257"
    ],
    "note": "Kurkov's identity round(log_2 n) = A000523(n^2) - A000523(n) is stated faithfully (Real.logb, Mathlib round = floor(x+1/2), Nat.log 2). It is Hermite's identity floor(2x) - floor(x) = floor(x + 1/2) at x = log_2 n, so it is routine. I checked it exactly for n < 200000. No prior written proof found in the entry, the libraries, the proof collections or Palomar. Second review: Faithful. Kurkov's conjecture is an immediate instance of Hermite's identity, so it is trivially true but not vacuous. No prior written proof located."
-  },
-  "oeis-a005121": {
-   "date": "2026-11-28",
-   "pr": 13799,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A005121",
-    "https://oeis.org/A005121",
-    "https://github.com/the-omega-institute/trureturing/issues/27085"
-   ],
-   "note": "Mohapatra's Oct 2026 triangle conjecture a(n) = R(n,n) is encoded faithfully: Lengyel's Stirling recurrence defines a, and R(n,n) is written as the sum of the row entries R(n,j), j < n. It holds for n <= 15. The proof introduces Stirling-weighted row moments and swaps the sums to recover Lengyel's recurrence on the diagonal; that is a genuine short argument. No prior proof found (the conjecture is a month old; no hit in the libraries, BG/Fried, Palomar or Epoch). Second review: Faithful and recent. The only other activity is a trureturing preregistration that states no Lean proof exists yet; I found no published settlement."
   },
   "oeis-a006134": {
    "date": "2026-11-28",
@@ -9545,16 +9407,6 @@
     "https://oeis.org/A215095"
    ],
    "note": "Scambler's g.f. (x+2x^2)/(1-x-x^2-x^3-2x^4) for the greedy Jacobsthal-sum sequence. The statement's greedy definition reproduces the data, and I checked that it equals the g.f. series for 80 terms. I found no prior proof. The proof locates each greedy step between consecutive Jacobsthal numbers, an elementary induction. Second review: Faithful and true; inductive argument on the greedy rule. No prior proof found."
-  },
-  "oeis-a217333": {
-   "date": "2026-11-28",
-   "pr": 25299,
-   "routine": true,
-   "evidence": [
-    "https://oeis.org/A217333",
-    "https://oeis.org/A217333"
-   ],
-   "note": "Mathar's order-4 D-finite recurrence for the algebraic g.f. (1-2x-sqrt(1-4x+4x^2-4x^3+4x^4))/(2x^3). The statement defines a(n) as coefficient n+3 of (1-2X-S)/2, with S the binomial-series square root. I checked that this reproduces the data 1,1,2,5,12,29,72,... (offset 0). I found no prior proof (not in Blanco Gomez or Fried). Deriving a P-recurrence from an algebraic g.f. is a standard computation. Second review: Faithful formalization of Mathar's conjectured recurrence for the algebraic g.f.; holds numerically and is a routine holonomic consequence of the g.f. No prior proof found."
   },
   "oeis-a217866": {
    "date": "2026-11-28",
@@ -29346,6 +29198,139 @@
     "https://isitsolved.com/journal/64b8fcb12863"
    ],
    "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00211 on isitsolved.com, submitted 2026-11-28 02:37 UTC, before the site's Lean proof (2026-11-28 10:04 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a217333": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Paper Sec. s:precalg (precalg.tex: holds for n>=3) proves Mathar's same recurrence by an exact reduction of the operator modulo the algebraic equation of the g.f., using precalg/verify.py; the site's range n>=4 is covered. The method is sound and the explicit g.f. was checked to satisfy the same equation; I confirmed the recurrence numerically for 80 terms."
+  },
+  "oeis-a114584": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): The same exact operator reduction (Sec. s:precalg) proves Mathar's order-7 recurrence for n>=5, which covers the site's n>=7. It is conditional on the entry's g.f., which the site also takes as the definition, and I checked it numerically."
+  },
+  "oeis-a166300": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:precalg proves Mathar's order-4 recurrence for n>=3 (site: n>=4) by exact reduction in Q(x)[Y]/(P), starting from the entry's g.f., which the site also uses. Credible, and it checks out numerically."
+  },
+  "oeis-a346074": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:precalg derives A=1/(1-x)+x^5A^2 from the definition, which is correct and is also the site's definition, and proves the order-6 recurrence exactly for n>=2, which covers n>=6. Credible."
+  },
+  "oeis-a385252": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:dfinite (dfinite/verify.py) shows that Phi is a polynomial of degree 5 in Q(x)[sqrt(1-8x)], so the recurrence holds for n>=6 and fails at n=5, the same statement and range as the site's, whose n=5 residual is -6912. The proof uses the entry's closed-form g.f., derived from a(n)=9^n-4^n-Sum..., not the site's word-counting definition; that is a small and routine gap. I confirmed it numerically."
+  },
+  "oeis-a074356": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:A074355 solves the triangular system for the C_j(x) exactly (A074357/solve.py). It proves this g.f. (identical to the site's up to the sign of (1-x-3x^2)^3) and Barker's order-6 recurrence for n>7, which together are the site's statement. The derivation is simple and correct."
+  },
+  "oeis-a074357": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): The same exact triangular-system computation (Sec. s:A074355) gives exactly the site's g.f. 3x^5(3x+1)(36x^4+...)/(3x^2+x-1)^4. Credible."
+  },
+  "oeis-a074358": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:A074355 proves all three parts of the site's statement: the g.f. 4x^3(x+1)/(2x^2+2x-1)^2, Barker's order-4 recurrence for n>4, and his sqrt(3) closed form for n>=1. For the closed form it argues that both sides satisfy the same order-4 recurrence and agree on n=1..40. Credible."
+  },
+  "oeis-a074359": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): The exact computation of Sec. s:A074355 gives exactly the site's g.f. 4x^4(-3+2x+8x^2+4x^3)/(2x^2+2x-1)^3. Credible."
+  },
+  "oeis-a074360": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): The exact computation of Sec. s:A074355 gives exactly the site's g.f. 8x^5(1+x)(12x^4+...)/(2x^2+2x-1)^4. Credible."
+  },
+  "oeis-a173614": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:yanev item 2 states lcm_{p|n}(p-1)=lambda(rad n) as proved, without spelling out the argument, but it follows at once from lambda(m)=lcm of lambda(p) over the primes of a squarefree m, with lambda(p)=p-1. This is the site's statement."
+  },
+  "oeis-a179504": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:yanev item 9 proves the site's identity: the ratio sigma_n(2n)/sigma_n(n) equals sigma_n(2^{v+1})/sigma_n(2^v), which is (2^n-1)/(2^{n(v+1)}-1)+2^n. I checked the algebra and it is correct."
+  },
+  "oeis-a366860": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Theorem t:A366860 shows that a_k(n) is the counting function of the fixed point of 0->1^k, 1->1^k0, so a_k(n)/n -> (sqrt(k^2+4k)-k)/2, which is (sqrt21-3)/2 for k=3. The block argument and the Perron frequency both check out. The site's extra convergence of the continued fraction cf is routine; its fixed point solves c^2+kc-k=0."
+  },
+  "oeis-a366870": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): The same Theorem t:A366860 with k=4 gives a(n)/n -> 2(sqrt2-1), which is the site's statement; the continued-fraction limit is routine. Credible."
+  },
+  "oeis-a366871": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): The same Theorem t:A366860 with k=5 gives a(n) ~ (3sqrt5-5)/2 n, and the recursion determines the sequence uniquely, as the site's statement says. Credible."
+  },
+  "oeis-a298112": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:beatty disproves the same bound 2/5 < b(n)-n*sqrt2 < 3. Complementarity forces b(n)/n -> (sqrt13-1)/2 < sqrt2, and already b(7)=10 gives 10-7sqrt2=0.10<2/5, which I checked against the recurrence. The site's version over all solutions needs only that the solution is unique."
+  },
+  "oeis-a060973": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:A060973 proves both of Bala's identities with Walnut (A060973.wal/.out TRUE, control FALSE): g=n-A006165(n) is shown to satisfy the defining recursion and to be functional, and every nested argument is >=1. The encoding matches the site's statement, and no implication holds vacuously, since b(m) is defined for m>=2."
+  },
+  "oeis-a285358": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Prop. p:mathar item 2 has a short proof by hand: sigma(a)1 = 1tau(a) gives sigma(y)=1y, so y=0x and A285358(n)=A284929(n+1) for n>=1, which is the site's statement. I checked it and it is correct; it was also confirmed in Walnut."
+  },
+  "oeis-a005121": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://github.com/joaquimmj/oeis-conjectures"
+   ],
+   "reason": "Proved before this site's proof in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, argument checked): Sec. s:A005121 proves that R(n,n) satisfies Lengyel's recursion a(n)=Sum S(n,m)a(m), the site's definition, using column sums W_t(j)=S(j+t,j) and telescoping. The site's R(n,n) is the same sum, and I checked each step."
   }
  },
  "reviewed": "2026-11-28"
