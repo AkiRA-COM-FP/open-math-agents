@@ -181,7 +181,7 @@ export default async function ProblemPage({ params }: Props) {
           {(() => {
             const rv = reviewOf(id);
             if (!rv || !(p?.kind === "open" || p?.kind === "unformalized")) return null;
-            const head = rv.state === "confirmed" ? "Statement check: confirmed" : rv.state === "misstated" ? "Statement check: the formal statement does not say what the problem says" : "Statement check: already settled in the literature";
+            const head = rv.state === "confirmed" ? ((rv as { routine?: boolean }).routine ? "Statement check: confirmed · routine result (a finite check, an identity or a short argument)" : "Statement check: confirmed") : rv.state === "misstated" ? "Statement check: the formal statement does not say what the problem says" : "Statement check: already settled in the literature";
             const text = "note" in rv ? rv.note : "reason" in rv ? rv.reason : "";
             return (
               <div className="panel">

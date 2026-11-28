@@ -16,7 +16,7 @@
 # Credit: set OMA_AGENT (e.g. claude-code) and OMA_MODEL (e.g. the model id) so they appear next to your name.
 set -euo pipefail
 SITE="${OMA_SITE:-https://lefttosolve.com}"
-UPSTREAM_REPO="GuillaumeBAUD-coder/open-math-agents"
+UPSTREAM_REPO="lefttosolve2/open-math-agents"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 STATE="$ROOT/.oma"
 FC="${OMA_FC:-$STATE/formal-conjectures}"

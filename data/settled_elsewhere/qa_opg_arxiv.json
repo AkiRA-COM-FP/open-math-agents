@@ -616,6 +616,11 @@
    "source": "https://arxiv.org/abs/1109.3390",
    "date": "2011"
   },
+  "opg-bene-conjecture-graph-theoretic-form-0": {
+   "reason": "Disproved: for every N >= 2 there is a simple N-regular ordered two-stage graph L_N with F(L_N) = 2 and R(L_N) >= N, refuting R(L) <= 2F(L) as stated on OPG (the companion partition-stabilizer form is already recorded as known).",
+   "source": "https://arxiv.org/abs/2607.15296",
+   "date": "2026-07"
+  },
   "opg-book-thickness-of-subdivisions": {
    "reason": "Disproved: Dujmovic, Eppstein, Hickingbotham, Morin and Wood construct graphs of queue-number at most 4 and unbounded stack-number, resolving the Blankenship-Oporowski problem (Combinatorica 2022).",
    "source": "https://arxiv.org/abs/2011.04195",
@@ -640,6 +645,11 @@
    "reason": "Answered negatively: Hough proved that the least modulus of a covering system with distinct moduli is at most 10^18 (Annals 2015).",
    "source": "https://arxiv.org/abs/1307.0874",
    "date": "2013"
+  },
+  "opg-erdos-posa-property-for-long-directed-cycles": {
+   "reason": "Proved as a consequence of the directed grid theorem: Kawarabayashi and Kreutzer show that directed cycles of length at least l have the (vertex) Erdos-Posa property for every l (STOC 2015).",
+   "source": "https://arxiv.org/abs/1411.5681",
+   "date": "2014-11"
   },
   "opg-every-prism-over-a-3-connected-planar-graph-is-hamiltonian": {
    "reason": "Disproved: Spacapan constructed a 3-connected planar graph whose prism is not Hamiltonian (J. Combin. Theory Ser. B 2021).",
@@ -700,6 +710,16 @@
    "reason": "Disproved as stated (every infinite graph): Oporowski gave an uncountable graph that is not a proper minor of itself (J. Graph Theory 14 (1990) 521-524); the countable case is a different, still open question.",
    "source": "https://doi.org/10.1002/jgt.3190140502",
    "date": "1990"
+  },
+  "opg-shuffle-exchange-conjecture": {
+   "reason": "Disproved as stated (for all k, n >= 2): d(k,3) = 6 > 2n-1 = 5 for every k >= 3; the binary case k = 2 is not decided by this.",
+   "source": "https://arxiv.org/abs/2607.15296",
+   "date": "2026-07"
+  },
+  "opg-shuffle-exchange-conjecture-graph-theoretic-form": {
+   "reason": "Disproved as stated: for the directed shuffle-exchange network d(k,3) = 6 for every k >= 3, not 2n-1 = 5; the binary case k = 2 is not decided by this.",
+   "source": "https://arxiv.org/abs/2607.15296",
+   "date": "2026-07"
   },
   "opg-snevilys-conjecture": {
    "reason": "Proved by Arsovski (Israel J. Math. 182 (2011), 505-508); Harcos, Karolyi and Kos give a shortened proof.",
