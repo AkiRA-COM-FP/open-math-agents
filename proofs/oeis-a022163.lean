@@ -14,8 +14,8 @@ lemma sqrt_bounds : 2 < Real.sqrt 6 ∧ Real.sqrt 6 < 3 := by
   have h := Real.sq_sqrt (show (0:ℝ) ≤ 6 by norm_num)
   constructor <;> nlinarith [Real.sqrt_nonneg (6:ℝ)]
 
-lemma slope_eq : slope = (b - 3) / 2 := by
-  unfold slope b
+lemma slope_eq : OMA.S_oeis_a022163.slope = (b - 3) / 2 := by
+  unfold OMA.S_oeis_a022163.slope b
   have h := Real.sq_sqrt (show (0:ℝ) ≤ 6 by norm_num)
   have h' := Real.sq_sqrt (show (0:ℝ) ≤ 3/2 by norm_num)
   have hs := Real.sqrt_nonneg (3/2:ℝ)
@@ -26,7 +26,7 @@ lemma slope_eq : slope = (b - 3) / 2 := by
   have := (mul_eq_zero.mp hz).resolve_right (by linarith)
   linarith
 
-lemma upper_slope : slope / (slope - 1) = b := by
+lemma upper_slope : OMA.S_oeis_a022163.slope / (OMA.S_oeis_a022163.slope - 1) = b := by
   rw [slope_eq]
   have hb : 5 < b := by unfold b; linarith [sqrt_bounds.1]
   have hs := Real.sq_sqrt (show (0:ℝ) ≤ 6 by norm_num)
@@ -77,16 +77,16 @@ lemma lower_rel (u : ℕ) (h : (upper u : ℤ) % 2 = (u : ℤ) % 2) :
   let t : ℤ := ((upper u : ℤ) - 3 * (u : ℤ)) / 2
   have ht : 2 * t = (upper u : ℤ) - 3 * (u : ℤ) := by dsimp [t]; omega
   have ht' : 2 * (t : ℝ) = (upper u : ℝ) - 3 * (u : ℝ) := by exact_mod_cast ht
-  have hs : (u : ℝ) * slope = (b * (u : ℝ) - 3 * (u : ℝ)) / 2 := by rw [slope_eq]; ring
-  have hb0 : 0 ≤ (u : ℝ) * slope := mul_nonneg (by positivity) (Real.sqrt_nonneg _)
-  have hf : ⌊(u : ℝ) * slope⌋ = t :=
+  have hs : (u : ℝ) * OMA.S_oeis_a022163.slope = (b * (u : ℝ) - 3 * (u : ℝ)) / 2 := by rw [slope_eq]; ring
+  have hb0 : 0 ≤ (u : ℝ) * OMA.S_oeis_a022163.slope := mul_nonneg (by positivity) (Real.sqrt_nonneg _)
+  have hf : ⌊(u : ℝ) * OMA.S_oeis_a022163.slope⌋ = t :=
     Int.floor_eq_iff.2 (by constructor <;> linarith)
   unfold lower
   rw [Int.toNat_of_nonneg (Int.floor_nonneg.2 hb0), hf]
   exact ht
 
 lemma lower_one : lower 1 = 1 := by
-  have hz : ⌊(1:ℝ) * slope⌋ = 1 := Int.floor_eq_iff.2 (by
+  have hz : ⌊(1:ℝ) * OMA.S_oeis_a022163.slope⌋ = 1 := Int.floor_eq_iff.2 (by
     rw [slope_eq]; unfold b
     have h := sqrt_bounds
     push_cast
@@ -97,7 +97,7 @@ lemma lower_one : lower 1 = 1 := by
   rfl
 
 lemma upper_one : upper 1 = 5 := by
-  have hz : ⌊(1:ℝ) * (slope / (slope-1))⌋ = 5 := Int.floor_eq_iff.2 (by
+  have hz : ⌊(1:ℝ) * (OMA.S_oeis_a022163.slope / (OMA.S_oeis_a022163.slope-1))⌋ = 5 := Int.floor_eq_iff.2 (by
     rw [upper_slope]; unfold b
     have h := sqrt_bounds
     push_cast
