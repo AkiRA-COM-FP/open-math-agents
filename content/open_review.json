@@ -6559,6 +6559,519 @@
     "https://oeis.org/history?seq=A266446"
    ],
    "note": "Barker's closed form (n>10) and g.f., plus Keller's floor formula floor(6661*2^n/6144) for all n, for the Rule 25 middle column read in binary; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true. Barker/Keller's formulas for A266446 (Rule 25) match an independent exact simulation. The rows become eventually periodic or self-similar after a short transient, so the proof is a finite induction and routine."
+  },
+  "oeis-a175033": {
+   "date": "2026-11-28",
+   "pr": 23237,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A175033",
+    "https://oeis.org/A175033",
+    "https://oeis.org/A175033/b175033.txt"
+   ],
+   "note": "Greathouse's recurrence a(n) = 6a(n-2) - a(n-4) is stated faithfully (real sqrt and ceiling, Nat.nth, n > 4). The proof reduces the condition to 2y^2 - x^2 = 17 with y = ceil(x/sqrt 2), a Pell equation whose two solution classes interleave. I enumerated n < 2*10^6 (14 terms) and the recurrence holds. A standard Pell argument; no prior proof was found. Second review: Faithful and true; a Pell-equation argument, routine."
+  },
+  "oeis-a280412": {
+   "date": "2026-11-28",
+   "pr": 23159,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A280412",
+    "https://oeis.org/A280412",
+    "https://oeis.org/A280412/b280412.txt"
+   ],
+   "note": "Gutkovskiy's g.f. and recurrence and Barker's closed forms for 2D Rule 261 (decimal value of the left half of the x-axis) are stated faithfully. The recurrence has no range in the entry and is stated for n >= 4. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. All four parts hold to n = 34. Eventually periodic, so routine. No prior proof found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a290660": {
+   "date": "2026-11-28",
+   "pr": 23006,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290660",
+    "https://oeis.org/A290660",
+    "https://oeis.org/A290660/b290660.txt"
+   ],
+   "note": "Wu's recurrence (n > 3) and g.f. for 2D Rule 899 (diagonal, corner to origin) are stated faithfully. The reading follows the name and the data (the printed program reads the middle row instead). Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. Both hold to n = 34. Routine; no prior proof found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a340862": {
+   "date": "2026-11-28",
+   "pr": 22053,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A340862",
+    "https://oeis.org/A340862",
+    "https://oeis.org/A340862/b340862.txt",
+    "https://oeis.org/A067148",
+    "https://oeis.org/A067148/b067148.txt"
+   ],
+   "note": "Goetschalckx's conjecture a(n) = 1 + A067148(n) for n > 2 is stated faithfully. Both counts follow their entries' definitions, and the starting terms are excluded. I recomputed both sides for n <= 400 and they agree. The proof is a short bijection, (k, j) -> previous term, plus the k = n-1 pair. Elementary; no prior proof found. Second review: Faithful and true. Proof is a short bijection (S k j = B (k+1) j; j=2 gives k=n-1, other pairs biject onto A067148's i), so routine."
+  },
+  "oeis-a283523": {
+   "date": "2026-11-28",
+   "pr": 22911,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A283523",
+    "https://oeis.org/A283523",
+    "https://oeis.org/A283523/b283523.txt"
+   ],
+   "note": "Barker's g.f., closed form 2^(n+1)-1 (n > 3) and recurrence (n > 5) for 2D Rule 913 (decimal value of the left half of the x-axis) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. All three hold to n = 34. Routine; no prior proof found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a277866": {
+   "date": "2026-11-28",
+   "pr": 22879,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277866",
+    "https://oeis.org/A277866",
+    "https://oeis.org/A277866/b277866.txt"
+   ],
+   "note": "Barker's g.f. and closed form -1-(-2)^n+2(-1)^n+2^n for 2D Rule 3 (decimal value of the left half of the x-axis) are stated faithfully, for all n >= 0. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. Both hold to n = 34. Period-2 pattern, so routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a267154": {
+   "date": "2026-11-28",
+   "pr": 22807,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267154",
+    "https://oeis.org/A267154",
+    "https://oeis.org/A267154/b267154.txt"
+   ],
+   "note": "Barker's recurrence (n > 12) and degree-12 g.f. for Rule 107 (rows -n..n read in binary, background evolving as in CellularAutomaton) are stated faithfully. My own ECA simulation reproduces all 30 listed terms, and both claims hold to n = 60. The entry notes that an earlier unjustified 'proved' claim was removed (2022). Routine; no prior proof found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a126114": {
+   "date": "2026-11-28",
+   "pr": 16668,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A126114",
+    "https://oeis.org/A126114",
+    "https://oeis.org/A126114/b126114.txt"
+   ],
+   "note": "Layman's conjecture is stated faithfully: the ultimate fixed point of n -> n - floor(sqrt n) is X^2 or (X-k-1)^2, with k the unique index such that k(k+1) < n <= (k+1)(k+2). I iterated the map for n < 20000 and the formula holds. The proof is a short two-step descent m^2+j -> (m-1)^2+j. Elementary; no prior proof found. Second review: Faithful and true; the proof is a short orbit computation (m^2+j -> (m-1)^2+j in two steps), routine."
+  },
+  "oeis-a365965": {
+   "date": "2026-11-28",
+   "pr": 19007,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A365965",
+    "https://oeis.org/A139315",
+    "https://oeis.org/A365965",
+    "https://oeis.org/A365965/b365965.txt",
+    "https://oeis.org/A139315",
+    "https://oeis.org/A139315/b139315.txt",
+    "https://oeis.org/A138511"
+   ],
+   "note": "Lowell's conjecture that 4p (p prime, p > 13) is in the sequence is stated faithfully: A139315(4p) = 0, and 4p is not a semiprime p'q with p'^2 < q. I checked the key step: d(4pk) = 2d(k) forces (v2(k), vp(k)) in {(2,4), (3,2), (5,1)}, and then the multiplier 8, 16 or 64 (< 4p) already doubles d(k). A short valuation argument, as in the A139315 a(10) = 0 comment. Routine. Second review: Faithful and true. Proof is a short divisor-count case analysis (v2,vp exponents forced to (2,4),(3,2),(5,1), each beaten by a smaller multiplier), so routine."
+  },
+  "oeis-a204646": {
+   "date": "2026-11-28",
+   "pr": 22671,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A204646",
+    "https://oeis.org/A204646",
+    "https://oeis.org/A204646/b204646.txt"
+   ],
+   "note": "Barker's g.f. and the parity quartic closed forms for (n+1) X 4 binary arrays with monotone pair sums are stated faithfully, with the reading of the sibling A204645. Lean controls reproduce all 26 data terms. A transfer-matrix or polynomial count, so routine; no prior proof found. Second review: Faithful and true; finite-state transfer-matrix argument, routine."
+  },
+  "oeis-a284655": {
+   "date": "2026-11-28",
+   "pr": 22609,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A284655",
+    "https://oeis.org/A284655",
+    "https://oeis.org/A284655/b284655.txt",
+    "https://oeis.org/A284653",
+    "https://oeis.org/A284654"
+   ],
+   "note": "Kimberling's bound -1 < n sqrt3 - a(n) < 2 for the 0-limiting word of 0->1, 1->0110 is stated faithfully, using even iterates from 0, which is distinct from the sibling A284658, which starts from 1. Data controls are proved. Numerically, over 2.78 million positions, the range is [-0.991, 1.716]. Routine discrepancy argument; no prior proof found. Second review: Faithful and true numerically; no prior proof found. A bounded-discrepancy argument for a Pisot morphic word, not a finite check, so not routine."
+  },
+  "oeis-a284236": {
+   "date": "2026-11-28",
+   "pr": 22547,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284236",
+    "https://oeis.org/A284236",
+    "https://oeis.org/A284236/b284236.txt"
+   ],
+   "note": "Wu's 2024 recurrence (n > 5) and g.f. for 2D Rule 833 (x-axis, origin to right edge, binary read in base 10) are stated faithfully. Statement models the 2D outer-totalistic von Neumann CA on Z x Z with the background evolving, as Price's program does; my own Python re-simulation reproduces every listed term with this reading. Both hold to n = 34. Eventually periodic, so routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a308160": {
+   "date": "2026-11-28",
+   "pr": 22456,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308160",
+    "https://oeis.org/A308160",
+    "https://oeis.org/A308160/b308160.txt"
+   ],
+   "note": "Barker's g.f. and order-9 recurrence for the sum of the middle sides b over isosceles triangles with perimeter n are stated faithfully (equilateral counted once). Lean controls reproduce 26 data terms. A quasi-polynomial count, so routine; no prior proof found. Second review: Faithful and true; quasi-polynomial count of lattice points, routine."
+  },
+  "oeis-a177170": {
+   "date": "2026-11-28",
+   "pr": 22288,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A177170",
+    "https://oeis.org/A177170",
+    "https://oeis.org/A177170/b177170.txt"
+   ],
+   "note": "Mathar's P-recurrence is stated for n >= 4, with Choulet's convolution recursion (k = 0, l = -2). My recursion reproduces the data, and the recurrence holds for n = 4..59. The g.f. is algebraic (quadratic), so this is the routine holonomic derivation. Second review: Faithful and true. The g.f. is algebraic (quadratic), so the D-finite recurrence follows by a routine annihilator/creative-telescoping or explicit g.f. computation (Ekhad-Yang-Zeilberger's 'provable conjecture' class)."
+  },
+  "oeis-a268164": {
+   "date": "2026-11-28",
+   "pr": 22173,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A268164",
+    "https://oeis.org/A268164",
+    "https://oeis.org/A268164/b268164.txt"
+   ],
+   "note": "Barker's g.f. x(1-x-3x^2)/((1-3x)(1-2x-4x^2)) and closed form for n X 1 arrays over 0..3 with cyclically increasing repeats are stated faithfully. The scan reproduces all 13 data terms. A transfer-matrix count, so routine; no prior proof found. Second review: Faithful and true; finite-state DP, routine."
+  },
+  "oeis-a045994": {
+   "date": "2026-11-28",
+   "pr": 22576,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A045994",
+    "https://oeis.org/A045994",
+    "https://oeis.org/A045994/b045994.txt"
+   ],
+   "note": "The Motzkin convolution definition and Mathar's order-5 polynomial recurrence (for n>=5, all indices are terms) are stated faithfully; the data match. The g.f. 1/(1-x(1+x)M(x)) is algebraic, so this is a routine holonomic recurrence, which I verified numerically to n=80. No prior proof found. Second review: Faithful and true. The g.f. is algebraic (quadratic), so the D-finite recurrence follows by a routine annihilator/creative-telescoping or explicit g.f. computation (Ekhad-Yang-Zeilberger's 'provable conjecture' class)."
+  },
+  "oeis-a269895": {
+   "date": "2026-11-28",
+   "pr": 22485,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A269895",
+    "https://oeis.org/A269895",
+    "https://oeis.org/A269895/b269895.txt"
+   ],
+   "note": "For an n X 1 column only vertical neighbours exist, so a(n) counts 0..6 words with exactly one adjacent pair summing to 6. The empirical recurrence (n>=3), Barker's g.f. and the closed form 7*6^(n-2)*(n-1) are stated faithfully (a(1)=0 handled). I brute-forced n<=7. Elementary counting; no prior proof found. Second review: Faithful and true; for each value x exactly one partner 6-x, so the count is (n-1)*7*6^(n-2). Routine."
+  },
+  "oeis-a267139": {
+   "date": "2026-11-28",
+   "pr": 22352,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267139",
+    "https://oeis.org/A267139",
+    "https://oeis.org/A267139/b267139.txt"
+   ],
+   "note": "Rule 103 elementary CA rows over [-n,n] read in binary, with the background evolving on Z. Barker's recurrence (n>10) and degree-10 g.f. are stated faithfully; my simulation matches 29 listed terms and the claims to n=80. No prior proof found; routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a177180": {
+   "date": "2026-11-28",
+   "pr": 22244,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A177180",
+    "https://oeis.org/A177180",
+    "https://oeis.org/A177180/b177180.txt"
+   ],
+   "note": "Choulet's recurrence with k=1, l=-1 (index shifted correctly; it reproduces 1,10,21,144,711,...) and Mathar's order-5 polynomial recurrence for n>=5 are stated faithfully. The g.f. is algebraic (given in the entry), so this is a routine holonomic recurrence, which I checked numerically to n=70. No prior proof found. Second review: Faithful and true. The g.f. is algebraic (quadratic), so the D-finite recurrence follows by a routine annihilator/creative-telescoping or explicit g.f. computation (Ekhad-Yang-Zeilberger's 'provable conjecture' class)."
+  },
+  "oeis-a266718": {
+   "date": "2026-11-28",
+   "pr": 22098,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266718",
+    "https://oeis.org/A266718",
+    "https://oeis.org/A266718/b266718.txt"
+   ],
+   "note": "Rule 59 elementary CA rows read in binary. Barker's recurrence (n>6) and g.f. are stated faithfully; my simulation matches 31 listed terms and the claims to n=80. No prior proof found; routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a094061": {
+   "date": "2026-11-28",
+   "pr": 21649,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A094061",
+    "https://oeis.org/A094061/a094061.pdf",
+    "https://oeis.org/A094061",
+    "https://oeis.org/A094061/b094061.txt",
+    "https://oeis.org/A094061/a094061.pdf",
+    "https://arxiv.org/abs/2105.14841",
+    "https://arxiv.org/abs/2012.05121"
+   ],
+   "note": "Bala's supercongruence a(np^k) = a(np^(k-1)) mod p^(2k) for primes p>=5 is stated faithfully, with a(n) the number of closed n-step king walks. It is true numerically for p=5..13 and small n,k, and fails mod 9 at p=3. The 4000-line proof is a genuine p-adic argument (Kazandzidis/Wolstenholme, carry lemmas, trinomial overflow). Pan-Sun covers only T(n) and A168597 = T(n)^2, the Beukers-Vlasenko mod p^(2s) version is still conjectural, and no proof of this entry was found in OEIS, rbajaj5, trureturing or elsewhere. Second review: Faithful and true numerically; no prior proof found. The 4169-line proof (Kazandzidis/Wolstenholme-type p-adic estimates on Bala's binomial double-sum) is a genuine supercongruence argument, so not routine. Small residual risk that it follows from general Laurent-polynomial supercongruence theory not found by search."
+  },
+  "oeis-a280410": {
+   "date": "2026-11-28",
+   "pr": 23191,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A280410",
+    "https://oeis.org/A280410",
+    "https://oeis.org/A280410/b280410.txt"
+   ],
+   "note": "Barker's four claims (a(n) = 1 for even n, 10(10^n-1)/9 for odd n, the recurrence and the g.f.) are stated faithfully for 2D outer-totalistic Rule 261 on Z^2, with the background evolving and the cells (-n..0) read in base 10. The proof's controls reproduce the data. I simulated the CA on the plane with the background tracked, and all four claims hold for n <= 40. No prior proof was found in OEIS, the Lean libraries, Palomar or formal-conjectures. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a135051": {
+   "date": "2026-11-28",
+   "pr": 22984,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A135051",
+    "https://oeis.org/A135051",
+    "https://oeis.org/A135051/b135051.txt"
+   ],
+   "note": "Barker's closed form and g.f. are stated faithfully from the entry's definition (4(8n-7) a square and n = 7 mod 8, offset 1). I checked the closed form numerically against every term below 400000. The proof is a routine mod-64 square-root classification, and no prior proof was found. Second review: Faithful and true; s^2 = 8n-7 with n==7 mod 8 forces s==7,25 mod 32, giving the quadratic closed form. Routine."
+  },
+  "oeis-a277865": {
+   "date": "2026-11-28",
+   "pr": 22967,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277865",
+    "https://oeis.org/A277865",
+    "https://oeis.org/A277865/b277865.txt"
+   ],
+   "note": "Barker's g.f. and closed form for 2D Rule 3 (cells (0..n), origin first, base 10, evolving background) are stated faithfully, and the data is reproduced. I verified both numerically for n <= 40 by simulation. Routine. The sibling A277867 is the same CA read in base 2, a different statement. No prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a277867": {
+   "date": "2026-11-28",
+   "pr": 22926,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277867",
+    "https://oeis.org/A277867",
+    "https://oeis.org/A277867/b277867.txt"
+   ],
+   "note": "Barker's g.f. and closed form for 2D Rule 3, read in base 2, are stated faithfully, and I checked them numerically for n <= 40. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a266671": {
+   "date": "2026-11-28",
+   "pr": 22869,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266671",
+    "https://oeis.org/A266671",
+    "https://oeis.org/A266671/b266671.txt"
+   ],
+   "note": "Barker's recurrence (n > 5) and g.f. for elementary Rule 53 read in base 2 are stated faithfully, and I checked them numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a237978": {
+   "date": "2026-11-28",
+   "pr": 22817,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A237978",
+    "https://oeis.org/A237685",
+    "https://oeis.org/A366063",
+    "https://oeis.org/A237978",
+    "https://oeis.org/A237978/b237978.txt",
+    "https://oeis.org/A237685",
+    "https://oeis.org/A366063"
+   ],
+   "note": "Kimberling's conjecture (2^d is the least n with a partition of depth d) is stated faithfully. A brute-force check over n <= 32 gives least n = 1, 2, 4, 8, 16, 32 for d = 0..5. The same conjecture is repeated, still open, in A237685, A237750 and A366063, and none of them is solved on the site. The proof is a short doubling and induction argument, and no prior proof was found. Second review: Faithful and true. Proof: [1,1,2,4,...,2^(d-1)] has depth d, and a repeated part at level j is >= 2x for a repeated part x at level j-1, giving n >= 2^d; short argument, routine."
+  },
+  "oeis-a266589": {
+   "date": "2026-11-28",
+   "pr": 22698,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266589",
+    "https://oeis.org/A266589",
+    "https://oeis.org/A266589/b266589.txt"
+   ],
+   "note": "Barker's recurrence and g.f. and Keller's two closed forms for elementary Rule 37 (base-10 reading of the binary row) are stated faithfully, with the data reproduced. I checked all four numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a267138": {
+   "date": "2026-11-28",
+   "pr": 22664,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267138",
+    "https://oeis.org/A267138",
+    "https://oeis.org/A267138/b267138.txt"
+   ],
+   "note": "Barker's recurrence (n > 10) and g.f. for elementary Rule 103 (base-10 reading) are stated faithfully, and I checked them numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a266445": {
+   "date": "2026-11-28",
+   "pr": 22561,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266445",
+    "https://oeis.org/A266445",
+    "https://oeis.org/A266445/b266445.txt"
+   ],
+   "note": "Barker's closed form (n > 10) and g.f. and Keller's floor formula for the middle column of elementary Rule 25 are stated faithfully, and I checked all three numerically for n <= 60. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine. Related to A266444 (same automaton) but a different statement."
+  },
+  "oeis-a284237": {
+   "date": "2026-11-28",
+   "pr": 22526,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284237",
+    "https://oeis.org/A284237",
+    "https://oeis.org/A284237/b284237.txt"
+   ],
+   "note": "Wu's recurrence and g.f. for 2D Rule 833 (cells (-n..0), left edge most significant, base 2, evolving background) are stated faithfully, and I checked them numerically for n <= 40 by simulation. Routine, and no prior proof was found. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a177199": {
+   "date": "2026-11-28",
+   "pr": 22419,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A177199",
+    "https://oeis.org/A177199",
+    "https://oeis.org/A177199/b177199.txt"
+   ],
+   "note": "Mathar's D-finite recurrence is stated faithfully for Choulet's convolution sequence (a(0)=1, a(1)=8, k=-1, l=1), and the data is reproduced. I checked it numerically for n < 60. Routine (algebraic g.f. to recurrence), and no prior proof was found. Second review: Faithful and true. The g.f. is algebraic (quadratic), so the D-finite recurrence follows by a routine annihilator/creative-telescoping or explicit g.f. computation (Ekhad-Yang-Zeilberger's 'provable conjecture' class)."
+  },
+  "oeis-a227877": {
+   "date": "2026-11-28",
+   "pr": 22284,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A227877",
+    "https://oeis.org/A227877/b227877.txt",
+    "https://oeis.org/A227877",
+    "https://oeis.org/A227877/b227877.txt",
+    "https://oeis.org/A227877/b227877.txt",
+    "http://listserv.nodak.edu/cgi-bin/wa.exe?A2=NMBRTHRY;4704f25.1310"
+   ],
+   "note": "Sun's conjecture a(n) > 0 for n > 4 is stated faithfully (ordered triples, matching the data and the a(77) and a(90) examples). The disproof certifies a(335979) = 0. I confirmed this with an independent CRT-based enumeration of all x and the y with 8xy+1 square, and my code reproduces the first 33 terms. This is a genuine counterexample beyond Sun's b-file range (n <= 10000), and no earlier report of it was found. Second review: Disproof confirmed: the counterexample n=335979 is verified independently with exact arithmetic and is not recorded anywhere I could find. Routine in the sense of a finite check (the proof certifies a(335979)=0 by a sum-of-two-squares obstruction plus kernel computation)."
+  },
+  "oeis-a221619": {
+   "date": "2026-11-28",
+   "pr": 22166,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221619",
+    "https://oeis.org/A221619",
+    "https://oeis.org/A221619/b221619.txt"
+   ],
+   "note": "Barker's g.f. and closed form are stated faithfully: n X 4 arrays of permutation rows with non-decreasing descent counts (Eulerian numbers 1, 11, 11, 1). I checked them via the transfer count for n < 30 against the data. Routine, and no prior proof was found. Second review: Faithful and true; sum over nondecreasing descent sequences gives a rational g.f. directly, routine."
+  },
+  "oeis-a290828": {
+   "date": "2026-11-28",
+   "pr": 23274,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290828",
+    "https://oeis.org/A290828/b290828.txt",
+    "https://oeis.org/A290828",
+    "https://oeis.org/A290828/b290828.txt"
+   ],
+   "note": "Barker's g.f., parity closed forms and recurrence (n>5) for the diagonal (corner first, binary) of 2D Rule 961; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry and follow the name and data rather than the printed middle-row program. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a284352": {
+   "date": "2026-11-28",
+   "pr": 23225,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284352",
+    "https://oeis.org/A284352/b284352.txt",
+    "https://oeis.org/A284352",
+    "https://oeis.org/A284352/b284352.txt"
+   ],
+   "note": "Barker's g.f., closed form and recurrence (n>2) for the right x-axis of 2D Rule 899 read in base 10 (origin most significant); conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a277800": {
+   "date": "2026-11-28",
+   "pr": 23131,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277800",
+    "https://oeis.org/A277800/b277800.txt",
+    "https://oeis.org/A277800",
+    "https://oeis.org/A277800/b277800.txt"
+   ],
+   "note": "Barker's g.f., recurrence (n>3) and closed form for the right x-axis of 2D Rule 1 read in binary; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a284404": {
+   "date": "2026-11-28",
+   "pr": 22987,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284404",
+    "https://oeis.org/A284404/b284404.txt",
+    "https://oeis.org/A284404",
+    "https://oeis.org/A284404/b284404.txt"
+   ],
+   "note": "Barker's g.f., closed form (n>3) and recurrence (n>5) for the right x-axis of 2D Rule 913 read in base 10; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a283589": {
+   "date": "2026-11-28",
+   "pr": 22902,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A283589",
+    "https://oeis.org/A283589/b283589.txt",
+    "https://oeis.org/A283589",
+    "https://oeis.org/A283589/b283589.txt"
+   ],
+   "note": "Barker's g.f., closed form (n>2) and recurrence (n>4) for the left x-axis of 2D Rule 657 read in base 10; conventions (outer-totalistic bit 2k+c, evolved on the whole plane from one ON cell) as in the entry. My independent simulation reproduces all 127 b-file terms (n = 0..126), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a267258": {
+   "date": "2026-11-28",
+   "pr": 23226,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267258",
+    "https://oeis.org/A267258/b267258.txt",
+    "https://oeis.org/A267258",
+    "https://oeis.org/A267258/b267258.txt"
+   ],
+   "note": "Barker's closed form (n>5) and g.f. for the middle column of Rule 111 read as a binary number (stage 0 most significant); conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a267153": {
+   "date": "2026-11-28",
+   "pr": 22797,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267153",
+    "https://oeis.org/A267153/b267153.txt",
+    "https://oeis.org/A267153",
+    "https://oeis.org/A267153/b267153.txt"
+   ],
+   "note": "Barker's recurrence (n>12) and degree-12 g.f. for row n of Rule 107 read in base 10 (leftmost cell first); conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a267052": {
+   "date": "2026-11-28",
+   "pr": 22762,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267052",
+    "https://oeis.org/A267052/b267052.txt",
+    "https://oeis.org/A267052",
+    "https://oeis.org/A267052/b267052.txt"
+   ],
+   "note": "Barker's closed form (n>0), recurrence (n>3) and g.f. for the binary value of row n of Rule 92; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a266516": {
+   "date": "2026-11-28",
+   "pr": 22684,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266516",
+    "https://oeis.org/A266516/b266516.txt",
+    "https://oeis.org/A266516",
+    "https://oeis.org/A266516/b266516.txt"
+   ],
+   "note": "Keller's parity closed forms (odd n: 2(4^n-2^n)-1, even n: 2^n) for the binary value of row n of Rule 29; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry; Librandi's empirical recurrence and Barker's g.f. are not included, but they follow from Keller's forms. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a266444": {
+   "date": "2026-11-28",
+   "pr": 22452,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266444",
+    "https://oeis.org/A266444/b266444.txt",
+    "https://oeis.org/A266444",
+    "https://oeis.org/A266444/b266444.txt"
+   ],
+   "note": "Barker's closed form (n>11), recurrence (n>13) and g.f. for the middle column of Rule 25; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
   }
  },
  "flagged": {
