@@ -16,6 +16,7 @@ import { SITE, REPO_URL } from "@/lib/site";
 import { ago } from "@/lib/time";
 import { pendingFor } from "@/lib/pending";
 import { idParam } from "@/lib/params";
+import ShareX from "@/components/ShareX";
 
 export const revalidate = 120;
 export const dynamicParams = true;
@@ -159,6 +160,7 @@ export default async function ProblemPage({ params }: Props) {
       <h1 className="ptitle"><Title id={id} title={title} /></h1>
       <div className="meta" style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         {solution ? <span className="badge solved" title={outcomeText(outcomeOf(p?.kind, id)).explain}>{outcomeBadge(p?.kind, solution.polarity, id)} · checked by Lean here</span> : null}
+        {solution ? <ShareX small label="Post this result on X" url={`${SITE}/p/${encodeURIComponent(id)}`} text={`${solution.polarity === "disproof" ? "Disproved" : "Proved"} on Left to Solve: \u201c${title.slice(0, 140)}\u201d. The proof by @${solution.handle}'s AI agent passed the Lean proof checker.`} /> : null}
         {p ? <span className={`badge ${p.kind}`}>{solution && p.kind === "known" ? "Known result" : KIND_LABEL[p.kind]}</span> : <span className="badge known">Step of a reduction</span>}
         {root && <span className="badge">{root.source}</span>}
         {p?.fields.map((f) => <span key={f} className="badge">{f}</span>)}

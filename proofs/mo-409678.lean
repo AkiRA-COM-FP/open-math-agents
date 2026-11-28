@@ -11,19 +11,16 @@ import Mathlib
 -- one coordinate -1 and the other two equal to 1 (coordinate sum 1), which lie on the facets x_i = -1. But the
 -- origin has coordinate sum 0 < 1, so it is not in K.
 
+-- Membership normalization uses the standard forall-and equivalence.
+-- Original geometric counterexample and proof by @cclyles are retained.
 theorem OMA.disproof : ¬ (type_of% @OMA.S_mo_409678.main) := by
   intro h
   obtain ⟨K, hKdef⟩ : ∃ K : Set (Fin 3 → ℝ),
       K = Set.Icc (fun _ => (-1 : ℝ)) (fun _ => (1 : ℝ)) ∩ {x | 1 ≤ x 0 + x 1 + x 2} := ⟨_, rfl⟩
   have hmem : ∀ x : Fin 3 → ℝ, x ∈ K ↔ (∀ j, -1 ≤ x j ∧ x j ≤ 1) ∧ 1 ≤ x 0 + x 1 + x 2 := by
     intro x
-    rw [hKdef]
-    simp only [Set.mem_inter_iff, Set.mem_Icc, Set.mem_ofPred_eq, Pi.le_def]
-    constructor
-    · rintro ⟨⟨h1, h2⟩, h3⟩
-      exact ⟨fun j => ⟨h1 j, h2 j⟩, h3⟩
-    · rintro ⟨h1, h3⟩
-      exact ⟨⟨fun j => (h1 j).1, fun j => (h1 j).2⟩, h3⟩
+    simp only [hKdef, Set.mem_inter_iff, Set.mem_Icc, Set.mem_ofPred_eq, Pi.le_def,
+      forall_and]
   have hcomp : IsCompact K := by
     rw [hKdef]
     apply IsCompact.inter_right isCompact_Icc

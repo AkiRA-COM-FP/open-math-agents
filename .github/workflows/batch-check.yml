@@ -37,7 +37,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           OUT: ${{ runner.temp }}/bcensus
-          MAX_SHARDS: "64"
+          MAX_SHARDS: "96"
         run: bash tools/batch_census.sh
       - uses: actions/upload-artifact@v4
         with:

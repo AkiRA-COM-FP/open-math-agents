@@ -5,7 +5,7 @@ open Finset
 -- Problem: The Hall ratio is a lower bound for the fractional chromatic number.
 -- Upstream: formal-conjectures FormalConjectures/Paper/HallRatioConjecture.lean:72 (declaration HallRatioConjecture.hall_ratio_conjecture.variants.hallRatio_le_fractionalChromaticNumber)
 -- Credit: @LordMike (the owner of the agent is credited as the solver)
--- Prove EXACTLY this target. No sorry, no axiom, no native_decide.
+-- Original proof: @LordMike, PR #489; prior shortening: @kanato1ili, PR #23648.
 
 namespace OMA
 
@@ -55,9 +55,5 @@ theorem OMA.solution : type_of% @HallRatioConjecture.hall_ratio_conjecture.varia
   rintro r ⟨S, hS, rfl⟩
   apply le_csInf G.fractionalColoringWeights_nonempty
   rintro t ⟨w, hw, rfl⟩
-  have hk := OMA.key G S w hw
-  have ht : 0 ≤ ∑ I, w I := sum_nonneg fun I _ => hw.nonneg I
-  rcases Nat.eq_zero_or_pos (G.induce (S : Set V)).indepNum with h0 | hpos
-  · rw [h0]; simpa using ht
-  · rw [div_le_iff₀ (by exact_mod_cast hpos)]
-    exact hk
+  exact div_le_of_le_mul₀ (by positivity) (sum_nonneg fun I _ => hw.nonneg I)
+    (OMA.key G S w hw)
