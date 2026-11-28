@@ -57,7 +57,7 @@ merge_alone() {
     CHANGES=$($G diff-tree -r --name-status "$MAIN" "$TREE")
     [ "$CHANGES" = "$(printf 'A\t%s' "$FPATH")" ] || [ "$CHANGES" = "$(printf 'M\t%s' "$FPATH")" ] || fail "unexpected change: $CHANGES"
     C=$($G "${ID[@]}" commit-tree "$TREE" -p "$MAIN" -p "$HEAD_SHA" -m "$MSG") || fail "cannot commit"
-    if OUT=$($G push -q origin "$C:refs/heads/main" 2>&1); then echo "$C"; exit 0; fi
+    if OUT=$($G -c push.negotiate=true push -q origin "$C:refs/heads/main" 2>&1); then echo "$C"; exit 0; fi
     if printf '%s' "$OUT" | grep -qiE "$RACE"; then
       flock -u 8; sleep 1; continue
     fi
@@ -98,6 +98,7 @@ lead() {
     done
     [ "${#REQS[@]}" -gt 0 ] || return 0
     # main and every head not here yet, in one fetch
+    T0=$(date +%s.%N)
     HEADS=()
     for R in "${REQS[@]}"; do
       IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R"
@@ -111,7 +112,7 @@ lead() {
     done
     $G fetch -q --no-tags --depth 1 origin "+refs/heads/main:refs/oma/main" "${HEADS[@]}" 2>/dev/null \
       || $G fetch -q --no-tags --depth 1 origin "+refs/heads/main:refs/oma/main" || { sleep 5; continue; }
-    MAIN=$($G rev-parse refs/oma/main); TIP=$MAIN
+    MAIN=$($G rev-parse refs/oma/main); TIP=$MAIN; T1=$(date +%s.%N)
     : > gm_results
     for R in "${REQS[@]}"; do
       IFS=$'\t' read -r P H F M PID B64 SRC < "$Q/req/$R"
@@ -131,9 +132,13 @@ lead() {
       C=$(printf '%s' "$B64" | base64 -d | $G "${ID[@]}" commit-tree "$TREE" -p "$TIP" -p "$H") || { printf '%s\tALONE\t-\n' "$R" >> gm_results; continue; }
       printf '%s\tOK\t%s\n' "$R" "$C" >> gm_results; TIP=$C
     done
+    T2=$(date +%s.%N)
     if [ "$TIP" != "$MAIN" ]; then
-      if OUT=$($G push -q origin "$TIP:refs/heads/main" 2>&1); then
-        N=$(grep -c $'\tOK\t' gm_results); echo "group commit: $N merges in one push ($TIP)" >&2
+      # push.negotiate: find what GitHub already has through the fetch protocol, which sees refs/pull/*, so the heads'
+      # trees and blobs (already on GitHub) are not sent again; without it a chain of ten merges uploaded ten trees
+      if OUT=$($G -c push.negotiate=true push -q origin "$TIP:refs/heads/main" 2>&1); then
+        N=$(grep -c $'\tOK\t' gm_results)
+        echo "group commit: $N merges in one push ($TIP) fetch=$(echo "$T1 - $T0" | bc)s build=$(echo "$T2 - $T1" | bc)s push=$(echo "$(date +%s.%N) - $T2" | bc)s" >&2
       elif printf '%s' "$OUT" | grep -qiE "$RACE"; then
         sleep 1; continue   # main moved (a push from elsewhere): the whole chain again on the new main
       else
