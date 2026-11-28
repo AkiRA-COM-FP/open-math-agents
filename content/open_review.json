@@ -10184,6 +10184,41 @@
     "https://mathoverflow.net/questions/360945"
    ],
    "reason": "The disproof is valid only because a1=1. Then the recurrence a_{k+2}=a_{k+1}+a_k is 3-periodic (1, a, 1+a), which is the degenerate behaviour user44191 flagged as a typo. My check over F_{2^m}, m<=7, found counterexamples only with a1=1 (10 pairs for m=5, 28 for m=7), none with a1!=1. That matches the asker's computer evidence. Literally allowed by the statement, but it exploits a degenerate case of the intended problem."
+  },
+  "oeis-a263687": {
+   "date": "2026-11-28",
+   "pr": 23161,
+   "evidence": [
+    "https://oeis.org/A263687",
+    "https://dlmf.nist.gov/26.8"
+   ],
+   "reason": "Trivial. Irwin's 'conjecture' is the real part of the defining identity of the unsigned Stirling numbers of the first kind, (x)_n = Sum_k c(n,k) x^k, at x = sqrt(2); since (-1)^n Stirling1(n,2k) = c(n,2k), the two sides are equal by definition. The formalization (Zsqrtd 2, signed Stirling via Nat.stirlingFirst) is faithful and checked for n < 25, but there is no open content (cf. the same verdict for A326326)."
+  },
+  "oeis-a264745": {
+   "date": "2026-11-28",
+   "pr": 22999,
+   "evidence": [
+    "https://oeis.org/A264745",
+    "https://oeis.org/A001566"
+   ],
+   "reason": "The disproof exploits an index slip. A001566 has offset 0 (3, 7, 47, ...), so A001566(n) in the printed g.f. is off by one: row 1 (F(2k) = 1, 3, 8, 21, ...) has g.f. x/(1-3x+x^2), i.e. A001566(n-1) = Lucas(2^n). The refutation is the x^2 coefficient for n = 1 (3 - 7 = -4 vs 0); the evidently intended g.f. with A001566(n-1) holds and is untouched."
+  },
+  "oeis-a265946": {
+   "date": "2026-11-28",
+   "pr": 23349,
+   "evidence": [
+    "https://oeis.org/A265946"
+   ],
+   "reason": "Trivial. Lagneau's 'conjecture' a(2n) - a(2n-1) = n - 1 says the negative differences minus the positive differences along the Collatz trajectory of n total n - 1, which is just telescoping (the trajectory runs from n to 1). The statement is faithful (it assumes the trajectory reaches 1), and the 29-line proof is exactly Finset.sum_range_sub; there is no open content."
+  },
+  "oeis-a266595": {
+   "date": "2026-11-28",
+   "pr": 23071,
+   "evidence": [
+    "https://oeis.org/A266595",
+    "https://oeis.org/A266595/b266595.txt"
+   ],
+   "reason": "Barker's recurrence for Rule 37's OFF cells is printed 'for n>4' but fails at n = 5 (a(5) = 5, while 2a(3) - a(1) = 8). The disproof uses only that slip and the g.f.; it never touches the automaton. The definition reproduces the b-file (n = 0..1000), and the closed form for n > 1, the g.f. and the recurrence for n > 5 all hold, so the intended conjecture is untouched."
   }
  },
  "known": {
@@ -18146,6 +18181,45 @@
     "https://mathoverflow.net/questions/374711"
    ],
    "reason": "Federico Poloni's comment already says solutions come from rescaling an arbitrary vector. The formal solution set {0} together with sqrt(u^T B u) u for u^T A u = 1 is exactly that, and is near-trivial."
+  },
+  "oeis-a262535": {
+   "date": "2026-11-28",
+   "pr": 23770,
+   "evidence": [
+    "https://oeis.org/A262535",
+    "https://oeis.org/A261699",
+    "https://oeis.org/A078471"
+   ],
+   "reason": "Pol's conjecture (row sums of A262535 = A078471(n)) is stated faithfully and checked for n < 200. But the row sum is the double sum of A261699 over rows 1..n, and the cross-referenced A261699 already records that its row n sums to A000593(n) (its positive terms are the odd divisors of n, proved by Hartmut F. W. Hoft, Oct 25 2015); A078471(n) = Sum_{k<=n} A000593(k) by its own formula line. The proof re-derives Hoft's bijection and swaps the sums, so the result was already settled."
+  },
+  "oeis-a266752": {
+   "date": "2026-11-28",
+   "pr": 22470,
+   "evidence": [
+    "https://oeis.org/A266752",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/rule-163.md",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/CellularAutomata/Rule163EvenSubsequence.lean"
+   ],
+   "reason": "Barker's recurrence (n>2) and g.f. for Rule 163 rows read as decimal digit strings are stated faithfully and verified against the b-file. But trureturing's Rule163EvenSubsequence (committed Nov 7 2026, before this Nov 28 PR) proves the complete row invariant row_word: every positive-time row has an all-ON exterior and central word 100(10)^(n-1). Reading that word in base 10 gives a(n+1) = 100a(n)+10 for n >= 1, hence the recurrence and g.f.; trureturing only lists the base-10 formulas as 'neighbouring', but they follow at once."
+  },
+  "oeis-a265284": {
+   "date": "2026-11-28",
+   "pr": 10573,
+   "evidence": [
+    "https://oeis.org/A265284",
+    "https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A071033RuleSingleCell.lean"
+   ],
+   "reason": "Barker's three closed forms, recurrence (n>4) and g.f. for the total ON cells of Rule 94 are stated faithfully, the definition reproduces the b-file and all hold numerically. But thatnealpatel/proofs (Proofs/Enumerative/A071033RuleSingleCell.lean, by Oct 25 2026, before this Nov 28 PR) already proves, as the public theorem ca_eq, the exact shape of every Rule 94 row from a single ON cell (ON iff -n<=i<=n and i odd or i<=1-n or i>=n-1). The per-row count 2n+1 minus the even interior cells, and hence every formula here, follows by a routine sum, so the content was already settled."
+  },
+  "oeis-a266610": {
+   "date": "2026-11-28",
+   "pr": 23707,
+   "evidence": [
+    "https://oeis.org/A266610",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S3/StatisticalMechanics/CellularAutomata/Rule41OnCellCount.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a266614-rule41-barker.md"
+   ],
+   "reason": "Barker's recurrence/g.f. and Keller's closed forms for the decimal value of Rule 41 rows are stated faithfully and verified against the b-file. But trureturing's Rule41OnCellCount.lean (committed Oct 5 2026, before this Nov 28 PR) already proves the complete row invariant hrow: row n differs from the background (OFF for even n, ON for odd n) exactly at {n}, {n-2,n-1,n}, {n-2,n} or {n-4,n-3,n-1,n} by n mod 4. Reading that row as a binary number gives 1 or 5 for even n and 2*4^n+2-10(n mod 4) for odd n directly, so the formulas are an immediate consequence of a public proof."
   }
  },
  "reviewed": "2026-11-28"
