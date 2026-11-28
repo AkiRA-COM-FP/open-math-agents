@@ -2984,6 +2984,49 @@ lemma nilpotent_outer_fixed_kernel_count (K : FiniteGrp.{0}) {m : ℕ} (hm : 0 <
         (m.gcd (Monoid.exponent Z))^Group.rank Z) * Nat.card (Subgroup.center K) :=
   (outer_cyclic_quotient_count K m).trans (Nat.mul_le_mul_right _ (nilpotent_outer_series_count _ hm))
 
+/-- Inclusion of any Sylow subgroup covers the ambient classes killed by a power of its prime. -/
+lemma prime_power_torsion_classes_le_sylow (G : Type*) [Group G] [Finite G]
+    {p : ℕ} [Fact p.Prime] (P : Sylow p G) (a : ℕ) :
+    (ConjClasses.mk '' {x : G | x^(p^a) = 1}).ncard ≤
+      (ConjClasses.mk '' {x : P | x^(p^a) = 1}).ncard := by
+  classical
+  let _ : Finite (ConjClasses P) := Finite.of_surjective _ ConjClasses.mk_surjective
+  let S := ConjClasses.mk '' {x : P | x^(p^a) = 1}
+  have covers : ConjClasses.mk '' {x : G | x^(p^a) = 1} ⊆
+      ConjClasses.map P.toSubgroup.subtype '' S := by
+    rintro _ ⟨x,hx,rfl⟩
+    have hp : IsPGroup p (Subgroup.zpowers x) := IsPGroup.of_card_dvd_pow
+      (by rw [Nat.card_zpowers]; exact orderOf_dvd_of_pow_eq_one (show x^(p^a) = 1 from hx))
+    obtain ⟨Q,hQ⟩ := hp.exists_le_sylow
+    obtain ⟨g,hg⟩ := MulAction.exists_smul_eq G Q P
+    have mem : MulAut.conj g x ∈ P := by
+      rw [← hg]
+      exact ⟨x,hQ (Subgroup.mem_zpowers x),rfl⟩
+    let y : P := ⟨MulAut.conj g x,mem⟩
+    have hy : y^(p^a) = 1 := by
+      apply Subtype.ext
+      change (MulAut.conj g x)^(p^a) = 1
+      rw [← map_pow,show x^(p^a) = 1 from hx,map_one]
+    exact ⟨_,⟨y,hy,rfl⟩,(ConjClasses.mk_eq_mk_iff_isConj.mpr (isConj_iff.mpr ⟨g,rfl⟩)).symm⟩
+  exact (Set.ncard_le_ncard covers ((Set.toFinite S).image _)).trans
+    (Set.ncard_image_le (Set.toFinite S))
+
+/-- Prime-power cyclic extensions, including nonsplit ones, cost only the central layers
+of one Sylow subgroup of the outer automorphism group and the center of the kernel. -/
+lemma prime_power_outer_sylow_fixed_kernel_count (K : FiniteGrp.{0}) {p : ℕ}
+    [hp : Fact p.Prime] (a : ℕ) [(MulAut.conj : K →* MulAut K).range.Normal]
+    (P : Sylow p (MulAut K ⧸ (MulAut.conj : K →* MulAut K).range)) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+        N.index = p^a ∧ Nonempty (K ≃* N)}).ncard ≤
+      (∏ i ∈ Finset.range (Group.nilpotencyClass P),
+        let Z := Subgroup.center (P ⧸ Subgroup.upperCentralSeries P i)
+        ((p^a).gcd (Monoid.exponent Z))^Group.rank Z) * Nat.card (Subgroup.center K) := by
+  let _ : Group.IsNilpotent P := P.isPGroup'.isNilpotent
+  apply (outer_cyclic_quotient_count K (p^a)).trans
+  exact Nat.mul_le_mul_right _ ((prime_power_torsion_classes_le_sylow _ P a).trans
+    (nilpotent_outer_series_count P (pow_pos hp.out.pos a)))
+
 private lemma cyclic_rank_power_budget {k m t c : ℕ} (hk : 0 < k) (hm : 1 < m)
     (rk : t ≤ c * Nat.log 2 k) : m^t ≤ k^((2*c)*Nat.log 2 m) := by
   have d : 1 ≤ Nat.log 2 m := Nat.le_log_of_pow_le (by decide) (by simpa using (show 2 ≤ m by omega))
@@ -3607,6 +3650,41 @@ theorem nilpotent_outer_cyclic_induction_step {q r E c : ℕ} (hr : q < 2^r) (od
   refine ⟨G,⟨hg,hs,N,hn,cyc,big,hJ,?_⟩,rfl⟩
   rw [pow_succ]
   exact Nat.mul_le_mul ((nilpotent_outer_active_rank_bound O (by omega : 0 < N.index)).trans
+    (cyclic_rank_power_budget Nat.card_pos big rk))
+    (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective)
+
+/-- For a cyclic prime-power quotient, a rank budget on one outer Sylow subgroup
+suffices for the induction on group order. -/
+theorem prime_power_sylow_outer_cyclic_induction_step {q r E c : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : 2*c+6 ≤ E)
+    (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
+      (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+        {G : FiniteGrp.{0} | Nat.card G = n ∧ Group.IsSolvable G}).ncard ≤
+        2^(E*(s+1)^2) * ∏ p ∈ n.primeFactors, g (p^n.factorization p)) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧
+        (∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧ 1 < N.index ∧
+          let J := (MulAut.conj : N →* MulAut N).range
+          ∃ _ : J.Normal, ∃ (p a : ℕ) (_ : p.Prime) (P : Sylow p (MulAut N ⧸ J)),
+            N.index = p^a ∧
+            let Z (i : ℕ) := Subgroup.center (P ⧸ Subgroup.upperCentralSeries P i)
+            (∑ i ∈ Finset.range (Group.nilpotencyClass P),
+              if N.index.Coprime (Monoid.exponent (Z i)) then 0 else Group.rank (Z i))
+                ≤ c * Nat.log 2 (Nat.card N))}).ncard ≤
+      2^(E*(r+1)^2-6) * ∏ z ∈ q.primeFactors, g (z^q.factorization z) := by
+  apply le_trans _ (outer_cyclic_quotient_induction_step (B := 2*c) hr odd hE ih)
+  apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono fun _ h => h.1))
+  rintro _ ⟨G,⟨hg,hs,N,hn,cyc,big,hJ,p,a,hp,P,idx,rk⟩,rfl⟩
+  let _ : (MulAut.conj : N →* MulAut N).range.Normal := hJ
+  let O := MulAut N ⧸ (MulAut.conj : N →* MulAut N).range
+  let _ : Fact p.Prime := ⟨hp⟩
+  let _ : Group.IsNilpotent P := P.isPGroup'.isNilpotent
+  refine ⟨G,⟨hg,hs,N,hn,cyc,big,hJ,?_⟩,rfl⟩
+  rw [pow_succ]
+  have localCount : (ConjClasses.mk '' {x : O | x^N.index = 1}).ncard ≤
+      (ConjClasses.mk '' {x : P | x^N.index = 1}).ncard := by
+    rw [idx]
+    exact prime_power_torsion_classes_le_sylow O P a
+  exact Nat.mul_le_mul ((localCount.trans (nilpotent_outer_active_rank_bound P (by omega : 0 < N.index))).trans
     (cyclic_rank_power_budget Nat.card_pos big rk))
     (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective)
 
