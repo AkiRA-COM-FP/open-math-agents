@@ -7775,6 +7775,865 @@
     "https://oeis.org/A074359"
    ],
    "note": "Mathar's g.f. 4x^4(-3+2x+8x^2+4x^3)/(2x^2+2x-1)^3 is stated faithfully for the q^2 coefficient of the same nu(n) polynomials, with (b, lambda) = (2,2). The definition reproduces the data, and I checked the cleared identity to x^60. Routine coefficient-extraction g.f. argument (the companion of oeis-a074358). Second review: Faithful and true; Mathar's rational g.f. Routine."
+  },
+  "oeis-a187298": {
+   "date": "2026-11-28",
+   "pr": 23906,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187298",
+    "https://oeis.org/A187298",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187298.seq",
+    "https://oeis.org/A187296"
+   ],
+   "note": "Tours = injective sequences of 3 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>3. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Asymmetric moves (-1,0),(0,-1),(2,0),(0,2) match 'one space left/up, two right/down'. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187299": {
+   "date": "2026-11-28",
+   "pr": 23828,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187299",
+    "https://oeis.org/A187299",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187299.seq",
+    "https://oeis.org/A187296"
+   ],
+   "note": "Hardin's quadratic (n>5) with Barker's g.f. and recurrence (n>8) for 4-step asymmetric rook (1 left/up, 2 right/down) tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (4 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: tour equivalence adapted from the site's A187174 proof; that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187300": {
+   "date": "2026-11-28",
+   "pr": 23921,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187300",
+    "https://oeis.org/A187300",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187300.seq",
+    "https://oeis.org/A187296"
+   ],
+   "note": "Hardin's quadratic (n>7) with Barker's g.f. and recurrence (n>10) for 5-step asymmetric rook (1 left/up, 2 right/down) tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (5 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187301": {
+   "date": "2026-11-28",
+   "pr": 23954,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187301",
+    "https://oeis.org/A187301",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187301.seq",
+    "https://oeis.org/A187296"
+   ],
+   "note": "Hardin's quadratic (n>9) with Barker's g.f. and recurrence (n>12) for 6-step asymmetric rook (1 left/up, 2 right/down) tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (6 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187302": {
+   "date": "2026-11-28",
+   "pr": 24294,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187302",
+    "https://oeis.org/A187302",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187302.seq",
+    "https://oeis.org/A187296"
+   ],
+   "note": "Hardin's quadratic (n>11) with Barker's g.f. and recurrence (n>14) for 7-step asymmetric rook (1 left/up, 2 right/down) tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (7 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187380": {
+   "date": "2026-11-28",
+   "pr": 23866,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187380",
+    "https://oeis.org/A187380",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187380.seq",
+    "https://oeis.org/A187377"
+   ],
+   "note": "Hardin's quadratic (n>4) with Barker's g.f. and recurrence (n>7) for 6-step S/NW/NE king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (6 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: general lemmas follow Genbox's PR 23762 (another sequence); that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187381": {
+   "date": "2026-11-28",
+   "pr": 23923,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187381",
+    "https://oeis.org/A187381",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187381.seq",
+    "https://oeis.org/A187377"
+   ],
+   "note": "Hardin's quadratic (n>5) with Barker's g.f. and recurrence (n>8) for 7-step S/NW/NE king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (7 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: general lemmas follow Genbox's earlier proof of another sequence; that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187382": {
+   "date": "2026-11-28",
+   "pr": 24022,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187382",
+    "https://oeis.org/A187382",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187382.seq",
+    "https://oeis.org/A187377"
+   ],
+   "note": "Hardin's quadratic (n>6) with Barker's g.f. and recurrence (n>9) for 8-step S/NW/NE king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (8 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: general lemmas follow Genbox's earlier proof of another sequence; that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187383": {
+   "date": "2026-11-28",
+   "pr": 24506,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187383",
+    "https://oeis.org/A187383",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187383.seq",
+    "https://oeis.org/A187377"
+   ],
+   "note": "Hardin's quadratic (n>7) with Barker's g.f. and recurrence (n>10) for 9-step S/NW/NE king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (9 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187384": {
+   "date": "2026-11-28",
+   "pr": 24541,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187384",
+    "https://oeis.org/A187384",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187384.seq",
+    "https://oeis.org/A187377"
+   ],
+   "note": "Hardin's quadratic (n>8) with Barker's g.f. and recurrence (n>11) for 10-step S/NW/NE king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (10 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187511": {
+   "date": "2026-11-28",
+   "pr": 23890,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187511",
+    "https://oeis.org/A187511",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187511.seq",
+    "https://oeis.org/A187507"
+   ],
+   "note": "Hardin's quadratic (n>4) with Barker's g.f. and recurrence (n>7) for 6-step S/E/NW king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (6 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: general lemmas follow Genbox's earlier proof of another sequence; that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187512": {
+   "date": "2026-11-28",
+   "pr": 23945,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187512",
+    "https://oeis.org/A187512",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187512.seq",
+    "https://oeis.org/A187507"
+   ],
+   "note": "Hardin's quadratic (n>5) with Barker's g.f. and recurrence (n>8) for 7-step S/E/NW king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (7 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187514": {
+   "date": "2026-11-28",
+   "pr": 24233,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187514",
+    "https://oeis.org/A187514",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187514.seq",
+    "https://oeis.org/A187507"
+   ],
+   "note": "Hardin's quadratic (n>7) with Barker's g.f. and recurrence (n>10) for 9-step S/E/NW king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (9 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187589": {
+   "date": "2026-11-28",
+   "pr": 23875,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187589",
+    "https://oeis.org/A187589",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187589.seq",
+    "https://oeis.org/A187586"
+   ],
+   "note": "Hardin's quadratic (n>4) with Barker's g.f. and recurrence (n>7) for 6-step E/S/NW/NE king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (6 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: tour equivalence adapted from the site's A187174 proof; that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187590": {
+   "date": "2026-11-28",
+   "pr": 24221,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187590",
+    "https://oeis.org/A187590",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187590.seq",
+    "https://oeis.org/A187586"
+   ],
+   "note": "Hardin's quadratic (n>5) with Barker's g.f. and recurrence (n>8) for 7-step E/S/NW/NE king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (7 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187591": {
+   "date": "2026-11-28",
+   "pr": 24518,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187591",
+    "https://oeis.org/A187591",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187591.seq",
+    "https://oeis.org/A187586"
+   ],
+   "note": "Hardin's quadratic (n>6) with Barker's g.f. and recurrence (n>9) for 8-step E/S/NW/NE king tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (8 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187608": {
+   "date": "2026-11-28",
+   "pr": 23456,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187608",
+    "https://oeis.org/A187608",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187608.seq",
+    "https://oeis.org/A187606"
+   ],
+   "note": "Hardin's quadratic (n>5) with Barker's g.f. and recurrence (n>8) for 4-step asymmetric quasi-bishop tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (4 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187609": {
+   "date": "2026-11-28",
+   "pr": 23951,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187609",
+    "https://oeis.org/A187609",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187609.seq",
+    "https://oeis.org/A187606"
+   ],
+   "note": "Hardin's quadratic (n>7) with Barker's g.f. and recurrence (n>10) for 5-step asymmetric quasi-bishop tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (5 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: general lemmas follow Genbox's earlier proof of another sequence; that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187610": {
+   "date": "2026-11-28",
+   "pr": 23989,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187610",
+    "https://oeis.org/A187610",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187610.seq",
+    "https://oeis.org/A187606"
+   ],
+   "note": "Hardin's quadratic (n>9) with Barker's g.f. and recurrence (n>12) for 6-step asymmetric quasi-bishop tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (6 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: general lemmas follow Genbox's earlier proof of another sequence; that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187611": {
+   "date": "2026-11-28",
+   "pr": 24240,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187611",
+    "https://oeis.org/A187611",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187611.seq",
+    "https://oeis.org/A187606"
+   ],
+   "note": "Hardin's quadratic (n>11) with Barker's g.f. and recurrence (n>14) for 7-step asymmetric quasi-bishop tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (7 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187612": {
+   "date": "2026-11-28",
+   "pr": 24525,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187612",
+    "https://oeis.org/A187612",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187612.seq",
+    "https://oeis.org/A187606"
+   ],
+   "note": "Hardin's quadratic (n>13) with Barker's g.f. and recurrence (n>16) for 8-step asymmetric quasi-bishop tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (8 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187851": {
+   "date": "2026-11-28",
+   "pr": 23753,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187851",
+    "https://oeis.org/A187851",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187851.seq",
+    "https://oeis.org/A187850"
+   ],
+   "note": "Hardin's quadratic (n>3) with Barker's g.f. and recurrence (n>6) for 3-step king-knight tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (3 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187852": {
+   "date": "2026-11-28",
+   "pr": 23935,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187852",
+    "https://oeis.org/A187852",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187852.seq",
+    "https://oeis.org/A187850"
+   ],
+   "note": "Hardin's quadratic (n>5) with Barker's g.f. and recurrence (n>8) for 4-step king-knight tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (4 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: adapts the site's A187299 proof (PR 23828); that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187853": {
+   "date": "2026-11-28",
+   "pr": 24730,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187853",
+    "https://oeis.org/A187853",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187853.seq",
+    "https://oeis.org/A187850"
+   ],
+   "note": "Hardin's quadratic (n>7) with Barker's g.f. and recurrence (n>10) for 5-step king-knight tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (5 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..11. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187858": {
+   "date": "2026-11-28",
+   "pr": 23756,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187858",
+    "https://oeis.org/A187858",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187858.seq",
+    "https://oeis.org/A187857"
+   ],
+   "note": "Hardin's quadratic (n>3) with Barker's g.f. and recurrence (n>6) for 3-step king-knight tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (3 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187859": {
+   "date": "2026-11-28",
+   "pr": 23889,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187859",
+    "https://oeis.org/A187859",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187859.seq",
+    "https://oeis.org/A187857"
+   ],
+   "note": "Hardin's quadratic (n>5) with Barker's g.f. and recurrence (n>8) for 4-step king-knight tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (4 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Proof reuse: adapts the site's A187299 proof (PR 23828); that is technique reuse, not an earlier solve of this sequence. Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187860": {
+   "date": "2026-11-28",
+   "pr": 24308,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187860",
+    "https://oeis.org/A187860",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187860.seq",
+    "https://oeis.org/A187857"
+   ],
+   "note": "Hardin's quadratic (n>7) with Barker's g.f. and recurrence (n>10) for 5-step asymmetric quasi-queen tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (5 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..13. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a187861": {
+   "date": "2026-11-28",
+   "pr": 24721,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A187861",
+    "https://oeis.org/A187861",
+    "https://raw.githubusercontent.com/oeis/oeisdata/main/seq/A187/A187861.seq",
+    "https://oeis.org/A187857"
+   ],
+   "note": "Hardin's quadratic (n>9) with Barker's g.f. and recurrence (n>12) for 6-step asymmetric quasi-queen tours, stated over Z with a(0)=0, matching the entry's %F word for word. The tour definition (6 distinct squares, consecutive squares differ by an allowed move; orientation immaterial by reflection) reproduces the data: my brute force matches n=1..11. Fixed-length tours fit in a bounded box, so the count is eventually quadratic by translation counting; routine. No prior proof found (OEIS entry, Palomar, trureturing, Zenodo, BG/Fried, formal-conjectures). Second review: Definition reproduces the entry's data exactly and Hardin's quadratic plus both Barker conjectures check out. No earlier proof found anywhere; the empirical formula is still marked empirical on OEIS. Routine: a bounding-box finite check of the kind Corneth used for A186864."
+  },
+  "oeis-a188861": {
+   "date": "2026-11-28",
+   "pr": 24601,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A188861",
+    "https://oeis.org/A188861",
+    "https://oeis.org/A188866"
+   ],
+   "note": "Hardin's a(n)=27n-13 (n>1) with Barker's g.f. and recurrence is stated as a(1)=16 and a(n)=27n-13 for n>=2. That is equivalent to all three claims. The definition (no 0 with a 1 directly, diagonally or antidiagonally below it in the next row) reproduces the data in my brute force for n<=5. It is a routine transfer-matrix argument. No prior proof found. Second review: Definition reproduces the data; linear formula verified; no prior proof. Routine transfer-matrix argument."
+  },
+  "oeis-a190154": {
+   "date": "2026-11-28",
+   "pr": 23534,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A190154",
+    "https://oeis.org/A190154",
+    "https://oeis.org/A190152",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's rational g.f. for the diagonal sums Sum_k C(3n-4k,3n-6k) is stated faithfully, cleared of denominators in Z[[x]]. The sum reproduces the 30 data terms, and I checked the identity for 45 coefficients. Routine binomial-sum algebra; no prior proof found. Second review: Faithful statement of Mathar's 2013 g.f. conjecture; checks numerically; no prior proof found. Routine g.f. identity for a binomial diagonal sum."
+  },
+  "oeis-a190163": {
+   "date": "2026-11-28",
+   "pr": 23572,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A190163",
+    "https://oeis.org/A190163",
+    "https://oeis.org/A098083",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. G=z^5 g^2(g-1)^2/((1-z)(1-z^2g^2)) with g the peakless-Motzkin series. The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful encoding of Mathar's 2022 D-finite recurrence conjecture; numerics agree; nothing in the literature. Routine (algebraic g.f.)."
+  },
+  "oeis-a190166": {
+   "date": "2026-11-28",
+   "pr": 24545,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A190166",
+    "https://oeis.org/A190166",
+    "https://oeis.org/A110236",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. z/((1-z+z^2)sqrt((1+z+z^2)(1-3z+z^2))). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful; checks numerically; not the same as A110236's recurrence (different sequence). No prior proof found. Routine."
+  },
+  "oeis-a190169": {
+   "date": "2026-11-28",
+   "pr": 24190,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A190169",
+    "https://oeis.org/A190169",
+    "https://oeis.org/A110236",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. for level-odd flat steps in peakless Motzkin paths. The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful; numerics agree; no prior proof found. Routine."
+  },
+  "oeis-a191307": {
+   "date": "2026-11-28",
+   "pr": 24011,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A191307",
+    "https://oeis.org/A191307",
+    "https://oeis.org/A191306",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. with sqrt(1-4z^2). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful; numerics agree; no prior proof found. Routine."
+  },
+  "oeis-a191585": {
+   "date": "2026-11-28",
+   "pr": 24192,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A191585",
+    "https://oeis.org/A191585",
+    "https://oeis.org/A191582",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Munarini g.f. with sqrt(1-4x). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. Only Mathar's first (order-3) recurrence is formalized; the second (order-4) is not stated. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful to one of the entry's two Mathar conjectures; the second (4*n*a(n)+... order 4) is not covered, so any announcement should say 'the first conjecture'. Numerics agree; no prior proof found. Routine."
+  },
+  "oeis-a191786": {
+   "date": "2026-11-28",
+   "pr": 24546,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A191786",
+    "https://oeis.org/A191786",
+    "https://oeis.org/A191785",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. 2(1+z+z^2)/(1-z^2-2z^3+sqrt(1-2z^2-3z^4)). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful; numerics agree; no prior proof found. Routine."
+  },
+  "oeis-a191790": {
+   "date": "2026-11-28",
+   "pr": 24191,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A191790",
+    "https://oeis.org/A191790",
+    "https://oeis.org/A191788",
+    "https://arxiv.org/abs/1707.04654"
+   ],
+   "note": "Mathar's D-finite recurrence is stated for the coefficients of the entry's Deutsch g.f. z^2c^2/((1-z^2)(1-zc)). The g.f. is the author's formula and is taken as the definition; the Lean normal form agrees with it. I recomputed the series exactly: it matches the data and the recurrence holds for all n tested (to about 40), from the natural start index. Only Mathar's first (order-5) recurrence is formalized; the second is not stated. This is routine holonomic algebra. No prior proof found (BG, Fried, Palomar, trureturing, Zenodo). Second review: Faithful to the first of two Mathar conjectures; the second is not covered, so an announcement should say so. Numerics agree; no prior proof found. Routine."
+  },
+  "oeis-a201044": {
+   "date": "2026-11-28",
+   "pr": 21247,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A201044",
+    "https://oeis.org/A201044",
+    "https://oeis.org/A201042"
+   ],
+   "note": "Barker's g.f. x(99+567x+602x^2+78x^3+7x^4-x^5)/(1-x)^6 and the order-6 recurrence (n>6) are stated faithfully, with a(0) set to 0. My transfer count of the definition matches all 26 data terms. The proof derives Hardin's degree-5 polynomial, which is routine piecewise counting for fixed length 5. No prior proof found. Second review: Faithful; numerics agree; no prior proof found. Routine (piecewise-polynomial lattice-point count)."
+  },
+  "oeis-a201347": {
+   "date": "2026-11-28",
+   "pr": 24533,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A201347",
+    "https://oeis.org/A201347",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL22/Mestre/mestre2.html"
+   ],
+   "note": "Barker's g.f. and recurrence (n>5) are stated for n X 2 binary arrays whose rows and columns are lexicographically nondecreasing and where every element equals a neighbour. The row-scanning encoding is faithful, and my direct brute force of the plain definition matches the data for n<=10. The proof also proves controls 1..19. Routine cubic counting; no prior proof found. Second review: Faithful; the only reference (Mestre-Agapito, JIS 2019) just notes A201347 values as a column of a Riordan-array matrix, with no proof of Hardin's count. No prior proof found. Routine."
+  },
+  "oeis-a201618": {
+   "date": "2026-11-28",
+   "pr": 23784,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A201618",
+    "https://oeis.org/A201625",
+    "https://oeis.org/A201618",
+    "https://oeis.org/A201625"
+   ],
+   "note": "Barker's g.f. and recurrence (n>8) for n X 1 0..3 arrays, nondecreasing column with every element equal to a vertical neighbour; the n X 1 reading (rows = single entries, so the column is nondecreasing) is faithful and my brute force of the formal definition matches the data n=1..10. Such columns are nondecreasing words whose runs all have length >= 2, so a(n) = sum_k C(4,k) C(n-k-1,k-1), a cubic for n>4; routine. No prior proof found (entry, A201625, Palomar, trureturing, thatnealpatel/proofs, openai/math, Blanco Gomez, Fried, Epoch); Gogin's 2013 comment restates the empirical cubic without proof. Second review: Faithful; Gogin's 2013 comment only restates the empirical formula as C(n-1,3)+4C(n-2,1), not a proof. No prior proof found. Routine (runs of length >= 2)."
+  },
+  "oeis-a201722": {
+   "date": "2026-11-28",
+   "pr": 23736,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A201722",
+    "https://oeis.org/A201729",
+    "https://oeis.org/A201722"
+   ],
+   "note": "Barker's g.f. and recurrence (n>5) for n X 1 0..4 arrays, nondecreasing column, no element equal to its count of equal vertical neighbours; the scan encodes that count correctly (a(1)=4 since a lone entry must be nonzero) and my brute force matches data n=1..8. Eventually quadratic counting of nondecreasing words with run-length constraints; routine. No prior proof found in the entry, A201729, Palomar, the Lean libraries, openai/math, Blanco Gomez, Fried or Epoch. Second review: Barker's g.f. and recurrence for Hardin's 0..4 column count, i.e. a(n)=3n^2-6n+11 for n>2; a finite run-structure argument."
+  },
+  "oeis-a203166": {
+   "date": "2026-11-28",
+   "pr": 24504,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203166",
+    "https://oeis.org/A203166"
+   ],
+   "note": "Mathar's g.f. and recurrence a(n)=240a(n-5)-14400a(n-10) for e_{n-1} of the first n terms of the period (1,2,3,4,5); the formal recursion (p,e) -> (p d, e d + p) computes e_{n-1} exactly and matches the data (14 terms checked). The recurrence is stated for n>10, which is all the g.f. implies anyway (n=10 holds via a(0)=0). Since e_{n-1} = (product) * (sum of reciprocals) over a periodic sequence, this is routine; no prior proof found (entry, A203163 family, Palomar, libraries, BG/Fried, Epoch). Second review: Mathar's recurrence/g.f. for e_(n-1) of a periodic sequence; follows from e_(n-1) = P_n * sum 1/x_i, a short argument."
+  },
+  "oeis-a203167": {
+   "date": "2026-11-28",
+   "pr": 24271,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203167",
+    "https://oeis.org/A130196",
+    "https://oeis.org/A203167"
+   ],
+   "note": "Mathar's recurrence a(n)=8a(n-3)-16a(n-6) (stated n>6) and g.f. for e_{n-1} of the first n terms of (2,2,1,2,2,1,...), which is A130196 shifted as the entry says; the formal definition matches the data (17 terms). Routine periodic product-times-reciprocal-sum computation. No prior proof found in the entry, sister entries, Palomar, the Lean libraries, BG/Fried or Epoch. Second review: Mathar's recurrence/g.f. for e_(n-1) of a periodic sequence; follows from e_(n-1) = P_n * sum 1/x_i, a short argument."
+  },
+  "oeis-a203231": {
+   "date": "2026-11-28",
+   "pr": 24593,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203231",
+    "https://oeis.org/A120908",
+    "https://oeis.org/A203231"
+   ],
+   "note": "Mathar's recurrence a(n)=6a(n-2)-9a(n-4) (n>4) and g.f. x(1+4x+9x^2)/(1-3x^2)^2 for e_{n-1} of the first n terms of (3,1,3,1,...); the formal definition matches the data (16 terms). The even bisection is A120908, whose formula 4(n-1)3^(n-2) is proved there, but that settles only half of the claim; the full statement is routine. No complete prior proof found (entry, A203230, Palomar, libraries, BG/Fried, Epoch). Second review: Mathar's recurrence/g.f. for e_(n-1) of a periodic sequence; follows from e_(n-1) = P_n * sum 1/x_i, a short argument."
+  },
+  "oeis-a203235": {
+   "date": "2026-11-28",
+   "pr": 24272,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203235",
+    "https://oeis.org/A203234",
+    "https://oeis.org/A203235"
+   ],
+   "note": "Mathar's recurrence a(n)=6a(n-4)-9a(n-8) (n>8) and g.f. for e_{n-1} of the first n terms of the period (1,1,1,3); the formal (product, e_{n-1}) recursion matches the data (19 terms). Routine periodic computation (e_{n-1} = product times sum of reciprocals). No prior proof found (entry, sister A203234 also only conjectural, Palomar, Lean libraries, BG/Fried, Epoch). Second review: Mathar's recurrence/g.f. for e_(n-1) of a periodic sequence; follows from e_(n-1) = P_n * sum 1/x_i, a short argument."
+  },
+  "oeis-a203751": {
+   "date": "2026-11-28",
+   "pr": 22846,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203751",
+    "https://oeis.org/A203748",
+    "https://oeis.org/A203751",
+    "https://oeis.org/A203748"
+   ],
+   "note": "Bala's closed form a(n) = n^2/(n-1)! * prod_{k<n}(n^3-k^3) for sqrt(v(2n+1)/(3v(2n))), v = A203748 with f(j)=floor(j/2); the formal v reproduces A203748 (1,1,3,588,1382976,...) and a(1..8) match both the data and Bala's formula in my check. v(2n+1)/v(2n) = 3n^4 prod_{m<n}(m^2+mn+n^2)^2 and m^2+mn+n^2 = (n^3-m^3)/(n-m), so the identity is a short telescoping; routine. No prior proof found (entry, A203748-A203752, Palomar, libraries, BG/Fried, Epoch). Second review: Bala's Dec 2025 product formula; follows by telescoping the double product, a short argument."
+  },
+  "oeis-a204708": {
+   "date": "2026-11-28",
+   "pr": 24250,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A204708",
+    "https://oeis.org/A204713",
+    "https://oeis.org/A204708"
+   ],
+   "note": "Hardin's recurrence (stated n>=4), Barker's g.f. and Binet form for (n+1) X 4 binary arrays with all 2 X 2 permanents equal and nonzero; the formal Good (one common k != 0 over all subblocks) is the entry's condition, and my transfer-matrix count over k in {1,2} matches all 12 data terms and the closed form. Routine transfer-matrix result. No prior proof found (entry, A204713, Palomar, Lean libraries, BG/Fried, Epoch). Second review: Barker/Hardin conjectures for a permanent-constrained array count; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a207065": {
+   "date": "2026-11-28",
+   "pr": 22156,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207065",
+    "https://oeis.org/A207068",
+    "https://oeis.org/A207065"
+   ],
+   "note": "Barker's g.f. 14x(1+8x-5x^2-2x^3)/(1-x)^6 and order-6 recurrence (n>=7) for n X 5 binary arrays avoiding 001, 010 horizontally and 001, 101 vertically; the formal pattern test (consecutive triples, rows left to right, columns top to bottom) is faithful and my transfer-matrix count matches all 12 data terms. Polynomial growth from a finite transfer matrix; routine. No prior proof found (entry, A207068, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./recurrence; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a207167": {
+   "date": "2026-11-28",
+   "pr": 22000,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207167",
+    "https://oeis.org/A207169",
+    "https://oeis.org/A207167"
+   ],
+   "note": "Barker's g.f. 19x(1+14x-7x^2-2x^3)/(1-x)^5 and order-5 recurrence (n>=6) for n X 6 binary arrays avoiding 000, 101 horizontally and 001, 101 vertically; the formal definition is faithful and my transfer-matrix count matches all 12 data terms. Routine finite-transfer-matrix polynomial. No prior proof found (entry, A207169, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./recurrence; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a207303": {
+   "date": "2026-11-28",
+   "pr": 21800,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207303",
+    "https://oeis.org/A207305",
+    "https://oeis.org/A207303"
+   ],
+   "note": "Barker's g.f. x(19+247x-206x^2-76x^3+53x^4-5x^5)/(1-x)^6 and order-6 recurrence (n>=7) for n X 6 binary arrays avoiding 000, 101 horizontally and 001, 110 vertically; the formal pattern test is faithful and my transfer-matrix count matches all 12 data terms. Routine finite-transfer-matrix polynomial. No prior proof found (entry, A207305, Palomar, Lean libraries, BG/Fried, Epoch). Second review: Barker's g.f./recurrence; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a208355": {
+   "date": "2026-11-28",
+   "pr": 24038,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A208355",
+    "https://oeis.org/A099363",
+    "https://oeis.org/A208355",
+    "https://oeis.org/A099363"
+   ],
+   "note": "Mathar's P-recurrence -(n+3)(n-2)a(n) - 4a(n-1) + 4(n-1)^2 a(n-2) = 0 (n>=2) with a defined by Russell's g.f. ((1+z)(1-sqrt(1-4z^2))/(2z^2)-1)/z; my expansion of the formal series gives a(n) = Catalan(floor((n+1)/2)), the entry's established formula and data, and the recurrence holds for n<40. Splitting into even/odd n it reduces to C_m/C_{m-1} = 2(2m-1)/(m+1); routine. No prior proof found (entry, A099363 whose own Mathar recurrence is also conjectural, Palomar, libraries, BG/Fried, Epoch). Second review: Mathar's P-recursive recurrence for the repeated Catalan numbers; follows from a(n)=C(floor((n+1)/2)), a short argument. (A099363 = signed version carries a different Mathar recurrence, separate site id, not a duplicate.)"
+  },
+  "oeis-a209944": {
+   "date": "2026-11-28",
+   "pr": 24219,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A209944",
+    "https://oeis.org/A209951",
+    "https://oeis.org/A209944"
+   ],
+   "note": "Hardin's recurrence (n>=3), Barker's g.f. and Binet form, and Spezia's e.g.f. for half the number of (n+1) X 2 0..2 arrays whose 2 X 2 blocks have at most one duplicate among the four clockwise edge differences (formalized as >= 3 distinct values, which is the same thing for 4 values). My transfer-matrix count gives N(n) even and N(n)/2 = all 9 data terms checked. Routine transfer-matrix result; no prior proof found (entry, A209951, Palomar, Lean libraries, BG/Fried, Epoch). Second review: Hardin/Barker/Spezia conjectures; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a210496": {
+   "date": "2026-11-28",
+   "pr": 24547,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A210496",
+    "https://doi.org/10.1016/j.aam.2012.09.002",
+    "https://oeis.org/A210496"
+   ],
+   "note": "Mathar's order-8 P-recurrence (n>=8) for set partitions avoiding {1123, 1211}, with a defined by the entry's algebraic g.f. (Jelinek-Mansour-Shattuck Thm 4.27, so using it as the definition is faithful); my expansion of the formal normalised series reproduces the data and the recurrence holds for all n<38 checked. Deriving a P-recurrence from an explicit algebraic g.f. is routine. No prior proof of the recurrence found (entry, JMS paper gives only the g.f., Palomar, libraries, BG/Fried, Epoch). Second review: Mathar's order-8 P-recursive recurrence derived from an algebraic g.f.; a routine algebraic-function-to-recurrence computation."
+  },
+  "oeis-a210627": {
+   "date": "2026-11-28",
+   "pr": 23520,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A210627",
+    "https://oeis.org/A038049",
+    "https://oeis.org/A210627"
+   ],
+   "note": "Mathar's conjecture a(n) = n*A038049(n), with a(3)=72 from the data and a(n) for n>3 given by the entry's formula n*Sum_{k=4..n} k^(n-3) C(n,k)((-1)^k(9k^2-32k+24)+k^2) (Xu's r_n); A038049 via its entry formula. Checked n=4..39 exactly. The identity is a finite-difference fact (alternating binomial sums of a degree n-1 polynomial vanish), so routine. No prior proof found (entry, A038049, Palomar, libraries, BG/Fried, Epoch). Second review: Mathar's identity between Xu's constants and n*A038049(n); a binomial-sum identity (finite differences), a short argument."
+  },
+  "oeis-a211481": {
+   "date": "2026-11-28",
+   "pr": 23956,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211481",
+    "https://oeis.org/A211422",
+    "https://oeis.org/A211481"
+   ],
+   "note": "Barker's recurrence (n>5) and empirical g.f. -(3x^4+5x^3+4x^2+2x+1)/((x-1)^3(x+1)(x^2+x+1)) for triples in [-n,n]^3 with w+2x+3y=n; the formal count is the entry's definition and my brute force matches 20 data terms. Lattice-point counting in a polygon with quasi-polynomial answer; routine. No prior proof found (entry, A211422 guide, Palomar, trureturing, thatnealpatel/proofs which only has the different A211480, BG/Fried, Epoch). Second review: Barker's recurrence/g.f. for a lattice-point count; a quasi-polynomial, short argument."
+  },
+  "oeis-a211482": {
+   "date": "2026-11-28",
+   "pr": 23933,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A211482",
+    "https://oeis.org/A211422",
+    "https://oeis.org/A211482"
+   ],
+   "note": "Barker's closed form a(n)=12n+8 for n>5, for ordered triples in [-n,n]^3 with wx+wy+xy=wxy; only the closed form is stated (the g.f. and recurrence are not, which the header says), and my brute force matches data n=0..18. The solutions are the triples with two zeros, the permutations of (1,t,-t) and finitely many sporadic ones of 1/w+1/x+1/y=1; routine. No prior proof found (entry, A211422, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's closed form; zero-containing solutions plus the finitely many/one-parameter solutions of 1/w+1/x+1/y=1, a short argument. Only one of Barker's three claims is formalised."
+  },
+  "oeis-a212837": {
+   "date": "2026-11-28",
+   "pr": 24235,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A212837",
+    "https://oeis.org/A212835",
+    "https://oeis.org/A212837"
+   ],
+   "note": "Barker's g.f. x(2+31x-7x^2-3x^3+x^4)/(1-x)^5 and order-5 recurrence (n>5) for length-4 arrays over 0..n with 0 never adjacent to n; the definition (no consecutive pair {0,n} in either order) is the entry's, and my 3-state transfer count matches the data n=1..11. A fixed-length transfer matrix with entries polynomial in n gives the quartic; routine. No prior proof found (entry, A212835 whose row formulas are all 'Empirical', Palomar, Lean libraries, BG/Fried, Epoch). Second review: Barker's polynomial g.f./recurrence; 3-state transfer matrix gives a polynomial of degree 4, routine."
+  },
+  "oeis-a212838": {
+   "date": "2026-11-28",
+   "pr": 24331,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A212838",
+    "https://oeis.org/A212835",
+    "https://oeis.org/A212838"
+   ],
+   "note": "Same family as A212837 with length 5: Barker's g.f. over (1-x)^6 and order-6 recurrence (n>6); definition faithful and my transfer count matches data n=1..11. Routine. The proof adapts the same author's site proof of A212837 (technique reuse, not an earlier public solve); no prior proof found in the entry, A212835, Palomar, libraries, BG/Fried or Epoch. Second review: Barker's polynomial g.f./recurrence; 3-state transfer matrix gives a polynomial of degree 5, routine. Proof file says it adapts the site's own A212837 proof (@grp06), an internal reuse, not prior literature."
+  },
+  "oeis-a212839": {
+   "date": "2026-11-28",
+   "pr": 24397,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A212839",
+    "https://oeis.org/A212835",
+    "https://oeis.org/A212839"
+   ],
+   "note": "Same family with length 6: Barker's g.f. over (1-x)^7 and order-7 recurrence (n>7); definition faithful and my transfer count matches data n=1..11. Routine; proof adapts the author's own A212837 proof. No prior proof found (entry, A212835, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's polynomial g.f./recurrence; 3-state transfer matrix gives a polynomial of degree 6, routine. Proof file says it adapts the site's own A212837 proof (@grp06), an internal reuse, not prior literature."
+  },
+  "oeis-a212841": {
+   "date": "2026-11-28",
+   "pr": 24534,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A212841",
+    "https://oeis.org/A212835",
+    "https://oeis.org/A212841"
+   ],
+   "note": "Same family with length 8: Barker's g.f. over (1-x)^9 and order-9 recurrence (n>9); definition faithful and my transfer count matches the 9 listed terms (and a(10)=192124721 as in the proof's controls). Routine; proof adapts the author's own A212837 proof. No prior proof found (entry, A212835, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's polynomial g.f./recurrence; 3-state transfer matrix gives a polynomial of degree 8, routine. Proof file says it adapts the site's own A212837 proof (@grp06), an internal reuse, not prior literature."
+  },
+  "oeis-a213244": {
+   "date": "2026-11-28",
+   "pr": 10554,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A213244",
+    "https://oeis.org/A213244"
+   ],
+   "note": "Barker's recurrence a(n)=17a(n-4)-16a(n-8) (n>8) and g.f. for the number of nonzero 5th powers in GF(2^n), defined directly via Mathlib's GaloisField 2 n. The entry's (unconjectured) formula a(n) = M/gcd(M,5), M = 2^n-1, follows from cyclicity of the unit group, reproduces the data, and makes the recurrence a 4-periodic computation; routine. Unlike sister A213246, no verification is recorded in the entry; no prior proof found (Palomar, libraries, BG/Fried, Epoch). Second review: Barker's recurrence/g.f.; follows from |image of y->y^5| = (2^n-1)/gcd(2^n-1,5) (periodic in n mod 4), routine."
+  },
+  "oeis-a217447": {
+   "date": "2026-11-28",
+   "pr": 24370,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A217447",
+    "https://www.jstor.org/stable/10.4169/math.mag.85.4.295",
+    "https://oeis.org/A217447"
+   ],
+   "note": "Mathar's order-5 P-recurrence (n>=7) for permutation matrices disconnecting their zeros, with a(n) defined by the entry's factorial-sum formula from the Edelmans' Math. Mag. solution (index ranges transcribed correctly, data n=2..13 reproduced). I checked the recurrence for n=7..59. Recurrences for sums of factorials are routine; Kotesovec's order-3 recurrence in the entry is a different, uncredited-as-proved identity. No prior proof of Mathar's recurrence found (entry, Palomar, libraries, BG/Fried, Epoch). Second review: Mathar's order-5 recurrence from a closed factorial-sum formula (Kotesovec's separate order-3 recurrence is not this claim); routine."
+  },
+  "oeis-a218980": {
+   "date": "2026-11-28",
+   "pr": 24073,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A218980",
+    "https://oeis.org/A218852",
+    "https://oeis.org/A218980",
+    "https://oeis.org/A218852"
+   ],
+   "note": "Infinitude of positive integers not in A218852 (sigma(n) = sigma(x)+sigma(y)+sigma(z), n = x+y+z, x,y,z >= 1), stated faithfully. Proof: for a prime p == 2 mod 3, p > 5, sigma(x) >= x+1 for x>1 forces two of x,y,z to be 1 and the third p-2 prime, impossible as 3 | p-2; Dirichlet supplies infinitely many such p. Short elementary argument; routine. No prior proof found (entries, Palomar, libraries, formal-conjectures issues/PRs, BG/Fried, Epoch). Second review: Perry's 'this sequence is infinite' is easy: for prime p, sigma(m)-m>=1 for m>=2 forces p = q+2 with q prime, so primes p=2 mod 3 (p>5) are excluded from A218852; a short argument (A218852's comment on twin primes already points to it). Different from site id oeis-a218981 (four summands)."
+  },
+  "oeis-a221465": {
+   "date": "2026-11-28",
+   "pr": 24302,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221465",
+    "https://oeis.org/A221463",
+    "https://oeis.org/A221465"
+   ],
+   "note": "Barker's order-6 recurrence (n>6) and g.f. x(5+58x+60x^2-2x^3-x^4)/(1-x)^6 for length-6 arrays over 0..n starting with 0 in which each element differs from at least one neighbour; the definition (ends have one neighbour) is faithful and my brute force matches data n=1..9 (a(0)=0 harmlessly included in the g.f.). Polynomial count, routine. No prior proof found (entry, A221463, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./recurrence; polynomial count via transfer matrix, routine."
+  },
+  "oeis-a222139": {
+   "date": "2026-11-28",
+   "pr": 24077,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A222139",
+    "https://oeis.org/A222144",
+    "https://oeis.org/A222139"
+   ],
+   "note": "Barker's g.f. 4x(4-11x)/(1-45x+116x^2) and Binet form for n X 3 arrays over 0..4 with no entry increasing mod 5 by 4 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 8 data terms. Order-2 recurrence for a 125-state transfer matrix is a routine (if computational) verification. No prior proof found (entry, A222144, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a222276": {
+   "date": "2026-11-28",
+   "pr": 24067,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A222276",
+    "https://oeis.org/A222281",
+    "https://oeis.org/A222276"
+   ],
+   "note": "Barker's g.f. 5x(5-19x)/(1-92x+335x^2) and Binet form for n X 3 arrays over 0..5 with no entry increasing mod 6 by 5 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 7 data terms. Routine transfer-matrix result. No prior proof found (entry, its table, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a222459": {
+   "date": "2026-11-28",
+   "pr": 24585,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A222459",
+    "https://oeis.org/A222459"
+   ],
+   "note": "Barker's g.f. 7x(7-41x)/(1-270x+1547x^2) and Binet form for n X 3 arrays over 0..7 with no entry increasing mod 8 by 7 rightwards or downwards, upper-left 0. Definition faithful; my independent transfer-matrix count matches all 6 data terms. Routine. No prior proof found (entry, its table, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a222939": {
+   "date": "2026-11-28",
+   "pr": 23771,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A222939",
+    "https://oeis.org/A222939"
+   ],
+   "note": "Barker's g.f. and closed form (256 + 9*2^(n+3) + 5*4^n)/384 (n>2) for n X 1 arrays over 0..4 with no two entries at city-block distance 2 equal (only rows i, i+2 in one column) and values introduced in order; the scan encodes restricted growth plus x(i) != x(i-2), and my brute force matches data n=1..10 and the closed form. Routine transfer-matrix count. No prior proof found (entry, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state count, routine."
+  },
+  "oeis-a223181": {
+   "date": "2026-11-28",
+   "pr": 23942,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223181",
+    "https://oeis.org/A223181"
+   ],
+   "note": "Barker's g.f. 5x(5-14x+4x^2)/(1-6x+4x^2) and closed form (n>1) for n X 3 icosahedron-vertex arrays starting with 0, horizontal, vertical and antidiagonal moves along edges. The edge list is a valid icosahedron (antiprism numbering; count is labelling-independent by vertex transitivity); my count with an icosahedron built from coordinates matches all 10 data terms. Routine. No prior proof found (entry, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form for a rolling-polyhedron footprint count; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a223197": {
+   "date": "2026-11-28",
+   "pr": 23949,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223197",
+    "https://oeis.org/A223197"
+   ],
+   "note": "Barker's g.f. 16x(1-4x)/(1-40x+128x^2) and closed form for n X 3 rolling-cube face arrays starting with 0 (horizontal and vertical moves across cube edges; faces adjacent iff not opposite, correctly encoded). My independent count matches all 8 data terms. Routine transfer matrix. No prior proof found (entry, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form for a rolling-polyhedron footprint count; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a223204": {
+   "date": "2026-11-28",
+   "pr": 23796,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223204",
+    "https://oeis.org/A223209",
+    "https://oeis.org/A223204"
+   ],
+   "note": "Barker's g.f. 3x(3-2x)/(1-9x+2x^2) and closed form for n X 3 arrays of icosahedron faces starting with 0, horizontal and vertical moves across edges (faces adjacent iff they share two vertices, i.e. the dodecahedral graph). My count with faces derived from a coordinate icosahedron matches all 10 data terms. Routine transfer matrix. No prior proof found (entry, A223209, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form for a rolling-polyhedron footprint count; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a223228": {
+   "date": "2026-11-28",
+   "pr": 23779,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223228",
+    "https://oeis.org/A223233",
+    "https://oeis.org/A223228"
+   ],
+   "note": "Barker's g.f. 5x(5-18x)/(1-35x+90x^2) and closed form for n X 3 icosahedron-vertex arrays starting with 0 with horizontal, diagonal and antidiagonal (no vertical) moves along edges, as in the entry; the alternative antiprism edge list is a valid icosahedron. My independent count matches all 8 data terms. Routine. No prior proof found (entry, A223233, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form for a rolling-polyhedron footprint count; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a223258": {
+   "date": "2026-11-28",
+   "pr": 23800,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223258",
+    "https://oeis.org/A223263",
+    "https://oeis.org/A223258"
+   ],
+   "note": "Barker's g.f. 5x(5-21x)/(1-38x+129x^2) and closed form for n X 3 icosahedron-vertex arrays starting with 0, horizontal and vertical moves along edges; edge list valid and my independent count matches all 8 data terms. Routine transfer matrix. No prior proof found (entry, A223263, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form for a rolling-polyhedron footprint count; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a223277": {
+   "date": "2026-11-28",
+   "pr": 23791,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223277",
+    "https://oeis.org/A223282",
+    "https://oeis.org/A223277"
+   ],
+   "note": "Barker's g.f. 3x(3-4x)/(1-11x+12x^2) and closed form for n X 3 icosahedron-face arrays starting with 0 with horizontal, diagonal and antidiagonal (no vertical) moves across edges, matching the entry; my independent count matches all 10 data terms. Routine. No prior proof found (entry, A223282, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form for a rolling-polyhedron footprint count; finite-state/transfer-matrix count, rational g.f.."
+  },
+  "oeis-a223443": {
+   "date": "2026-11-28",
+   "pr": 23928,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223443",
+    "https://oeis.org/A223449",
+    "https://oeis.org/A223443"
+   ],
+   "note": "Barker's g.f. 4x(7-16x+2x^2)/((1-2x)(1-4x)) and closed form a(n) = 2^(n-2)(4+25*2^n) (n>1) for n X 2 arrays on the 15-node binary fanout tree (edges exactly as listed in the entry, no start condition), horizontal and vertical moves along edges. My transfer count matches all 11 data terms and the closed form. Routine (bipartite tree, small transfer matrix). No prior proof found (entry, A223449, Palomar, libraries, BG/Fried, Epoch). Second review: Barker's g.f./closed form; finite-state/transfer-matrix count, rational g.f.."
   }
  },
  "flagged": {
@@ -9057,6 +9916,20 @@
     "https://oeis.org/A247000"
    ],
    "reason": "The disproof uses only that Barker's recurrence a(n) = a(n-1)+a(n-3)-a(n-4) is stated 'for n > 4' while his own g.f. has numerator degree 14. The entry's own data already violate it at every n = 7..14 (e.g. a(7) = 10, not 11), and it holds from n = 15 on. This is an evident range typo (n > 14 intended), refuted without touching the palindrome count; the g.f. itself is untouched."
+  },
+  "oeis-a210376": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A210376"
+   ],
+   "reason": "Second review: The 'disproof' refutes only Barker's range 'n>4' for the recurrence, which fails at the single index n=6; the g.f. and closed form, and the recurrence for n>6, are all true. This is an off-by-two typo in the range that the proof exploits, not a refutation of the conjecture's content; it should be presented as a range correction, not as a disproof."
+  },
+  "oeis-a210377": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A210377"
+   ],
+   "reason": "Second review: The 'disproof' refutes only Barker's range 'n>5' for the recurrence, which fails at the single index n=7; the g.f. and closed form, and the recurrence for n>7, are all true. This is an off-by-two typo in the range that the proof exploits, not a refutation of the conjecture's content; it should be presented as a range correction, not as a disproof."
   }
  },
  "known": {
