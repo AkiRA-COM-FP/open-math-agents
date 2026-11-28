@@ -8864,6 +8864,329 @@
     "https://oeis.org/A187291"
    ],
    "note": "Tours = injective sequences of 6 squares joined by the listed moves, counted over all starts; Python DFS reproduces the OEIS data for n<=16 (so the k-step = k-squares reading and move set are right) and Hardin's quadratic for n>9. The statement combines the quadratic, Barker's g.f. (with a(0)=0) and the order-3 recurrence. No prior proof found in searched sources; routine translation-counting argument (shared lemmas follow this site's PR 23762 for another sequence, which is not a prior solve of this statement). Moves: rook 1 or 2 squares. Second review: Faithful and true. This is a translation-count argument for local patterns plus a finite enumeration, so routine. It is one of a family of near-identical Hardin/Barker tour entries."
+  },
+  "oeis-a223499": {
+   "date": "2026-11-28",
+   "pr": 24678,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223499",
+    "https://oeis.org/A223499",
+    "https://oeis.org/A223499/b223499.txt"
+   ],
+   "note": "Barker's g.f. and closed form for Hardin's n X 3 Petersen-graph (3,1) colorings (horizontal, diagonal and antidiagonal moves along the nine listed edges, x(0,0)=0), stated over Q and R with offset 1, matching the entry. My transfer-matrix count reproduces the data and satisfies 15,-24,10 with numerator 9-20x+10x^2 for n<=30; the closed form gives 9,115,1519. Finite-state transfer matrix, routine. No prior proof found (entry, Palomar, Epoch, trureturing/np trees, openai/math, BG/Fried, formal-conjectures). Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a223552": {
+   "date": "2026-11-28",
+   "pr": 24695,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A223552",
+    "https://oeis.org/A223552",
+    "https://oeis.org/A223552/b223552.txt"
+   ],
+   "note": "Barker's g.f. 9x(3-2x)/(1-41x+16x^2) and closed form for Hardin's n X 4 Petersen-graph (3,1) colorings with only horizontal and antidiagonal moves constrained, x(0,0)=0, offset 1; 2^(-4-n) as an integer power. My transfer-matrix count reproduces the data and the g.f. for n<=25, and the closed form gives 27,1089,44217. Routine transfer matrix. No prior proof found in the listed sources. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a224709": {
+   "date": "2026-11-28",
+   "pr": 24512,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A224709",
+    "https://oeis.org/A224709/b224709.txt",
+    "https://oeis.org/A224709",
+    "https://oeis.org/A224709/b224709.txt"
+   ],
+   "note": "Disproof of Browne's conjecture a(3n+9) > a(3n+8): at n = 13344, a(40041) = a(40040) = 33203. I recomputed this with a sieve, and it is the first failure of either clause (beyond the 10000-term b-file). The definition (x in 1..n with x and 2n-x composite) matches the entry's PARI formula and data. Genuine counterexample, not a typo exploit; no prior refutation found (entry, Palomar, Epoch, libraries, formal-conjectures). Second review: A disproof by explicit counterexample (n=13344), which I reproduced independently. Faithful, no earlier report of it found. Routine (finite check)."
+  },
+  "oeis-a226434": {
+   "date": "2026-11-28",
+   "pr": 24555,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A226434",
+    "https://oeis.org/A226434",
+    "https://arxiv.org/abs/1309.0832"
+   ],
+   "note": "Mathar's order-6 P-recurrence, with coefficients expanded correctly (e.g. (95n+537)(n+2), 192(38n-67)(2n-13)), stated for n >= 7 on the sequence defined by the entry's algebraic g.f. (rationalized; my series reproduces the data 0,1,3,10,37,...). Exact check: holds for n = 7..56 and fails only at 4..6, where truncated indices fall below the offset, so the range is the natural one. Routine algebraic-to-holonomic. No prior proof found. Second review: Mathar's guessed P-recurrence for an algebraic g.f. that is proved in the cited paper; faithful, true, no earlier proof found. Routine (holonomic closure of an algebraic g.f.)."
+  },
+  "oeis-a228254": {
+   "date": "2026-11-28",
+   "pr": 24039,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228254",
+    "https://oeis.org/A228254",
+    "https://oeis.org/A228254/b228254.txt"
+   ],
+   "note": "Barker's g.f. and a(n) = 3^(n+3) - 2^(n+3) for n > 3, where a(n) counts distinct third-difference sequences of 0..2 arrays of length n+3, offset 1. Brute force matches the data for n = 1..9. For n > 3 collisions come only from constant shifts (a quadratic difference with values in -2..2 on 7 or more points is constant), so this is elementary. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a228791": {
+   "date": "2026-11-28",
+   "pr": 10352,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228791",
+    "https://oeis.org/A228791",
+    "https://oeis.org/A228791/b228791.txt"
+   ],
+   "note": "The statement defines a(n) by a hand-written 5-state row transfer. I checked it against the definition (rows 000/100/010/001/101; nw-se forbids a one above-left), and my brute force of n X 3 arrays matches 2,8,36,156,672,2892. The g.f. 2x(1-x+x^2)/(1-5x+3x^2) and the closed form for n > 1 are Barker's. Routine. No prior proof found. Second review: Faithful encoding of a Hardin count (non-literal but verified equivalent numerically and by the transfer argument); Barker's formulas are routine transfer-matrix identities; no prior proof found."
+  },
+  "oeis-a228797": {
+   "date": "2026-11-28",
+   "pr": 10021,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228797",
+    "https://oeis.org/A228797",
+    "https://oeis.org/A228797/b228797.txt"
+   ],
+   "note": "A hand-written 4-state column transfer for 2 X n binary arrays (top-left 1, no horizontal or nw-se adjacent ones). I checked the transitions, and my brute force matches the data for n = 1..10. Barker's g.f. 2x/((1+x)(1-2x-x^2)) and closed form for n >= 1 are stated faithfully. Routine. No prior proof found. Second review: Faithful encoding of a Hardin count (non-literal but verified equivalent numerically and by the transfer argument); Barker's formulas are routine transfer-matrix identities; no prior proof found."
+  },
+  "oeis-a231978": {
+   "date": "2026-11-28",
+   "pr": 7682,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A231978",
+    "https://oeis.org/A231978/b231978.txt",
+    "https://oeis.org/A231558",
+    "https://oeis.org/A231978",
+    "https://oeis.org/A231558",
+    "https://oeis.org/A231978/b231978.txt"
+   ],
+   "note": "This proves Shevelev's conjecture that the sequence has a composite term, with the witness m = 19609^2 (19609 prime). m^2 = 19609^4 is odd and composite, and n+d, n*d, n/d are odious for its five divisors; I rechecked this independently. The A231558 definition is faithful. Moses's 2500-term b-file (to 934883) is all primes, and my search found no composite term below 4*10^5, so the witness is new and lies beyond the published data. Witness search, routine. No prior claim found (OEIS search for 384512881, Palomar, Epoch, libraries). Second review: An existence conjecture settled by an explicit witness (finite check). Faithful and correct; no earlier report found. Routine; 'first one should be very large' is not part of the claim (the least composite seems to be 10150441, smaller than the site's witness)."
+  },
+  "oeis-a232951": {
+   "date": "2026-11-28",
+   "pr": 24671,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A232951",
+    "https://oeis.org/A232951",
+    "https://oeis.org/A232951/b232951.txt"
+   ],
+   "note": "Barker's g.f. 3x(9-22x+5x^2)/((1-x)(1-30x+5x^2)) and closed form for n X 4 arrays over 0..3 with no x adjacent to 3-x horizontally, diagonally or antidiagonally, x(0,0)=0, offset 1. My transfer-matrix count reproduces the data and the g.f. for n <= 20, and the closed form gives 27, 771, 22971. Routine. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a234779": {
+   "date": "2026-11-28",
+   "pr": 23322,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A234779",
+    "https://oeis.org/A234779",
+    "https://oeis.org/A234779/b234779.txt"
+   ],
+   "note": "Barker's g.f. 4x(19-12x)/(1-7x+4x^2) and closed form (2^(1-n) as an integer power) for (n+1) X 2 arrays over 0..3 with no equal horizontal or vertical neighbors and balanced clockwise/counterclockwise increases in each 2 X 2 block. The cw/ccw encoding is correct, and my brute force matches 76, 484, ..., 32403076. Routine transfer matrix. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a235877": {
+   "date": "2026-11-28",
+   "pr": 22588,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235877",
+    "https://oeis.org/A235877",
+    "https://oeis.org/A235877/b235877.txt"
+   ],
+   "note": "Barker's g.f. and a(n) = 3(2^(n+1)+3^n) for (n+1) X 2 arrays over 0..2 with min + upper median = lower median + max in every 2 X 2 block. The min/max lattice formulas give the 2nd and 3rd order statistics correctly, and my brute force matches the closed form for n = 1..10. Routine. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a235878": {
+   "date": "2026-11-28",
+   "pr": 24034,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235878",
+    "https://oeis.org/A235878",
+    "https://oeis.org/A235878/b235878.txt"
+   ],
+   "note": "Hardin's recurrence (n >= 4), Barker's g.f. and a(n) = 3(2+3*2^(n+1)+3^n) for (n+1) X 3 arrays over 0..2 with the median condition in every 2 X 2 block (sort-based order statistics). My brute force matches the closed form for n = 1..10. Routine. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a238923": {
+   "date": "2026-11-28",
+   "pr": 23768,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A238923",
+    "https://oeis.org/A238923",
+    "https://oeis.org/A238923/b238923.txt"
+   ],
+   "note": "Barker's g.f. 12x/(1-3x-3x^2) and closed form for (n+1) X 2 arrays over 0..3 with no element greater than all its horizontal neighbors or equal to all its vertical neighbors. The neighbor quantifiers are faithful (each cell has 1 horizontal and 1 or 2 vertical neighbors), my DP matches 12, 36, 144, ..., 111780, and the closed form gives 12 at n=1. Routine transfer matrix. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a239171": {
+   "date": "2026-11-28",
+   "pr": 23748,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239171",
+    "https://oeis.org/A239171",
+    "https://oeis.org/A239171/b239171.txt"
+   ],
+   "note": "The same array condition as A238923 over 0..2: Barker's g.f. 6x/(1-2x-2x^2) and a(n) = sqrt3((1+sqrt3)^n - (1-sqrt3)^n). My DP matches 6, 12, 36, 96, ..., 5376. Routine. No prior proof found. Second review: Hardin/Barker empirical g.f. and closed form for a finite transfer-matrix count; faithful, true, no prior proof found. Routine (transfer matrix / finite automaton)."
+  },
+  "oeis-a243514": {
+   "date": "2026-11-28",
+   "pr": 24215,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A243514",
+    "https://oeis.org/A243514",
+    "https://oeis.org/A243514/b243514.txt"
+   ],
+   "note": "Barker's g.f. and a(n) = (26 + 9*2^n + 4^n + 6n)/18 for length n+2 words over 0..5 in restricted-growth order with no aba or abb factor. The (max, penultimate, last) state enumeration is a faithful encoding, and it agrees with my direct brute force for n = 1..6 and with the closed form for n = 1..11. Routine finite automaton. No prior proof found. Second review: Faithful encoding of a Hardin count (non-literal but verified equivalent numerically and by the transfer argument); Barker's formulas are routine transfer-matrix identities; no prior proof found."
+  },
+  "oeis-a243585": {
+   "date": "2026-11-28",
+   "pr": 24275,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A243585",
+    "https://oeis.org/A243585"
+   ],
+   "note": "Mathar's D-finite recurrence 2n(2n-1)(3n-5)a(n) + (-123n^3+328n^2-249n+60)a(n-1) + 50(n-1)(2n-3)(3n-2)a(n-2) = 0 for n >= 2, with a(n) = Sum binom(2k,k) binom(2n,n-k), the entry's own formula. I checked it exactly for n = 2..199. A creative-telescoping-type identity, routine. No prior proof found (entry, Palomar, Epoch, libraries, BG/Fried). Second review: Mathar's D-finite recurrence for a binomial sum; true and faithful, no earlier proof found. Routine (Zeilberger-type)."
+  },
+  "oeis-a247102": {
+   "date": "2026-11-28",
+   "pr": 15788,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A247102",
+    "https://oeis.org/A247102"
+   ],
+   "note": "Mathar's order-4 D-finite recurrence for n >= 4, stated for the coefficients of any G with G(4x^2+4x)S = 6x+2-2(2x+1)S, where S^2 = 1-6x-3x^2 and S(0) = 1. That is the entry's g.f. over a common denominator. G is uniquely determined and exists, so the statement is not vacuous. My exact series gives 2, 10, 53, 298, ..., matching the data, and the recurrence holds for n = 4..38. Routine algebraic-to-holonomic. No prior proof found. Second review: Mathar's D-finite recurrence for an algebraic g.f.; faithful, true, no prior proof found. Routine."
+  },
+  "oeis-a249708": {
+   "date": "2026-11-28",
+   "pr": 24442,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A249708",
+    "https://oeis.org/A249708",
+    "https://oeis.org/A249708/b249708.txt"
+   ],
+   "note": "Barker's order-5 recurrence (n > 5) and g.f. x(2-x)(7+3x+3x^2-x^3)/(1-x)^5 for length-5 arrays over 0..n in which both 4-windows have two terms whose max equals the min of the other two. The splitAt encoding is faithful. Counting by order patterns gives a polynomial in n that reproduces the data for n = 1..13. Hardin polynomial-type count, routine. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a249845": {
+   "date": "2026-11-28",
+   "pr": 24465,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A249845",
+    "https://oeis.org/A249845",
+    "https://oeis.org/A249845/b249845.txt"
+   ],
+   "note": "Barker's order-6 recurrence (n > 6) and g.f. 10x(1+x)(1+4x+x^2)/(1-x)^6 for length-5 arrays over 0..n where no two terms have max equal to the min of the other three. My order-pattern count reproduces the data for n = 1..13. Routine polynomial count. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a249963": {
+   "date": "2026-11-28",
+   "pr": 22779,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A249963",
+    "https://oeis.org/A249963",
+    "https://oeis.org/A249963/b249963.txt"
+   ],
+   "note": "Barker's g.f. with denominator (1-x)^9 and order-9 recurrence (n >= 10) for length-8 arrays over 0..n where no 6-window has two terms with max equal to the min of the other four. The window encoding is faithful. My count over all 545835 ordered set partitions gives a degree-8 polynomial that reproduces the data (15, 897, ..., 250738026) and exactly Barker's numerator. Routine. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a250084": {
+   "date": "2026-11-28",
+   "pr": 22457,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250084",
+    "https://oeis.org/A250084",
+    "https://oeis.org/A250084/b250084.txt"
+   ],
+   "note": "Barker's g.f. with (1-x)^8 and order-8 recurrence (n >= 9) for length-8 arrays over 0..n in which every 6-window has two terms whose max equals the min of the other four. The encoding is faithful, and my count over all ordered set partitions reproduces the data (144, 2228, ..., 13092816). Routine polynomial count. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a250141": {
+   "date": "2026-11-28",
+   "pr": 24424,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250141",
+    "https://oeis.org/A250141",
+    "https://oeis.org/A250141/b250141.txt"
+   ],
+   "note": "Barker's g.f. x(14-3x+9x^2-5x^3+x^4)/(1-x)^5 and recurrence (n > 5) for length-4 arrays over 0..n with nondecreasing medians of consecutive triples. The med formula is the true median, and my count reproduces the data for n = 1..11. Routine. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a250142": {
+   "date": "2026-11-28",
+   "pr": 24433,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250142",
+    "https://oeis.org/A250142",
+    "https://oeis.org/A250142/b250142.txt"
+   ],
+   "note": "Barker's g.f. with (1-x)^6 and recurrence (n > 6) for length-5 arrays over 0..n with nondecreasing medians of consecutive triples. My count reproduces the data for n = 1..11. Routine. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a250388": {
+   "date": "2026-11-28",
+   "pr": 24455,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250388",
+    "https://oeis.org/A250388",
+    "https://oeis.org/A250388/b250388.txt"
+   ],
+   "note": "Barker's g.f. 6x(1+x)(1+6x+3x^2)/(1-x)^6 and recurrence (n > 6) for length-5 arrays over 0..n where neither 4-window has two terms with max equal to the min of the other two. My count reproduces the data for n = 1..11. Routine. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a250389": {
+   "date": "2026-11-28",
+   "pr": 24747,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250389",
+    "https://oeis.org/A250389",
+    "https://oeis.org/A250389/b250389.txt"
+   ],
+   "note": "Barker's g.f. 2x(3+52x+156x^2+124x^3+25x^4)/(1-x)^7 and recurrence (n > 7) for length-6 arrays over 0..n with no 4-window split; the six-case split4 disjunction is faithful. My count reproduces the data for n = 1..11. Routine. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a251421": {
+   "date": "2026-11-28",
+   "pr": 24300,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A251421",
+    "https://oeis.org/A251421",
+    "https://oeis.org/A251421/b251421.txt"
+   ],
+   "note": "Barker's g.f. 2x(1+4x-8x^2)/((1-2x)(1-2x^2)) and the even/odd closed forms, with (n-3)/2+1 written as n/2 for odd n. The statement pre-reduces the condition to 'an even number of nonconstant triples', which is right: for 0..1 triples, max-2med+min is 0 or +-1, and a +-1 arrangement sums to 0 iff the count is even. Its automaton agrees with my brute force of the literal definition and the data for n = 1..11. Routine. No prior proof found. Second review: Faithful encoding of a Hardin count (non-literal but verified equivalent numerically and by the transfer argument); Barker's formulas are routine transfer-matrix identities; no prior proof found."
+  },
+  "oeis-a253288": {
+   "date": "2026-11-28",
+   "pr": 24276,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A253288",
+    "https://oeis.org/A358971",
+    "https://oeis.org/A253288",
+    "https://oeis.org/A253288/b253288.txt",
+    "https://oeis.org/A358971"
+   ],
+   "note": "Proves De Vlieger's 2022 conjecture that this permutation is self-inverse. The recursive definition is faithful: same radical, unused, and the smallest or second smallest by the parity of A005361(n). My simulation by radical classes reproduces the data, and a(a(n)) = n holds for all 102053 checkable n <= 2*10^5. Sigrist's self-inverse proof for the sister A358971 (which always swaps consecutive class members) does not carry over, since here the choice depends on exponent parity. A nontrivial structural argument (483 lines); no prior proof found. Second review: De Vlieger's 2022 self-inverse conjecture, faithfully formalised and numerically consistent; no earlier proof found. Not routine (needs a structural argument over each radical class)."
+  },
+  "oeis-a254699": {
+   "date": "2026-11-28",
+   "pr": 24479,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A254699",
+    "https://oeis.org/A254699",
+    "https://oeis.org/A254699/b254699.txt"
+   ],
+   "note": "Barker's g.f. x(22+23x+19x^2-5x^3+x^4)/(1-x)^5 and recurrence (n > 5) for length-5 arrays over 0..n with some two terms whose max equals the min of the other three. My order-pattern count reproduces the data for n = 1..11. Routine polynomial count. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
+  },
+  "oeis-a254702": {
+   "date": "2026-11-28",
+   "pr": 22221,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A254702",
+    "https://oeis.org/A254702",
+    "https://oeis.org/A254702/b254702.txt"
+   ],
+   "note": "Barker's g.f. with (1-x)^8 and order-8 recurrence (n >= 9) for length-8 arrays over 0..n where every 5-window has a 2|3 split. My count over ordered set partitions reproduces the data (86, 1140, ..., 3282224) and exactly Barker's numerator. Routine. No prior proof found. Second review: Count depends only on the weak order of the entries, so a(n) is a polynomial in n and the empirical formulas are routine; faithful and no prior proof found."
   }
  },
  "flagged": {
@@ -10687,6 +11010,14 @@
     "https://oeis.org/A099976"
    ],
    "reason": "Trivial. The statement is Mathar's D-finite recurrence n(2n+1)a(n) = 2(4n-1)(4n+1)a(n-1) for a(n) = C(4n+2,2n+1). The entry does not mark it as a conjecture, and it is the one-line factorial ratio C(4n+2,2n+1)/C(4n-2,2n-1) = 2(4n-1)(4n+1)/(n(2n+1)). The entry's actual conjecture, odd part of a(n) = A063079(n+1), is not addressed. True and faithful, but no open content."
+  },
+  "oeis-a226302": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A226302",
+    "https://arxiv.org/abs/1304.0070"
+   ],
+   "reason": "Second review: Mismatch: the statement replaces the sequence's definition (P_n(-1)) with a g.f. that is itself an unproved conjecture in the source paper, so Mathar's conjecture for A226302 is not established. What is proved is only that the g.f.'s coefficients satisfy the recurrence."
   }
  },
  "known": {
