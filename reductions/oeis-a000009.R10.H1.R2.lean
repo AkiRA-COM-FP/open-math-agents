@@ -6,8 +6,8 @@ import OMAReductions.R_oeis_a000009_R10
 Gordon and Ono's divisibility theorem (DOI 10.1023/A:1009711020492) implies
 that indices with 2048 ∤ q(n) have density zero. Since q(45) = 2048, these
 include all sufficiently large small-divisor sieve survivors. A fixed pair of
-candidates per window is compatible with zero density in the index. Each
-cofactor-exception pair is tested only at its first possible common window.
+candidates per window is compatible with zero density in the index. Only
+consecutive cofactor exceptions surviving their clipped entry need comparison.
 Both arithmetic hypotheses below remain open.
 -/
 namespace OMA.R_oeis_a000009_R10_H1_R2
@@ -25,15 +25,89 @@ def H1 : Prop :=
     ∀ c, start < birth c → live (birth c) c →
       ∃ a b, live (birth c-1) a ∧ live (birth c-1) b ∧ a < b
 
-/-- If two cofactor exceptions can occur together in a window, at least one
-has a small divisor already at the earliest possible lower endpoint. -/
+/-- Among exceptional values still present at their clipped entry, each value
+must have expired by the entry of its immediate successor (if any). -/
 def H2 : Prop :=
+  let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
+  let exceptional := fun a : ℕ =>
+    ∃ k : ℕ, 2 ≤ k ∧ 2*k*k < 3*a ∧ k ∣ a ∧ 1000 ≤ a/k ∧ Q (a/k)
+  let entry := fun a : ℕ => max 30020900773769688559070113208459541809716021698140392739697 ((2*a+2)/3)
+  let gone := fun x a : ℕ => a < x ∨ ∃ s, 1000 ≤ s ∧ Q s ∧ s*s ≤ x ∧ s ∣ a
+  let viable := fun a : ℕ => Q a ∧ exceptional a ∧ ¬ gone (entry a) a
+  ∀ a b, viable a → viable b → a < b →
+    (∀ c, a < c → c < b → ¬ viable c) → gone (entry b) a
+
+/-- For ordered entry times and irreversible exits, any overlap is witnessed
+by a value and its first viable successor, even when entry times coincide. -/
+theorem no_overlap_iff_consecutive (candidate : ℕ → Prop) (entry : ℕ → ℕ)
+    (gone : ℕ → ℕ → Prop) (ordered : Monotone entry)
+    (persist : ∀ {x y a}, x ≤ y → gone x a → gone y a) :
+    let viable := fun a => candidate a ∧ ¬ gone (entry a) a
+    (∀ a b, candidate a → candidate b → a < b → gone (entry b) a ∨ gone (entry b) b) ↔
+    (∀ a b, viable a → viable b → a < b →
+      (∀ c, a < c → c < b → ¬ viable c) → gone (entry b) a) := by
+  intro viable
+  classical
+  constructor
+  · intro separated a b ha hb ab _
+    exact (separated a b ha.1 hb.1 ab).resolve_right hb.2
+  · intro neighbors a b ha hb ab
+    by_cases deadB : gone (entry b) b
+    · exact Or.inr deadB
+    left
+    by_cases deadA : gone (entry a) a
+    · exact persist (ordered ab.le) deadA
+    have later : ∃ c, a < c ∧ viable c := ⟨b, ab, hb, deadB⟩
+    let c := Nat.find later
+    obtain ⟨ac, hc⟩ := Nat.find_spec later
+    have cb : c ≤ b := Nat.find_min' later ⟨ab, hb, deadB⟩
+    apply persist (ordered cb)
+    apply neighbors a c ⟨ha, deadA⟩ hc ac
+    intro d ad dc hd
+    exact Nat.find_min later dc ⟨ad, hd⟩
+
+/-- The neighboring-value condition is equivalent to the original all-pairs
+exception test, including values whose entire lifetime precedes the cutoff. -/
+theorem H2_iff_all_pairs : H2 ↔
   let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
   let exceptional := fun a : ℕ =>
     ∃ k : ℕ, 2 ≤ k ∧ 2*k*k < 3*a ∧ k ∣ a ∧ 1000 ≤ a/k ∧ Q (a/k)
   ∀ a b : ℕ, Q a → Q b → a < b → exceptional a → exceptional b →
     let e := max 30020900773769688559070113208459541809716021698140392739697 ((2*b+2)/3)
-    e ≤ a → ∃ s, 1000 ≤ s ∧ Q s ∧ s*s ≤ e ∧ (s ∣ a ∨ s ∣ b)
+    e ≤ a → ∃ s, 1000 ≤ s ∧ Q s ∧ s*s ≤ e ∧ (s ∣ a ∨ s ∣ b) := by
+  let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
+  let exc := fun a : ℕ => ∃ k : ℕ, 2 ≤ k ∧ 2*k*k < 3*a ∧ k ∣ a ∧ 1000 ≤ a/k ∧ Q (a/k)
+  let entry := fun a : ℕ => max 30020900773769688559070113208459541809716021698140392739697 ((2*a+2)/3)
+  let gone := fun (x a : ℕ) => a < x ∨ ∃ s, 1000 ≤ s ∧ Q s ∧ s*s ≤ x ∧ s ∣ a
+  have ordered : Monotone entry := by intro a b h; dsimp [entry]; omega
+  have persist {x y a} (xy : x ≤ y) (h : gone x a) : gone y a := by
+    rcases h with h | ⟨s, big, qs, sq, dv⟩
+    · exact Or.inl (by omega)
+    · exact Or.inr ⟨s,big,qs,sq.trans xy,dv⟩
+  have bridge := no_overlap_iff_consecutive (fun a => Q a ∧ exc a) entry gone ordered persist
+  constructor
+  · intro h
+    dsimp only
+    intro a b qa qb ab ea eb lo
+    have check := bridge.mpr (by
+      intro u v hu hv uv gap
+      exact h u v ⟨hu.1.1,hu.1.2,hu.2⟩ ⟨hv.1.1,hv.1.2,hv.2⟩ uv
+        (fun w uw wv hw => gap w uw wv ⟨⟨hw.1,hw.2.1⟩,hw.2.2⟩)) a b ⟨qa,ea⟩ ⟨qb,eb⟩ ab
+    change entry b ≤ a at lo
+    rcases check with (dead | ⟨s,hs,qs,sq,dv⟩) | (dead | ⟨s,hs,qs,sq,dv⟩)
+    · omega
+    · exact ⟨s,hs,qs,sq,Or.inl dv⟩
+    · omega
+    · exact ⟨s,hs,qs,sq,Or.inr dv⟩
+  · intro h a b ha hb ab gap
+    apply bridge.mp _ a b ⟨⟨ha.1,ha.2.1⟩,ha.2.2⟩ ⟨⟨hb.1,hb.2.1⟩,hb.2.2⟩ ab
+      (fun w aw wb hw => gap w aw wb ⟨hw.1.1,hw.1.2,hw.2⟩)
+    intro u v hu hv uv
+    by_cases lo : entry v ≤ u
+    · obtain ⟨s,hs,qs,sq,dv⟩ := h u v hu.1 hv.1 uv hu.2 hv.2 lo
+      exact dv.elim (fun d => Or.inl (Or.inr ⟨s,hs,qs,sq,d⟩))
+        (fun d => Or.inr (Or.inr ⟨s,hs,qs,sq,d⟩))
+    · exact Or.inl (Or.inl (by omega))
 
 /-- Every value lives on one interval of integer window endpoints. A number d
 that divides a and is least among its eligible divisors causes the first
@@ -396,6 +470,34 @@ theorem early_exception_pair :
     have lower := Nat.mul_le_mul hs hs
     omega
 
+/-- The overlap at indices 110 and 114 persists up to the smaller value
+itself. Any proposed cutoff at or below 1004544 retains a violating window. -/
+theorem early_overlap_through_last (start : ℕ) (bound : start ≤ 1004544) :
+    let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
+    let exc := fun a : ℕ => ∃ k : ℕ, 2 ≤ k ∧ 2*k*k < 3*a ∧ k ∣ a ∧ 1000 ≤ a/k ∧ Q (a/k)
+    ∃ a b : ℕ, Q a ∧ Q b ∧ a < b ∧ exc a ∧ exc b ∧
+      max start ((2*b+2)/3) ≤ a ∧
+      ∀ x, max start ((2*b+2)/3) ≤ x → x ≤ a →
+        ∀ s : ℕ, 1000 ≤ s → s*s ≤ x → ¬ s ∣ a ∧ ¬ s ∣ b
+      := by
+  intro Q exc
+  obtain ⟨ab,_,_,ea,eb,_⟩ := early_exception_pair
+  have va : strictPartitionCount 110 = 1004544 := by
+    rw [OMA.R_oeis_a000009_R10.strictPartitionCount_eq_rec 110 110 le_rfl]; decide +kernel
+  have vb : strictPartitionCount 114 = 1378304 := by
+    rw [OMA.R_oeis_a000009_R10.strictPartitionCount_eq_rec 114 114 le_rfl]; decide +kernel
+  refine ⟨_,_,⟨110,by decide,rfl⟩,⟨114,by decide,rfl⟩,ab,ea,eb,?_,?_⟩
+  · rw [va,vb]; omega
+  intro x _ hx s hs sq
+  rw [va] at hx
+  rw [va,vb]
+  have small : s < 1003 := by
+    by_contra! big
+    have := Nat.mul_le_mul big big
+    omega
+  have cases : s = 1000 ∨ s = 1001 ∨ s = 1002 := by omega
+  rcases cases with rfl | rfl | rfl <;> decide
+
 /-- After sieving, a proper partition divisor exists exactly when a short
 cofactor gives one. Multiple factorizations of the same value cost one exception. -/
 theorem short_cofactor_iff (Q : ℕ → Prop) (x a : ℕ) (hi : 2*a ≤ 3*x)
@@ -440,7 +542,7 @@ theorem main : H1 → H2 → OMA.R_oeis_a000009_R10.H1 := by
   have ea := fail a qa lo (by omega) (fun s hs qs sq => (clean s hs qs sq).1)
   have eb := fail b qb (by omega) hi (fun s hs qs sq => (clean s hs qs sq).2)
   obtain ⟨s,hs,qs,sq,div⟩ := (first_common_window_iff _ start a b).mpr
-    (pairs a b qa qb ab ea eb) x hx lo hi
+    (H2_iff_all_pairs.mp pairs a b qa qb ab ea eb) x hx lo hi
   exact div.elim (clean s hs qs sq).1 (clean s hs qs sq).2
 
 end OMA.R_oeis_a000009_R10_H1_R2
