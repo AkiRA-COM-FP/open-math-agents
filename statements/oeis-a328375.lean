@@ -28,3 +28,4 @@ theorem main : ∀ n : ℕ, 30536 < n → Nat.nth Has777 (n - 1) = n + 3623 := b
   sorry
 
 end OMA.S_oeis_a328375
+-- ci: re-run check-proof
