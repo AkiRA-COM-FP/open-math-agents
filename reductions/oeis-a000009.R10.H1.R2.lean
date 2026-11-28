@@ -8,7 +8,7 @@ that indices with 2048 ∤ q(n) have density zero. Since q(45) = 2048, these
 include all sufficiently large small-divisor sieve survivors. A fixed pair of
 candidates per window is compatible with zero density in the index. Only
 consecutive cofactor exceptions surviving their clipped entry need comparison.
-A kernel-checked prefix covers the original cutoff through q(6400); both
+A kernel-checked prefix covers the original cutoff through q(6400), then native representation intervals extend it to 2*q(7200)-1; both
 arithmetic hypotheses below concern only the remaining tail.
 -/
 namespace OMA.R_oeis_a000009_R10_H1_R2
@@ -18,7 +18,7 @@ open OMA.S_oeis_a000009 Finset
 above the starting endpoint, two previously arrived values still survive. -/
 def H1 : Prop :=
   let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
-  let start : ℕ := 276023389780623855438063152323965130729038773266014399686921
+  let start : ℕ := 1679994603391465890567050011123964902522794012673156461548944387
   let birth := fun a : ℕ => (2*a+2)/3
   let live := fun x a : ℕ => Q a ∧ x ≤ a ∧ 2*a ≤ 3*x ∧
     ∀ s, 1000 ≤ s → Q s → s*s ≤ x → ¬ s ∣ a
@@ -32,7 +32,7 @@ def H2 : Prop :=
   let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
   let exceptional := fun a : ℕ =>
     ∃ k : ℕ, 2 ≤ k ∧ 2*k*k < 3*a ∧ k ∣ a ∧ 1000 ≤ a/k ∧ Q (a/k)
-  let entry := fun a : ℕ => max 276023389780623855438063152323965130729038773266014399686921 ((2*a+2)/3)
+  let entry := fun a : ℕ => max 1679994603391465890567050011123964902522794012673156461548944387 ((2*a+2)/3)
   let gone := fun x a : ℕ => a < x ∨ ∃ s, 1000 ≤ s ∧ Q s ∧ s*s ≤ x ∧ s ∣ a
   let viable := fun a : ℕ => Q a ∧ exceptional a ∧ ¬ gone (entry a) a
   ∀ a b, viable a → viable b → a < b →
@@ -74,11 +74,11 @@ theorem H2_iff_all_pairs : H2 ↔
   let exceptional := fun a : ℕ =>
     ∃ k : ℕ, 2 ≤ k ∧ 2*k*k < 3*a ∧ k ∣ a ∧ 1000 ≤ a/k ∧ Q (a/k)
   ∀ a b : ℕ, Q a → Q b → a < b → exceptional a → exceptional b →
-    let e := max 276023389780623855438063152323965130729038773266014399686921 ((2*b+2)/3)
+    let e := max 1679994603391465890567050011123964902522794012673156461548944387 ((2*b+2)/3)
     e ≤ a → ∃ s, 1000 ≤ s ∧ Q s ∧ s*s ≤ e ∧ (s ∣ a ∨ s ∣ b) := by
   let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
   let exc := fun a : ℕ => ∃ k : ℕ, 2 ≤ k ∧ 2*k*k < 3*a ∧ k ∣ a ∧ 1000 ≤ a/k ∧ Q (a/k)
-  let entry := fun a : ℕ => max 276023389780623855438063152323965130729038773266014399686921 ((2*a+2)/3)
+  let entry := fun a : ℕ => max 1679994603391465890567050011123964902522794012673156461548944387 ((2*a+2)/3)
   let gone := fun (x a : ℕ) => a < x ∨ ∃ s, 1000 ≤ s ∧ Q s ∧ s*s ≤ x ∧ s ∣ a
   have ordered : Monotone entry := by intro a b h; dsimp [entry]; omega
   have persist {x y a} (xy : x ≤ y) (h : gone x a) : gone y a := by
@@ -249,11 +249,11 @@ theorem two_values_iff_spacing (v : ℕ → ℕ) (inc : StrictMono v) (start : �
 /-- The arrival formulation recovers exactly the original sparse-pair supply. -/
 theorem H1_iff_pair_supply : H1 ↔
   let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
-  ∀ x : ℕ, 276023389780623855438063152323965130729038773266014399686921 ≤ x →
+  ∀ x : ℕ, 1679994603391465890567050011123964902522794012673156461548944387 ≤ x →
     ∃ a b : ℕ, Q a ∧ Q b ∧ x ≤ a ∧ a < b ∧ 2*b ≤ 3*x ∧
       ∀ s, 1000 ≤ s → Q s → s*s ≤ x → ¬ s ∣ a ∧ ¬ s ∣ b := by
   let Q := fun a : ℕ => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m
-  have windows := pair_supply_iff_arrivals Q 276023389780623855438063152323965130729038773266014399686921
+  have windows := pair_supply_iff_arrivals Q 1679994603391465890567050011123964902522794012673156461548944387
   constructor
   · intro h q x hx
     obtain ⟨a,b,ha,hb,ab⟩ := windows.mpr h x hx
@@ -269,7 +269,7 @@ theorem H1_iff_pair_supply : H1 ↔
 /-- For values that pass the sieve until they leave the window, estimating the
 spacing of every second value suffices; intermediate integer windows need no tests. -/
 theorem H1_of_clean_spacing (v : ℕ → ℕ) (inc : StrictMono v)
-    (first : 276023389780623855438063152323965130729038773266014399686921 ≤ v 0) (initial : 2*v 1 ≤ 3*276023389780623855438063152323965130729038773266014399686921)
+    (first : 1679994603391465890567050011123964902522794012673156461548944387 ≤ v 0) (initial : 2*v 1 ≤ 3*1679994603391465890567050011123964902522794012673156461548944387)
     (spacing : ∀ i, 2*v (i+2) ≤ 3*(v i+1))
     (terms : ∀ i, (∃ m : ℕ, 0 < m ∧ v i = strictPartitionCount m) ∧
       ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) →
@@ -607,8 +607,94 @@ theorem strictCount_monotone : Monotone strictPartitionCount := by
     exact Nat.Partition.ext ((Multiset.cons_inj_right 1).mp parts)
 
 
+/-- Under a bounded successor rule, every target between the first and last
+intervals has a witness. Advancing at n = 2*a handles the puncture exactly. -/
+theorem walk_to_window (P : ℕ → Prop) (start cap n : ℕ) (seed : P start)
+    (enter : start+20301 ≤ n) (finish : n < 2*cap)
+    (step : ∀ a, start ≤ a → a < cap → P a →
+      ∃ b, P b ∧ a < b ∧ b+20301 ≤ 2*a) :
+    ∃ a, P a ∧ a+20301 ≤ n ∧ n < 2*a := by
+  have walk (fuel a : ℕ) (room : n-a ≤ fuel) (lo : start ≤ a) (pa : P a)
+      (begun : a+20301 ≤ n) : ∃ b, P b ∧ b+20301 ≤ n ∧ n < 2*b := by
+    induction fuel generalizing a with
+    | zero => exact ⟨a,pa,begun,by omega⟩
+    | succ k ih =>
+      by_cases done : n < 2*a
+      · exact ⟨a,pa,begun,done⟩
+      · obtain ⟨b,pb,ab,joined⟩ := step a lo (by omega) pa
+        exact ih b (by omega) (by omega) pb (by omega)
+  exact walk (n-start) start le_rfl le_rfl seed enter
+
+
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
+/-- One coefficient table certifies all anchor values and both finite covers. -/
+theorem certified_anchors : ∃ anchors : List (ℕ × ℕ),
+    (∀ p ∈ anchors, ((∃ m : ℕ, 0 < m ∧ p.2 = strictPartitionCount m) ∧ 1000 ≤ p.2 ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ p.2 → ¬ s ∣ p.2)) ∧
+    (∀ x : ℕ, 30020900773769688559070113208459541809716021698140392739697 ≤ x → x ≤ 276023389780623855438063152323965130729038773266014399686920 → ∃ p ∈ anchors, x ≤ p.2 ∧ 2*p.2 ≤ 3*x) ∧
+    (6400,276023389780623855438063152323965130729038773266014399686920) ∈ anchors ∧ (7200,1679994603391465890567050011123964902522794012673156461548944386) ∈ anchors ∧
+    (∀ p ∈ anchors, 276023389780623855438063152323965130729038773266014399686920 ≤ p.2 → p.2 < 1679994603391465890567050011123964902522794012673156461548944386 →
+      ∃ t ∈ anchors, p.2 < t.2 ∧ t.2+20301 ≤ 2*p.2) := by
+  let anchors : List (ℕ × ℕ) := [
+  (6239,44826794016581556250544938982581728865028321268192943520904),
+  (6274,66680318010064817431288052608654976684760184135495679796496),
+  (6309,99079160533597511423515637370567450822658831452683296206384),
+  (6344,147060341243876743488499752631145710947549132583706573295768),
+  (6379,218042565909576324675379726336707731776070644382680502521656),
+  (6400,276023389780623855438063152323965130729038773266014399686920),
+  (6461,546345860390556982263106684688179216519702820309657455438060),
+  (6523,1090019641132984489077292860787142236184947225893943207093248),
+  (6585,2167671246712939239161395070722706310871252950329691861237824),
+  (6647,4296992874046506441141366858174110924212694826131616423300948),
+  (6709,8491163711535472885633896994306974483647094825710104423511890),
+  (6772,16910569644576851575910896498245663052745111278858013229064666),
+  (6835,33571813503089408858870936848696718708357412961464161793656320),
+  (6898,66440935661882795401721933413376140642209214348393150207035790),
+  (6962,132505308230651576204643342966177708862571072364318371751038144),
+  (7025,260625536886300107736770313340272338444126879718189720507162554),
+  (7089,516572727588717496750857457358311137787505905120221588905046048),
+  (7154,1031649795851428908646755731957293828797122105492727814485870702),
+  (7200,1679994603391465890567050011123964902522794012673156461548944386)]
+
+  let mask := (2^(212*7201)-1)/(2^212-1)*2^211
+  let row := Nat.rec (motive := fun _ => ℕ) (2^((211+1)*7200)) (fun k b =>
+    let c := b + (b >>> (212*(k+1)))
+    if c &&& mask == 0 then c else 0)
+  let digit := fun j : ℕ => (row 7200 >>> (212*(7200-j))) % 2^212
+  let valid := fun (p : ℕ × ℕ) => decide (1000 ≤ p.2 ∧ 0 < p.1 ∧ p.1 ≤ 7200 ∧ digit p.1 = p.2 ∧ p.2 ≤ digit 7200) &&
+    (List.range 7201).all (fun j => decide (1000 ≤ digit j → 2*digit j ≤ p.2 → ¬ digit j ∣ p.2))
+  have checked : row 7200 ≠ 0 ∧ anchors.all valid = true := by decide +kernel
+  have decode (j : ℕ) (hj : j ≤ 7200) : strictPartitionCount j = digit j :=
+    OMA.R_oeis_a000009_R10.strictPartitionCount_of_reverse 211 7200 (by decide) row mask
+      (OMA.R_oeis_a000009_R10.guard_mask_eq 212 7201 (2^211) (by decide)).symm
+      rfl (fun _ => rfl) checked.1 j hj
+  refine ⟨anchors,?_,?_,by decide,by decide,by decide +kernel⟩
+  · intro p hp
+    have hv := List.all_eq_true.mp checked.2 p hp
+    simp only [valid,Bool.and_eq_true,decide_eq_true_eq,List.all_eq_true] at hv
+    obtain ⟨⟨bigValue,pos,idx,value,cap⟩,test⟩ := hv
+    refine ⟨⟨p.1,pos,value.symm.trans (decode _ idx).symm⟩,bigValue,?_⟩
+    rintro s big ⟨j,_,rfl⟩ small
+    by_cases h : j ≤ 7200
+    · rw [decode j h] at big small ⊢
+      exact test j (List.mem_range.mpr (by omega)) big small
+    · have growth := strictCount_monotone (show 7200 ≤ j by omega)
+      rw [← decode 7200 le_rfl] at cap
+      omega
+  · intro x lo hi
+    by_cases h6239 : x ≤ 44826794016581556250544938982581728865028321268192943520904
+    · exact ⟨(6239,44826794016581556250544938982581728865028321268192943520904),by decide,by dsimp; omega,by dsimp; omega⟩
+    by_cases h6274 : x ≤ 66680318010064817431288052608654976684760184135495679796496
+    · exact ⟨(6274,66680318010064817431288052608654976684760184135495679796496),by decide,by dsimp; omega,by dsimp; omega⟩
+    by_cases h6309 : x ≤ 99079160533597511423515637370567450822658831452683296206384
+    · exact ⟨(6309,99079160533597511423515637370567450822658831452683296206384),by decide,by dsimp; omega,by dsimp; omega⟩
+    by_cases h6344 : x ≤ 147060341243876743488499752631145710947549132583706573295768
+    · exact ⟨(6344,147060341243876743488499752631145710947549132583706573295768),by decide,by dsimp; omega,by dsimp; omega⟩
+    by_cases h6379 : x ≤ 218042565909576324675379726336707731776070644382680502521656
+    · exact ⟨(6379,218042565909576324675379726336707731776070644382680502521656),by decide,by dsimp; omega,by dsimp; omega⟩
+    exact ⟨(6400,276023389780623855438063152323965130729038773266014399686920),by decide,by dsimp; omega,by dsimp; omega⟩
+
 /-- Six primitive values cover every integer endpoint from the original
 R2 cutoff through q(6400), inclusive. -/
 theorem primitive_prefix (x : ℕ) (lo : 30020900773769688559070113208459541809716021698140392739697 ≤ x)
@@ -616,66 +702,115 @@ theorem primitive_prefix (x : ℕ) (lo : 300209007737696885590701132084595418097
     ∃ a : ℕ, (∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧
       x ≤ a ∧ 2*a ≤ 3*x ∧
       ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a := by
-  let mask := (2^(199*6401)-1)/(2^199-1)*2^198
-  let row := Nat.rec (motive := fun _ => ℕ) (2^((198+1)*6400)) (fun k b =>
-    let c := b + (b >>> (199*(k+1)))
-    if c &&& mask == 0 then c else 0)
-  let digit := fun j : ℕ => (row 6400 >>> (199*(6400-j))) % 2^199
-  let witnesses : List (ℕ × ℕ) := [(6239,44826794016581556250544938982581728865028321268192943520904), (6274,66680318010064817431288052608654976684760184135495679796496), (6309,99079160533597511423515637370567450822658831452683296206384), (6344,147060341243876743488499752631145710947549132583706573295768), (6379,218042565909576324675379726336707731776070644382680502521656), (6400,276023389780623855438063152323965130729038773266014399686920)]
-  let valid := fun (p : ℕ × ℕ) => decide (0 < p.1 ∧ p.1 ≤ 6400 ∧ digit p.1 = p.2 ∧ p.2 ≤ digit 6400) &&
-    (List.range 6401).all (fun j => decide (1000 ≤ digit j → 2*digit j ≤ p.2 → ¬ digit j ∣ p.2))
-  have checked : row 6400 ≠ 0 ∧ witnesses.all valid = true := by decide +kernel
-  have decode (j : ℕ) (hj : j ≤ 6400) : strictPartitionCount j = digit j :=
-    OMA.R_oeis_a000009_R10.strictPartitionCount_of_reverse 198 6400 (by decide) row mask
-      (OMA.R_oeis_a000009_R10.guard_mask_eq 199 6401 (2^198) (by decide)).symm
-      rfl (fun _ => rfl) checked.1 j hj
-  have cert (p : ℕ × ℕ) (hp : p ∈ witnesses) :
-      (∃ m : ℕ, 0 < m ∧ p.2 = strictPartitionCount m) ∧
-      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ p.2 → ¬ s ∣ p.2 := by
-    have hv := List.all_eq_true.mp checked.2 p hp
-    simp only [valid,Bool.and_eq_true,decide_eq_true_eq,List.all_eq_true] at hv
-    obtain ⟨⟨pos,idx,value,cap⟩,test⟩ := hv
-    refine ⟨⟨p.1,pos,value.symm.trans (decode _ idx).symm⟩,?_⟩
-    rintro s big ⟨j,_,rfl⟩ small
-    by_cases h : j ≤ 6400
-    · rw [decode j h] at big small ⊢
-      exact test j (List.mem_range.mpr (by omega)) big small
-    · have growth := strictCount_monotone (show 6400 ≤ j by omega)
-      rw [← decode 6400 le_rfl] at cap
+  obtain ⟨_,cert,cover,_,_,_⟩ := certified_anchors
+  obtain ⟨p,hp,left,right⟩ := cover x lo hi
+  exact ⟨_,(cert p hp).1,left,right,(cert p hp).2.2⟩
+
+/-- Below the first remaining target the native representation intervals are
+unconditional, including every target exactly twice an intermediate anchor. -/
+theorem finite_native_cover (n : ℕ) (lower : 60041801547539377118140226416919083619432043396280785479393 < n)
+    (upper : n < 2*1679994603391465890567050011123964902522794012673156461548944386) :
+    ∃ a : ℕ, ((∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ 1000 ≤ a ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a) ∧ a+20301 ≤ n ∧ n < 2*a := by
+  by_cases early : n < 2*276023389780623855438063152323965130729038773266014399686920
+  · obtain ⟨a,qa,lo,hi,prim⟩ := primitive_prefix (n/2+1) (by omega) (by omega)
+    exact ⟨a,⟨qa,by omega,prim⟩,by omega,by omega⟩
+  obtain ⟨anchors,cert,_,seed,_,links⟩ := certified_anchors
+  let P := fun a : ℕ => ∃ p ∈ anchors, p.2 = a
+  obtain ⟨a,⟨p,hp,rfl⟩,lo,hi⟩ := walk_to_window P 276023389780623855438063152323965130729038773266014399686920 1679994603391465890567050011123964902522794012673156461548944386 n
+    ⟨(6400,276023389780623855438063152323965130729038773266014399686920),seed,rfl⟩ (by omega) upper (by
+      rintro a low high ⟨p,hp,rfl⟩
+      obtain ⟨t,ht,lt,joined⟩ := links p hp low high
+      exact ⟨t.2,⟨t,ht,rfl⟩,lt,joined⟩)
+  exact ⟨_,cert p hp,lo,hi⟩
+
+/-- Starting with the last certified anchor, a local successor bound suffices.
+For each target the walk terminates after finitely many strict increases. -/
+theorem parent_of_local_successors :
+    let primitive := fun a : ℕ => ((∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ 1000 ≤ a ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a)
+    (∀ a : ℕ, 1679994603391465890567050011123964902522794012673156461548944386 ≤ a → primitive a →
+    ∃ b, primitive b ∧ a < b ∧ b+20301 ≤ 2*a) → OMA.R_oeis_a000009_R10.H1 := by
+  intro primitive step
+  apply OMA.R_oeis_a000009_R10.H1_of_intervals
+  intro n hn
+  have cover : ∃ a, primitive a ∧ a+20301 ≤ n ∧ n < 2*a := by
+    by_cases early : n < 2*1679994603391465890567050011123964902522794012673156461548944386
+    · exact finite_native_cover n hn early
+    · apply walk_to_window primitive 1679994603391465890567050011123964902522794012673156461548944386 (n+1) n
+      · obtain ⟨_,cert,_,_,last,_⟩ := certified_anchors
+        exact cert (7200,1679994603391465890567050011123964902522794012673156461548944386) last
+      · omega
+      · omega
+      · exact fun a low _ pa => step a low pa
+  obtain ⟨a,⟨qa,big,prim⟩,lo,hi⟩ := cover
+  exact ⟨a,qa,big,lo,by omega,by omega,prim⟩
+
+/-- In a successor interval below twice the current value, every eligible
+proper divisor has partition index strictly below the current index. -/
+theorem successor_primitive_iff (m j : ℕ)
+    (later : strictPartitionCount m < strictPartitionCount j)
+    (near : strictPartitionCount j < 2*strictPartitionCount m) :
+    (∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ strictPartitionCount j → ¬ s ∣ strictPartitionCount j) ↔
+      ∀ i, 0 < i → i < m → 1000 ≤ strictPartitionCount i →
+        ¬ strictPartitionCount i ∣ strictPartitionCount j := by
+  constructor
+  · intro p i ip im hi dv
+    have bound := strictCount_monotone im.le
+    obtain ⟨k,eq⟩ := dv
+    have two : 2 ≤ k := by
+      by_contra! low
+      have kle : k ≤ 1 := by omega
+      have le := Nat.mul_le_mul_left (strictPartitionCount i) kle
+      rw [Nat.mul_one] at le
       omega
-  suffices h : ∃ p ∈ witnesses, x ≤ p.2 ∧ 2*p.2 ≤ 3*x by
-    obtain ⟨p,hp,l,r⟩ := h
-    exact ⟨_,(cert p hp).1,l,r,(cert p hp).2⟩
-  by_cases h6239 : x ≤ 44826794016581556250544938982581728865028321268192943520904
-  · exact ⟨(6239,44826794016581556250544938982581728865028321268192943520904),by decide,by dsimp; omega,by dsimp; omega⟩
-  by_cases h6274 : x ≤ 66680318010064817431288052608654976684760184135495679796496
-  · exact ⟨(6274,66680318010064817431288052608654976684760184135495679796496),by decide,by dsimp; omega,by dsimp; omega⟩
-  by_cases h6309 : x ≤ 99079160533597511423515637370567450822658831452683296206384
-  · exact ⟨(6309,99079160533597511423515637370567450822658831452683296206384),by decide,by dsimp; omega,by dsimp; omega⟩
-  by_cases h6344 : x ≤ 147060341243876743488499752631145710947549132583706573295768
-  · exact ⟨(6344,147060341243876743488499752631145710947549132583706573295768),by decide,by dsimp; omega,by dsimp; omega⟩
-  by_cases h6379 : x ≤ 218042565909576324675379726336707731776070644382680502521656
-  · exact ⟨(6379,218042565909576324675379726336707731776070644382680502521656),by decide,by dsimp; omega,by dsimp; omega⟩
-  exact ⟨(6400,276023389780623855438063152323965130729038773266014399686920),by decide,by dsimp; omega,by dsimp; omega⟩
+    have le := Nat.mul_le_mul_left (strictPartitionCount i) two
+    apply p _ hi ⟨i,ip,rfl⟩ (by omega) ⟨k,eq⟩
+  · intro test
+    rintro s hs ⟨i,ip,rfl⟩ proper
+    apply test i ip _ hs
+    by_contra! inv
+    have := strictCount_monotone inv
+    omega
+
+/-- A successor need only avoid divisibility by the finitely many eligible
+values at indices before m. There is no separate unboundedness hypothesis. -/
+theorem parent_of_index_successors
+    (step : ∀ m, 1679994603391465890567050011123964902522794012673156461548944386 ≤ strictPartitionCount m →
+      (∀ i, 0 < i → i < m → 1000 ≤ strictPartitionCount i →
+        2*strictPartitionCount i ≤ strictPartitionCount m → ¬ strictPartitionCount i ∣ strictPartitionCount m) →
+      ∃ j, m < j ∧ strictPartitionCount m < strictPartitionCount j ∧
+        strictPartitionCount j+20301 ≤ 2*strictPartitionCount m ∧
+        ∀ i, 0 < i → i < m → 1000 ≤ strictPartitionCount i →
+          ¬ strictPartitionCount i ∣ strictPartitionCount j) :
+    OMA.R_oeis_a000009_R10.H1 := by
+  apply parent_of_local_successors
+  intro a ha pa
+  obtain ⟨m,_,rfl⟩ := pa.1
+  obtain ⟨j,mj,lt,joined,test⟩ := step m ha
+    (fun i ip _ big small => pa.2.2 _ big ⟨i,ip,rfl⟩ small)
+  exact ⟨_,⟨⟨j,by omega,rfl⟩,by omega,(successor_primitive_iff m j lt (by omega)).mpr test⟩,lt,joined⟩
 
 /-- Splice the verified primitive prefix onto any primitive coverage proof
 for the remaining windows, then apply the merged representation theorem. -/
-theorem parent_of_tail_windows (tail : ∀ x : ℕ, 276023389780623855438063152323965130729038773266014399686921 ≤ x →
+theorem parent_of_tail_windows (tail : ∀ x : ℕ, 1679994603391465890567050011123964902522794012673156461548944387 ≤ x →
     ∃ a : ℕ, (∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ x ≤ a ∧ 2*a ≤ 3*x ∧
       ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a) :
     OMA.R_oeis_a000009_R10.H1 := by
   apply OMA.R_oeis_a000009_R10.H1_of_intervals
   intro n hn
   let x := n/2+1
-  have lo : 30020900773769688559070113208459541809716021698140392739697 ≤ x := by dsimp [x]; omega
-  obtain ⟨a,qa,left,right,prim⟩ := if h : 276023389780623855438063152323965130729038773266014399686921 ≤ x then tail x h
-    else primitive_prefix x lo (by omega)
+  by_cases early : n < 2*1679994603391465890567050011123964902522794012673156461548944386
+  · obtain ⟨a,⟨qa,big,prim⟩,lo,hi⟩ := finite_native_cover n hn early
+    exact ⟨a,qa,big,lo,by omega,by omega,prim⟩
+  have lo : 1679994603391465890567050011123964902522794012673156461548944387 ≤ x := by dsimp [x]; omega
+  obtain ⟨a,qa,left,right,prim⟩ := tail x lo
   exact ⟨a,qa,by omega,by dsimp [x] at right; omega,by dsimp [x] at left; omega,
     by dsimp [x] at left; omega,prim⟩
 
 /-- A single sequence of primitive values can cover the remaining tail. -/
 theorem parent_of_primitive_spacing (v : ℕ → ℕ) (inc : StrictMono v)
-    (initial : 276023389780623855438063152323965130729038773266014399686921 ≤ v 0 ∧ 2*v 0 ≤ 3*276023389780623855438063152323965130729038773266014399686921)
+    (initial : 1679994603391465890567050011123964902522794012673156461548944387 ≤ v 0 ∧ 2*v 0 ≤ 3*1679994603391465890567050011123964902522794012673156461548944387)
     (gaps : ∀ i, 2*v (i+1) ≤ 3*(v i+1))
     (primitive : ∀ i, (∃ m : ℕ, 0 < m ∧ v i = strictPartitionCount m) ∧
       ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ v i → ¬ s ∣ v i) :
@@ -687,7 +822,7 @@ theorem parent_of_primitive_spacing (v : ℕ → ℕ) (inc : StrictMono v)
 
 theorem main : H1 → H2 → OMA.R_oeis_a000009_R10.H1 := by
   intro supply pairs
-  let start := 276023389780623855438063152323965130729038773266014399686921
+  let start := 1679994603391465890567050011123964902522794012673156461548944387
   apply parent_of_tail_windows
   intro x hx
   obtain ⟨a,b,qa,qb,lo,ab,hi,clean⟩ := H1_iff_pair_supply.mp supply x hx
