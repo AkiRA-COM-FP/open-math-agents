@@ -42,3 +42,4 @@ theorem main : H1 → H2 → OMA.R_PerfectNumbers_odd_perfect_number_conjecture_
   · exact h2 n hperf hodd (by omega)
 
 end OMA.R_PerfectNumbers_odd_perfect_number_conjecture_R1_H3_R1_H2_R1
+-- ci: re-run check-proof
