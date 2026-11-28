@@ -782,25 +782,25 @@ theorem blocked_degree_intersection {I : Type} (R : I → I → Prop) (loop : �
     exact (proper a b ⟨ha,hb,r,g a,(allowed a).resolve_left ha,
       c ▸ (allowed b).resolve_left hb,ab,ba⟩ c).elim
 
-/-- A blocked assignment on C forces a prescribed edge outside any countable
+/-- A blocked assignment on C forces an edge matching any bounded assignment outside any countable
 family of closed neighbourhoods in a triangle-free ambient graph. -/
-private theorem blocked_escape_neighbours {I J : Type} [Countable J] (G : SimpleGraph I)
+private theorem blocked_bounded_escape {I J : Type} [Countable J] (G : SimpleGraph I)
     (free : G.CliqueFree 3) (C : Set I) (old : I → I → ℕ) (p : ℕ → ℕ)
     (bad : ∀ d : I → ℕ, ∃ a b, a ∈ C ∧ b ∈ C ∧ G.Adj a b ∧ d a = d b ∧ old a b = p (d a))
-    (centre : J → I) (m : ℕ) :
-    ∃ a b, a ∈ C ∧ b ∈ C ∧ G.Adj a b ∧ old a b = p m ∧
+    (centre : J → I) (f : I → ℕ) (m : ℕ) (cap : ∀ x, f x ≤ m) :
+    ∃ a b, a ∈ C ∧ b ∈ C ∧ G.Adj a b ∧ f a = f b ∧ old a b = p (f a) ∧
       (∀ j, a ≠ centre j ∧ ¬G.Adj (centre j) a) ∧
       (∀ j, b ≠ centre j ∧ ¬G.Adj (centre j) b) := by
   classical
   let := Encodable.ofCountable J
   let close (x : I) := ∃ j, x = centre j ∨ G.Adj (centre j) x
   let tag (x : I) (h : close x) : J × Bool := (h.choose,decide (x = centre h.choose))
-  let d (x : I) := if h : close x then m+1+Encodable.encode (tag x h) else m
+  let d (x : I) := if h : close x then m+1+Encodable.encode (tag x h) else f x
   obtain ⟨a,b,ha,hb,ab,same,hit⟩ := bad d
   have away x (hx : ¬close x) (j : J) : x ≠ centre j ∧ ¬G.Adj (centre j) x :=
     ⟨fun eq => hx ⟨j,Or.inl eq⟩,fun e => hx ⟨j,Or.inr e⟩⟩
   have inside x (hx : close x) : d x = m+1+Encodable.encode (tag x hx) := dif_pos hx
-  have outside x (hx : ¬close x) : d x = m := dif_neg hx
+  have outside x (hx : ¬close x) : d x = f x := dif_neg hx
   by_cases ca : close a <;> by_cases cb : close b
   · rw [inside a ca,inside b cb] at same
     have code : Encodable.encode (tag a ca) = Encodable.encode (tag b cb) := by omega
@@ -820,11 +820,14 @@ private theorem blocked_escape_neighbours {I J : Type} [Countable J] (G : Simple
       rw [←j] at e
       exact (free _ (is3Clique_triple_iff.mpr ⟨ca.choose_spec.resolve_left ac,e.resolve_left bc,ab⟩)).elim
   · rw [inside a ca,outside b cb] at same
+    have := cap b
     omega
   · rw [outside a ca,inside b cb] at same
+    have := cap a
     omega
-  · rw [outside a ca] at hit
-    exact ⟨a,b,ha,hb,ab,hit,away a ca,away b cb⟩
+  · rw [outside a ca,outside b cb] at same
+    rw [outside a ca] at hit
+    exact ⟨a,b,ha,hb,ab,same,hit,away a ca,away b cb⟩
 
 /-- Apply inside the surviving intersection of blocked_degree_intersection,
 using the triangle-free graph induced on the rim and p n = 4*n+2.
@@ -845,7 +848,8 @@ theorem blocked_induced_matching {I K : Type} [LinearOrder K] [WellFoundedLT K]
       ∀ i (lt : i < k) s t, f t ≠ prev i lt s ∧ ¬G.Adj (prev i lt s) (f t) := by
     let : Countable (Set.Iio k) := small k
     let centre (z : Set.Iio k × Bool) := prev z.1.val z.1.prop z.2
-    obtain ⟨a,b,ha,hb,ab,hit,aa,bb⟩ := blocked_escape_neighbours G free C old p bad centre (colour k)
+    obtain ⟨a,b,ha,hb,ab,_,hit,aa,bb⟩ := blocked_bounded_escape G free C old p bad centre
+      (fun _ => colour k) (colour k) (fun _ => le_rfl)
     refine ⟨(fun t => if t then b else a),⟨ha,hb,ab,hit⟩,?_⟩
     intro i lt s t
     cases t
@@ -861,6 +865,75 @@ theorem blocked_induced_matching {I K : Type} [LinearOrder K] [WellFoundedLT K]
   · intro i j lt s t
     rw [rule j]
     exact (choosePair j (fun z _ => e z)).choose_spec.2 i lt s t
+
+/-- Each finite palette has a finite obstruction outside any countably many
+closed neighbourhoods. Compactness is applied only to this finite palette. -/
+private theorem finite_palette_escape {I J : Type} [Countable J] (G : SimpleGraph I)
+    (free : G.CliqueFree 3) (C : Set I) (old : I → I → ℕ) (p : ℕ → ℕ)
+    (bad : ∀ d : I → ℕ, ∃ a b, a ∈ C ∧ b ∈ C ∧ G.Adj a b ∧ d a = d b ∧ old a b = p (d a))
+    (centre : J → I) (r : ℕ) (q : Fin (r+1) ↪ ℕ) :
+    ∃ S : Finset I, (∀ x ∈ S, x ∈ C ∧ ∀ j, x ≠ centre j ∧ ¬G.Adj (centre j) x) ∧
+      ∀ d : I → Fin (r+1), ∃ a ∈ S, ∃ b ∈ S, G.Adj a b ∧ d a = d b ∧ old a b = p (q (d a)) := by
+  classical
+  let A (x : I) := x ∈ C ∧ ∀ j, x ≠ centre j ∧ ¬G.Adj (centre j) x
+  let cap := Finset.univ.sup q
+  have bound (i : Fin (r+1)) : q i ≤ cap := Finset.le_sup (f := q) (Finset.mem_univ i)
+  by_contra h
+  have avoid (S : Finset I) : ∃ d : I → Fin (r+1), ∀ a ∈ S, A a → ∀ b ∈ S, A b →
+      G.Adj a b → d a = d b → old a b ≠ p (q (d a)) := by
+    by_contra! impossible
+    apply h
+    refine ⟨S.filter A,fun _ hx => (Finset.mem_filter.mp hx).2,?_⟩
+    intro d
+    obtain ⟨a,sa,ha,b,sb,hb,ab,same,hit⟩ := impossible d
+    exact ⟨a,Finset.mem_filter.mpr ⟨sa,ha⟩,b,Finset.mem_filter.mpr ⟨sb,hb⟩,ab,same,hit⟩
+  choose rule ok using avoid
+  let u := Ultrafilter.of (Filter.atTop : Filter (Finset I))
+  have stable (x : I) := bounded_value u (fun S => (rule S x).val) r
+    (Filter.Eventually.of_forall fun S => Nat.le_of_lt_succ (rule S x).isLt)
+  let d (x : I) : Fin (r+1) := ⟨(stable x).choose,Nat.lt_succ_of_le (stable x).choose_spec.1⟩
+  have agree x : ∀ᶠ S in u, rule S x = d x := (stable x).choose_spec.2.mono fun _ e => Fin.ext e
+  have fine (x : I) : ∀ᶠ (S : Finset I) in u, x ∈ S := Ultrafilter.of_le _ (Filter.eventually_finset_mem_atTop x)
+  obtain ⟨a,b,ha,hb,ab,eq,hit,aa,bb⟩ := blocked_bounded_escape G free C old p bad centre
+    (fun x => q (d x)) cap (fun x => bound (d x))
+  obtain ⟨S,sa,sb,ea,eb⟩ := ((fine a).and ((fine b).and ((agree a).and (agree b)))).exists
+  exact ok S a sa ⟨ha,aa⟩ b sb ⟨hb,bb⟩ ab (ea.trans ((q.injective eq).trans eb.symm)) (ea ▸ hit)
+
+/-- In a triangle-free blocked set, prescribe a nonempty finite palette at
+each stage below omega_1. There are mutually anticomplete finite sets such
+that every vertex assignment from the stage palette incurs a matching
+old-colour conflict on an edge inside that stage's set. -/
+theorem blocked_finite_palette_packing {I K : Type} [LinearOrder K] [WellFoundedLT K]
+    (small : ∀ k : K, (Set.Iio k).Countable) (G : SimpleGraph I) (free : G.CliqueFree 3)
+    (C : Set I) (old : I → I → ℕ) (p : ℕ → ℕ)
+    (bad : ∀ d : I → ℕ, ∃ a b, a ∈ C ∧ b ∈ C ∧ G.Adj a b ∧ d a = d b ∧ old a b = p (d a))
+    (r : K → ℕ) (q : ∀ k, Fin (r k+1) ↪ ℕ) :
+    ∃ S : K → Finset I, (∀ k, (∀ x ∈ S k, x ∈ C) ∧ ∀ d : I → Fin (r k+1),
+      ∃ a ∈ S k, ∃ b ∈ S k, G.Adj a b ∧ d a = d b ∧ old a b = p (q k (d a))) ∧
+      ∀ i j, i < j → ∀ x ∈ S i, ∀ y ∈ S j, y ≠ x ∧ ¬G.Adj x y := by
+  classical
+  let Past (k : K) := (i : K) → i < k → Finset I
+  have stage (k : K) (prev : Past k) : ∃ T : Finset I,
+      ((∀ x ∈ T, x ∈ C) ∧ ∀ d : I → Fin (r k+1), ∃ a ∈ T, ∃ b ∈ T,
+        G.Adj a b ∧ d a = d b ∧ old a b = p (q k (d a))) ∧
+      ∀ i (lt : i < k), ∀ x ∈ prev i lt, ∀ y ∈ T, y ≠ x ∧ ¬G.Adj x y := by
+    let : Countable (Set.Iio k) := small k
+    let J := (i : Set.Iio k) × ↥(prev i.val i.prop)
+    let centre (z : J) : I := z.2.val
+    obtain ⟨T,away,forces⟩ := finite_palette_escape G free C old p bad centre (r k) (q k)
+    refine ⟨T,⟨fun x hx => (away x hx).1,forces⟩,?_⟩
+    intro i lt x hx y hy
+    exact (away y hy).2 ⟨⟨i,lt⟩,⟨x,hx⟩⟩
+  let step (k : K) (prev : Past k) := (stage k prev).choose
+  let S : K → Finset I := wellFounded_lt.fix step
+  have rule (k : K) : S k = step k (fun i _ => S i) := WellFounded.fix_eq _ _ k
+  refine ⟨S,?_,?_⟩
+  · intro k
+    rw [rule k]
+    exact (stage k _).choose_spec.1
+  · intro i j lt
+    rw [rule j]
+    exact (stage j (fun z _ => S z)).choose_spec.2 i lt
 
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
