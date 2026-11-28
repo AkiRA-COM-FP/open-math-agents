@@ -49,6 +49,8 @@ def H2 : Prop :=
     (3 ≤ {v | ∃ f : G ≃g G, f r=v}.ncard) →
     (∀ (k : ℕ), 2 ≤ k → ∀ (c : (cycleGraph (2^k)).Copy G) (x y : Fin (2^k)),
       (x=y ∨ 3 ≤ k) → ¬ (∀ j, (∃ f : G ≃g G, f r=c j) ↔ j≠x ∧ j≠y)) →
+    (∀ (k : ℕ), 3 ≤ k → ∀ (c : (cycleGraph (2^k)).Copy G) (B : Finset (Fin (2^k))),
+      B.card = 3 → ¬ (∀ j, (∃ f : G ≃g G, f r = c j) ↔ j ∉ B)) →
     (let dyadic := fun d : ℕ => ∃ k : ℕ, 2 ≤ k ∧ d = 2^k
      let near := fun d : ℕ => 3 ≤ d ∧ ∃ k : ℕ, 2 ≤ k ∧ (d+1=2^k ∨ d+2=2^k)
      ∀ (x y : V) (A B P : List V), (x::y::(A++B++P)).Nodup →
@@ -89,14 +91,12 @@ theorem exactRing {V : Type*} (G : SimpleGraph V) (l : List V)
   intro v
   exact List.mem_iff_get
 
-/-- A simple path spanning a proper automorphism orbit in a connected cubic
-graph closes up as soon as it has at least three vertices. -/
-theorem orbitPathCloses {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+private theorem orbitPathEndpoints {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
     (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
     (proper : ∃ v, ∀ f : G ≃g G, f r ≠ v)
     (l : List V) (large : 3 ≤ l.length) (distinct : l.Nodup)
     (chain : l.IsChain G.Adj) (covers : ∀ v, v ∈ l ↔ ∃ f : G ≃g G, f r = v) :
-    ∃ c : (cycleGraph l.length).Copy G, r ∈ Set.range c := by
+    ∀ h : l ≠ [], G.Adj (l.getLast h) (l.head h) := by
   classical
   have root : r ∈ l := (covers _).mpr ⟨SimpleGraph.Iso.refl, rfl⟩
   have invariant (f : G ≃g G) (v : V) : f v ∈ l ↔ v ∈ l := by
@@ -183,8 +183,19 @@ theorem orbitPathCloses {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel
   have close (h : l≠[]) : G.Adj (l.getLast h) (l.head h) := by
     subst j
     simpa [e,last,i₀,List.getLast_eq_getElem,List.head_eq_getElem] using edge.symm
-  obtain ⟨c,hc⟩ := exactRing G l large distinct chain close
-  exact ⟨c,(hc _).mp root⟩
+  exact close
+
+/-- A simple path spanning a proper automorphism orbit in a connected cubic
+graph closes up as soon as it has at least three vertices. -/
+theorem orbitPathCloses {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
+    (proper : ∃ v, ∀ f : G ≃g G, f r ≠ v)
+    (l : List V) (large : 3 ≤ l.length) (distinct : l.Nodup)
+    (chain : l.IsChain G.Adj) (covers : ∀ v, v ∈ l ↔ ∃ f : G ≃g G, f r = v) :
+    ∃ c : (cycleGraph l.length).Copy G, r ∈ Set.range c := by
+  obtain ⟨c,h⟩ := exactRing G l large distinct chain (orbitPathEndpoints G r conn cubic proper l
+    large distinct chain covers)
+  exact ⟨c,(h _).mp ((covers r).mpr ⟨SimpleGraph.Iso.refl,rfl⟩)⟩
 
 /-- A cyclic interval of orbit vertices can be read from any starting label.
 If its length is one or two below a power of two, closing the interval gives
@@ -497,6 +508,465 @@ theorem twoOmissionsSolve {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableR
       simp [a,label,i,show ¬0 < t from h]
       dsimp [t] at h
       omega
+
+/-- A cubic graph cannot share an outside neighbor between two vertices of
+an orbit of order coprime to six if the orbit contains an edge. -/
+theorem privateOutsideNeighbor {V : Type} [Fintype V] (G : SimpleGraph V)
+    [DecidableRel G.Adj] (r : V) (cubic : ∀ v, G.degree v = 3)
+    (O : Set V) (orb : ∀ v, v ∈ O ↔ ∃ f : G ≃g G, f r = v)
+    (odd : ¬ 2 ∣ O.ncard) (third : ¬ 3 ∣ O.ncard)
+    (edge : ∃ a ∈ O, ∃ b ∈ O, G.Adj a b)
+    {z x y : V} (hz : z ∉ O) (hx : x ∈ O) (hy : y ∈ O)
+    (zx : G.Adj z x) (zy : G.Adj z y) : x = y := by
+  classical
+  by_contra ne
+  let T : Set V := {v | ∃ f : G ≃g G, f z = v}
+  have inv (r₀ : V) (S : Set V) (hS : ∀ v, v ∈ S ↔ ∃ f : G ≃g G, f r₀ = v)
+      (f : G ≃g G) (v : V) : v ∈ S ↔ f v ∈ S := by
+    rw [hS,hS]
+    constructor
+    · rintro ⟨g,h⟩
+      exact ⟨g.trans f,by change f (g r₀) = f v; rw [h]⟩
+    · rintro ⟨g,h⟩
+      exact ⟨g.trans f.symm,by change f.symm (g r₀) = v; rw [h,f.symm_apply_apply]⟩
+  have hT (v) : v ∈ T ↔ ∃ f : G ≃g G, f z = v := Iff.rfl
+  have move (a b : V) (ha : a ∈ O) (hb : b ∈ O) : ∃ f : G ≃g G, f a = b := by
+    obtain ⟨f,hf⟩ := (orb _).mp ha
+    obtain ⟨g,hg⟩ := (orb _).mp hb
+    exact ⟨f.symm.trans g,by change g (f.symm a) = b; rw [←hf,f.symm_apply_apply,hg]⟩
+  let N (S : Set V) (v : V) := S.toFinset.filter (G.Adj v)
+  have transfer (s : V) (S : Set V) (hS : ∀ v, v ∈ S ↔ ∃ f : G ≃g G, f s = v)
+      (f : G ≃g G) (v : V) : (N S (f v)).card = (N S v).card := by
+    have eq : (N S v).map f.toEquiv.toEmbedding = N S (f v) := by
+      ext w
+      obtain ⟨u,rfl⟩ := f.surjective w
+      constructor
+      · intro h
+        obtain ⟨b,hb,eq⟩ := Finset.mem_map.mp h
+        obtain rfl : b = u := f.injective eq
+        exact Finset.mem_filter.mpr ⟨Set.mem_toFinset.mpr ((inv s S hS f b).mp
+          (Set.mem_toFinset.mp (Finset.mem_filter.mp hb).1)),f.map_rel_iff.mpr (Finset.mem_filter.mp hb).2⟩
+      · intro h
+        exact Finset.mem_map.mpr ⟨u,Finset.mem_filter.mpr ⟨Set.mem_toFinset.mpr
+          ((inv s S hS f u).mpr (Set.mem_toFinset.mp (Finset.mem_filter.mp h).1)),
+          f.map_rel_iff.mp (Finset.mem_filter.mp h).2⟩,rfl⟩
+    rw [←eq,Finset.card_map]
+  let h := (N O x).card
+  let d := (N O z).card
+  have reg (a : V) (ha : a ∈ O) : (N O a).card = h := by
+    obtain ⟨f,rfl⟩ := move x a hx ha
+    exact transfer r O orb f x
+  have uniform (a : V) (ha : a ∈ T) : (N O a).card = d := by
+    obtain ⟨f,rfl⟩ := ha
+    exact transfer r O orb f z
+  have internal (a : O) : (G.induce O).degree a = h := by
+    rw [←reg a a.property,←card_neighborFinset_eq_degree,←Finset.card_map
+      (f := Function.Embedding.subtype (· ∈ O)),map_neighborFinset_induce]
+    congr 1
+    ext v
+    simp [N,and_comm]
+  have evenSum := (G.induce O).sum_degrees_eq_twice_card_edges
+  simp only [internal,Finset.sum_const,Finset.card_univ,smul_eq_mul] at evenSum
+  have size : Fintype.card O = O.ncard := by rw [Set.ncard_eq_toFinset_card',Set.toFinset_card]
+  have pos : 0 < h := by
+    obtain ⟨a,ha,b,hb,ab⟩ := edge
+    rw [←reg a ha]
+    exact Finset.card_pos.mpr ⟨b,by simp [N,hb,ab]⟩
+  have notOne : h ≠ 1 := by
+    intro hh
+    apply odd
+    exact ⟨_,by simpa [size,hh] using evenSum⟩
+  have dis (v : V) (hv : v ∈ T) : v ∉ O := by
+    obtain ⟨f,rfl⟩ := hv
+    exact fun h => hz ((inv r O orb f z).mpr h)
+  have sub (v : V) (S : Set V) : N S v ⊆ G.neighborFinset v := by
+    intro a ha
+    exact (G.mem_neighborFinset _ _).mpr (Finset.mem_filter.mp ha).2
+  have boundary : (N T x).card = 1 := by
+    have disjoint : Disjoint (N O x) (N T x) := by
+      apply Finset.disjoint_left.mpr
+      intro v hv hw
+      exact dis v (by simpa using (Finset.mem_filter.mp hw).1)
+        (by simpa using (Finset.mem_filter.mp hv).1)
+    have bound := Finset.card_le_card (Finset.union_subset (sub x O) (sub x T))
+    rw [Finset.card_union_of_disjoint disjoint,card_neighborFinset_eq_degree,cubic,reg x hx] at bound
+    have mem : z ∈ T := ⟨SimpleGraph.Iso.refl,rfl⟩
+    have lower := Finset.card_pos.mpr (show (N T x).Nonempty from ⟨z,by simp [N,mem,zx.symm]⟩)
+    omega
+  have one (a : V) (ha : a ∈ O) : (N T a).card = 1 := by
+    obtain ⟨f,rfl⟩ := move x a hx ha
+    exact (transfer z T hT f x).trans boundary
+  have small : d ≤ 3 := (Finset.card_le_card (sub z O)).trans_eq (cubic z)
+  have pair : ({x,y} : Finset V) ⊆ N O z := by
+    intro a ha
+    rcases Finset.mem_insert.mp ha with rfl|ha
+    · simp [N,hx,zx]
+    · obtain rfl := Finset.mem_singleton.mp ha
+      simp [N,hy,zy]
+  have two : 2 ≤ d := by simpa [ne,d] using Finset.card_le_card pair
+  have count : O.ncard = T.toFinset.card * d := calc
+    O.ncard = ∑ a ∈ O.toFinset, (N T a).card := by
+      rw [Finset.sum_congr rfl (g := fun _ => 1) (fun a ha => one a (by simpa using ha))]
+      simp [Set.ncard_eq_toFinset_card']
+    _ = ∑ b ∈ T.toFinset, (N O b).card := by
+      simp only [N,Finset.card_filter]
+      rw [Finset.sum_comm]
+      apply Finset.sum_congr rfl
+      intro b _
+      apply Finset.sum_congr rfl
+      intro a _
+      simp [adj_comm]
+    _ = _ := by
+      rw [Finset.sum_congr rfl (g := fun _ => d) (fun b hb => uniform b (by simpa using hb))]
+      simp
+  have divides : d ∣ O.ncard := ⟨_,count.trans (Nat.mul_comm ..)⟩
+  rcases (show d=2 ∨ d=3 by omega) with hd|hd
+  · exact odd (hd ▸ divides)
+  · exact third (hd ▸ divides)
+
+/-- On a dyadic cycle, any three labels outside the forced root orbit must
+constitute a single cyclic interval. -/
+theorem threeOmissionsConsecutive {V : Type} [Fintype V] (G : SimpleGraph V)
+    [DecidableRel G.Adj] (r : V) (cubic : ∀ v, G.degree v = 3)
+    {k : ℕ} (hk : 3 ≤ k) (c : (cycleGraph (2^k)).Copy G)
+    (hit : ∀ f : G ≃g G, f r ∈ Set.range c)
+    (B : Finset (Fin (2^k))) (size : B.card = 3)
+    (omits : ∀ j, (∃ f : G ≃g G, f r = c j) ↔ j ∉ B) :
+    ∃ q ∈ B, q-1 ∈ B ∧ q+1 ∈ B := by
+  classical
+  have big : 8 ≤ 2^k := Nat.pow_le_pow_right (by decide : 0 < 2) hk
+  let O : Set V := {v | ∃ f : G ≃g G, f r = v}
+  have covers : Bᶜ.map c.toEmbedding = O.toFinset := by
+    ext v
+    simp only [Finset.mem_map,Finset.mem_compl,Set.mem_toFinset]
+    constructor
+    · rintro ⟨j,hj,rfl⟩
+      exact (omits j).mpr hj
+    · rintro ⟨f,rfl⟩
+      obtain ⟨j,hj⟩ := hit f
+      exact ⟨j,(omits j).mp ⟨f,hj.symm⟩,hj⟩
+  have order : O.ncard + 3 = 2^k := by
+    rw [Set.ncard_eq_toFinset_card',←covers,Finset.card_map,Finset.card_compl,Fintype.card_fin,size]
+    omega
+  have next (i : Fin (2^k)) : G.Adj (c i) (c (i+1)) := by
+    apply c.toHom.map_rel'
+    rw [cycleGraph_adj']
+    right
+    simp [Nat.mod_eq_of_lt (show 1 < 2^k by omega)]
+  have touch : ∃ i : Fin (2^k), i ∉ B ∧ i+1 ∉ B := by
+    by_contra! no
+    let shift : Fin (2^k) ↪ Fin (2^k) := ⟨(·+1),fun _ _ => add_right_cancel⟩
+    have sub : Bᶜ.map shift ⊆ B := by
+      intro j hj
+      obtain ⟨i,hi,rfl⟩ := Finset.mem_map.mp hj
+      exact no i (Finset.mem_compl.mp hi)
+    have h := Finset.card_le_card sub
+    rw [Finset.card_map,Finset.card_compl,Fintype.card_fin,size] at h
+    omega
+  obtain ⟨i,hi,hj⟩ := touch
+  have internal : ∃ a ∈ O, ∃ b ∈ O, G.Adj a b :=
+    ⟨_,(omits _).mpr hi,_,(omits _).mpr hj,next i⟩
+  have odd : ¬ 2 ∣ O.ncard := by
+    have he : 2 ∣ 2^k := dvd_pow_self 2 (by omega)
+    omega
+  have third : ¬ 3 ∣ O.ncard := by
+    have hp : ¬ 3 ∣ 2^k := fun h =>
+      (by decide : ¬ 3 ∣ 2) (Nat.prime_three.dvd_of_dvd_pow h)
+    omega
+  have nonisolated (j : Fin (2^k)) (hj : j ∈ B) : j-1 ∈ B ∨ j+1 ∈ B := by
+    by_contra! isolated
+    have left := (omits _).mpr isolated.1
+    have right := (omits _).mpr isolated.2
+    have outside : c j ∉ O := fun h => (omits j).mp h hj
+    have zl : G.Adj (c j) (c (j-1)) := by simpa using (next (j-1)).symm
+    have eq := c.injective (privateOutsideNeighbor G r cubic O (fun _ => Iff.rfl)
+      odd third internal outside left right zl (next j))
+    have small : (1+1 : Fin (2^k)) = 0 := by
+      have h := sub_eq_iff_eq_add.mp eq
+      apply add_left_cancel (a := j)
+      simpa [add_assoc] using h.symm
+    have h := congrArg Fin.val small
+    simp only [Fin.val_add,Fin.val_one',Fin.val_zero] at h
+    rw [Nat.mod_eq_of_lt (show 1 < 2^k by omega),Nat.mod_eq_of_lt (by omega)] at h
+    omega
+  obtain ⟨a,ha⟩ := Finset.card_pos.mp (show 0 < B.card by omega)
+  obtain ⟨u,hu,hv⟩ : ∃ u ∈ B, u+1 ∈ B := by
+    rcases nonisolated a ha with h|h
+    · exact ⟨a-1,h,by simpa using ha⟩
+    · exact ⟨a,ha,h⟩
+  have extra : ∃ w ∈ B, w ≠ u ∧ w ≠ u+1 := by
+    by_contra! h
+    have sub : B ⊆ {u,u+1} := by
+      intro w hw
+      by_cases eq : w=u
+      · simp [eq]
+      · simp [h w hw eq]
+    have bound := Finset.card_le_card sub
+    have pair := Finset.card_insert_le u ({u+1} : Finset _)
+    simp only [Finset.card_singleton] at pair
+    omega
+  obtain ⟨w,hw,hwu,hwv⟩ := extra
+  have all : B = {w,u,u+1} := by
+    symm
+    apply Finset.eq_of_subset_of_card_le
+    · simpa [Finset.insert_subset_iff] using And.intro hw (And.intro hu hv)
+    · have hne : u ≠ u+1 := by simp [show k ≠ 0 by omega]
+      simp [size,hwu,hwv,hne]
+  have decideSide := nonisolated w hw
+  rw [all] at decideSide
+  simp only [Finset.mem_insert,Finset.mem_singleton] at decideSide
+  rcases decideSide with (h|h|h)|(h|h|h)
+  · exact False.elim ((by simp [show k ≠ 0 by omega] : w-1 ≠ w) h)
+  · exact False.elim (hwv (sub_eq_iff_eq_add.mp h))
+  · exact ⟨u+1,hv,by simpa using hu,by rw [←sub_eq_iff_eq_add.mp h]; exact hw⟩
+  · exact False.elim ((by simp [show k ≠ 0 by omega] : w+1 ≠ w) h)
+  · exact ⟨u,hu,by simpa [←h] using hw,hv⟩
+  · exact False.elim (hwu (add_right_cancel h))
+
+/-- On an odd orbit, copies of an edge carrying an exterior four-edge
+detour must meet. Comparing the two detours forces a short cycle. -/
+private theorem oddDetour {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (r : V) (O : Set V) (orb : ∀ v, v ∈ O ↔ ∃ f : G ≃g G, f r = v)
+    (cubic : ∀ v, G.degree v = 3) (odd : ¬ 2 ∣ O.ncard) (large : 3 < O.ncard)
+    (forced : ∀ k : ℕ, 2 ≤ k → ∀ c : (cycleGraph (2^k)).Copy G, ∀ f : G ≃g G, f r ∈ Set.range c)
+    (six : ∀ c : (cycleGraph 6).Copy G, ∀ f : G ≃g G, f r ∉ Set.range c)
+    (a₀ b₀ : O) (edge : G.Adj a₀ b₀) (p q s : V)
+    (hp : p ∉ O) (hq : q ∉ O) (hs : s ∉ O) (ps : p ≠ s)
+    (ap : G.Adj a₀ p) (pq : G.Adj p q) (qs : G.Adj q s) (sb : G.Adj s b₀) : False := by
+  classical
+  let J : SimpleGraph O := {
+    Adj := fun a b => G.Adj a b ∧ ∃ p q s : V, p ∉ O ∧ q ∉ O ∧ s ∉ O ∧ p ≠ s ∧
+      G.Adj a p ∧ G.Adj p q ∧ G.Adj q s ∧ G.Adj s b
+    symm := ⟨by
+      rintro a b ⟨e,p,q,s,hp,hq,hs,ps,h₁,h₂,h₃,h₄⟩
+      exact ⟨e.symm,s,q,p,hs,hq,hp,ps.symm,h₄.symm,h₃.symm,h₂.symm,h₁.symm⟩⟩
+    loopless := ⟨fun _ h => h.1.ne rfl⟩ }
+  have pos (a : O) : 0 < J.degree a := by
+    obtain ⟨f,hf⟩ := (orb _).mp a₀.property
+    obtain ⟨g,hg⟩ := (orb _).mp a.property
+    let t := f.symm.trans g
+    have move : t a₀ = a := by change g (f.symm a₀) = a; rw [←hf,f.symm_apply_apply,hg]
+    have inv (x : V) : t x ∈ O ↔ x ∈ O := by
+      rw [orb,orb]
+      constructor
+      · rintro ⟨w,h⟩
+        exact ⟨w.trans t.symm,by change t.symm (w r) = x; rw [h,t.symm_apply_apply]⟩
+      · rintro ⟨w,h⟩
+        exact ⟨w.trans t,by change t (w r) = t x; rw [h]⟩
+    apply (J.degree_pos_iff_exists_adj a).mpr
+    refine ⟨⟨t b₀,(inv _).mpr b₀.property⟩,?_,t p,t q,t s,fun h => hp ((inv _).mp h),
+      fun h => hq ((inv _).mp h),fun h => hs ((inv _).mp h),t.injective.ne ps,?_,
+      t.map_rel_iff.mpr pq,t.map_rel_iff.mpr qs,t.map_rel_iff.mpr sb⟩
+    · exact move ▸ t.map_rel_iff.mpr edge
+    · exact move ▸ t.map_rel_iff.mpr ap
+  have branching : ∃ a, 1 < J.degree a := by
+    by_contra! h
+    have all (a : O) : J.degree a = 1 := by have := pos a; have := h a; omega
+    have count := J.sum_degrees_eq_twice_card_edges
+    simp only [all,Finset.sum_const,Finset.card_univ,smul_eq_mul,mul_one,Set.fintypeCard_eq_ncard] at count
+    exact odd ⟨_,count⟩
+  obtain ⟨a,ha⟩ := branching
+  obtain ⟨b,hb,c,hc,bc⟩ := Finset.one_lt_card.mp ha
+  obtain ⟨ab,u,v,w,hu,hv,hw,uw,au,uv,vw,wb⟩ := (J.mem_neighborFinset a b).mp hb
+  obtain ⟨ac,U,V',W,hU,hV,hW,UW,aU,UV,VW,Wc⟩ := (J.mem_neighborFinset a c).mp hc
+  have hbc : (b : V) ≠ c := fun h => bc (Subtype.ext h)
+  have same : U = u := by
+    by_contra ne
+    have sub : ({(b:V),(c:V),U,u} : Finset V) ⊆ G.neighborFinset a := by
+      intro y hy
+      simp only [Finset.mem_insert,Finset.mem_singleton] at hy
+      rcases hy with h|h|h|h <;> subst y <;> simpa
+    have bound := Finset.card_le_card sub
+    have out (z : V) (hz : z ∉ O) (j : O) : (j : V) ≠ z := fun eq => hz (eq ▸ j.property)
+    simp [hbc,out _ hU,out _ hu,ne,cubic] at bound
+  subst U
+  have extra : ∃ y ∈ O, y ≠ a ∧ y ≠ b ∧ y ≠ c := by
+    by_contra! no
+    have sub : O ⊆ ({(a:V),(b:V),(c:V)} : Set V) := by
+      intro y hy
+      simp only [Set.mem_insert_iff,Set.mem_singleton_iff]
+      by_cases e : y=a
+      · exact Or.inl e
+      by_cases f : y=b
+      · exact Or.inr (Or.inl f)
+      exact Or.inr (Or.inr (no y hy e f))
+    have bound := Set.ncard_le_ncard sub
+    have card : ({(a:V),(b:V),(c:V)} : Set V).ncard = 3 := by simp [ab.ne,ac.ne,hbc]
+    omega
+  obtain ⟨y,hy,ya,yb,yc⟩ := extra
+  have out {z : V} (hz : z ∉ O) (j : O) : (j : V) ≠ z := fun eq => hz (eq ▸ j.property)
+  have noty {z : V} (hz : z ∉ O) : y ≠ z := fun eq => hz (eq ▸ hy)
+  have reject (l : List V) (sz : l.length=4 ∨ l.length=6 ∨ l.length=8) (hl : l.Nodup)
+      (path : l.IsChain G.Adj) (close : ∀ h : l ≠ [], G.Adj (l.getLast h) (l.head h))
+      (contains : (a:V) ∈ l) (missing : y ∉ l) : False := by
+    obtain ⟨d,hd⟩ := exactRing G l (by rcases sz with h|h|h <;> omega) hl path close
+    obtain ⟨f,hf⟩ := (orb _).mp hy
+    obtain ⟨g,hg⟩ := (orb _).mp a.property
+    rcases sz with h|h|h
+    · have hit : f r ∈ Set.range d := by
+        revert d
+        rw [h]
+        exact fun d _ => forced 2 (by decide) d f
+      exact missing ((hd _).mpr (hf ▸ hit))
+    · have hit := (hd _).mp contains
+      rw [←hg] at hit
+      revert d hit
+      rw [h]
+      exact fun d _ h' => six d g h'
+    · have hit : f r ∈ Set.range d := by
+        revert d
+        rw [h]
+        exact fun d _ => forced 3 (by decide) d f
+      exact missing ((hd _).mpr (hf ▸ hit))
+  have outside := And.intro (out hu) (And.intro (out hv) (And.intro (out hw) (And.intro (out hV) (out hW))))
+  obtain ⟨nu,nv,nw,nV,nW⟩ := outside
+  by_cases ww : w = W
+  · subst W
+    apply reject [a,b,w,c] (by simp) _ _ _ (by simp) (by simp [ya,yb,yc,noty hw])
+    · simp [ab.ne,ac.ne,hbc,nw,Ne.symm (nw c)]
+    · simp [ab,wb.symm,Wc]
+    · simpa using ac.symm
+  by_cases vW : v = W
+  · subst W
+    apply reject [a,u,v,c] (by simp) _ _ _ (by simp) (by simp [ya,yc,noty hu,noty hv])
+    · simp [ac.ne,nu,nv,uv.ne,Ne.symm (nu c),Ne.symm (nv c)]
+    · simp [au,uv,Wc]
+    · simpa using ac.symm
+  by_cases Vw : V' = w
+  · subst V'
+    apply reject [a,u,w,b] (by simp) _ _ _ (by simp) (by simp [ya,yb,noty hu,noty hw])
+    · simp [ab.ne,nu,nw,uw,Ne.symm (nu b),Ne.symm (nw b)]
+    · simp [au,UV,wb]
+    · simpa using ab.symm
+  by_cases vv : v = V'
+  · subst V'
+    apply reject [a,b,w,v,W,c] (by simp) _ _ _ (by simp) (by simp [ya,yb,yc,noty hw,noty hv,noty hW])
+    · simp [ab.ne,ac.ne,hbc,nw,nv,nW,ww,vW,vw.ne.symm,Ne.symm (nw c),Ne.symm (nv c),Ne.symm (nW c)]
+    · simp [ab,wb.symm,vw.symm,VW,Wc]
+    · simpa using ac.symm
+  apply reject [a,b,w,v,u,V',W,c] (by simp) _ _ _ (by simp)
+    (by simp [ya,yb,yc,noty hu,noty hv,noty hw,noty hV,noty hW])
+  · simp [ab.ne,ac.ne,hbc,nw,nv,nW,nu,nV,ww,vW,vv,Ne.symm Vw,vw.ne.symm,uw.symm,
+      uv.ne.symm,UW,UV.ne,VW.ne,Ne.symm (nw c),Ne.symm (nv c),Ne.symm (nu c),Ne.symm (nV c),Ne.symm (nW c)]
+  · simp [ab,wb.symm,vw.symm,uv.symm,UV,VW,Wc]
+  · simpa using ac.symm
+
+section
+
+open Fin.NatCast
+/-- Three omissions in any positions are incompatible with the forced-orbit
+and no-rooted-hexagon assumptions. -/
+theorem threeOmissionsSolve {V : Type} [Fintype V] (G : SimpleGraph V)
+    [DecidableRel G.Adj] (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
+    (proper : ∃ v, ∀ f : G ≃g G, f r ≠ v)
+    (forced : ∀ k : ℕ, 2 ≤ k → ∀ c : (cycleGraph (2^k)).Copy G, ∀ f : G ≃g G, f r ∈ Set.range c)
+    (six : ∀ c : (cycleGraph 6).Copy G, ∀ f : G ≃g G, f r ∉ Set.range c)
+    {k : ℕ} (hk : 3 ≤ k) (c : (cycleGraph (2^k)).Copy G)
+    (B : Finset (Fin (2^k))) (size : B.card = 3)
+    (omits : ∀ j, (∃ f : G ≃g G, f r = c j) ↔ j ∉ B) : False := by
+  classical
+  let n := 2^k
+  have big : 8 ≤ n := Nat.pow_le_pow_right (by decide : 0 < 2) hk
+  let : NeZero n := ⟨by omega⟩
+  obtain ⟨q,hq,hl,hr⟩ := threeOmissionsConsecutive G r cubic hk c (forced k (by omega) c) B size omits
+  let start := q-1
+  let F (i : ℕ) := c ((i : Fin n)+start)
+  let O : Set V := {v | ∃ f : G ≃g G, f r = v}
+  have inj (i j : ℕ) (hi : i < n) (hj : j < n) (h : F i = F j) : i = j := by
+    have h' := congrArg Fin.val (add_right_cancel (c.injective h) : (i : Fin n) = j)
+    simpa [Fin.val_natCast,Nat.mod_eq_of_lt hi,Nat.mod_eq_of_lt hj] using h'
+  have zero : (0 : Fin n)+start = q-1 := zero_add _
+  have one : (1 : Fin n)+start = q := by dsimp [start]; abel
+  have two : (2 : Fin n)+start = q+1 := by dsimp [start]; rw [show (2 : Fin n)=1+1 by norm_num]; abel
+  have mem (i : ℕ) (hi : i < n) : F i ∈ O ↔ 3 ≤ i := by
+    change (∃ f : G ≃g G, f r = c _) ↔ _
+    rw [omits]
+    have distinct (i j : ℕ) (hi : i < n) (hj : j < n) (h : i ≠ j) :
+        (i : Fin n)+start ≠ (j : Fin n)+start := fun eq => h (inj i j hi hj (congrArg c eq))
+    have h01 := distinct 0 1 (by omega) (by omega) (by decide)
+    have h02 := distinct 0 2 (by omega) (by omega) (by decide)
+    have h12 := distinct 1 2 (by omega) (by omega) (by decide)
+    have setEq : B = {(0 : Fin n)+start,1+start,2+start} := by
+      symm
+      apply Finset.eq_of_subset_of_card_le
+      · simpa [Finset.insert_subset_iff,zero,one,two] using And.intro hl (And.intro hq hr)
+      · simp only [Nat.cast_zero,Nat.cast_one,Nat.cast_ofNat] at h01 h02 h12
+        rw [size,Finset.card_insert_of_notMem,Finset.card_insert_of_notMem,Finset.card_singleton]
+        · exact Finset.notMem_singleton.mpr h12
+        · exact fun h => (Finset.mem_insert.mp h).elim h01 (fun e => h02 (Finset.mem_singleton.mp e))
+    rw [setEq]
+    simp only [Finset.mem_insert,Finset.mem_singleton,not_or]
+    constructor
+    · rintro ⟨a,b,d⟩
+      by_contra! low
+      interval_cases i <;> simp_all
+    · intro h
+      exact ⟨distinct i 0 hi (by omega) (by omega),distinct i 1 hi (by omega) (by omega),
+        distinct i 2 hi (by omega) (by omega)⟩
+  have next (i : ℕ) : G.Adj (F i) (F (i+1)) := by
+    apply c.toHom.map_rel'
+    rw [cycleGraph_adj']
+    right
+    simp [Nat.cast_add,add_sub_add_right_eq_sub,show 0 < k by omega]
+  let m := n-3
+  let f (j : Fin m) := F (j.val+3)
+  let l := List.ofFn f
+  have len : l.length = m := List.length_ofFn
+  have fit (j : Fin m) : j.val+3 < n := by have := j.isLt; dsimp [m] at this; omega
+  have clean : l.Nodup := List.nodup_ofFn_ofInjective (by
+    intro i j h
+    have eq := inj _ _ (fit i) (fit j) h
+    exact Fin.ext (by omega))
+  have path : l.IsChain G.Adj := by
+    apply List.isChain_iff_getElem.mpr
+    intro i hi
+    simpa [l,f,Nat.add_assoc,Nat.add_comm,Nat.add_left_comm] using next (i+3)
+  have covers (v : V) : v ∈ l ↔ v ∈ O := by
+    rw [show l = List.ofFn f from rfl,List.mem_ofFn']
+    constructor
+    · rintro ⟨j,rfl⟩
+      exact (mem _ (fit j)).mpr (by omega)
+    · rintro ⟨g,rfl⟩
+      obtain ⟨j,hj⟩ := forced k (by omega) c g
+      let i := (j-start).val
+      have eq : F i = g r := by
+        change c (((j-start).val : Fin n)+start) = g r
+        simpa using hj
+      have hi : i < n := (j-start).isLt
+      have lower := (mem i hi).mp (eq ▸ (show g r ∈ O from ⟨g,rfl⟩))
+      refine ⟨⟨i-3,by dsimp [m]; omega⟩,?_⟩
+      change F (i-3+3) = g r
+      rwa [Nat.sub_add_cancel lower]
+  have ml : 3 ≤ m := by dsimp [m]; omega
+  have ne : l ≠ [] := List.length_pos_iff.mp (by omega)
+  have e := orbitPathEndpoints G r conn cubic proper l (by omega) clean path covers ne
+  have last : G.Adj (F (n-1)) (F 3) := by
+    rw [List.getLast_eq_getElem,List.head_eq_getElem] at e
+    simpa [l,f,show m-1+3 = n-1 by dsimp [m]; omega] using e
+  have endStep := next (n-1)
+  have wrap : F n = F 0 := by simp [F]
+  rw [show n-1+1 = n by omega,wrap] at endStep
+  have siz : O.ncard = m := by
+    have eq : O.toFinset = l.toFinset := by ext v; simpa using (covers v).symm
+    rw [Set.ncard_eq_toFinset_card',eq,List.toFinset_card_of_nodup clean,len]
+  have odd : ¬ 2 ∣ O.ncard := by
+    have he : 2 ∣ 2^k := dvd_pow_self 2 (by omega)
+    change 2 ∣ n at he
+    dsimp [m] at siz
+    omega
+  apply oddDetour G r O (fun _ => Iff.rfl) cubic odd (by dsimp [m] at siz; omega)
+    forced six ⟨F (n-1),(mem (n-1) (by omega)).mpr (by omega)⟩ ⟨F 3,(mem 3 (by omega)).mpr (by omega)⟩
+    last (F 0) (F 1) (F 2)
+  · simp [mem 0 (by omega)]
+  · simp [mem 1 (by omega)]
+  · simp [mem 2 (by omega)]
+  · exact fun eq => (by decide : (0:ℕ) ≠ 2) (inj _ _ (by omega) (by omega) eq)
+  · exact endStep
+  · exact next 0
+  · exact next 1
+  · exact next 2
+
+end
 
 /-- Two paths from x to y with disjoint interiors give a cycle whose
 vertex set is exactly their union. Lists contain only interior vertices. -/
@@ -1268,6 +1738,9 @@ theorem main : H1 → H2 → OMA.R_Erdos64_erdos_64_R1_H1_R1_H1_R2.H2 := by
       simpa using omits j
     · exact unsolved (twoOmissionsSolve G r cubic (valid.resolve_left eq)
         c x y eq (images k hk c) omits)
+  · intro k hk c B size omits
+    exact threeOmissionsSolve G r conn cubic proper images (away 6 (Or.inr rfl))
+      hk c B size omits
   dsimp only
   intro x y A B P clean paths base
   obtain ⟨miss,both⟩ := rule x y A B P clean paths base
