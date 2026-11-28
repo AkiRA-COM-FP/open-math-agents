@@ -6,6 +6,10 @@ import Mathlib
 Source: https://oeis.org/A183245
 Credit: @bmendonca3
 
+[Lean proof by middle-row enumeration](https://github.com/bmendonca3/open-math-agents/blob/1dbd829dcf36e156a64967cf1b77ad6876febea0/proofs/oeis-a183245.lean)
+
+[Separate Lean proof by @jiyongparkphysics](https://github.com/jiyongparkphysics/open-math-agents/blob/3f5938a5090fb58e0aa2537a7cff075466908ab7/proofs/oeis-a183245.lean)
+
 Entry A183245 (R. H. Hardin, Jan 03 2011), offset 1, data 9, 29, 112, 436, 1708, 6724, 26572, ...
 Formula section:
 Conjectures from Colin Barker, Mar 27 2018:
