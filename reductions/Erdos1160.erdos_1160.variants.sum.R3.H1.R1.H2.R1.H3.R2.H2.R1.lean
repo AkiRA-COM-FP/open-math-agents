@@ -42,7 +42,7 @@ def H1 : Prop :=
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
           ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
-        (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∨
+        ((∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P)) ∨ (∃ (N : Subgroup G) (_ : N.Normal), Group.IsNilpotent N ∧ IsCyclic (G ⧸ N)))) ∨
         ((∃ K : Subgroup G, K.Normal ∧ Group.IsNilpotent K ∧ 1 < Nat.card K ∧ (Nat.card K).Coprime K.index) ∨ (∃ N P : Subgroup G, P.Normal ∧ N.IsComplement' P ∧ IsCyclic P ∧ 1 < Nat.card P))) ∧ ¬ IsZGroup G ∧
         (∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
@@ -58,7 +58,7 @@ def H2 : Prop :=
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
           ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
-        (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∨
+        ((∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P)) ∨ (∃ (N : Subgroup G) (_ : N.Normal), Group.IsNilpotent N ∧ IsCyclic (G ⧸ N)))) ∨
         ((∃ K : Subgroup G, K.Normal ∧ Group.IsNilpotent K ∧ 1 < Nat.card K ∧ (Nat.card K).Coprime K.index) ∨ (∃ N P : Subgroup G, P.Normal ∧ N.IsComplement' P ∧ IsCyclic P ∧ 1 < Nat.card P))) ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
 
@@ -2376,6 +2376,161 @@ lemma sylow_product_dvd_bound {h q : ℕ} (hh : 0 < h) (hq : 0 < q) (dv : h ∣ 
       rw [Finset.prod_mul_distrib]
       exact congrArg (· * _) (Nat.prod_factorization_pow_eq_self hq.ne')
 
+
+/-- Record a cyclic quotient extension using an action of the infinite cyclic group
+and the power of a lift of a generator. -/
+theorem cyclic_quotient_model {K G : Type*} [Group K] [Group G] (N : Subgroup G)
+    [N.Normal] [IsCyclic (G ⧸ N)] (e : K ≃* N) :
+    ∃ (a : Multiplicative ℤ →* MulAut K) (b : K),
+      Nonempty (G ≃* ((K ⋊[a] Multiplicative ℤ) ⧸ Subgroup.normalClosure
+        { (⟨b⁻¹,Multiplicative.ofAdd (N.index : ℤ)⟩ : K ⋊[a] Multiplicative ℤ) })) := by
+  classical
+  let q := QuotientGroup.mk' N
+  obtain ⟨v,hv⟩ := IsCyclic.exists_generator (α := G ⧸ N)
+  obtain ⟨t,ht⟩ := QuotientGroup.mk'_surjective N v
+  have ord : orderOf v = N.index := orderOf_eq_card_of_forall_mem_zpowers hv
+  let τ := zpowersHom G t
+  let i := N.subtype.comp e.toMonoidHom
+  have ii : Function.Injective i := Subtype.val_injective.comp e.injective
+  let α := N.normalizerMonoidHom.comp ((Subgroup.inclusion (show (⊤ : Subgroup G) ≤ Subgroup.normalizer (N : Set G) by rw [N.normalizer_eq_top])).comp (Subgroup.topEquiv.symm.toMonoidHom))
+  let a := ((MulAut.congr e.symm).toMonoidHom.comp α).comp τ
+  have compat (j : Multiplicative ℤ) : i.comp (a j).toMonoidHom = (MulAut.conj (τ j)).toMonoidHom.comp i := by
+    ext x
+    change (e (e.symm (α (τ j) (e x)))).val = _
+    rw [e.apply_symm_apply]; rfl
+  let F := SemidirectProduct.lift i τ compat
+  have onto : Function.Surjective F := by
+    intro x
+    obtain ⟨m,hm⟩ := hv (q x)
+    have mem : x / t^m ∈ N := by apply QuotientGroup.eq_iff_div_mem.mp; change q x = q (t^m); rw [map_zpow,show q t = v from ht]; exact hm.symm
+    refine ⟨⟨e.symm ⟨_,mem⟩,Multiplicative.ofAdd m⟩,?_⟩
+    change (e (e.symm ⟨x/t^m,mem⟩)).val * t^m = x
+    simp
+  have tm : t^N.index ∈ N := by
+    apply (QuotientGroup.eq_one_iff _).mp
+    change q (t^N.index) = 1
+    rw [map_pow,show q t = v from ht,← ord,pow_orderOf_eq_one]
+  let b := e.symm ⟨_,tm⟩
+  let w : K ⋊[a] Multiplicative ℤ := ⟨b⁻¹,Multiplicative.ofAdd (N.index : ℤ)⟩
+  have ib : i b = t^N.index := congrArg Subtype.val (e.apply_symm_apply _)
+  have fw : F w = 1 := by change i b⁻¹ * t^(N.index : ℤ) = 1; rw [map_inv,ib,zpow_natCast,inv_mul_cancel]
+  have kernel : Subgroup.normalClosure {w} = F.ker := by
+    apply le_antisymm (Subgroup.normalClosure_le_normal (by simpa using fw : ({w} : Set _) ⊆ F.ker))
+    intro z hz
+    change i z.left * t^z.right.toAdd = 1 at hz
+    have qz := congrArg q hz
+    have qi : q (i z.left) = 1 := (QuotientGroup.eq_one_iff _).mpr (e z.left).property
+    rw [map_mul,qi,one_mul,map_zpow,show q t = v from ht,map_one] at qz
+    obtain ⟨j,hj⟩ := orderOf_dvd_iff_zpow_eq_one.mpr qz
+    rw [ord] at hj
+    have eq : z = w^j := by
+      have right : z.right = (w^j).right := by
+        change z.right = (SemidirectProduct.rightHom (w^j))
+        rw [map_zpow]
+        exact congrArg Multiplicative.ofAdd (hj.trans (Int.mul_comm ..))
+      apply SemidirectProduct.ext _ right
+      apply ii
+      have fw' := show F (w^j) = 1 by rw [map_zpow,fw,one_zpow]
+      change i (w^j).left * t^(w^j).right.toAdd = 1 at fw'
+      exact mul_right_cancel ((right ▸ hz).trans fw'.symm)
+    rw [eq]
+    exact (Subgroup.normalClosure {w}).zpow_mem (Subgroup.subset_normalClosure (Set.mem_singleton w)) _
+  exact ⟨a,b,⟨(QuotientGroup.quotientKerEquivOfSurjective F onto).symm.trans
+    (QuotientGroup.quotientMulEquivOfEq kernel.symm)⟩⟩
+
+/-- Count all cyclic-quotient extensions with specified kernel and quotient order,
+allowing every power of a lifted generator that yields a finite extension. -/
+lemma cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+        N.index = m ∧ Nonempty (K ≃* N)}).ncard ≤ Nat.card (MulAut K)*Nat.card K := by
+  classical
+  let Code := (Multiplicative ℤ →* MulAut K) × K
+  let _ : Finite (Multiplicative ℤ →* MulAut K) := Finite.of_equiv (MulAut K) (zpowersHom _)
+  let Q (c : Code) := (K ⋊[c.1] Multiplicative ℤ) ⧸ Subgroup.normalClosure
+    {(⟨c.2⁻¹,Multiplicative.ofAdd (m : ℤ)⟩ : K ⋊[c.1] Multiplicative ℤ)}
+  let decode (c : Code) : Quotient (isIsomorphicSetoid FiniteGrp.{0}) := by
+    if h : Finite (Q c) then exact Quotient.mk _ (FiniteGrp.of (Q c))
+    else exact Quotient.mk _ K
+  apply le_trans (Set.ncard_le_ncard (t := Set.range decode) ?_ (Set.finite_range _))
+  · apply (Nat.card_le_card_of_surjective _ (Set.rangeFactorization_surjective (f := decode))).trans_eq
+    rw [show Nat.card Code = Nat.card (Multiplicative ℤ →* MulAut K)*Nat.card K from Nat.card_prod _ _]
+    rw [← Nat.card_congr (zpowersHom (MulAut K))]
+  · rintro _ ⟨G,⟨N,hn,cyc,idx,⟨e⟩⟩,rfl⟩
+    let _ : N.Normal := hn
+    let _ : IsCyclic (G ⧸ N) := cyc
+    obtain ⟨a,b,iso⟩ := cyclic_quotient_model N e
+    rw [idx] at iso
+    let c : Code := (a,b)
+    let u : G ≃* Q c := iso.some
+    have fin : Finite (Q c) := Finite.of_equiv G u.toEquiv
+    refine ⟨c,?_⟩
+    simp only [decode,dif_pos fin]
+    exact Quotient.sound ⟨InducedCategory.isoMk (F := FiniteGrp.toGrp) u.symm.toGrpIso⟩
+
+
+/-- Sum the cyclic-quotient extension count over nilpotent kernels of every possible order. -/
+theorem nilpotent_by_cyclic_count {q r : ℕ} (hq : 0 < q) (hr : q < 2^r) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | Nat.card G = q ∧ Group.IsSolvable G ∧
+        ∃ (N : Subgroup G) (_ : N.Normal), Group.IsNilpotent N ∧ IsCyclic (G ⧸ N)}).ncard ≤
+      2^(2*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p) := by
+  classical
+  let L (n : ℕ) := ∏ p ∈ n.primeFactors, g (p^n.factorization p)
+  let I := {k : Fin (q+1) // 0 < k.val ∧ k.val ∣ q}
+  let O (n : ℕ) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+    {G : FiniteGrp.{0} | Nat.card G = n ∧ Group.IsSolvable G ∧ Group.IsNilpotent G}
+  let (n : ℕ) : Finite (O n) := ((finite_classes n).subset (Set.image_mono (fun _ h => h.1))).to_subtype
+  let K {n : ℕ} (x : O n) : FiniteGrp.{0} := x.property.choose
+  have kc {n} (x : O n) : Nat.card (K x) = n := x.property.choose_spec.1.1
+  let S (i : I) (x : O i.val.val) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+    {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+      N.index = q/i.val.val ∧ Nonempty (K x ≃* N)}
+  have finite (i : I) (x : O i.val.val) : (S i x).Finite := (finite_classes q).subset (Set.image_mono (by
+    rintro G ⟨N,_,_,idx,⟨e⟩⟩
+    change Nat.card G = q
+    rw [← N.index_mul_card,idx,← Nat.card_congr e.toEquiv,kc,Nat.div_mul_cancel i.property.2]))
+  have inner (i : I) : (⋃ x : O i.val.val, S i x).ncard ≤ 2^(r*(r+1)+r)*L q := by
+    let _ := Fintype.ofFinite (O i.val.val)
+    have small : i.val.val < 2^r := (Nat.le_of_dvd hq i.property.2).trans_lt hr
+    have action (x : O i.val.val) : (S i x).ncard ≤ 2^(r*(r+1)) := by
+      let _ : Finite (K x →* K x) := Finite.of_injective (fun g : K x →* K x => (g : K x → K x)) DFunLike.coe_injective
+      have aut := (Nat.card_le_card_of_injective MulEquiv.toMonoidHom MulEquiv.toMonoidHom_injective).trans (hom_count (K x) (K x))
+      apply (cyclic_quotient_count (K x) _).trans
+      apply (Nat.mul_le_mul_right (Nat.card (K x)) aut).trans
+      rw [kc,← pow_succ,pow_mul]
+      exact (Nat.pow_le_pow_left small.le _).trans (Nat.pow_le_pow_right (by positivity)
+        (Nat.succ_le_succ (Nat.log_lt_of_lt_pow i.property.1.ne' small).le))
+    calc
+      _ ≤ ∑ x : O i.val.val, (S i x).ncard := Set.ncard_iUnion_le_of_fintype _
+      _ ≤ ∑ _ : O i.val.val, 2^(r*(r+1)) := Finset.sum_le_sum fun x _ => action x
+      _ = 2^(r*(r+1))*Nat.card (O i.val.val) := by simp [Nat.card_eq_fintype_card,Nat.mul_comm]
+      _ ≤ 2^(r*(r+1))*(2^r*L q) := by
+        apply Nat.mul_le_mul_left
+        exact (nilpotent_bound _).trans ((sylow_product_dvd_bound i.property.1 hq i.property.2).trans (Nat.mul_le_mul_right _ hr.le))
+      _ = _ := by rw [pow_add]; ring
+  apply le_trans (Set.ncard_le_ncard (t := ⋃ i : I, ⋃ x : O i.val.val, S i x) ?_
+    (Set.finite_iUnion fun i => Set.finite_iUnion (finite i))) ?_
+  · rintro _ ⟨G,⟨hg,_,N,hn,nil,cyc⟩,rfl⟩
+    let _ : N.Normal := hn
+    let _ : Group.IsNilpotent N := nil
+    have dvd : Nat.card N ∣ q := hg ▸ N.card_subgroup_dvd_card
+    let i : I := ⟨⟨Nat.card N,by have := Nat.le_of_dvd hq dvd; omega⟩,Nat.card_pos,dvd⟩
+    let x : O i.val.val := ⟨Quotient.mk _ (FiniteGrp.of N),FiniteGrp.of N,⟨rfl,inferInstanceAs (Group.IsSolvable N),nil⟩,rfl⟩
+    have rep : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (K x) = Quotient.mk _ (FiniteGrp.of N) := x.property.choose_spec.2
+    let e := ((inducedFunctor FiniteGrp.toGrp).mapIso (Classical.choice (Quotient.exact rep))).groupIsoToMulEquiv
+    have eq : N.index = q/Nat.card N := by rw [← hg,← N.index_mul_card,Nat.mul_div_cancel _ Nat.card_pos]
+    exact Set.mem_iUnion.mpr ⟨i,Set.mem_iUnion.mpr ⟨x,G,⟨N,hn,cyc,eq,⟨e⟩⟩,rfl⟩⟩
+  · let _ := Fintype.ofFinite I
+    have ni : Nat.card I ≤ 2^r := (Nat.card_le_card_of_injective Subtype.val Subtype.val_injective).trans
+      (by simpa using hr : Nat.card (Fin (q+1)) ≤ 2^r)
+    calc
+      _ ≤ ∑ i : I, (⋃ x : O i.val.val, S i x).ncard := Set.ncard_iUnion_le_of_fintype _
+      _ ≤ ∑ _ : I, 2^(r*(r+1)+r)*L q := Finset.sum_le_sum fun i _ => inner i
+      _ = Nat.card I*(2^(r*(r+1)+r)*L q) := by simp [Nat.card_eq_fintype_card]
+      _ ≤ 2^r*(2^(r*(r+1)+r)*L q) := Nat.mul_le_mul_right _ ni
+      _ ≤ _ := by rw [← mul_assoc,← pow_add]; apply Nat.mul_le_mul_right; apply Nat.pow_le_pow_right (by decide); nlinarith
+
 theorem solvable_cyclic_induction_step {q r E : ℕ} (hr : q < 2^r) (odd : Odd q) (hE : 6 ≤ E)
     (ih : ∀ n < q, ∀ s, Odd n → n < 2^s →
       (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
@@ -2532,7 +2687,9 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
           ((IsPrimePow (c+2) ∧ (c+2).Coprime (Nat.card H)) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))
   let U (G : FiniteGrp.{0}) := U₁ G ∨ U₂ G
-  let V (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))
+  let V₀ (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))
+  let V₁ (G : FiniteGrp.{0}) := (∃ (N : Subgroup G) (_ : N.Normal), Group.IsNilpotent N ∧ IsCyclic (G ⧸ N))
+  let V (G : FiniteGrp.{0}) := V₀ G ∨ V₁ G
   let W₁ (G : FiniteGrp.{0}) := (∃ K : Subgroup G, K.Normal ∧ Group.IsNilpotent K ∧ 1 < Nat.card K ∧ (Nat.card K).Coprime K.index)
   let W₂ (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, P.Normal ∧ N.IsComplement' P ∧ IsCyclic P ∧ 1 < Nat.card P)
   let W (G : FiniteGrp.{0}) := W₁ G ∨ W₂ G
@@ -2597,7 +2754,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
       rintro _ ⟨G, ⟨hg, hs, _, hn, hz, hc⟩, rfl⟩
       exact ⟨G, ⟨hg, hs, hn, hz, hc⟩, rfl⟩
   have bb := (hB q r odd hr hpp htwo).trans (mono _ D ((le_max_right A B).trans (le_max_right ..)))
-  have nn₀ : (S N₀).ncard ≤ 2^(2*m+1)*L := by
+  have nn₀ : (S N₀).ncard ≤ 2^(2*m+2)*L := by
     have cover : S N₀ = S U ∪ S V := by
       ext c
       constructor
@@ -2626,12 +2783,22 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
         _ = 2^(m+1)*L := by rw [pow_succ]; ring
         _ ≤ _ := Nat.mul_le_mul_right _ (Nat.pow_le_pow_right (by decide)
           (by have hm : 0 < m := Nat.pow_pos (Nat.succ_pos r); omega : m+1 ≤ 2*m))
-    have hv : (S V).ncard ≤ 2^(2*m)*L := hall_action_bound (by decide) hr
+    have hv₀ : (S V₀).ncard ≤ 2^(2*m)*L := hall_action_bound (by decide) hr
+    have hv₁ : (S V₁).ncard ≤ 2^(2*m)*L := nilpotent_by_cyclic_count odd.pos hr
+    have hv : (S V).ncard ≤ 2^(2*m)*L + 2^(2*m)*L := by
+      have sub : S V ⊆ S V₀ ∪ S V₁ := by
+        rintro _ ⟨G, ⟨hg,hs,h | h⟩,rfl⟩
+        · exact Or.inl ⟨G,⟨hg,hs,h⟩,rfl⟩
+        · exact Or.inr ⟨G,⟨hg,hs,h⟩,rfl⟩
+      have fin (F : FiniteGrp.{0} → Prop) : (S F).Finite :=
+        (finite_classes q).subset (Set.image_mono (fun _ h => h.1))
+      exact (Set.ncard_le_ncard sub ((fin _).union (fin _))).trans
+        ((Set.ncard_union_le _ _).trans (Nat.add_le_add hv₀ hv₁))
     rw [cover]
     calc
       _ ≤ (S U).ncard + (S V).ncard := Set.ncard_union_le _ _
-      _ ≤ 2^(2*m)*L + 2^(2*m)*L := Nat.add_le_add hu hv
-      _ = 2^(2*m+1)*L := by rw [pow_succ]; ring
+      _ ≤ 2^(2*m)*L + (2^(2*m)*L + 2^(2*m)*L) := Nat.add_le_add hu hv
+      _ ≤ 2^(2*m+2)*L := by rw [pow_add]; nlinarith [Nat.zero_le (2^(2*m)*L)]
   have room : D*m+1 ≤ E*m-4 := by
     have hm : 1 ≤ m := Nat.pow_pos (Nat.succ_pos r)
     dsimp [E]; rw [Nat.add_mul]; omega
@@ -2669,7 +2836,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
       _ ≤ (S N₀).ncard + (S W).ncard := Set.ncard_union_le _ _
       _ ≤ 2^(E*m-4)*L + 2^(E*m-4)*L := Nat.add_le_add
         (nn₀.trans (Nat.mul_le_mul_right _ (Nat.pow_le_pow_right (by decide)
-          (by have := Nat.mul_le_mul_right m h3; omega)))) w
+          (by have hm : 1 ≤ m := Nat.pow_pos (Nat.succ_pos r); have := Nat.mul_le_mul_right m h3; omega)))) w
       _ = 2^((E*m-4)+1)*L := by rw [pow_succ]; ring
       _ ≤ _ := Nat.mul_le_mul_right _ (Nat.pow_le_pow_right (by decide) (by omega))
   have ff : (S F).ncard ≤ 2^(D*m)*L := by
