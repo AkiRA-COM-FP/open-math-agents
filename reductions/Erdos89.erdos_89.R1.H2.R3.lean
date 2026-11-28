@@ -14,6 +14,9 @@ fixed exponent r and density parameter t₀, chosen uniformly in the configurati
 def H1 : Prop :=
   ∃ r t₀ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
+    (d ≠ 1 ∨ ∀ (A : Finset (ℕ × ℕ)) (L : ℕ) (p : ℤ × ℤ) (s : ℤ), s ≠ 0 →
+      A ⊆ range L ×ˢ range L → L^2 ≤ t₀*A.card →
+      (∀ z ∈ A, (p.1+s*z.1,p.2+s*z.2) ∈ S) → 2*A.card < S.card) →
     (∀ p ∈ S, ∀ W : ℕ, (∀ z ∈ S, (z.1-p.1).natAbs ≤ W) →
       W^2 ≤ t₀*S.card → d^r < W^2 ∧ d^r < k^(5*r+1)) →
     (∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (M : ℤ), 0 < M →
@@ -45,6 +48,12 @@ def H2 : Prop :=
     (∀ T ⊆ S, S.card ≤ 2*T.card → ¬ (∃ (f : X → ℤ × ℤ) (a b c : ℝ), ∀ x ∈ T, ∀ y ∈ T,
           dist x y^2 = a*(f x-f y).1^2+b*(f x-f y).1*(f x-f y).2+c*(f x-f y).2^2)) →
     S.card ≤ k*C*(distinctDistances S+1)
+
+/-- Finite lower Landau–Ramanujan bound at the logarithmic scale of the reduction. -/
+def H3 : Prop :=
+  ∃ C : ℕ, ∀ X k : ℕ, 0 < k → (X:ℝ) ≤ Real.exp ((k:ℝ)^2) →
+    ∀ B : Finset ℕ, (∀ n, n ∈ B ↔ 0 < n ∧ n < X ∧ ∃ a b : ℕ, n = a^2+b^2) →
+      X ≤ k*C*(B.card+1)
 
 section Shells
 
@@ -1332,9 +1341,140 @@ theorem polynomial_coefficient_strip (r t : ℕ) : ∃ B : ℕ,
       _ = 4*(D₀^r+1)*(V.card+1) := by ring
       _ ≤ _ := Nat.mul_le_mul_right _ (le_max_right ..)
 
+theorem square_patch_multiple (A : Finset (ℕ × ℕ)) {L K : ℕ} (v : (ℕ × ℕ))
+    (hA : A ⊆ (range L ×ˢ range L)) (hdense : (2*L)^2 < (K+1)*#A)
+    (hx : K*v.1 ≤ L) (hy : K*v.2 ≤ L) :
+    ∃ a ∈ A, ∃ j, 0 < j ∧ j ≤ K ∧ (a.1+j*v.1,a.2+j*v.2) ∈ A := by
+  let shift (a v : ℕ × ℕ) (j : ℕ) := (a.1+j*v.1,a.2+j*v.2)
+  let S := range (K+1) ×ˢ A
+  let f (z : ℕ × (ℕ × ℕ)) := shift z.2 v z.1
+  have hcard : #((range (2*L) ×ˢ range (2*L))) < #S := by simpa [S, sq] using hdense
+  have hmap : Set.MapsTo f S ((range (2*L) ×ˢ range (2*L) : Finset _) : Set _) := by
+    rintro ⟨j,a⟩ hz
+    obtain ⟨hj,ha⟩ := mem_product.mp hz
+    have hj' : j ≤ K := Nat.le_of_lt_succ (mem_range.mp hj)
+    obtain ⟨hax,hay⟩ := mem_product.mp (hA ha)
+    have hax : a.1 < L := mem_range.mp hax
+    have hay : a.2 < L := mem_range.mp hay
+    have h₁ := (Nat.mul_le_mul_right v.1 hj').trans hx
+    have h₂ := (Nat.mul_le_mul_right v.2 hj').trans hy
+    apply mem_product.mpr
+    simp only [mem_range]
+    change a.1 + j*v.1 < 2*L ∧ a.2 + j*v.2 < 2*L
+    omega
+  obtain ⟨⟨i,a⟩,hia,⟨j,b⟩,hjb,hne,heq⟩ :=
+    exists_ne_map_eq_of_card_lt_of_maps_to hcard hmap
+  obtain ⟨hi,ha⟩ := mem_product.mp hia
+  obtain ⟨hj,hb⟩ := mem_product.mp hjb
+  have hi' := mem_range.mp hi
+  have hj' := mem_range.mp hj
+  have he₁ : a.1 + i*v.1 = b.1 + j*v.1 := congrArg Prod.fst heq
+  have he₂ : a.2 + i*v.2 = b.2 + j*v.2 := congrArg Prod.snd heq
+  have step (p q : (ℕ × ℕ)) (u w : ℕ) (huw : u ≤ w)
+      (h₁ : p.1 + u*v.1 = q.1 + w*v.1) (h₂ : p.2 + u*v.2 = q.2 + w*v.2) :
+      shift q v (w-u) = p := by
+    obtain ⟨k,rfl⟩ := Nat.exists_eq_add_of_le huw
+    simp only [Nat.add_sub_cancel_left, Nat.add_mul] at *
+    apply Prod.ext <;> dsimp [shift] <;> omega
+  rcases lt_trichotomy i j with hij | rfl | hji
+  · exact ⟨b,hb,j-i,by omega,by omega, show shift b v (j-i) ∈ A from (step a b i j hij.le he₁ he₂) ▸ ha⟩
+  · exact False.elim (hne (Prod.ext rfl (Prod.ext (Nat.add_right_cancel he₁) (Nat.add_right_cancel he₂))))
+  · exact ⟨a,ha,i-j,by omega,by omega, show shift a v (i-j) ∈ A from (step b a j i hji.le he₁.symm he₂.symm) ▸ hb⟩
+
+/-- An occupied positive-density square patch with arbitrary nonzero integer
+scale controls all the points when it contains at least half the configuration. -/
+theorem square_patch_bound (lr : H3) (t : ℕ) : ∃ G : ℕ, ∀ (L k : ℕ)
+    (S : Finset (ℤ × ℤ)) (A : Finset (ℕ × ℕ)) (p : ℤ × ℤ) (s : ℤ),
+    0 < k → (S.card:ℝ) ≤ Real.exp ((k:ℝ)^2) → s ≠ 0 →
+    A ⊆ range L ×ˢ range L → L^2 ≤ t*A.card →
+    (∀ z ∈ A, (p.1+s*z.1,p.2+s*z.2) ∈ S) → S.card ≤ 2*A.card →
+    let q := fun z : ℤ × ℤ => z.1^2+z.2^2
+    S.card ≤ k*G*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  obtain ⟨C,arith⟩ := lr
+  let K := 4*(t+1)
+  have hK : 0 < K := by dsimp [K]; omega
+  refine ⟨8*K^2*(C+1)*(K+1),?_⟩
+  intro L k S A p s hk hcap hs box dense sub half q
+  let f (z : ℕ × ℕ) : ℤ × ℤ := (p.1+s*z.1,p.2+s*z.2)
+  have inj : Function.Injective f := by
+    intro a b h
+    obtain ⟨hx,hy⟩ := Prod.mk.inj h
+    apply Prod.ext
+    · exact_mod_cast (mul_right_injective₀ hs (add_left_cancel hx))
+    · exact_mod_cast (mul_right_injective₀ hs (add_left_cancel hy))
+  have aS : A.card ≤ S.card := by
+    rw [← card_image_of_injective A inj]
+    exact card_le_card (image_subset_iff.mpr sub)
+  let M := L/K
+  let B := (range (M^2)).filter fun n => 0<n ∧ ∃ a b : ℕ, n=a^2+b^2
+  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
+  have ac : A.card ≤ L^2 := by simpa [pow_two] using card_le_card box
+  have hlo : M^2 ≤ S.card := by
+    apply le_trans _ aS
+    have hKM : K*M ≤ L := Nat.mul_div_le .. 
+    have h := Nat.pow_le_pow_left hKM 2
+    rw [mul_pow] at h
+    have ht : t+1 ≤ K^2 := by dsimp [K]; nlinarith only [Nat.le_mul_self (t+1)]
+    apply Nat.le_of_mul_le_mul_left (a := M^2) (b := A.card) (c := t+1) _ (by omega)
+    calc
+      _ ≤ K^2*M^2 := Nat.mul_le_mul_right _ ht
+      _ ≤ _ := h.trans dense
+      _ ≤ _ := by nlinarith
+  have hb := arith (M^2) k hk ((by exact_mod_cast hlo : ((M^2:ℕ):ℝ) ≤ S.card).trans hcap) B (by
+    intro n; simp [B,and_left_comm])
+  have en : (2*L)^2 < (K+1)*A.card ∨ S.card=0 := by
+    by_cases h : A.card=0
+    · right; omega
+    · left; dsimp [K]; nlinarith only [dense, Nat.pos_of_ne_zero h]
+  rcases en with en | hz
+  swap
+  · rw [hz]; exact Nat.zero_le _
+  have count : B.card ≤ K*V.card := by
+    let hfun (zn : ℕ × ℤ) := (zn.2 / ((s*(zn.1:ℤ))^2)).toNat
+    have inc : B ⊆ ((Icc 1 K ×ˢ V).image hfun) := by
+      intro n hn
+      obtain ⟨hm,hpos,a,b,eqn⟩ := mem_filter.mp hn
+      have hab := mem_range.mp hm
+      have hKM : K*M ≤ L := Nat.mul_div_le ..
+      have small (z : ℕ) (hz : z^2 ≤ n) : K*z ≤ L := by
+        apply le_trans _ hKM
+        apply Nat.mul_le_mul_left
+        by_contra! h
+        have := Nat.pow_le_pow_left h.le 2
+        omega
+      obtain ⟨u,hu,j,hj,hjK,hv⟩ := square_patch_multiple A (a,b) box en
+        (small a (by omega)) (small b (by omega))
+      let v : ℕ × ℕ := (u.1+j*a,u.2+j*b)
+      have val : q (f v-f u)=(n:ℤ)*(s*(j:ℤ))^2 := by
+        dsimp [q,f,v]; rw [eqn]; push_cast; ring
+      have den : (s*(j:ℤ))^2 ≠ 0 := pow_ne_zero _ (mul_ne_zero hs (by exact_mod_cast hj.ne'))
+      have ne : f v ≠ f u := by
+        intro e
+        rw [e,sub_self] at val
+        exact (mul_ne_zero (by exact_mod_cast hpos.ne' : (n:ℤ) ≠ 0) den) (by simpa [q] using val.symm)
+      have hval : q (f v-f u) ∈ V := mem_image.mpr ⟨(f v,f u),mem_offDiag.mpr ⟨sub v hv,sub u hu,ne⟩,rfl⟩
+      exact mem_image.mpr ⟨(j,_),mem_product.mpr ⟨mem_Icc.mpr ⟨hj,hjK⟩,hval⟩,by
+        change ((q (f v-f u))/((s*(j:ℤ))^2)).toNat = n
+        rw [val,Int.mul_ediv_cancel _ den,Int.toNat_natCast]⟩
+    simpa using (card_le_card inc).trans card_image_le
+  have hlt := (Nat.lt_mul_div_succ L hK).le
+  change L ≤ K*(M+1) at hlt
+  have upper : S.card ≤ 8*K^2*(M^2+1) := calc
+    _ ≤ 2*L^2 := half.trans (Nat.mul_le_mul_left _ ac)
+    _ ≤ 2*(K*(M+1))^2 := Nat.mul_le_mul_left _ (Nat.pow_le_pow_left hlt 2)
+    _ ≤ _ := by
+      rw [mul_pow]; nlinarith only [Nat.mul_le_mul_left (K^2) (show (M+1)^2 ≤ 4*(M^2+1) by nlinarith only [Nat.le_mul_self M])]
+  change S.card ≤ k*_*(V.card+1)
+  have bump : M^2+1 ≤ k*(C+1)*((K+1)*(V.card+1)) := by
+    have h := hb.trans (Nat.mul_le_mul_left (k*C) (Nat.add_le_add_right count 1))
+    nlinarith only [h,hk,Nat.zero_le (k*C*V.card),Nat.zero_le (k*C*K),Nat.zero_le (k*K*V.card),Nat.zero_le (k*V.card),Nat.zero_le (k*K)]
+  exact upper.trans ((Nat.mul_le_mul_left _ bump).trans_eq (by ring))
+
+
 /-- Transfer the squarefree bound using the assigned pins, the divisor estimate,
 or the remaining arithmetic hypothesis. -/
-theorem integral_form_bound (arith : H1) :
+theorem integral_form_bound (arith : H1) (lr : H3) :
   ∃ C : ℕ, ∀ a b c : ℤ, 0 < a → b^2 < 4*a*c → ∀ (S : Finset (ℤ × ℤ)) (k : ℕ),
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
     let q := fun v : ℤ × ℤ => a*v.1^2+b*v.1*v.2+c*v.2^2
@@ -1343,7 +1483,8 @@ theorem integral_form_bound (arith : H1) :
   obtain ⟨r,t₀,C,hard⟩ := arith
   obtain ⟨B,strip⟩ := polynomial_coefficient_strip r t₀
   obtain ⟨P,poly⟩ := polylog_coefficient_strip r t₀
-  let U := max C (max B P)
+  obtain ⟨G,grid⟩ := square_patch_bound lr t₀
+  let U := max G (max C (max B P))
   refine ⟨max U 4,?_⟩
   intro a b c ha hdisc A k hk hsize Q
   let V := fun (q : ℤ × ℤ → ℤ) (T : Finset (ℤ × ℤ)) => T.offDiag.image fun xy => q (xy.1-xy.2)
@@ -1357,6 +1498,17 @@ theorem integral_form_bound (arith : H1) :
   rw [card_image_of_injective _ (mul_right_injective₀ (by positivity : 4*a ≠ 0))] at hvals
   change A.card ≤ k*max U 4*((V Q A).card+1)
   rw [← hc,← hvals]
+  by_cases sparse : (d ≠ 1 ∨ ∀ (A : Finset (ℕ × ℕ)) (L : ℕ) (p : ℤ × ℤ) (s : ℤ), s ≠ 0 →
+      A ⊆ range L ×ˢ range L → L^2 ≤ t₀*A.card →
+      (∀ z ∈ A, (p.1+s*z.1,p.2+s*z.2) ∈ S) → 2*A.card < S.card)
+  swap
+  · push Not at sparse
+    obtain ⟨eqd,A',L,p,s,hs,hA,dens,sub,half⟩ := sparse
+    subst d
+    have h := grid L k S A' p s hk (by rwa [hc]) hs hA dens sub half
+    have sqeq : q = fun z : ℤ × ℤ => z.1^2+z.2^2 := by ext z; simp [q]
+    rw [sqeq]
+    exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (show G ≤ max U 4 by dsimp [U]; omega)))
   by_cases outside : ∀ p ∈ S, ∀ W : ℕ, (∀ z ∈ S, (z.1-p.1).natAbs ≤ W) →
       W^2 ≤ t₀*S.card → d^r < W^2 ∧ d^r < k^(5*r+1)
   swap
@@ -1386,7 +1538,7 @@ theorem integral_form_bound (arith : H1) :
         min (min (X a).card (X b).card) (h.divisors.filter fun j =>
           j ≤ h/j ∧ h/j+j ≤ 2*W (min a b) ∧ h/j-j ≤ 2*W (max a b) ∧ j%2 = (h/j)%2).card
       0 < mass → k*mass^2 < S.card*cost
-    · have h := hard d S k hd hsq hk (by rwa [hc]) outside heavy costly
+    · have h := hard d S k hd hsq hk (by rwa [hc]) sparse outside heavy costly
       exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (show C ≤ max U 4 by dsimp [U]; omega)))
     dsimp only at costly
     push Not at costly
@@ -1420,13 +1572,13 @@ theorem integral_form_bound (arith : H1) :
     _ ≤ _ := Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (le_max_right ..))
 
 /-- The common-scale estimate follows from the integral-form estimate. -/
-theorem common_scale_bound (arith : H1) :
+theorem common_scale_bound (arith : H1) (lr : H3) :
   let X := {p : ℝ² // ∀ i : Fin 2, IsIntegral ℤ (p i)}
   ∃ C : ℕ, ∀ (T : Finset X) (k : ℕ), 0 < k → (T.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
     (∃ L : ℝ, 0 < L ∧ ∀ x ∈ T, ∀ y ∈ T, ∃ t : ℚ, dist x y^2 = L*t) →
     T.card ≤ k*C*(distinctDistances T+1) := by
   classical
-  obtain ⟨C,bound⟩ := integral_form_bound arith
+  obtain ⟨C,bound⟩ := integral_form_bound arith lr
   refine ⟨max C 2,?_⟩
   intro T k hk hsize scale
   obtain ⟨L,hL,rat⟩ := scale
@@ -1449,10 +1601,10 @@ theorem common_scale_bound (arith : H1) :
       _ ≤ _ := Nat.mul_le_mul_right _ (Nat.mul_le_mul hk (le_max_right ..))
 
 
-theorem main : H1 → H2 → OMA.R_Erdos89_erdos_89_R1.H2 := by
+theorem main : H1 → H2 → H3 → OMA.R_Erdos89_erdos_89_R1.H2 := by
   classical
-  rintro arith ⟨H,hard⟩
-  obtain ⟨R,rational⟩ := common_scale_bound arith
+  rintro arith ⟨H,hard⟩ lr
+  obtain ⟨R,rational⟩ := common_scale_bound arith lr
   let C := max (2*R) (max H 8)
   let X := {p : ℝ² // ∀ i : Fin 2, IsIntegral ℤ (p i)}
   let f (j : ℕ) : X := ⟨EuclideanSpace.single 0 (j : ℝ), by
