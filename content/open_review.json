@@ -21240,6 +21240,35 @@
     "https://arxiv.org/abs/1307.1188"
    ],
    "reason": "Second review: Both parts of the conjecture follow directly from the classical fact that 2 is a primitive root mod 3^k (LeVeque). They are spelled out, up to the one-line minimality step for the single digit, in de Faria and Tresser (2013), two years before the OEIS conjecture. The site proof is correct, but this is essentially a known/folklore result, not a new resolution."
+  },
+  "oeis-a195233": {
+   "date": "2026-11-28",
+   "pr": 25072,
+   "evidence": [
+    "https://oeis.org/A195232",
+    "https://oeis.org/A195233"
+   ],
+   "reason": "The statement is faithful (king-move neighbours, entries 0..n, a(0) set to 0), and a brute-force count matches 91n-27 for n <= 9. But the parent table A195232 records Robert Israel's argument (Nov 21 2017): values differ by at most n, so T(n,k)-T(n,k-1) is constant for large k, and 'This confirms the empirical formula'. Row 3's formula T(3,k)=91k-27 is exactly Barker's g.f. and recurrence, so the source already settles it."
+  },
+  "oeis-a196020": {
+   "date": "2026-11-28",
+   "pr": 27200,
+   "evidence": [
+    "https://oeis.org/A196020",
+    "https://oeis.org/A235791",
+    "https://oeis.org/A236104"
+   ],
+   "reason": "The encoding of T (column k has odd numbers interleaved with k-1 zeros from row k(k+1)/2) and of P (partitions of m <= n into k consecutive positive parts) is faithful. But Pol's conjecture is settled in the sister entries: A235791 records 'The above conjecture is true' (N. J. A. Sloane, Nov 24 2020, via the column g.f. x^(k(k+1)/2)/((1-x)(1-x^k))) that A235791(n,k) = P(n,k). A236104 = A235791^2 has column partial sums equal to A196020's columns. It is also nearly immediate, since P(n,k) = floor((n-k(k+1)/2)/k)+1."
+  },
+  "oeis-a200786": {
+   "date": "2026-11-28",
+   "pr": 26564,
+   "evidence": [
+    "https://oeis.org/A200785",
+    "https://oeis.org/A200786",
+    "https://arxiv.org/abs/math/0112281"
+   ],
+   "reason": "Faithful: x in 0..n^4 with neither x0<x1<x2 nor x1<x2<x3, and brute force matches all of Barker's forms. But A200786 is row 2 of A200785, which lists T(2,k) = (17/24)k^4+(43/12)k^3+(151/24)k^2+(53/12)k+1 under 'Formulae for rows'. It states 'All the conjectured formulas are true, and follow from the Burstein-Mansour paper' (N. J. A. Sloane, May 21 2013; Burstein-Mansour Th. 3.13). That quartic is Barker's closed form, and the g.f. and recurrence follow at once."
   }
  },
  "reviewed": "2026-11-28"
