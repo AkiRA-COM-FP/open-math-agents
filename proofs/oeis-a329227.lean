@@ -1,70 +1,45 @@
 import OMAStatements.S_oeis_a329227
 import Mathlib
 
-namespace A329227Proof
+-- Proof: the denominator expands to 1 - X - X^2 - X^3 + X^4 - X^5 + X^6. Writing every Padovan
+-- term P(m+k) through P(m), P(m+1), P(m+2) shows the products a(n) = P(n) P(n+1) satisfy the
+-- matching order-6 recurrence; the first six coefficients are checked directly.
 
-open PowerSeries OMA.S_oeis_a329227
-
-lemma P_rec (n : ℕ) : P (n + 3) = P (n + 1) + P n := by
-  rw [P]
-
-lemma a_zero : a 0 = 0 := by unfold a; simp [P]
-lemma a_one : a 1 = 0 := by unfold a; simp [P]
-lemma a_two : a 2 = 0 := by unfold a; simp [P]
-lemma a_three : a 3 = 0 := by unfold a; simp [P]
-lemma a_four : a 4 = 0 := by unfold a; simp [P]
-lemma a_five : a 5 = 1 := by unfold a; simp [P]
+namespace OMA.P_oeis_a329227
+open OMA.S_oeis_a329227 PowerSeries
 
 lemma rec6 (m : ℕ) :
     a (m + 6) = a (m + 5) + a (m + 4) + a (m + 3) - a (m + 2) + a (m + 1) - a m := by
   unfold a
-  have p3 := P_rec m
-  have p4 := P_rec (m + 1)
-  have p5 := P_rec (m + 2)
-  have p6 := P_rec (m + 3)
-  have p7 := P_rec (m + 4)
-  simp only [Nat.add_assoc, Nat.reduceAdd] at p3 p4 p5 p6 p7 ⊢
-  rw [p7, p6, p5, p4, p3]
+  have h3 : P (m + 3) = P (m + 1) + P m := by rw [P]
+  have h4 : P (m + 4) = P (m + 2) + P (m + 1) := by rw [P]
+  have h5 : P (m + 5) = P (m + 3) + P (m + 2) := by rw [P]
+  have h6 : P (m + 6) = P (m + 4) + P (m + 3) := by rw [P]
+  have h7 : P (m + 7) = P (m + 5) + P (m + 4) := by rw [P]
+  simp only [show m + 6 + 1 = m + 7 from rfl, show m + 5 + 1 = m + 6 from rfl,
+    show m + 4 + 1 = m + 5 from rfl, show m + 3 + 1 = m + 4 from rfl,
+    show m + 2 + 1 = m + 3 from rfl, show m + 1 + 1 = m + 2 from rfl]
+  rw [h7, h6, h5, h4, h3]
   ring
 
-end A329227Proof
+end OMA.P_oeis_a329227
 
+open OMA.P_oeis_a329227 in
 theorem OMA.solution : type_of% @OMA.S_oeis_a329227.main := by
-  have hD : ((1 - 2 * PowerSeries.X + PowerSeries.X ^ 2 - PowerSeries.X ^ 3)
-      * (1 + PowerSeries.X - PowerSeries.X ^ 3) : PowerSeries ℤ)
-      = 1 - PowerSeries.X ^ 1 - PowerSeries.X ^ 2 - PowerSeries.X ^ 3 + PowerSeries.X ^ 4
-        - PowerSeries.X ^ 5 + PowerSeries.X ^ 6 := by
-    ring
-  rw [hD]
+  open OMA.S_oeis_a329227 PowerSeries in
   ext n
-  simp only [mul_add, mul_sub, mul_one, map_add, map_sub, PowerSeries.coeff_mul_X_pow',
-    PowerSeries.coeff_mk, PowerSeries.coeff_X_pow]
-  rcases (by omega : n = 0 ∨ n = 1 ∨ n = 2 ∨ n = 3 ∨ n = 4 ∨ n = 5 ∨ 6 ≤ n)
-    with rfl | rfl | rfl | rfl | rfl | rfl | h
-  · simp [A329227Proof.a_zero]
-  · simp [A329227Proof.a_zero, A329227Proof.a_one]
-  · simp [A329227Proof.a_zero, A329227Proof.a_one, A329227Proof.a_two]
-  · simp [A329227Proof.a_zero, A329227Proof.a_one, A329227Proof.a_two, A329227Proof.a_three]
-  · simp [A329227Proof.a_zero, A329227Proof.a_one, A329227Proof.a_two, A329227Proof.a_three,
-      A329227Proof.a_four]
-  · simp [A329227Proof.a_zero, A329227Proof.a_one, A329227Proof.a_two, A329227Proof.a_three,
-      A329227Proof.a_four, A329227Proof.a_five]
+  have hD : ((1 - 2 * X + X ^ 2 - X ^ 3) * (1 + X - X ^ 3) : ℤ⟦X⟧) =
+      1 - X ^ 1 - X ^ 2 - X ^ 3 + X ^ 4 - X ^ 5 + X ^ 6 := by ring
+  rw [hD, mul_comm]
+  simp only [add_mul, sub_mul, one_mul, map_add, map_sub, coeff_X_pow_mul', coeff_mk, coeff_X_pow]
+  by_cases h : n < 6
+  · interval_cases n <;> decide
   · obtain ⟨m, rfl⟩ : ∃ m, n = m + 6 := ⟨n - 6, by omega⟩
-    have hr := A329227Proof.rec6 m
-    have e1 : m + 6 - 1 = m + 5 := by omega
-    have e2 : m + 6 - 2 = m + 4 := by omega
-    have e3 : m + 6 - 3 = m + 3 := by omega
-    have e4 : m + 6 - 4 = m + 2 := by omega
-    have e5 : m + 6 - 5 = m + 1 := by omega
-    have e6 : m + 6 - 6 = m := by omega
-    have c1 : 1 ≤ m + 6 := by omega
-    have c2 : 2 ≤ m + 6 := by omega
-    have c3 : 3 ≤ m + 6 := by omega
-    have c4 : 4 ≤ m + 6 := by omega
-    have c5 : 5 ≤ m + 6 := by omega
-    have c6 : 6 ≤ m + 6 := by omega
-    have z5 : ¬ m + 6 = 5 := by omega
-    simp only [if_pos c1, if_pos c2, if_pos c3, if_pos c4, if_pos c5, if_pos c6,
-      if_neg z5, e1, e2, e3, e4, e5, e6]
-    rw [hr]
+    simp only [if_pos (show 1 ≤ m + 6 by omega), if_pos (show 2 ≤ m + 6 by omega),
+      if_pos (show 3 ≤ m + 6 by omega), if_pos (show 4 ≤ m + 6 by omega),
+      if_pos (show 5 ≤ m + 6 by omega), if_pos (show 6 ≤ m + 6 by omega),
+      if_neg (show m + 6 ≠ 5 by omega),
+      show m + 6 - 1 = m + 5 by omega, show m + 6 - 2 = m + 4 by omega,
+      show m + 6 - 3 = m + 3 by omega, show m + 6 - 4 = m + 2 by omega,
+      show m + 6 - 5 = m + 1 by omega, show m + 6 - 6 = m by omega, rec6]
     ring
