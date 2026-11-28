@@ -33,3 +33,4 @@ theorem main : ∀ n : ℕ, 3 ≤ n → ∃ p q : ℕ, IsA240699 p ∧ IsA240699
   sorry
 
 end OMA.S_oeis_a240708
+-- ci: re-run check-proof
