@@ -4,29 +4,34 @@ import Mathlib.Algebra.Polynomial.Taylor
 import Mathlib.Analysis.Complex.CoveringMap
 import Mathlib.Analysis.Complex.OpenMapping
 import Mathlib.Topology.Homotopy.Lifting
+import Mathlib.Topology.Semicontinuity.Basic
 import Mathlib.Analysis.Normed.Module.Connected
 
 /-! The analytic steps are Lemmas 4–6 of Eremenko and Hayman, arXiv:0805.2295.
 The translation and rotation in Tao's Proposition 1.2 are proved below.
 Connectedness follows by lifting a radial homotopy over exterior regular values,
 then using properness and openness to pass to the unit level. The existence
-of a maximizer follows by compactness after translating one root to the origin. -/
+of a maximizer follows by compactness after translating one root to the origin.
+With a distant root and one at zero, the level set lies in small disks around
+the roots. The intersection count is proved by restricting a polynomial to a line. -/
 
 namespace OMA.R_Erdos114_erdos_114_variants_large_n_R1_H1_R1
 
 open Set Topology Polynomial Metric Filter Erdos114 MeasureTheory
 open scoped unitInterval ENNReal
 
--- Continuity of Hausdorff length as the list of roots varies.
+-- Upper semicontinuity of Hausdorff length as the list of roots varies.
 def H1 : Prop :=
   ∀ n : ℕ, 0 < n →
-    Continuous fun z : Fin n → ℂ => lemniscateLength (∏ i, (X - C (z i)))
+    UpperSemicontinuous fun z : Fin n → ℂ => lemniscateLength (∏ i, (X - C (z i)))
 
--- Length decays when a root escapes to infinity with the first root at zero.
+-- A local length bound from the number of intersections with each line.
 def H2 : Prop :=
-  ∀ (n : ℕ) (hn : 0 < n) (ε : ℝ≥0∞), 0 < ε →
-    ∃ R : ℝ, 0 ≤ R ∧ ∀ z : Fin n → ℂ, z ⟨0, hn⟩ = 0 →
-      (∃ i, R < ‖z i‖) → lemniscateLength (∏ i, (X - C (z i))) ≤ ε
+  ∀ p : ℂ[X], 0 < p.natDegree →
+    (∀ a b : ℂ, b ≠ 0 →
+      {t : ℝ | ‖p.eval (a + (t : ℂ) * b)‖ = 1}.ncard ≤ 2 * p.natDegree) →
+    ∀ a : ℂ, ∀ r : ℝ, 0 < r →
+      μH[1] (lemniscate p ∩ closedBall a r) ≤ ENNReal.ofReal (16 * p.natDegree * r)
 
 -- Deform an extremizer at constant length until all critical values are on the unit circle.
 def H3 : Prop :=
@@ -441,7 +446,7 @@ private lemma shift_roots {n : ℕ} (z : Fin n → ℂ) (b : ℂ) :
   ring
 
 theorem exists_maximizer {n : ℕ} (hn : 0 < n)
-    (hCont : Continuous fun z : Fin n → ℂ => lemniscateLength (∏ i, (X - C (z i))))
+    (hCont : UpperSemicontinuous fun z : Fin n → ℂ => lemniscateLength (∏ i, (X - C (z i))))
     (hDecay : ∀ ε : ℝ≥0∞, 0 < ε → ∃ R : ℝ, 0 ≤ R ∧ ∀ z : Fin n → ℂ,
       z ⟨0, hn⟩ = 0 → (∃ i, R < ‖z i‖) →
       lemniscateLength (∏ i, (X - C (z i))) ≤ ε) :
@@ -477,7 +482,7 @@ theorem exists_maximizer {n : ℕ} (hn : 0 < n)
     have hK : IsCompact K :=
       (isCompact_univ_pi fun _ : Fin n => isCompact_closedBall (0 : ℂ) R).union isCompact_singleton
     have hzK : z ∈ K := Or.inr rfl
-    obtain ⟨a, ha, hmax⟩ := hK.exists_isMaxOn ⟨z, hzK⟩ hCont.continuousOn
+    obtain ⟨a, ha, hmax⟩ := UpperSemicontinuousOn.exists_isMaxOn ⟨z, hzK⟩ hK (hCont.upperSemicontinuousOn K)
     refine ⟨a, fun w hw => ?_⟩
     by_cases hwK : w ∈ K
     · exact hmax hwK
@@ -489,9 +494,143 @@ theorem exists_maximizer {n : ℕ} (hn : 0 < n)
     exact (le_of_not_gt hz).trans bot_le
 
 
+theorem ncard_level_line {p : ℂ[X]} {a b : ℂ}
+    (hp : 0 < p.natDegree) (hb : b ≠ 0) :
+    {t : ℝ | ‖p.eval (a + (t : ℂ) * b)‖ = 1}.ncard ≤ 2 * p.natDegree := by
+  let q := p.comp (C b * X + C a)
+  let c := starRingEnd ℂ
+  let f := q * q.map c - 1
+  have hq : q.natDegree = p.natDegree := by
+    simp [q, natDegree_comp, natDegree_C_mul_X _ hb]
+  have hq' : (q.map c).natDegree = q.natDegree :=
+    natDegree_map_eq_of_injective c.injective q
+  have hq₀ : q ≠ 0 := by
+    intro h
+    rw [h, natDegree_zero] at hq
+    omega
+  have hqc₀ : q.map c ≠ 0 := by
+    intro h
+    rw [h, natDegree_zero, hq] at hq'
+    omega
+  have hf : f.natDegree = 2 * p.natDegree := by
+    dsimp [f]
+    rw [← C_1, natDegree_sub_C, natDegree_mul hq₀ hqc₀, hq', hq]
+    omega
+  have hf₀ : f ≠ 0 := by
+    intro he
+    rw [he, natDegree_zero] at hf
+    omega
+  let S : Set ℝ := {t | ‖p.eval (a + (t : ℂ) * b)‖ = 1}
+  have hMaps (t : ℝ) (ht : t ∈ S) : (t : ℂ) ∈ (f.roots.toFinset : Set ℂ) := by
+    apply Finset.mem_coe.mpr
+    rw [Multiset.mem_toFinset, mem_roots hf₀]
+    change f.eval (t : ℂ) = 0
+    have htEval : q.eval (t : ℂ) = p.eval (a + (t : ℂ) * b) := by
+      simp [q, eval_comp, mul_comm b, add_comm a]
+    have hc : c (t : ℂ) = (t : ℂ) := Complex.conj_ofReal t
+    have hqEval : (q.map c).eval (t : ℂ) = c (q.eval (t : ℂ)) := by
+      simpa only [hc] using eval_map_apply (p := q) (f := c) (t : ℂ)
+    change ‖p.eval (a + (t : ℂ) * b)‖ = 1 at ht
+    simp only [f, eval_sub, eval_mul, eval_one, hqEval]
+    change q.eval (t : ℂ) * (starRingEnd ℂ) (q.eval (t : ℂ)) - 1 = 0
+    rw [Complex.mul_conj, ← Complex.sq_norm, htEval, ht]
+    norm_num
+  calc
+    S.ncard ≤ (f.roots.toFinset : Set ℂ).ncard :=
+      ncard_le_ncard_of_injOn (fun t : ℝ => (t : ℂ)) hMaps Complex.ofReal_injective.injOn
+        f.roots.toFinset.finite_toSet
+    _ = f.roots.toFinset.card := ncard_coe_finset _
+    _ ≤ f.roots.card := Multiset.toFinset_card_le _
+    _ ≤ f.natDegree := card_roots' _
+    _ = 2 * p.natDegree := hf
+
+
+private lemma small_disk_cover {n : ℕ} (hn : 0 < n) {δ : ℝ} (hδ : 0 < δ)
+    (z : Fin n → ℂ) (hzero : z ⟨0, hn⟩ = 0) {k : Fin n}
+    (hk : 2 / δ ^ (n - 1) < ‖z k‖) :
+    lemniscate (∏ i, (X - C (z i))) ⊆ ⋃ i, closedBall (z i) δ := by
+  intro x hx
+  by_contra hx'
+  have hdist (i : Fin n) : δ < dist x (z i) :=
+    lt_of_not_ge fun hi => hx' (mem_iUnion.mpr ⟨i, mem_closedBall.mpr hi⟩)
+  let q := 1 / δ ^ (n - 1)
+  have hpair : q < dist x (z ⟨0, hn⟩) ∨ q < dist x (z k) := by
+    by_contra! h
+    have htri := dist_triangle (z ⟨0, hn⟩) x (z k)
+    rw [hzero, dist_comm 0 (z k), dist_zero_right, dist_comm 0 x, ← hzero] at htri
+    have he : 2 / δ ^ (n - 1) = q + q := by dsimp [q]; ring
+    linarith only [h.1, h.2, htri, hk, he]
+  obtain ⟨i, hi⟩ : ∃ i : Fin n, q < dist x (z i) :=
+    hpair.elim (fun h => ⟨_, h⟩) (fun h => ⟨_, h⟩)
+  let otherRoots := (Finset.univ : Finset (Fin n)).erase i
+  have hI : otherRoots.card = n - 1 := by simp [otherRoots]
+  have hprod : δ ^ (n - 1) ≤ ∏ j ∈ otherRoots, dist x (z j) := by
+    rw [← hI, ← Finset.prod_const]
+    exact Finset.prod_le_prod (fun _ _ => hδ.le) fun j _ => (hdist j).le
+  have hq : 0 ≤ q := by dsimp [q]; positivity
+  have hq' : q * δ ^ (n - 1) = 1 := by
+    dsimp [q]
+    field_simp
+  have hlen : (∏ j, dist x (z j)) = 1 := by
+    change ‖(∏ j, (X - C (z j))).eval x‖ = 1 at hx
+    simpa only [eval_prod, eval_sub, eval_X, eval_C, norm_prod, dist_eq_norm] using hx
+  have hlt : 1 < ∏ j, dist x (z j) := by
+    rw [← Finset.mul_prod_erase _ _ (Finset.mem_univ i)]
+    calc
+      1 = q * δ ^ (n - 1) := hq'.symm
+      _ ≤ q * (∏ j ∈ otherRoots, dist x (z j)) := mul_le_mul_of_nonneg_left hprod hq
+      _ < dist x (z i) * (∏ j ∈ otherRoots, dist x (z j)) :=
+        mul_lt_mul_of_pos_right hi (lt_of_lt_of_le (by positivity) hprod)
+  exact (not_lt_of_ge hlen.le) hlt
+
+theorem decay_of_disk_bound
+    (disk : ∀ p : ℂ[X], 0 < p.natDegree → ∀ a : ℂ, ∀ r : ℝ, 0 < r →
+      μH[1] (lemniscate p ∩ closedBall a r) ≤ ENNReal.ofReal (16 * p.natDegree * r))
+    (n : ℕ) (hn : 0 < n) (ε : ℝ≥0∞) (hε : 0 < ε) :
+    ∃ R : ℝ, 0 ≤ R ∧ ∀ z : Fin n → ℂ, z ⟨0, hn⟩ = 0 →
+      (∃ i, R < ‖z i‖) → lemniscateLength (∏ i, (X - C (z i))) ≤ ε := by
+  by_cases htop : ε = ⊤
+  · exact ⟨0, le_rfl, fun _ _ _ => htop.symm ▸ le_top⟩
+  have hεR : 0 < ε.toReal := ENNReal.toReal_pos hε.ne' htop
+  let δ := ε.toReal / (16 * (n : ℝ)^2)
+  have hnR : (0 : ℝ) < n := by exact_mod_cast hn
+  have hδ : 0 < δ := by dsimp [δ]; positivity
+  let R := 2 / δ ^ (n-1)
+  refine ⟨R, by dsimp [R]; positivity, ?_⟩
+  intro z hz hfar
+  obtain ⟨i, hi⟩ := hfar
+  let p : ℂ[X] := ∏ j, (X - C (z j))
+  have hp : p.natDegree = n := by
+    unfold p
+    rw [natDegree_prod_of_monic _ _ (fun _ _ => monic_X_sub_C _)]
+    simp
+  have hcover := small_disk_cover hn hδ z hz hi
+  have hsub : lemniscate p ⊆ ⋃ j, lemniscate p ∩ closedBall (z j) δ := by
+    intro x hx
+    obtain ⟨j, hj⟩ := mem_iUnion.mp (hcover hx)
+    exact mem_iUnion.mpr ⟨j, hx, hj⟩
+  calc
+    lemniscateLength p ≤ μH[1] (⋃ j, lemniscate p ∩ closedBall (z j) δ) :=
+      measure_mono hsub
+    _ ≤ ∑' j, μH[1] (lemniscate p ∩ closedBall (z j) δ) := measure_iUnion_le _
+    _ ≤ ∑' _ : Fin n, ENNReal.ofReal (16 * (n : ℝ) * δ) := by
+      apply ENNReal.tsum_le_tsum
+      intro j
+      simpa [hp] using disk p (hp.symm ▸ hn) (z j) δ hδ
+    _ = ε := by
+      rw [tsum_fintype, Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul, ← ENNReal.ofReal_natCast,
+        ← ENNReal.ofReal_mul (Nat.cast_nonneg _)]
+      have hEq : (n : ℝ) * (16 * (n : ℝ) * δ) = ε.toReal := by
+        dsimp [δ]
+        field_simp
+      rw [hEq, ENNReal.ofReal_toReal htop]
+
+
 theorem main : H1 → H2 → H3 → OMA.R_Erdos114_erdos_114_variants_large_n_R1.H1 := by
-  intro hContinuous hDecay hDeform n hn
-  obtain ⟨p, hp, hpdeg, hpmax⟩ := exists_maximizer hn (hContinuous n hn) (hDecay n hn)
+  intro hContinuous hDisk hDeform n hn
+  have hDecay := decay_of_disk_bound
+    (fun p hp => hDisk p hp (fun _ _ hb => ncard_level_line hp hb)) n hn
+  obtain ⟨p, hp, hpdeg, hpmax⟩ := exists_maximizer hn (hContinuous n hn) hDecay
   obtain ⟨q, hq, hqdeg, hqlen, hqcrit⟩ :=
     hDeform p hp (hpdeg.symm ▸ hn) (fun r hr hd => hpmax r hr (hd.trans hpdeg))
   have hqn : q.natDegree = n := hqdeg.trans hpdeg
