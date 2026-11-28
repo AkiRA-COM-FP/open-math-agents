@@ -2523,13 +2523,50 @@ lemma outer_classes_le_eligible (K : Type*) [Group K] [Finite K] (m : ℕ)
     exact ⟨_,⟨u,⟨b,hb⟩,rfl⟩,congrArg ConjClasses.mk hu⟩
   exact (Set.ncard_le_ncard sub (Set.Finite.image _ (Set.toFinite S))).trans (Set.ncard_image_le (Set.toFinite S))
 
-/-- For a cyclic quotient it suffices to record the conjugacy class of the
-action of a lifted generator and one element recording its power. -/
-lemma outer_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ)
-    [(MulAut.conj : K →* MulAut K).range.Normal] :
-    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
-      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
-        N.index = m ∧ Nonempty (K ≃* N)}).ncard ≤ (ConjClasses.mk '' {t : MulAut K ⧸ (MulAut.conj : K →* MulAut K).range | t^m = 1}).ncard*Nat.card (Subgroup.center K) := by
+/-- A generator of a prime-power quotient lifts to an element centralizing any prescribed
+kernel p-subgroup if the ambient Sylow p-subgroups are abelian. -/
+lemma exists_pointwise_fixed_quotient_lift {K G : Type*} [Group K] [Group G] [Finite G]
+    {p a : ℕ} [Fact p.Prime] (N : Subgroup G) [N.Normal] (idx : N.index = p^a)
+    (e : K ≃* N) (S : Subgroup K) (hS : IsPGroup p S)
+    (comm : ∀ P : Sylow p G, IsMulCommutative P) (v : G ⧸ N) :
+    ∃ t : G, QuotientGroup.mk' N t = v ∧
+      ∀ x ∈ S, (MulAut.congr e.symm (MulAut.conjNormal (H := N) t)) x = x := by
+  let i := N.subtype.comp e.toMonoidHom
+  obtain ⟨P,hP⟩ := (hS.map i).exists_le_sylow
+  let q := QuotientGroup.mk' N
+  let Q := P.mapSurjective (QuotientGroup.mk'_surjective N)
+  have htop : IsPGroup p (⊤ : Subgroup (G ⧸ N)) :=
+    (IsPGroup.of_card (G := G ⧸ N) idx).to_subgroup _
+  have top_eq : (⊤ : Subgroup (G ⧸ N)) = Q.toSubgroup := Q.is_maximal' htop le_top
+  have hv : v ∈ P.toSubgroup.map q := by
+    change v ∈ Q.toSubgroup
+    rw [← top_eq]
+    trivial
+  obtain ⟨t,ht,eq⟩ := hv
+  refine ⟨t,eq,?_⟩
+  intro x hx
+  have mem : i x ∈ P := hP ⟨x,hx,rfl⟩
+  have commute : t * i x = i x * t := congrArg Subtype.val
+    ((comm P).is_comm.comm (⟨t,ht⟩ : P) ⟨i x,mem⟩)
+  apply e.injective
+  change e (e.symm _) = e x
+  rw [e.apply_symm_apply]
+  apply Subtype.ext
+  change t * i x * t⁻¹ = i x
+  rw [commute,mul_inv_cancel_right]
+
+/-- Count cyclic extensions using any set of outer classes covering chosen generator lifts. -/
+lemma filtered_outer_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ)
+    [(MulAut.conj : K →* MulAut K).range.Normal] (F : Set FiniteGrp.{0})
+    (D : Set (ConjClasses (MulAut K ⧸ (MulAut.conj : K →* MulAut K).range)))
+    (cover : ∀ G ∈ F, ∃ (N : Subgroup G) (_ : N.Normal) (e : K ≃* N)
+        (v : G ⧸ N) (t : G), N.index = m ∧ (∀ x, x ∈ Subgroup.zpowers v) ∧
+        QuotientGroup.mk' N t = v ∧
+        ConjClasses.mk (QuotientGroup.mk' (MulAut.conj : K →* MulAut K).range
+          (MulAut.congr e.symm (MulAut.conjNormal (H := N) t))) ∈ D) :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) '' F).ncard ≤
+      ((ConjClasses.mk '' {t : MulAut K ⧸ (MulAut.conj : K →* MulAut K).range | t^m = 1}) ∩ D).ncard
+        * Nat.card (Subgroup.center K) := by
   classical
   let I := (MulAut.conj : K →* MulAut K).range
   let O := MulAut K ⧸ I
@@ -2539,7 +2576,7 @@ lemma outer_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ)
   have proj (c : ConjClasses O) : π (rep c) = repr c := (QuotientGroup.mk'_surjective I _).choose_spec
   let _ : Finite (ConjClasses O) := Finite.of_surjective _ ConjClasses.mk_surjective
   let X (c : ConjClasses O) := {b : K // MulAut.conj b = rep c ^ m}
-  let C := ConjClasses.mk '' {t : O | t^m = 1}
+  let C := (ConjClasses.mk '' {t : O | t^m = 1}) ∩ D
   let Code := (c : C) × X c.val
   let action (c : ConjClasses O) := zpowersHom _ (rep c)
   let Q (c : Code) := (K ⋊[action c.1.val] Multiplicative ℤ) ⧸ Subgroup.normalClosure
@@ -2557,11 +2594,9 @@ lemma outer_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ)
       _ ≤ ∑ _ : C, Nat.card (Subgroup.center K) :=
         Finset.sum_le_sum fun c _ => inner_power_fiber_bound K _
       _ = _ := by change _ = Nat.card C * _; simp [Nat.card_eq_fintype_card]
-  rintro _ ⟨G,⟨N,hn,cyc,idx,⟨e⟩⟩,rfl⟩
+  rintro _ ⟨G,hG,rfl⟩
+  obtain ⟨N,hn,e,v,t₀,idx,hv,ht₀,hD⟩ := cover G hG
   let _ : N.Normal := hn
-  let _ : IsCyclic (G ⧸ N) := cyc
-  obtain ⟨v,hv⟩ := IsCyclic.exists_generator (α := G ⧸ N)
-  obtain ⟨t₀,ht₀⟩ := QuotientGroup.mk'_surjective N v
   let ρ := ((MulAut.congr e.symm).toMonoidHom.comp (MulAut.conjNormal (H := N)))
   let u := ρ t₀
   let c := ConjClasses.mk (π u)
@@ -2620,12 +2655,49 @@ lemma outer_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ)
   have eligible : (repr c)^m = 1 := by
     rw [← proj,← map_pow,← transformed]
     exact (QuotientGroup.eq_one_iff _).mpr ⟨f b,rfl⟩
-  let code : Code := ⟨⟨c,repr c,eligible,(ConjClasses.mk_surjective c).choose_spec⟩,⟨f b,transformed⟩⟩
+  let code : Code := ⟨⟨c,⟨repr c,eligible,(ConjClasses.mk_surjective c).choose_spec⟩,hD⟩,⟨f b,transformed⟩⟩
   let u : G ≃* Q code := iso.trans (QuotientGroup.congr _ _ F rel)
   have fin : Finite (Q code) := Finite.of_equiv G u.toEquiv
   refine ⟨code,?_⟩
   simp only [decode,dif_pos fin]
   exact Quotient.sound ⟨InducedCategory.isoMk (F := FiniteGrp.toGrp) u.symm.toGrpIso⟩
+
+/-- For a cyclic quotient it suffices to record the conjugacy class of the
+action of a lifted generator and one element recording its power. -/
+lemma outer_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ)
+    [(MulAut.conj : K →* MulAut K).range.Normal] :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+        N.index = m ∧ Nonempty (K ≃* N)}).ncard ≤ (ConjClasses.mk '' {t : MulAut K ⧸ (MulAut.conj : K →* MulAut K).range | t^m = 1}).ncard*Nat.card (Subgroup.center K) := by
+  rw [← Set.inter_univ (ConjClasses.mk '' {t : MulAut K ⧸ (MulAut.conj : K →* MulAut K).range | t^m = 1})]
+  apply filtered_outer_cyclic_quotient_count
+  rintro G ⟨N,hn,cyc,idx,⟨e⟩⟩
+  let _ : N.Normal := hn
+  let _ : IsCyclic (G ⧸ N) := cyc
+  obtain ⟨v,hv⟩ := IsCyclic.exists_generator (α := G ⧸ N)
+  obtain ⟨t,ht⟩ := QuotientGroup.mk'_surjective N v
+  exact ⟨N,hn,e,v,t,idx,hv,ht,Set.mem_univ _⟩
+
+/-- With abelian ambient Sylow p-subgroups, only outer classes represented by an
+automorphism fixing the prescribed kernel Sylow subgroup pointwise can occur. -/
+lemma abelian_sylow_filtered_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
+    (a : ℕ) (S : Sylow p K) [(MulAut.conj : K →* MulAut K).range.Normal] :
+    let π := QuotientGroup.mk' (MulAut.conj : K →* MulAut K).range
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | (∀ P : Sylow p G, IsMulCommutative P) ∧
+        ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+          N.index = p^a ∧ Nonempty (K ≃* N)}).ncard ≤
+      ((ConjClasses.mk '' {t : MulAut K ⧸ (MulAut.conj : K →* MulAut K).range | t^(p^a) = 1}) ∩
+        ((fun f : MulAut K => ConjClasses.mk (π f)) '' {f | ∀ x ∈ S, f x = x})).ncard
+        * Nat.card (Subgroup.center K) := by
+  dsimp only
+  apply filtered_outer_cyclic_quotient_count
+  rintro G ⟨comm,N,hn,cyc,idx,⟨e⟩⟩
+  let _ : N.Normal := hn
+  let _ : IsCyclic (G ⧸ N) := cyc
+  obtain ⟨v,hv⟩ := IsCyclic.exists_generator (α := G ⧸ N)
+  obtain ⟨t,ht,fixed⟩ := exists_pointwise_fixed_quotient_lift N idx e S.toSubgroup S.isPGroup' comm v
+  exact ⟨N,hn,e,v,t,idx,hv,ht,_,fixed,rfl⟩
 
 lemma eligible_cyclic_quotient_count (K : FiniteGrp.{0}) (m : ℕ) :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
@@ -3010,6 +3082,33 @@ lemma prime_power_torsion_classes_le_sylow (G : Type*) [Group G] [Finite G]
     exact ⟨_,⟨y,hy,rfl⟩,(ConjClasses.mk_eq_mk_iff_isConj.mpr (isConj_iff.mpr ⟨g,rfl⟩)).symm⟩
   exact (Set.ncard_le_ncard covers ((Set.toFinite S).image _)).trans
     (Set.ncard_image_le (Set.toFinite S))
+
+/-- Localize the filtered count to a Sylow subgroup of the image in Out(K) of the
+pointwise stabilizer of a kernel Sylow subgroup. -/
+lemma pointwise_stabilizer_sylow_extension_count (K : FiniteGrp.{0}) {p : ℕ} [Fact p.Prime]
+    (a : ℕ) (S : Sylow p K) [(MulAut.conj : K →* MulAut K).range.Normal] :
+    let π := QuotientGroup.mk' (MulAut.conj : K →* MulAut K).range
+    let H := (fixingSubgroup (MulAut K) (S : Set K)).map π
+    ∀ P : Sylow p H, (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | (∀ Q : Sylow p G, IsMulCommutative Q) ∧
+        ∃ (N : Subgroup G) (_ : N.Normal), IsCyclic (G ⧸ N) ∧
+          N.index = p^a ∧ Nonempty (K ≃* N)}).ncard ≤
+      (ConjClasses.mk '' {x : P | x^(p^a) = 1}).ncard * Nat.card (Subgroup.center K) := by
+  classical
+  intro π H P
+  apply (abelian_sylow_filtered_extension_count K a S).trans
+  apply Nat.mul_le_mul_right
+  apply le_trans _ (prime_power_torsion_classes_le_sylow H P a)
+  let T := ConjClasses.mk '' {x : H | x^(p^a) = 1}
+  let _ : Finite (ConjClasses H) := Finite.of_surjective _ ConjClasses.mk_surjective
+  apply le_trans (Set.ncard_le_ncard (t := ConjClasses.map H.subtype '' T) ?_
+    ((Set.toFinite T).image _)) (Set.ncard_image_le (Set.toFinite T))
+  rintro _ ⟨⟨x,hx,rfl⟩,f,hf,eq⟩
+  have conj := (ConjClasses.mk_eq_mk_iff_isConj.mp eq).pow (p^a)
+  rw [show x^(p^a) = 1 from hx] at conj
+  let y : H := ⟨π f,f,(mem_fixingSubgroup_iff _).mpr hf,rfl⟩
+  have hy : y^(p^a) = 1 := Subtype.ext (isConj_one_left.mp conj)
+  exact ⟨_,⟨y,hy,rfl⟩,eq⟩
 
 /-- Prime-power cyclic extensions, including nonsplit ones, cost only the central layers
 of one Sylow subgroup of the outer automorphism group and the center of the kernel. -/
