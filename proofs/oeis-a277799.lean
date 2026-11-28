@@ -1,5 +1,8 @@
 import OMAStatements.S_oeis_a277799
 
+/- The even generations are a single live cell. The odd generations are the
+   complement of the five-cell cross. This determines the binary digits on the axis. -/
+
 open OMA.S_oeis_a277799 PowerSeries
 
 namespace OMA.P_a277799
