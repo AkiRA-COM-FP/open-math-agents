@@ -12,6 +12,9 @@ def H1 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ a b c : P, (¬ a ≤ b ∧ ¬ b ≤ a) ∧ (¬ a ≤ c ∧ ¬ c ≤ a) ∧ (¬ b ≤ c ∧ ¬ c ≤ b)) →
     (∀ x : P, ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard ≤ 6) →
+    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
+      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
+      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
     (let count (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
@@ -32,6 +35,9 @@ def H2 : Prop := ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∀ (e : P ≃o P) (x : P), e x = x) →
     (∃ a b c : P, (¬ a ≤ b ∧ ¬ b ≤ a) ∧ (¬ a ≤ c ∧ ¬ c ≤ a) ∧ (¬ b ≤ c ∧ ¬ c ≤ b)) →
     (∃ x : P, 7 ≤ ({y : P | ¬ x ≤ y ∧ ¬ y ≤ x} : Set P).ncard) →
+    (¬ ∃ x y : P, x ≠ y ∧ (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) ∧
+      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
+      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a)) →
     (let count (extra : List (P × P)) :=
       Nat.card {σ : P ≃ Fin (Fintype.card P) //
         (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
@@ -1099,6 +1105,161 @@ lemma automorphism_balanced (P : Type) [PartialOrder P] [Fintype P]
       1 / 3 ≤ p ∧ p ≤ 2 / 3 := by
   exact gold_balanced P (automorphism_gold P moves)
 
+-- Exchange x and y in a family of extensions where every strict successor
+-- of x is after y. The predecessor inclusion protects y when moved earlier.
+lemma exchange_count_le (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ (x y : P) (extra : List (P × P)), ¬ x ≤ y →
+      (∀ a, a < y → a < x) →
+      (∀ r : P ≃ Fin (Fintype.card P), StrictMono r →
+        (∀ c ∈ extra, r c.1 < r c.2) →
+        r x < r y ∧ ∀ b, x < b → r y < r b) →
+      count extra ≤ count [(y, x)] := by
+  classical
+  intro count x y extra inc pred safe
+  let ranks (l : List (P × P)) := {σ : P ≃ Fin (Fintype.card P) //
+    (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ l, σ c.1 < σ c.2}
+  let swap := Equiv.swap x y
+  have valid (r : ranks extra) : StrictMono (swap.trans r.val) ∧
+      (swap.trans r.val) y < (swap.trans r.val) x := by
+    have mono : StrictMono r.val := fun _ _ h => r.property.1 _ _ h
+    obtain ⟨xy, succ⟩ := safe r.val mono r.property.2
+    constructor
+    · intro a b ab
+      change r.val (swap a) < r.val (swap b)
+      by_cases ax : a = x
+      · subst a
+        have by' : b ≠ y := fun h => inc (h ▸ ab.le)
+        simpa [swap, Equiv.swap_apply_of_ne_of_ne ab.ne.symm by'] using succ b ab
+      by_cases by' : b = y
+      · subst b
+        simpa [swap, Equiv.swap_apply_of_ne_of_ne ax ab.ne] using mono (pred a ab)
+      have left : r.val (swap a) ≤ r.val a := by
+        by_cases ay : a = y
+        · simpa [ay, swap] using xy.le
+        · simp [swap, Equiv.swap_apply_of_ne_of_ne ax ay]
+      have right : r.val b ≤ r.val (swap b) := by
+        by_cases bx : b = x
+        · simpa [bx, swap] using xy.le
+        · simp [swap, Equiv.swap_apply_of_ne_of_ne bx by']
+      exact lt_of_le_of_lt left (lt_of_lt_of_le (mono ab) right)
+    · simpa [swap] using xy
+  let move (r : ranks extra) : ranks [(y, x)] := ⟨swap.trans r.val,
+    fun _ _ h => (valid r).1 h, by
+      intro c hc
+      obtain rfl : c = (y, x) := by simpa using hc
+      exact (valid r).2⟩
+  apply Nat.card_le_card_of_injective move
+  intro r s h
+  apply Subtype.ext
+  apply Equiv.ext
+  intro a
+  have eq := congrArg (fun t : ranks [(y, x)] => t.val (swap.symm a)) h
+  change r.val (swap (swap.symm a)) = s.val (swap (swap.symm a)) at eq
+  simpa using eq
+
+-- Peczarski, section 2 (one upper chain and a weak majority at its base).
+lemma upper_chain_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y : P, ¬ x ≤ y → (∀ a, a < y → a < x) →
+      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) →
+      count [] ≤ 2 * count [(x, y)] → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  classical
+  intro count x y inc pred chain initial
+  obtain ⟨rank, mono⟩ := rank_exists P
+  obtain ⟨_, _, split, _⟩ := comparison_counts P
+  let eligible := Finset.univ.filter (fun a : P => x ≤ a ∧ count [] ≤ 2 * count [(a, y)])
+  have mem (a : P) : a ∈ eligible ↔ x ≤ a ∧ count [] ≤ 2 * count [(a, y)] := by simp [eligible]
+  obtain ⟨a, ha, last⟩ := eligible.exists_max_image rank ⟨x, (mem x).2 ⟨le_rfl, initial⟩⟩
+  obtain ⟨xa, majority⟩ := (mem a).1 ha
+  have ay : ¬ a ≤ y := fun h => inc (xa.trans h)
+  have ne : a ≠ y := fun h => ay h.le
+  have pred' (b : P) (h : b < y) : b < a := lt_of_lt_of_le (pred b h) xa
+  have part : count [(a, y)] + count [(y, a)] = count [] := split [] a y ne
+  by_cases above : ∃ b, a < b
+  · obtain ⟨b, hb⟩ := above
+    let upper := Finset.univ.filter (fun z : P => a < z)
+    have up (z : P) : z ∈ upper ↔ a < z := by simp [upper]
+    obtain ⟨z, hz, first⟩ := upper.exists_min_image rank ⟨b, (up b).2 hb⟩
+    have az := (up z).1 hz
+    have least (v : P) (av : a < v) : z ≤ v := by
+      rcases chain z v (xa.trans az.le) (xa.trans av.le) with h | h
+      · exact h
+      · by_contra bad
+        exact (not_lt_of_ge (first v ((up v).2 av))) (mono (lt_of_le_of_ne h (fun eq => bad eq.ge)))
+    have minority : 2 * count [(z, y)] < count [] := by
+      by_contra! large
+      exact (not_lt_of_ge (last z ((mem z).2 ⟨xa.trans az.le, large⟩))) (mono az)
+    have cell : count [(a, y), (y, z)] ≤ count [(y, a)] := by
+      apply exchange_count_le P a y _ ay pred'
+      intro r hr extra
+      exact ⟨extra (a, y) (by simp), fun v av =>
+        lt_of_lt_of_le (extra (y, z) (by simp)) (hr.monotone (least v av))⟩
+    have yz : y ≠ z := fun h => ay (h ▸ az.le)
+    have bound : 2 * max (count [(y, a)]) (count [(z, y)]) ≤ count [] := by omega
+    exact balanced_triple_gold P a y z ne yz az.ne (cell.trans (le_max_left _ _)) bound
+  · have bound : count [(a, y)] ≤ count [(y, a)] := by
+      apply exchange_count_le P a y _ ay pred'
+      intro r _ extra
+      exact ⟨extra (a, y) (by simp), fun b h => (above ⟨b, h⟩).elim⟩
+    have tie : 2 * count [(a, y)] = count [] := by omega
+    exact tied_comparison_gold P a y ne tie
+
+lemma two_upper_chains_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y : P, ¬ x ≤ y → ¬ y ≤ x → (∀ a, a < x ↔ a < y) →
+      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) →
+      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a) → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  intro count x y xy yx pred cx cy
+  obtain ⟨_, _, split, _⟩ := comparison_counts P
+  have part : count [(x, y)] + count [(y, x)] = count [] :=
+    split [] x y (fun h => xy h.le)
+  by_cases majority : count [] ≤ 2 * count [(x, y)]
+  · exact upper_chain_gold P x y xy (fun a => (pred a).2) cx majority
+  · have reverse : count [] ≤ 2 * count [(y, x)] := by omega
+    exact upper_chain_gold P y x yx (fun a => (pred a).1) cy reverse
+
+-- Lower covers generate the strict lower set in a finite poset.
+lemma lower_covers_determine_predecessors (P : Type) [PartialOrder P] [Fintype P]
+    (x y : P) (covers : ∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) :
+    ∀ a : P, a < x ↔ a < y := by
+  classical
+  obtain ⟨rank, mono⟩ := rank_exists P
+  have liftPred (i j : P) (sub : ∀ c : P, c ⋖ i → c ⋖ j) (a : P) (ai : a < i) : a < j := by
+    let interval := Finset.univ.filter (fun c : P => a ≤ c ∧ c < i)
+    have mem (c : P) : c ∈ interval ↔ a ≤ c ∧ c < i := by simp [interval]
+    obtain ⟨c, hc, last⟩ := interval.exists_max_image rank ⟨a, (mem a).2 ⟨le_rfl, ai⟩⟩
+    obtain ⟨ac, ci⟩ := (mem c).1 hc
+    have cover : c ⋖ i := ⟨ci, fun d cd di =>
+      (not_lt_of_ge (last d ((mem d).2 ⟨ac.trans cd.le, di⟩))) (mono cd)⟩
+    exact lt_of_le_of_lt ac (sub c cover).1
+  exact fun a => ⟨liftPred x y (fun c => (covers c).1) a, liftPred y x (fun c => (covers c).2) a⟩
+
+lemma common_lower_covers_gold (P : Type) [PartialOrder P] [Fintype P] :
+    let count (extra : List (P × P)) :=
+      Nat.card {σ : P ≃ Fin (Fintype.card P) //
+        (∀ a b : P, a < b → σ a < σ b) ∧ ∀ c ∈ extra, σ c.1 < σ c.2}
+    ∀ x y : P, x ≠ y → (∀ c : P, (c ⋖ x) ↔ (c ⋖ y)) →
+      (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) →
+      (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a) → ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
+      ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
+        count [p] + count [p, q] ≤ count [] := by
+  intro count x y ne covers cx cy
+  have pred := lower_covers_determine_predecessors P x y covers
+  have xy : ¬ x ≤ y := fun h => (lt_irrefl x) ((pred x).2 (lt_of_le_of_ne h ne))
+  have yx : ¬ y ≤ x := fun h => (lt_irrefl y) ((pred y).1 (lt_of_le_of_ne h ne.symm))
+  exact two_upper_chains_gold P x y xy yx pred cx cy
+
 -- The six-thin gold-partition theorem would discharge the existing H1.
 lemma six_thin_gold_suffices (sixThin : ∀ (P : Type) [PartialOrder P] [Fintype P],
     (∃ a b : P, ¬ a ≤ b ∧ ¬ b ≤ a) →
@@ -1109,7 +1270,7 @@ lemma six_thin_gold_suffices (sixThin : ∀ (P : Type) [PartialOrder P] [Fintype
     ∃ x y u v : P, x ≠ y ∧ u ≠ v ∧
       ∀ p ∈ [(x, y), (y, x)], ∀ q ∈ [(u, v), (v, u)],
         count [p] + count [p, q] ≤ count []) : H1 := by
-  intro P _ _ _ _ _ three thin noGold
+  intro P _ _ _ _ _ three thin _ noGold
   obtain ⟨x, y, _, xy, _, _⟩ := three
   exact (noGold (sixThin P ⟨x, y, xy⟩ thin)).elim
 
@@ -1144,10 +1305,15 @@ theorem main : H1 → H2 → type_of% @OMA.S_wp_1_3_2_3_conjecture.main := by
       have rigid (e : Q ≃o Q) (x : Q) : e x = x := by
         by_contra moved
         exact noGold (automorphism_gold Q ⟨e, x, moved⟩)
+      have noChains : ¬ ∃ x y : Q, x ≠ y ∧ (∀ c : Q, (c ⋖ x) ↔ (c ⋖ y)) ∧
+          (∀ a b, x ≤ a → x ≤ b → a ≤ b ∨ b ≤ a) ∧
+          (∀ a b, y ≤ a → y ≤ b → a ≤ b ∨ b ≤ a) := by
+        rintro ⟨x, y, ne, covers, cx, cy⟩
+        exact noGold (common_lower_covers_gold Q x y ne covers cx cy)
       by_cases thin : ∀ x : Q, ({y : Q | ¬ x ≤ y ∧ ¬ y ≤ x} : Set Q).ncard ≤ 6
-      · exact noPair (thinCase Q hn hi rigid three thin noGold)
+      · exact noPair (thinCase Q hn hi rigid three thin noChains noGold)
       · obtain ⟨x, hx⟩ := not_forall.mp thin
-        exact noPair (remaining Q hn hi rigid three ⟨x, by omega⟩ noGold)
+        exact noPair (remaining Q hn hi rigid three ⟨x, by omega⟩ noChains noGold)
   obtain ⟨x, y, hxy, hbounds⟩ := core S hS hcut
   have eqProb := (hprob x y).trans (count_transport e x.val y.val)
   exact ⟨e x.val, e y.val, fun h => hxy (Subtype.ext (e.injective h)),
