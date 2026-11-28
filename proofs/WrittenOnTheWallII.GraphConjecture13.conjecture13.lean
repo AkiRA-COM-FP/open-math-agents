@@ -73,4 +73,6 @@ theorem OMA.solution : type_of% @WrittenOnTheWallII.GraphConjecture13.conjecture
   unfold SimpleGraph.b
   rw [sub_le_iff_le_add]
   norm_cast
+  change G.diam + vals.max' hn ≤ _
+  rw [← hx, ← hM]
   omega
