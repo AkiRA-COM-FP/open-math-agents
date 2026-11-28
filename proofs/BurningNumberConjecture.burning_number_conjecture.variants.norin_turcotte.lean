@@ -9,8 +9,9 @@ Counting vertices above the path gives one- and two-ball covers of small
 pieces. For fixed nonnegative prices on radius intervals, choose the
 radius that minimises cumulative price divided by squared radius. The
 resulting cover has bounded price and uses a bounded number of balls.
-A sum of squared deviations selects covers whose radii fit into distinct
-ignition rounds.
+Prices depend on the bins already used. At each step we remove the chosen
+fragment and bound the increase in the sum of squared bin overloads. A final
+ball covers the remainder. The bin counts give distinct ignition rounds.
 -/
 
 namespace BurningNumberConjecture.Proof
@@ -20,19 +21,6 @@ lemma path_dist {V : Type} {G : SimpleGraph V} (hG : G.IsTree)
     {a b : V} {p : G.Walk a b} (hp : p.IsPath) : p.length = G.dist a b := by
   obtain ⟨q,hq,e⟩ := hG.connected.exists_path_of_dist a b
   rwa [(hG.existsUnique_path _ _).unique hp hq]
-
-end
-section
-open SimpleGraph
-variable {V : Type} {G : SimpleGraph V}
-lemma frontier (S : Set V) {u v : V} (p : G.Walk u v) (hu : u ∈ S) (hv : v ∉ S) :
-    ∃ a ∈ S, ∃ b ∉ S, G.Adj a b := by
-  induction p with
-  | nil => exact (hv hu).elim
-  | @cons u v w e p ih =>
-    by_cases h : v ∈ S
-    · exact ih h hv
-    · exact ⟨_,hu,_,h,e⟩
 
 end
 
@@ -92,67 +80,12 @@ theorem coordinates (ht : G.IsTree) (p : G.Walk x y) (hp : p.IsPath) :
 
 end
 
-section
-open SimpleGraph
-variable {V : Type} [Fintype V]
-
-/- Count the diameter path and the two vertical columns above distinct positions. -/
-private lemma three_ranges (tag : V → ℕ × ℕ) {d H z i j : ℕ} (sep : i=j → z=0)
-    (p : Fin (d+1) → V) (a : Fin H → V) (b : Fin z → V)
-    (hp : ∀ n, tag (p n) = (n.val,0)) (ha : ∀ n, tag (a n) = (i,n.val+1))
-    (hb : ∀ n, tag (b n) = (j,n.val+1)) : d+H+z+1 ≤ Fintype.card V := by
-  let f : Fin (d+1) ⊕ (Fin H ⊕ Fin z) → V := Sum.elim p (Sum.elim a b)
-  have inj : Function.Injective f := by
-    intro x y h
-    have hh := congrArg tag h
-    rcases x with x | x | x <;> rcases y with y | y | y <;>
-      simp [f,hp,ha,hb] at hh ⊢ <;> first | exact Fin.ext (by omega) | grind
-  have := Fintype.card_le_of_injective _ inj
-  simp at this
-  omega
-
-theorem spine_data {G : SimpleGraph V} (ht : G.IsTree) :
-    ∃ (x y : V) (p : G.Walk x y) (I H z : ℕ) (j h : V → ℕ) (tip : V),
-      H ≤ I ∧ I+H ≤ p.length ∧ z ≤ H ∧ p.length+H+z+1 ≤ Fintype.card V ∧
-      G.dist x y = p.length ∧ G.dist x tip = I+H ∧ G.dist y tip = p.length-I+H ∧
-      ∀ v, h v ≤ j v ∧ j v+h v ≤ p.length ∧ G.dist (p.getVert (j v)) v ≤ h v ∧
-        (j v = I ∧ h v ≤ H ∨ h v ≤ z) := by
-  classical
-  let _ := ht.connected.nonempty
-  obtain ⟨x,y,hd⟩ := G.exists_dist_eq_diam
-  obtain ⟨p,path,plen⟩ := ht.connected.exists_path_of_dist x y
-  choose j h tag dist chain using coordinates ht p path
-  have bounds (v) : h v ≤ j v ∧ j v + h v ≤ p.length := by
-    have left := G.dist_le_diam (G.connected_iff_ediam_ne_top.mp ht.connected) (u := x) (v := v)
-    have right := G.dist_le_diam (G.connected_iff_ediam_ne_top.mp ht.connected) (u := y) (v := v)
-    obtain ⟨_,_,_⟩ := tag v
-    omega
-  obtain ⟨u,_,hu⟩ := Finset.exists_max_image Finset.univ h Finset.univ_nonempty
-  let z := min (h u) (Fintype.card V-(p.length+h u+1))
-  have points (v : V) (k : ℕ) (hk : k ≤ h v) : ∃ t, (j t,h t) = (j v,k) := by
-    obtain ⟨t,ht⟩ := chain v k hk
-    exact ⟨t,(tag t).unique ht⟩
-  choose a ha using fun n : Fin (h u) => points u (n+1) n.isLt
-  have on (k : Fin (p.length+1)) : (j (p.getVert k),h (p.getVert k)) = (k.val,0) := by
-    exact (tag _).unique (tag_getVert ht path (by omega))
-  have pack (v) (s : ℕ) (hs : s ≤ h v) (sep : j u = j v → s=0) : p.length+h u+s+1 ≤ Fintype.card V := by
-    choose b hb using fun n : Fin s => points v (n+1) (n.isLt.trans_le hs)
-    exact three_ranges (fun v => (j v,h v)) sep (fun n => p.getVert n) a b on ha hb
-  have base := pack u 0 (Nat.zero_le _) (fun _ => rfl)
-  obtain ⟨_,e₁,e₂⟩ := tag u
-  refine ⟨x,y,p,j u,h u,z,j,h,u,(bounds u).1,(bounds u).2,min_le_left ..,by dsimp [z]; omega,
-    plen.symm,e₁,e₂,fun v => ⟨(bounds v).1,(bounds v).2,dist v,?_⟩⟩
-  by_cases he : j v = j u
-  · exact Or.inl ⟨he,hu _ (by simp)⟩
-  · exact Or.inr (le_min (hu _ (by simp)) (by have := pack v (h v) le_rfl (by tauto); omega))
-
-end
 
 section
 open SimpleGraph BurningNumberConjecture
 
 /- Rounding a position on a path down to a vertex costs at most one round.
-The reduced distance records this allowance; the scheduler restores it. -/
+The scheduler restores this round when it passes from cost to graph distance. -/
 variable {V : Type} {T : SimpleGraph V}
 
 noncomputable def cost (T : SimpleGraph V) (u v : V) : ℝ := (T.dist u v : ℝ)-1
@@ -190,17 +123,6 @@ end
 
 section
 open SimpleGraph
-variable {V : Type} {G : SimpleGraph V}
-lemma two_parts_bound {X Y : Set V} {d : ℕ} {u v w : V}
-    (hx : ∀ a ∈ X, ∀ b ∈ X, G.dist a b ≤ d)
-    (hy : ∀ a ∈ Y, ∀ b ∈ Y, G.dist a b ≤ d)
-    (hu : u ∈ X ∪ Y) (hv : v ∈ X ∪ Y) (hw : w ∈ X ∪ Y) :
-    G.dist u v ≤ d ∨ G.dist u w ≤ d ∨ G.dist v w ≤ d := by
-  rcases hu with h|h <;> rcases hv with h'|h' <;> rcases hw with h''|h'' <;> grind
-
-end
-section
-open SimpleGraph
 
 /- The physical parameters needed to apply the normalized local profile. -/
 def HasPieceProfiles {V W : Type} (dist : W → V → ℝ) (l L : ℝ) : Prop :=
@@ -209,8 +131,6 @@ def HasPieceProfiles {V W : Type} (dist : W → V → ℝ) (l L : ℝ) : Prop :=
     (∀ t ≥ m, ∀ s ≥ 0, B ≤ s+t →
       ∃ u w : W, ∀ v, dist u v ≤ s ∨ dist w v ≤ t)
 
-/- A finite tree covered by two sets of diameter at most l has the physical
-one/two-ball profiles at any L between its edge count and 2l. -/
 end
 
 section
@@ -282,6 +202,7 @@ theorem tree_induce_dist {V : Type} {G : SimpleGraph V} (ht : G.IsTree)
 
 /- One- and two-ball profiles for the actual fragment of the spanning-tree
 decomposition. All centres and distances are in the ambient tree. -/
+set_option maxHeartbeats 600000 in
 theorem branch_piece_profiles {V : Type} [Fintype V] [DecidableEq V]
     {G : SimpleGraph V} (ht : G.IsTree) {l : ℕ} (u : Σ r, Branch G r) (hu : Minimal l u) :
     HasPieceProfiles (fun (c : V) (v : (↑u.2.vertices : Set V)) => cost G c v.val) l u.2.size := by
@@ -295,11 +216,43 @@ theorem branch_piece_profiles {V : Type} [Fintype V] [DecidableEq V]
   have hsize : (Fintype.card S : ℝ) ≤ L+1 := by
     dsimp [L]; exact_mod_cast (show Fintype.card S ≤ u.2.size+1 from (Fintype.card_coe _).le.trans u.2.card)
   have cap : L ≤ 2*l := by dsimp [L]; exact_mod_cast hcap
-  obtain ⟨x,y,p,I,H,z,j,h,u,hle,hright,hz,hcard,dxy,dx,dy,hv⟩ := spine_data tree
+  let _ := hc.nonempty
+  obtain ⟨x,y,hd⟩ := P.exists_dist_eq_diam
+  obtain ⟨p,path,plen⟩ := hc.exists_path_of_dist x y
+  choose j h tag dist chain using coordinates tree p path
+  have bounds (v) : h v ≤ j v ∧ j v + h v ≤ p.length := by
+    have left := P.dist_le_diam (P.connected_iff_ediam_ne_top.mp hc) (u := x) (v := v)
+    have right := P.dist_le_diam (P.connected_iff_ediam_ne_top.mp hc) (u := y) (v := v)
+    obtain ⟨_,_,_⟩ := tag v
+    omega
+  obtain ⟨u,_,hu⟩ := Finset.exists_max_image Finset.univ h Finset.univ_nonempty
+  let z := min (h u) (Fintype.card S-(p.length+h u+1))
+  have points (v : S) (k : ℕ) (hk : k ≤ h v) : ∃ t, (j t,h t) = (j v,k) := by
+    obtain ⟨t,ht⟩ := chain v k hk
+    exact ⟨t,(tag t).unique ht⟩
+  choose a ha using fun n : Fin (h u) => points u (n+1) n.isLt
+  have on (k : Fin (p.length+1)) : (j (p.getVert k),h (p.getVert k)) = (k.val,0) := by
+    exact (tag _).unique (tag_getVert tree path (by omega))
+  have pack (v) (s : ℕ) (hs : s ≤ h v) (sep : j u = j v → s=0) : p.length+h u+s+1 ≤ Fintype.card S := by
+    choose b hb using fun n : Fin s => points v (n+1) (n.isLt.trans_le hs)
+    let f : Fin (p.length+1) ⊕ (Fin (h u) ⊕ Fin s) → S := Sum.elim (fun n => p.getVert n) (Sum.elim a b)
+    have inj : Function.Injective f := by
+      intro m n e
+      have hh := congrArg (fun v => (j v,h v)) e
+      rcases m with m | m | m <;> rcases n with n | n | n <;>
+        simp [f,on,ha,hb] at hh ⊢ <;> first | exact Fin.ext (by omega) | grind
+    have := Fintype.card_le_of_injective _ inj
+    simp only [Fintype.card_sum,Fintype.card_fin] at this; omega
+  have base := pack u 0 (Nat.zero_le _) (fun _ => rfl)
+  have hcard : p.length+h u+z+1 ≤ Fintype.card S := by dsimp [z]; omega
+  let H := h u
+  let I := j u
+  obtain ⟨hle,hright⟩ := bounds u
+  have hz : z ≤ H := min_le_left ..
   have short := close x x.prop y y.prop u u.prop
-  simp only [P,tree_induce_dist ht hc] at dxy dx dy
-  rw [dxy,dx,dy] at short
-  have short' : H + min I (p.length-I) ≤ l := by omega
+  obtain ⟨_,dx,dy⟩ := tag u
+  simp only [P,tree_induce_dist ht hc] at plen dx dy
+  have short' : H + min I (p.length-I) ≤ l := by dsimp [I,H]; omega
   let D : ℝ := p.length
   let i : ℝ := I
   have mass : D+(H:ℝ)+z ≤ L := by
@@ -323,27 +276,28 @@ theorem branch_piece_profiles {V : Type} [Fintype V] [DecidableEq V]
     apply add_le_add le_rfl
     exact_mod_cast (show G.dist (q.getVert (j v)) v.val ≤ h v by
       rw [show q.getVert (j v) = (p.getVert (j v)).val from Walk.getVert_map ..,← tree_induce_dist ht hc]
-      exact (hv v).2.2.1)
+      exact dist v)
   have geom (v) : (h v : ℝ) ≤ j v ∧ (j v : ℝ)+h v ≤ D := by
-    obtain ⟨k,e,_⟩ := hv v
+    obtain ⟨k,e⟩ := bounds v
     exact ⟨by exact_mod_cast k,by dsimp [D]; exact_mod_cast e⟩
   refine ⟨m,B,?_,?_,?_,by dsimp [B]; ring,⟨centre (D/2),fun v => ?_⟩,?_⟩
   · dsimp [m]; grind
   · dsimp [m]; grind
   · dsimp [B,m]; grind
-  · have := geom v; have := bound (D/2) v; grind [abs_eq_max_neg]
+  · obtain ⟨lo,hi⟩ := geom v; have b := bound (D/2) v; clear * - lo hi b space; grind only [abs_eq_max_neg,max_def]
   intro t ht s hs hsum
   let flip (x : ℝ) := if i ≤ D-i then x else D-x
   refine ⟨centre (flip (D-(B-t))),centre (flip t),fun v => ?_⟩
-  obtain ⟨_,_,_,htip | hlow⟩ := hv v
+  by_cases htip : j v = I
   · right
-    obtain ⟨e₁,e₂⟩ := htip
-    have k : (j v : ℝ) = i := by dsimp [i]; exact_mod_cast e₁
-    have h := Nat.cast_le (α := ℝ).mpr e₂
-    have := bound (flip t) v
+    have k : (j v : ℝ) = i := by dsimp [i]; exact_mod_cast htip
+    have h := Nat.cast_le (α := ℝ).mpr (hu v (Finset.mem_univ _))
+    have b := bound (flip t) v
+    clear * - b k h head hi hj ht
     dsimp [flip] at *
     grind [abs_eq_max_neg]
-  · have low := Nat.cast_le (α := ℝ).mpr hlow
+  · have low := Nat.cast_le (α := ℝ).mpr (show h v ≤ z from
+      le_min (hu _ (by simp)) (by have := pack v (h v) le_rfl (fun he => (htip he.symm).elim); omega))
     obtain ⟨lo,hi⟩ := geom v
     have right := bound (flip (D-(B-t))) v
     have left := bound (flip t) v
@@ -372,34 +326,30 @@ open SimpleGraph BurningNumberConjecture
 variable {V : Type} {T : SimpleGraph V}
 variable {Q : Type} (bin : Q → ℝ → ℝ)
 
-/- A cover records its radius histogram and the number of ignition rounds it uses. -/
-def Attain (T : SimpleGraph V) (S : Set V) (R B : ℝ) : Set (Q → ℝ) :=
+/- The histogram counts the radii of a list of balls covering the specified vertices. -/
+def Attain (T : SimpleGraph V) (S : Set V) (R : ℝ) : Set (Q → ℝ) :=
   {x | ∃ bs : List (ℝ × V), (∀ p ∈ bs, p.1 ∈ Set.Icc 0 R) ∧
-    (bs.length : ℝ) ≤ B ∧
     (∀ v ∈ S, ∃ p ∈ bs, cost T p.2 v ≤ p.1) ∧
     ∀ q, x q = (bs.map (fun p => bin q p.1)).sum}
 
-lemma attainable_mono {S : Set V} {R B R' B' : ℝ} (hr : R ≤ R') (hb : B ≤ B') :
-    Attain bin T S R B ⊆ Attain bin T S R' B' := by
-  rintro x ⟨bs,hs,hcost,hcov,hist⟩
-  exact ⟨bs,fun p hp => ⟨(hs p hp).1,(hs p hp).2.trans hr⟩,hcost.trans hb,hcov,hist⟩
+lemma attainable_mono {S : Set V} {R R' : ℝ} (hr : R ≤ R') :
+    Attain bin T S R ⊆ Attain bin T S R' := by
+  rintro x ⟨bs,hs,hcov,hist⟩
+  exact ⟨bs,fun p hp => ⟨(hs p hp).1,(hs p hp).2.trans hr⟩,hcov,hist⟩
 
-lemma attainable_add {S Z : Set V} {R A B : ℝ} {x y : Q → ℝ}
-    (hx : x ∈ Attain bin T S R A) (hy : y ∈ Attain bin T Z R B) :
-    x+y ∈ Attain bin T (S ∪ Z) R (A+B) := by
-  obtain ⟨xs,hxs,hxa,hxc,hxi⟩ := hx
-  obtain ⟨ys,hys,hya,hyc,hyi⟩ := hy
+lemma attainable_add {S Z A : Set V} {R : ℝ} {x y : Q → ℝ}
+    (hx : x ∈ Attain bin T S R) (hy : y ∈ Attain bin T Z R) (sub : A ⊆ S ∪ Z) :
+    x+y ∈ Attain bin T A R := by
+  obtain ⟨xs,hxs,hxc,hxi⟩ := hx
+  obtain ⟨ys,hys,hyc,hyi⟩ := hy
   refine ⟨xs++ys,fun p h => (List.mem_append.mp h).elim (hxs p) (hys p),
-    by simpa using add_le_add hxa hya, fun v hv => ?_, fun q => by simp [hxi,hyi]⟩
+    fun v h => ?_,fun q => by simp [hxi,hyi]⟩
+  have hv := sub h
   rcases hv with h|h
   · obtain ⟨p,h,hp⟩ := hxc v h
     exact ⟨p,List.mem_append_left _ h,hp⟩
   · obtain ⟨p,h,hp⟩ := hyc v h
     exact ⟨p,List.mem_append_right _ h,hp⟩
-
-/- A profile is attainable at every nonnegative system of bin prices. -/
-def Offers {Q : Type} [Fintype Q] (C : Set (Q → ℝ)) (x : Q → ℝ) : Prop :=
-  ∀ w : Q → ℝ, (∀ k, 0 ≤ w k) → ∃ y ∈ C, ∑ k, w k*y k ≤ ∑ k, w k*x k
 
 end
 section
@@ -483,21 +433,7 @@ noncomputable def tailPrice (w : Q → ℝ) (R a : ℝ) : ℝ :=
 def Law (G : SimpleGraph V) (S : Set V) (R δ moment : ℝ) : Prop :=
   ∀ (w : Q → ℝ) (Y : ℝ), 0 ≤ Y →
     (∀ a ∈ Icc 0 (1-δ), tailPrice lo hi w R a ≤ (1+a)*Y) →
-    ∃ x ∈ Attain (fun q => bin (lo q) (hi q)) G S R moment, ∑ q, w q*x q ≤ moment*Y
-
-lemma Law.add {S Z : Set V} {R δ M N : ℝ}
-    (hS : Law lo hi G S R δ M) (hZ : Law lo hi G Z R δ N) :
-    Law lo hi G (S ∪ Z) R δ (M+N) := by
-  intro w Y hy ht
-  obtain ⟨x,hx,hs⟩ := hS w Y hy ht
-  obtain ⟨y,hy,hz⟩ := hZ w Y hy ht
-  exact ⟨x+y,attainable_add _ hx hy,by simpa [mul_add,add_mul,sum_add_distrib] using add_le_add hs hz⟩
-
-lemma Law.weaken {S Z : Set V} {R δ M M' : ℝ} (sub : Z ⊆ S)
-    (hm : M ≤ M') (h : Law lo hi G S R δ M) : Law lo hi G Z R δ M' := by
-  intro w Y hy ht
-  obtain ⟨x,⟨bs,hr,hc,cov,hx⟩,hb⟩ := h w Y hy ht
-  exact ⟨x,⟨bs,hr,hc.trans hm,fun v hv => cov v (sub hv),hx⟩,hb.trans (mul_le_mul_of_nonneg_right hm hy)⟩
+    ∃ x ∈ Attain (fun q => bin (lo q) (hi q)) G S R ∩ {x | ∀ q, x q ∈ Set.Icc (0:ℝ) 2}, ∑ q, w q*x q ≤ moment*Y
 
 lemma tail_mass {R a : ℝ} (hr : 0 < R) (ha : 0 ≤ a) (ha' : a ≤ 1) (u v : ℝ) :
     overlap a 1 (u/R) (v/R) = overlap 0 R u v/R - overlap 0 (R*a) u v/R := by
@@ -525,19 +461,28 @@ open SimpleGraph MeasureTheory Set Finset
 open scoped unitInterval
 variable {V Q : Type} [Fintype V] [Fintype Q] [DecidableEq V] {G : SimpleGraph V}
 
+private lemma affine_ranges {a b : ℝ} (h : a ≤ b) (y : I) :
+    a+(y:ℝ)*(b-a) ∈ Set.Icc a b ∧ b-(y:ℝ)*(b-a) ∈ Set.Icc a b := by
+  have := mul_nonneg y.prop.1 (sub_nonneg.mpr h)
+  have := mul_le_mul_of_nonneg_right y.prop.2 (sub_nonneg.mpr h)
+  exact ⟨⟨by linarith,by linarith⟩,⟨by linarith,by linarith⟩⟩
+
+private lemma scaled_radius {r x : ℝ} (hr : 0 ≤ r) (hx : x ∈ Set.Icc 0 1) : r*x ∈ Set.Icc 0 r :=
+  ⟨mul_nonneg hr hx.1,by simpa using mul_le_mul_of_nonneg_left hx.2 hr⟩
+
 private lemma single_law (lo hi : Q → ℝ) {S : Set V} {R δ : ℝ} (hr : 0 < R)
     (hd : 0 < δ) (hd' : δ ≤ 1/2) (one : ∀ t ∈ Set.Icc (1-δ) 1,
       ∃ c : V, ∀ v ∈ S, cost G c v ≤ R*t) : Law lo hi G S R δ (2-δ) := by
   classical
   let f (y : I) := 1-δ+(y:ℝ)*δ
   let X (y : I) (q : Q) := bin (lo q/R) (hi q/R) (f y)
-  have hX (y : I) : X y ∈ Attain (fun q => bin (lo q) (hi q)) G S R (2-δ) := by
-    have hl : 1-δ ≤ f y := by dsimp [f]; linarith [mul_nonneg y.prop.1 hd.le]
-    have hu : f y ≤ 1 := by dsimp [f]; linarith [mul_le_mul_of_nonneg_right y.prop.2 hd.le]
-    have rng : R*f y ∈ Set.Icc 0 R := ⟨mul_nonneg hr.le (by linarith),by nlinarith [mul_le_mul_of_nonneg_left hu hr.le]⟩
-    obtain ⟨c,hc⟩ := one (f y) ⟨hl,hu⟩
-    refine ⟨[(R*f y,c)],?_,by simp; linarith,?_,fun q => by simp [X,bin_scale hr]⟩
-    · simpa using rng
+  have hX (y : I) : X y ∈ Attain (fun q => bin (lo q) (hi q)) G S R ∩ {x | ∀ q, x q ∈ Set.Icc (0:ℝ) 2} := by
+    have h : f y ∈ Set.Icc (1-δ) 1 := by simpa [f] using
+        (affine_ranges (show 1-δ ≤ 1 by linarith) y).1
+    obtain ⟨c,hc⟩ := one _ h
+    refine ⟨⟨[(R*f y,c)],?_,?_,fun q => by simp [X,bin_scale hr]⟩,fun q =>
+      ⟨(bin_mem _ _ _).1,((bin_mem _ _ _).2).trans (by norm_num)⟩⟩
+    · simpa using scaled_radius hr.le ⟨by linarith [h.1],h.2⟩
     · intro v hv
       exact ⟨(R*f y,c),by simp,hc v hv⟩
   have hx := mean_offer volume X hX (fun q =>
@@ -545,11 +490,10 @@ private lemma single_law (lo hi : Q → ℝ) {S : Set V} {R δ : ℝ} (hr : 0 < 
   intro w Y hy tail
   obtain ⟨x,hx,hb⟩ := hx w
   refine ⟨x,hx,hb.trans ?_⟩
-  have ht := tail (1-δ) ⟨by linarith,le_rfl⟩
-  simpa only [show 1+(1-δ)=2-δ by ring] using
-    (show ∑ q, w q*(∫ y : I, X y q) ≤ (1+(1-δ))*Y from (le_of_eq_of_le (by
-      apply Finset.sum_congr rfl; intro q _; congr 1
-      simpa [X,f] using (affine_bin_means (a := 1-δ) (b := 1) (by linarith) (lo q/R) (hi q/R)).1) ht))
+  have eq q : (∫ y : I, X y q) = overlap (1-δ) 1 (lo q/R) (hi q/R) / δ := by
+    simpa [X,f] using (affine_bin_means (a := 1-δ) (b := 1) (by linarith) (lo q/R) (hi q/R)).1
+  simp_rw [eq]
+  simpa [tailPrice,show 1+(1-δ)=2-δ by ring] using tail (1-δ) ⟨by linarith,le_rfl⟩
 
 theorem piece_law (lo hi : Q → ℝ) (ht : G.IsTree) {R δ : ℝ}
     (hr : 0 < R) (hd : 0 < δ) (hd' : δ ≤ 1/2)
@@ -566,52 +510,48 @@ theorem piece_law (lo hi : Q → ℝ) (ht : G.IsTree) {R δ : ℝ}
   have hB : B ≤ 2*m := by dsimp [B,m]; field_simp; linarith
   have hL : 2*m+B = u.2.size/R := by dsimp [B,m]; rw [← heq]; ring
   by_cases short : B ≤ 1-δ
-  · apply Law.weaken lo hi Set.Subset.rfl (show 2-δ ≤ (u.2.size:ℝ)/R+2*δ by linarith)
-    apply single_law lo hi hr hd hd'
-    intro t ht'
-    obtain ⟨c,hc⟩ := one
-    have ht := (div_le_iff₀ hr).mp (short.trans ht'.1)
-    exact ⟨c,fun v hv => by linarith only [hc v hv,ht,mul_comm t R]⟩
+  · have law := single_law lo hi hr hd hd' (S := (↑u.2.vertices : Set V)) (by
+      intro t ht'
+      obtain ⟨c,hc⟩ := one
+      have ht := (div_le_iff₀ hr).mp (short.trans ht'.1)
+      exact ⟨c,fun v hv => by linarith only [hc v hv,ht,mul_comm t R]⟩)
+    intro w Y hY tail
+    obtain ⟨x,hx,h⟩ := law w Y hY tail
+    exact ⟨x,hx,h.trans (mul_le_mul_of_nonneg_right (by linarith) hY)⟩
   · let a := max 0 (B-1)
     let b := max m (1/2)
     have bounds : 0 ≤ a ∧ m ≤ b ∧ b ≤ 1-δ ∧ b < 1 ∧ 1-b ≤ b-a ∧ a < b ∧
         a+2*b+1 ≤ (u.2.size:ℝ)/R+2*δ  := by
-      have ha₀ : 0 ≤ a := le_max_left ..
-      have ha₁ : B-1 ≤ a := le_max_right ..
-      have hb₀ : 1/2 ≤ b := le_max_right ..
-      have hb₁ : m ≤ b := le_max_left ..
-      rcases max_choice 0 (B-1) with h|h <;> change a = _ at h <;>
-        rcases max_choice m (1/2) with h'|h' <;> change b = _ at h' <;>
-        refine ⟨?_,?_,?_,?_,?_,?_,?_⟩ <;> linarith
+      simp only [a,b,max_def]
+      split_ifs <;> (repeat' constructor) <;> linarith
     obtain ⟨ha,mb,hb,hb1,hw,hab,hm⟩ := bounds
     let s (y : I) := b-(y:ℝ)*(b-a)
     let t (y : I) := b+(y:ℝ)*(1-b)
     let X (y : I) (q : Q) := bin (lo q/R) (hi q/R) (s y) + bin (lo q/R) (hi q/R) (t y)
-    have hX (y : I) : X y ∈ Attain (fun q => bin (lo q) (hi q)) G (↑u.2.vertices) R ((u.2.size:ℝ)/R+2*δ) := by
-      have hsy : s y ∈ Set.Icc 0 1 := by
-        have := mul_le_mul_of_nonneg_right y.prop.2 (sub_nonneg.mpr hab.le)
-        have := mul_nonneg y.prop.1 (sub_nonneg.mpr hab.le)
-        constructor <;> dsimp [s] <;> linarith
-      have hty : t y ∈ Set.Icc 0 1 := by
-        have := mul_le_mul_of_nonneg_right y.prop.2 (sub_nonneg.mpr hb1.le)
-        have := mul_nonneg y.prop.1 (sub_nonneg.mpr hb1.le)
-        constructor <;> dsimp [t] <;> linarith
+    have hX (y : I) : X y ∈ Attain (fun q => bin (lo q) (hi q)) G (↑u.2.vertices) R ∩ {x | ∀ q, x q ∈ Set.Icc (0:ℝ) 2} := by
+      have hs := (affine_ranges hab.le y).2
+      have ht := (affine_ranges hb1.le y).1
+      change s y ∈ Set.Icc a b at hs
+      change t y ∈ Set.Icc b 1 at ht
+      have hsy : s y ∈ Set.Icc 0 1 := ⟨ha.trans hs.1,hs.2.trans hb1.le⟩
+      have hty : t y ∈ Set.Icc 0 1 := ⟨(ha.trans hab.le).trans ht.1,ht.2⟩
       have width := mul_le_mul_of_nonneg_right y.prop.2 (by linarith : 0 ≤ 2*b-a-1)
-      obtain ⟨d,c,hc⟩ := two (t y*R) ((div_le_iff₀ hr).mp (by
-        change m ≤ t y; dsimp [t]; nlinarith [mul_nonneg y.prop.1 (sub_nonneg.mpr hb1.le)]))
+      obtain ⟨d,c,hc⟩ := two (t y*R) ((div_le_iff₀ hr).mp (mb.trans ht.1))
         (s y*R) (mul_nonneg hsy.1 hr.le) (by
           rw [← add_mul]; apply (div_le_iff₀ hr).mp
           change B ≤ s y+t y
           have hbase : B ≤ a+1 := by dsimp [a]; grind
           dsimp [s,t]; linarith)
-      refine ⟨[(R*s y,d),(R*t y,c)],?_,by simp; linarith,?_,fun q => by simp [X,bin_scale hr]⟩
-      · simp only [List.mem_cons,List.not_mem_nil,or_false]
-        rintro _ (rfl|rfl) <;> constructor <;> dsimp <;> nlinarith [mul_nonneg hr.le hsy.1,
-          mul_nonneg hr.le hty.1,mul_le_mul_of_nonneg_left hsy.2 hr.le,mul_le_mul_of_nonneg_left hty.2 hr.le]
+      refine ⟨⟨[(R*s y,d),(R*t y,c)],?_,?_,fun q => by simp [X,bin_scale hr]⟩,fun q =>
+        ⟨add_nonneg (bin_mem _ _ _).1 (bin_mem _ _ _).1, by
+          dsimp [X]; linarith [(bin_mem (lo q/R) (hi q/R) (s y)).2,(bin_mem (lo q/R) (hi q/R) (t y)).2]⟩⟩
+      · intro z hz
+        simp only [List.mem_cons,List.not_mem_nil,or_false] at hz
+        rcases hz with rfl|rfl
+        · exact scaled_radius hr.le hsy
+        · exact scaled_radius hr.le hty
       · intro v hv
-        rcases hc v hv with h | h
-        · exact ⟨(R*s y,d),by simp,by simpa [mul_comm] using h⟩
-        · exact ⟨(R*t y,c),by simp,by simpa [mul_comm] using h⟩
+        simpa [or_comm,mul_comm] using hc v hv
     have si q := int_bin (lo q/R) (hi q/R) s (by dsimp [s]; fun_prop)
     have ti q := int_bin (lo q/R) (hi q/R) t (by dsimp [t]; fun_prop)
     have HX := mean_offer volume X hX (fun q => (si q).add (ti q))
@@ -641,8 +581,8 @@ theorem burn_of_scheduled_pieces {V : Type} {J : Type*} {T G : SimpleGraph V} (h
     (hc : T.Connected) {K : ℕ} (t : J ↪ Fin K) (c : J → V)
     (r : J → ℝ) (ht : ∀ j, ⌈r j⌉₊ + (t j : ℕ) < K)
     (hcover : ∀ v, ∃ j, cost T (c j) v ≤ r j) :
-    burningNumber G ≤ K+2 := by
-  let f := t.trans (Fin.castLEEmb (show K ≤ K+2 by omega))
+    burningNumber G ≤ K+1 := by
+  let f := t.trans (Fin.castLEEmb (show K ≤ K+1 by omega))
   let ignite := Function.extend f (fun j => (c j)) (fun _ => Classical.choice hc.nonempty)
   refine Nat.sInf_le ⟨ignite,fun v => ?_⟩
   obtain ⟨j,hj⟩ := hcover v
@@ -650,10 +590,10 @@ theorem burn_of_scheduled_pieces {V : Type} {J : Type*} {T G : SimpleGraph V} (h
   · exact (hc.preconnected _ _).mono hTG
   · have hceil := Nat.le_ceil (r j)
     change (T.dist (c j) v : ℝ)-1 ≤ r j at hj
-    have hh : T.dist (c j) v ≤ ⌈r j⌉₊+2 := by exact_mod_cast (show (T.dist (c j) v : ℝ) ≤ ⌈r j⌉₊+2 by linarith)
+    have hh : T.dist (c j) v ≤ ⌈r j⌉₊+1 := by exact_mod_cast (show (T.dist (c j) v : ℝ) ≤ ⌈r j⌉₊+1 by linarith)
     have hanti := (hc.preconnected (c j) v).dist_anti hTG
     have := ht j
-    change G.dist (c j) v + (t j : ℕ) < K+2
+    change G.dist (c j) v + (t j : ℕ) < K+1
     omega
 
 end
@@ -662,74 +602,6 @@ section
 open Finset
 
 
-
-theorem select_uniform {I : Type*} [Fintype I] {Q : ℕ}
-    (A : I → Set (Fin Q → ℝ)) (b : I → ℝ) {B η d : ℝ}
-    (price : ∀ i (w : Fin Q → ℝ), (∀ k, 0 ≤ w k) → ∃ v ∈ A i, ∑ k, w k*v k ≤ ∑ k, w k*b i)
-    (cap : ∀ i v, v ∈ A i → ∀ k, v k ∈ Set.Icc 0 B) (bc : ∀ i, 0 ≤ b i)
-    (hB : 0 ≤ B) (he : 0 < η) (hd : 0 < d)
-    (hm : (∑ i, b i) ≤ (1-η)*d) (hv : 2*B*Q ≤ η^2*d) :
-    ∃ y : I → Fin Q → ℝ, (∀ i, y i ∈ A i) ∧ ∀ k, (∑ i, y i k) ≤ d := by
-  classical
-  let score (D : Fin Q → ℝ) := ∑ k, (max 0 (D k))^2
-  have step i (D : Fin Q → ℝ) : ∃ v ∈ A i, score ((v-fun _ : Fin Q => b i)+D) ≤ score D + (Q:ℝ)*(2*B*b i) := by
-    let w (k : Fin Q) := if b i ≤ B then 2*max 0 (D k)+B else 0
-    obtain ⟨v,hv,hw⟩ := price i w (fun k => by dsimp [w]; split <;> positivity)
-    have each (k : Fin Q) : (max 0 ((v k-b i+D k)))^2 ≤
-        (max 0 (D k))^2 + w k*v k-w k*b i+2*B*b i := by
-      obtain ⟨h₁,h₂⟩ := cap i v hv k
-      have h₃ := bc i
-      by_cases h₄ : b i ≤ B
-      case neg =>
-        have hl : (v k-b i+D k) ≤ D k := by linarith
-        rw [show w k = 0 by simp [w,h₄]]
-        nlinarith only [(sq_le_sq₀ (le_max_left 0 _) (le_max_left 0 _)).mpr (max_le_max_left 0 hl),mul_nonneg hB h₃]
-      have E : (v k-b i)^2 ≤ B*v k+B*b i := by
-        nlinarith [mul_nonneg h₁ (sub_nonneg.mpr h₂),mul_nonneg h₃ (sub_nonneg.mpr h₄),mul_nonneg h₁ h₃]
-      let S := max 0 (D k)
-      have hu : (max 0 ((v k-b i+D k)))^2 ≤ (S+(v k-b i))^2 := by
-        by_cases h : 0 ≤ (v k-b i+D k)
-        · rw [max_eq_right h]; apply (sq_le_sq₀ h _).mpr <;>
-            dsimp [S] at * <;> linarith [le_max_right 0 (D k)]
-        · rw [max_eq_left (le_of_not_ge h),zero_pow (by decide : 2 ≠ 0)]; exact sq_nonneg _
-      dsimp [S] at hu
-      rw [show w k = 2*max 0 (D k)+B by simp [w,h₄]]
-      nlinarith only [hu,E]
-    refine ⟨v,hv,?_⟩
-    have h := sum_le_sum (s := univ) (fun k _ => each k)
-    simp only [sum_add_distrib,sum_sub_distrib,sum_const,card_univ,Fintype.card_fin,nsmul_eq_mul] at h
-    change (∑ k, (max 0 (v k-b i+D k))^2) ≤ (∑ k, (max 0 (D k))^2) + (Q:ℝ)*(2*B*b i)
-    linarith only [h,hw]
-  have build (s : Finset I) : ∃ y : I → Fin Q → ℝ, (∀ i ∈ s, y i ∈ A i) ∧
-      score (∑ i ∈ s, (y i-fun _ => b i)) ≤ ∑ i ∈ s, (Q:ℝ)*(2*B*b i) := by
-    induction s using Finset.induction_on with
-    | empty => exact ⟨0,by simp,by simp [score]⟩
-    | @insert i s hi ih =>
-      obtain ⟨y,hy,h⟩ := ih
-      obtain ⟨v,hv,hstep⟩ := step i (∑ j ∈ s, (y j-fun _ => b j))
-      refine ⟨Function.update y i v,?_,?_⟩
-      · intro j hj
-        rcases mem_insert.mp hj with rfl|hj
-        · simpa using hv
-        · simpa [Function.update_of_ne (ne_of_mem_of_not_mem hj hi)] using hy j hj
-      · rw [sum_insert hi,sum_insert hi,Function.update_self]
-        simpa only [sum_congr rfl (fun j hj => by rw [Function.update_of_ne (ne_of_mem_of_not_mem hj hi)] :
-          ∀ j ∈ s, Function.update y i v j-(fun _ => b j)=y j-(fun _ => b j))] using hstep.trans (add_le_add h le_rfl) |>.trans_eq (add_comm ..)
-  obtain ⟨y,hy,hs⟩ := build univ
-  simp only [score,Finset.sum_apply,Pi.sub_apply,sum_sub_distrib,← mul_sum] at hs
-  refine ⟨y,fun i => hy i (mem_univ i),fun k => ?_⟩
-  have h := (single_le_sum (f := fun k => (max 0 (∑ i, y i k - ∑ i, b i))^2)
-    (fun _ _ => sq_nonneg _) (mem_univ k)).trans hs
-  have hsq : (max 0 (∑ i, y i k - ∑ i, b i))^2 ≤ (η*d)^2 := by
-    nlinarith only [h,mul_le_mul_of_nonneg_right hv hd.le,
-      mul_le_mul_of_nonneg_left (show ∑ i, b i ≤ d by nlinarith [mul_pos he hd]) (by positivity : 0 ≤ 2*B*Q)]
-  have := (le_max_right 0 _).trans (le_of_sq_le_sq hsq (mul_pos he hd).le)
-  linarith
-
-end
-
-section
-open Finset
 
 /- Assign disjoint blocks of d rounds to the radius bins, largest radii first. -/
 theorem exists_rounds_of_bins {I : Type*} [Fintype I] {Q d : ℕ}
@@ -755,57 +627,59 @@ end
 
 section
 
-theorem outer_parameters {ε : ℝ} (he : 0 < ε) :
-    ∃ q : ℕ, ∃ ξ η : ℝ, 0 < ξ ∧ 0 < η ∧ ∀ (M : ℕ) (B : ℝ), ∃ n₀ : ℕ, ∀ n ≥ n₀, ∃ d : ℕ,
-      0 < d ∧ 2/ξ ≤ (d:ℝ) ∧ B*(q+1) ≤ η^2*d ∧
-      (1+ξ)*((n : ℝ)+M*(((q+1)*d : ℕ):ℝ))*d / (((q+1)*d : ℕ):ℝ)^2 ≤ (1-η)*d ∧
-      (((q+1)*d+d+2 : ℕ) : ℝ) ≤ (1+ε)*Real.sqrt n := by
+lemma adaptive_parameters {ε : ℝ} (he : 0 < ε) :
+    ∃ q : ℕ, ∃ ξ η : ℝ, 0 < ξ ∧ 0 < η ∧ ∃ n₀ : ℕ, ∀ n ≥ n₀, ∃ d : ℕ,
+      0 < d ∧ 2/ξ ≤ (d:ℝ) ∧
+      let R : ℝ := ((q+1)*d : ℕ)
+      ((1+ξ)*d/R^2)*(n:ℝ)+1 ≤ (1-η)*d ∧
+      (q+1:ℕ)*((2+4*(1+ξ))^2/d)*(n:ℝ) ≤ (η*d)^2 ∧
+      (((q+1)*d+d+1:ℕ):ℝ) ≤ (1+ε)*Real.sqrt n := by
   obtain ⟨q,hq⟩ := exists_nat_gt (4/ε)
   have hp : 0 < (q:ℝ) := lt_trans (by positivity) hq
   have hqε := (div_lt_iff₀ he).mp hq
   let Q : ℝ := q+1
+  let η := 1/(2*Q)
+  let W := 2+4*(1+1/(q:ℝ))
   have hQ : 0 < Q := by dsimp [Q]; positivity
-  refine ⟨q,1/q,1/Q,by positivity,by positivity,fun M B => ?_⟩
-  let C := max (1+2*(q:ℝ)) (max ((M:ℝ)*Q) (B*(q+1)/(1/Q)^2))
-  have hCq : 1+2*(q:ℝ) ≤ C := le_max_left ..
-  have hC : 1 ≤ C := by linarith
-  obtain ⟨N,hN⟩ := exists_nat_gt (2*((Q+1)*(C+1)+2)/ε)
-  refine ⟨N^2,fun n hn => ?_⟩
+  have hη : 0 < η := by dsimp [η]; positivity
+  let C := max (2*Q) (Q*W^2*q^2/η^2)
+  have hC : 2*Q ≤ C := le_max_left ..
+  obtain ⟨N,hN⟩ := exists_nat_gt (2*((Q+1)*(C+1)+1)/ε)
+  refine ⟨q,1/q,η,by positivity,hη,N^2,fun n hn => ?_⟩
   let s := Real.sqrt n
   have hs : (N:ℝ) ≤ s := Real.le_sqrt_of_sq_le (by exact_mod_cast hn)
   have hs₀ : 0 ≤ s := Real.sqrt_nonneg _
   let d := ⌈s/q+C⌉₊
   have lo : s/q+C ≤ (d:ℝ) := Nat.le_ceil _
   have hi : (d:ℝ) < s/q+C+1 := Nat.ceil_lt_add_one (by linarith [div_nonneg hs₀ hp.le])
-  have hd : 0 < (d:ℝ) := by linarith [div_nonneg hs₀ hp.le]
   have big : C ≤ (d:ℝ) := by linarith [div_nonneg hs₀ hp.le]
-  refine ⟨d,by exact_mod_cast hd,by simpa [div_div_eq_mul_div] using (show 2*(q:ℝ) ≤ d by linarith),?_,?_,?_⟩
-  · have := (div_le_iff₀ (by positivity : 0 < (1/Q)^2)).mp
-        (((le_max_right ..).trans (le_max_right ..)).trans big)
-    linarith
+  have hd : 0 < (d:ℝ) := by linarith
+  have key : (n:ℝ) ≤ ((q:ℝ)*d)^2 := by
+    rw [← Real.sq_sqrt (show 0 ≤ (n:ℝ) by positivity)]
+    apply pow_le_pow_left₀ hs₀ _ 2
+    rw [mul_comm]; exact (div_le_iff₀ hp).mp (by linarith)
+  refine ⟨d,by exact_mod_cast hd,by simpa [div_div_eq_mul_div] using
+    (show 2*(q:ℝ) ≤ d by dsimp [Q] at hC; linarith),?_,?_,?_⟩
   · push_cast
-    change (1+1/(q:ℝ))*((n:ℝ)+M*(Q*d))*d/(Q*d)^2 ≤ (1-1/Q)*d
-    have hm : (M:ℝ)*Q ≤ C := (le_max_left ..).trans (le_max_right ..)
-    have hlow := (div_le_iff₀ hp).mp (show s/q ≤ d-C by linarith)
-    have hq₁ : 1 ≤ (q:ℝ) := by exact_mod_cast (show 1 ≤ q by exact_mod_cast hp)
-    have hh : s + C ≤ (q:ℝ)*d := by nlinarith [mul_nonneg (sub_nonneg.mpr hq₁) (by linarith : 0 ≤ C)]
-    have H := mul_le_mul_of_nonneg_right hh (mul_nonneg hp.le hd.le)
-    have H' := mul_le_mul_of_nonneg_left (show s ≤ (q:ℝ)*d by linarith) hs₀
-    have hM := mul_le_mul_of_nonneg_right hm hd.le
-    have hC' := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hq₁ (by linarith : 0 ≤ C)) hd.le
-    have key : (n:ℝ)+M*(Q*d) ≤ ((q:ℝ)*d)^2 := by nlinarith only [H,H',hM,hC',show s^2 = n from Real.sq_sqrt (by positivity)]
-    apply (div_le_iff₀ (sq_pos_of_pos (mul_pos hQ hd))).mpr
-    have := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_left key (by positivity : 0 ≤ 1+1/(q:ℝ))) hd.le
-    convert this using 1
-    dsimp [Q]; field_simp; ring
+    change ((1+1/(q:ℝ))*d/(Q*d)^2)*n+1 ≤ (1-η)*d
+    have unit : 1 ≤ (d:ℝ)/(2*Q) := (le_div_iff₀ (by positivity)).mpr (by linarith)
+    apply (add_le_add (mul_le_mul_of_nonneg_left key (by positivity)) unit).trans_eq
+    dsimp [η,Q]; field_simp; ring
+  · push_cast
+    change Q*(W^2/d)*(n:ℝ) ≤ (η*d)^2
+    have budget := (div_le_iff₀ (sq_pos_of_pos hη)).mp ((le_max_right ..).trans big)
+    apply (mul_le_mul_of_nonneg_left key (by positivity)).trans
+    calc
+      _ = Q*W^2*q^2*d := by field_simp
+      _ ≤ _ := by nlinarith only [mul_le_mul_of_nonneg_right budget hd.le]
   · have hconst := (div_lt_iff₀ he).mp (hN.trans_le hs)
     have hratio := mul_le_mul_of_nonneg_right (le_of_lt hqε) (div_nonneg hs₀ hp.le)
     have hdiv : (q:ℝ)*(s/q) = s := by field_simp
     have H := mul_lt_mul_of_pos_left hi (by positivity : 0 < Q+1)
     push_cast
-    change Q*(d:ℝ)+d+2 ≤ (1+ε)*s
+    change Q*(d:ℝ)+d+1 ≤ (1+ε)*s
     dsimp [Q] at *
-    linear_combination (norm := ring_nf) (2:ℝ)⁻¹ * hconst.le + H.le + (1/2:ℝ)*hratio + (1+ε/2)*hdiv <;> norm_num
+    linear_combination (norm := ring_nf) (2:ℝ)⁻¹*hconst.le + H.le + (1/2:ℝ)*hratio + (1+ε/2)*hdiv <;> norm_num
 
 end
 
@@ -886,151 +760,51 @@ lemma spanning [Fintype V] [DecidableEq V] (hc : G.Connected) (r : V) :
     · exact ⟨t,hall,by simpa [hall] using ht⟩
     obtain ⟨v,hv⟩ := not_forall.mp (fun he => hall (Finset.eq_univ_of_forall he))
     obtain ⟨p⟩ := hc r v
-    obtain ⟨a,ha,b,hb,e⟩ := frontier (↑t.vertices) p t.root_mem hv
-    obtain ⟨q,hq,hv'⟩ := t.attach ha e
+    obtain ⟨e,_,ha,hb⟩ := p.exists_boundary_dart (↑t.vertices) t.root_mem hv
+    obtain ⟨q,hq,hv'⟩ := t.attach ha e.adj
     have hcard : q.vertices.card = t.vertices.card + 1 := by rw [hv', Finset.card_insert_of_notMem hb]
     have := Finset.card_le_univ q.vertices
     exact ih _ (by omega) q (by omega) rfl
 
-lemma chop [DecidableEq V] (t : Branch G r) {l : ℕ} (hl : 0 < l) :
-    ∃ (rest : Branch G r) (pieces : List (Σ r, Branch G r)), rest.size < l ∧
-      (∀ u ∈ pieces, Minimal l u) ∧ rest.size+(pieces.map (fun p => p.2.size)).sum = t.size ∧
-      ∀ v ∈ t.vertices, v ∈ rest.vertices ∨ ∃ p ∈ pieces, v ∈ p.2.vertices := by
+end
+section
+open SimpleGraph
+variable {V : Type} [DecidableEq V] {G : SimpleGraph V} {r : V}
+
+lemma peel (t : Branch G r) {l : ℕ} (hl : 0 < l) (hsize : l ≤ t.size) :
+    ∃ (rest : Branch G r) (u : Σ v, Branch G v), Minimal l u ∧ rest.size+u.2.size=t.size ∧
+      ∀ x ∈ t.vertices, x ∈ rest.vertices ∨ x ∈ u.2.vertices := by
   induction t with
-  | root => exact ⟨.root _,[],hl,by simp,by simp [Branch.size],by simp⟩
+  | root => simp [Branch.size] at hsize; omega
   | join e a b ia ib =>
-    obtain ⟨u,us,hu,hus,hw,hv⟩ := ia
-    obtain ⟨v,vs,hv',hvs,hw',hv''⟩ := ib
-    let w := Branch.join e u v
-    let ps := us++vs
-    have hp : ∀ z ∈ ps, Minimal l z := fun z hz => (List.mem_append.mp hz).elim (hus z) (hvs z)
-    have size : w.size+(ps.map (fun p => p.2.size)).sum = (Branch.join e a b).size := by
-      simp [w,ps,Branch.size]; omega
-    have cover (x) (h : x ∈ (Branch.join e a b).vertices) : x ∈ w.vertices ∨ ∃ p ∈ ps, x ∈ p.2.vertices := by
-      simp only [w,ps,Branch.vertices,Finset.mem_union,List.mem_append] at *
-      grind
-    by_cases h : w.size < l
-    · exact ⟨w,ps,h,hp,size,cover⟩
-    refine ⟨.root _,⟨_,w⟩::ps,hl,?_,by simpa [Branch.size] using size,fun x hx => Or.inr (by simpa using cover x hx)⟩
-    simp only [List.mem_cons,forall_eq_or_imp]
-    refine ⟨⟨le_of_not_gt h,by dsimp [w,Branch.size]; omega,fun x hx y hy z hz => ?_⟩,hp⟩
-    exact two_parts_bound (fun _ ha _ hb => (u.dist_le ha hb).trans hu.le)
-      (fun _ ha _ hb => (v.dist_le ha hb).trans hv'.le) (Finset.mem_union.mp hx)
-      (Finset.mem_union.mp hy) (Finset.mem_union.mp hz)
+    by_cases ha : l ≤ a.size
+    · obtain ⟨w,u,hm,hs,hc⟩ := ia ha
+      refine ⟨.join e w b,u,hm,by dsimp [Branch.size]; omega,?_⟩
+      simp only [Branch.vertices,Finset.mem_union]; grind
+    by_cases hb : l ≤ b.size
+    · obtain ⟨w,u,hm,hs,hc⟩ := ib hb
+      refine ⟨.join e a w,u,hm,by dsimp [Branch.size]; omega,?_⟩
+      simp only [Branch.vertices,Finset.mem_union]; grind
+    refine ⟨.root _,⟨_,.join e a b⟩,⟨hsize,by dsimp [Branch.size]; omega,?_⟩,by simp [Branch.size],fun _ h => Or.inr h⟩
+    intro x hx y hy z hz
+    have left : ∀ v ∈ a.vertices, ∀ w ∈ a.vertices, G.dist v w ≤ l :=
+      fun _ h _ h' => (a.dist_le h h').trans (by omega)
+    have right : ∀ v ∈ b.vertices, ∀ w ∈ b.vertices, G.dist v w ≤ l :=
+      fun _ h _ h' => (b.dist_le h h').trans (by omega)
+    simp only [Branch.vertices,Finset.mem_union] at hx hy hz
+    grind
 
-end
-section
-open SimpleGraph Finset
-
-theorem outer_partition {V : Type} [Fintype V] [DecidableEq V] {T : SimpleGraph V}
-    (hc : T.Connected) {D : ℕ} (hD : 0 < D) :
-    ∃ (m : ℕ) (s : Fin m → Σ r, Branch T r) (L : Fin m → ℕ),
-      (∀ i, (s i).2.size ≤ L i ∧ D ≤ L i ∧ L i ≤ 2*D) ∧
-      (∑ i, L i) ≤ Fintype.card V - 1 + D ∧ ∀ v, ∃ i, v ∈ (s i).2.vertices := by
-  classical
-  let root := Classical.choice hc.nonempty
-  obtain ⟨t,ht,hsize⟩ := spanning hc root
-  obtain ⟨rest,ps,hr,hps,hsum,hcover⟩ := chop t hD
-  let s : Fin (ps.length+1) → Σ r, Branch T r := Fin.cases ⟨root,rest⟩ ps.get
-  let L : Fin (ps.length+1) → ℕ := Fin.cases D (fun j => (ps.get j).2.size)
-  refine ⟨_,s,L,?_,?_,fun v => ?_⟩
-  · intro i
-    cases i using Fin.cases with
-    | zero => exact ⟨hr.le,le_rfl,by change D ≤ 2*D; omega⟩
-    | succ j =>
-      have h := hps (ps.get j) (List.get_mem ..)
-      exact ⟨le_rfl,h.1,h.2.1⟩
-  · have eq : (∑ j : Fin ps.length, (ps.get j).2.size) = (ps.map (fun p => p.2.size)).sum := by
-      rw [← List.sum_ofFn]
-      change (List.ofFn ((fun p : Σ r, Branch T r => p.2.size) ∘ ps.get)).sum = _
-      rw [← List.map_ofFn, List.ofFn_get]
-    rw [Fin.sum_univ_succ]
-    simp only [L, Fin.cases_zero, Fin.cases_succ, eq]
-    omega
-  · rcases hcover v (ht ▸ mem_univ _) with hv | ⟨p,hp,hv⟩
-    · exact ⟨0,hv⟩
-    · obtain ⟨j,rfl⟩ := List.get_of_mem hp
-      exact ⟨j.succ,hv⟩
-end
-
-section
-open SimpleGraph MeasureTheory Set
-open scoped unitInterval
-variable {V Q : Type} [Fintype V] [Fintype Q] [DecidableEq V] {G : SimpleGraph V}
-
-/- A fragment smaller than the cut fits in one ball drawn from the top interval. -/
-lemma remainder_law (lo hi : Q → ℝ) (ht : G.IsTree) {r : V} (t : Branch G r)
-    {R δ : ℝ} (hr : 0 < R) (hd : 0 < δ) (hd' : δ ≤ 1/2)
-    {l : ℕ} (cut : (l:ℝ) = 2*R*(1-δ)) (hsmall : t.size < l) :
-    Law lo hi G (↑t.vertices) R δ 2 := by
-  classical
-  have hmin : Minimal t.size ⟨r,t⟩ := by
-    exact ⟨le_rfl,by change t.size ≤ 2*t.size; omega,fun _ hx _ hy _ _ => Or.inl (t.dist_le hx hy)⟩
-  obtain ⟨m,B,_,_,hB,he,one,_⟩ := branch_piece_profiles ht ⟨r,t⟩ hmin
-  obtain ⟨c,hc⟩ := one
-  have hcut : (t.size : ℝ) < 2*R*(1-δ) := cut ▸ Nat.cast_lt.mpr hsmall
-  apply Law.weaken lo hi Set.Subset.rfl (show 2-δ ≤ 2 by linarith)
-  apply single_law lo hi hr hd hd'
-  intro t' ht'
-  exact ⟨c,fun v hv => (hc ⟨v,hv⟩).trans (by nlinarith [mul_le_mul_of_nonneg_left ht'.1 hr.le])⟩
-
-/- Glue all completed fragments onto a fixed remainder, charging only one extra ball. -/
-lemma glue_piece_list (lo hi : Q → ℝ) (ht : G.IsTree) {R δ : ℝ}
-    (hr : 0 < R) (hd : 0 < δ) (hd' : δ ≤ 1/2) {l : ℕ} (cut : (l:ℝ) = 2*R*(1-δ)) {Z : Set V}
-    (hz : Law lo hi G Z R δ 2) (ps : List (Σ r, Branch G r))
-    (hps : ∀ u ∈ ps, Minimal l u) :
-    let s : ℝ := ((ps.map (fun u => u.2.size)).sum : ℕ)
-    Law lo hi G {v | v ∈ Z ∨ ∃ u ∈ ps, v ∈ u.2.vertices} R δ (2+(1+2*δ)*(s/R)) := by
-  induction ps with
-  | nil => simpa using hz
-  | cons u ps ih =>
-    have hm := hps u List.mem_cons_self
-    have hsize : 2*R*(1-δ) ≤ u.2.size := cut ▸ Nat.cast_le.mpr hm.1
-    have ratio : 1 ≤ (u.2.size:ℝ)/R := (le_div_iff₀ hr).mpr (by
-      nlinarith [mul_nonneg hr.le (show 0 ≤ 1-2*δ by linarith)])
-    have piece := piece_law lo hi ht hr hd hd' cut u hm
-    have whole := Law.add lo hi (ih (fun v hv => hps v (List.mem_cons_of_mem _ hv))) piece
-    apply Law.weaken lo hi _ _ whole
-    · intro v hv
-      rcases hv with h | ⟨u',hu,hv⟩
-      · exact Or.inl (Or.inl h)
-      · rcases List.mem_cons.mp hu with rfl | hu
-        · exact Or.inr hv
-        · exact Or.inl (Or.inr ⟨u',hu,hv⟩)
-    · simp only [List.map_cons,List.sum_cons,Nat.cast_add,add_div]
-      nlinarith only [mul_le_mul_of_nonneg_left ratio hd.le]
-
-theorem exact_branch_law (lo hi : Q → ℝ) (ht : G.IsTree) {r : V} (t : Branch G r)
-    {L R : ℝ} (hs : (t.size:ℝ) ≤ L) (hR : 1 ≤ R) :
-    ∃ δ : ℝ, 0 < δ ∧ δ ≤ 1/(2*R) ∧
-      Law lo hi G (↑t.vertices) R δ (2+(1+2*δ)*(L/R)) := by
-  let l := ⌈2*R⌉₊-1
-  have hr : 0 < R := by linarith
-  have pos : 0 < 2*R := by positivity
-  have succ : (l:ℝ)+1 = ⌈2*R⌉₊ := by
-    exact_mod_cast Nat.sub_add_cancel (Nat.ceil_pos.mpr pos)
-  let δ := (2*R-l)/(2*R)
-  have low := Nat.le_ceil (2*R)
-  have high := Nat.ceil_lt_add_one (a := 2*R) pos.le
-  have hd : 0 < δ := div_pos (by linarith) pos
-  have bound : δ ≤ 1/(2*R) := div_le_div_of_nonneg_right (by linarith) pos.le
-  have cut : (l:ℝ) = 2*R*(1-δ) := by dsimp [δ]; field_simp; ring
-  have hd' : δ ≤ 1/2 := bound.trans ((div_le_iff₀ pos).mpr (by linarith))
-  refine ⟨δ,hd,bound,?_⟩
-  have hl : 0 < l := by exact_mod_cast (show (0:ℝ) < l by linarith)
-  obtain ⟨rest,ps,hsz,hps,htotal,hcover⟩ := chop t hl
-  have h := glue_piece_list lo hi ht hr hd hd' cut (remainder_law lo hi ht rest hr hd hd' cut hsz) ps hps
-  let s := (ps.map (fun u => u.2.size)).sum
-  have hs' : (s:ℝ) ≤ L := (Nat.cast_le.mpr (show s ≤ t.size by dsimp [s]; omega)).trans hs
-  apply Law.weaken lo hi (fun v hv => hcover v hv) _ h
-  exact add_le_add (le_refl 2) (mul_le_mul_of_nonneg_left (div_le_div_of_nonneg_right hs' hr.le)
-    (by linarith : 0 ≤ 1+2*δ))
+lemma short_branch_ball [Fintype V] (ht : G.IsTree) (t : Branch G r) {R : ℝ} (h : (t.size:ℝ) ≤ 2*R) :
+    ∃ c : V, ∀ v ∈ t.vertices, cost G c v ≤ R := by
+  have hm : Minimal t.size ⟨r,t⟩ :=
+    ⟨le_rfl,by change t.size ≤ 2*t.size; omega,fun _ hx _ hy _ _ => Or.inl (t.dist_le hx hy)⟩
+  obtain ⟨m,B,_,_,hle,heq,⟨c,hc⟩,_⟩ := branch_piece_profiles ht ⟨r,t⟩ hm
+  exact ⟨c,fun v hv => (hc ⟨v,hv⟩).trans (by change 2*m+B = (t.size:ℝ) at heq; linarith)⟩
 
 end
 
 section
 open Finset SimpleGraph Set
-
 lemma first_bin {q d : ℕ} (k : Fin (q+1)) {s : ℝ} (hs : 0 ≤ s) (h : s ≤ d) :
     overlap 0 s (gridLo d k) (gridHi d k) = if k=0 then s else 0 := by
   by_cases hk : k = 0
@@ -1041,20 +815,20 @@ lemma first_bin {q d : ℕ} (k : Fin (q+1)) {s : ℝ} (hs : 0 ≤ s) (h : s ≤ 
   unfold overlap gridLo; simp only [if_neg hk]; apply max_eq_left
   exact sub_nonpos.mpr ((min_le_left ..).trans (h.trans (cut.trans (le_max_right ..))))
 
-/- At the chosen radius the weighted bin mass per squared radius is minimal.
-Every shorter interval therefore has enough mass to control the price of its complementary tail. -/
-theorem minimum_branch {V : Type} [Fintype V] [DecidableEq V] {T : SimpleGraph V}
-    (ht : T.IsTree) (t : Σ r, Branch T r) {q d : ℕ} (hd : 0 < d)
-    {L R ξ : ℝ} (hs : (t.2.size:ℝ) ≤ L) (hdR : (d:ℝ) ≤ R)
-    (hξ : 0 < ξ) (resolution : 2/ξ ≤ d) (room : 4*R ≤ ξ*L) :
-    Offers (Attain (fun k : Fin (q+1) => bin (gridLo d k) (gridHi d k)) T (↑t.2.vertices) R ((1+ξ)*L/d))
-      (fun k => (1+ξ)*L*overlap 0 R (gridLo d k) (gridHi d k)/R^2) := by
+/- Select the cut after pricing the bins. Only the selected fragment is removed. -/
+theorem priced_peel {V : Type} [Fintype V] [DecidableEq V] {T : SimpleGraph V} {v : V}
+    (ht : T.IsTree) (t : Branch T v) {q d : ℕ} (hd : 0 < d) {R ξ : ℝ}
+    (hdR : (d:ℝ) ≤ R) (hξ : 0 < ξ) (resolution : 2/ξ ≤ d)
+    (big : 2*R ≤ t.size) (w : Fin (q+1) → ℝ) (hw : ∀ k, 0 ≤ w k) :
+    ∃ (rest : Branch T v) (u : Σ r, Branch T r) (x : Fin (q+1) → ℝ),
+      rest.size+u.2.size=t.size ∧ d ≤ u.2.size ∧ (u.2.size:ℝ) ≤ 4*R ∧
+      (∀ z ∈ t.vertices, z ∈ rest.vertices ∨ z ∈ u.2.vertices) ∧
+      x ∈ Attain (fun k => bin (gridLo d k) (gridHi d k)) T (↑u.2.vertices) R ∧ (∀ k, x k ∈ Set.Icc 0 2) ∧
+      (∑ k, w k*x k) ≤ ∑ k, w k*((1+ξ)*d/R^2*u.2.size) := by
   classical
-  intro w hw
   let M (s : ℝ) := ∑ k, w k*overlap 0 s (gridLo d k) (gridHi d k)
   let F (s : ℝ) := M s/s^2
   have hd' : 0 < (d:ℝ) := by exact_mod_cast hd
-  have hL : 0 ≤ L := (Nat.cast_nonneg _).trans hs
   have small (s : ℝ) (hz : 0 ≤ s) (hsd : s ≤ d) : M s = w 0*s := by
     simp [M, first_bin (q := q) (d := d) _ hz hsd, mul_ite]
   have cont : Continuous M := by dsimp [M,overlap]; fun_prop
@@ -1071,7 +845,28 @@ theorem minimum_branch {V : Type} [Fintype V] [DecidableEq V] {T : SimpleGraph V
       (div_le_div_of_nonneg_left (hw 0) hs (le_of_not_ge h))
   have hm : 0 ≤ M r := sum_nonneg (fun k _ => mul_nonneg (hw k) (le_max_left ..))
   have h₁ : (1:ℝ) ≤ d := by exact_mod_cast hd
-  obtain ⟨δ,hδ,hcut,law⟩ := exact_branch_law (gridLo (q := q) d) (gridHi d) ht t.2 hs (h₁.trans hr.1)
+
+  let l := ⌈2*r⌉₊-1
+  have pos : 0 < 2*r := by positivity
+  have succ : (l:ℝ)+1 = ⌈2*r⌉₊ := by
+    exact_mod_cast Nat.sub_add_cancel (Nat.ceil_pos.mpr pos)
+  let δ := (2*r-l)/(2*r)
+  have low := Nat.le_ceil (2*r)
+  have high := Nat.ceil_lt_add_one (a := 2*r) pos.le
+  have hδ : 0 < δ := div_pos (by linarith) pos
+  have bound : δ ≤ 1/(2*r) := div_le_div_of_nonneg_right (by linarith) pos.le
+  have cut : (l:ℝ) = 2*r*(1-δ) := by dsimp [δ]; field_simp; ring
+  have hhalf : δ ≤ 1/2 := bound.trans ((div_le_iff₀ pos).mpr (by linarith [h₁.trans hr.1]))
+  have hl : 0 < l := by exact_mod_cast (show (0:ℝ) < l by linarith [h₁.trans hr.1])
+
+  have hbig : l ≤ t.size := by exact_mod_cast (show (l:ℝ) ≤ t.size by linarith [hr.2])
+  obtain ⟨rest,u,hmn,hsize,hcov⟩ := peel t hl hbig
+  have hslo : (l:ℝ) ≤ u.2.size := by exact_mod_cast hmn.1
+  have hshi : (u.2.size:ℝ) ≤ 2*l := by exact_mod_cast hmn.2.1
+  have hlo : r ≤ u.2.size := by linarith [h₁.trans hr.1]
+  have hhi : (u.2.size:ℝ) ≤ 4*r := by linarith
+  have ratio : 1 ≤ (u.2.size:ℝ)/r := (le_div_iff₀ hr').mpr (by linarith)
+  have law := piece_law (gridLo (q := q) d) (gridHi d) ht hr' hδ hhalf cut u hmn
   obtain ⟨y,hy,hcost⟩ := law w (M r/r) (div_nonneg hm hr'.le) (fun a ha => by
       have h1 : 0 < 1-a := by linarith [ha.2]
       have ha1 : a ≤ 1 := by linarith
@@ -1088,114 +883,176 @@ theorem minimum_branch {V : Type} [Fintype V] [DecidableEq V] {T : SimpleGraph V
         dsimp [M]; rw [Finset.sum_div,Finset.sum_div,←sum_sub_distrib,Finset.sum_div]
         apply sum_congr rfl; intro k _; ring
       rw [eq,div_le_iff₀ h1]; field_simp; nlinarith only [lower])
-  have mom : 2+(1+2*δ)*(L/r) ≤ (1+ξ)*L/r := by
-    have h₁ := (div_le_iff₀ hξ).mp (resolution.trans hr.1)
-    have h₂ : 2*δ ≤ ξ/2 := by
-      apply (le_of_mul_le_mul_right (a := r) _ hr')
-      nlinarith only [(le_div_iff₀ (by positivity : 0 < 2*r)).mp hcut,h₁]
-    field_simp; nlinarith only [room,hr.2,mul_le_mul_of_nonneg_right h₂ hL]
-  refine ⟨y,attainable_mono _ hr.2 (mom.trans (div_le_div_of_nonneg_left
-    (mul_nonneg (by linarith) hL) hd' hr.1)) hy,hcost.trans ?_⟩
+
+  have mom : (u.2.size:ℝ)/r+2*δ ≤ (1+ξ)*(u.2.size:ℝ)/r := by
+    have hh := (div_le_iff₀ hξ).mp (resolution.trans hr.1)
+    have hδξ : 2*δ ≤ ξ := by
+      apply le_of_mul_le_mul_right (a := r) _ hr'
+      nlinarith only [(le_div_iff₀ pos).mp bound,hh]
+    rw [mul_div_assoc]
+    nlinarith only [hδξ,mul_le_mul_of_nonneg_left ratio hξ.le]
+  refine ⟨rest,u,y,hsize,by exact_mod_cast hr.1.trans hlo,by linarith [hr.2],hcov,
+    attainable_mono _ hr.2 hy.1,hy.2,hcost.trans ?_⟩
   calc
-    _ ≤ ((1+ξ)*L/r)*(M r/r) := mul_le_mul_of_nonneg_right mom (div_nonneg hm hr'.le)
-    _ = ((1+ξ)*L)*F r := by dsimp [F]; ring
-    _ ≤ ((1+ξ)*L)*F R := mul_le_mul_of_nonneg_left (hmin (right_mem_Icc.mpr hdR))
-      (mul_nonneg (by linarith) hL)
-    _ = _ := by dsimp [F,M]; rw [← mul_div_assoc,Finset.mul_sum,Finset.sum_div]
-                apply sum_congr rfl; intro k _; ring
+    _ ≤ ((1+ξ)*(u.2.size:ℝ)/r)*(M r/r) := mul_le_mul_of_nonneg_right mom (div_nonneg hm hr'.le)
+    _ = ((1+ξ)*(u.2.size:ℝ))*F r := by dsimp [F]; ring
+    _ ≤ ((1+ξ)*(u.2.size:ℝ))*F R := mul_le_mul_of_nonneg_left (hmin (right_mem_Icc.mpr hdR))
+      (by positivity)
+
+    _ = ∑ k, w k*((1+ξ)*u.2.size*overlap 0 R (gridLo d k) (gridHi d k)/R^2) := by
+      dsimp [F,M]; rw [← mul_div_assoc,Finset.mul_sum,Finset.sum_div]
+      apply sum_congr rfl; intro k _; ring
+    _ ≤ _ := sum_le_sum (fun k _ => mul_le_mul_of_nonneg_left (by
+      calc
+        _ ≤ (1+ξ)*u.2.size*d/R^2 := div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left
+          (overlap_grid_le _ R) (by positivity)) (sq_nonneg _)
+        _ = _ := by ring) (hw k))
+
+end
+/- Price each bin at twice its current positive overload. The price bound pays
+for the linear term in the change of the squared overload. Each step charges
+its quadratic error to the size of the fragment that was removed. -/
+open Finset in
+theorem select_peels {S : Type*} {Q : ℕ} (μ : S → ℕ) (W : S → Set (Fin Q → ℝ))
+    {β γ : ℝ} (hβ : 0 ≤ β) (hγ : 0 ≤ γ)
+    (peel : ∀ s (w : Fin Q → ℝ), (∀ k, 0 ≤ w k) →
+      (∃ v ∈ W s, ∀ k, v k ≤ 1) ∨
+      ∃ t, μ t < μ s ∧ ∃ z : Fin Q → ℝ, (∀ y ∈ W t, z+y ∈ W s) ∧
+        let l : ℝ := (μ s-μ t : ℕ)
+        (∑ k, w k*z k) ≤ ∑ k, w k*(β*l) ∧ ∀ k, (z k-β*l)^2 ≤ γ*l)
+    (s : S) : ∃ y ∈ W s, ∀ k, (max 0 (y k-β*μ s-1))^2 ≤ Q*γ*μ s := by
+  classical
+  let score (D : Fin Q → ℝ) := ∑ k, (max 0 (D k))^2
+  let rec aux (s : S) (D : Fin Q → ℝ) : ∃ y ∈ W s,
+      score (fun k => D k+y k-β*μ s-1) ≤ score D + Q*γ*μ s := by
+    let w k := 2*max 0 (D k)
+    rcases peel s w (fun k => mul_nonneg (by norm_num) (le_max_left ..)) with ⟨v,hv,h⟩ | ⟨t,ht,z,glue,price,err⟩
+    · refine ⟨v,hv,(sum_le_sum (s := univ) (fun k _ => (sq_le_sq₀ (le_max_left 0 _) (le_max_left 0 _)).mpr
+        (max_le_max_left 0 (show D k+v k-β*μ s-1 ≤ D k by linarith [h k,mul_nonneg hβ (Nat.cast_nonneg (μ s))])))).trans ?_⟩
+      exact le_add_of_nonneg_right (by positivity)
+    · let l : ℝ := (μ s-μ t : ℕ)
+      have mass : l+(μ t:ℝ) = μ s := by dsimp [l]; exact_mod_cast Nat.sub_add_cancel ht.le
+      let D' k := D k+(z k-β*l)
+      have each k : (max 0 (D' k))^2 ≤ (max 0 (D k))^2+w k*z k-w k*(β*l)+γ*l := by
+        let u := max 0 (D k)
+        have hh : (max 0 (D' k))^2 ≤ (u+(z k-β*l))^2 := by
+          by_cases hp : 0 ≤ D' k
+          · rw [max_eq_right hp]; apply (sq_le_sq₀ hp _).mpr <;> dsimp [D',u] at * <;> linarith [le_max_right 0 (D k)]
+          · rw [max_eq_left (le_of_not_ge hp),zero_pow (by decide : 2 ≠ 0)]; exact sq_nonneg _
+        change _ ≤ u^2 + 2*u*z k-2*u*(β*l)+γ*l
+        have e : (z k-β*l)^2 ≤ γ*l := err k
+        nlinarith only [hh,e]
+      have hstep := sum_le_sum (s := univ) (fun k _ => each k)
+      simp only [sum_add_distrib,sum_sub_distrib,sum_const,card_univ,Fintype.card_fin,nsmul_eq_mul] at hstep
+      change (∑ k, w k*z k) ≤ ∑ k, w k*(β*l) at price
+      obtain ⟨y,hy,h⟩ := aux t D'
+      refine ⟨z+y,glue y hy,?_⟩
+      have eq : (fun k => D k+(z+y) k-β*(μ s)-1) = (fun k => D' k+y k-β*μ t-1) := by
+        funext k; dsimp [D']; rw [← mass]; ring
+      rw [eq]
+      apply h.trans
+      dsimp only [score]
+      rw [← mass]
+      linarith only [hstep,price]
+  termination_by μ s
+  obtain ⟨y,hy,h⟩ := aux s 0
+  simp only [score,Pi.zero_apply,zero_add,max_self,zero_pow (by decide : 2 ≠ 0),sum_const_zero] at h
+  exact ⟨y,hy,fun k => (single_le_sum (fun j _ => sq_nonneg (max 0 (y j-β*μ s-1))) (mem_univ k)).trans h⟩
+
+section
+open Finset SimpleGraph BurningNumberConjecture
+
+lemma burn_of_grid_attain {V : Type} {T G : SimpleGraph V} (hTG : T ≤ G) (hc : T.Connected)
+    {q d : ℕ} {x : Fin (q+1) → ℝ}
+    (hx : x ∈ Attain (fun k => bin (gridLo d k) (gridHi d k)) T Set.univ ((q+1)*d : ℕ))
+    (cap : ∀ k, x k ≤ d) : burningNumber G ≤ (q+1)*d+d+1 := by
+  classical
+  obtain ⟨bs,inside,cover,hist⟩ := hx
+  let r (j : Fin bs.length) := (bs.get j).1
+  choose label high bins using fun j : Fin bs.length =>
+    grid_pick (q := q) (d := d) (inside _ (List.get_mem bs j)).1 (inside _ (List.get_mem bs j)).2
+  have sum_map (f : ℝ × V → ℝ) : ∑ j : Fin bs.length, f (bs.get j) = (bs.map f).sum := by
+    rw [← List.sum_ofFn]; change (List.ofFn (f ∘ bs.get)).sum = _
+    rw [← List.map_ofFn,List.ofFn_get]
+  obtain ⟨t,ht⟩ := exists_rounds_of_bins label (fun j => ⌈r j⌉₊)
+    (fun j => Nat.ceil_le.mpr (by simpa [gridHi,r] using high j)) (by
+      intro k
+      have val : ((univ.filter (fun j => label j = k)).card : ℝ) = x k := by
+        rw [hist k,←sum_map,card_filter]; push_cast
+        exact sum_congr rfl (fun j _ => (bins j k).symm)
+      exact_mod_cast val.le.trans (cap k))
+  apply burn_of_scheduled_pieces hTG hc t (fun j => (bs.get j).2) r ht
+  intro v
+  obtain ⟨z,hz,h⟩ := cover v trivial
+  obtain ⟨j,rfl⟩ := List.get_of_mem hz
+  exact ⟨j,h⟩
 
 end
 
-end BurningNumberConjecture.Proof
+section
+open Finset SimpleGraph Set
+theorem adaptive_cover {V : Type} [Fintype V] [DecidableEq V] {T : SimpleGraph V} {root : V}
+    (ht : T.IsTree) (t : Branch T root) {q d : ℕ} (hd : 0 < d) {R ξ : ℝ}
+    (hdR : (d:ℝ) ≤ R) (hξ : 0 < ξ) (resolution : 2/ξ ≤ d) :
+    ∃ y : Fin (q+1) → ℝ, y ∈ Attain (fun k => bin (gridLo d k) (gridHi d k)) T
+      (↑t.vertices) R ∧ ∀ k, (max 0 (y k-((1+ξ)*d/R^2)*t.size-1))^2 ≤
+        (q+1:ℕ)*((2+4*(1+ξ))^2/d)*t.size := by
+  classical
+  let β := (1+ξ)*d/R^2
+  let C := 2+4*(1+ξ)
+  let F (k : Fin (q+1)) := bin (gridLo d k) (gridHi d k)
+  let W (s : Branch T root) := Attain F T (↑s.vertices) R
+  have hd' : 0 < (d:ℝ) := by exact_mod_cast hd
+  have hR := hd'.trans_le hdR
+  have hβ : 0 ≤ β := by dsimp [β]; positivity
+  apply select_peels Branch.size W hβ (γ := C^2/d) (by positivity) ?_ t
+  intro s w hw
+  by_cases big : 2*R ≤ s.size
+  · right
+    obtain ⟨rest,u,z,size,low,high,cover,hz,range,price⟩ := priced_peel ht s hd hdR hξ resolution big w hw
+    refine ⟨rest,by omega,z,?_,?_⟩
+    · exact fun y hy => attainable_add F hz hy (fun v hv => (cover v hv).symm)
+    · dsimp only
+      rw [show s.size-rest.size = u.2.size by omega]
+      refine ⟨price,fun k => ?_⟩
+      have hz' := range k
+      have bl : 0 ≤ β*u.2.size := mul_nonneg hβ (Nat.cast_nonneg _)
+      have bh : β*u.2.size ≤ 4*(1+ξ) := by
+        dsimp [β]; rw [div_mul_eq_mul_div,div_le_iff₀ (sq_pos_of_pos hR)]
+        have H := mul_le_mul hdR high (Nat.cast_nonneg _) hR.le
+        nlinarith only [mul_le_mul_of_nonneg_left H (by linarith : 0 ≤ 1+ξ)]
+      have hsq : (z k-β*u.2.size)^2 ≤ C^2 := by
+        apply sq_le_sq' <;> dsimp [C] <;> linarith [hz'.1,hz'.2]
+      apply hsq.trans
+      rw [div_mul_eq_mul_div,le_div_iff₀ hd']
+      exact mul_le_mul_of_nonneg_left (Nat.cast_le.mpr low) (sq_nonneg _)
+  · left
+    obtain ⟨c,hc⟩ := short_branch_ball ht s (le_of_not_ge big)
+    refine ⟨fun k => F k R,⟨[(R,c)],by simp [hR.le],?_,fun k => by simp⟩,fun k => (bin_mem _ _ _).2⟩
+    exact fun v hv => ⟨(R,c),by simp,hc v hv⟩
+end
 
-open BurningNumberConjecture.Proof
-open MeasureTheory Finset SimpleGraph BurningNumberConjecture
+end BurningNumberConjecture.Proof
+open BurningNumberConjecture.Proof BurningNumberConjecture SimpleGraph Finset
 
 theorem OMA.solution : type_of% @BurningNumberConjecture.burning_number_conjecture.variants.norin_turcotte := by
   classical
   intro ε he
-  obtain ⟨q,ξ,η,hξ,hη,pars⟩ := outer_parameters he
-  let M := ⌈4/ξ⌉₊
-  have hM : 0 < M := Nat.ceil_pos.mpr (by positivity)
-  let B : ℝ := (1+ξ)*(2*M*(q+1) : ℕ)
-  obtain ⟨n₀,hN⟩ := pars M (2*B)
-  refine ⟨n₀, fun V _ G hc hn => ?_⟩
+  obtain ⟨q,ξ,η,hξ,hη,n₀,hN⟩ := adaptive_parameters he
+  refine ⟨n₀,fun V _ G hc hn => ?_⟩
   obtain ⟨T,hTG,hT⟩ := hc.exists_isTree_le
-  obtain ⟨d,hd,hresolution,large,mean,time⟩ := hN (Fintype.card V) hn
+  obtain ⟨t,ht,hs⟩ := spanning hT.connected (Classical.choice hc.nonempty)
+  obtain ⟨d,hd,res,mean,variance,time⟩ := hN (Fintype.card V) hn
   let R := (q+1)*d
-  let D := M*R
-  have hR : 0 < R := Nat.mul_pos (Nat.succ_pos _) hd
-  obtain ⟨m,s,L,hs,hsum,hcover⟩ := outer_partition hT.connected (Nat.mul_pos hM hR)
-  let F (k : Fin (q+1)) := bin (gridLo d k) (gridHi d k)
-  let A i := Attain F T (↑(s i).2.vertices) R ((1+ξ)*(L i:ℝ)/d)
-  let b i : ℝ := (1+ξ)*(L i:ℝ)*d/(R:ℝ)^2
-  have priced i (w : Fin (q+1) → ℝ) (hw : ∀ k, 0 ≤ w k) : ∃ v ∈ A i, ∑ k, w k*v k ≤ ∑ k, w k*b i := by
-    have hr : 0 ≤ (R:ℝ) := Nat.cast_nonneg _
-    have hMR : (M:ℝ)*R ≤ L i := by exact_mod_cast (hs i).2.1
-    have room : 4*(R:ℝ) ≤ ξ*(L i) := by
-      have h := (div_le_iff₀ hξ).mp (Nat.le_ceil (4/ξ))
-      change 4 ≤ (M:ℝ)*ξ at h
-      nlinarith only [mul_le_mul_of_nonneg_right h hr,mul_le_mul_of_nonneg_left hMR hξ.le]
-    have hdR : (d:ℝ) ≤ R := by exact_mod_cast (show d ≤ R by dsimp [R]; rw [Nat.add_mul,Nat.one_mul]; omega)
-    obtain ⟨v,hv,h⟩ := minimum_branch (q := q) hT (s i) hd (Nat.cast_le.mpr (hs i).1) hdR
-      hξ hresolution room w hw
-    refine ⟨v,hv,h.trans (sum_le_sum (fun k _ => mul_le_mul_of_nonneg_left ?_ (hw k)))⟩
-    exact div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left (overlap_grid_le _ R) (by positivity)) (sq_nonneg _)
-  have means : ∑ i, b i ≤ (1-η)*d := by
-    dsimp [b]
-    rw [← sum_div,← sum_mul,← mul_sum,← Nat.cast_sum]
-    have hc : (∑ i, L i) ≤ Fintype.card V + D := by omega
-    have hc' : ((∑ i, L i : ℕ):ℝ) ≤ (Fintype.card V:ℝ)+M*R := by exact_mod_cast hc
-    apply le_trans _ mean
-    exact (div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_right
-      (mul_le_mul_of_nonneg_left hc' (by linarith : 0 ≤ 1+ξ)) (Nat.cast_nonneg _)) (sq_nonneg _))
   have hd' : 0 < (d:ℝ) := by exact_mod_cast hd
-  have budget (i) : (1+ξ)*(L i:ℝ)/d ≤ B := by
-    apply (div_le_iff₀ hd').mpr
-    have hL : (L i:ℝ) ≤ (2*M*(q+1) : ℕ)*d := by exact_mod_cast
-      (show L i ≤ 2*M*(q+1)*d by simpa [D,R,mul_assoc] using (hs i).2.2)
-    dsimp [B]; nlinarith only [mul_le_mul_of_nonneg_left hL (by linarith : 0 ≤ 1+ξ)]
-  have range i (v : Fin (q+1) → ℝ) (hv : v ∈ A i) k : v k ∈ Set.Icc 0 B := by
-    obtain ⟨bs,_,hlen,_,hh⟩ := hv
-    have scan (l : List (ℝ × V)) : (l.map (fun z => F k z.1)).sum ∈ Set.Icc (0:ℝ) l.length := by
-      induction l with
-      | nil => simp
-      | cons z l ih =>
-        obtain ⟨lo,hi⟩ := bin_mem (gridLo d k) (gridHi d k) z.1
-        change 0 ≤ F k z.1 at lo; change F k z.1 ≤ 1 at hi
-        simp only [List.map_cons,List.sum_cons,List.length_cons,Nat.cast_add,Nat.cast_one]
-        exact ⟨add_nonneg lo ih.1,by linarith [ih.2]⟩
-    rw [hh k]
-    exact ⟨(scan bs).1,(scan bs).2.trans (hlen.trans (budget i))⟩
-  obtain ⟨y,hy,cap⟩ := select_uniform A b priced range (fun _ => by dsimp [b]; positivity)
-    (by dsimp [B]; positivity) hη hd' means (by simpa using large)
-  choose bs data using hy
-  let r i (k : Fin (bs i).length) := ((bs i).get k).1
-  have inside i (k : Fin (bs i).length) := (data i).1 _ (List.get_mem (bs i) k)
-  choose label hhigh hbin using fun i (k : Fin (bs i).length) =>
-    grid_pick (q := q) (d := d) (inside i k).1 (inside i k).2
-  have sum_map {α : Type} (l : List α) (f : α → ℝ) :
-      ∑ k : Fin l.length, f (l.get k) = (l.map f).sum := by
-    rw [← List.sum_ofFn]; change (List.ofFn (f ∘ l.get)).sum = _
-    rw [← List.map_ofFn, List.ofFn_get]
-  let N' (k : Fin (q+1)) i : ℝ := (univ.filter (fun u => label i u = k)).card
-  have value k i : N' k i = y i k := by
-    rw [(data i).2.2.2 k,← sum_map]
-    dsimp [N']; rw [card_filter]; push_cast
-    exact sum_congr rfl (fun u _ => (hbin i u k).symm)
-  obtain ⟨t,ht⟩ := exists_rounds_of_bins (fun j : Σ i, Fin (bs i).length => label j.1 j.2)
-    (fun j => ⌈r j.1 j.2⌉₊) (fun j => Nat.ceil_le.mpr (by simpa [gridHi,r] using hhigh j.1 j.2)) (by
-    intro k
-    have hc := cap k
-    simp_rw [← value, N'] at hc
-    exact_mod_cast (show ((univ.filter fun j : Σ i, Fin (bs i).length => label j.1 j.2 = k).card : ℝ)
-      ≤ d by simpa only [card_filter, Nat.cast_sum, Fintype.sum_sigma, Nat.cast_ite, Nat.cast_one,
-        Nat.cast_zero] using hc))
-  have hburn := burn_of_scheduled_pieces hTG hT.connected t
-    (fun j => ((bs j.1).get j.2).2) (fun j => r j.1 j.2) ht (by
-      intro v
-      obtain ⟨i,hi⟩ := hcover v
-      obtain ⟨u,hu,hu'⟩ := (data i).2.2.1 v hi
-      obtain ⟨k,rfl⟩ := List.get_of_mem hu
-      exact ⟨⟨i,k⟩,hu'⟩)
-  exact (Nat.cast_le (α := ℝ).mpr hburn).trans time
+  have hdR : (d:ℝ) ≤ R := by exact_mod_cast (Nat.le_mul_of_pos_left d (Nat.succ_pos q))
+  obtain ⟨y,hy,cap⟩ := adaptive_cover (R := R) (q := q) hT t hd hdR hξ res
+  rw [ht,Finset.coe_univ] at hy
+  apply (Nat.cast_le (α := ℝ).mpr (burn_of_grid_attain hTG hT.connected hy ?_)).trans time
+  intro k
+  have hs' : (t.size:ℝ) ≤ Fintype.card V := Nat.cast_le.mpr (by omega)
+  have weighted := (add_le_add (mul_le_mul_of_nonneg_left hs'
+    (by positivity : 0 ≤ (1+ξ)*d/(R:ℝ)^2)) (le_refl 1)).trans mean
+  have herr := (cap k).trans ((mul_le_mul_of_nonneg_left hs' (by positivity)).trans variance)
+  have hcap := (le_max_right 0 _).trans (le_of_sq_le_sq herr (mul_pos hη hd').le)
+  linarith only [hcap,weighted]
