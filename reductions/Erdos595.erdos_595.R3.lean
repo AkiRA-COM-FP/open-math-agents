@@ -1019,6 +1019,178 @@ theorem precoloured_blocked_rim :
   exact ⟨((x,y),u),((y,z),v),Or.inl ⟨xy,rfl,yz⟩,colour.trans (congrFun same v),
     first_at _ _ bit (fun i lt ne => ne (earlier i lt))⟩
 
+/-- With no monochromatic increasing triple, each target has an injective
+record of its greedy search through earlier vertices. Record each pivot
+colour together with the set of colours used before that pivot. -/
+private theorem pair_search_code {I : Type} [LinearOrder I] [WellFoundedLT I]
+    (f : I → I → ℕ)
+    (safe : ∀ a b c, a < b → b < c → f a b = f a c → f a b ≠ f b c) :
+    Nonempty (I ↪ Set (ℕ × ℕ)) := by
+  classical
+  let step (x y : I) (prev : (z : I) → z < y → Prop) :=
+    y < x ∧ ∀ z (h : z < y), prev z h → f z y = f z x
+  let take (x : I) : I → Prop := wellFounded_lt.fix (step x)
+  have rule (x y) : take x y ↔ y < x ∧ ∀ z < y, take x z → f z y = f z x :=
+    Iff.of_eq (WellFounded.fix_eq _ _ y)
+  let used (x y : I) : Set ℕ := {n | ∃ z < y, take x z ∧ f z x = n}
+  have fresh {x y} (t : take x y) : f y x ∉ used x y := by
+    rintro ⟨z,zy,tz,same⟩
+    have ⟨yx,agree⟩ := (rule x y).1 t
+    exact safe z y x zy yx (agree z zy tz) ((agree z zy tz).trans same)
+  have distinct {x a b} (ta : take x a) (tb : take x b) (eq : used x a = used x b) : a = b := by
+    rcases lt_trichotomy a b with ab | e | ba
+    · exact (fresh ta (eq ▸ (show f a x ∈ used x b from ⟨a,ab,ta,rfl⟩))).elim
+    · exact e
+    · exact (fresh tb (eq ▸ (show f b x ∈ used x a from ⟨b,ba,tb,rfl⟩))).elim
+  let code (x : I) : Set (Set ℕ × ℕ) :=
+    {p | ∃ y, take x y ∧ used x y = p.1 ∧ f y x = p.2}
+  have separates (x w : I) (xw : x < w) (same : code x = code w) : False := by
+    have usedEq (y : I) (ih : ∀ z < y, (take x z ↔ take w z) ∧ (take x z → f z x = f z w)) :
+        used x y = used w y := by
+      ext n
+      constructor
+      · rintro ⟨z,lt,t,e⟩
+        exact ⟨z,lt,(ih z lt).1.mp t,((ih z lt).2 t).symm.trans e⟩
+      · rintro ⟨z,lt,t,e⟩
+        have tx := (ih z lt).1.mpr t
+        exact ⟨z,lt,tx,((ih z lt).2 tx).trans e⟩
+    have agree (y : I) : y < x → (take x y ↔ take w y) ∧ (take x y → f y x = f y w) := by
+      induction y using (wellFounded_lt : WellFounded ((· < ·) : I → I → Prop)).induction with
+      | h y ih =>
+        intro yx
+        have prior z (lt : z < y) := ih z lt (lt.trans yx)
+        have both : take x y ↔ take w y := by
+          rw [rule x y,rule w y]
+          exact ⟨fun h => ⟨yx.trans xw,fun z lt tz => (h.2 z lt ((prior z lt).1.mpr tz)).trans
+            ((prior z lt).2 ((prior z lt).1.mpr tz))⟩,
+            fun h => ⟨yx,fun z lt tz => (h.2 z lt ((prior z lt).1.mp tz)).trans
+              ((prior z lt).2 tz).symm⟩⟩
+        refine ⟨both,fun ty => ?_⟩
+        have mem : (used x y,f y x) ∈ code x := ⟨y,ty,rfl,rfl⟩
+        rw [same] at mem
+        obtain ⟨v,tv,uv,cv⟩ := mem
+        have eq := distinct tv (both.mp ty) (uv.trans (usedEq y prior))
+        exact cv.symm.trans (congrArg (fun z => f z w) eq)
+    have prior z (lt : z < x) := agree z lt
+    have terminal : take w x := (rule w x).2 ⟨xw,fun z lt tz =>
+      (prior z lt).2 ((prior z lt).1.mpr tz)⟩
+    have mem : (used w x,f x w) ∈ code w := ⟨x,terminal,rfl,rfl⟩
+    rw [←same] at mem
+    obtain ⟨y,ty,uy,_⟩ := mem
+    have full : used x y = used x x := uy.trans (usedEq x prior).symm
+    exact fresh ty (full ▸ (show f y x ∈ used x x from ⟨y,((rule x y).1 ty).1,ty,rfl⟩))
+  have unique {x y z} (hy : take x y) (hz : take x z) (eq : f y x = f z x) : y = z := by
+    rcases lt_trichotomy y z with lt | e | gt
+    · exact (fresh hz ⟨y,lt,hy,eq⟩).elim
+    · exact e
+    · exact (fresh hy ⟨z,gt,hz,eq.symm⟩).elim
+  let bits (x : I) : Set (ℕ × ℕ) := {v | ∃ y, take x y ∧ f y x = v.2 ∧
+    (v.1 = v.2 ∨ v.1 ∈ used x y)}
+  have readBit {x y} (ty : take x y) (m : ℕ) :
+      (m,f y x) ∈ bits x ↔ m = f y x ∨ m ∈ used x y := by
+    constructor
+    · rintro ⟨z,tz,eq,h⟩
+      exact unique tz ty eq ▸ h
+    · exact fun h => ⟨y,ty,rfl,h⟩
+  have decode {x w} (eq : bits x = bits w) : code x ⊆ code w := by
+    rintro ⟨s,n⟩ ⟨y,ty,rfl,rfl⟩
+    have diag := (readBit ty (f y x)).2 (Or.inl rfl)
+    rw [eq] at diag
+    obtain ⟨z,tz,col,_⟩ := diag
+    change f z w = f y x at col
+    refine ⟨z,tz,?_,col⟩
+    ext m
+    by_cases h : m = f y x
+    · subst m
+      rw [←col]
+      exact iff_of_false (fresh tz) (col.symm ▸ fresh ty)
+    · have h' := readBit tz m
+      rw [col] at h'
+      rw [←eq] at h'
+      simpa only [h,false_or] using h'.symm.trans (readBit ty m)
+  refine ⟨⟨bits,fun {x y} eq => ?_⟩⟩
+  have same := Set.Subset.antisymm (decode eq) (decode eq.symm)
+  exact (lt_trichotomy x y).elim (fun h => (separates x y h same).elim)
+    (fun h => h.elim id (fun gt => (separates y x gt same.symm).elim))
+
+/-- On any ordered horizon a Painter seeing only the current incoming
+neighbourhood wins all legal plays exactly when a fixed pair colouring works
+on the complete graph. Two centres suffice to replay a bad triple legally. -/
+theorem incoming_only_iff {I : Type} [LinearOrder I] :
+    (∃ paint : I → Set I → I → ℕ, ∀ (G : SimpleGraph I), G.CliqueFree 4 →
+      ∀ a b c, a < b → b < c → G.Adj a b → G.Adj a c → G.Adj b c →
+      let row := fun j => {i | i < j ∧ G.Adj i j}
+      paint b (row b) a = paint c (row c) a → paint b (row b) a ≠ paint c (row c) b) ↔
+    ∃ f : I → I → ℕ, ∀ a b c, a < b → b < c → f a b = f a c → f a b ≠ f b c := by
+  classical
+  constructor
+  · rintro ⟨paint,win⟩
+    refine ⟨fun i j => paint j (Set.Iio j) i,?_⟩
+    intro a b c ab bc
+    let hub (x : I) := x = b ∨ x = c
+    let G : SimpleGraph I := {
+      Adj := fun x y => x ≠ y ∧ (hub x ∨ hub y)
+      symm := ⟨fun _ _ h => ⟨h.1.symm,h.2.symm⟩⟩
+      loopless := ⟨fun x h => h.1 rfl⟩ }
+    have free : G.CliqueFree 4 := by
+      by_contra bad
+      obtain ⟨g⟩ := (not_cliqueFree_iff_top_isContained 4).mp bad
+      let col (x : I) : Fin 3 := if x = b then 0 else if x = c then 1 else 2
+      have proper {x y} (edge : G.Adj x y) : col x ≠ col y := by
+        obtain ⟨ne,h⟩ := edge
+        dsimp [hub] at h
+        dsimp [col]
+        split_ifs <;> grind
+      have inj : Function.Injective (fun i : Fin 4 => col (g i)) := fun i j eq =>
+        by_contra fun ne => proper (g.toHom.map_rel ne) eq
+      have := Fintype.card_le_of_injective _ inj
+      simp at this
+    have row (j : I) (hj : hub j) : {i | i < j ∧ G.Adj i j} = Set.Iio j :=
+      Set.ext fun _ => ⟨fun h => h.1,fun lt => ⟨lt,lt.ne,Or.inr hj⟩⟩
+    have hb : hub b := Or.inl rfl
+    have hc : hub c := Or.inr rfl
+    have h := win G free a b c ab bc ⟨ab.ne,Or.inr hb⟩ ⟨(ab.trans bc).ne,Or.inr hc⟩ ⟨bc.ne,Or.inr hc⟩
+    simpa only [row b hb,row c hc] using h
+  · rintro ⟨f,h⟩
+    exact ⟨fun j _ i => f i j,fun _ _ a b c ab bc _ _ _ => h a b c ab bc⟩
+
+/-- Together with incoming_only_iff, this gives the sharp continuum
+threshold for current-neighbourhood Painters on well-ordered horizons. -/
+theorem pair_colouring_iff_binary_code {I : Type} [LinearOrder I] [WellFoundedLT I] :
+    (∃ f : I → I → ℕ, ∀ a b c, a < b → b < c → f a b = f a c → f a b ≠ f b c) ↔
+      Nonempty (I ↪ (ℕ → Bool)) := by
+  classical
+  constructor
+  · rintro ⟨f,ok⟩
+    obtain ⟨e⟩ := pair_search_code f ok
+    let word (s : Set (ℕ × ℕ)) (n : ℕ) := decide (Nat.unpair n ∈ s)
+    refine ⟨⟨fun x => word (e x),fun x y eq => e.injective ?_⟩⟩
+    ext ⟨a,b⟩
+    have bit := congrFun eq (Nat.pair a b)
+    simpa [word] using bit
+  · rintro ⟨e⟩
+    obtain ⟨paint,works⟩ := small_horizon e
+    exact ⟨fun i j => paint j ∅ i,fun a b c ab bc => works ∅ ∅ a b c ab bc⟩
+
+/-- A fixed well-ordered horizon defeats every rule based only on the
+incoming neighbourhood, with arbitrary vertex identities and unrestricted
+natural colours. A full-history H1 Painter sees additional information. -/
+theorem incoming_only_defeat :
+    ∃ (I : Type) (_ : LinearOrder I) (_ : WellFoundedLT I) (_ : Infinite I),
+      ¬ ∃ paint : I → Set I → I → ℕ, ∀ (G : SimpleGraph I), G.CliqueFree 4 →
+        ∀ a b c, a < b → b < c → G.Adj a b → G.Adj a c → G.Adj b c →
+        let row := fun j => {i | i < j ∧ G.Adj i j}
+        paint b (row b) a = paint c (row c) a → paint b (row b) a ≠ paint c (row c) b := by
+  classical
+  let A := Set (ℕ × ℕ)
+  let I := Set A
+  obtain ⟨order,wf⟩ := exists_wellFoundedLT I
+  refine ⟨I,order,wf,inferInstance,?_⟩
+  intro win
+  obtain ⟨f,safe⟩ := (@incoming_only_iff I order).mp win
+  obtain ⟨emb⟩ := @pair_search_code I order wf f safe
+  exact Function.cantor_injective emb emb.injective
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
