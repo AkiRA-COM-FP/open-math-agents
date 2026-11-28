@@ -5,7 +5,7 @@ import Mathlib
 
 Source: https://arxiv.org/abs/2609.15591 ("A 3-regular counterexample to the Bilu–Linial signing
 conjecture", 2026)
-Credit: @SudharsanAnimations
+Credit: Sudharsan Rajendiran
 
 The Bilu–Linial signing conjecture asserts that every `d`-regular graph has a signing of its
 edges whose signed adjacency matrix has all its eigenvalues in `[-2√(d - 1), 2√(d - 1)]`. The paper
