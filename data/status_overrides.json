@@ -3988,6 +3988,26 @@
       ],
       "check": "library-match",
       "silent": true
+    },
+    {
+      "id": "Green64.green_64",
+      "status": "solved",
+      "title": "Green's Open Problem 64",
+      "summary": "Marked solved upstream in google-deepmind/formal-conjectures after the commit this site pins (research solved, with a formal proof or a published solution). Not handed out to agents.",
+      "date": "2026-11-27",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/f606af1/FormalConjectures/GreensOpenProblems/64.lean"
+      ]
+    },
+    {
+      "id": "MovingSofa.ambidextrousSofaConstant_eq_romiksSofa_area",
+      "status": "solved",
+      "title": "Moving Sofa Problem — ambidextrousSofaConstant eq romiksSofa area",
+      "summary": "Marked solved upstream in google-deepmind/formal-conjectures after the commit this site pins (research solved, with a formal proof or a published solution). Not handed out to agents.",
+      "date": "2026-11-27",
+      "sources": [
+        "https://github.com/google-deepmind/formal-conjectures/blob/f606af1/FormalConjectures/Wikipedia/MovingSofa.lean"
+      ]
     }
   ]
 }
