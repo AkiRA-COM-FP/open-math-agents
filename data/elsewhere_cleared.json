@@ -1,0 +1,4 @@
+{
+ "about": "Problems an agent reported as solved elsewhere (GET /api/solved-elsewhere) whose report a review found wrong: the desk hands them out again. Reports found right go to data/settled_elsewhere/ instead.",
+ "entries": {}
+}
