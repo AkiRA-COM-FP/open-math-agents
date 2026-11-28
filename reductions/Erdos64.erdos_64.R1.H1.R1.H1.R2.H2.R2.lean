@@ -46,6 +46,9 @@ def H2 : Prop :=
     (∃ k : ℕ, 2 ≤ k ∧ cycleGraph (2^k) ⊑ G) →
     (∀ k : ℕ, 2 ≤ k → ∀ c : (cycleGraph (2^k)).Copy G, ∀ f : G ≃g G, f r ∈ Set.range c) →
     (3 ≤ {v | ∃ f : G ≃g G, f r=v}.ncard) →
+    (∀ (k d : ℕ), 2 ≤ k → (d=1 ∨ d=2) → 3 ≤ 2^k-d →
+      ∀ (c : (cycleGraph (2^k)).Copy G) (q : Fin (2^k)),
+        ¬ (∀ j, (∃ f : G ≃g G, f r=c j) ↔ j≠q ∧ (d=2 → j≠q+1))) →
     (let dyadic := fun d : ℕ => ∃ k : ℕ, 2 ≤ k ∧ d = 2^k
      let near := fun d : ℕ => 3 ≤ d ∧ ∃ k : ℕ, 2 ≤ k ∧ (d+1=2^k ∨ d+2=2^k)
      ∀ (x y : V) (A B P : List V), (x::y::(A++B++P)).Nodup →
@@ -85,6 +88,181 @@ theorem exactRing {V : Type*} (G : SimpleGraph V) (l : List V)
   refine ⟨⟨⟨l.get,fun h => adj h⟩,distinct.injective_get⟩,?_⟩
   intro v
   exact List.mem_iff_get
+
+/-- A simple path spanning a proper automorphism orbit in a connected cubic
+graph closes up as soon as it has at least three vertices. -/
+theorem orbitPathCloses {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
+    (proper : ∃ v, ∀ f : G ≃g G, f r ≠ v)
+    (l : List V) (large : 3 ≤ l.length) (distinct : l.Nodup)
+    (chain : l.IsChain G.Adj) (covers : ∀ v, v ∈ l ↔ ∃ f : G ≃g G, f r = v) :
+    ∃ c : (cycleGraph l.length).Copy G, r ∈ Set.range c := by
+  classical
+  have root : r ∈ l := (covers _).mpr ⟨SimpleGraph.Iso.refl, rfl⟩
+  have invariant (f : G ≃g G) (v : V) : f v ∈ l ↔ v ∈ l := by
+    rw [covers,covers]
+    constructor
+    · rintro ⟨g,h⟩
+      exact ⟨g.trans f.symm,by change f.symm (g r)=v; rw [h,f.symm_apply_apply]⟩
+    · rintro ⟨g,h⟩
+      exact ⟨g.trans f,by change f (g r)=f v; rw [h]⟩
+  have move (x y : V) (hx : x∈l) (hy : y∈l) : ∃ f : G ≃g G, f x=y := by
+    obtain ⟨g,hg⟩ := (covers _).mp hx
+    obtain ⟨h,hh⟩ := (covers _).mp hy
+    exact ⟨g.symm.trans h,by change h (g.symm x)=y; rw [←hg,g.symm_apply_apply,hh]⟩
+  obtain ⟨outside,ho⟩ := proper
+  have exitEdge : ∃ x∈l, ∃ z, z∉l ∧ G.Adj x z := by
+    by_contra! closed
+    obtain ⟨walk⟩ := conn.preconnected r outside
+    have follow {a b : V} (p : G.Walk a b) (ha : a∈l) : b∈l := by
+      induction p with
+      | nil => exact ha
+      | cons e _ ih =>
+        apply ih
+        by_contra missing
+        exact closed _ ha _ missing e
+    obtain ⟨f,h⟩ := (covers _).mp (follow walk root)
+    exact ho f h
+  obtain ⟨u,hu,z,hz,uz⟩ := exitEdge
+  have third (x : V) (hx : x∈l) : ∃ w, w∉l ∧ G.Adj x w := by
+    obtain ⟨f,eq⟩ := move u x hu hx
+    exact ⟨f z,fun h => hz ((invariant f z).mp h),eq ▸ f.map_rel_iff.mpr uz⟩
+  have sat (x a b w : V) (hx : x∈l) (ha : a∈l) (hb : b∈l) (hw : w∈l)
+      (xa : G.Adj x a) (xb : G.Adj x b) (xw : G.Adj x w) (ab : a≠b) :
+      w=a ∨ w=b := by
+    by_contra! h
+    obtain ⟨t,ht,xt⟩ := third x hx
+    have subset : ({a,b,w,t} : Finset V) ⊆ G.neighborFinset x := by
+      intro v hv
+      simp only [Finset.mem_insert,Finset.mem_singleton] at hv
+      rcases hv with rfl|rfl|rfl|rfl <;> simpa
+    have bound := Finset.card_le_card subset
+    have at' : a≠t := fun e => ht (e ▸ ha)
+    have bt : b≠t := fun e => ht (e ▸ hb)
+    have wt : w≠t := fun e => ht (e ▸ hw)
+    simp [ab,Ne.symm h.1,Ne.symm h.2,at',bt,wt,cubic] at bound
+  let e := l.get
+  have mem (i : Fin l.length) : e i ∈ l := List.get_mem ..
+  have inj : Function.Injective e := distinct.injective_get
+  let i₀ : Fin l.length := ⟨0,by omega⟩
+  let i₁ : Fin l.length := ⟨1,by omega⟩
+  let i₂ : Fin l.length := ⟨2,by omega⟩
+  let last : Fin l.length := ⟨l.length-1,by omega⟩
+  have step (i j : Fin l.length) (h : j.val=i.val+1) : G.Adj (e i) (e j) := by
+    simpa only [e,List.get_eq_getElem,h] using chain.getElem i.val (by omega)
+  obtain ⟨f,hf⟩ := move (e i₁) (e i₀) (mem _) (mem _)
+  have pair (i : Fin l.length) (hi : G.Adj (e i₁) (e i)) :
+      G.Adj (e i₀) (f (e i)) := hf ▸ f.map_rel_iff.mpr hi
+  have other : ∃ j : Fin l.length, j≠i₁ ∧ G.Adj (e i₀) (e j) := by
+    have find (i : Fin l.length) : ∃ j, e j = f (e i) :=
+      List.mem_iff_get.mp ((invariant f _).mpr (mem i))
+    obtain ⟨a,ha⟩ := find i₀
+    obtain ⟨b,hb⟩ := find i₂
+    by_cases h : a=i₁
+    · refine ⟨b,?_,hb ▸ pair _ (step i₁ i₂ rfl)⟩
+      intro eq
+      have same := inj (f.injective (ha.symm.trans ((eq.trans h.symm) ▸ hb)))
+      exact (by decide : (0:ℕ)≠2) (congrArg Fin.val same)
+    · exact ⟨a,h,ha ▸ pair _ (step i₀ i₁ rfl).symm⟩
+  obtain ⟨j,ne,edge⟩ := other
+  have endpt : j=last := by
+    by_contra h
+    have pos : j.val≠0 := fun eq => edge.ne (congrArg e (Fin.ext eq.symm))
+    have mid : j.val≠1 := fun eq => ne (Fin.ext eq)
+    have top : j.val≠l.length-1 := fun eq => h (Fin.ext eq)
+    let a : Fin l.length := ⟨j.val-1,by omega⟩
+    let b : Fin l.length := ⟨j.val+1,by omega⟩
+    have ab : e a≠e b := by
+      intro q
+      have t := congrArg Fin.val (inj q)
+      dsimp [a,b] at t
+      omega
+    rcases sat _ _ _ _ (mem j) (mem a) (mem b) (mem i₀)
+        (step a j (by dsimp [a]; omega)).symm (step j b rfl) edge.symm ab with q|q <;>
+      have t := congrArg Fin.val (inj q) <;> dsimp [a,b,i₀] at t <;> omega
+  have close (h : l≠[]) : G.Adj (l.getLast h) (l.head h) := by
+    subst j
+    simpa [e,last,i₀,List.getLast_eq_getElem,List.head_eq_getElem] using edge.symm
+  obtain ⟨c,hc⟩ := exactRing G l large distinct chain close
+  exact ⟨c,(hc _).mp root⟩
+
+/-- A cyclic interval of orbit vertices can be read from any starting label.
+If its length is one or two below a power of two, closing the interval gives
+the required cycle through the original root. -/
+theorem orbitIntervalSolves {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
+    (proper : ∃ v, ∀ f : G ≃g G, f r ≠ v)
+    {n m k : ℕ} (c : (cycleGraph n).Copy G) (start : Fin n)
+    (large : 3 ≤ m) (fits : m ≤ n) (hk : 2 ≤ k) (near : m+1=2^k ∨ m+2=2^k)
+    (hit : ∀ f : G ≃g G, f r ∈ Set.range c)
+    (interval : ∀ i : Fin n, (∃ f : G ≃g G, f r=c (i+start)) ↔ i.val<m) :
+    ∃ (d t : ℕ) (w : (cycleGraph d).Copy G),
+      3 ≤ d ∧ 2 ≤ t ∧ r ∈ Set.range w ∧ (d+1=2^t ∨ d+2=2^t) := by
+  let : NeZero n := ⟨by omega⟩
+  let label (i : Fin m) : Fin n := ⟨i.val,lt_of_lt_of_le i.isLt fits⟩
+  let v (i : Fin m) := c (label i + start)
+  let l := List.ofFn v
+  have len : l.length=m := List.length_ofFn
+  have unique : Function.Injective v := by
+    intro i j h
+    exact Fin.ext (congrArg (Fin.val (n := n)) (add_right_cancel (c.injective h) : label i=label j))
+  have clean : l.Nodup := List.nodup_ofFn_ofInjective unique
+  have path : l.IsChain G.Adj := by
+    apply List.isChain_iff_getElem.mpr
+    intro j hj
+    have hj' : j+1<m := by omega
+    let a : Fin m := ⟨j,by omega⟩
+    let b : Fin m := ⟨j+1,hj'⟩
+    have e : (cycleGraph n).Adj (label a) (label b) :=
+      pathGraph_le_cycleGraph (pathGraph_adj.mpr (Or.inl rfl))
+    have rot : (cycleGraph n).Adj (label a+start) (label b+start) := by
+      simpa only [cycleGraph_adj',add_sub_add_right_eq_sub] using e
+    simpa [l,v,a,b] using c.toHom.map_rel' rot
+  have covers (x : V) : x∈l ↔ ∃ f : G ≃g G, f r=x := by
+    rw [show l=List.ofFn v from rfl,List.mem_ofFn']
+    constructor
+    · rintro ⟨j,rfl⟩
+      exact (interval (label j)).mpr j.isLt
+    · rintro ⟨f,rfl⟩
+      obtain ⟨j,hj⟩ := hit f
+      have eq : j-start+start=j := sub_add_cancel .. 
+      have lt := (interval (j-start)).mp ⟨f,by rw [eq,hj]⟩
+      exact ⟨⟨(j-start).val,lt⟩,by change c (j-start+start)=f r; rw [eq,hj]⟩
+  obtain ⟨w,hw⟩ := orbitPathCloses G r conn cubic proper l (by omega) clean path covers
+  exact ⟨l.length,k,w,by omega,hk,hw,by simpa [len] using near⟩
+
+/-- One omitted label, or two consecutive omitted labels, on a dyadic
+cycle force the rooted target whenever at least three orbit vertices remain. -/
+theorem omittedBlockSolves {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (r : V) (conn : G.Connected) (cubic : ∀ v, G.degree v = 3)
+    (proper : ∃ v, ∀ f : G ≃g G, f r ≠ v)
+    {k d : ℕ} (hk : 2 ≤ k) (gap : d=1 ∨ d=2) (large : 3 ≤ 2^k-d)
+    (c : (cycleGraph (2^k)).Copy G) (q : Fin (2^k))
+    (hit : ∀ f : G ≃g G, f r ∈ Set.range c)
+    (orbit : ∀ j, (∃ f : G ≃g G, f r=c j) ↔ j≠q ∧ (d=2 → j≠q+1)) :
+    ∃ (n t : ℕ) (w : (cycleGraph n).Copy G),
+      3 ≤ n ∧ 2 ≤ t ∧ r ∈ Set.range w ∧ (n+1=2^t ∨ n+2=2^t) := by
+  let a : Fin (2^k) := ⟨2^k-d,by omega⟩
+  let start := q-a
+  have first : a+start=q := by simp [start]
+  apply orbitIntervalSolves G r conn cubic proper c start (m := 2^k-d) large
+    (by omega) hk (by omega) hit
+  intro i
+  rw [orbit,←first]
+  have h (hd : d=2) : (a+1 : Fin (2^k)).val=2^k-1 := by
+    have one : (1 : Fin (2^k)).val=1 := by rw [Fin.val_one',Nat.mod_eq_of_lt (by omega)]
+    rw [Fin.val_add,one]
+    change (2^k-d+1) % (2^k)=2^k-1
+    rw [Nat.mod_eq_of_lt (by omega)]
+    omega
+  have eq : a+start+1=(a+1)+start := by abel
+  rw [eq]
+  simp only [ne_eq,add_left_inj,Fin.ext_iff]
+  change (¬ i.val=2^k-d) ∧ (d=2 → ¬ i.val=(a+1).val) ↔ i.val<2^k-d
+  rcases gap with hd|hd
+  · omega
+  · rw [h hd]
+    omega
 
 /-- Two paths from x to y with disjoint interiors give a cycle whose
 vertex set is exactly their union. Lists contain only interior vertices. -/
@@ -846,6 +1024,8 @@ theorem main : H1 → H2 → OMA.R_Erdos64_erdos_64_R1_H1_R1_H1_R2.H2 := by
   · exact obstruction (small V G r conn cubic bridges proper away witness images few rule)
   apply obstruction
   apply large V G r conn cubic bridges proper away witness images (by omega)
+  · intro k d hk hd hm c q block
+    exact unsolved (omittedBlockSolves G r conn cubic proper hk hd hm c q (images k hk c) block)
   dsimp only
   intro x y A B P clean paths base
   obtain ⟨miss,both⟩ := rule x y A B P clean paths base
