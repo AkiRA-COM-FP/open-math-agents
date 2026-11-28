@@ -31,3 +31,4 @@ theorem main : ∀ s : ℕ, 1 ≤ s → ∃ i j : ℕ, next^[i] s = next^[j] 1 :
   sorry
 
 end OMA.S_oeis_a256862
+-- ci: re-run check-proof
