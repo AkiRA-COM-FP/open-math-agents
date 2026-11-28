@@ -118,9 +118,9 @@ lemma applyRuns_coeff (runs : List ℕ) (m i : ℕ) (hi : 0 < i) :
     by_cases h : i ≤ m
     · have hindex : 0 < m + 1 - i ∧ m + 1 - i ≤ m := by omega
       have heq : m - (m + 1 - i) + 1 = i := by omega
-      rw [ite_eq_left hindex, heq]
+      rw [if_pos hindex, heq]
     · have hindex : ¬(0 < m + 1 - i ∧ m + 1 - i ≤ m) := by omega
-      rw [ite_eq_right hindex, Nat.stirlingFirst_eq_zero_of_lt (by omega : m < i), Nat.cast_zero]
+      rw [if_neg hindex, Nat.stirlingFirst_eq_zero_of_lt (by omega : m < i), Nat.cast_zero]
   | cons f runs ih =>
     change (applyRuns runs (rowRun f (rising m))).coeff i =
       reverseEntry (f :: runs) m (m + (runs.length + 1) + 1 - i)
@@ -179,36 +179,36 @@ lemma modify_head_append {xs ys : List ℕ} (h : xs ≠ []) :
 lemma runs_bit_pair (n : ℕ) :
     runs (Nat.bit true n) = 0 :: runs n ∧
       runs (Nat.bit false n) = (runs n).modifyHead Nat.succ := by
-  induction n using Nat.strong_induction_on with
-  | ind n ih =>
-    by_cases hn : n = 0
-    · subst n
-      have hn1 : remHigh 1 = 0 := by decide
-      have hg1 : gap 1 = 0 := by decide
-      simp only [Nat.bit_true_apply, Nat.bit_false_apply, Nat.mul_zero, Nat.zero_add,
-        runs_zero, List.modifyHead_nil, and_true]
-      rw [runs_pos 1 (by decide), hn1, hg1, runs_zero] <;> rfl
-    · have hlt : remHigh n < n := by
-        unfold remHigh
-        exact Nat.sub_lt (Nat.pos_of_ne_zero hn) (by positivity)
-      obtain ⟨it, iff⟩ := ih (remHigh n) hlt
-      have hgt : gap (Nat.bit true n) = gap n := by
-        by_cases hr : remHigh n = 0
-        · simp only [gap, remHigh_bit_pos true n hn, log2_bit_pos true n hn, hr]
-          norm_num
-        · exact gap_bit_rem_pos true n hn hr
-      constructor
-      · rw [runs_pos _ (Nat.bit_ne_zero true hn), remHigh_bit_pos true n hn, hgt,
-          it, runs_pos n hn] <;> rfl
-      · rw [runs_pos _ (Nat.bit_ne_zero false hn), remHigh_bit_pos false n hn,
-          runs_pos n hn]
-        by_cases hr : remHigh n = 0
-        · have hgf : gap (Nat.bit false n) = (gap n).succ := by
-            rw [gap, gap, remHigh_bit_pos false n hn, log2_bit_pos false n hn, hr]
-            simp
-          rw [hgf, hr]
-          simp [runs_zero]
-        · rw [iff, gap_bit_rem_pos false n hn hr, modify_head_append (runs_ne_nil _ hr)]
+  refine Nat.strong_induction_on n ?_
+  intro n ih
+  by_cases hn : n = 0
+  · subst n
+    have hn1 : remHigh 1 = 0 := by decide
+    have hg1 : gap 1 = 0 := by decide
+    simp only [Nat.bit_true_apply, Nat.bit_false_apply, Nat.mul_zero, Nat.zero_add,
+      runs_zero, List.modifyHead_nil, and_true]
+    rw [runs_pos 1 (by decide), hn1, hg1, runs_zero] <;> rfl
+  · have hlt : remHigh n < n := by
+      unfold remHigh
+      exact Nat.sub_lt (Nat.pos_of_ne_zero hn) (by positivity)
+    obtain ⟨it, iff⟩ := ih (remHigh n) hlt
+    have hgt : gap (Nat.bit true n) = gap n := by
+      by_cases hr : remHigh n = 0
+      · simp only [gap, remHigh_bit_pos true n hn, log2_bit_pos true n hn, hr]
+        norm_num
+      · exact gap_bit_rem_pos true n hn hr
+    constructor
+    · rw [runs_pos _ (Nat.bit_ne_zero true hn), remHigh_bit_pos true n hn, hgt,
+        it, runs_pos n hn] <;> rfl
+    · rw [runs_pos _ (Nat.bit_ne_zero false hn), remHigh_bit_pos false n hn,
+        runs_pos n hn]
+      by_cases hr : remHigh n = 0
+      · have hgf : gap (Nat.bit false n) = (gap n).succ := by
+          rw [gap, gap, remHigh_bit_pos false n hn, log2_bit_pos false n hn, hr]
+          simp
+        rw [hgf, hr]
+        simp [runs_zero]
+      · rw [iff, gap_bit_rem_pos false n hn hr, modify_head_append (runs_ne_nil _ hr)]
 
 lemma runs_length_bits (n : ℕ) : (runs n).length = n.bits.count true := by
   induction n using Nat.binaryRec' with
