@@ -21994,6 +21994,56 @@
     "https://oeis.org/A269782"
    ],
    "reason": "Second review: An index-slip disproof: Barker's recurrence should read n>10, and every substantive claim (closed forms, g.f.) is true. Announcing this as a disproof would mislead; the honest result is a proof of the corrected statement, which is not what was proved."
+  },
+  "mo-511338": {
+   "date": "2026-11-28",
+   "pr": 13956,
+   "evidence": [
+    "https://mathoverflow.net/questions/511338",
+    "https://mathoverflow.net/a/511749"
+   ],
+   "reason": "The merged file is a disproof that uses only k=1, where the bound 2^(k-1)-1 = 0 admits weights x_i = 1/2 < 1, with F = {empty set, [2]}. The question is about generalizing Frankl's union-closed conjecture (k=2 is union-closed, x_i >= 1), and the answers and comments discuss k = n, n-1, n-2. So this refutes only the degenerate edge of the printed range and leaves the intended conjecture (k >= 2) untouched; the literal statement includes k = 1."
+  },
+  "oeis-a172487": {
+   "date": "2026-11-28",
+   "pr": 13757,
+   "evidence": [
+    "https://oeis.org/A172487"
+   ],
+   "reason": "Triviality: every term is the lesser of a pair of twin primes, so every term > 3 is 5 mod 6, and differences of later terms are divisible by 6. The A181669/A172240 filtering plays no role. The entry's own comment asks 'Is this a conjecture or a theorem?'; it is an immediate observation, not an open problem. The formalization itself is faithful."
+  },
+  "oeis-a068128": {
+   "date": "2026-11-28",
+   "pr": 10565,
+   "evidence": [
+    "https://oeis.org/A068128"
+   ],
+   "reason": "The disproof uses only T = 0 (the triangular number 0): only t = 0 has digit sum 0, so the set is finite. This exploits the degenerate edge of 'every triangular number T' and says nothing about the intended T >= 1 (where T = 1 is itself doubtful, since 8*10^k+1 must be a square). The intended conjecture is left untouched."
+  },
+  "mo-66493": {
+   "date": "2026-11-28",
+   "pr": 29311,
+   "evidence": [
+    "https://mathoverflow.net/questions/66493"
+   ],
+   "reason": "The MO question is vague (general results on det of Hadamard products; an 'explicit' choice of x_i giving det(V o R) != 0 over a finite field). The formal statement is only existential: some t in a finite extension avoiding polynomials of degree <= Sum d_i^2, with x_j = t^(d_j), via a leading-term (rearrangement) argument; plus a trivial 2x2 Hadamard example. The asker's own comment already gives existence by Schwartz-Zippel, so this is a weakened, essentially routine reading that does not deliver the requested explicit choice."
+  },
+  "oeis-a386314": {
+   "date": "2026-11-28",
+   "pr": 29244,
+   "evidence": [
+    "https://oeis.org/A386314"
+   ],
+   "reason": "The entry's line 'If the Collatz conjecture is true, then this sequence is a permutation of the numbers 6x+-1' is an author remark presented as a fact, not a conjecture. The formal statement assumes Collatz and is a short greedy-construction exercise: injectivity by construction; each good k becomes eligible once its odd-to-odd successor appears, and is then picked within finitely many steps. Faithful, but trivial given the hypothesis."
+  },
+  "mo-443664": {
+   "date": "2026-11-28",
+   "pr": 29218,
+   "evidence": [
+    "https://mathoverflow.net/questions/443664",
+    "https://github.com/connoranderson/open-math-agents/blob/4d9bbd36051eb80aed01bf8ef6218dd85c06d7d3/proofs/mo-443664.lean"
+   ],
+   "reason": "Roberson asks for a characterization (e.g. the extreme points) of M_Gamma = {M doubly stochastic, chi* M chi doubly stochastic}. The formal 'characterization' (identity row/column plus PSD of (x,y) -> M(x1-y1, x2-y2)) is a Bochner/Fourier restatement of entrywise nonnegativity of chi*Mchi, which the asker already identified as the hard part. Only the permutation-matrix part (exactly the automorphisms) is a small real statement. The proof file is also an unchanged port of connoranderson's earlier public proof ('not a claim of a new mathematical discovery')."
   }
  },
  "known": {
@@ -39683,6 +39733,162 @@
     "https://arxiv.org/abs/1608.04001"
    ],
    "reason": "Second review: The site's absolutely continuous counterexample is correct and cleaner than the literature's. But the 2016 paper from the question's own research line already says the general inequality fails, by a sketched example that is not absolutely continuous. Prior settlement in substance; at most a rigorous version of a known negative answer."
+  },
+  "oeis-a106228": {
+   "date": "2026-11-28",
+   "pr": 16347,
+   "evidence": [
+    "https://oeis.org/A106228",
+    "https://doi.org/10.1016/j.dam.2019.01.035",
+    "https://arxiv.org/abs/1912.03674",
+    "https://arxiv.org/abs/2404.04091"
+   ],
+   "reason": "The Martinez-Savage 2.21 conjecture is I_n(>,-,<=) = I_n(101,102) counted by A106228; the Lean count (e i < i+1, no i<j<k with e_j<e_i<=e_k) is faithful and reproduces 1,1,2,6,21,80,322,1347,5798. Yan-Lin (DMTCS 2020, arXiv:1912.03674, Sect. 6) state this was 'verified algebraically by Cao, Jin and Lin' (Disc. Appl. Math. 2019, cited in the entry); Huh-Kim-Seo-Shin 2024 also call it known."
+  },
+  "oeis-a176957": {
+   "date": "2026-11-28",
+   "pr": 16167,
+   "evidence": [
+    "https://oeis.org/A176957",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,4,-1,-1); the Lean recursion matches a(n+1)=sum(a(p)a(n-p)+k)+l and reproduces the data; Mathar's order-5 recurrence checks numerically to n=59. Covered by Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177, which proves these recurrences for every Choulet sequence."
+  },
+  "oeis-a177165": {
+   "date": "2026-11-28",
+   "pr": 16238,
+   "evidence": [
+    "https://oeis.org/A177165",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,8,0,-1); definition faithful, data reproduced, Mathar's order-4 recurrence checks numerically to n=59. Instance of Dubickas, Mathematics 14 (2026) 2177 (k=0 case)."
+  },
+  "opg-blatter-specker-theorem-for-ternary-relations": {
+   "date": "2026-11-28",
+   "pr": 15611,
+   "evidence": [
+    "https://www.openproblemgarden.org/op/blatter_specker_theorem_for_ternary_relations",
+    "https://arxiv.org/abs/2206.12135"
+   ],
+   "reason": "The merged file is a disproof (OMA.disproof) of the affirmative formal statement. Its header says it uses 'the iterated matching construction of Fischer and Makowsky, arXiv:2206.12135', whose abstract states the Specker-Blatter theorem fails already for one ternary relation definable in FOL ('left open since 1983'). Settled in 2022."
+  },
+  "oeis-a104895": {
+   "date": "2026-11-28",
+   "pr": 14438,
+   "evidence": [
+    "https://oeis.org/A104895",
+    "https://oeis.org/A065620",
+    "https://oeis.org/A065621",
+    "https://oeis.org/A048724"
+   ],
+   "reason": "A104895 = -A065620 (Hasler 2018); A065620 lists a(A065621(n)) = n and a(A048724(n)) = -n (Karttunen 2014), and uniqueness of the reversing binary representation (Knuth exercise cited in A065620/A065621/A048724) gives the 'iff'. The Lean definition follows the data-reproducing formula (the name's recursion is a sign slip in the entry), so this is faithful but settled by companion entries."
+  },
+  "mo-344474": {
+   "date": "2026-11-28",
+   "pr": 13366,
+   "evidence": [
+    "https://mathoverflow.net/questions/344474",
+    "https://mathoverflow.net/a/515278"
+   ],
+   "reason": "Statement matches the MO identity (signed sum over S_d of 1/prod prefix sums = prod_{k<d} k!^2/(2k+1)!). The proof header says it follows the variable identity and Lagrange interpolation argument of Veronica Phan's MO answer 515278 (posted 2026-09-16), so the question was already answered on the source before the site proof (2026-11-27)."
+  },
+  "oeis-a001700": {
+   "date": "2026-11-28",
+   "pr": 13963,
+   "evidence": [
+    "https://oeis.org/A001700",
+    "https://en.wikipedia.org/wiki/Chu%E2%80%93Vandermonde_identity"
+   ],
+   "reason": "The terminating 2F1(1/2,-n;2;1) is formalized faithfully, and the identity checks for n<30. It is a direct instance of the classical Chu-Vandermonde identity 2F1(-n,b;c;1)=(c-b)_n/(c)_n, which the proof header itself cites ('Known result (Chu-Vandermonde)'). Classical, not new."
+  },
+  "oeis-a060014": {
+   "date": "2026-11-28",
+   "pr": 14114,
+   "evidence": [
+    "https://oeis.org/A060014"
+   ],
+   "reason": "Saffold's conjecture (sum of orders of permutations eventually periodic mod every m) is formalized faithfully. The entry already says 'This is true; see the OEISwiki link for a proof based on Alois P. Heinz's program' (Natalia L. Skirrow, Aug 31 2026), which predates the site proof (2026-11-28)."
+  },
+  "oeis-a000464": {
+   "date": "2026-11-28",
+   "pr": 14091,
+   "evidence": [
+    "https://oeis.org/A000464",
+    "https://data.palomar-registry.org/api/v1/results?q=A000464"
+   ],
+   "reason": "Disproof of Bala's Conjecture 1 (pure periodicity mod k with period dividing phi(k)) via a(55) = 65 != 11 = a(1) mod 81. This is exactly Palomar entry PALOMAR-2026-11-16-000020 (Wentao Li, fc-palomar-proofs), and the proof header says it adapts Wentao Li's FCPalomar/OeisA000464/Solution.lean."
+  },
+  "oeis-a098274": {
+   "date": "2026-11-28",
+   "pr": 13531,
+   "evidence": [
+    "https://oeis.org/A098274",
+    "https://arxiv.org/abs/math/0409023"
+   ],
+   "reason": "Bala's pair of p^(3r) supercongruences (Oct 2026) is stated faithfully (p>=5, n,r>=1) and checks numerically for p=5..13. The proof header itself says 'Zudilin's signed-binomial identity relates this sequence to the family in Coster's 1989 Theorem 4. The mathematical result already follows from that work': a(n) = (-1)^n Sum (-1)^k C(n,k)C(n+k,k)^3 (entry formula) is a Coster-type sum. The direct Lean proof also adapts site/upstream lemmas (A181069, A208425)."
+  },
+  "oeis-a288521": {
+   "date": "2026-11-28",
+   "pr": 29299,
+   "evidence": [
+    "https://oeis.org/A288521",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Faithful statement (0-limiting word of 00->0101, 10->010; m in [1.52,1.53), limit and -1 < m - a(n)/n < 1). Ashburn, 'Iterated string replacements from 00' (Zenodo 23407380/23407381, 16 Oct 2026), map M32, lists A288521 (letter 0 of A288520) with m = 1.5213797 (root of x^3-x-2) among the proved limits and bounds, six weeks before the site proof."
+  },
+  "oeis-a288260": {
+   "date": "2026-11-28",
+   "pr": 29277,
+   "evidence": [
+    "https://oeis.org/A288260",
+    "https://doi.org/10.5281/zenodo.23407380"
+   ],
+   "reason": "Both length conjectures (00->0010, 1->100 from A288257 as corrected by Dekking; and Dekking's 00->0101, 1->010 from A288466) are stated faithfully, with StringReplace semantics; my simulation matches 22 terms. Ashburn (Zenodo 23407380/1, 16 Oct 2026), Table 4, lists A288260 (M19) 'true for the map as corrected by Dekking (2020)' and A288466 (M28, target A288260) 'true; also stated by Dekking in A288260'."
+  },
+  "mo-262336": {
+   "date": "2026-11-28",
+   "pr": 29264,
+   "evidence": [
+    "https://mathoverflow.net/questions/262336",
+    "https://mathoverflow.net/a/277775"
+   ],
+   "reason": "perm(M+aJ) = Sum_k (n-k)! a^(n-k) P_k(M) is exactly Zach Teitler's 2017 MO answer (the statement header says so), together with his remark that p alone does not determine it (the second conjunct). Already answered on the source."
+  },
+  "mo-342993": {
+   "date": "2026-11-28",
+   "pr": 29267,
+   "evidence": [
+    "https://mathoverflow.net/questions/342993",
+    "https://doi.org/10.1007/BF01386302"
+   ],
+   "reason": "The question asks for a 'clean formula' for the inverse of a confluent Vandermonde matrix. The formal answer gives the rows of the inverse as coefficients of Hermite cardinal polynomials ((X-x_i)^t (1-(1-L_i)^s) mod Prod(X-x_j)^s), i.e. the classical Hermite-interpolation description of the confluent Vandermonde inverse (e.g. Gautschi, Numer. Math. 4 (1962) 117-123). A correct but classical answer to a soft question; no MO answers."
+  },
+  "mo-206970": {
+   "date": "2026-11-28",
+   "pr": 29253,
+   "evidence": [
+    "https://mathoverflow.net/questions/206970",
+    "https://press.princeton.edu/books/hardcover/9780691032443/supermodularity-and-complementarity"
+   ],
+   "reason": "Faithful (weak and the question's strict inequality, nonnegative and increasing f, g on R^2). The product of nonnegative increasing supermodular functions is supermodular: a standard fact (e.g. Topkis, Supermodularity and Complementarity, 1998, Sect. 2.6), proved by the usual four-term rearrangement identity the Lean proof uses. The only MO answer (S.J., 2015) wrongly claims 'no'. Classical and routine, not new."
+  },
+  "oeis-a270145": {
+   "date": "2026-11-28",
+   "pr": 29203,
+   "evidence": [
+    "https://oeis.org/A270145",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Faithful (n X 2 arrays over 0..7 with exactly one horizontal/vertical/diagonal/antidiagonal pair summing to 7). iis:2611.00233 lists A270145 with 'Barker g.f. proved; Hardin recurrence (n>5) proved' by transfer matrix, filed 2026-11-28 04:57 UTC, before the site proof commit (12:19 UTC). The closed-form conjunct follows from the g.f."
+  },
+  "oeis-a262768": {
+   "date": "2026-11-28",
+   "pr": 29199,
+   "evidence": [
+    "https://oeis.org/A262768",
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "Mathar's recurrence is stated for n>=3; it fails at n=2 (left side -96), which the statement notes, and it holds for 3<=n<200 in my check. Settled in iis:2611.00219 (Mathar P-recurrence batch), filed 2026-11-28 03:18 UTC, before the site proof commit (12:18 UTC). Routine holonomic identity in any case."
   }
  },
  "reviewed": "2026-11-28"
