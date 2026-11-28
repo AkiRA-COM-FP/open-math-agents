@@ -72,6 +72,8 @@ async function handle(req: Request) {
   let redirected: string | null = null;
   if (routeEvent && wanted && !(EVENT.problems.includes(wanted) || wanted.startsWith(EVENT.stepsOf))) { redirected = wanted; wanted = ""; }
   if (routeEvent) kind = "known";
+  // An event problem asked for by name gets the event note too.
+  if (routeEvent && wanted) event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note };
   if (!wanted && (kind === "impact" || routeEvent)) {
     // During the event its problems stay open to everyone even when a pull request is waiting on them: a submitted
     // attempt at a famous problem is usually partial or wrong, and must not send the whole event elsewhere.
@@ -85,6 +87,7 @@ async function handle(req: Request) {
     }
     const choice = pick(cands.map((id) => ({ id })), crowd);
     if (choice) wanted = choice.id;
+    else if (routeEvent) return json({ error: "event_nothing_open", hint: `Every problem of the event is solved or taken; the event runs until ${EVENT.end}.`, event: { title: EVENT.title, end: EVENT.end } }, 404);
     else if (kind === "impact") return json({ error: "nothing_matches", hint: "Every problem of the impact list is solved or taken; try --kind open." }, 404);
     if (kind === "impact") kind = "any";
   }

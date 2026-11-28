@@ -91,12 +91,12 @@ lint(f"statements/{P['id']}.lean", GOOD_ST, False, "not a problem waiting", "sta
 
 # ---- reductions -------------------------------------------------------------------------------
 RF = f"reductions/{RED}.lean"
-GOOD_RED = (f"import {P['module']}\n\nnamespace {RNS}\n\ndef H1 : Prop := ∀ k : ℕ, 3 ≤ k → True\n\ndef H2 : Prop :=\n  ∀ n : ℕ, n = n\n\n"
+GOOD_RED = (f"import {P['module']}\n\nnamespace {RNS}\n\ndef H1 : Prop := ∀ k : ℕ, 3 ≤ k → 0 < k\n\ndef H2 : Prop :=\n  ∀ n : ℕ, n + 0 = n\n\n"
             f"lemma helper : 1 = 1 := rfl\n\ntheorem main : H1 → H2 → type_of% @{P['decl']} := by\n  intro h1 h2\n  exact?\n\nend {RNS}\n")
 lint(RF, GOOD_RED, True, name="reduction: valid")
-lint(RF, GOOD_RED.replace("def H2 : Prop :=\n  ∀ n : ℕ, n = n\n\n", "").replace("H1 → H2 →", "H1 →"), False, "2 to 4", "reduction: single hypothesis")
-lint(RF, GOOD_RED.replace("∀ k : ℕ, 3 ≤ k → True", f"type_of% @{P['decl']}"), False, "may not mention", "reduction: hypothesis restates the target")
-lint(RF, GOOD_RED.replace("∀ n : ℕ, n = n", "∀ k : ℕ, 3 ≤ k → True"), False, "identical", "reduction: duplicate hypotheses")
+lint(RF, GOOD_RED.replace("def H2 : Prop :=\n  ∀ n : ℕ, n + 0 = n\n\n", "").replace("H1 → H2 →", "H1 →"), False, "2 to 4", "reduction: single hypothesis")
+lint(RF, GOOD_RED.replace("∀ k : ℕ, 3 ≤ k → 0 < k", f"type_of% @{P['decl']}"), False, "may not mention", "reduction: hypothesis restates the target")
+lint(RF, GOOD_RED.replace("∀ n : ℕ, n + 0 = n", "∀ k : ℕ, 3 ≤ k → 0 < k"), False, "identical", "reduction: duplicate hypotheses")
 lint(RF, GOOD_RED.replace("lemma helper", "def Cheat : Prop := True\nlemma helper"), False, "only the H definitions", "reduction: extra definition")
 lint(RF, GOOD_RED.replace("H1 → H2 → type_of%", "H2 → H1 → type_of%"), False, "theorem main", "reduction: wrong order in main")
 
@@ -110,7 +110,7 @@ lint(f"proofs/{RED}.H3.lean", GOOD_STEP.replace("H2", "H3"), False, None, "step:
 lint(SPF, GOOD_STEP.replace(f"{RNS}.H2", f"{RNS}.H1"), False, "exactly one", "step: proves the wrong hypothesis")
 NESTED = f"{RED}.H1.R1"
 NNS = f"OMA.R_{SAN(NESTED)}"
-lint(f"reductions/{NESTED}.lean", f"import OMAReductions.R_{SAN(RED)}\n\nnamespace {NNS}\n\ndef H1 : Prop := 2 = 2\n\ndef H2 : Prop := 3 = 3\n\n"
+lint(f"reductions/{NESTED}.lean", f"import OMAReductions.R_{SAN(RED)}\n\nnamespace {NNS}\n\ndef H1 : Prop := 2 + 0 = 2\n\ndef H2 : Prop := 3 + 0 = 3\n\n"
      f"theorem main : H1 → H2 → {RNS}.H1 := by\n  intro a b k hk\n  trivial\n\nend {NNS}\n", True, name="reduction of a step (nested)")
 
 # a proof of a problem first stated here, once the statement is merged
@@ -124,6 +124,10 @@ E142 = next(p for p in CAT["problems"] if p["id"] == "Erdos142.erdos_142.variant
 lint(f"proofs/{E142['id']}.lean", f"import {E142['module']}\n\nnoncomputable def OMA.answer : ℕ → ℝ := fun N => N\n\n"
      f"theorem OMA.solution : Erdos142.erdos_142.variants.three.answer = OMA.answer → type_of% @{E142['decl']} := by\n  intro h\n  rw [h]\n  exact?\n",
      False, "not accepted automatically", "Erdős 142: value answer refused (formula is free in the statement)")
+
+# a reduction with plainly trivial hypotheses farms step points: refused
+for bad in ("True", "False", "(1:ℕ) = 1", "∀ n : ℕ, n = n", "∀ k : ℕ, 3 ≤ k → True"):
+    lint(RF, GOOD_RED.replace("∀ k : ℕ, 3 ≤ k → 0 < k", bad), False, "trivially", f"reduction: trivial hypothesis {bad}")
 
 shutil.rmtree(tmp)
 print(f"\n{'ALL PASSED' if not failures else f'{failures} FAILED'}")
