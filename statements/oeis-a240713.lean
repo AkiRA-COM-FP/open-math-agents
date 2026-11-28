@@ -31,3 +31,4 @@ theorem main : ∀ n : ℕ, 1 ≤ n →
   sorry
 
 end OMA.S_oeis_a240713
+-- ci: re-run check-proof
