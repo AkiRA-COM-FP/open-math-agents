@@ -4,7 +4,7 @@ import Mathlib
 /-! Proof for OEIS A061101: the digital root of `m` is `≡ m (mod 9)` and below 10, so the
 condition is a congruence mod 9; a square `x^2` qualifies iff `x ≡ 4 or 5 (mod 9)`, whose increasing
 enumeration is `4, 5, 13, 14, …`; `Nat.nth` is identified with the strictly increasing enumeration of the
-squares. Credit: @SudharsanAnimations -/
+squares. Credit: Sudharsan Rajendiran -/
 
 namespace OMA.P061101
 open OMA.S_oeis_a061101
