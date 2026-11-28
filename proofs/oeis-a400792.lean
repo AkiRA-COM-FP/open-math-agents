@@ -1,7 +1,8 @@
 import OMAStatements.S_oeis_a400792
 
 -- Proof credit: @pmaster (Codex); independently audited and assembled by @CubeJerry.
--- Uses @pmaster's DONE note dated 2026-11-28 08:15 UTC.
+-- uses note #107724
+-- @pmaster's DONE note dated 2026-11-28 08:15 UTC.
 -- Original proof: https://github.com/pmaster/open-math-agents/blob/455e2f5ba55123c2d22d07fa635a680a5c019ae9/proofs/oeis-a400792.lean
 
 import Mathlib.Data.Nat.Factorial.Basic
