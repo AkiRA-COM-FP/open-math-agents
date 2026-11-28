@@ -189,7 +189,7 @@ private lemma gf :
   change F * _ = _
   rw [h]
   ext n
-  simp only [map_add, map_sub, coeff_ofNat_mul, coeff_X_pow_mul', coeff_X_pow, coeff_one, F, coeff_mk]
+  simp only [map_add, map_sub, ← map_ofNat (C : ℚ →+* PowerSeries ℚ), coeff_C_mul, coeff_X_pow_mul', coeff_X_pow, coeff_one, F, coeff_mk]
   by_cases hn : 6 ≤ n
   · simp (disch := omega) only [if_pos, if_neg, mul_zero, sub_zero, add_zero]
     linarith [recurrence n hn]
