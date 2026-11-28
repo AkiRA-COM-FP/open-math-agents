@@ -5225,6 +5225,32 @@
     "https://oeis.org/A068073"
    ],
    "reason": "Barry's formula is stated literally, with n where k was clearly meant in the summand, so the sum is (n+1) times a sign. The disproof (n = 3 gives -4, not 2) exploits only this typo. The statement's docstring itself notes that the k-version holds for n < 400. The intended identity is untouched."
+  },
+  "oeis-a159619": {
+   "date": "2026-11-28",
+   "pr": 23206,
+   "evidence": [
+    "https://oeis.org/A159619",
+    "https://oeis.org/A026491"
+   ],
+   "reason": "The disproof uses n = 1: a(1) = 4, but A026491(3) - 1 = 7. A026491 has offset 0 (1, 4, 5, 8, ...), and a(n) = A026491(n+1) - 1 fits all the data. So '2+n' in Mathar's comment is an evident index slip (it is correct if A026491 is indexed from 1), and the statement file says so itself. The disproof exploits the slip and leaves the intended identity untouched."
+  },
+  "oeis-a377111": {
+   "date": "2026-11-28",
+   "pr": 23141,
+   "evidence": [
+    "https://oeis.org/A377111",
+    "https://oeis.org/A377112"
+   ],
+   "reason": "The disproof uses only p = 2: a(n) is even exactly for even n, so the gaps of K(2) are all 2, against the displayed 'p = 2: (3,3,1,2,2,1)'. Numerically the displayed blocks are shifted by one prime: (3,3,1,2,2,1) is the actual K(3) block, (6,1,1,3,1,4,2,6) is K(5) and (32,21,...) is K(11). So the comment's prime labels are an evident labelling slip. The general claims (every prime divides infinitely many terms, eventual periodicity) are not refuted, and the disproof exploits only the mislabelling."
+  },
+  "oeis-a329725": {
+   "date": "2026-11-28",
+   "pr": 21997,
+   "evidence": [
+    "https://oeis.org/A329725"
+   ],
+   "reason": "The statement is faithful, but it follows from the definition. Unfolding the recurrence twice gives a(10n+1) - a(10n-1) = 1 - p(10n+1) + p(10n), and appending a final digit 0 or 1 does not change the product of the nonzero digits. The proof is exactly this two-step unfolding."
   }
  },
  "known": {
@@ -11599,6 +11625,108 @@
     "https://oeis.org/A029858"
    ],
    "reason": "Wajnberg's 2005 'conjecture' counts integers below 10^(n-1) whose digits all lie in {7,8,9}; that count is sum_{j=1}^{n-1} 3^j = (3^n-3)/2. The entry itself already says 'This is easily verified to be true' (Renzo Benedetti, 2008). The statement is faithful (0 excluded), but the claim was settled in the source and is a one-line count."
+  },
+  "oeis-a004735": {
+   "date": "2026-11-28",
+   "pr": 23219,
+   "evidence": [
+    "https://oeis.org/A004735",
+    "https://oeis.org/A001803"
+   ],
+   "reason": "Stephan's a(2n) = A001803(n) is stated faithfully from the PARI program (checked for n < 200). But A001803 already says that a(n) is the denominator of (2n)!!/(2n+1)!! (Sloane, 2011) and lists itself as a bisection of A004735. Since d(2n) = 4(2n)!!/(2n+1)!! and that fraction has odd denominator, the claim follows at once from that comment, so this is settled material."
+  },
+  "oeis-a291271": {
+   "date": "2026-11-28",
+   "pr": 22848,
+   "evidence": [
+    "https://oeis.org/A291271"
+   ],
+   "reason": "Hurt's cosine formula is stated faithfully, with v_4(n,2) as in Bajnok and the entry's program (checked for n < 3000). But the entry already has Oudra's unconditional formula a(n) = (n - gcd(n,4))/2 (Dec 2024), and cos(n pi) + cos(n pi/2) = gcd(n,4) - 2 is a one-line residue check. So the conjecture is equivalent to an established formula line of the entry."
+  },
+  "oeis-a217948": {
+   "date": "2026-11-28",
+   "pr": 22070,
+   "evidence": [
+    "https://oeis.org/A217948",
+    "https://oeis.org/A002326",
+    "https://doi.org/10.46298/dmtcs.308",
+    "https://doi.org/10.1016/0196-8858(83)90009-x"
+   ],
+   "reason": "Both conjectures (2n-1 is prime, and the terms are A001122 + 1) are stated faithfully and hold numerically for n < 2000. But the riffle on cards 2..2n-1 is multiplication of r-1 by 2 modulo 2n-1. That is the classical description of the perfect out-shuffle (Diaconis-Graham-Kantor 1983; the cycle structure in Ellis-Fan-Shallit 2002, cited by the entry's DAM reference; and A002326), and a single orbit then means at once that 2n-1 is prime with primitive root 2. The proof is exactly this folklore two-line argument."
+  },
+  "oeis-a397048": {
+   "date": "2026-11-28",
+   "pr": 18941,
+   "evidence": [
+    "https://oeis.org/A397048",
+    "https://zenodo.org/records/24562734"
+   ],
+   "reason": "Schulte's three conjectures are stated faithfully, and I checked them numerically for n < 14. But Salem Levinstein's Zenodo record 24562734 (2026-11-26, 'Shifted Falling-Factorial Connection Coefficients and Proof of Schulte's OEIS A397048 Conjectures') proves all three with a Lean 4 proof. That predates this proof's commit (2026-11-28). Conjecture 3 is also essentially Luschny's comment in the entry that T(n,k) are the connection coefficients of (n+x)^n to the falling-factorial basis."
+  },
+  "oeis-a278614": {
+   "date": "2026-11-28",
+   "pr": 22042,
+   "evidence": [
+    "https://oeis.org/A278614",
+    "https://arxiv.org/abs/1509.05239"
+   ],
+   "reason": "Mathar's 2016 g.f. (3-x-5x^2)/(1-3x-x^2+4x^3) is stated faithfully, and the TRIP-Stern definition reproduces the data (checked for 18 levels). But Theorem 26 of Amburg et al., arXiv:1509.05239 (JIS 2017), the paper the entry is based on, lists the level-sum recurrence S(n) = 3S(n-1) + S(n-2) - 4S(n-3) for the triple (e,12,12) among its 11 proved row-sum recurrences. That recurrence plus the initial terms gives the g.f."
+  },
+  "oeis-a391346": {
+   "date": "2026-11-28",
+   "pr": 22447,
+   "evidence": [
+    "https://oeis.org/A391346",
+    "https://oeis.org/A260443",
+    "https://oeis.org/A391566"
+   ],
+   "reason": "Karttunen's a(n) = A391566(n)/5 is stated faithfully, but it is immediate from the classical evaluation B(k,2) = k of Stern polynomials (A260443: 'A048675(a(n)) = n [at x=2]'; Klavzar-Milutinovic-Petr 2007). That evaluation forces 5 | k whenever B(5,x) = 2x+1 divides B(k,x), which is the whole proof. The same claim in mirror form was also solved on this site 16 seconds earlier (oeis-a391566, a = 5*A391346)."
+  },
+  "oeis-a068962": {
+   "date": "2026-11-28",
+   "pr": 21910,
+   "evidence": [
+    "https://oeis.org/A068962"
+   ],
+   "reason": "Wu's recurrence and g.f. are stated faithfully, and I checked both for n < 120. But the recurrence a(n) = a(n-1) + a(n-15) - a(n-16) says exactly that a(n+15) - a(n) is constant. The entry's older, unconditional formula line already states 'Each group of 15 terms is 6 more than the previous group'. So the conjecture adds nothing beyond that line and the initial terms."
+  },
+  "oeis-a022030": {
+   "date": "2026-11-28",
+   "pr": 18934,
+   "evidence": [
+    "https://oeis.org/A022030",
+    "https://arxiv.org/abs/2608.11941",
+    "https://github.com/google-deepmind/formal-conjectures/pull/5085"
+   ],
+   "reason": "Barker's recurrence for A022030 was already proved. The entry itself cites the proof abstract in Adamczewski, OEIS Open (arXiv:2608.11941, p. 22), and KitaKen1's kernel-checked Lean proof of the same recurrence was merged into formal-conjectures (PR #5085, closed as solved 2026-09-14). This statement adds Barker's g.f. and Hasler's g.f. for the original-definition variant, but its main part is known."
+  },
+  "oeis-a337484": {
+   "date": "2026-11-28",
+   "pr": 18887,
+   "evidence": [
+    "https://oeis.org/A337484",
+    "https://oeis.org/A001399"
+   ],
+   "reason": "Barker's recurrence is stated faithfully, and I checked it for n < 80. But the entry already has unconditional formulas: the complement is 2*A001399(n-6) (strictly monotone triples, that is partitions into 3 distinct parts), and a(n) = 2*A242771(n-1) - A000217(n-1). With A001399's classical g.f. 1/((1-x)(1-x^2)(1-x^3)), Barker's recurrence follows directly, and the proof just re-derives these counts."
+  },
+  "oeis-a285346": {
+   "date": "2026-11-28",
+   "pr": 22720,
+   "evidence": [
+    "https://oeis.org/A285346",
+    "https://oeis.org/A285347"
+   ],
+   "reason": "Kimberling's conjecture (2n+1-a(n) in {0,1} for the zeros of A285345) is stated faithfully and checked numerically. But Michel Dekking's 2019 proof in A285347 shows that the n-th 1 sits at 2n-1 or 2n-2. Counting the complement then gives exactly n-1 zeros in [1,2n-1] and n zeros in [1,2n+1], so the n-th 0 is at 2n or 2n+1. The claim therefore follows in three lines from a published OEIS proof."
+  },
+  "oeis-a266988": {
+   "date": "2026-11-28",
+   "pr": 21832,
+   "evidence": [
+    "https://oeis.org/A266988",
+    "https://oeis.org/A088144",
+    "https://oeis.org/A266989"
+   ],
+   "reason": "Papadopoulos's claim (average of the primitive roots < p/2 implies p = 3 mod 4) is stated faithfully. For p = 1 mod 4, -1 = g^((p-1)/2) makes g -> p-g a bijection of the primitive roots, so the average is exactly p/2; this is a classical textbook fact. A088144 already records it ('if prime(n) == 1 (mod 4), then a(n) = prime(n)*A008330(n)/2'), and the companion A266989 states the conclusion without the word conjecture."
   }
  },
  "reviewed": "2026-11-28"
