@@ -7,7 +7,8 @@ Credit: @wispiANt. The coefficient tables, small cases, and finite
 non-divisibility check come from R8 (PR #20438). The second seed is from
 note #92063. The descent subtracts a nonempty group of large summands chosen for each target.
 All summands in the group lie within a factor of two.
-Their eligible divisors must exceed the remainder.
+Cross-divisibility is tested only for values that can occur in the remainder.
+The primitive-window comparison uses the condition reported by @Jwolf52 in note #95249.
 
 The finite certificate uses 52 seed values and 124 additions of index at
 most 2200, including 28 further compatible values in the final factor-of-two
@@ -20,13 +21,14 @@ namespace OMA.R_oeis_a000009_R10
 
 open OMA.S_oeis_a000009
 
-/-- Subtract a nonempty finite group of large values in one band. A divisor matters only when it can fit in the remainder. -/
+/-- Subtract a nonempty finite group of large values in one band. A remainder term either exhausts the sum or leaves room for another large term. -/
 def H1 : Prop :=
   ∀ n : ℕ, 120213635240125999281329002393675834 < n → ∃ A : Finset ℕ, ∃ r : ℕ,
     A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
-    (∀ z ∈ A, 1000 ≤ z ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m) ∧ r < z) ∧
+    (∀ z ∈ A, 1000 ≤ z ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m)) ∧
     (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
-    ∀ z ∈ A, ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → s ∣ z → r < s
+    ∀ z ∈ A, ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) →
+      (s = r ∨ s + 1000 ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s
 
 def H2 : Prop :=
   ∀ n : ℕ, 1000 < n → ∀ k : Fin 3,
@@ -1028,16 +1030,28 @@ open Finset
 theorem band_nondiv {a b : ℕ} (pos : 0 < b) (near : b < 2*a) (ne : a ≠ b) : ¬ a ∣ b :=
   fun dv => ne (Nat.eq_of_dvd_of_lt_two_mul pos.ne' dv near).symm
 
+/-- A member of a finite sum exhausts it or leaves at least one other term. -/
+theorem remainder_term (T : Finset ℕ) (B s : ℕ) (hs : s ∈ T) (lower : ∀ t ∈ T, B ≤ t) :
+    s = ∑ t ∈ T, t ∨ s+B ≤ ∑ t ∈ T, t := by
+  have total := Finset.add_sum_erase T (fun t : ℕ => t) hs
+  by_cases h : (T.erase s).Nonempty
+  · obtain ⟨t,ht⟩ := h
+    have := single_le_sum (f := fun t : ℕ => t) (fun _ _ => Nat.zero_le _) ht
+    have := lower t (mem_of_mem_erase ht)
+    exact Or.inr (by omega)
+  · rw [not_nonempty_iff_eq_empty.mp h, sum_empty] at total
+    exact Or.inl (by simpa using total)
+
 /-- Distinct summands within a factor of two cannot divide one another.
-Any eligible divisor of a new summand must exceed the old total. -/
+Only possible terms of the remainder need a cross-divisibility test. -/
 theorem descent (Q : ℕ → Prop) (B L U cap : ℕ) (positive : 0 < B)
     (base : ∀ n, L ≤ n → n ≤ U → ∃ T : Finset ℕ,
       (∀ s ∈ T, B ≤ s ∧ Q s) ∧
       (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n)
     (tail : ∀ n, U < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
       A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ L ≤ r ∧
-      (∀ z ∈ A, B ≤ z ∧ Q z ∧ r < z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
-      ∀ z ∈ A, ∀ s, B ≤ s → Q s → s ∣ z → r < s) :
+      (∀ z ∈ A, B ≤ z ∧ Q z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
+      ∀ z ∈ A, ∀ s, B ≤ s → Q s → (s = r ∨ s+B ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s) :
     ∀ n, L ≤ n → n ≤ cap → ∃ T : Finset ℕ,
       (∀ s ∈ T, B ≤ s ∧ Q s) ∧
       (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n := by
@@ -1051,26 +1065,80 @@ theorem descent (Q : ℕ → Prop) (B L U cap : ℕ) (positive : 0 < B)
     have asum := single_le_sum (f := fun i : ℕ => i) (fun _ _ => Nat.zero_le _) ha
     have ab := (newTerm a ha).1
     obtain ⟨T,good,anti,hs⟩ := ih r (by omega) rl (by omega)
-    have bound {s : ℕ} (mem : s ∈ T) : s ≤ r := by
-      rw [← hs]
-      exact single_le_sum (f := fun i : ℕ => i) (fun _ _ => Nat.zero_le _) mem
-    have disj : Disjoint A T := disjoint_left.mpr fun z hz ht =>
-      (Nat.not_lt_of_ge (bound ht)) (newTerm z hz).2.2
+    have compatible {z s : ℕ} (hz : z ∈ A) (ht : s ∈ T) : ¬ s ∣ z ∧ ¬ z ∣ s :=
+      clean z hz s (good s ht).1 (good s ht).2
+        (hs ▸ remainder_term T B s ht (fun t h => (good t h).1))
+    have disj : Disjoint A T := disjoint_left.mpr fun z hz ht => (compatible hz ht).1 dvd_rfl
     refine ⟨A ∪ T, ?_, ?_, by rw [sum_union disj, hs, eq]⟩
     · intro z hz
       rcases mem_union.mp hz with h | h
-      · exact ⟨(newTerm z h).1, (newTerm z h).2.1⟩
+      · exact newTerm z h
       · exact good z h
     · intro x hx y hy ne
       rcases mem_union.mp hx with xa | xt <;> rcases mem_union.mp hy with ya | yt
       · exact band_nondiv (lt_of_lt_of_le positive (newTerm y ya).1) (near x xa y ya) ne
-      · intro dv
-        have := Nat.le_of_dvd (lt_of_lt_of_le positive (good y yt).1) dv
-        have := (newTerm x xa).2.2
-        have := bound yt
-        omega
-      · exact fun dv => (Nat.not_lt_of_ge (bound xt)) (clean y ya x (good x xt).1 (good x xt).2 dv)
+      · exact (compatible xa yt).2
+      · exact (compatible ya xt).1
       · exact anti x xt y yt ne
+
+/-- A primitive value a can also be used just above 2a, until the excess reaches 1000.
+At 2a itself the remainder could be the singleton {a}. -/
+theorem primitive_step (a r : ℕ) (big : 1000 ≤ a)
+    (primitive : ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) →
+      2*s ≤ a → ¬ s ∣ a)
+    (near : r < a+1000) (different : r ≠ a) :
+    ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) →
+      (s = r ∨ s+1000 ≤ r) → ¬ s ∣ a ∧ ¬ a ∣ s := by
+  intro s bs qs fit
+  have ne : s ≠ a := by rcases fit with h | h <;> omega
+  have small : s < 2*a := by rcases fit with h | h <;> omega
+  refine ⟨?_, band_nondiv (by omega) small (Ne.symm ne)⟩
+  by_cases h : 2*s ≤ a
+  · exact primitive s bs qs h
+  · exact band_nondiv (by omega) (by omega) ne
+
+/-- A singleton in the interval for a target supplies the entire descent witness. -/
+theorem H1_of_intervals (cover : ∀ n : ℕ, 120213635240125999281329002393675834 < n →
+    ∃ a : ℕ, (∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ 1000 ≤ a ∧
+      a+20301 ≤ n ∧ n < 2*a+1000 ∧ n ≠ 2*a ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a) :
+    H1 := by
+  intro n hn
+  obtain ⟨a,qa,big,lo,hi,ne,prim⟩ := cover n hn
+  refine ⟨{a},n-a,singleton_nonempty _,by simp; omega,by omega,?_,?_,?_⟩
+  · simpa using And.intro big qa
+  · simpa using (show a < 2*a by omega)
+  · simpa using primitive_step a (n-a) big prim (by omega) (by omega)
+
+/-- Successive primitive values suffice when their unpunctured intervals touch. -/
+theorem H1_of_spacing (a : ℕ → ℕ)
+    (values : ∀ i, (∃ m : ℕ, 0 < m ∧ a i = strictPartitionCount m) ∧ 1000 ≤ a i ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a i → ¬ s ∣ a i)
+    (start : a 0 + 20301 ≤ 120213635240125999281329002393675835)
+    (spacing : ∀ i, a (i+1) + 20301 ≤ 2*a i) (unbounded : ∀ n, ∃ i, n < 2*a i) : H1 := by
+  apply H1_of_intervals
+  intro n hn
+  have cover (k : ℕ) : n < 2*a k → ∃ i, a i+20301 ≤ n ∧ n < 2*a i := by
+    induction k with
+    | zero => exact fun h => ⟨0,by omega,h⟩
+    | succ k ih =>
+      intro h
+      by_cases prev : n < 2*a k
+      · exact ih prev
+      · exact ⟨k+1,by have := spacing k; omega,h⟩
+  obtain ⟨k,hk⟩ := unbounded n
+  obtain ⟨i,lo,hi⟩ := cover k hk
+  exact ⟨a i,(values i).1,(values i).2.1,lo,by omega,by omega,(values i).2.2⟩
+
+/-- The primitive-window assumption reported for R9 in desk note #95249 implies H1. -/
+theorem H1_of_windows (windows : ∀ x : ℕ, 19290627658796608 / 2 + 1 ≤ x →
+    ∃ a : ℕ, (∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ x ≤ a ∧ 2*a ≤ 3*x ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a) :
+    H1 := by
+  apply H1_of_intervals
+  intro n hn
+  obtain ⟨a,qa,lo,hi,h⟩ := windows (n/2+1) (by omega)
+  exact ⟨a,qa,by omega,by omega,by omega,by omega,h⟩
 
 /-- The greedy extension step: adding a new element `a ≤ U + 1 - L` to a set whose subset
 sums cover `[L, U]` yields a set whose subset sums cover `[L, U + a]`. -/
