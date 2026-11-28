@@ -20890,6 +20890,38 @@
     "https://oeis.org/A395896"
    ],
    "reason": "De Vlieger's conjecture (a(n)=0 for even n, i.e. for odd squarefree m) is trivial: one of k, k+1 is even, so 2 divides rad(k) or rad(k+1), which cannot divide odd m. The proof is 33 lines. Trivial."
+  },
+  "oeis-a146955": {
+   "date": "2026-11-28",
+   "pr": 29472,
+   "evidence": [
+    "https://oeis.org/A146955"
+   ],
+   "reason": "Trivial: the row sum is p(1,n) = 2^n + 2^(n-4)*2*Sum_{m=1..n-1}(2^m+2m) = 2^n + 2^(n-3)(2^n-2+n^2-n), which is Mathar's formula after one line of algebra from the defining polynomial. The statement is faithful and the proof is valid, but nothing open was settled."
+  },
+  "oeis-a080693": {
+   "date": "2026-11-28",
+   "pr": 14417,
+   "evidence": [
+    "https://oeis.org/A080693"
+   ],
+   "reason": "The disproof (68 is not p^2*q + r*s) is correct, but it only exploits the printed threshold 26: the entry's own data already skip 68 (...,66,67,69,...), and a search to 200000 finds only 68 and 116 as exceptions >= 26. So the Goldbach-type comment is evidently meant with a larger bound (n >= 117 is consistent). Refuting the literal '>= 26' settles nothing of substance."
+  },
+  "mo-385518": {
+   "date": "2026-11-28",
+   "pr": 29486,
+   "evidence": [
+    "https://mathoverflow.net/questions/385518"
+   ],
+   "reason": "The question asks for a characterisation of the reachable set in terms of x, z and spectral properties of the P^m. The statement's 'polynomial feasibility' criterion is the multilinear expansion of the definition (each Q_t is a convex combination of the P_a), and the convex-hull equality follows at once. Only the small nonconvexity example is a genuine (minor) fact. Near-tautological; it does not answer the question."
+  },
+  "mo-506929": {
+   "date": "2026-11-28",
+   "pr": 29438,
+   "evidence": [
+    "https://mathoverflow.net/questions/506929"
+   ],
+   "reason": "The third clause disproves the asker's tentative remark ('for the handful I've tested f(n) appears to lie in [-1,1] but I don't know if that pattern holds'), which is presented here as a conjecture. The disproof follows from the closed form -(B_{r+2}+B_{r+1})/2 for n=p^2 q_1...q_r (checked for r<=5; it is 3.55 at r=14 and -27.5 at r=16). The first clause, the Bernoulli reformulation, is essentially the falling-factorial argument already in the 2026-01-23/24 comments."
   }
  },
  "known": {
@@ -38258,6 +38290,104 @@
     "https://math.colgate.edu/~integers/m15/m15.Abstract.html"
    ],
    "reason": "Barker's recurrence a(n)=15a(n-1)-15a(n-2)+a(n-3) is stated for Wesolowski's characterization (k with (k^2+k+1)/3 a square). The entry gives Marcus's closed form sqrt(3)((2+sqrt3)^(2n+1)-(2-sqrt3)^(2n+1))/4 - 1/2, credited to Broughan (INTEGERS 12 (2012) A15), and states that Barker's recurrence and g.f. 'follow easily from the formula'. The content is a one-class Pell equation (2k+1)^2-12y^2=-3. Settled in the source; the site proof is a routine Pell argument."
+  },
+  "oeis-a224899": {
+   "date": "2026-11-28",
+   "pr": 29558,
+   "evidence": [
+    "https://oeis.org/A224899",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Recurrence/Periodic/SinhPowerPrimePeriod.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/dev/Problems/oeis-a224899-sinh-power-prime-period.md"
+   ],
+   "reason": "Bala's period-(p-1) conjecture for odd primes is proved as bala_conjecture_odd in trureturing (D5/S1/Recurrence/Periodic/SinhPowerPrimePeriod.lean, commit 4e2aa4a 2026-09-09), together with a refutation at p=2; the site statement restricts to odd primes, exactly the trur theorem. Site proof committed 2026-11-28, so the result was already public."
+  },
+  "mo-260186": {
+   "date": "2026-11-28",
+   "pr": 17670,
+   "evidence": [
+    "https://mathoverflow.net/questions/260186",
+    "https://mathoverflow.net/a/260188"
+   ],
+   "reason": "The statement (for any C, delta>0 there are P, Q, continuous f with equal means, Var_P f=0, Var_Q f=C and TV<delta) is exactly Nate Eldredge's 2017 answer: f(x)=x, P=delta_0, Q=(1-2e)delta_0+e delta_c+e delta_{-c}. Already settled on MO."
+  },
+  "oeis-a176958": {
+   "date": "2026-11-28",
+   "pr": 16116,
+   "evidence": [
+    "https://oeis.org/A176958",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,5,-1,-1); Mathar's order-5 recurrence is coefficient-for-coefficient the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177, Theorem 3 (k!=0, n>=5): z1=-7n+2, z2=-n+11, z3=47n-154, z4=-64n+260, z5=24(n-5). Lean definition matches the entry and data."
+  },
+  "oeis-a285541": {
+   "date": "2026-11-28",
+   "pr": 27344,
+   "evidence": [
+    "https://oeis.org/A285541",
+    "https://oeis.org/A285543"
+   ],
+   "reason": "Rule 35 diagonal (origin to corner) read in base 10. The site's earlier solve of A285543 (same cells, same order, read in base 2; proof committed 2026-11-28 10:55Z, before this proof at 11:04Z) proves the base-2 closed form, which fixes every diagonal cell and so implies Barker's base-10 closed form and g.f. here. Claims check by simulation to n=22."
+  },
+  "oeis-a108299": {
+   "date": "2026-11-28",
+   "pr": 29519,
+   "evidence": [
+    "https://oeis.org/A108299",
+    "https://www.math.nthu.edu.tw/~amen/2005/040903-7.pdf"
+   ],
+   "reason": "Jeffery's 2011 conjecture (charpoly of the n X n tridiagonal 0/1 matrix with corner entry 1 has coefficients T(n,k) and roots 2cos((2j-1)pi/(2n+1))) is a classical tridiagonal eigenvalue fact: Yueh, Applied Math. E-Notes 5 (2005) 66-74, Theorem 1 gives eigenvalues b+2sqrt(ac)cos(2k pi/(2n+1)) for the corner-perturbed case, which after the sign change x->-x is this one, and the entry itself already records L(n,x)=prod(x-2cos((2k-1)pi/(2n+1))). Statement is faithful."
+  },
+  "oeis-a200787": {
+   "date": "2026-11-28",
+   "pr": 29516,
+   "evidence": [
+    "https://oeis.org/A200787",
+    "https://oeis.org/A200785",
+    "https://arxiv.org/abs/math/0112281"
+   ],
+   "reason": "Row 3 of A200785, whose entry says (N. J. A. Sloane, May 21 2013) that all its conjectured formulas are true and follow from Burstein-Mansour, Ann. Combin. 7 (2003), Th. 3.13; the row-3 polynomial is listed there, and Barker's closed form, order-6 recurrence and g.f. are direct rewritings of that degree-5 polynomial. Lean counting matches the definition."
+  },
+  "oeis-a382946": {
+   "date": "2026-11-28",
+   "pr": 29464,
+   "evidence": [
+    "https://oeis.org/A382946",
+    "https://arxiv.org/abs/1307.0453"
+   ],
+   "reason": "The site proof exhibits k=(b-1,b-2,0,1)_b = (b-1)*(1,0,b-2,b-1)_b, the base-b analogue of 9801=9*1089. Sloane, '2178 And All That', Fibonacci Quart. 52 (2014), Theorem 3.3 (with its Theorem 3.2 construction), already shows that (g,g-1)-reverse multiples exist in every base g>=3; that gives a(n)>0 for n>2 directly."
+  },
+  "oeis-a208561": {
+   "date": "2026-11-28",
+   "pr": 29400,
+   "evidence": [
+    "https://oeis.org/A208561",
+    "https://isitsolved.com/journal"
+   ],
+   "reason": "iis:2611.00246 ('177 more of R. H. Hardin's empirical recurrences proved by exact transfer matrices', filed 2026-11-28 05:39 UTC) lists A208561 with 'Barker g.f. proved; Hardin recurrence proved'. The site proof of the same g.f. plus the closed form (which follows from it) was committed later, at 12:26 UTC."
+  },
+  "mo-120636": {
+   "date": "2026-11-28",
+   "pr": 29520,
+   "evidence": [
+    "https://mathoverflow.net/questions/120636"
+   ],
+   "reason": "The derivative formula d/dp E[f(X)] = n E_{n-1}[f(j+1)-f(j)] is the classical Bernstein-polynomial derivative, posted in a 2013 comment on the question (user39430, citing Sah). The second clause (a positive convex g with E_1 g(p)=p+y on [0,1], e.g. g(x)=x^2+y) is trivial and does not address the asker's request to characterise alpha*(y)."
+  },
+  "mo-488704": {
+   "date": "2026-11-28",
+   "pr": 29445,
+   "evidence": [
+    "https://mathoverflow.net/questions/488704"
+   ],
+   "reason": "The statement conjoins the asker's entire empirical pattern; the disproof refutes the a>=6 clause (phi(72990721)=phi(6*72990721+8241414)). A 2025-03-16 comment on the question already refutes the same clause, phi(85287729364992001)=phi(614889782588491410) for a=6 or 7, and also the a=2, b==3 mod 6 clause; I verified both numerically. Already settled in the comments."
+  },
+  "mo-247291": {
+   "date": "2026-11-28",
+   "pr": 25485,
+   "evidence": [
+    "https://mathoverflow.net/questions/247291"
+   ],
+   "reason": "The site disproof uses U=[[0,1],[i,0]], with conj(U)U=diag(i,-i) and D^2=-I. A 2016 comment on the question already says 'Easy counterexamples are obtained by taking a 2x2 matrix U with zero diagonal', and the asker accepted it ('it gives a recipe for counterexamples in every dimension')."
   }
  },
  "reviewed": "2026-11-28"
