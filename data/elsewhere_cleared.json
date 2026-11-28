@@ -76,6 +76,14 @@
   "oeis-a236327": {
    "reason": "Fried's note proves only the length formulas for A236327 (type C, m = 5), i.e. Barker's recurrence and g.f. The site's own text already records those as proved via this same Fried link. The remaining conjecture, that all 120 permutations of the 5 centre points give non-expanded loops, is not addressed: the note fixes one ordering of the centres and never considers permutations or the shape of the loops.",
    "date": "2026-11-28"
+  },
+  "Erdos142.erdos_142.variants.lower.R1.H2.R3.H1": {
+   "reason": "H1 is Theorem 1.1 (k>=4) of an AI-generated OpenAI manuscript (openai/math, 23 Sep 2026). It is unrefereed, it has no Lean formalization in that repo's formalization catalogue, and the repo's README warns unformalized results may have issues. erdosproblems.com/3 still lists Leng-Sah-Sawhney's exp((log log N)^c) saving as the best bound, so nobody has checked this proof.",
+   "date": "2026-11-28"
+  },
+  "Erdos448.erdos_448.variants.erdos_tenenbaum": {
+   "reason": "Erdos-Tenenbaum 1981 (the link), Theorem 1, proves only the upper half: the upper density of {tau+(n) < a tau(n)} is <= c(eps) a^{1-eps}, i.e. liminf of log(upper density)/log a >= 1. The matching lower bound (upper density >= a^{1+o(1)}) is not in this paper. It comes from Hall-Tenenbaum, Divisors (1988) Ch. 4, quoted as (15) in Tenenbaum's 2013 survey, which would settle the statement.",
+   "date": "2026-11-28"
   }
  }
 }
