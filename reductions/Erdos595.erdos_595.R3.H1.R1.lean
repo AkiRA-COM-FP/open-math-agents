@@ -151,4 +151,83 @@ theorem from_painter : OMA.R_Erdos595_erdos_595_R3.H1 → H1 := by
       exact and_congr_left (fun _ => (agrees y G ⟨free,py⟩ i j hi hj).trans
         (same i j (hi.trans hy.le) (hj.trans hy.le)).symm)
 
+
+/-- On a finite set of tests one can dispense with the search over graph
+families. For each endpoint pair separately, propagate the three required
+triangle edges along the prefix agreements. This gives the least compatible
+family. Its four-cliques are precisely the obstructions to realization. -/
+theorem finite_forced_edges {I X : Type} [LinearOrder I] (lo hi : X → I)
+    (T : X → X → X → Prop) (S : Finset X)
+    (shape : ∀ x y z, T x y z → lo x < hi x ∧ hi x < hi z) :
+    let test := fun x y z => x ∈ S ∧ y ∈ S ∧ z ∈ S ∧ T x y z
+    let seed := fun i j z => ∃ x y, test x y z ∧
+      ((i = lo x ∧ j = hi x) ∨ (i = lo x ∧ j = hi z) ∨ (i = hi x ∧ j = hi z))
+    let link := fun i j q z => ∃ x y, test x y z ∧ (q = x ∨ q = y) ∧ i ≤ hi q ∧ j ≤ hi q
+    let forced := fun i j q => ∃ z, seed i j z ∧ Relation.EqvGen (link i j) z q
+    let fits := fun (g : X → SimpleGraph I) => ∀ x y z, test x y z →
+      (g z).Adj (lo x) (hi x) ∧ (g z).Adj (lo x) (hi z) ∧ (g z).Adj (hi x) (hi z) ∧
+      (∀ i ≤ hi x, ∀ j ≤ hi x, (g x).Adj i j ↔ (g z).Adj i j) ∧
+      (∀ i ≤ hi y, ∀ j ≤ hi y, (g y).Adj i j ↔ (g z).Adj i j)
+    ∃ g : X → SimpleGraph I,
+      (∀ q i j, (g q).Adj i j ↔ forced i j q ∨ forced j i q) ∧ fits g ∧
+      (∀ q i j, (g q).Adj i j →
+        (∃ w ∈ S, i = lo w ∨ i = hi w) ∧ (∃ w ∈ S, j = lo w ∨ j = hi w)) ∧
+      (∀ h, fits h → ∀ q, g q ≤ h q) ∧
+      ((∀ q ∈ S, (g q).CliqueFree 4) ↔
+        ∃ h, fits h ∧ ∀ q ∈ S, (h q).CliqueFree 4) := by
+  classical
+  intro test seed link forced fits
+  have endpoints {i j q} (f : forced i j q) :
+      i < j ∧ (∃ w ∈ S, i = lo w ∨ i = hi w) ∧ (∃ w ∈ S, j = lo w ∨ j = hi w) := by
+    obtain ⟨z,⟨x,y,⟨xs,_,zs,t⟩,e⟩,_⟩ := f
+    obtain ⟨ab,bc⟩ := shape x y z t
+    rcases e with ⟨rfl,rfl⟩ | ⟨rfl,rfl⟩ | ⟨rfl,rfl⟩
+    · exact ⟨ab,⟨x,xs,Or.inl rfl⟩,⟨x,xs,Or.inr rfl⟩⟩
+    · exact ⟨ab.trans bc,⟨x,xs,Or.inl rfl⟩,⟨z,zs,Or.inr rfl⟩⟩
+    · exact ⟨bc,⟨x,xs,Or.inr rfl⟩,⟨z,zs,Or.inr rfl⟩⟩
+  let g (q : X) : SimpleGraph I := {
+    Adj := fun i j => forced i j q ∨ forced j i q
+    symm := ⟨fun _ _ e => e.symm⟩
+    loopless := ⟨fun _ e => (endpoints (e.elim id id)).1.false⟩ }
+  have moveEdge {i j q z} (l : link i j q z) : forced i j q ↔ forced i j z := by
+    have r := Relation.EqvGen.rel q z l
+    constructor
+    · rintro ⟨a,s,p⟩; exact ⟨a,s,p.trans _ _ _ r⟩
+    · rintro ⟨a,s,p⟩; exact ⟨a,s,p.trans _ _ _ (r.symm _ _)⟩
+  have gf : fits g := by
+    intro x y z t
+    have edge {i j} (s : seed i j z) : (g z).Adj i j :=
+      Or.inl ⟨z,s,Relation.EqvGen.refl z⟩
+    have same (q) (hq : q = x ∨ q = y) (i) (a : i ≤ hi q) (j) (b : j ≤ hi q) :
+        (g q).Adj i j ↔ (g z).Adj i j :=
+      or_congr (moveEdge ⟨x,y,t,hq,a,b⟩) (moveEdge ⟨x,y,t,hq,b,a⟩)
+    exact ⟨edge ⟨x,y,t,Or.inl ⟨rfl,rfl⟩⟩,edge ⟨x,y,t,Or.inr (Or.inl ⟨rfl,rfl⟩)⟩,
+      edge ⟨x,y,t,Or.inr (Or.inr ⟨rfl,rfl⟩)⟩,same x (Or.inl rfl),same y (Or.inr rfl)⟩
+  have least (h : X → SimpleGraph I) (ok : fits h) (q) : g q ≤ h q := by
+    have transport {i j a b} (p : Relation.EqvGen (link i j) a b) :
+        (h a).Adj i j ↔ (h b).Adj i j := by
+      induction p with
+      | rel a b l =>
+        obtain ⟨x,y,t,rfl | rfl,ai,aj⟩ := l
+        · exact (ok _ _ _ t).2.2.2.1 _ ai _ aj
+        · exact (ok _ _ _ t).2.2.2.2 _ ai _ aj
+      | refl => exact Iff.rfl
+      | symm _ _ _ ih => exact ih.symm
+      | trans _ _ _ _ _ ih ij => exact ih.trans ij
+    have incl {i j} (f : forced i j q) : (h q).Adj i j := by
+      obtain ⟨z,⟨x,y,t,e⟩,p⟩ := f
+      apply (transport p).mp
+      rcases e with ⟨rfl,rfl⟩ | ⟨rfl,rfl⟩ | ⟨rfl,rfl⟩
+      · exact (ok _ _ _ t).1
+      · exact (ok _ _ _ t).2.1
+      · exact (ok _ _ _ t).2.2.1
+    intro i j e
+    exact e.elim incl (fun f => (incl f).symm)
+  refine ⟨g,fun _ _ _ => Iff.rfl,gf,?_,least,?_,?_⟩
+  · intro q i j e
+    exact e.elim (fun f => (endpoints f).2) (fun f => (endpoints f).2.symm)
+  · exact fun free => ⟨g,gf,free⟩
+  · rintro ⟨h,ok,free⟩ q hq
+    exact (free q hq).anti (least h ok q)
+
 end OMA.R_Erdos595_erdos_595_R3_H1_R1
