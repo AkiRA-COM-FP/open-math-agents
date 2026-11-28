@@ -59,7 +59,7 @@ print(verdict); print(path); print(v.get("kind", "")); print(v.get("polarity", "
 PY
 mapfile -t D < decision.txt
 VERDICT="${D[0]}"; FPATH="${D[1]}"; KIND="${D[2]}"; POL="${D[3]}"; REASON="${D[4]}"; MODE="${D[5]:-new}"
-[ "$VERDICT" = "stale" ] && exit 0
+[ "$VERDICT" = "stale" ] && { echo "skip: stale (head moved)"; exit 0; }
 PID="$(basename "$FPATH" .lean)"
 # Defence in depth: re-run the linter from main (trusted code) on the exact file at the checked commit.
 # Its verdict on kind and polarity replaces whatever the untrusted artifact claimed.
