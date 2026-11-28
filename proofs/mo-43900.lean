@@ -183,7 +183,7 @@ theorem isSquare_iff_coord {A : ℕ → Type u} [∀ i, Group (A i)] (x : G A) :
   · intro h
     obtain ⟨k, hk⟩ := x.property
     let y : G A := ⟨fun i => if i < k then (h i).choose else 1,
-      ⟨k, fun i hi => ite_eq_right (Nat.not_lt_of_ge hi)⟩⟩
+      ⟨k, fun i hi => if_neg (Nat.not_lt_of_ge hi)⟩⟩
     refine ⟨y, coord_ext A fun i => ?_⟩
     by_cases hi : i < k
     · simpa [y, coord, hi] using (h i).choose_spec
@@ -253,8 +253,8 @@ private def extendFin (k : ℕ) (f : ∀ i : Fin k, A i) (i : ℕ) : A i :=
 
 def evenEquiv (k : ℕ) : ↥(even A k) ≃ (∀ i : Fin k, A i) where
   toFun x i := coord x.val i
-  invFun f := ⟨⟨extendFin A k f, ⟨k, fun i hi => dite_eq_right (Nat.not_lt_of_ge hi)⟩⟩,
-    fun i hi => dite_eq_right (Nat.not_lt_of_ge hi)⟩
+  invFun f := ⟨⟨extendFin A k f, ⟨k, fun i hi => dif_neg (Nat.not_lt_of_ge hi)⟩⟩,
+    fun i hi => dif_neg (Nat.not_lt_of_ge hi)⟩
   left_inv x := by
     apply Subtype.ext
     apply coord_ext A
@@ -262,7 +262,7 @@ def evenEquiv (k : ℕ) : ↥(even A k) ≃ (∀ i : Fin k, A i) where
     change extendFin A k (fun j => coord x.val j) i = coord x.val i
     by_cases hi : i < k
     · simp [extendFin, hi]
-    · rw [extendFin, dite_eq_right hi, x.property i (Nat.le_of_not_gt hi)]
+    · rw [extendFin, dif_neg hi, x.property i (Nat.le_of_not_gt hi)]
   right_inv f := by
     funext i
     change extendFin A k f i = f i
@@ -294,7 +294,7 @@ def oddEquiv (k : ℕ) : ↥(odd A V k) ≃ ((∀ i : Fin k, A i) × ↥(V k)) w
     by_cases hl : i < k
     · simp [extendFin, hl]
     · have hg : k < i := by omega
-      rw [extendFin, dite_eq_right hl, x.property.2 i hg]
+      rw [extendFin, dif_neg hl, x.property.2 i hg]
   right_inv f := by
     apply Prod.ext
     · funext i
