@@ -28,8 +28,8 @@ namespace OMA.S_oeis_a082662
 /-- The arithmetic core of (P1) ⇔ (P7) in A082662: for `k = 2 ^ m * s` with `s` odd and positive,
 `s` is below `√(2k)` (stated as `s ^ 2 < 2 * (2 ^ m * s)`) exactly when `s` is at most the sum of
 the divisors of the even part `2 ^ m` of `k`. -/
-theorem main (m s : ℕ) (hs : Odd s) (hs0 : 0 < s) :
-    s ^ 2 < 2 * (2 ^ m * s) ↔ s ≤ ∑ d ∈ (2 ^ m).divisors, d := by
+theorem main : ∀ (m s : ℕ), Odd s → 0 < s →
+    (s ^ 2 < 2 * (2 ^ m * s) ↔ s ≤ ∑ d ∈ (2 ^ m).divisors, d) := by
   sorry
 
 end OMA.S_oeis_a082662
