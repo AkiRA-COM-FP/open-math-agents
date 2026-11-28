@@ -266,6 +266,113 @@ theorem finite_triangle_tests {I : Type} [LinearOrder I]
   · rintro ⟨p,cap,ok⟩
     exact fun _ => ⟨p,cap,fun t _ => ok t⟩
 
+/-- Painter can handle all plays with countably many earlier neighbours at
+each stage, on any horizon. Both spokes into the last vertex of a triangle
+receive different colours. The numbering uses only the revealed prefix. -/
+theorem countable_incoming {I : Type} [LinearOrder I] :
+    ∃ paint : I → Set (I × I) → I → ℕ, ∀ (G : SimpleGraph I),
+      (∀ j, Nonempty ({i : I // i < j ∧ G.Adj i j} ↪ ℕ)) → ∀ a b c,
+        a < b → b < c → G.Adj a c → G.Adj b c →
+        let s := {p : I × I | p.1 ≤ c ∧ p.2 ≤ c ∧ G.Adj p.1 p.2}
+        paint c s a ≠ paint c s b := by
+  classical
+  let row (j : I) (s : Set (I × I)) := {i : I // i < j ∧ (i,j) ∈ s}
+  let paint (j : I) (s : Set (I × I)) (i : I) :=
+    if h : Nonempty (row j s ↪ ℕ) then
+      if hi : i < j ∧ (i,j) ∈ s then h.some ⟨i,hi⟩ else 0
+    else 0
+  refine ⟨paint,?_⟩
+  intro G small a b c ab bc acEdge bcEdge s
+  let index : row c s ↪ {i : I // i < c ∧ G.Adj i c} :=
+    ⟨fun i => ⟨i.val,i.property.1,i.property.2.2.2⟩,fun _ _ eq => Subtype.ext (congrArg (fun z : {i : I // i < c ∧ G.Adj i c} => z.val) eq)⟩
+  have h : Nonempty (row c s ↪ ℕ) := ⟨index.trans (small c).some⟩
+  have ac := ab.trans bc
+  have ha : a < c ∧ (a,c) ∈ s := ⟨ac,ac.le,le_rfl,acEdge⟩
+  have hb : b < c ∧ (b,c) ∈ s := ⟨bc,bc.le,le_rfl,bcEdge⟩
+  intro eq
+  simp only [paint,dif_pos h,dif_pos ha,dif_pos hb] at eq
+  exact ab.ne (congrArg Subtype.val (h.some.injective eq))
+
+/-- The finite Folkman and homogeneous-set inputs are explicit. A Painter
+safe even just on finite-support plays must use unbounded colours on some
+fixed pair of stages as the revealed graph varies. For the classical
+application, the countable-colour pair relation of Erdos and Rado supplies
+the homogeneous set above the continuum. -/
+theorem unbounded_on_one_pair {I : Type} [LinearOrder I]
+    (homogeneous : ∀ bound : I → I → ℕ, ∃ n, ∃ seq : ℕ ↪ I,
+      ∀ a b, a ≠ b → bound (min (seq a) (seq b)) (max (seq a) (seq b)) ≤ n)
+    (folkman : ∀ n : ℕ, 1 ≤ n → ∃ (V : Type) (_ : Fintype V) (F : SimpleGraph V),
+      F.CliqueFree 4 ∧ ∀ L : Fin n → SimpleGraph V, (∀ k, (L k).CliqueFree 3) → F ≠ ⨆ k,L k)
+    (paint : I → Set (I × I) → I → ℕ)
+    (win : ∀ (G : SimpleGraph I), G.CliqueFree 4 → G.support.Finite → ∀ a b c,
+      a < b → b < c → G.Adj a b → G.Adj a c → G.Adj b c →
+      let past := fun j => {p : I × I | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2}
+      paint b (past b) a = paint c (past c) a → paint b (past b) a ≠ paint c (past c) b) :
+    ∃ a b : I, a < b ∧ ∀ n : ℕ, ∃ G : SimpleGraph I, G.CliqueFree 4 ∧
+      G.support.Finite ∧ G.Adj a b ∧ n < paint b {p | p.1 ≤ b ∧ p.2 ≤ b ∧ G.Adj p.1 p.2} a := by
+  classical
+  by_contra! bounded
+  have bounds (a b : I) : ∃ n : ℕ, ∀ G : SimpleGraph I, G.CliqueFree 4 → G.support.Finite →
+      a < b → G.Adj a b → paint b {p | p.1 ≤ b ∧ p.2 ≤ b ∧ G.Adj p.1 p.2} a ≤ n := by
+    by_cases h : a < b
+    · obtain ⟨n,hn⟩ := bounded a b h
+      exact ⟨n,fun G free fin _ adj => hn G free fin adj⟩
+    · exact ⟨0,fun _ _ _ lt => (h lt).elim⟩
+  choose B cap using bounds
+  obtain ⟨n,seq,flat⟩ := homogeneous B
+  obtain ⟨V,fin,F,legal,hard⟩ := folkman (n+1) (by omega)
+  let : Fintype V := fin
+  cases isEmpty_or_nonempty V with
+  | inl empty =>
+    exact hard (fun _ => ⊥) (fun _ => cliqueFree_bot (by decide)) (Subsingleton.elim _ _)
+  | inr nonempty =>
+    let idx := (Fintype.equivFin V).toEmbedding.trans Fin.valEmbedding
+    let e := idx.trans seq
+    let G := F.map e
+    have free : G.CliqueFree 4 := cliqueFree_map_iff.mpr legal
+    have finiteSupport : G.support.Finite := by
+      rw [show G = F.map e from rfl,support_map]
+      exact (Set.toFinite _).image _
+    let past (j : I) := {p : I × I | p.1 ≤ j ∧ p.2 ≤ j ∧ G.Adj p.1 p.2}
+    let colour (a b : I) := paint (max a b) (past (max a b)) (min a b)
+    let L (k : Fin (n+1)) : SimpleGraph I := {
+      Adj a b := G.Adj a b ∧ colour a b = k.val
+      symm := ⟨fun a b h => ⟨h.1.symm, by simpa only [colour,max_comm b a,min_comm b a] using h.2⟩⟩
+      loopless := ⟨fun _ h => h.1.ne rfl⟩ }
+    have triangleFree (k : Fin (n+1)) : (L k).CliqueFree 3 := by
+      intro s cl
+      let v := s.orderEmbOfFin cl.card_eq
+      have edge (i j : Fin 3) (h : i < j) :
+          G.Adj (v i) (v j) ∧ paint (v j) (past (v j)) (v i) = k.val := by
+        have adj : (L k).Adj (v i) (v j) := cl.isClique
+          (s.orderEmbOfFin_mem _ i) (s.orderEmbOfFin_mem _ j) (v.strictMono h).ne
+        exact ⟨adj.1, by simpa only [colour,max_eq_right (v.monotone h.le),min_eq_left (v.monotone h.le)] using adj.2⟩
+      have ab := edge 0 1 (by decide)
+      have ac := edge 0 2 (by decide)
+      have bc := edge 1 2 (by decide)
+      exact win G free finiteSupport _ _ _ (v.strictMono (by decide : (0 : Fin 3) < 1))
+        (v.strictMono (by decide : (1 : Fin 3) < 2)) ab.1 ac.1 bc.1
+        (ab.2.trans ac.2.symm) (ab.2.trans bc.2.symm)
+    apply hard (fun k => (L k).comap e) (fun k =>
+      (triangleFree k).comap (SimpleGraph.Embedding.comap e (L k)).isContained)
+    ext x y
+    rw [iSup_adj]
+    constructor
+    · intro xy
+      have gxy : G.Adj (e x) (e y) := map_adj_apply.mpr xy
+      have h : colour (e x) (e y) ≤ n := by
+        have bound := flat (idx x) (idx y) (idx.injective.ne xy.ne)
+        change B (min (e x) (e y)) (max (e x) (e y)) ≤ n at bound
+        apply le_trans _ bound
+        rcases lt_or_gt_of_ne (e.injective.ne xy.ne) with lt | gt
+        · simpa only [colour,min_eq_left lt.le,max_eq_right lt.le] using
+            cap (e x) (e y) G free finiteSupport lt gxy
+        · simpa only [colour,min_eq_right gt.le,max_eq_left gt.le] using
+            cap (e y) (e x) G free finiteSupport gt gxy.symm
+      exact ⟨⟨_,Nat.lt_succ_of_le h⟩,gxy,rfl⟩
+    · rintro ⟨k,hk⟩
+      exact map_adj_apply.mp hk.1
+
 /-- Simultaneously realize all legal presentations, identifying the vertex at
 a stage whenever the entire revealed history at that stage is identical. -/
 def H2 : Prop :=
