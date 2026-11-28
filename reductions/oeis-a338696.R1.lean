@@ -8,19 +8,19 @@ namespace OMA.R_oeis_a338696_R1
 
 open OMA.S_oeis_a338696
 
-/-- Even `n > 150` is `x^3 + y^2 + z(3z + 2)`. -/
-def H1 : Prop := ∀ n : ℕ, 150 < n → Even n → 0 < a n
+/-- Even `n > 60` is `x^3 + y^2 + z(3z + 2)`. -/
+def H1 : Prop := ∀ n : ℕ, 60 < n → Even n → 0 < a n
 
-/-- Odd `n > 150` is `x^3 + y^2 + z(3z + 2)`. -/
-def H2 : Prop := ∀ n : ℕ, 150 < n → Odd n → 0 < a n
+/-- Odd `n > 60` is `x^3 + y^2 + z(3z + 2)`. -/
+def H2 : Prop := ∀ n : ℕ, 60 < n → Odd n → 0 < a n
 
 /-- `19` has no representation (direct computation). -/
 theorem a_19 : a 19 = 0 := by decide +kernel
 
-/-- Every `0 < n ≤ 150` other than `19` has a representation (direct computation). -/
-theorem small : ∀ n ≤ 150, 0 < n → n ≠ 19 → 0 < a n := by decide +kernel
+/-- Every `0 < n ≤ 60` other than `19` has a representation (direct computation). -/
+theorem small : ∀ n ≤ 60, 0 < n → n ≠ 19 → 0 < a n := by decide +kernel
 
-/-- The exception `19` and all `n ≤ 150` are checked by computation; `n > 150` is split by parity. -/
+/-- The exception `19` and all `n ≤ 60` are checked by computation; `n > 60` is split by parity. -/
 theorem main : H1 → H2 → type_of% @OMA.S_oeis_a338696.main := by
   intro h1 h2 n hn0
   constructor
@@ -28,7 +28,7 @@ theorem main : H1 → H2 → type_of% @OMA.S_oeis_a338696.main := by
     rw [a_19] at h
     exact lt_irrefl 0 h
   · intro hn
-    rcases (show n ≤ 150 ∨ 150 < n by omega) with hs | hl
+    rcases (show n ≤ 60 ∨ 60 < n by omega) with hs | hl
     · exact small n hs hn0 hn
     · rcases Nat.even_or_odd n with he | ho
       · exact h1 n hl he
