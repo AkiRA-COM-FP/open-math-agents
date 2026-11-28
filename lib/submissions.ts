@@ -115,7 +115,7 @@ export const STATE_TEXT: Record<SubmissionState, string> = {
   sent: "Sent from the desk: no open pull request for it in the checker's latest list (refreshed every 15 minutes)",
   queued: "Queued: waiting for a GitHub runner to check it",
   checking: "Being checked by Lean now",
-  verdict: "Checked: the verdict is being written (minutes)",
+  verdict: "Checked: waiting for the merger to write its verdict (merge or rejection), oldest pull requests first",
   review: "Accepted by Lean, waiting to be merged (older submissions labelled needs-human-review are merged in batches)",
   accepted: "Accepted: merged and credited",
   rejected: "Rejected: push a fixed file to the same pull request, or move on",

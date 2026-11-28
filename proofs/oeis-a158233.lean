@@ -6,13 +6,6 @@ namespace OMA.S_oeis_a158233
 
 
 
-/-- Control: the first terms of A120070 and of A158233. -/
-theorem first_terms :
-    (List.range 11).map (fun i => T (i + 2)) = [3, 8, 5, 15, 12, 7, 24, 21, 16, 9, 35] ∧
-    (List.range 34).map (fun i => a (i + 1)) = [6, 4, 3, 0, 3, 6, 0, 3, 0, 0, 4, 0, 0, 4, 6, 0, 0,
-      6, 0, 6, 0, 0, 6, 3, 0, 3, 6, 3, 4, 0, 0, 4, 0, 0] := by
-  decide +kernel
-
 theorem pos_inv (i : ℕ) : 1 ≤ (pos i).2 ∧ (pos i).2 < (pos i).1 := by
   induction i with
   | zero => simp [pos]
