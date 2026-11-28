@@ -36,7 +36,7 @@ def overlapSpan {ι : Type*} {n : ℕ} (A : ι → Set (Point n)) : Submodule �
 
 universe u
 
-theorem main : ∀ {ι : Type u} {n : ℕ} (A : ι → Set (Point n)), (∀ i, Convex ℝ (A i)) →
+theorem main : ∀ {ι : Type u} {n : ℕ} (A : ι → Set (Point n)) (_ : ∀ i, Convex ℝ (A i)),
     (∀ f : ι → Point n →ᵃ[ℝ] ℝ,
       (∀ i j x, x ∈ A i → x ∈ A j → f i x = f j x) →
       ∃ g : Point n →ᵃ[ℝ] ℝ, ∀ i x, x ∈ A i → g x = f i x) ↔
