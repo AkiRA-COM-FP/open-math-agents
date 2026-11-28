@@ -30,3 +30,4 @@ theorem main : ∀ n : ℕ, 1 ≤ n → 0 < a n := by
   sorry
 
 end OMA.S_oeis_a208548
+-- ci: re-run check-proof
