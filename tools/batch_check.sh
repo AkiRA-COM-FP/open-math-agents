@@ -76,7 +76,20 @@ sandbox() {  # $1 work dir
   local W="$1" F FW RC; F=$(cat "$W/file"); FW="$W/up"; mkdir -p "$FW/.lake/packages"
   (cd "$OMA_FC" && tar --exclude=./.lake -cf - .) | tar -xf - -C "$FW"
   cp -a "$OMA_FC/.lake/build" "$FW/.lake/build"
-  timeout -k 30 3400 bwrap --unshare-all --die-with-parent --new-session --clearenv \
+  # Memory cap per check (a cgroup through systemd-run, where sudo allows it): one heavy proof is killed alone instead
+  # of the whole runner (shards died with "The runner has received a shutdown signal", exit 143). Exit 137 = the cap.
+  local CAP=()
+  if [ -n "${CHECK_MEM:-}" ] && sudo -n true 2>/dev/null && command -v systemd-run > /dev/null; then
+    CAP=(sudo -n systemd-run --quiet --scope -p "MemoryMax=$CHECK_MEM" -p MemorySwapMax=0 --uid="$(id -u)" --gid="$(id -g)" --)
+    # probed once per job: if the runner cannot make the scope, checks run uncapped as before (never all faults)
+    if [ ! -e "$BC/cap.ok" ] && [ ! -e "$BC/cap.no" ]; then
+      if "${CAP[@]}" bwrap --unshare-all --die-with-parent --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/lib /lib \
+          --symlink usr/lib64 /lib64 --proc /proc --dev /dev --tmpfs /tmp /usr/bin/true > /dev/null 2>&1; then touch "$BC/cap.ok"; log "memory cap $CHECK_MEM per check: on"
+      else touch "$BC/cap.no"; log "memory cap: systemd-run scope unavailable, checks run uncapped"; fi
+    fi
+    [ -e "$BC/cap.ok" ] || CAP=()
+  fi
+  "${CAP[@]}" timeout -k 30 3400 bwrap --unshare-all --die-with-parent --new-session --clearenv \
     --ro-bind /usr /usr --symlink usr/bin /bin --symlink usr/sbin /sbin --symlink usr/lib /lib --symlink usr/lib64 /lib64 \
     --ro-bind /etc /etc --proc /proc --dev /dev --tmpfs /tmp \
     --ro-bind "$ELAN_HOME" "$ELAN_HOME" \
@@ -87,6 +100,7 @@ sandbox() {  # $1 work dir
     bash tools/check.sh "$F" /work/out/verdict.json > "$W/sandbox.log" 2>&1
   RC=$?
   if [ -s "$W/out/verdict.json" ]; then cp "$W/out/verdict.json" "$W/verdict.json"
+  elif [ "$RC" = 137 ] && [ "${#CAP[@]}" -gt 0 ]; then printf '{"verdict":"fault","reason":"checker produced no verdict: out of memory (over %s)"}' "$CHECK_MEM" > "$W/verdict.json"
   else printf '{"verdict":"fault","reason":"checker produced no verdict (exit %s)"}' "$RC" > "$W/verdict.json"; fi
   rm -rf "$FW"
 }
@@ -331,6 +345,8 @@ publish() {  # one round: new verdicts go out at most once a minute; a round wai
     sleep 5
   done
   tail -n 3 "$BC/worker.log" 2>/dev/null || true
+  # what killed shards before: memory and disk, visible in every round's log
+  echo "mem: $(free -m | awk '/^Mem:/ {print $3 " MB used, " $7 " MB available"}') · disk: $(df -h /mnt 2>/dev/null | awk 'NR==2 {print $4 " free on /mnt"}'), $(df -h / | awk 'NR==2 {print $4 " free on /"}')"
 }
 stop() {
   touch "$BC/stop"

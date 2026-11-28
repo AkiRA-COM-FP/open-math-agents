@@ -253,6 +253,16 @@ polarity, theorem = "proof", None
 _PH_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "placeholders.json")
 PLACEHOLDERS = json.load(open(_PH_FILE, encoding="utf-8")) if os.path.exists(_PH_FILE) else {}
 ph = PLACEHOLDERS.get(pid, []) if ftype == "proof" else []
+# Problems whose formal statement leaves the asked-for formula free (r_k(N) ~ answer): any restatement of the quantity
+# itself (a brute-force count, a partition function, ...) "proves" it, so Lean cannot tell a real answer from the
+# question. A specialist pointed this out for Erdős #142 (28 Nov 2026), and one such answer had already been merged and
+# then flagged. These are not accepted automatically: a candidate formula goes to a person, as a GitHub issue.
+FORMULA_BY_PERSON_ONLY = {"Erdos142.erdos_142", "Erdos142.erdos_142.variants.isTheta", "Erdos142.erdos_142.variants.three"}
+if ph and pid in FORMULA_BY_PERSON_ONLY:
+    errors.append("this problem asks for an explicit asymptotic formula, which the Lean statement cannot check (any restatement of "
+                  "the quantity would pass), so proofs of it are not accepted automatically. Open a GitHub issue titled "
+                  f"\"Answer: {pid}\" with the formula and a written proof for a person to review, or work on sharper bounds, "
+                  "special cases or reductions instead")
 if ph:
     d = re.escape(target["decl"]); a = re.escape(ph[0])
     sol = re.findall(r"\btheorem\s+OMA\.solution\s*:\s*" + a + r"\s*=\s*OMA\.answer\s*→\s*type_of%\s*@" + d + r"\s*:=", code)
@@ -302,6 +312,16 @@ elif ftype == "statement":
     theorem = f"{ns}.main"
     out["module"] = f"OMAStatements.{ssan(pid)}"
 else:  # reduction
+    def trivial_hypothesis(txt):
+        """A hypothesis that is plainly true or false says nothing: its step would earn points for `rfl` (or never close).
+        Text-level check of the obvious shapes; a person still reviews reductions of famous problems."""
+        t = re.sub(r"\(\s*(\d+)\s*:\s*[^()]*\)", r"\1", " ".join(txt.split()))
+        while t.startswith("(") and t.endswith(")"):
+            t = t[1:-1].strip()
+        while re.match(r"^∀[^,]*,\s*", t):
+            t = re.sub(r"^∀[^,]*,\s*", "", t, count=1)
+        return (t in ("True", "False", "¬False", "¬ False") or bool(re.fullmatch(r"(.+?)\s*(=|↔|≤|≥)\s*\1", t))
+                or bool(re.search(r"(→|,)\s*True\s*$", t)) or bool(re.match(r"False\s*(→|∧)", t)))
     ns = ns_of(pid)
     if not re.search(r"^namespace\s+" + re.escape(ns) + r"\s*$", code, re.M) or not re.search(r"^end\s+" + re.escape(ns) + r"\s*$", code, re.M):
         errors.append(f"the file must open `namespace {ns}` and close it with `end {ns}`")
@@ -314,6 +334,8 @@ else:  # reduction
             errors.append(f"H{i} may not mention the target, another hypothesis or main")
         if len(txt) > 2000:
             errors.append(f"H{i} is longer than 2000 characters")
+        if trivial_hypothesis(txt):
+            errors.append(f"H{i} is trivially true or false (True, False, x = x, … → True): a reduction must split the target into real lemmas")
     if len(set(hs.values())) != len(hs):
         errors.append("two hypotheses are identical")
     others = re.findall(r"^\s*(?:noncomputable\s+)?(def|abbrev|structure|inductive|class|instance)\s+(\S+)", code, re.M)
