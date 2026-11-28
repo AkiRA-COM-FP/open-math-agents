@@ -18,7 +18,7 @@ noncomputable def zeroEnergyCount (n : ℕ) : ℕ := by
   classical
   exact ((Finset.Icc 1 n).powerset.filter (fun K =>
     (∑ j ∈ K, Real.cos
-      ((2 * (j : ℝ) + (if K.card % 2 = 0 then 1 else 0)) * Real.pi / (n : ℝ))) = 0)).card
+      ((2 * ((j : ℕ) : ℝ) + (if K.card % 2 = 0 then 1 else 0)) * Real.pi / (n : ℝ))) = 0)).card
 
 theorem main : ∀ p : ℕ, p.Prime → p % 2 = 1 →
     zeroEnergyCount (2 * p) = 2 * (6 ^ ((p - 1) / 2) + 1) := by
