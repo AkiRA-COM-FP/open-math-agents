@@ -132,7 +132,8 @@ private lemma G_succ (n : ℕ) (s : State) : G (n + 1) s = T (G n) s := by
       symm
       apply Fintype.sum_equiv (Fin.consEquiv (fun _ : Fin (n + 1) => Fin 4))
       intro p
-      rw [Fin.consEquiv_apply]
+      have e : (Fin.consEquiv (fun _ : Fin (n + 1) => Fin 4)) p = Fin.cons p.1 p.2 := rfl
+      rw [e]
     _ = _ := by
       rw [Fintype.sum_prod_type]
       apply Finset.sum_congr rfl
