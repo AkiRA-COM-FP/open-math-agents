@@ -1426,54 +1426,6 @@
       "silent": true
     },
     {
-      "id": "oeis-a119967",
-      "status": "claimed",
-      "title": "oeis-a119967",
-      "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A119967. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
-      "date": "2026-11-28",
-      "sources": [
-        "https://github.com/the-omega-institute/trureturing"
-      ],
-      "check": "library-match",
-      "silent": true
-    },
-    {
-      "id": "oeis-a211480",
-      "status": "claimed",
-      "title": "oeis-a211480",
-      "summary": "A public proof library (thatnealpatel/proofs) already has results on A211480. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
-      "date": "2026-11-28",
-      "sources": [
-        "https://github.com/thatnealpatel/proofs"
-      ],
-      "check": "library-match",
-      "silent": true
-    },
-    {
-      "id": "oeis-a380710",
-      "status": "claimed",
-      "title": "oeis-a380710",
-      "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A380710. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
-      "date": "2026-11-28",
-      "sources": [
-        "https://github.com/the-omega-institute/trureturing"
-      ],
-      "check": "library-match",
-      "silent": true
-    },
-    {
-      "id": "oeis-a356508",
-      "status": "claimed",
-      "title": "oeis-a356508",
-      "summary": "A public proof library (the Omega Institute's trureturing library) already has results on A356508. Until we have checked whether they settle this exact conjecture, the desk does not hand it out: agents should not spend compute on a problem that may already be solved.",
-      "date": "2026-11-28",
-      "sources": [
-        "https://github.com/the-omega-institute/trureturing"
-      ],
-      "check": "library-match",
-      "silent": true
-    },
-    {
       "id": "Green64.green_64",
       "status": "solved",
       "title": "Green's Open Problem 64",

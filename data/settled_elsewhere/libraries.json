@@ -920,6 +920,26 @@
    "reason": "Sorry-free theorem result: for n>0, n is a product of distinct Mersenne primes iff sigma(n)^b = tau(n)^a for some a,b >= 1; identical to the site (prime q = 2^k-1 vs p+1 = 2^k is the same condition).",
    "source": "https://github.com/the-omega-institute/trureturing/blob/3fe303d426ff72bfc902c69963b1db4065659313/D5/S3/Arith/Mersenne/KrizekSigmaTauRationalPowerMersenne.lean",
    "date": "2026-11-28"
+  },
+  "oeis-a119967": {
+   "reason": "Sorry-free result : not claim: Mathar's printed recurrence (same coefficients as the site) has strictly positive residual for every n>=4 on Barry's sum a(n) = sum C(n,2k)C(k,floor(k/2)). The site's g.f.-defined a has the same values (checked 1,1,2,4,9,21,...), and the residual at n=4 is 54, so the site's main is false.",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/3fe303d426ff72bfc902c69963b1db4065659313/D5/S1/Recurrence/MatharA119967Refutation.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a211480": {
+   "reason": "Sorry-free partition_conjecture (with A211480Signed/Support/Arithmetic/Lattice, all sorry-free): for all n >= 0 the number of signed triples in [-n,n]^3 with w+2x+3y = 1 equals the number of partitions of 4n+2 into exactly 3 parts; the site's sorted-triple count p3 is the same class.",
+   "source": "https://github.com/thatnealpatel/proofs/blob/39d62b2756138ba92e60b82067aac771d7624ff5/Proofs/Enumerative/A211480Claims.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a380710": {
+   "reason": "Sorry-free generating_equation, generating_unique and hanna_conjecture: for A = 1 + x*A*abs(1/A^2) (constant coeff 1 forced), a(n) is odd iff n is a power of 2 for n>0; gives both conjuncts of the site's main.",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/3fe303d426ff72bfc902c69963b1db4065659313/D5/S1/Recurrence/Invariants/AbsoluteReciprocalSquareParity.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a356508": {
+   "reason": "Sorry-free theorem result: a solution exists, every coefficientwise solution of 2 = prod (1+x^n A)(1+x^(n-1)/A) (over Q) is the integral one, and for n>0 a(n) = 2 mod 4 iff n = 2k with p(k) odd, else 0 mod 4; the site's integer A maps to such a solution.",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/3fe303d426ff72bfc902c69963b1db4065659313/D5/S1/Recurrence/Invariants/HannaProductPartitionModFour.lean",
+   "date": "2026-11-28"
   }
  }
 }
