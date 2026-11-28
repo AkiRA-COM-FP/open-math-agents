@@ -27,3 +27,4 @@ theorem main : ∀ p : ℕ, p.Prime → (p + 2).Prime →
   sorry
 
 end OMA.S_oeis_a218279
+-- ci: re-run check-proof
