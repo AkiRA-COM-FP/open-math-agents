@@ -1345,6 +1345,391 @@
    "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop 8.31: the listed recurrence is proved for n>=3 (the proof is conditional on a formula stated in the entry, Start F in Table 1).",
    "source": "https://zenodo.org/records/23112421",
    "date": "2026-11-28"
+  },
+  "oeis-a005654": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.8 proves Mathar's order-4 recurrence for all n >= 5 from Somos's formula a(n) = (C(2n-1,n) + C(n-1,floor(n/2)))/2, exactly the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a007901": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.51: Mathar's recurrence holds for all n >= 8 and fails at n = 5,6,7 (L(n) = -24, 36, 12), proved from Stanley's g.f. in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a022917": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Thm. 5.5 proves Mathar's order-5 recurrence for all n >= 5 from the definition (with a Lean certificate); matches the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a048775": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.21 proves Mathar's recurrence for all n >= 5 from a(n) = C(2n+1,n+1) - (n+1), exactly the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a000483": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.37 proves both Mathar recurrences (orders 3 and 4), for n >= 9 and n >= 10 (first one for all n != 6), from Jovovic's e.g.f. -(x+log(1-x))^3/6.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a000907": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 6.3: Mathar's first-order recurrence is false as written for every n; the index-shifted version (n-1)(4n+1)a(n) = (n+1)(2n+1)(4n+5)a(n-1) is proved for n >= 2.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a001784": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 6.4: both Mathar recurrences (orders 3 and 1) are false as written; after n -> n+1 they are proved for n >= 4 and n >= 2, from Kotesovec's closed form.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a002867": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.2 proves a(n) - 2a(n-1) - 4n(n-1)a(n-2) = 0 for all n >= 2 from the definition, exactly the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a047098": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Not proved in the paper: Section 3 excludes A047098 as already settled by R. Israel (2026). The OEIS entry records that Israel verified Mathar's recurrence (the Lean statement) from a differential equation for the g.f. (Mar 13 2026), so it is probably settled elsewhere rather than open.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a001338": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.67 (Zeilberger certificate from the name) proves Mathar's recurrence for all n >= 4 and shows it fails at n = 3; the Lean statement is exactly the n >= 4 version.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a003440": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Thm. 5.2 (ii)-(iii) proves Stephan's g.f. and Mathar's order-5 recurrence (n >= 5) for Hanna's formula h(n), and shows h(n) counts Levrel's binary words; the paper identifies the entry with that sequence from its 30 terms, since the entry's own definition is vague.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a005559": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.4 proves Mathar's recurrence for all n >= 3 from Hanna's binomial formula, the same definition and range as the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a005560": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.5 proves Mathar's recurrence for all n >= 4 from Hanna's formula with the offset shifted by 2 (Remark 6.9), as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a005561": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.6 proves Mathar's recurrence for all n >= 5 from Hanna's formula shifted by the offset 3 (Remark 6.9), matching the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a005562": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.7 proves Mathar's recurrence for all n >= 6 from Hanna's formula shifted by the offset 4 (Remark 6.9), matching the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a014533": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.15 proves Mathar's recurrence for all n >= 3 (the natural range), working from Ramirez's algebraic g.f. given in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a024812": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Not treated in the paper: Section 3 lists A024812 among the entries excluded because they were already settled by others. The OEIS entry records M. Buran's counterexample to Barker's recurrence at n = 15 (Mar 24 2026), so the Lean statement looks disproved elsewhere.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a024998": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.44 proves Mathar's recurrence for all n >= 4 from the walk definition (Lemma 9.1), matching the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025175": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.59 proves Mathar's recurrence for all n >= 3 from the Jacobi g.f., with a(n) = 4^n P_n^(1,1)(1/2) (the normalisation the terms use).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025180": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.45 proves Mathar's recurrence for all n >= 5 from the walk definition (Lemma 9.1, unconditional).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025181": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.46 proves both Mathar recurrences from the walk definition, for n >= 8 and n >= 5: the same two statements and ranges as the Lean conjunction.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025182": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.47 proves both Mathar recurrences (orders 4 and 2) for n >= 8 and n >= 6 from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025245": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.16 proves Mathar's recurrence for all n >= 5 (the natural range), working from Somos's algebraic g.f. given in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025248": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.17: Mathar's recurrence holds for all n >= 5 and fails at n = 4, proved from Somos's g.f.; this matches the corrected (n >= 5) Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025249": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.18 proves Mathar's recurrence for all n >= 4 (the natural range), working from Somos's g.f. given in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025251": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.19: Mathar's order-5 recurrence holds for all n >= 7 and fails at n = 6, proved from Somos's g.f.; this matches the corrected (n >= 7) Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025256": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.20: Mathar's recurrence holds for all n >= 6 and fails at n = 5, proved from Jovovic's g.f.; this matches the corrected (n >= 6) Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025257": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.21 proves Mathar's recurrence for all n >= 5 (the natural range), working from Jovovic's g.f. for A025257.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025258": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.22: Mathar's recurrence holds for all n >= 6 and fails at n = 5, proved from the g.f. in the entry; this matches the corrected (n >= 6) Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025269": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.45 proves Mathar's recurrence for all n >= 5, unconditionally from the defining convolution.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025567": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.55 proves Mathar's recurrence L1 for n >= 5 (and a second one, L2, for n >= 3) from van Hoeij's g.f., which the Lean file also uses as its definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025754": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.52 proves n a(n) - 9(9n-10) a(n-1) = 0 for all n >= 2 from the g.f. (10-(1-81x)^(1/9))/9, and shows it fails at n = 1; this matches the Lean statement (n >= 2).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025757": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.10 proves Mathar's order-4 recurrence for all n >= 4 (the natural range), working from the algebraic g.f. stated in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a025758": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.9 proves Mathar's order-5 recurrence for all n >= 5 from the g.f. 5/(4+(1-25x)^(1/5)), the same definition and range as the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026013": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.10 proves Mathar's recurrence for all n >= 3 from Greubel's binomial formula a(n) = C(2n,n-1) - C(2n,n-4) (a reflection-principle count).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026017": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.11 proves Mathar's recurrence for all n >= 5 from Eldar's formula a(n) = C(2n-1,n-2) - C(2n-1,n-5), a reflection-principle count of the paths in the Lean definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026018": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.12 proves Mathar's recurrence for all n >= 6 from Eldar's formula a(n) = C(2n-1,n-3) - C(2n-1,n-6) (reflection principle); it matches the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026023": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.48 proves Mathar's recurrence for all n >= 3, unconditionally from the walk definition (Lemma 9.1).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026026": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.14 proves Mathar's recurrence for all n >= 4 from Krause's binomial formula a(n) = C(2n-3,n-2) - C(2n-3,n-6) given in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026027": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.15 proves Mathar's recurrence for all n >= 5 from Stephan's formula a(n) = C(2n-1,n-2) - C(2n-1,n-6). The Lean file defines a(n) through the entry's Catalan g.f. instead; the two agree, a standard reflection identity.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026029": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.16 proves Mathar's recurrence for all n >= 2 from Barry's formula a(n) = C(2n,n) - C(2n,n-4), a reflection-principle count of the walks in the Lean definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026030": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.17 proves Mathar's order-4 recurrence for all n >= 5 from Stephan's formula a(n) = C(2n,n-1) - C(2n,n-5).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026031": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.18 proves Mathar's order-4 recurrence for all n >= 6 from Stephan's formula a(n) = C(2n,n-2) - C(2n,n-6).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026070": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.49 proves Mathar's order-5 recurrence for all n >= 8 (the natural range, offset 3), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026071": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.50 proves Mathar's order-4 recurrence for all n >= 8 (the natural range, offset 4), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026083": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.51 proves Mathar's recurrence for all n >= 7 from the walk definition, matching the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026084": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.52 proves Mathar's recurrence for all n >= 7 (the natural range, offset 4), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026085": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.53 proves Mathar's order-5 recurrence for all n >= 9 (the natural range, offset 4), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026086": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.54 proves Mathar's order-5 recurrence for all n >= 9 (the natural range, offset 4), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026087": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.55 proves Mathar's order-4 recurrence for all n >= 8 (the natural range, offset 4), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026110": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.56 proves Mathar's order-4 recurrence for all n >= 8 (the natural range, offset 4), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026122": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.57 proves Mathar's recurrence for all n >= 5 (the natural range, offset 2), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026125": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.58 proves Mathar's order-4 recurrence for all n >= 7 (the natural range, offset 3), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026126": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.59 proves Mathar's order-4 recurrence for all n >= 8 (the natural range, offset 4), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026135": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.53 proves Mathar's recurrence for all n >= 3, working from Callan's g.f. given in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026165": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.54 proves Mathar's order-4 recurrence for all n >= 4 from Jovovic's binomial-sum formula (and also Kotesovec's order-2 recurrence); it matches the Lean statement, whose definition is the path count.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026327": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.60 proves Mathar's order-4 recurrence for all n >= 6 (the natural range, offset 2), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026328": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.61 proves Mathar's order-4 recurrence for all n >= 7 (the natural range, offset 3), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026329": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.62 proves Mathar's order-4 recurrence for all n >= 8 (the natural range, offset 4), unconditionally from the walk definition.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a026672": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 6.2: Mathar's recurrence is false as written with the entry's offset 2 (L(5) = 6, and it fails at every checkable n); the version with n -> n-1 is proved for n >= 5 from Deleham's g.f.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a034863": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.20 proves Mathar's recurrence for all n >= 6 from the closed form in the name, matching the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a051286": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Not proved in the paper: Sections 3, 10 and 11(4) exclude A051286 as already settled (Scambler's peakless grand Motzkin interpretation, proved by Elizalde in 2021). The site's text here is Munarini's 2017 note that Mathar's recurrence follows from a differential equation for the g.f., which is a proof note rather than an open conjecture.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a127632": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 8.25 proves Mathar's order-3 recurrence for all n >= 3, unconditionally from A(x) = c(x c(x)) (the quartic (A^2-2A+2)^2 = (1-4x)A^4); this is the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a081798": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 8.48 proves both Mathar recurrences (orders 3 and 4) for n >= 3 and n >= 4, unconditionally from the defining sum. L2 was proved by hand (the engine timed out on it).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a054109": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.32 proves Mathar's recurrence for all n >= 2 from Cloitre's alternating sum of central binomials, which is equivalent to the Barry sum the Lean file uses (C(2k+1,k+1) = C(2k+2,k+1)/2).",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a055217": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.56 proves Mathar's recurrence for all n >= 3 (offset-0 indexing a(n) = partial sum for (1+x+x^2)^(n+1)), unconditionally; this is the Lean b(n) = a(n+1) statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a055392": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.43 proves Mathar's order-5 recurrence for all n >= 6 (the natural range), working from the algebraic equation A = x + 2A^3 + A^4 stated in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a059279": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.57 proves Mathar's recurrence for all n >= 3, unconditionally from the defining g.f.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a063116": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.65 / Table 3 proves a(n) = 16n - 14 for n >= 2 (and a(n) = 2a(n-1) - a(n-2), n >= 4) from the cusp-form dimension formula. Sycamore's conjecture is that closed form: T(4n-2) - T(4n-6) = 16n - 14 is an elementary identity.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a063395": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.60 proves Mathar's recurrence for all n >= 3 (the natural range), working from Stephan's g.f. given in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a064088": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.58 proves Mathar's recurrence for all n >= 2 from the g.f. 1/(1 - x c(5x)) given in the entry, and also Kotesovec's asymptotic formula.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a064089": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.25 proves Mathar's recurrence for all n >= 2 (the natural range), working from the C(6;n) g.f. stated in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a064091": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.26 proves Mathar's recurrence for all n >= 2 (the natural range), working from the C(8;n) g.f. stated in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a064092": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 9.27 proves Mathar's recurrence for all n >= 2 (the natural range), working from the C(9;n) g.f. stated in the entry.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a064386": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.73 (disproof): Barker's g.f. is proved, but his recurrence 'for n > 7' fails at n = 9 (a(9) = 57, right side 49), so the Lean conjunction, whose third conjunct claims it for every n >= 8, is false. The first conjunct (exceptional exponents) is not addressed.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a065942": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.26 proves Mathar's order-3 recurrence for all n >= 3 from a(n) = C(2n - floor((n+1)/2), floor(n/2)) = T(2n,n), as in the Lean statement.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
+  },
+  "oeis-a066052": {
+   "reason": "Settled in Roberto Blanco Gómez, 'Proofs and corrections of 306 conjectures in the OEIS' (Zenodo, 2 October 2026), or by the proof its entry already records: Prop. 7.31 proves both Mathar recurrences unconditionally from a(n) = n! - (number of involutions), for n >= 3 and n >= 4: the same ranges as the Lean conjunction.",
+   "source": "https://zenodo.org/records/23112421",
+   "date": "2026-11-28"
   }
  }
 }
