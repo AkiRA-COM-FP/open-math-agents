@@ -1317,6 +1317,139 @@ theorem countable_row_history_iff {I : Type} [LinearOrder I] [WellFoundedLT I] :
     exact ⟨fun j _ i => f i j,fun _ _ => ⟨∅,Set.countable_empty,Set.empty_subset _,by intros; rfl⟩,
       fun _ _ a b c ab bc _ _ _ => safe a b c ab bc⟩
 
+/-- One earlier-row query per spoke suffices on all plays with at most two
+nonempty incoming rows. In a triangle a<b<c, b and c already have nonempty
+rows. The colour of a spoke from i records whether i has an earlier neighbour. -/
+theorem two_active_rows_painter {I : Type} [LinearOrder I] :
+    ∃ colour : Set I → Bool, ∀ (G : SimpleGraph I) (u v : I),
+      (∀ x y, x < y → G.Adj x y → y = u ∨ y = v) →
+      ∀ a b c, a < b → b < c → G.Adj a b → G.Adj a c → G.Adj b c →
+        colour {x | x < a ∧ G.Adj x a} ≠ colour {x | x < b ∧ G.Adj x b} := by
+  classical
+  refine ⟨fun s => decide s.Nonempty,?_⟩
+  intro G u v ends a b c ab bc eab _ ebc
+  have rb : Set.Nonempty {x | x < b ∧ G.Adj x b} := ⟨a,ab,eab⟩
+  have ra : ¬Set.Nonempty {x | x < a ∧ G.Adj x a} := by
+    rintro ⟨x,xa,ex⟩
+    have := ends x a xa ex
+    have := ends a b ab eab
+    have := ends b c bc ebc
+    grind
+  simp [ra,rb]
+
+/-- Replay one triangle on just the incoming rows that determine its three
+decisions. Each spoke has its own certificate on the original history. The
+statement gives the exact retained rows, so it also applies to finite query
+sets or to the single query at the earlier endpoint. -/
+theorem per_spoke_replay {I : Type} [LinearOrder I]
+    (paint : I → Set (I × I) → I → ℕ) (G : SimpleGraph I) (free : G.CliqueFree 4)
+    (a b c : I) (ab : a < b) (bc : b < c) (eab : G.Adj a b) (eac : G.Adj a c)
+    (ebc : G.Adj b c) (A B D : Set I) :
+    let past := fun (F : SimpleGraph I) (j : I) => {q : I × I | q.1 ≤ j ∧ q.2 ≤ j ∧ F.Adj q.1 q.2}
+    let row := fun (s : Set (I × I)) (k : I) => {x | x < k ∧ (x,k) ∈ s}
+    let determines := fun (j i : I) (Q : Set I) => ∀ t,
+      row (past G j) j = row t j → (∀ k ∈ Q, row (past G j) k = row t k) →
+        paint j (past G j) i = paint j t i
+    determines b a A → determines c a B → determines c b D →
+    let kept : Set I := {b,c} ∪ A ∪ B ∪ D
+    ∃ J : SimpleGraph I, J ≤ G ∧ J.CliqueFree 4 ∧
+      (∀ x y, J.Adj x y ↔ G.Adj x y ∧ max x y ∈ kept) ∧
+      J.Adj a b ∧ J.Adj a c ∧ J.Adj b c ∧
+      paint b (past G b) a = paint b (past J b) a ∧
+      paint c (past G c) a = paint c (past J c) a ∧
+      paint c (past G c) b = paint c (past J c) b := by
+  classical
+  intro past row determines ha hb hd kept
+  let J : SimpleGraph I := {
+    Adj := fun x y => G.Adj x y ∧ max x y ∈ kept
+    symm := ⟨fun x y e => ⟨e.1.symm,max_comm x y ▸ e.2⟩⟩
+    loopless := ⟨fun x e => e.1.ne rfl⟩ }
+  have sub : J ≤ G := fun _ _ e => e.1
+  have same (j k : I) (hk : k ∈ kept) : row (past G j) k = row (past J j) k := by
+    ext x
+    change (x < k ∧ x ≤ j ∧ k ≤ j ∧ G.Adj x k) ↔
+      (x < k ∧ x ≤ j ∧ k ≤ j ∧ G.Adj x k ∧ max x k ∈ kept)
+    constructor
+    · rintro ⟨lt,xj,kj,edge⟩
+      exact ⟨lt,xj,kj,edge,by simpa only [max_eq_right lt.le] using hk⟩
+    · exact fun h => ⟨h.1,h.2.1,h.2.2.1,h.2.2.2.1⟩
+  have kb : b ∈ kept := by simp [kept]
+  have kc : c ∈ kept := by simp [kept]
+  refine ⟨J,sub,CliqueFree.anti sub free,fun _ _ => Iff.rfl,
+    ⟨eab,by simpa only [max_eq_right ab.le] using kb⟩,⟨eac,by simpa only [max_eq_right (ab.trans bc).le] using kc⟩,
+    ⟨ebc,by simpa only [max_eq_right bc.le] using kc⟩,?_,?_,?_⟩
+  · exact ha _ (same b b kb) (fun k hk => same b k (by simp [kept,hk]))
+  · exact hb _ (same c c kc) (fun k hk => same c k (by simp [kept,hk]))
+  · exact hd _ (same c c kc) (fun k hk => same c k (by simp [kept,hk]))
+
+/-- A single full-history Painter handles every play with countably many
+nonempty incoming rows, even if each of these rows has arbitrarily many
+vertices. Number the earlier active vertices separately at each arrival;
+all inactive vertices share a spare colour. -/
+theorem countably_many_active_rows_painter {I : Type} [LinearOrder I] :
+    ∃ paint : I → Set (I × I) → I → ℕ, ∀ (G : SimpleGraph I),
+      Set.Countable {y | ∃ x < y, G.Adj x y} → ∀ a b c,
+      a < b → b < c → G.Adj a b →
+      let past := {p : I × I | p.1 ≤ c ∧ p.2 ≤ c ∧ G.Adj p.1 p.2}
+      paint c past a ≠ paint c past b := by
+  classical
+  let active (c : I) (s : Set (I × I)) := {y | y < c ∧ ∃ x < y, (x,y) ∈ s}
+  let paint (c : I) (s : Set (I × I)) (i : I) :=
+    if small : (active c s).Countable then
+      if hi : i ∈ active c s then
+        @Encodable.encode _ (@Encodable.ofCountable (active c s) small) ⟨i,hi⟩ + 1
+      else 0
+    else 0
+  refine ⟨paint,?_⟩
+  intro G bound a b c ab bc eab past
+  have small : (active c past).Countable := bound.mono (by
+    rintro y ⟨_,x,lt,_,_,edge⟩
+    exact ⟨x,lt,edge⟩)
+  have hb : b ∈ active c past := ⟨bc,a,ab,(ab.trans bc).le,bc.le,eab⟩
+  by_cases ha : a ∈ active c past
+  · simp only [paint,dif_pos small,dif_pos ha,dif_pos hb,ne_eq,Nat.add_left_inj]
+    intro eq
+    let : Encodable (active c past) := @Encodable.ofCountable _ small
+    exact ab.ne (congrArg Subtype.val (Encodable.encode_injective eq))
+  · simp [paint,small,ha,hb]
+
+/-- For a rule reading just the two endpoint rows, any failure already
+occurs with only the three triangle rows active. All endpoint identities,
+incoming lists, and output colours in the triangle are preserved. -/
+theorem endpoint_rows_three_row_test {I : Type} [LinearOrder I]
+    (paint : I → I → Set I → Set I → ℕ) (G : SimpleGraph I) (free : G.CliqueFree 4)
+    (a b c : I) (ab : a < b) (bc : b < c) (eab : G.Adj a b) (eac : G.Adj a c)
+    (ebc : G.Adj b c) :
+    let row (F : SimpleGraph I) (i : I) := {x | x < i ∧ F.Adj x i}
+    let col (F : SimpleGraph I) (i j : I) := paint i j (row F i) (row F j)
+    ∃ J : SimpleGraph I, J ≤ G ∧ J.CliqueFree 4 ∧
+      (∀ x y, x < y → J.Adj x y → y = a ∨ y = b ∨ y = c) ∧
+      J.Adj a b ∧ J.Adj a c ∧ J.Adj b c ∧
+      col G a b = col J a b ∧ col G a c = col J a c ∧ col G b c = col J b c := by
+  classical
+  intro row col
+  let seen (s : Set (I × I)) (i : I) := {x | x < i ∧ (x,i) ∈ s}
+  let p (j : I) (s : Set (I × I)) (i : I) := paint i j (seen s i) (seen s j)
+  let hist (F : SimpleGraph I) (j : I) := {z : I × I | z.1 ≤ j ∧ z.2 ≤ j ∧ F.Adj z.1 z.2}
+  have readRow (F : SimpleGraph I) (i j : I) (ij : i ≤ j) : seen (hist F j) i = row F i := by
+    ext x
+    exact ⟨fun h => ⟨h.1,h.2.2.2⟩,fun h => ⟨h.1,h.1.le.trans ij,ij,h.2⟩⟩
+  have det (i j : I) (s t : Set (I × I)) (hj : seen s j = seen t j)
+      (hi : ∀ k ∈ ({i} : Set I), seen s k = seen t k) : p j s i = p j t i :=
+    congrArg₂ (paint i j) (hi i rfl) hj
+  obtain ⟨J,sub,legal,edges,xy,xz,yz,h₁,h₂,h₃⟩ := per_spoke_replay p G free a b c ab bc
+    eab eac ebc {a} {a} {b} (fun t => det a b _ t) (fun t => det a c _ t) (fun t => det b c _ t)
+  refine ⟨J,sub,legal,?_,xy,xz,yz,?_⟩
+  · intro x y lt e
+    have mem := ((edges x y).mp e).2
+    simp only [max_eq_right lt.le,Set.mem_union,Set.mem_singleton_iff,Set.mem_insert_iff] at mem
+    tauto
+  · have convert (F : SimpleGraph I) (i j : I) (lt : i < j) : p j (hist F j) i = col F i j := by
+      simp only [p,col,readRow F i j lt.le,readRow F j j le_rfl]
+    exact ⟨(convert G a b ab).symm.trans (h₁.trans (convert J a b ab)),
+      (convert G a c (ab.trans bc)).symm.trans (h₂.trans (convert J a c (ab.trans bc))),
+      (convert G b c bc).symm.trans (h₃.trans (convert J b c bc))⟩
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
