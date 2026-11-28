@@ -163,6 +163,7 @@ abbrev CubicAlg (R : Type*) [CommRing R] := AdjoinRoot (cubic R)
 noncomputable def root (R : Type*) [CommRing R] : CubicAlg R := AdjoinRoot.root (cubic R)
 
 @[simp] theorem f_root (R : Type*) [CommRing R] : f (root R) = 0 := by
+  unfold root
   simpa only [eval₂_cubic] using AdjoinRoot.eval₂_root (cubic R)
 
 noncomputable def reduction (ρ : R →+* S) : CubicAlg R →+* CubicAlg S :=
@@ -278,7 +279,7 @@ theorem frobenius_roots (noRoot : ∀ x : ZMod p, f x ≠ 0) :
   letI : Fact (Irreducible (cubic (ZMod p))) := ⟨irreducible_cubic p noRoot⟩
   let K := CubicAlg (ZMod p)
   letI : Field K := AdjoinRoot.instField
-  letI : CharP K p := charP_of_injective_algebraMap' (ZMod p) K p
+  letI : CharP K p := charP_of_injective_algebraMap (algebraMap (ZMod p) K).injective p
   let pb : PowerBasis (ZMod p) K := AdjoinRoot.powerBasis' (cubic_monic (ZMod p))
   letI : Fintype K := Fintype.ofEquiv (Fin pb.dim → ZMod p) pb.basis.equivFun.symm
   have size : Fintype.card K = p ^ 3 := by
@@ -350,14 +351,14 @@ theorem main (p n k : ℕ) (prime : p.Prime) (_ : 0 < n) (positive : 0 < k)
     apply reduction_ker
     intro v
     obtain ⟨b, rfl⟩ := ZMod.natCast_zmod_surjective v
-    rw [map_natCast, ZMod.natCast_zmod_eq_zero_iff_dvd]
+    rw [map_natCast, CharP.cast_eq_zero_iff (ZMod p) p]
     constructor
     · intro div
       exact Nat.cast_dvd_cast div
     · rintro ⟨c, hc⟩
       have e := congrArg ρ hc
       simpa only [map_natCast, map_mul, ZMod.natCast_self, zero_mul,
-        ZMod.natCast_zmod_eq_zero_iff_dvd] using e
+        CharP.cast_eq_zero_iff (ZMod p) p] using e
   have vanish : (p : A) ^ (j + 1) = 0 := by
     rw [← Nat.cast_pow, ← map_natCast (AdjoinRoot.of (cubic B)), ZMod.natCast_self, map_zero]
   let x : A := root B
@@ -401,7 +402,7 @@ theorem main (p n k : ℕ) (prime : p.Prime) (_ : 0 < n) (positive : 0 < k)
     coeffTwo_power (R := B) m
   rw [map_add, map_add, take, take, take, scalar_zero] at coeff
   apply Nat.modEq_zero_iff_dvd.2
-  apply (ZMod.natCast_zmod_eq_zero_iff_dvd _ _).1
+  apply (CharP.cast_eq_zero_iff (ZMod (p ^ (j + 1))) (p ^ (j + 1)) _).1
   simp only [Nat.succ_eq_add_one, Nat.add_sub_cancel, Nat.cast_add]
   linear_combination coeff
 
