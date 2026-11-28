@@ -270,12 +270,12 @@ private theorem realize_cut {J : Type} (U : Ultrafilter J)
     exact Bool.noConfusion (b.symm.trans ((ok g hg f hf e).trans h))
   | true => exact decide_eq_true ⟨f,hf,rfl,h⟩
 
-/-- Only bounded vertex positions need binary codes. Equality of their codes
-must agree with equality on the chosen ultrafilter extending the filter. -/
-theorem coded_positions {J : Type} (l : Filter J) (U : Ultrafilter J) (below : (U : Filter J) ≤ l)
+/-- A binary code on vertex classes only has to separate adjacent pairs. -/
+theorem adjacent_codes {J : Type} (l : Filter J) (U : Ultrafilter J) (below : (U : Filter J) ≤ l)
     (n : J → ℕ) (code : ((j : J) → Fin (n j)) → ℕ → Bool)
-    (faithful : ∀ f g, code f = code g ↔ ∀ᶠ j in U, f j = g j)
-    (G : (j : J) → SimpleGraph (Fin (n j))) :
+    (stable : ∀ f g, (∀ᶠ j in U, f j = g j) → code f = code g)
+    (G : (j : J) → SimpleGraph (Fin (n j)))
+    (separates : ∀ f g, (∀ᶠ j in U, (G j).Adj (f j) (g j)) → code f ≠ code g) :
     ∃ d : ((j : J) → (G j).edgeSet) → ℕ, ∀ a b c, d a = d b → d a = d c →
       ¬ ∀ᶠ j in l, ∃ x y z : Fin (n j), (a j : Sym2 _) = s(x,y) ∧
         (b j : Sym2 _) = s(y,z) ∧ (c j : Sym2 _) = s(z,x) := by
@@ -292,11 +292,12 @@ theorem coded_positions {J : Type} (l : Filter J) (U : Ultrafilter J) (below : (
   have right (a : E) (j : J) : clamp (R a) j = (a j).val.out.2 := dif_pos (a j).val.out.2.isLt
   have sep (a : E) : ∃ k, code (clamp (L a)) k ≠ code (clamp (R a)) k := by
     by_contra! h
-    have lr := (faithful _ _).mp (funext h)
-    obtain ⟨j,ej⟩ := lr.exists
+    apply separates _ _ _ (funext h)
+    apply Filter.Eventually.of_forall
+    intro j
+    rw [left,right]
     have edge := (a j).property
-    rw [← (a j).val.out_eq] at edge
-    exact (show (G j).Adj (a j).val.out.1 (a j).val.out.2 from edge).ne (by simpa only [left,right] using ej)
+    rwa [← (a j).val.out_eq] at edge
   choose index diff using sep
   refine ⟨index,?_⟩
   intro a b c ab ac tri
@@ -305,7 +306,7 @@ theorem coded_positions {J : Type} (l : Filter J) (U : Ultrafilter J) (below : (
     simpa only [bit,← k] using diff p
   let S : Finset (J → ℕ) := {L a,R a,L b,R b,L c,R c}
   have realize := realize_cut U bit (fun f g h => congrFun
-    ((faithful _ _).mpr (h.mono fun j eq => by simp only [clamp,eq])) _) S
+    (stable _ _ (h.mono fun j eq => by simp only [clamp,eq])) _) S
   obtain ⟨j,⟨cut,hcut⟩,x,y,z,xy,yz,zx⟩ := (realize.and (below tri)).exists
   have side (p : E) (hl : L p ∈ S) (hr : R p ∈ S) (k : index p = index a)
       (v w : Fin (n j)) (edge : (p j).val = s(v,w)) : cut v ≠ cut w := by
@@ -319,6 +320,20 @@ theorem coded_positions {J : Type} (l : Filter J) (U : Ultrafilter J) (below : (
   have C := side c (by simp [S]) (by simp [S]) ac.symm z x zx
   revert A B C
   cases cut x <;> cases cut y <;> cases cut z <;> decide
+
+/-- Only bounded vertex positions need binary codes. Equality of their codes
+must agree with equality on the chosen ultrafilter extending the filter. -/
+theorem coded_positions {J : Type} (l : Filter J) (U : Ultrafilter J) (below : (U : Filter J) ≤ l)
+    (n : J → ℕ) (code : ((j : J) → Fin (n j)) → ℕ → Bool)
+    (faithful : ∀ f g, code f = code g ↔ ∀ᶠ j in U, f j = g j)
+    (G : (j : J) → SimpleGraph (Fin (n j))) :
+    ∃ d : ((j : J) → (G j).edgeSet) → ℕ, ∀ a b c, d a = d b → d a = d c →
+      ¬ ∀ᶠ j in l, ∃ x y z : Fin (n j), (a j : Sym2 _) = s(x,y) ∧
+        (b j : Sym2 _) = s(y,z) ∧ (c j : Sym2 _) = s(z,x) := by
+  apply adjacent_codes l U below n code (fun f g h => (faithful f g).mpr h) G
+  intro f g edges eq
+  obtain ⟨j,adj,same⟩ := (edges.and ((faithful f g).mp eq)).exists
+  exact adj.ne same
 
 /-- A continuum-sized space of vertex sequences gives enough binary cuts for all edges. -/
 theorem coded_coordinates {J : Type} (code : (J → ℕ) ↪ (ℕ → Bool)) (l : Filter J) [NeBot l]
@@ -612,5 +627,108 @@ theorem no_faithful_position_code {I : Type} (index : (ℕ → Bool) ↪ I)
     simpa only [list,dif_pos hit] using hit.choose_spec
   obtain ⟨s,h,k⟩ := ((faithful _ _ eq).and (tails (avoids i))).exists
   exact k h.symm
+
+
+/-- Increasing pairs, joined when they concatenate, form a triangle-free
+graph needing more vertex colours than any prescribed palette C.
+An incoming-colour set separates every two points of the underlying order. -/
+private theorem shift_obstruction (C A : Type) [LinearOrder A]
+    (large : ∀ f : A → Set C, ¬ Function.Injective f) :
+    ∃ (I : Type) (H : SimpleGraph I), H.CliqueFree 3 ∧
+      ∀ d : I → C, ∃ x y, H.Adj x y ∧ d x = d y := by
+  classical
+  let I := {p : A × A // p.1 < p.2}
+  let H : SimpleGraph I := {
+    Adj := fun x y => x.val.2 = y.val.1 ∨ y.val.2 = x.val.1
+    symm := ⟨fun _ _ h => h.symm⟩
+    loopless := ⟨fun x h => x.property.ne (h.elim Eq.symm Eq.symm)⟩ }
+  refine ⟨I,H,?_,?_⟩
+  · intro t triangle
+    obtain ⟨x,y,z,xy,xz,yz,_⟩ := is3Clique_iff.mp triangle
+    have hx := x.property
+    have hy := y.property
+    have hz := z.property
+    rcases xy with h | h <;> rcases xz with k | k <;> rcases yz with g | g <;> grind
+  · intro d
+    by_contra! proper
+    let incoming (y : A) : Set C := {k | ∃ (x : A) (h : x < y), d ⟨(x,y),h⟩ = k}
+    have distinct {x y : A} (h : x < y) : incoming x ≠ incoming y := by
+      intro eq
+      let k := d ⟨(x,y),h⟩
+      have hy : k ∈ incoming y := ⟨x,h,rfl⟩
+      obtain ⟨w,wx,same⟩ := (show k ∈ incoming x from eq ▸ hy)
+      exact proper ⟨(w,x),wx⟩ ⟨(x,y),h⟩ (Or.inl rfl) same
+    apply large incoming
+    intro x y eq
+    rcases lt_trichotomy x y with h | h | h
+    · exact (distinct h eq).elim
+    · exact h
+    · exact (distinct h eq.symm).elim
+
+/-- The linear factor bound allows persistent adjacency from a graph of
+arbitrarily high vertex chromatic number even if every factor is triangle-free.
+In particular adjacent-only binary tests can fail in a product whose triangle
+tests are all avoided by the constant edge colouring. -/
+theorem triangle_free_position_obstruction (C : Type) [Nonempty C] :
+    ∃ (I : Type) (G : (s : Finset I) → SimpleGraph (Fin (2*(s.card+1)))),
+      (∀ s, (G s).CliqueFree 3) ∧ Nonempty ((s : Finset I) → (G s).edgeSet) ∧
+      ∀ d : ((s : Finset I) → Fin (2*(s.card+1))) → C,
+        ∃ f g, d f = d g ∧ ∀ᶠ s in (atTop : Filter (Finset I)), (G s).Adj (f s) (g s) := by
+  classical
+  obtain ⟨I,H,free,collision⟩ :=
+    @shift_obstruction C (Set (Set C)) (linearOrderOfSTO WellOrderingRel) Function.cantor_injective
+  obtain ⟨p,q,pq,_⟩ := collision (fun _ => Classical.arbitrary C)
+  let L (s : Finset I) := insert p (insert q s)
+  have fits (s : Finset I) : Nonempty (↥(L s) ↪ Fin (2*(s.card+1))) := by
+    apply Function.Embedding.nonempty_of_card_le
+    simp only [Fintype.card_coe,Fintype.card_fin]
+    have h := Finset.card_insert_le p (insert q s)
+    have k := Finset.card_insert_le q s
+    dsimp [L]
+    omega
+  let slot (s : Finset I) := (fits s).some
+  let label (x : I) (s : Finset I) := if h : x ∈ L s then slot s ⟨x,h⟩ else slot s ⟨p,by simp [L]⟩
+  let read (s : Finset I) (i : Fin (2*(s.card+1))) : I :=
+    if h : ∃ v, slot s v = i then h.choose.val else p
+  have decode {x : I} {s : Finset I} (hx : x ∈ L s) : read s (label x s) = x := by
+    let v : ↥(L s) := ⟨x,hx⟩
+    have h : ∃ w, slot s w = slot s v := ⟨v,rfl⟩
+    simp only [label,dif_pos hx,read]
+    change (if hh : ∃ w, slot s w = slot s v then hh.choose.val else p) = v.val
+    rw [dif_pos h]
+    exact congrArg Subtype.val ((slot s).injective h.choose_spec)
+  let G (s : Finset I) := H.comap (read s)
+  refine ⟨I,G,?_,?_,?_⟩
+  · intro s t clique
+    obtain ⟨x,y,z,xy,xz,yz,_⟩ := is3Clique_iff.mp clique
+    exact free _ (is3Clique_triple_iff.mpr ⟨xy,xz,yz⟩)
+  · refine ⟨fun s => ⟨s(label p s,label q s),?_⟩⟩
+    change H.Adj (read s (label p s)) (read s (label q s))
+    rwa [decode (by simp [L]),decode (by simp [L])]
+  · intro d
+    obtain ⟨x,y,xy,same⟩ := collision (fun x => d (label x))
+    refine ⟨label x,label y,same,?_⟩
+    filter_upwards [Filter.eventually_finset_mem_atTop x,Filter.eventually_finset_mem_atTop y] with s hx hy
+    change H.Adj (read s (label x s)) (read s (label y s))
+    rwa [decode (by simp [L,hx]),decode (by simp [L,hy])]
+
+/-- For the countable-cut palette the failure of every adjacent-endpoint code
+coexists with an avoiding one-colour edge colouring, on the same product. -/
+theorem cuts_fail_without_eventual_triangles :
+    ∃ (I : Type) (G : (s : Finset I) → SimpleGraph (Fin (2*(s.card+1)))),
+      (∀ s, (G s).CliqueFree 3) ∧ Nonempty ((s : Finset I) → (G s).edgeSet) ∧
+      (∀ d : ((s : Finset I) → Fin (2*(s.card+1))) → (ℕ → Bool),
+        ∃ f g, d f = d g ∧ ∀ᶠ s in (atTop : Filter (Finset I)), (G s).Adj (f s) (g s)) ∧
+      ∀ a b c : (s : Finset I) → (G s).edgeSet,
+        ¬ ∀ᶠ s in (atTop : Filter (Finset I)), ∃ x y z : Fin (2*(s.card+1)),
+          (a s : Sym2 _) = s(x,y) ∧ (b s : Sym2 _) = s(y,z) ∧ (c s : Sym2 _) = s(z,x) := by
+  classical
+  obtain ⟨I,G,free,nonempty,collide⟩ := triangle_free_position_obstruction (ℕ → Bool)
+  refine ⟨I,G,free,nonempty,collide,?_⟩
+  intro a b c eventual
+  obtain ⟨s,x,y,z,A,B,C⟩ := eventual.exists
+  have edge {e : (G s).edgeSet} {v w} (h : e.val = s(v,w)) : (G s).Adj v w :=
+    show s(v,w) ∈ (G s).edgeSet from h ▸ e.property
+  exact free s _ (is3Clique_triple_iff.mpr ⟨edge A,(edge C).symm,edge B⟩)
 
 end OMA.R_Erdos595_erdos_595_R2_H1_R1
