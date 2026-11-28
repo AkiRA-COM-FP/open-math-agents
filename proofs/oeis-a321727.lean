@@ -2702,6 +2702,141 @@ end SunPrimeRaceEasy
 
 namespace SunPrimeRaceEasy
 
+end SunPrimeRaceEasy
+end
+
+section
+namespace SunPrimeRaceEasy.Walk
+
+open SunPrimePermutation
+
+def ones : List ℕ := smallList.reverse.filter (fun q => q%3 = 1)
+def twos : List ℕ := smallList.reverse.filter (fun q => q%3 = 2)
+
+def visit (f : ℕ → ℤ) (lo : ℕ) (acc : ℤ) : List ℕ → ℤ
+  | [] => acc
+  | q::qs => if lo < q then visit f lo (acc + f q) qs else acc
+
+def row (p : ℕ) : ℤ :=
+  let y := 608981813029/p
+  let lo := max p (y/p^2)
+  if 8477 ≤ lo then 0 else
+    let b := 1 - weightAt (p-1)
+    let f := fun q => b + weightAt (y/q)
+    chi3 p * (visit f lo 0 ones - visit f lo 0 twos)
+
+def block (i n : ℕ) : ℤ := (((smallList.drop i).take n).map row).sum
+
+def remaining (i : ℕ) : ℤ := ((smallList.drop i).map row).sum
+
+theorem split_remaining (i n : ℕ) : remaining i = block i n + remaining (i+n) := by
+  have h := congrArg (fun l : List ℕ => (l.map row).sum)
+    (List.take_append_drop n (smallList.drop i))
+  simpa only [block, remaining, List.map_append, List.sum_append, List.drop_drop] using h.symm
+
+end SunPrimeRaceEasy.Walk
+end
+
+section
+namespace SunPrimeRaceEasy.Walk
+
+open SunPrimePermutation
+
+private def gated (f : ℕ → ℤ) (lo : ℕ) (qs : List ℕ) : ℤ :=
+  (qs.map (fun q => if lo < q then f q else 0)).sum
+
+private theorem gate_zero (f : ℕ → ℤ) (lo : ℕ) (qs : List ℕ)
+    (h : ∀ q ∈ qs, q ≤ lo) : gated f lo qs = 0 := by
+  induction qs with
+  | nil => rfl
+  | cons q qs ih =>
+    have hq := h q (by simp)
+    have ht := ih (fun t ht => h t (by simp [ht]))
+    simpa [gated, Nat.not_lt.mpr hq] using ht
+
+private theorem visit_sound (f : ℕ → ℤ) (lo : ℕ) (qs : List ℕ)
+    (hs : qs.Pairwise (· > ·)) (acc : ℤ) : visit f lo acc qs = acc + gated f lo qs := by
+  induction qs generalizing acc with
+  | nil => simp [visit,gated]
+  | cons q qs ih =>
+    obtain ⟨hq,ht⟩ := List.pairwise_cons.mp hs
+    by_cases h : lo < q
+    · simp [visit, h, ih ht, gated, add_assoc]
+    · have hz := gate_zero f lo qs (fun t hm => (hq t hm).le.trans (Nat.not_lt.mp h))
+      simpa [visit, gated, h, hz, gated] using congrArg (acc + ·) hz.symm
+
+private theorem ordered_one : ones.Pairwise (· > ·) := by
+  apply List.isChain_iff_pairwise.mp
+  set_option maxRecDepth 100000 in decide +kernel
+
+private theorem ordered_two : twos.Pairwise (· > ·) := by
+  apply List.isChain_iff_pairwise.mp
+  set_option maxRecDepth 100000 in decide +kernel
+
+private theorem split_classes (f : ℕ → ℤ) (lo : ℕ) (l : List ℕ) :
+    gated f lo (l.filter (fun q => q%3=1)) - gated f lo (l.filter (fun q => q%3=2)) =
+      (l.map (fun q => if lo < q then chi3 q * f q else 0)).sum := by
+  induction l with
+  | nil => rfl
+  | cons q qs ih =>
+    by_cases h1 : q%3=1 <;> by_cases h2 : q%3=2 <;> by_cases h : lo < q <;>
+      simp [gated,chi3,h1,h2,h] at ih ⊢ <;> omega
+
+private theorem distribute (a : ℤ) (f : ℕ → ℤ) (l : List ℕ) :
+    a * (l.map f).sum = (l.map (fun q => a * f q)).sum := by
+  induction l with
+  | nil => simp
+  | cons q qs ih => simp [mul_add,ih]
+
+theorem row_eq {p : ℕ} (hpp : p ∈ smallList) : row p = numericRow p := by
+  have hp := (smallList_iff.mp hpp).1.pos
+  let y := 608981813029/p
+  let lo := max p (y/p^2)
+  let f := fun q => (1 - weightAt (p-1)) + weightAt (y/q)
+  have cutoff (q : ℕ) (hq : 0 < q) :
+      lo < q ↔ p < q ∧ 608981813029/(p*q) < p^2 := by
+    dsimp only [lo, y]
+    rw [max_lt_iff, Nat.div_lt_iff_lt_mul (pow_pos hp 2), ← Nat.div_div_eq_div_mul,
+      Nat.div_lt_iff_lt_mul hq, Nat.mul_comm q]
+  have collect : row p = (smallList.map (fun q => chi3 p * (if lo < q then chi3 q*f q else 0))).sum := by
+    rw [← distribute]
+    have h1 := visit_sound f lo ones ordered_one 0
+    have h2 := visit_sound f lo twos ordered_two 0
+    have hr := split_classes f lo smallList.reverse
+    simp only [List.map_reverse, List.sum_reverse] at hr
+    change _ = chi3 p * _
+    unfold row
+    change (if 8477 ≤ lo then 0 else chi3 p * (visit f lo 0 ones - visit f lo 0 twos)) = _
+    by_cases h : 8477 ≤ lo
+    · have hz := gate_zero (fun q => chi3 q * f q) lo smallList
+        (fun q hq => (smallList_iff.mp hq).2.trans h)
+      rw [if_pos h]; dsimp [gated] at hz; rw [hz, mul_zero]
+    · rw [if_neg h, h1, h2, zero_add, zero_add]
+      exact congrArg (chi3 p * ·) hr
+  rw [collect]
+  unfold numericRow
+  apply congrArg List.sum
+  apply List.map_congr_left
+  intro q hq
+  have hcut := cutoff q (smallList_iff.mp hq).1.pos
+  by_cases h : lo < q
+  · rw [if_pos h, if_pos (hcut.mp h)]
+    simp [f, y, Nat.div_div_eq_div_mul, mul_assoc]
+  · rw [if_neg h, if_neg (fun hh => h (hcut.mpr hh)), mul_zero]
+
+theorem total : easyPairs 608981813029 8477 = remaining 0 := by
+  rw [easyPairs_numeric]
+  unfold SunPrimeRaceEasy.remaining remaining
+  simp only [List.drop_zero]
+  apply congrArg List.sum
+  exact List.map_congr_left (fun p hp => (row_eq hp).symm)
+
+end SunPrimeRaceEasy.Walk
+end
+
+section
+namespace SunPrimeRaceEasy.Walk
+
 private def Scores : ℕ → List ℤ → Prop
   | _, [] => True
   | i, v::vs => block i 8 = v ∧ Scores (i+8) vs
@@ -2806,7 +2941,7 @@ private theorem g11 : Scores 1056 [3] := by
 
 set_option maxHeartbeats 0 in
 set_option maxRecDepth 200000 in
-theorem easyPairs_value : easyPairs 608981813029 8477 = 9618 := by
+theorem subtotal : remaining 0 = 9618 := by
   have hz : smallList.drop 1064 = [] := by decide +kernel
   have h1064 : remaining 1064 = 0 := by simp [remaining,hz]
   have h1056 : remaining 1056 = (3 : ℤ) := by
@@ -2857,7 +2992,16 @@ theorem easyPairs_value : easyPairs 608981813029 8477 = 9618 := by
     rw [fold_scores _ _ g0]
     change (-198 : ℤ) + remaining 96 = _
     rw [h96] <;> decide
-  exact easyPairs_numeric.trans h0
+  exact h0
+end SunPrimeRaceEasy.Walk
+end
+
+section
+namespace SunPrimeRaceEasy
+
+theorem easyPairs_value : easyPairs 608981813029 8477 = 9618 :=
+  Walk.total.trans Walk.subtotal
+
 end SunPrimeRaceEasy
 end
 
@@ -3842,1823 +3986,1901 @@ end SunHardCompact
 end
 
 section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
+namespace SunPrimeRaceEasy.RaceLookup.Sweep
+open SunPrimePermutation SunPrimeNumeric SunHardCompact SunHardRank
 
-private def c881 : List TraceChunk := [(3,0x1d92778289e040)]
+def radix : ℕ := 134217728
+def code (u : ℕ) : ℕ := (u-1)%262144
+def initial (u : ℕ) : ℤ := (((u-1)/262144 : ℕ) : ℤ) - 128
+def extract (col i : ℕ) : ℕ := col / radix^i % radix
+
+def evaluate (s mask : ℕ) (base : ℤ) (qs : List (ℕ × ℤ)) : ℤ × ℤ :=
+  let pos := mask &&& divMask (s+3) 3 262144
+  let neg := mask &&& divMask (s+2) 3 262144
+  let val := fun k => base + rankBits 14 pos neg k
+  (val 262144,(qs.map (fun z => z.2*val (z.1-s))).sum)
+
+def test (s p mask u : ℕ) : Bool :=
+  let b := initial u
+  decide (evaluate s mask b (cellRows p s) = (b+traceDelta (code u),traceWeight (code u)))
+
+/-- Move across all prime cutoffs at the same number interval. -/
+def scan (s : ℕ) : ℕ → List ℕ → ℕ → Bool
+  | _, [], _ => true
+  | col, p::ps, blocked =>
+    if col=0 then true else
+      (col%radix==0 || test s p ((2^262144-1) ^^^ blocked) (col%radix)) &&
+        scan s (col/radix) ps (divMask (s+1) p 262144 ||| blocked)
+
+def columnOK (i col : ℕ) : Bool := scan (i*262144) col (trialList 881) 0
+
+end SunPrimeRaceEasy.RaceLookup.Sweep
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.Sweep
+open SunPrimePermutation SunPrimeNumeric SunHardRank SunHardCompact
+
+theorem extract_succ (col i : ℕ) : extract (col/radix) i = extract col (i+1) := by
+  simp only [extract,Nat.div_div_eq_div_mul,pow_succ']
+
+theorem scan_one {s col p blocked : ℕ} {pre post : List ℕ}
+    (h : scan s col (pre++p::post) blocked=true)
+    (hu : extract col pre.length ≠ 0) :
+    test s p ((2^262144-1) ^^^ (blockedMask (s+1) 262144 pre ||| blocked))
+      (extract col pre.length)=true := by
+  induction pre generalizing col blocked with
+  | nil =>
+    have hc : col≠0 := by rintro rfl; simp [extract] at hu
+    simp only [List.nil_append,scan,if_neg hc,Bool.and_eq_true] at h
+    simpa [extract,blockedMask,show col%radix≠0 by simpa [extract] using hu] using h.1
+  | cons d ds ih =>
+    have hc : col≠0 := by rintro rfl; simp [extract] at hu
+    simp only [List.cons_append,scan,if_neg hc,Bool.and_eq_true] at h
+    have uh : extract (col/radix) ds.length ≠ 0 := by
+      simpa only [extract_succ,List.length_cons] using hu
+    have here := ih h.2 uh
+    simpa only [List.length_cons,extract_succ,blockedMask,Nat.or_assoc,Nat.or_comm,
+      Nat.or_left_comm] using here
+
+private theorem evaluate_exact (s : ℕ) (ds : List ℕ) (b : ℤ) (qs : List (ℕ × ℤ)) :
+    evaluate s (roughMask (s+1) 262144 ds) b qs =
+      SunHardRank.cell 14 s ds b (qs.map (fun z => (z.1-s,z.2))) := by
+  simp only [evaluate,SunHardRank.cell,List.map_map,Function.comp_def]
+  rfl
+
+theorem column_cell {table : ℕ → ℕ} {i p : ℕ} {after : List ℕ}
+    (ht : columnOK i (table i)=true)
+    (hs : trialList 881=trialList (p-1)++p::after)
+    (hu : extract (table i) (trialList (p-1)).length ≠ 0) :
+    let u := extract (table i) (trialList (p-1)).length
+    let s := i*262144
+    SunHardRank.cell 14 s (trialList (p-1)) (initial u)
+      ((cellRows p s).map (fun z => (z.1-s,z.2))) =
+      (initial u+traceDelta (code u),traceWeight (code u)) := by
+  unfold columnOK at ht
+  rw [hs] at ht
+  have hh := scan_one ht hu
+  unfold test at hh
+  rw [decide_eq_true_eq,Nat.or_zero] at hh
+  dsimp only
+  rw [← evaluate_exact]
+  exact hh
+
+def traceBy (table : ℕ → ℕ) (j : ℕ) : ℕ → ℤ → ℕ → ℕ → Bool
+  | _, _, 0, _ => true
+  | i,b,len+1,packed =>
+    let u := extract (table i) j
+    decide (u≠0 ∧ initial u=b ∧ code u=packed%262144) &&
+      traceBy table j (i+1) (b+traceDelta packed) len (packed/262144)
+
+def runBy (table : ℕ → ℕ) (j : ℕ) : ℕ → ℤ → List TraceChunk → Prop
+  | _,_,[] => True
+  | i,b,c::cs => traceBy table j i b c.1 c.2=true ∧
+    runBy table j (i+c.1) (b+(traceTotals c.1 c.2).1) cs
+
+private theorem delta_mod (u : ℕ) : traceDelta (u%262144)=traceDelta u := by
+  simp [traceDelta,Nat.mod_mod_of_dvd _ (by decide : 256 ∣ 262144)]
+
+private theorem weight_mod (u : ℕ) : traceWeight (u%262144)=traceWeight u := by
+  unfold traceWeight
+  rw [show 262144=256*1024 by decide,Nat.mod_mul_right_div_self, Nat.mod_mod]
+
+theorem traceBy_sound {table : ℕ → ℕ} {p : ℕ} {after : List ℕ}
+    (hT : ∀ i, columnOK i (table i)=true)
+    (hs : trialList 881=trialList (p-1)++p::after)
+    {i len z : ℕ} {b : ℤ} (h : traceBy table (trialList (p-1)).length i b len z=true) :
+    traceOK (cellRows p) 14 (trialList (p-1)) (i*262144) b len z=true := by
+  induction len generalizing i b z with
+  | zero => rfl
+  | succ n ih =>
+    rw [traceBy,Bool.and_eq_true,decide_eq_true_eq] at h
+    obtain ⟨⟨hu,hb,hc⟩,ht⟩ := h
+    have row := column_cell (hT i) hs hu
+    dsimp only at row
+    rw [hb,hc,delta_mod,weight_mod] at row
+    rw [traceOK,Bool.and_eq_true,Bool.and_eq_true]
+    refine ⟨⟨List.all_eq_true.mpr (fun z hz => decide_eq_true (cellRows_bounds hz)),
+      decide_eq_true row⟩,?_⟩
+    simpa only [Nat.add_mul,Nat.one_mul,show 16*2^14=262144 by decide] using ih ht
+
+theorem runBy_sound {table : ℕ → ℕ} {p : ℕ} {after : List ℕ}
+    (hT : ∀ i, columnOK i (table i)=true)
+    (hs : trialList 881=trialList (p-1)++p::after)
+    {i : ℕ} {b : ℤ} {cs : List TraceChunk}
+    (h : runBy table (trialList (p-1)).length i b cs) :
+    RunOK (cellRows p) 14 (trialList (p-1)) (i*262144) b cs := by
+  induction cs generalizing i b with
+  | nil => trivial
+  | cons c cs ih =>
+    exact ⟨traceBy_sound hT hs h.1,by
+      simpa only [Nat.add_mul,show 16*2^14=262144 by decide] using ih h.2⟩
+
+end SunPrimeRaceEasy.RaceLookup.Sweep
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.Sweep
+open SunPrimePermutation SunHardRank SunHardCompact
+
+private theorem scan_zero (s b : ℕ) (ps : List ℕ) : scan s 0 ps b=true := by
+  cases ps <;> simp [scan]
+
+private theorem blocks_append (s : ℕ) (a b : List ℕ) :
+    blockedMask s 262144 (a++b) = blockedMask s 262144 a ||| blockedMask s 262144 b := by
+  induction a with
+  | nil => simp [blockedMask]
+  | cons p ps ih => simp only [List.cons_append,blockedMask,ih,Nat.or_assoc]
+
+private theorem scan_append (s col blocked : ℕ) (a b : List ℕ) :
+    scan s col (a++b) blocked =
+      (scan s col a blocked && scan s (col/radix^a.length) b
+        (blockedMask (s+1) 262144 a ||| blocked)) := by
+  induction a generalizing col blocked with
+  | nil => simp [scan,blockedMask]
+  | cons d ds ih =>
+    by_cases hz : col=0
+    · subst col; simp [scan_zero]
+    · simp only [List.cons_append,scan,if_neg hz]
+      rw [ih]
+      simp only [List.length_cons,blockedMask,Nat.div_div_eq_div_mul,pow_succ' radix ds.length,
+        Bool.and_assoc,Nat.or_assoc,Nat.or_comm,Nat.or_left_comm]
+
+def chunkOK (i col lo len : ℕ) : Bool :=
+  let s := i*262144
+  let ps := trialList 881
+  scan s (col/radix^lo) ((ps.drop lo).take len) (blockedMask (s+1) 262144 (ps.take lo))
+
+theorem chunk_join {i col lo n m : ℕ} (hn : lo+n≤(trialList 881).length)
+    (ha : chunkOK i col lo n=true) (hb : chunkOK i col (lo+n) m=true) :
+    chunkOK i col lo (n+m)=true := by
+  let ps := trialList 881
+  have hlen : ((ps.drop lo).take n).length=n := by
+    rw [List.length_take,List.length_drop,Nat.min_eq_left]
+    change lo+n≤ps.length at hn
+    omega
+  dsimp only [chunkOK] at ha hb ⊢
+  rw [List.take_add,scan_append,Bool.and_eq_true]
+  refine ⟨ha,?_⟩
+  rw [hlen,Nat.div_div_eq_div_mul,← pow_add,List.drop_drop]
+  rw [List.take_add,blocks_append] at hb
+  simpa only [Nat.or_comm] using hb
+
+theorem chunk_whole {i col : ℕ} (h : chunkOK i col 0 (trialList 881).length=true) :
+    columnOK i col=true := by
+  simpa only [chunkOK,columnOK,List.drop_zero,List.take_length,List.take_zero,blockedMask,
+    pow_zero,Nat.div_one] using h
+
+theorem no_columns (i : ℕ) : columnOK i 0=true := scan_zero _ _ _
+
+def PiecesOK (i col : ℕ) : ℕ → List ℕ → Prop
+  | _,[] => True
+  | a,n::ns => chunkOK i col a n=true ∧ PiecesOK i col (a+n) ns
+
+private theorem pieces_join {i col a : ℕ} {ns : List ℕ}
+    (hs : a+ns.sum≤(trialList 881).length) (h : PiecesOK i col a ns) :
+    chunkOK i col a ns.sum=true := by
+  induction ns generalizing a with
+  | nil => simp [chunkOK,scan]
+  | cons n ns ih =>
+    simp only [List.sum_cons] at hs ⊢
+    exact chunk_join (by omega) h.1 (ih (by omega) h.2)
+
+def BatchOK (table : ℕ → ℕ) : ℕ → List (List ℕ) → Prop
+  | _,[] => True
+  | i,ns::ls => (ns.sum=(trialList 881).length ∧ PiecesOK i (table i) 0 ns) ∧
+    BatchOK table (i+1) ls
+
+theorem batch_range {table : ℕ → ℕ} {i j : ℕ} {ls : List (List ℕ)}
+    (h : BatchOK table i ls) (hj : i ≤ j) (ht : j < i+ls.length) : columnOK j (table j)=true := by
+  induction ls generalizing i with
+  | nil => simp at ht; omega
+  | cons ns ls ih =>
+    by_cases he : i=j
+    · subst j
+      apply chunk_whole
+      rw [← h.1.1]
+      exact pieces_join (by rw [h.1.1]; omega) h.1.2
+    · simp only [List.length_cons] at ht
+      exact ih h.2 (by omega) (by omega)
+
+def cellsAt (table : ℕ → ℕ) (j : ℕ) : ℕ → ℕ → List TraceChunk
+  | _,0 => []
+  | i,n+1 => (1,code (extract (table i) j)) :: cellsAt table j (i+1) n
+
+def carryOK (table : ℕ → ℕ) (j : ℕ) : ℕ → ℤ → ℕ → Bool
+  | _,_,0 => true
+  | i,b,n+1 =>
+    let u := extract (table i) j
+    decide (u≠0 ∧ initial u=b) && carryOK table j (i+1) (b+traceDelta (code u)) n
+
+private theorem carry_sound {table : ℕ → ℕ} {j i n : ℕ} {b : ℤ}
+    (h : carryOK table j i b n=true) : runBy table j i b (cellsAt table j i n) := by
+  induction n generalizing i b with
+  | zero => trivial
+  | succ n ih =>
+    rw [carryOK,Bool.and_eq_true,decide_eq_true_eq] at h
+    refine ⟨?_,?_⟩
+    · simp only [traceBy,Bool.and_true,decide_eq_true_eq]
+      exact ⟨h.1.1,h.1.2,(Nat.mod_eq_of_lt (Nat.mod_lt _ (by decide))).symm⟩
+    · simpa only [traceTotals,Int.add_zero] using ih h.2
+
+theorem row_from_table {table : ℕ → ℕ} (ht : ∀ i, columnOK i (table i)=true)
+    {p n : ℕ} {z : ℤ} (hp : p-1≤900)
+    (hs : trialList 881 = trialList (p-1) ++ p :: (trialList 881).drop ((trialList (p-1)).length+1))
+    (ch : carryOK table (trialList (p-1)).length 0 0 n=true)
+    (hn : chunkLen (cellsAt table (trialList (p-1)).length 0 n)*262144≤608981813029)
+    (hl : rowInterval p (chunkLen (cellsAt table (trialList (p-1)).length 0 n)*262144)
+      608981813029 = [])
+    (hz : (chunkTotals (cellsAt table (trialList (p-1)).length 0 n)).2=z) :
+    evalPairs (p-1) (fullRow p)=z := by
+  apply checked_row hp _ hn hl hz
+  exact runBy_sound ht hs (carry_sound ch)
+
+end SunPrimeRaceEasy.RaceLookup.Sweep
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.SweepData
+open SunPrimeRaceEasy.RaceLookup.Sweep
+
+def table (i : ℕ) : ℕ :=
+  if i<274 then (if i<137 then (if i<68 then (if i<34 then (if i<17 then (if i<8 then (if i<4 then (if i<2 then (if i<1 then (0x403c082807810900f020a01e042403c082807810900f020a01e042403c082807810900f020a01e042403c082807810100f020a01e040403c082807810100f020a01e042403c082807810900f021a01e044403c086807811100f021a01e044403c086807810900f021a01e044403c086807810900f020a01e042403c082807810900f021a01e042403c086807811100f022a01e044403c086807810900f021a01e044403c086807810900f020a01e042403c086807811100f021a028443403848a809711500ed23201a446401bc8a807c119011722a015c474052a8c806851d009c252022f47403ce8a809891d0129a3a01ab484034a92807652d00d624a02b94a404a09c8056d3100fa25200e34a402be96803952d011226201674c406249a8076541011627a02405140314a2808854d016c29a014555404ecaa806595900f02ba01e058403c0b6807817d00f031201e062403c0c6807819900f032a01e067403c0cc807819100f031201e064403c0c6807819d00f032201e067403c0da80781cd00f036201e068403c0c8807819500f034201e06a403c0da80781ad00f036a01e06b403c0e480781b500f039a01e06d403c0ee807820900f03e201e079403c0f880781e900f03c201e07e403c106807822500f041a01e086403c10880781fd00f03fa01e07e403c0fe00000000000000000000000000000000000000000000000) else (0x203c146417828c80f051905e0a3203c146417828c80f051905e0a3203c146417828c80f051905e0a3203c1463f7828c80f0518fde0a3203c1463f7828c80f051905e0a3203c146417828c84f05190de0a3213bd46435a298855ad290cc7a92154b4e419de9884cd5410e4bac212c1524176ea08079d490654aa2029d5441dbeac854fd610484ac216bb5c43886c089195990d73b1211fb5e4107ebc858a5890ea0b32123b624136ec480d8d9105f8b0213b560437e2c08484d8908fcb22240b624496ac08ac6d8116e1b12240b62456dac888a55a11abeb222aa56846a62d0936859919e7b3223af684687ecc8d7d5911d18b224503604a476c49129d812562b126bd5644b772c0931bd8126d4ae253375e4a412c4976bd692d65b1263af5a4f7d29c9c505694211a9282955852cfea4a487539534da72a11d4a558ce9cad6a5395d78a72d3634a5e7aa8cc2f352985dea23134d486599698c925d299930a732cc94a6355684c338ce98e14a1313eb3c666827cc6d04f19a22a33649752727cab8d6ec5599da9aa31b2b526483eb0ceeb551a5e0aa363c1586a782a8d8f0561a9e0a838bc1526c7829ce4f0541b1e0a13b3c13c817827cf6f04f1e1e0983dbc13e7978264eef04c1f5e096413c126887823d04f047a15e08a41bc1107e78218fcf0441f5e0883f3c10800000000000000000000000000000000000000000000000)) else (if i<3 then (0x313b2506377ca0c4ca9498e7929313965463cf0acc44b1598e0e2a313d25863a84a8c4cd1698d6f2c314fc5e619f0d4c42319185a536313d86661560dcc5149a18d5933314986a6358cd0c9049a9966d37321886a68c58c8cc79999ae5232341dc6666598ccd36e191bb452f350ce66683d0d4d11f1a9a9ad3234c2c6a6b344ccdafd191b19c3337be6627272cbcece9969ce372f3839e646fb5ccce53d181d6882c392c26071c98cce33d1b1c1813538bf066729fcc8e4a6199ce5e343a52c6e73618d4e9859c1d550333a52a7276810eceed11b9ddf43a3c4086c798a4e0f6fc1c1e20f3c3bdac7e782d4f8ef24211e1623f3bf987e7a710f8ef359f1e5c13d3f172747ab48ecf17c9d1da973a3c3f6727a570e4ef2b9d9ec96393c67476759ccf8f4e69f1e1fb3d3dbbc7a7a844f0f164a09e9fd3c3c2fc827b630ecf8f11b9f5fb3b3f42e86809ed2d0b0c27a09784a42b3a9e8a8c94510f7a6231ce5044c8a9c83ac94cfb202ba0def543fc18aa846f14d00e72a2215a514a2ee9c9f4352d2aada7242604d45bce9c8f8d9412114a4249474d4bad0a6938f9392f02a9a45ed4e4ccc0a4927c139330ca8231ce5149bc0a49f7812930f026a3de0504cbc09a91781451cf02ba49e0564a3c0b8967818520f034a39e06c453c0e483781e50af03da11e07b40bc0fa00000000000000000000000000000000000000000000000) else (0xa9374814f2e902e58d105bbba60d72b3c1922680320cd006b85a00c693441cef6883b20d0081a3a01533f3827fa6785923ce0a5d79c17637402b3fe7856bfcd0b3419e1673b3431066586de6c70c44596196933030ebe68721cc80d57998189334034fc6687195ca0e471981c82f3c388f6a86e1ed30eb31aa1d953483ce768879b3d20fc7ba0206e73c45086708590ce10bf5982157b2442cbe6881ced310c6d9c2354f244cd7e18928ac511d438e234c3204951e309932c3151cb82277df0856b06089e8cc3162b97e306daf85ae4600c1aec016b6b883093b0c651fe28ccc7c31a9f77c35d170c706d5d8da3fc31a9b7823756f146933e10d5bbc61bcaf923470b1c632ce38be4ec71835398328cb546341e68cd6fd5193019e32973206e8d640d2ccc81ba9d9435aa31c70a6e30d5d8c91c2a38c358432864e9668dde4c8201f5804a3f2eca6f95b12e1fb929c2d6c5a99ae8a6addd16e03b82b3556e5564ec8a6fed8159adb629b8f605665edca6f35b161a0b630af772698d6ecc522dd17281bb2c293725e8faf0aee95c97a57be34c2d80607a2ecd32adb17a29b9352a5665f546e4d0f8dd9725fc0324917a6874ef8c8e9de17a1eb732aa37c61782e4c8f05599de0aa37bc14a767826cf0f0491e5e0913dbc10e7b78210fef0431f9e0843ebc10400000000000000000000000000000000000000000000000))) else (if i<6 then (if i<5 then (0xc706b3185c0663243ac66275598c4c8349858670314d2d664599b4c913b418db56e32c8ad667891a4ccd2b5995066c33d48d46a991a0e0e3b11b5616638c86c66e72d94dcd7321bdc56537434cc6e92d98df28b41b98567362aed069421acdb2cb41ca4c6737334d26b671acd0d9379a1fd7034b82dc6a745b0d2e7379a15d7235416e8687a1c8d6d23a9a557753545aee6d951e0d8a73a9be2978383c4e672819e0ecf23f1d65e7539362dc7793dd0e53cb91e1a2743ad94e07b6a1c8eb04b91ea71723fb68ea7a9f1d0eef1b99d612743db2edc8669190fb12b7a1d896540328d6797a1c4fd15379edb17140456dc7b561c4fae2bb1f5f5753ec24ec7e5e5c8fcd4381fa42733fb10f084861ed10de3e20def7844462fc934fdf5190e3da49f67d46410f886751e50548bba2dd274414b6f28c741d110dd37a35fc744cb08e6a3689dd370439259e46d48390da99751a91ee23926e1070544cecc9a7d9a13cf036259d86a4e4b8e297865ad44dfb4a6da86650370e0a56e9e53eeeb9251867b514c2da998cdd91d02bea41997849bc0f8907821512f045a25e08440bc1087e7821108f040a05e07f3f3c10a00000000000000000000000000000000000000000000000) else (0x4f67994a121b29423168283fccc5179d94a2b23494af66529a40d25296598a301b314e096829b14ce5371d94ad13b11520a6629d8cd453bf1b4a88ab5960e9662b580d455a99b8ad4ab895d6e6d2b332d45585d94af0a3596570702eb4ce6598c9c0beb738976ad6d30330e0645a9c4c174b89990d71315eae069341bce6a6b51a610702fbecf06a795b8c6e4bb1ada86d3223ce46c9d1b0ccc4381addd6f39cc4d86d681b4d2f8379a2746d3427ae069515d4d6e4b59adb97335544e669871bcd8b6b89ae296f36acae66b885cce4da3a1c6916d39348e86f769c4db22381c1c0713b42ee47e9fdd10746bc9e8af7a42cf6ee8f619cd0d0cbaa39c17643d0ee67e8b9d0f0fc371fa3f753d3bad47f751c4ed293a201637045b96d69960d89190a33a0a396f3e3e8d682661c100ffb6a29d66b46bf8e881435c512c53c9fdff754635cec81825b914d83aa01f37247c10d69d7ad9520baba239d07047384dc8e639891498b3a1ded6f47464de946e5a926f033231e070423c0f281781f908f03e1fde081413c0fe00000000000000000000000000000000000000000000000)) else (if i<7 then (0xea2fab1cb354a375aa806ec8cd8e68c9e1e3fd423f5fa907d1d500f6149c1fb9b404270a8c8d1c5290e1ea51fb3f4e39616ac82ffd21228f9f27c3930487c2789ee94b125969d27baf30548425ca0cacc959e59528bb52c576c654b8e6cb16190972b3e72e5765e68b0e94b15e189b2abd92c5762e68ab23cd1659f9c2f3ed3a5971e74aef54d151d89b2bbf53a5d7ba70ab28d09757e9f2e35b305775e50b8faca16618932fba7265d8263ccabbc71763c9232b1d205f63a48b9084a181f59333c43267186a50f6eacb1ce27923dc152e8184e78f4fd4c20dde9d3cbb1347186668cb0ad29c9a59d31b8f4a6f74e8cd310d31bda7a93abe5607a6ead8e4ec5b9c1e9b0334055c7177ec4d8dfd61d21eae404176471692d1030f5b9ce1bb240b256a6e92afcfc96da1c5f5bb3ccb760817aaa506d74e9f60c9c3dc6f406f81278e100ca1d5c6913e40f1c7d9ea30f0f1c91ed858f3e3c1187e7821cfef0421fde084403c10200000000000000000000000000000000000000000000000) else (0x161b9682f44cc46472970d4c02a99e455732be8b2637016cc919ae19a5b5b33390bc657357cc8f5b2196016033442c46a69598d114309a94f6733536ca6b70d88e30b319b97e603628cbc7095978da8b2d9c6745c352bac07087574dcc1ad1d1e45f3d304c6757d574e10cad1ba535739baeac787bd68eb042a9ede05839d8ab06a9bd58dedbab9ae635938b56ac6b8d168e5202f1b9665c3a522ba7065560df23291c96e553cb98b4846317d20e02ea11a76048bd4b49e6415d22dcb1a7dc25a493dec88a80da11341afa39b56743b60ca91721951ca630a5e6d60523c6beaf6a58d510db127dd86149c80c0a17fd892ecfad286116358b74caa47b1816f2228291dc5b5ab689eac6415d62ddaa2adb55554298caa9689a13f0236261fb624d358da8c731dd06f9bba15ca8144b53028871dfd12d13da26497643b46ec84781cd04f03ba09e078403c0f600000000000000000000000000000000000000000000000)))) else (if i<12 then (if i<10 then (if i<9 then (0x3d62af47f066010151c021c498043616f08ee1de91237bd23b297e4f8c2f890cddf94211bc252c97a4c7aefca6cce093620be24c25744d82efc8f2cde931f1c024bbd7c4c663048eb35f149f9be2e44f7c5179f0092f85e9117abd244137e516a6e892e65f949e4ba253bd783f6a6f48adade90dabb7233817e44846e09eed5c12603b6283d3704771ee480d15d11a26b829345666281694d8db4f98df2a43539d467485678e6d2c91e20e9b3abcf247189238ced4c89d2308d35c6314757f640dce8479d9bf9241455249183255130b489fe6388393530c826d228e121c420e10874ac3efa837ba390cf9c89f9f19241bdd24826ba1d08e3ca9fd6690463e7169066e5d1538499e63e9f433d93a8268e48f2e64a216018e44d0118867122d0702c61f9fa8d3e3231e7679240f0f0459e5e0853d3c10a00000000000000000000000000000000000000000000000) else (0x41398fe7e7be0506f2c2201fd7f42a9f048c7ee110ceec222dd486433b5088a9061926fc43229eb874148b0a8b5d61106dcc222dfb8343421008c85e0508d04123e167b4cc24ec90841e50b003e201f77843378f88a71df90eee3d22dc38142bab007b599f502db411e5cf81423a9007b75a090ce2bd9f9ec8143b68f87f79e0cf2fcc31f5ae85423e50086682151522c7219ca894636d18917c64508e84aa49ae90433df2a7e80e3ceee445a02258c3a39118846e21cf8e54321db48949b9726a58224d32f747219ba8d3bbd7188b73a0ceed9c8a26008a48c0b14907e6292d2649a3de48e4a3c52c887da653104c7a39bb864b35916a69d6013903c025e0a7651320e2938a5dd18de3e249b97a4a37cfc9070e051d20c1a2a1a85453cafe8571df904fc429f5e0883f3c10c00000000000000000000000000000000000000000000000)) else (if i<11 then (0x8f760fd13131ea41ea3d44bc6788f6e8f930f69ea42213e43426848e6c0fd0d05a2235a14342b7e868c7dd1d0ae0a2225e447473349a888a91d00e0231ddb04440bca888783d3100cc2322e0748423b28e7788d3904e3a39e5d15141b94947c6953d0110a79f9ca4d413eaa68179d2cfceaa2205e64a41be69e8a6f9412ee8a6a39b04d4bc049ca19415530d5a9285f1574d386a88c7c95902d62ba2dda5a3fc4caa8a8357103082b23dcd5a52bb8b0b7925654cf3ae249f86841344de8d789b10ee7b7a49d66b4d2a4d2997ed8d5100b0a71c86554b82d4a0721714cf23424dc16d5053ad4a5651b93698b72319f78492e6ea898a9f10eec3e22e027f48be4f2907d1e520a839239de7c44395008284e050cf33e211e07b41bc0f600000000000000000000000000000000000000000000000) else (0x2241b104c7ba20a8e1c4936218523b69024c7ca1c92fac193d8a8523c3306527ba1091094013dc0852d36b0e4e7a6188ae4c30e97e8b223850c52699fc8b12c394a0481253f10a4478a14910c42125d78326325044a899f89ceb41929c8802a476fa4b6d20c82c34492a448628ba30e5962638c6d44a16a0591323d7287583a48d2ebc99ddd99436c0518616f614aefc3d992067e29b4cfc657cdf4aceebe9a206763e42ed68f7618502dcb31e5dc67383bcd478699b0eaca351f21c744141af87b751d5109f40a0195774941ee67b759fd1b04399fdb17444b78ee92835c910f7bba0db57843472ee847c1c104fcb7225ca6744b90d688915c902e73d225de7143c64ee82751f102d53e1f9f3813ebc10c00000000000000000000000000000000000000000000000))) else (if i<14 then (if i<13 then (0x23bcb3a5272a7c96e94d14dc2a124c054455656788efe5294daca030397365381a849505d511220af24b7d605093ac096cb5814a2dad274215e487c2b096e1d992dc7ab26c2f604764eb8a0aed59263da92833f584d7e68c92cdce13dcba02bc45446689e80ed014f1a9e19a3bb7d3c8674274f705caa2a0b9b3c3d532657e268a323ce1858a9d2849544617aa70a4c0d297601a633355486f85294ccf35217e15a32cbbb46637029cbd19cf9bdde9b3ebb3266f7b64110f9c39d9df964232d1e797fa34fed6499ca1c923fb7b1e8371220fcf8459e9d3893e3d51c7373e58decfc99bdff9639bdd26796f634f4fec71e5d78d3eb590c7d73a24f8f9431f9b987413c10600000000000000000000000000000000000000000000000) else (0x1cdde71353dae8727ddb4d702b91c9f96e3d3a2e27371dc8e6ed371c9b06f3c3f4e07f6d9d4f4ddb81f9ee773e3b4de737d5c4fb0eb69d59c6f3e40ede747c5bcf4e0bb1c5bf763dba0ee6f629e4c8e93d9ba0c7a3c388fc858520526eac020e157c4a3b8f8a25c6011f0e40a91548048411047e6ce10d8e4491f5bb8538c39107c78224ecd9c4209de8444be708936b2111317c1a0607763dbbae089819d0f8f23b225f77d47c25207e752491cddc822e0982493cb04857e20922c3c0a0def8946c08fe8a7ce0910ffbea09a07a44bbaf6887a9d1030339a11b47342ba4f48580dd90ee93a215dd79413bcfc858f1ed03003fa11c977423c0f200000000000000000000000000000000000000000000000)) else (if i<15 then (0x5e87978b8ee2e97dd15e353f0be6467568c0f22a181ff4b33be2987379520d301261d1a24635450906372124d2c52898de84c353e49a6284938deea24199d34538b8c906795910bce32319e4b463abe292858013524ffa89f9d65247b80a8a16e5611ef9aba8d955548bc6b48179998faf932a05eb673c418d48488990fafb31a15b963463fcd0969bdd916d8b89d9e476353c6f87c765d4e2e5b4a157e6b4f41aca8f7fdad3ad3b5a31fe7049bdaea86769f922f33ca2de87845b44f68b845e908fa3c9ee0a7c41bb6ee7b7f5dce6d1bc9d9d1843f39f047a7f21cf4fcc49f602863fbdb167f83214feec429e9d3883e3e10a00000000000000000000000000000000000000000000000) else (if i<16 then (0xf2249624389283d8d25866b5cc8a9c49b193e9363a72a6c68e64b8e5fb9b18b992c2b9124472c2470ba62911b2e7262f8a2406cbacb8a925931c4fd2c2a5fa4846fe448b19d911eacd1c5169638c4e44913d6996313bf207875614caeb491ddbe87353c9186678e34c2dfc619e098c30b8b16676ce38befc4199dc39139bc3288b72638f6fdc71ae178c32b4ef4707e610b2f8459bdb783413f4f8797a1e10f013b1edd77943bdae2836fdbd12e735209e76c42bc8e4846a5e4f8f7c01d9c97e3cbbd0a7177a20d727401e5e2843fbdd0480742010506c2209dc7c44b7ef0837a9ed06f6be205d87c403d6fe00000000000000000000000000000000000000000000000) else (0x527fae0971bda911f6b3263ab7254832e894d75d94deeba233777a3b7d2fc8cf3620f9c7bf243d9883e81f1898ffe58f24fce26b3d9e3b7df5056f56a8f1dfd62545dba5e6836ce70569191d3dd38c39a87c8af58ecffe91f58dd33ac8da47276b2cd8f0e49c9e6cb35c097e7468720c2dd651ddb9c24349f82988c30d10e0dd1d9e6b12f4216e7378edcc6f4df1c5e9bc3eba57e706cef8f8eb5c9cdaebc3bb9d767174aece5055f1b5e3b63b37f687c686b8f732d29cd75a93ec23487874670d4f3501f1bb99403a12e7f7fa510af2c69f5da8e4037b167d7ca30fcec411f1d5833f3950400000000000000000000000000000000000000000000000)))))) else (if i<25 then (if i<21 then (if i<19 then (if i<18 then (0x42397188d60a39091d46231e58f413cb16796e21912e7439f1e08545be11683826152d06c1a25ed7e4dbd8fa8e789e0fee73da45bf735344aceb880d7588eb2c301db54623dab0d1769558ed42d33e155a63358b2bc7456968f7a6af1fc5754bcab4bb839715506b2ae18c6463328deda8fdd182d83f29a0b854a3c322a97322140bdc02b229805dab706ad82209691ac1ab9cd8258bad06ab745f15ecac0a89a98154cb2f6a98b9f53f0741a6e02855045310937b61112ef3fa51d27e4b369009285dfd230841229b680453f2ec88785ecfee1c21f9c7813fbbd0000000000000000000000000000000000000000000000000) else (0x9a72df51ef63ca69ec7c46392f47e771e11eeb3b201e5764ac0ee28770db530e93721a09774bb98e0856d1f0f2f74220da57c463a4f6947bdf537013da4de27e4dbf4fca5705f940e4bd2a1d37e4f3ff009577dd100dc3d249f17541430f0967a9b51d143026e086d5a3e8d2cd4e59d7d17332a9c5705241cdab08cdc93ef7372adec735ed12d2ae7c1c96ccc372bdef6a59c98e0a6819d55f03bc289f67e51b810aa58ce0d42ddbf27dfa6f53a6ce69673df90edac0245c8814ac14fc90769e124dabc225e17d3fbc50e827921d04df429f9d0883f3b50c00000000000000000000000000000000000000000000000)) else (if i<20 then (0x255b77e42b6af8756f9e908d8be9d6157d42ba2fe737460d0af5bc9f1ba8143404f280779e0f8f8bb9f9ca7a43404ea90735cd2af23ba41ca754c424f2a2859e932e1b9295e27c4ec3edc88721ccf2fb3b219d17a3cbbcde82709f4dae5c121de8774e430e8b37519d470433266005d483c8aea17557518fbb4a75e36452beed29f691ad46bd3aa61d775513aaf09a701d94d0d3927dd57453c7ceca7745ed3cecbda35dc7c4cbb8f0938e1cd0ce9bc2460275493b6e887789cd12ee3a215d77a42beef688755e10cfb3f215d77e41bd6fe00000000000000000000000000000000000000000000000) else (0x6e79e8101124f1c5b0a441bb13c758c694fafb511f22f9d3f3a5467771aa4e504549ddeea93d3575c827a2c1173259a1193ad484516a9b97b0514fe5fa826ab9453d5707a82f00dcd2599fdf1bc33bc9747e916dcdd15dc1f59fb747c67689977ee110ce5b1d611b733471707d752d0e8ddd8a01d7ae46b4b5289792912edd52a31f7a34caa5388f6ba712f014e2497f984e38128a17f66130ebc9221ca95483dd388584678fae94c2161f9842b832a797127cf8e0c79f9e18b3fbcf1c7f73e1506f241209d48040be10200000000000000000000000000000000000000000000000))) else (if i<23 then (if i<22 then (0x13af73f251cf81503eeee99741e53cc23ca61ca7a50458f09f6d1d134f7baa7db37753b92f0b179de97ab841ac1ea7e624c6f4db7e9e190cfbdb62397c60b2708b9661cd41093dae9d5715035aeab484dd54ae8baacdca79612b8fcd0a4e057af03d2adbb7a4eb9902b0561f148eec1ab606855abff0aac6edfd77403c2b9f97c5a31efeaa879fd64b63eaa60d7557c3ce8b8775cd52d23ca71b17d55bf8f6a2775f12931c3271dc7a4cc08e697759e114eabfa21f681463cafe837461108ef40205d78140bf30000000000000000000000000000000000000000000000000) else (0x134e8a3a51e4464b3a0989173d352cf4a6a45f94e4bbd6a092749451ce229255f1544f3ceb6aa7359d7eea31ab5f2655eb7ac6d28a57184b82fb4ddd5d623a09cab7a52d34fda5aa9e64c4a3ecb4a86cd4932f6a72adfc525fc14a8d04f1656cedaf291a3634ebd6b6ab829694d132a2c5ce525cbf0b2aa6f57564e92faa5b161594b2caa87f9815ce1322760a6f513e2f2aa7ddf543033c261c87c52bbeea9d775cd3302392556f7545c28f88e729ed10dcbd221da76453caea867bde906dfbd205d77f403bd0400000000000000000000000000000000000000000000000)) else (if i<24 then (0x166146b30bb8d25d82d9cc51d3597a106c3332ed66292d9cbef1ad9a207653c414ce907c58142f8b0245e5674fbc8ccad7a5d94102362bdd07848b3cfa756ba0cc8eb439d6028636c18fc7975e0ccce1409f214864935910a88ce092714c3a19f2833bbdf128472220f2f1c2a09ce8c48b711a868022d21014422609804b3c0fe877160922eb4122ddf7e4d394fca6759e930fa3da4ddc7a4cbf0fa8f7aa0d14ebc0a25c77d433f0fe88805f902e5c41f5d5873f3ed167f7662cf8f7c29fdf08340bbf0000000000000000000000000000000000000000000000000) else (0x4371f1898f06312582b7283f980486e6d07316dc9318fb52f3c7606f87ab900f7d31de0394423cd3aa27565d16edca299e58d46bb924777ae68d5004c9e9ee9e353632a7b6f654cceec9a05f78d4cbb506a98360132f3c1221eb883fba50a8b7560cfadf42a35d5824ebf4f890771e92eec3f221e47f4a3ecfc887660d24fc41221d17f4bb82f09f771d524e5bc231ef704abdad691769cd14fa3fa15c682423c5168579a2110f54320db083443aaec897b1d900e33f205ea7b403b90000000000000000000000000000000000000000000000000)))) else (if i<29 then (if i<27 then (if i<26 then (0x12301331fe116847bc0ca7b6a1a8e2aa33a02066246bb4c29c75d854af639229b075503b6f6b8749d93ceebcac9c27b4f390fa90751e504e9bb25def733f43ae28f76de0f0f440235d7784db90f0a8749d934d3bba3de07541ba6e88d805e102f2bba39c8734c39eec89775f9290140a19e78148baaf88a7b5e526f33ca1a05734737ef093839d912ea3d9ede1863fbbb02837c9e510e5bc219c978473b0e88c7d9b91af7b9a15de783eb9afe7e745f8faf7bf9ede4833fbad0000000000000000000000000000000000000000000000000) else (0x199cd5839c00b2648cd68aef031185fd6236bf8dc7c7b9d92d03ba9f9e37a4d356e4ad6adc92ceabdab244724d39eee88761d0eedf36a25f172373daec86769cceef1bd211cd7a49424ec9d785dd2108bc20dbb7b3b3a4f8847e9f4eef03e201ff8146bdafc86751f528e6bea19e27d463c30082791ed16f5c09e1e28842ba118886fa3906f444a01bd8e3fbbf187b78e58fef0c69f5ed9140b871c7977e34fee9c61f1fa8b3dbdb187b75634f6f4459f5e6873f3a70a00000000000000000000000000000000000000000000000)) else (if i<28 then (0xf5e08825bc1003d6320c70e6381099d7b2d380f8718020514dabd9ddfa7d45bfaf09e6f9cd2101372758c78483d2e87b755c4c6f3b89e9d76f31bbaf4787d9cce0f4b91f5e26e43bb4dc93795ad0ef8371f5d76b38c80c2806f988e4e2b2202185e453b2cc827298120f02ea09e05d45bf6c47c7bd6d16f02d1fdd3594839aa6957dd6116e633236006545392cc9073981170db1a35d06f473b2e8857b9d914fbbc219c681433d3068778df50aefbea0ddc7d413bf0000000000000000000000000000000000000000000000000) else (0x112048f253cf483f8066c4ef04d8f1fd9c2abff2a7178e4108f0479cdfd94413b328908e26cfac7caa52439441c1b1a6b71a28a6e9cb9a1ed932e3c9226a77644c2eec89aa0b913a3dd287d7f668e8e74c99df59628b67406176a70ab03ce175f09c37b73326179668d8ebcd979fc99363a3365679a88c8f14f15dd6a231399386c80e54e0f9cb1c5b79737bc5206f7c640daeac29edfe8540bbb0a7a79a2502f43ea19cd77443b0f4837b1ed02ea3f9fddc8040bd8fe00000000000000000000000000000000000000000000000))) else (if i<31 then (if i<30 then (0x36beb3c5978a6c830dd215dad9d34bc1428076e6d2505cb219f38f4ab8b22aa6a24d22f64c29dc79847bbf28747b268d2eb4b9e9ca96363c9347a73248e2e3491e9d49543c2132968925118e2481f1dc95383ed307c79270e0ee4c9e1e59f43c0d3c7a7928d0cf3541d9deaa43305427781a8902e9cf9e1db9c3ebe5428077a610afd4aa1df9983f4292e7e79244e2f1c81fdd28b42c030e826ee1cfaecc51f1f18740bc30a7d76e20fef4c41f9ec863fbcb0600000000000000000000000000000000000000000000000) else (0xc8ca2e9cdd16244bcab09a78d554ee12e251ee5852c08bebc669895110adaf987625135ac88d735a4fee3b5a3de06442bb8c48b765a104fab2a39d56d4fbc6d8a9709d536db3ca41ec7443b9ae297805c510ecb825a0c72523d4da9c83dad5b05b627ded705340cf298855ed3ee54024ddd814ebd0fa97759f132d13e27a14794a3510e8e88e1500f4c5225f48e45bc712887ae010d0742209e68042bb7008476dfd0cf0bf20dda7d40bb2fe00000000000000000000000000000000000000000000000)) else (if i<32 then (0x1521b7b303b2fa6e7d20d04f8c31ade38641bc90e9d79e2904f04627de08a42bef247578a4cd2f4491c9d896333cf2e7282a60ccf4c91e9ce8f45391229d75e2d26e944a0dcc8b3bbdb128779a30eef14721dd68e4845b1e8680e3d311044239c3804f3cef2927e1dd3cd4bba4de2774cc1ce092775d528ec3fa59e6744d3bae492749bd12eeb5a59ea6c49bdcdc87789f912f440a05dd834239b08827ae1506f2c11fde5813fbdd0800000000000000000000000000000000000000000000000) else (if i<33 then (0x2e3ad3870806810ef64f9c1e59d44bc13ca67865d1af0d0aa22c944b369288779a5cf4f4cba1dc0963e42726896826ceef1cda21f2984d3bb22a77224936ee47235b48f3fb651c9274e2d08e047a51dc8e4f3291a9468a1d3eebc6235b88d4b39f268879e5d28f14c225f996443fb288678a3924f0c2225dd8545b9f128080a1ce707c1a05f778403bafc847adf112f53da0dc47d43b9efe8677e0108ef401fdde81413cefa00000000000000000000000000000000000000000000000) else (0x8f7c68d4adbd3a31e0a9533f34abc7827d5b0bceaedaf9f54c273c9d82e6920f14ba720aa24737f3ca37da6522f14ba7e3d96553cf2eb875a5d50f64d26de29a464052a9c8625924e8c92860790553332c9a9324954c146a66058c54487169e6ce21570745279eb894db831c937d2312aecc6235b58649bff1c8679648eafa4b9e1de9c3ebc32a7f7563506ed451fddc8442ba6f485741f906ef3f9fdec843f3d10a00000000000000000000000000000000000000000000000))))))) else (if i<51 then (if i<42 then (if i<38 then (if i<36 then (if i<35 then (0xb182d9196edb1ad2016d653acccda8ed9d92e0b1b662b66633c0dcb66f9b54cf7b42f5bf6155b74c2bb7919d4efe36ad17c6b6044edece739b582e233ad1d95f50350c0b17457946ebb02c1ed635fca4d0ab7e5b96d00ba291fe795934ef6a5659e168e13aa99df8354385049e745f540eebea49bf7b50426e897791c516ebb8a4dcd7448bfce08b791b918f3b9209da7a3f3cf04827ae0102f3bf209da81413c0fe00000000000000000000000000000000000000000000000) else (0x15b04c4281de8857b2712c066e2d57044aaf9e08d59b6f0aa2842191afb43a75b88b45bdb18a180e2526e8c3279b78c573811aba792394ee448a49e0933fbd5348e7926d04e849a4a0f95533ab1a986a23d52f0c72721d8d563031a9c7e245511b45aa1b58a54b66f29a7b21138e53e231f38749beb0a876ea00f6f240219e67c403bf067875e14fae1409edde823fbe9008174600fcefc2209d97f403bf0800000000000000000000000000000000000000000000000)) else (if i<37 then (0x169033a29dbd735bcb4e8ca655bd7ee0b4b29a66d5bc46daa77819526e7b1a9de0654b3e6c8a95d98930f9b1aa650615d2f2c8c7739ad6edb33291f06a4c388d2a87e99d28fe30a9a1364593d2cea6795896d28b32a1d3685c452ccac835bd64d8332c5b96750b9ce29d771d92ee537249ea6e4bbb4ea86771e4f4f03b205e97b413a4fe7c791e0faf6bd9f1e47a3f3b8f680789e902f7bca01d87e41bbafa00000000000000000000000000000000000000000000000) else (0x265a47b55424ecb893de14ef63aad99e7551bf8ee8b66de4eaedc1a2dea823cbcb008a781fcf4f03f225f77e4ec46f6b14f9e138f8bf236297e403f5008e7a210e8ddc5225f2854c4550a8774e2936d542a3dc2864eb70fc9a82e1d2ed2c4a5de58548bcf0e926e60d08f6c49fdd18545bcf0c7e76a44df02489edd987403cf027370a14eeefc39d5de893c3bf0e797c630f2edc51f5ee853fbb90800000000000000000000000000000000000000000000000))) else (if i<40 then (if i<39 then (0x24db19d4fbf944af87a8536dad2aaa5baa4cbc748837fe88eeefd0a31c19f3c3d53c887527ceeecd0219bda24bbaf4ea88169d3312d3229c0a63fb7336917b668faec4ea35df9b4e3a92e90722513edf4b251db9d4d47b2aa06460d3ef94126dda8f4bc1f30947229d18f5d4a0dec9f483f3368e7ca40fef348205e293403ab22777c254faec491f5e1883f3bd16847aa1504f4c1205ec85413bb0200000000000000000000000000000000000000000000000) else (0x603c0fccf892157edf3f34e1b845e35f0aa475a312ef2c32a9e0874abb914a67a2312cf04429dcc845eb810cce7aa0d7cdb422be42824cba904aa7262d32f046a9dd3915942d30a372e6968fac52c205915736d22a28166d40efcdaa62591574351cba7a20d6907c1a85d185553bf0e9d7ae151ce2c6a4d968f483ef148b74a111ce8c0a11e78244382f888761e906f1bf215d17d413c4fe00000000000000000000000000000000000000000000000)) else (if i<41 then (0x5eb2324d37826178d14bb5a43976033f32af7626138f04a2c212934f3c12ab1782653adf4caaa13a1613312cd08765982f64e2c2109b4d3c934b4902394af9c3adde38364b3f02bc749e17b17ba301f2725f358e0bc5d1d174f2b62e582715dc24e4bc7a9d16d0837295f572583b2d2a17cdb934e3b3a86026f4cba0e88e789e91cf5bea15e28141bd70a817aa1900f944a05dd84403b2fe00000000000000000000000000000000000000000000000) else (0xea79e0da4f0413b1e0856c31504c6696095ee9c4b09e78c5937316c9846256b09c3b29e4826bbc108e5615fdb8c23ab298c6d59c02eac160df156e23eae5b07e64c3ef4b37ba0160e6c12c5b88156bc506af86e014af9c3aa6227f5637316af6e62d46f443259af884c395208e7722d00ebc0a3e1b7a463ccfa87759d914efbc215d97743bc2f286751d910ecbba11e37c3f3bf0600000000000000000000000000000000000000000000000)))) else (if i<46 then (if i<44 then (if i<43 then (0x1a6e4bb3c1c66f6cbc0dec768db96f00b6335a26d5e3deced16b1a576f03632dad726d3ccf0e360a0da10fc12d9e98953b6f14bc67a154ee441ad9df80613dd0ab27621162ffc42c5df8657c02feae781ed56ca3c29d8e775b36cd4b9815b150feb7a75f07353bf4e29879de500f43fa21e87d443a2f47c78a1902f0419ede4823fbcefc7b711f8fceebf1fdd57f403c30000000000000000000000000000000000000000000000000) else (0x190d0a6b7a184e63bcc9eb47193544e524ae5cf445141c88b983d114ce7242f1e04468bf288e589d19a315a22f9ff46583b47ec08752152f8a5ad5f65063350a4b58294970f0272d9b95556baeb2a87217544e835a75ef6e4fb7af0a4815f92cddc223e09814bb69069071230fcf549a11d58a40b8f148177a1906f2c21f1e5843e3c5047878a2cf6f4c41f5e5843fbc50000000000000000000000000000000000000000000000000)) else (if i<45 then (0x2ad91a54ab45488078288d4f6519f1fca532bc14c7c72e90daf04f1fdd3944a3c130aa79a7528dc51a0e1da6373ad4e8778e7ce6ec4ea11c69f4bb7d308684a950adc51229c29e42ba13e846e25518f9caa29e78d4b44d18a16ca2d32e7c823de7894cb7f069b785e120e73e235e476453def8867b9ed0cefc11fde1843ebd3128275a0504eebfa01cd7d3f3cafc00000000000000000000000000000000000000000000000) else (0x5c3cafea17d9fd18e8bca82037c45392fc9f7d1ed14e5bea49a98e55c3924c668e296cefc12a1e0804a3eefaa5782091ef9c3289b6885742f0aaa6d6214d07c229dbc8751c051e9871a354117c5259d58050bb700ab6b60d50cfbf25dc18f4dbd9129280a0916efc6209db9542bed288072e410ee2c8a09e98842bad048277a1500eb431f1df863dbb71000000000000000000000000000000000000000000000000))) else (if i<48 then (if i<47 then (0x9f6d9f508fbc326dfb8343bc70c997b2210cf0c3a7df4845e3c0fecf7820d6f154629dc18b483c918a67120d28f13faa5af7b593ececb1839dd52fcbf2b5dd7358bc0eaa47f5e952e63fa55e0875043d1ead712254b01c3a95ee8451bc310937fa392cf042259e38d4c3d70a8f77e192efa40a25e287433a716867ce190aecc0a05e782413b4fe00000000000000000000000000000000000000000000000) else (0x9b7328912f04f275e09c4639b32a07ce3d18eac5289c9965d3a722d18861584f0412c5c77d4dbc108a87223124f14728e058f53b9714a76d2054cf1bfa7dcf8152be70e9d729f54edbc026dcd7857378f0b58b5bd5702372a1cf6d553a6e6a0849d932e13e289e3794e3bef494781dd2ef3bc23df679483c4ec8b7add50af43c209de7c403ad0000000000000000000000000000000000000000000000000)) else (if i<49 then (0xbc7e1bd4cf5b8ae1b374523c0ecae8a2112ae142ade217965338eed5781f586cb3eab600794f36eeeb3781d13ee5bd2c61e715835ee0a7825d148d54027de97b55c24ee99745e54d063c249d47c52b7ceca36f5dd3107bd251d8754e3d4ec95749e128f9b8a69da6e4abc8ea8a745e51cf5bca1ddf7b42ba6fc7f74a0cf8efc29f5e2853fba90a00000000000000000000000000000000000000000000000) else (if i<50 then (0xaa805152cf0272adf84f4cb928eb17811132f4a52bdf94a603a29ed1749397ef028295e0584a3dcaaa67616130f6b0a85e0614fbd0d09a831a9470732265e76950bbce2917b9c93af2baa35ed724d3b0e699805dd22d8be221c37348be6dc8c749dd08e9bf21ddb8144ba30282766050cf041a05db80413ad028173e0100f0bf205d67f41bc0fa00000000000000000000000000000000000000000000000) else (0xc6f2481e600962fbc52a747768cc4f0509e1ec9c473c13c9e6ae851cf1d01f1d39f34399347d7be6cf0f7cda05db96433db22836d6510cea4c205f98d48bd71a826b62d22df451f9e086463e8f68f7f60518f13f1e9ef843f3e9008280e0d02f34121de17c44bbef282775e910f2b7a01e977413bafc8077e00faf5419fdde7d3fbb8fc00000000000000000000000000000000000000000000000)))))) else (if i<59 then (if i<55 then (if i<53 then (if i<52 then (0xe4f2d6a39f2a839b874a967826504e5d0a4e0ea455c4b38be7f66d5b094d269e09940bc134977824124f049259b7944b41730966aa6d3aefcda35e09c4ebd1308c7aa5d35134ca0dd997433ff388f6c65112eecb1f5e8963ebc1248479a3504fbc6209d78f40b9b1c7b7be30ecf5489d9db8c3fbc9127f79a1cfeec421ede1873e3c50c00000000000000000000000000000000000000000000000) else (0x13cfdbfad5b0864bbe11cae8522d44f0432d9e0876346714d88c2158cec42ac9fb804d38910a67821546e2402a5e07d56b98e4b07c1a56f0a3caa2027c5a3c102a279a0164d642266038350b6702a2782093ce1be24a0684473b4fa907ade11af939a41d574473dee88676dd50cebbb205e17b43bd0ee85755e904f1bda05dd7d40bbcfe00000000000000000000000000000000000000000000000)) else (if i<54 then (0x138f035ae9e0665238ad4b8759ad4ee3b42f1b86467c6ed0dc781c194f0362c6107150bc0eaaa7c5b944f5b9a961e734f368f498782095f143ea8de4775a33ee6a17e1c56af1b9a6dad7d50ba700a3715e133063e25587814539efc87711f0fef54220dce8b40bc70e7a73208f6f8401ede1803ebdd0a7e79218f8ee429f5de843fbbd0400000000000000000000000000000000000000000000000) else (0x10cf04b27de09546bc128a268a451cf048a7e28955b3c11acb90a096acbc1a860a854abe91a9778225290846a5dee884bbc11099821ed56d7bc265c479533a6f691781d94eecbc25dee7d5042afe9a80e1d28fb44255d09543bcf32827ce8104eecca35ea8e43bfd227b78a50f4f5499e9d29040bd9108376e1500ebc3201e384403d90600000000000000000000000000000000000000000000000))) else (if i<57 then (if i<56 then (0x136e9372cdd269503c0d2b27819d3ce1322ce066161378d0cc895c16eda39295be7750c04f29f785f140f03da79d97a4f3f502937861144ddc3245c4855040710867ae153cf040a4dce844f3f6f2a0831f936f03f2a61f794fc36f2a1781dd34fb3a269c67c4bbaaf88e77e1118edbfa25d87e443bef88775df90aeec020de082413b30800000000000000000000000000000000000000000000000) else (0x26de071443c0d298781b902ecbb24dc97454c18d8bb781a950dfb926dac7d4cbf0ea9a709d934f03b25de07d4f35efe96781e54edc3ba56107653c26f68a70a153cd5c0259f77d4b39b0a9d6ee1130f2c5a85b9884bb7914977ee351ae9c8255e08d493c5169172e0d14e644219dc8741bbd0a84791f908f3bf211e98042baaf800000000000000000000000000000000000000000000000)) else (if i<58 then (0x22de0643839edc85741ccecf439a19e4774a40efea4659fd32f041a5da98446bab1a8f772391eeec3a4e10874e35f0a8e6c6213b00c5229ea8250b6afe8e731f93aeabc249d67a4d3a0dea0779b944d837aa1c766503bcd8a3791a538ef37285f46c4e3d0e493791d522f6be231e77a43bdf04817961902ef40a0ddf7c403c70400000000000000000000000000000000000000000000000) else (0x1b9e08b2ebc10c7778214d0f0419f1e27f493ecfca2815c136f03ba69ce764cbc2da9c781ad2af037a65e073503c0ee95711cd4ce8bca2df27c4fb84f68b6f61928f04222df87f44427128d772152101c7236369045c231c8b7663112e543231d98646bdb12877b21118eb41215e282443c4fa8673e0502f8429f9ea8440bc10000000000000000000000000000000000000000000000000)))) else (if i<63 then (if i<61 then (if i<60 then (0x1e1f490313c1267b78220d4f0419e9e08b47be90e918222122e8c223de07e42bb10e867662506f840a2dc9854b3c1108778a013cf942219ef874cb8b0290776052ef340225e07f483a502917c6053adcc2a71e0814c382fe96725ed1cf63e245db734ab9ade8a76ded1af63ba19e075423b3008679ded0af03d205e37c403c4fe00000000000000000000000000000000000000000000000) else (0x3a3a5248278250d8fe48211e08c4ab7304986f20d28f041231e08645bc1148e7ba1906f74323df7894ebef0c867822942f042a31d7894cbf504907b1fd2cf83ca1de886483bb149175df942fc3b272057a4b39ef8907f5f112f33d20df47c41bc2f684779fd06ef411e9de8941bb914807aa14fcf1441f1e08a3f3b50c00000000000000000000000000000000000000000000000)) else (if i<62 then (0x42b96d895745b8f6f03623de06d4b3c0e09a7f9b92ae636245ca6d4a3a2ca93781ad10e83325dc361513c0dc8f781cd4adbba251e57b4d3f0f88e7d6051ce344231c6844cbc1008e75de12ce5be255cd7948bc0f88b74de904eac11f9ec853ebbefe82781d908ed3d209e47d463d6e884785fd0aed3da15e67a41bc70000000000000000000000000000000000000000000000000) else (0x827824cccf04c1ede09042bc1168779a4100e8499f5e0933c3c1207d7c644daf5491ddd28e47b950a817b20530e33f239e07c4abd6f88e71de92ae43ba3dc1774c3b8ea8579dc922f7b2235d56546394c484785b106e835209e96c3db98f2777c1d4faecba1f9e1753fba8f682795ecfee83f1f9e484413befe00000000000000000000000000000000000000000000000))) else (if i<65 then (if i<64 then (0x9472a9cfaf05b229e0b547b5f609678299250153a3da4a943c01568d782ccfcdb5ba11ebc149bf97c81782ed2af059a25fcb0483c158876eaa516f052a15f4a4463853c76752a4e8f6d61c5dba036bc1506f78688d8ee529b5d5a739bb93c6b76e74e0f94b9c9ee913cbb71a7c7be24f8f144205d382403cd0400000000000000000000000000000000000000000000000) else (0x164fd2d2f9e0525f3c0a4bb7816170f02eade0b5c58b5ababf69d6d68f02b3120a5f68330c0bb899a98f0d32ae2276f5db64e6af791f95efebaaa20d7154bc0de9e77da93eff35241d5784a402fc907a9ed20deb924daf7d483d4f68774de10cf33da09ec7b42ba4f284761f106f43ca09e28040bc50200000000000000000000000000000000000000000000000)) else (if i<66 then (0x116e4c6a3da88f47bc12e926ca4d28f04a2499a9246bc11c998b22512ec41a8a017557b90faa46a9c556dc3b299e07356b60eaac781c546f83fa62097d4bbeeea87781f510e5c321dea7d48bc8ec8a781d902f03a23de372453a8f07e79de900edb91f1eb763ebc0fc7f779fcf6efc1205e27f40bc70200000000000000000000000000000000000000000000000) else (if i<67 then (0x12f1155a75e0ad52bc158a4782b54ef055a8e1aa44d39346a18a6ad16c95aa59e0be55bc162947e6a540e0d5261e0a450bc1429c8128d4305d7251a7ac45bc13c83776751af64a20dd690433d5167f77a2ce8f6c3a01db8740bcf0e7777a28e2f1cb1c5dd8e3d3d3167d7461cf8f1c51fde58640bc30200000000000000000000000000000000000000000000000) else (0x182ca3c326037c682eafcd0781d9a325b8b19e06d5e406d6cb781b97ef032b4e39646dc78e0bc7ddcd92f0332edb96660bc0c0be7815d9cf02d2fdb45c5441ed09f7819d40f734249e06f48374f48978218f4efc1a19e37843bc2f480789f10cedbe9f9dc7a423c4e483785ed0af33f211e37e40bc30200000000000000000000000000000000000000000000000)))))))) else (if i<102 then (if i<85 then (if i<76 then (if i<72 then (if i<70 then (if i<69 then (0x311e06a66c44c4c57819582f032ac9e068533d2c8b87917146f02d2d9e05e653c0d4ae781b15cf03b281ee7e5040cf6947b5cd4edf37269f87447bc6f08576de10ee638201ef7244bbce88e759c4f8f0be9f5e97b403c0fc7b77df504efbd1ddeb7e3abb9047d765f504f5bda05e27e40bbf0200000000000000000000000000000000000000000000000) else (0x2b5e06f5735cd2a9711b54af033a65e06044bc0ca93759ccf909b7a4de06859c38c6996e59546f036a76086d4d38cf286781f928d9be235bc7d433bf007c7b5f8ecf5c31c5de7c3e3c0f27e7a9ecf0f03c9ddeb823ebb4fa777ae00f6f33e9d1d67d3b3c9027978210f8f4421f9da8240bcafe00000000000000000000000000000000000000000000000)) else (if i<71 then (0x26de0894b3e71a957ca2d16f0449e1c69036bc10885781fcd4f0441e9f48e4ac090e7d7822d1eecbf225e0804938f14837821d1ef044a25e08c42bc1227976640f6fac81b1f0943a3a1227878e24e0edc79e1e68e3cbcf127677e38eee5cb9c1d2903b3c5207c78218fef0c21fde2843fbb50400000000000000000000000000000000000000000000000) else (0x28dc078513c0fc9f7820927004021de081383c10883781e8e2f3b921de0794dbc0f8877921518f040221e0734dbc0e889799e12ef039251fc7d4aba0f0887820914ecbe1fdde7f423baea8077db8fcf037215fc6940becd88377dbd1aec369fdf17c42bcafe8176df904f1c1a09dd83403bb0600000000000000000000000000000000000000000000000))) else (if i<74 then (if i<73 then (0x4fbc0fea07ba0d24e6c0a1de07e39bc10e7c7824cc4e4459fde98b4b3c1148b70e3116dcc71e9da88473c1028074e1510f9c2241ff8e464111c897822d0af0429f5ed853c3c3086d78e1cd6edc19b5e18e363d91c7177618f2e9c39e9e07f41bcefa7e7621108f440a11e17e413cf0200000000000000000000000000000000000000000000000) else (0x4ebc138a278275250ecea11e0923cbc1188e72e30d8e145225e0874fb410496781f9310942205e089473c110847ce2d16e6bfa75e07a4cbf4f693785d512e5bfa05dd8e3dbc91c7378234dafb481e9e0863cbb90076741f4feed3e9e1de7e3fbe70281785f508f0bb205e37c413b0fa00000000000000000000000000000000000000000000000)) else (if i<75 then (0x5c308aabe781615ccaaea562161423c0b89978188eae43523ddc6e5044ac6937819936d33a225e0764ac16f28e781fd12e9bc259e06c49b6ada87781c50ef9b6239e06944396da7f759b8f8eb371fde0773c3d9087276e14f6f3c49d5e08c3fba5127d79e14f2eec51f1e0863f3b50600000000000000000000000000000000000000000000000) else (0x463ef22957826114f0489d5d3982fbc1227a7822cbcf0449f1e087413c10e787c6291cdc451f9e18946bc1108c7824900f045205c7923fbfb287774e68e4e44d9d9ec9b3a3cd3a6c7ca58d2f1c69d5e8873dbbb0e7677e2106efc2201d88143bc302817ce1d04ef41a05e182403ad0200000000000000000000000000000000000000000000000)))) else (if i<80 then (if i<78 then (if i<77 then (0xac69e8934f04d231e59737bc1408478284ccf04fa09d59e443df50817369d2f044d21a089a4a38d269d6d65112f04c249e78b493c10a907821518eb43241e080483c10e8178258eae9c79ede08f40bb7127d76a210cf644201ea8543bb910877560108f1bf209dc7f403bb0200000000000000000000000000000000000000000000000) else (0xcd8de5d66f04ca89bc90473b120a47824508f04b27de08657b80faa7781d960f03ca7de079533d6e6b0781ed40f042271c9894b38326948062122f6c423df5864b3af129675a1d06ee45225e98b44bd3048479a191ae9c0a11e384473c900867860102ef40201ea81403befe00000000000000000000000000000000000000000000000)) else (if i<79 then (0xe3781dd9721c1ac5e0844eb8d08b46264132f051a91e0a455c05429c6be895107d2a5e12ae4c35f4aaa78271470b4d29205955435b0e9b78225310643a51e0814f3f2fe9c781fd18fb40a4de679453db0c8972e051af93b21de97a46ba6f085751f500f142201db813f3c50a00000000000000000000000000000000000000000000000) else (0xd9781e59ad4b92d1e0785040ad8c38459577032eb1de05e65b3ccebd851c9990a39311ab7d5e3c0f4c58a1d178f03d2e1e075573c0f2a37b9f93cf045251d38c4e387109a7820d18ea4422de08947bc1188975e1104e8c6201e083423bf028178a0506f43e201e17e413cb0000000000000000000000000000000000000000000000000))) else (if i<82 then (if i<81 then (0xd18c2557cf046aade08745bbd18a7732292ef044291bc8758bc114ae69e297af043b01e08d5ab7304b868e0d6af0412b1e088533c11ea0702294f15c1a7e1a8851bc1089c7922526f04324dee854d3610a8c7da191afbc4209e082423c10e8176208fced411f5db8540bc2fc00000000000000000000000000000000000000000000000) else (0x194f03c2c5ef764b3c0eab0845c93cf03aaa9e0715d3c0dcb7781b186fe2fb31a3685b3c0eaba889b16cf035acdb96a5a3c0e0a9781e952dd40299c37b5340efca4781fd30e5c225de0864f3a10491771f528f0bf20ddb81453caf88279204fef2c2a05e07e3f3c50200000000000000000000000000000000000000000000000)) else (if i<83 then (0x182d24ea99bb9b453c136a17827124f052a69e0a553bc132a27e64d42f0482cdb68b553eb14a57822940f047a71e09251beb1ca27823950f046281e08a51b9d0aa2785dd36f1b8a71f4724fbc0da8d78dd522ebb9a0ddb7c42bacfc8279dfd06efc09f9dd833f3bd0400000000000000000000000000000000000000000000000) else (if i<84 then (0x1baf047301e08a523c10cbc782216d0f44af9e08e5fbc11cb47821560f040af5e07a59bc0ecae801c95cddb82b5e06c58392d8af6f98966df2f2a5ca6a53bc0d698781d916ecbd235e08145bbf0481765fd06f1439f9d282413b50c807822506f041a01e0833fbbf0400000000000000000000000000000000000000000000000) else (0x1d4f049b25e09a54c4734c37822d7ccf41b2de08b6634118b87822160f0402d9a07f5440b169f782313ad5c9a62108f4dbc122907124920e5c6a49e08a48bbf268d7ba3d08e9c7a35ee89463cf0e7f7622d12f3c69fddd8a43bbf0088781f90af1bf209de7f403bd0400000000000000000000000000000000000000000000000)))))) else (if i<93 then (if i<89 then (if i<87 then (if i<86 then (0x1f8c5323899a5e61348e6cd781c980f035355a4636bbc0d4bf781cd5ef2baad1e073593c0e6aa721d95ef9b7299cb7855b82f6a1781e138f039a6dde6c51bbcc49b7818524f62fa55d664493c0cc897a5b52af138a21e277433aaf685761f904f03f201df8040bc50400000000000000000000000000000000000000000000000) else (0x2fde0915a3c116be6ca45530949ade0083603c11cb187a3547014ba99e090523ff2a9f7825538f04d276069952bc11e98782451cf047219f487423c1087b78220e0ecc41e1ee8b3bba1127579a150af0401f9e77d403b2f882781f0fef2401fde083413c10000000000000000000000000000000000000000000000000)) else (if i<88 then (0x33de05e5f3c0b4ce86d5176d42f2e5af6566bc0cabd7818572f02fad5e05e5c3c0c0b36c9816b0e332d5e06359bc0dea8781d1370cbaa31e07c43b8b168280630eef1c4209f0873fb8f147979e1508efc11e9e5863dbab0a7d79e00fcf0bda05e27940bc2f800000000000000000000000000000000000000000000000) else (0x2b1ab9b4bb1742a17827530f04e2761da158bc1389d782652efc4c249f0934bbc120927824534f04625dfc8450bc1089b7fa2d1efdc821dc98c48bc1068d781f8fcf042221e982443c1007d77e050af4431fdd5873fbab0e7c78214f0f1469e5e28d3e3c51200000000000000000000000000000000000000000000000))) else (if i<91 then (if i<90 then (0x319e0845bbc116bd7822166f0442f5e08d6636912b57822d5cd7cc291c39a533c134a26ee454b0ac6a69ce89523ecfca5782013cf044a49e08b49ba9128a76e3d02f045225d18f43bcd027d781fd14fa3ca15da7342bb2de8078dd908f03d215e479423c8f800000000000000000000000000000000000000000000000) else (0x325f35b60bc0b0c486d9974f031325e06a6a45adabf781c58b02372f5e0725fb9adeb2781e562f03c289e07e50bc106a47820d4cf042a71ca884dbc1289878a3914ee4725dc78f43bb32a7b78e5104e2c59dde08d39bbf207576230faec449f5e1863fbbf0400000000000000000000000000000000000000000000000)) else (if i<92 then (0x4c3c126a97825536f0462c9e08a603211caf8865964f04aab9b39656bc138aa7828d5106d127dce9d51bc12aa66d64954f047a8dda915740d14a583a3d2ef04829604884dbef108e77a1918edc920de58d413bf0a8077e0d0aef3ea09de7f403c50200000000000000000000000000000000000000000000000) else (0x553ab0ebd782154cfbc12ede07f66c5b02c46662d8cccc830de088643c118cc7820992f045aede0845bbcd06b77821970cfc12cde0785bc32f2b3839dd4cf03aab1e072513c0f693781e53ae63a23de07b433c7068277e0902f141201df81403c50400000000000000000000000000000000000000000000000)))) else (if i<97 then (if i<95 then (if i<94 then (0x583c136c187e314edf47ae5a68e66bc104ce78201aaf03d32a047d69c68fccd8a1f5a6f03eaf989845cbc118bc78231730844aa9e08c57b6314a97822d34ff45a75cb8d4e3eb068b781f920f140a25d983443bcfe837821d04f5c1201e08440bbb0200000000000000000000000000000000000000000000000) else (0x65442dacc781bd6af03ab1a1d79673c0e6cd885f19cf03eb19e07b68368dac9685ad9ef034305e06c6233ad8c77819d82d8322d604655c3fcc8b38197148e9b1aa5e0684f3a4ce8876dc120f1b722dda72433baf68976de906f03ea0de17f40bc30600000000000000000000000000000000000000000000000)) else (if i<96 then (0x5b3c138ba68a8952f04caf9e09a603c120c86865d94f04cb02349a5e43d2eb37824d6ccaca2b1948a57bc120ad872354904c7a65e0954dbc11e8e782450cf9c9241e0954239f2c7778258fae54a1f1f38d403a512827b1fcfef33fa05e07d41bc0f800000000000000000000000000000000000000000000000) else (0x68bc09edb7813182e4a9b5de05367bc0b0de78131c4f027365e056693c0b6c56f9819313b42d5e0685f362d8b9781b564f03aab60b6e54bc0ea9e721d92ef038291b76b4cbc0dc8c781cd20e93aa21e776443a4f080785ecfaf13e1f5e2803f3c10200000000000000000000000000000000000000000000000))) else (if i<99 then (if i<98 then (0x4fc0308a67823526f0462a5e08853368fca9781fd5ed8402b9e07e5637712a47822160f043271e09054c1b28a57824d4cf043269e08a4eb82f8937820d0ce7bfa39e082433dd187e7b21d08f0431f5e0873fbbf147a75e2cf0f3c61f1e18a3f3c10c00000000000000000000000000000000000000000000000) else (0xb2782113cf03f2c2087951bc0e6a7781d55cf03baade0765a3c0eeab7e9b96af8b3aade0695e3c0d0b76cdcd56f040a8de0834c3731c956f21d08f04623dfb8248bdefa847c5fd12f43da0de081443c100847920106ee3e215df7641bc6f600000000000000000000000000000000000000000000000)) else (if i<100 then (0xb56ae3936f04c2a1e08e4abf1289b7824548f042281e07f553c104987121d36f04724dfa8d51c050aa989df956f040a95e08152bc0fe9b7d5f51ee6bea41c87446bbcec8276ddd06efbfa0de27e43bccfc8378a08fcf0c19e9dc873ebb70a00000000000000000000000000000000000000000000000) else (if i<101 then (0xc27820d64d346ad5e087543c118ab782114ef042279e07f55bc0f89e7820550d5c2a7db98553bc106a67822156dd3c295bf7d51bc0fe977821116f7c320de08c413c116787963902f044201e586423c104847820900f2c1a01e08340bbb0200000000000000000000000000000000000000000000000) else (0xc47820d7cf0432ee2e8759bc102ae8721554f0482720495533c1209e8422559103f28de08154c34f8ad68dbd44f037a85f17150bc0de9a781a920f038239f470463a8dc85775b910f036215da7842bd102857821904eec2a09e48040bbf0200000000000000000000000000000000000000000000000))))))) else (if i<119 then (if i<110 then (if i<106 then (if i<104 then (if i<103 then (0xc678215871ac3b05e07f59c310ab266e1572f03f2c1e07b5ab50fea6781e952f03ea8dc87c523c0f29b7822520f049245c39047bc11a837fa3cfefa481f5e5873cbc0f272781dce6f03d1f1e07042bbae68a79ddd0cf03d205e07c40bc0fc00000000000000000000000000000000000000000000000) else (0xca61e3992f04bafde0945bbc130b6782616cd4cdaa9e09e59bc13a9f782994ad452a79e09f4e43f42a36f63d430948281fe894dc151691782291cf8c5a0dc69438bc13e6875694d8ebcf1ade39c3bbdb2e807a624fef0429f1df883f3c90800000000000000000000000000000000000000000000000)) else (if i<105 then (0x1bef047b498498673c130cd78255a129cf31de09667bc124c47823592f0462f237845e3c10ab18761d60c7412a1e08452b451a9a84a4930f049259e08e47bbd108c7820512f040219d87b46bdcf28875a0506f1c2a0de18040bc10400000000000000000000000000000000000000000000000) else (0x1daf023ba5e04872bc098e16d92ddaf024371e051703c0acd078175a8f02bafdbc57603c0c0b7781b162f0392ade07558bf8f6ab781ed52f03da8dd07a4b3c0e68c759c110f039201e07e42be0e68877de50ef23b209db7e413c30200000000000000000000000000000000000000000000000))) else (if i<108 then (if i<107 then (0x16716cdac1e0975843f30ab7825968da4cab1e0995abc13eac8ca8154f052255e0a24fbc140a283e89450b51a7de09a55b5524a57823946ddc3271e085443c1107b7622cf2f2411f5e07c3bbc5148078a14f8f0429fde082413bcfc00000000000000000000000000000000000000000000000) else (0x19af02c319e06063bc0c6c07819998fe32312135e69bc0accb781699af030ad9fd605f3c0b8c37815d88f0292e1e0535e3c0a8b27814150e92ea81ca6147bbad48576dc4f4f7bc9e1e07b403c0f884781fd00efc0201df833fbc10400000000000000000000000000000000000000000000000)) else (if i<109 then (0x148f04c295bd9c54b2f32a5782515ef049a85bf8b543c120a4782355af048255e0984cb8726998263d2b01ce229c68f47bc12c817826108f04a201e09c3c3c1307579258e4eecc9c9e6953dbe714827ae30feedc5a09de82403bf0400000000000000000000000000000000000000000000000) else (0x176f03f301e07c60bc106b864e0982f03faade0855bb5cfcb0781ed78d63d2b1e07855c32fca7781e560cdb9a61e07e523c0f0986aded2ef1be26df97d47c00fe8a781f114f03e219e07b423c2fa8d769d912eebca0ddd7d40bbd0000000000000000000000000000000000000000000000000)))) else (if i<114 then (if i<112 then (if i<111 then (0x17119c12ede08561bc10ab9782117ef0412be0d7f5a430f6aa781e96af04028de087543c1069f7822144f043a55e0854dbc104928061124f04225de08346b8b1085792250af441a01e07f403c8f482781fd02edc09fde080403c0fe00000000000000000000000000000000000000000000000) else (0x172f048afde09163bc126bc7826980f0512b59da7573c150a37829568f04daa5e0a1553c134a685a5550e2c9a65e08d4e3eb0e956ea312af03fa65eb784a3c0f68d7a5f90ef0401f9da873cbc516807961102f3c11f9e1863f3c10c00000000000000000000000000000000000000000000000)) else (if i<113 then (0x192ceb633da6706cb5edad58bdc5c2f03cb4de0826ab3f12c7782019cf03f325e07b61c3d02ba781fd74f03c295ef7d513c108a08221d26f045a41c286473e3068a76e110ce841211dc7c41bc6fc83781f504ef3ea0ddd7e41bbaf800000000000000000000000000000000000000000000000) else (0x2f9fa5f62bc0ccc57819db2ceb0351e0626ec22c0c6831b196f033b0dff6561b54e4b8781cd62f03ba85c07d52bc108a6782193b0343a55fa90483c11a8d782390ef0481fde48f403c11a7f77e1cfcf044201dc823f3c10800000000000000000000000000000000000000000000000))) else (if i<116 then (if i<115 then (0x271e098553c12eab782517107c82d5e08a5e3c124b16ea3162f04529de08a5a44918aa7823d4ee745276028f543c110ab7822146f044291e07a4e3d6f69a7b5e92cf041a35e080463baf68576a090af1c0205e08540bc10200000000000000000000000000000000000000000000000) else (0x2cde094603c112be781f98ef03f2f9e07866bc0e6bc781dd74d739ac1e0735fbc0c8b87818160f0312ade05b57b8eb0b278175550033275e06d4b3c4e293781bd30ef36231df75433c0ee8676ded08f3bca15df7b40bc70000000000000000000000000000000000000000000000000)) else (if i<117 then (0x319e07b643c0f0bb835f188f03aad5e06a5fbc0dab27bdbd590439289e072513c0ea97739e922f03ea15e07e433d4fa8e782091ef03fa25e077433c0f081781f106f3bda01e1793e3aafa807a1e4f8f03f9fde07f403c10200000000000000000000000000000000000000000000000) else (if i<118 then (0x301e09d5faeb48b67826d70f04c27a1e9e55bc140a0782893af05324de09f4b37934907fe6d1ae3c8a09f993413c1368f782451af0491fde08e3ebad107c78208faf5bf9e1e0853c3c1107878238f4ef429f5d786403c50200000000000000000000000000000000000000000000000) else (0x371e04f713c0a6d0781659f05aeaede05b653c0b4c16456584f02eac5e06657bc0d4aa781b13af03aa51d5734e374c89f745913cf037231da70423c0e07d781c8f6eec19f1df7d3fbc0fa85771d4fcf13ea09e17d403befe00000000000000000000000000000000000000000000000)))))) else (if i<128 then (if i<123 then (if i<121 then (if i<120 then (0x2a9e09d5a43f4ca87829556f053255c5a651b4b4099782853ce4d0a59e09f4c3c12c957825922f04ba19e0943fbc124827825116f0491ede08e39bd7186e7822cfaf0421e1e0853dbc1187978220f4f5409f9e07f3f3c0fe00000000000000000000000000000000000000000000000) else (0x319e0476cbc082cc78119a0f0282e9e058613c0acb9781417d0b292d20b5856bc0baaa819854ef030265e064483d0d295781a538e835a21e0783f3c0f8787aa0500f33f1f1e085433bd028078210f4f0459f1dd893e3c70e00000000000000000000000000000000000000000000000)) else (if i<122 then (0x231e56a4cbc0d6917e5893ef032a45e0664bbead088781b51ef03422ddb7144bc0e28a781ad0cf0381f1e5733c3aee67d781c50cf23b1fde0703cbc0e478781ccfaf33b201e27c433c10083785f508efbf211df7c413c2fe00000000000000000000000000000000000000000000000) else (0x41bc12c7275e6d06f04e1d9e09d3f3c1267478238ecf0499ede0913cbc1127475624eaee431b9e08b353c1086d701e0f6fb3b1b9e07d353b0f06a781f4e4f03c9edd27742bc0ee7f769e502f13d9fde280403c30400000000000000000000000000000000000000000000000))) else (if i<125 then (if i<124 then (0x4c3c0f08c7820d3d00bfa49c07e483c100817820d10f03ca2de06a40bdaec7c7b208f4ee459e1df8d36bc10c6477e50e0f04a1a9e09730bc132667625cd4e8cc9c5dd923dbad147778e30f6ee439f9dd8340bbcfe00000000000000000000000000000000000000000000000) else (0x47bc0fe8e781d138f03923de07547bc0f48378df100f0419d1c1843b3c1067d781f108f03ba11e06e393cef477781c506eeb7a01cf7c3cbaafc7c7a1d104edb9209e073423bef88277de102f0bc201e07a3fbc6f800000000000000000000000000000000000000000000000)) else (if i<126 then (0x46bc0de81781b11af036a0de0734440ef27e781f104f03b1dddd793c3c0fe78765f8f4f03a9c5e07435bc0e06773dd8e2f0399edf9663b3c2d26f781a4e6f4389d1e0713fbbcec79791f8f0f0401e5e0893d3c10e00000000000000000000000000000000000000000000000) else (if i<127 then (0x3dbc1926c78308f2e85e1d5e0bb403c16479796c0eef0539bde0a23b3c13e7578280dcf34c991eaa52d3c1525c782acc6f055981e6ae2f39950577828cc6f049991ce943a3c10c767be1ceef441205dc7a403bcfc00000000000000000000000000000000000000000000000) else (0x61b3710ad7822968f046abdb18958bc114a8781f13aea40a41e08c4a3c11294782050cf044221e080413c2fa8679e011af03e235e07942bc0fe7974214eaf0409ddd8803cbaf167c76614f0f0441e9e0893ebc10800000000000000000000000000000000000000000000000))))) else (if i<132 then (if i<130 then (if i<129 then (0x653c0b0b67818180f02eadde0615d3c0c0a3781d93af5c0a6de0824e3c10c94782211aec4121de08c3f3c1188576e2510f040215d68441bc1087d78214eaf0c29d9e08341bc5048078204fef03e209e27d403c4fc00000000000000000000000000000000000000000000000) else (0x50c051e957823538f041a5de07b4cbc10098781f13af03ca71e07550bc0ec9b781cd1cf23d249e07a44bc0fe8d782110ee943221e086433c10c81775ccf2f03f1e1e37a423c0ee80781f0f4ee411f9e0803ebbd0600000000000000000000000000000000000000000000000)) else (if i<131 then (0xa1782613cdc4d245ec954c401169378a192af046a41e0914b3c1088d7820d0ef042a2de08943bc50c907821d18f042235e07f45bb50e737c240ecf0459c5e28a3d3c1167b78218f6f2c39f5dd863fbc10400000000000000000000000000000000000000000000000) else (0xb87cd596ef02da95e063513c0ce987819542f032a81e05e4cbb0ca8f781a916e93924de06f463c0dc96795c11ef03822de07048bc0ce82781ad00f0399e9df73423baee80781e902f2bc209dd7d403c2fe00000000000000000000000000000000000000000000000))) else (if i<134 then (if i<133 then (0x8d781bd22f039a1de06d443c0ee7c781dd0aecb71f5cb763ebcf10787b220f8f044a05e08b3cbc11a8578228fcf0479e9e0893bba91a6c7863ce4ed461b1e0853d3c1087978218f0f0431f9e5823f3c10400000000000000000000000000000000000000000000000) else (0x7b7867506f04c1cde0a13f3c124727824ce4f0489c9f496423c11a7f7823908f04ba2dd48b42bc10e8e7823d18f046209e09041bc11c7a78224faf0431c1e0893ebc10a7e78e10faf1c21fde1833fbc30600000000000000000000000000000000000000000000000)) else (if i<135 then (0x97782ad34f057a4de0a147bc13c847828104f052a1de09c483c1328c7826934f047a55e09445bc11c9c6f6192efbc3245f087483c116827465104ec471e1df8e40bcb0a8177a1500f042a05e08540bc10600000000000000000000000000000000000000000000000) else (if i<136 then (0xc17817590f02eacdef65563c0d8a3741b54cf035289e06954388d4a5781a150f033aa1e0664c3c4cea1781b138e4b925de0724d3c0e695781a91ef039215dc6b42ba6dc85781c108ec39a15e17541bc0f200000000000000000000000000000000000000000000000) else (0x9d7817d48e4ae25de06c4bbc0e28f781cd1ef039a29e06d48bccda8c781b91cf03b235e3763f3c8f48c781d91af03f221e07d463c10a7e7823100efc61bde08f393d3227478634eced441e5e7863dbc10a00000000000000000000000000000000000000000000000))))))))) else (if i<205 then (if i<171 then (if i<154 then (if i<145 then (if i<141 then (if i<139 then (if i<138 then (0x7b781d8fee6bc209e07343bc0e881781c902ef3b9d9e07b3ebc0f279781d506f03da09e0823bbc0ec81781d514fe3ca11e079483c0e489751c516f03b1f5e079413c8ec8078218faf0421f9e1843fbbd0600000000000000000000000000000000000000000000000) else (0x7078298ecf04f1d1e0933d3951e727ae48eef0451c1e3843abc10c6d78204faf03b20dd972363c0e675761c104f0361f1e07340bd4f2797820500eac41d5e4823bbc1028577ddd00f0bf205e77e40bbd0000000000000000000000000000000000000000000000000)) else (if i<140 then (0x957197126f034219e069443c0de83781c500f03d9cde07d3d3c0f86d781e8e4e6c31d1e08a2f3c1146478230daf0449b9dc8c3cbc11479782550ef0471d9e08e3bbbd187b78228faf0421f9e080403c10000000000000000000000000000000000000000000000000) else (0xf4f0591b9e0b43b3c16873782b4f4f0561bde0ab3abc14c667a688eef04b9f5da9533baf326f78260eaecc59e5e38d413b2fe8d7b9f928f04220de086413c110847822100eec59f5e18a3fbc10a00000000000000000000000000000000000000000000000))) else (if i<143 then (if i<142 then (0x156f038a86016d54bc0d09f781cd4adbbb265e0754d3c0f287782091af041a45e08a3fbc10686781e0fee943215e082403c10a8a761e12ee7bba21f17844bc2f68b781f114f03d219e07c41bc2fc00000000000000000000000000000000000000000000000) else (0x136f03ca35e07a483c0f891781c134f038235e077493c0fa88782011ef041269f98040bb90a7d7822508f03da19e87d423daf881765f51af3c39fddb8141bc0f886781d906ee3ca05e180403bb0800000000000000000000000000000000000000000000000)) else (if i<144 then (0x126f04d219da9a45b712c808066112f04e20dc999473c11c877821d20f045265e08942bc1068577604fcf03f209e07e3fbc0fe7d7820126f03e1fde0813f3c2fe7b75210f6ee41201e07f41bbef600000000000000000000000000000000000000000000000) else (0x158f05927de0b6503c16097782c948f05626de09c4db993c8d7826532f047a85e08b43be9208578238f6efc71fde0893ebc10c7c7820d1cf7c11fde0893e3c10e7e7821cf8f0429f9e2863ebc10c00000000000000000000000000000000000000000000000)))) else (if i<149 then (if i<147 then (if i<146 then (0x1baf025351e04767c06a6c8781399ef028ad9e05e5c3e2c0a56d9954ef034aade0744b3c0e092759b910f037a1dd47d413c0f07e781f91ef03e21deb7f413c704847820900f042a0de07e413bafc00000000000000000000000000000000000000000000000) else (0x14cf04aa69e09950bc122957824d3ee34b24e09944bbc1248977a291ef043279e08542bb30e7f78234ecf04820dee8a3cbc10a7b79a0914f043215e07e41bc0f8857820908f0be201e57f3fbc10400000000000000000000000000000000000000000000000)) else (if i<148 then (0x174db3eac9e07d58bc0faa77820968f03f299e077543c0e692781ed2900bea89e08345bc10e8b782190af03e231e07d3ebc1007c782051efbc0209e0823f3c10e8675a08fef0431f9e282403bf0200000000000000000000000000000000000000000000000) else (0x16cf03aab9e07656bc0f6a8781dd62f039a71e07c4d3c0f48c781cd20f03aa91e06648bc0d690749c900edbc221e07b3e3c0f87c781e11cf03b20de082423c0fc87765f108edbf1fde083403cb0400000000000000000000000000000000000000000000000))) else (if i<151 then (if i<150 then (0x154f03228de06a53bc0d89e7d9a946f035a5de06749bc0ca7e781a508f1b6a25e0703dbc0f281781e0eef03f209d1833bbab0e7379e0d06f044a11db7f40bcb0082781fd02f040a05df7f40bc0fa00000000000000000000000000000000000000000000000) else (0x11af9d0231e097493c12687782511af0509f5e0a73bbd746667826ce0f04f9e1e2a339bc13e7878284e8f04ca11e08b3ebc110757822916efc1a09e085403c116807663102f0471fddf893ebc11200000000000000000000000000000000000000000000000)) else (if i<152 then (0x158f031a89e05c523c0c69a73d9d5af02ea8de0644cbc0ea80781f51cf03c269e07848bc0ec98801dd18edbd239e07f423c10c7e781ed1af03ba19e37c453c0f68b781fd1cf03da1de07f42bc0f600000000000000000000000000000000000000000000000) else (if i<153 then (0x11cf04a1f5e098433c12c807823912eb46219e88846bc1107c782090af6c3a45e081433c10e8e73e090af042231e08144bc0fc787821106f040a05e07f423c10089771e910f03ea15df7b3fbc10200000000000000000000000000000000000000000000000) else (0x142f03e251e67b4dbc0ec8d781c128f03ba35e0784a3c0d27d781b916f2b7a45e070463c0ec8f781e510f039231de74433c0fc7b781ed06eec01fde07e41bb500827860508f23e9fde4813fbbd0400000000000000000000000000000000000000000000000)))))) else (if i<162 then (if i<158 then (if i<156 then (if i<155 then (0x138f050239e0a3483c1467c782a114f554a11e0a13e3c1406a79294f2f053201e09d40bc1368778234f2f0471fde09341ba916757820104f23e1f1e17f413c108827821500f0421fde584403c10000000000000000000000000000000000000000000000000) else (0x176f03aac1a971593c0f8a3781f564f03b291e0744dbc0f88e781e93cf03ca71e0744db84f0937fa090cf047a45e09346c052c7479658faf0479e9e08b42bc0fe86781f106f03f209e07e3fbc10200000000000000000000000000000000000000000000000)) else (if i<157 then (0x15f13ca281e09856b853a9f782654ef04c25de09c4b3e92a877b24d2cf04ca3de099493c12c947822d28f041a8ded77513c0f6897820116f03c211e07841bbef08177df500f0409fde2803fbc10000000000000000000000000000000000000000000000000) else (0x184f03a2dde07564bc0deb7781c57cf036ac9e071553c0dc99781bd5cf03929de07153bc0c49e781812cf02fa65e05d4e3c0d08877dcd04f03b9edda803d3c10e7d7821900efbf1f9dc853f3c10800000000000000000000000000000000000000000000000))) else (if i<160 then (if i<159 then (0x16af0492ade08f5bc1918a77823554f046289e28b4bbc11487781f93ef03ea5de07c443c0fe7d781f8e8edc29d5e08641ba1127a76210f0f0429e9e081403cb028278204faf044209e07d40bc0fe00000000000000000000000000000000000000000000000) else (0x18cf0402e5e078613c106b3782156af0422b1e088503c11a847825d36f050a4a16a7433c1507a782bcf0eecf1e9e09a45bc1227d78220f8f0431e9e084403c10c827820d08f23f9f9e0823fbc10800000000000000000000000000000000000000000000000)) else (if i<161 then (0x18af04aac1e09c623c12cb77826d70f04eacd999956349249a7824576f0422e1e07656bc0e4a8781cd2af03924de07a4dbc0e884781e902efc39f5e38a42bc10c8478a0904f0421fdde85413c50200000000000000000000000000000000000000000000000) else (0x1b2cf36b2de06f6cbc0d8d178199a8f035b2de0765ebc0ecaa829c97cf0362b5d47a4f3c0fc9a781fd0cf042a31e0834739f007d792110ef03da19e073453acf0857a1e50af03da0de07d413c4fc00000000000000000000000000000000000000000000000)))) else (if i<166 then (if i<164 then (if i<163 then (0x2e5bf77623c0feb682a1d7cf046b01e081593c1109b78219530046299e08e4dbc110987821514f049239e08346bd708807820902f0419e1e68740bc1127d77630fef0439fde0873fbbf0a00000000000000000000000000000000000000000000000) else (0x2bde08e613c106bc781fd94f03b301e0805cbc0f4a0781f568f03cacde079513c10e9c7822d36e842a41e984483c10e81781f506ea411f9d87e44bcaf688781f10af240215e37941bc0fc00000000000000000000000000000000000000000000000)) else (if i<165 then (0x2f1e05f623c0b8ba721597ef02a2fde059593c0ba9c7815d58f0adaade865543b4c6a6789993ef035a4ddd704b3c0e27d781f508f03e9ede08441bc106837820108f0be9f5e082403c2fc00000000000000000000000000000000000000000000000) else (0x269e07d4fc4b0c8f7821924d547a5de080473c10672782010cf03da3de079453c0f88b781c512f035209e070433c0e279781d100f0379f9e07142bc6ec82781dd00f03f1f9e0813ebc10600000000000000000000000000000000000000000000000))) else (if i<168 then (if i<167 then (0x259e0a6523c13e94782a540f04ca59e09b483833a717827d00f04ea1dbf9542bdd3c7b78270e4eecc9c5e0993b3e1286c7825cdcf04b9b9e08e3d3c1107878a0cfaf0421f9df843fbbb0800000000000000000000000000000000000000000000000) else (0x2ee0c7f613c0f0bc781d57106b7ac1e079563c0ee8f781d538f03826de073513c0e896781e514e942225e08444bc10c827821108f0441ede08640bc1087a7821d00f0c3205e084413c10400000000000000000000000000000000000000000000000)) else (if i<169 then (0x2e5e0715cbc0e0b0781c94cf03daa1e078513c0f283781f916f03e235e0734abc0de8e781991af036a31e171473c0e485769a916f035201e57c423caf880781f90af03f211df7c41bc0fa00000000000000000000000000000000000000000000000) else (if i<170 then (0x2a5e09d543c148a17829940f051a7de0a14d3c13c80782890ce74d9fde09f41b9d3a7378298f2f04f9f1e09a3fbc1226e78270e8f04f9ede08f3fbc1107d78e1104f0421fde0863fbc10c00000000000000000000000000000000000000000000000) else (0x315e06765b4cd4c6781a184f032afde0695bbc0d2a1781a540f031a75e0594fbc0b298781812ef6ae255e06147bdebc897819924e833225e068433c0d880765e50af03ca11e67e423bef800000000000000000000000000000000000000000000000))))))) else (if i<188 then (if i<179 then (if i<175 then (if i<173 then (if i<172 then (0x2ade0805a3c108ad782454cf04aa9de0984fbc136897326104f04d9d5e0983bbd532777824ce4f04c1d5c89d363c1306e7824ceef0499c1ea9138bbd247878244faf045a05e0853fbb90600000000000000000000000000000000000000000000000) else (0x2a9e0815bbc0fabd6adc974f03eafa14795cb6cd8a0781bd38f039a31e07747bc0f289781e112f03ca45e07641bc0f080781f512efbb201e079413c0ee88781cd0ef03aa15e27740bc6f800000000000000000000000000000000000000000000000)) else (if i<174 then (0x2a9e07a59bc0eaae781f16cf03e2d9e083523c10a8e782191cf042209e08343bc0ea80781e102f03a219e87a3d3c0e47c781c8fcef3c1e1e07b3c3c0fc7a7920cf6f2419ede0863e3c10a00000000000000000000000000000000000000000000000) else (0x28de08e53bc11ca97823562f03fae19e74543c0f093781d522f03da11e0803dbc10c7779600e8f03c1fde07f35bad026d78a14eaf0421c9e0813abc3187c7820cfaf041201e083403c10400000000000000000000000000000000000000000000000))) else (if i<177 then (if i<176 then (0x2c1e0805a3c10cb5781dd5f12baaade07b4fbf6f4877821116f04620e058e403c1407678270d6f04f1f5e0a835bc1407178638f0f2c89c9e08d403c1107e7821cfcf1c1209e07d40bc10000000000000000000000000000000000000000000000000) else (0x2bde09c5cbc124ab7824546f04c295e0994c3c1208a782392ce146a41e0894fbc106917460110f042a91c182453c10a7e7821d10f0421f9e08543bc10484781ecfef03e9f9db81403c2fe00000000000000000000000000000000000000000000000)) else (if i<178 then (0x329e080653c0f4bb8b20174f03f2f5e07153bc0e897781e944f03d261bb7c50bc0ea90781d518f039a95e06e473c0ee84781fd16f041a09e08c443ab0a7e7821cf6f0439f9de843f3c10400000000000000000000000000000000000000000000000) else (0x325e06c61bc0deba781b96ef033ab5e0724d3c0ea9073dcd36f03f24de0844abc1128478260fcf04aa49e090423c11c8276a051af040235d67a463c100847ae0d02f2c1a05e0813fbc10400000000000000000000000000000000000000000000000)))) else (if i<183 then (if i<181 then (if i<180 then (0x2d1e08a58bc110a7782393af04aa79e093473c120827825530f046259e08a4ebc1169b7de0124f03d285e07448bc0de82781d918f03c219e07245bcede86781cd06f03da05de7d403bd0600000000000000000000000000000000000000000000000) else (0x2f5e0a85c3c144b47828962f04eac1e0994ebc1309678249470c4b27de08a53b6b109a7824916fd44251e08d3fbc122777823906f0459dde08f3cbb9167878220faefc29f5e084413bcf800000000000000000000000000000000000000000000000)) else (if i<182 then (0x391e0926cbc134d57826d9ac9cf321e09d5a3c14ca77827d70f04aaa1e09c573c132ab6ee7124f048a81e08f47b972484782611af047215d98c41bc1167f7823902f043a01e0843ebc50c00000000000000000000000000000000000000000000000) else (0x3d5e04e793c0b6ef78189d4f030b9198616cbc0b6c57819598f03130de0646342ed2c67817d44f033ab9e06c503c0da9b741a534f038241eb7446bc0f88c781ed0ef03fa0de080413c10000000000000000000000000000000000000000000000000))) else (if i<185 then (if i<184 then (0x309e092663c126d07825d94f049311e09059bc120a97822d5af044299ba84573c100a47822110f046265e085463dcfc837a5f512f03ea0de07e443c0f4867a5dd0af03aa09e07f40bc50400000000000000000000000000000000000000000000000) else (0x34de0686f3c0cee67818db6f036b4de074613c0eab3781d168f036aa5e07056bc0d8ab781cd26f03ca75e07c44bc1067f782190aeb43a01de8740bc1147c78228f2f044a01de83413bf0200000000000000000000000000000000000000000000000)) else (if i<186 then (0x2e9e098623c128c8782518ef046b19e08c5b3c11ca66ba3d40f046261e08e4c3c1349d7826d16f04ba61e09045bc128847823116f042219e085453c0fe857820902f341209e07d413bcfc00000000000000000000000000000000000000000000000) else (if i<187 then (0x345e0796bbc0e4db781bda6f038345e07261bc0e6b4781b556f03b295e07a58bc0f2b7781c942f03da9dbf7a4f3c0f68f782151cf042a29e088443cd108678a1904f0409f9e0853fbc10400000000000000000000000000000000000000000000000) else (0x325e08f643c11ec97824184f04bb09e0995ab1738a08725540fec9279e08b54bc10ea87822936f040281e07c4c3c0f893761c524f03aa45e07247bc0e08b781e104f03ea09e080403bd0200000000000000000000000000000000000000000000000)))))) else (if i<196 then (if i<192 then (if i<190 then (if i<189 then (0x35d858d6b3c10ed8781edb0f03c36a357d683c0f4b4781ed62f03d2a1e07257bc0dab1781a934f035a6de06d49bd6d283781c90cf03b209e07c3f3c1068279a00fcf043a05e086403c70400000000000000000000000000000000000000000000000) else (0x6e3c0d4d2781c99ef03eb59e07d64bc104ae7822954f045a65e0944dc0d189a7824108f04a21de08c3dbc11a7478224f6f0431f5e082403bd02817821508f03ea19e07b40bc10600000000000000000000000000000000000000000000000)) else (if i<191 then (0x62bc11ac37824196f042b49e0856547716b77822568f045ab1b186533c112a9782212ef044249e08743bc1107c7821500efc39f9e086403c10e857821100f1c1a01e08241bc30200000000000000000000000000000000000000000000000) else (0x68bc118d2782119ef044b59e0876a3c100bf7822d7cf044ac5e08a573c11ab0892213d0945a61e08d4738b1c80782610cf047a0de091433c118887820504efc1a05e08041bc0f600000000000000000000000000000000000000000000000))) else (if i<194 then (if i<193 then (0x6e486f0d5781d9aef038371e07c69bc10cc9781fd8cf040ae9e07f5d3c0f0b7781f150f03ea91e07b4dbc108977be0128ea40a4de07c48bc10088765f908f041201e0843ebc10c00000000000000000000000000000000000000000000000) else (0x69bc0ecca781c18cf03735de0696c3c0c4c77819d8cf0372e1e07258bc0fab2739f948e63fa79e07b4f40af496781f128f03ea39db74483c0ec85782010af03d20dd97f413befe00000000000000000000000000000000000000000000000)) else (if i<195 then (0x643c0f0b9781f166f03e2fde0795cbc0f2ad7821966fec1aa5e08c56bc108af781dd44f03ba61e06f4bbc0e091781c520f039205e07342bc0ee8478204fcf041a05e084403c10600000000000000000000000000000000000000000000000) else (0x5fbc11eb4782415cf0492dde09458bc12eb27824d6af0432d216835841cfca57823130f045219e088433c106817820102efbf9cde0863dbc10484771f900f0bfa11e07c413c0fc00000000000000000000000000000000000000000000000)))) else (if i<200 then (if i<198 then (if i<197 then (0x66bc0cac3781c97ef035b29e06963bc0d2c4781b174f038ad9e07856bc0eab0781b142f03f235e085443b5188078614fef0451e1e08a3e3c10a8178210fcf0401fde0813fbc10800000000000000000000000000000000000000000000000) else (0x58bc126b47824152f0472c9e08757bc0faaf781cd54debb2b5e07e50bc1069b781f53cfc3f245d38049bc0ee847820110f03b205e073403c0f08478df4faf0411fde080413c0f800000000000000000000000000000000000000000000000)) else (if i<199 then (0x61bc122c3782396cf0462e1e08e55bc12aa1782553ef047aa9e08451bc10697781d936f038a41e07444bc0e283781ccfaf03c1cde0803bbcb0280781f4fcf03f9f9e2803ebc10600000000000000000000000000000000000000000000000) else (0x69b251cd05fa4182f045315e08c5fc5518b57823d5af04aab5e09452bc1388c7825516eacd20dfb953cbc126757822ce8f0479c9e08e3bbc10e7c7821cf8f2439f5e0873fbc10a00000000000000000000000000000000000000000000000))) else (if i<202 then (if i<201 then (0xdf7824994f048b41e090653c110c3781fd82f03c301e07e6037cf6a0739f148f03e25de08045bc1027f7820504f1c11fde97c3ebc3028277e0504f03ea0ddd7b41bc0fc00000000000000000000000000000000000000000000000) else (0xf07813db4f02637de04b68bc094c16a54570f02e2f5e0655d3c0c49b781bd3ef03c259e07945bc0f47f7821106f0439e9d38a3ebbb0e827821cfcf1c41f5e085403c50200000000000000000000000000000000000000000000000)) else (if i<203 then (0xbe782b14af058aa5e0a74d3c158917829526f04fa8611944dbc12289782492cf046a39e08b423c112827821512f04320de08041bc0fc88781fd0af040205dc80403c10200000000000000000000000000000000000000000000000) else (if i<204 then (0xe9781bdab0f38b3de07c62bc0f2b5781cd62f0382d1e06c55bc0e09a781b144f035261e06c463c0d486781c91cf03b209e07b403c0fe86781f108f041201e083403c30600000000000000000000000000000000000000000000000) else (0xd7782218af042b29e0825ebc110a781a4540f04827de0904d3c12a857826516f04820de78c3abc120777822906f0459f1e1863f3c10e817961d0af040209e07f413c2fa00000000000000000000000000000000000000000000000)))))))) else (if i<239 then (if i<222 then (if i<213 then (if i<209 then (if i<207 then (if i<206 then (0xde7813d92f02b32de0576233ab6b7781b55ef038ab9e06e573c0d89d781b534f033239e06e423c0dc807a9b91af335205e070423c0ea87781ed08efbd201df7f3f3c10400000000000000000000000000000000000000000000000) else (0xac8ceb93cf057a85e0ad4f3c152a3782653ef046a6de0904cbc12c8978250fef0519ede0a038bc13c6d79260ecf04a1c1e08a3c3c10e8178210faf0419f9e0853fbc30800000000000000000000000000000000000000000000000)) else (if i<208 then (0xd97820d98f043b35e081633c10ebb7822156f044aa9e08a573c10a9c7360142f03ba69e075473ccea84781e512f03c9e5e07f3f3c10484781f0fef03e209e27f413c0fe00000000000000000000000000000000000000000000000) else (0xdb781a1a4f02fb35e05c663c0c2c2781a166f037acde0685938cde9b781e12ef03b239e07c413c0fa7c781ed02f03d9dde07f3fbc0f67f78e18f4f044a01e085403c30400000000000000000000000000000000000000000000000))) else (if i<211 then (if i<210 then (0xc2781e160f03d2a1e073563c0f0a9781d142f03d269e07c503c114927820d18f044a25e0843f3c10a7678208f6f0431d5ed7f3cbc0fe84781e104f1bda11e07840bc0fc00000000000000000000000000000000000000000000000) else (0xb970d4952f02aa69e05c51bc0ae9c7819134f038255f37254bc0e894781f92901c2231e087413c0fc777822100f1c21cdd3873bbc1047b78208f8f0419edde823f3c10000000000000000000000000000000000000000000000000)) else (if i<212 then (0xfaf7d01d5b7aa3cbc1467f7825d12ffca219e0934e3c12a91782552ef04c249e0913fbc1227e7821906f0459e5e0883c3c10c7c78228fcef431f1e0893ebc10e00000000000000000000000000000000000000000000000) else (0x138f034279e0674dbc0e295781e538f03ba61e075583c0f0a57d9f15cdb38289e07547bc0fe83792011af041201e0883ebc10a857720106f040211e07941bc0f800000000000000000000000000000000000000000000000)))) else (if i<217 then (if i<215 then (if i<214 then (0x106f047a11e08d45bc1128d7b20924f041a31df7d53bc0daa0781a93af037a59e07046bc0d282781ad1cf03421de06b40bc0e684781e904f0409f1e0853f3c10400000000000000000000000000000000000000000000000) else (0x122f843a41e08649bc10c8e7823928e845221e08649bc106897821916f042a15e08e3abc11c6c7823ceaf04c9c5e09139bd9187d7722104ef42201e0843fbbd0200000000000000000000000000000000000000000000000)) else (if i<216 then (0x12ef03e255e07d4c3c1009b781e53af03ba35e0754abc0f48e782251ef045249e086413c10c7a7861d1aee3e205d67b3f3c0fa847a1d90af03c20de0803fbc10600000000000000000000000000000000000000000000000) else (0x124f047245e0884bbc104937822926f046205e082473a502967820130f03ca5de07c43bc10080781f910f0431ede08a3d3c1107978234f8f042a09dd7e40bc10600000000000000000000000000000000000000000000000))) else (if i<219 then (if i<218 then (0x13ef03c261e07d4c3c0ec9c781e93cf040209e07e473c100957820120f042a49bc7f433c10c7d77a151af03fa11e08440bc114857821900f0421fde08241bbef800000000000000000000000000000000000000000000000) else (0x12cf03ba51e08246bc0fc95781f93af0409fde07d46bc0f694781e528f03f241e08545bc10e817821516f04221de081453c0fa8a781f506eec0a01e3843f3c10a00000000000000000000000000000000000000000000000)) else (if i<220 then (0x118f03aa55df77453c10692781ed3af03a1ede08243bc30a8c7822922f045a52008548bc10885782111cf04221de07a433c0f486781f506f03f20dde81413c10200000000000000000000000000000000000000000000000) else (if i<221 then (0x100f039a2de071463c0f88c799d120f0379f1e07445bc0e4957e5ed36e739261e06a4a3b4d0887819d22f035a01d7723fbc0f482781fd00f03ea0de07e413c10000000000000000000000000000000000000000000000000) else (0xe4f0549ede0a343bc1327f78244fcf0489bde08e3e3c1188f7823d18f044205e0883dbc1106e7ae10f6f0401c5e0863c3baf680781ecf8f040201de7f40bc0fc00000000000000000000000000000000000000000000000)))))) else (if i<230 then (if i<226 then (if i<224 then (if i<223 then (0x134f045275e08e4fbc1268f782751cf04c9f1e09a43bc12e9d7823126f043221e081413dd127178220f4f0441d9e086393c1127a77e04f6f0409f9e0853f3c10c00000000000000000000000000000000000000000000000) else (0x146d7432a9b18158bc106ab781e54cf040255e0804ebc0f0a8781dd30f03ca21e079453c0fa78781e902f03e9ede0803d3cf0a7a7821cf6f142a09e07f41bc2f600000000000000000000000000000000000000000000000)) else (if i<225 then (0x2a9e06d59bc0d4a3781b14ad9b6a51e06b4a3c0dc9e781a520f039201e073433c0e671781dcfaefbc9e9e07f3f3c1028078204fef042201e3833ebc10800000000000000000000000000000000000000000000000) else (0x259e08f4e3c1228e7825122f04a9f9e09240bc128867823502f0459c9e0913c3c1146778230eaf0459e1d7873f3c114807821d04f042209e085403c10600000000000000000000000000000000000000000000000))) else (if i<228 then (if i<227 then (0x291e07b563c0fca1782154af04323de08c4a3c112927824516f046a09e08d40bc1207278214fef2be9f9e07a43bc6f086769ed0aedbea19e07a413bf0200000000000000000000000000000000000000000000000) else (0x279e08254bc0faa5781ed54f03a269e0784e3c0f2a2781d12ef03ca39e27f483acf67678214f6f0459dde0863f3c0fa80781f502f0411fde082413c10200000000000000000000000000000000000000000000000)) else (if i<229 then (0x27de09452bc13e9f782713af04fa4613984a3c11a95782351ee5c8231e08d453c11c7a782450af0429f1e08e3d3c1147c7821504f040a01e083413c0fc00000000000000000000000000000000000000000000000) else (0x2c9e08061bc104ba781f976f03e2a1e089503c108a17e2013cf043261e0804bc01048a7820512f047225e08541bc104807821104ef42a09e0813fbc10400000000000000000000000000000000000000000000000)))) else (if i<234 then (if i<232 then (if i<231 then (0x2c5e06a62400c6b7781996cf0382c1e06c51bc0daa0781cd46f036a5de06d4c3c0dc8a781d92cf039235e077423c0f883781e90cf03d209e27d403c0fe00000000000000000000000000000000000000000000000) else (0x269e07a533c0e89c781dd4af93726de06d47bc0e092781d51ef03fa0de08242bc1007f781d90ef639a0de0763fbb6ee7c781e8fef03f9f9e0823f3c10200000000000000000000000000000000000000000000000)) else (if i<233 then (0x24dcf964cbc140927828124f04c21ddc9b3f3c12c8673a691af04a211e08b423c10274781f8f2f0401e1e07a3abc10e7578228faf0421fde0813f3c10600000000000000000000000000000000000000000000000) else (0x2a1e0605c3c0c4b1781a152f034285e06849bc0d49f781a540f6b7239e076423c0fe7178200f0f03f1c5e0873dbcf0e7e7820100f0401fde382403c30400000000000000000000000000000000000000000000000))) else (if i<236 then (if i<235 then (0x21de0b84cbc16e98782e920f053a21e0a83e3c13687782691af048a0de093413c11a707ae2ceaf0419dde08c40bc1167d7822cfef042201e78240bbf0000000000000000000000000000000000000000000000000) else (0x2f9e06d67bc0d4d1781a16cf035abde0794b39300a0782153af040a55ec79473c0ee7a78218eeedc1a09e47945bc0ea87781e904f03fa05e080403c10400000000000000000000000000000000000000000000000)) else (if i<237 then (0x2a9e0885c3c0f6b8781d540f038a9de0774abc0f6a4781dd3af03e235e082423c10a7f78200f2f0421e9e0813fbc0fe8077a0d00f042a01e08340bc10400000000000000000000000000000000000000000000000) else (if i<238 then (0x2c5a776593c0d6ac781b520f03da75e07747bc0ea9a781bd30f03ba39e075443c0f47e781ecf8f4bf9e9d1853ebc11482781f908edbda09e07d413c0fa00000000000000000000000000000000000000000000000) else (0x4e3c10898781f914f042a4de07f41bc90a887823d1cf046209e08c40bc10078781fcf4f0429f9e082433bb027f78210fcf0411f9e0813f3c10000000000000000000000000000000000000000000000000))))))) else (if i<256 then (if i<247 then (if i<243 then (if i<241 then (if i<240 then (0x4fb652095782311cf043245e08c43bc120967823d32f047235e08b403c11a7678234fcf0429fde086433c10a8278e00fef0409f9df823ebc10600000000000000000000000000000000000000000000000) else (0x573c0eca0781dd26f03da71e0754b3c0daa4781b94cf03e25de08a463c112827823104f045211e085453c1088178218fef0421fde0823fbc70400000000000000000000000000000000000000000000000)) else (if i<242 then (0x51bc10296782251af045241e09b413c142917827d42f04a281ca8b4a3c10c8d7820d16f040a21e08246bc100867821104f042201dd83403c10200000000000000000000000000000000000000000000000) else (0x51bc0e89e781bd2cf0392a9ea63513c0ccaf7818168f52faa9e0694cba6e68f781cd16ebbd225e07a463c0ec89781d90aecbea09e07f403c10600000000000000000000000000000000000000000000000))) else (if i<245 then (if i<244 then (0x4b3dadc8c781d10ef036a31e06c43bc0da8e7819524f037a49e06a45bc0e481781e908f03b209d87840bc1027e7820d02f041a01e082413c6fe00000000000000000000000000000000000000000000000) else (0x41bc12c7f78274e6f04c9dde09b39bc124727823900f0441ede08c3e3db027a78200f2f0409e5e07e40baefe807760106f040205e081403c10200000000000000000000000000000000000000000000000)) else (if i<246 then (0x4c3c1209b7825516f04ca45e094423c1207f7824d0ef04c219e0913e3c11a7978218f2f0411d9e08a3fbc1187f7822104f042a05e087403bf0600000000000000000000000000000000000000000000000) else (0x53bc0f6af7821946f046291e08749bc10c91782213cf042259e085443c1067e781f4f4f03d9fde079453c0e686781cd0cf03a21de774413c0fa00000000000000000000000000000000000000000000000)))) else (if i<251 then (if i<249 then (if i<248 then (0x50bc0dab47d1c55cf036aa9e0714c3c0e098781cd42f03da69e07f453c0f87a78214e8f0459ddeb8b3e3c1167878214f2f0421e9e0833f3c10000000000000000000000000000000000000000000000000) else (0x46bc13aa47827934f052a69e0a643bc1528a7828536f048261e09542bc1327e79658fcf047a05e088433c1087c7822cf8f0459f1e08a3ebc11000000000000000000000000000000000000000000000000)) else (if i<250 then (0x54bc0d2c1781717cf02dafde05e57beaaeaa7b97d54f033ab1e06d4ebc0d693781b918f039a21df7444bc0e886781d90cf03a215e077423bef800000000000000000000000000000000000000000000000) else (0x48bc1789c782d530f05827202b042bc15e88782cd20f055a61b49943bc11c807d640fcf0469ede0853e3a90a7b78214f2f0419ede0853fbc10200000000000000000000000000000000000000000000000))) else (if i<253 then (if i<252 then (0x663c0b6d0781798ef030800000059bc0d4ba781a174f035ac1e07a4a3c1088f781dd14f03d9fde07c403c1087f78220f6f0429fde7803fbbefe00000000000000000000000000000000000000000000000) else (0x533c0eead781f94ef03b80000004e3c0f0a1781ed490dbdaa5e0734bbc0f0857820908f0411e9e08941bc10c8678204feeec01f9e0833ebc10800000000000000000000000000000000000000000000000)) else (if i<254 then (0x4e3b8baaa781653af032800000049bc0da9b6fdc53cf03ba6de078473cef486781f90af03d209e081443c0fa86781e8fcf03f201e07d403c10200000000000000000000000000000000000000000000000) else (if i<255 then (0x3c3c0ee82781c902f03a80000003fbc0e28b781e128f03ca49e07e43bc0f683781e8fcf03e209dd80423c10a7f78220f6f0419f1df83403c0fc00000000000000000000000000000000000000000000000) else (0x373c13a737826ceaf051800000037bc148827825d18e6caa3de09540bc1247c78230f2f047a05e082443c10e8678614faf3441f9e0893ebc10e00000000000000000000000000000000000000000000000)))))) else (if i<265 then (if i<260 then (if i<258 then (if i<257 then (0x453c0a08d7ed592ef02b8000000493c0c298781a940f03128de061493c0d087785d50ef13a209e072473c0e88a781d508f03da19e07a41bc0f800000000000000000000000000000000000000000000000) else (0x2cbc1566278290daf04f0000000393bb3a817825d02f048a0de0913cbc12e7b78270f4f04a9cde08e40bc1047e78208fcefbd9fde07f3f3c10200000000000000000000000000000000000000000000000)) else (if i<259 then (0x41baf0685781f114f04200000000000000977821d22f04424de08547bc10296771dd1cf03e201e080413c10a7f78214f0f0441f5e0833f3c10400000000000000000000000000000000000000000000000) else (0x42bc0ea80781ed1af03d800000000000009d781e530f03ea5de07e47bc0fc8c781f112f03e1fde080433c1028378200fef0419fddc813fbc10400000000000000000000000000000000000000000000000))) else (if i<262 then (if i<261 then (0x3cbc10a7a781fd0eea3f0000000000000095781f528f03da51c57c463c10087781f108f0409f9e07d433d6fa82781f902f23e9fde080403c0fa00000000000000000000000000000000000000000000000) else (0x3ebc1327876e4908f04f00000000000000917824d1cf04723de08445bc0fc827820108f0421e9e083413c1027f78210faf0421f9e0853e3bf0a00000000000000000000000000000000000000000000000)) else (if i<263 then (0x4abc0c889781ad42f02f00000000000000a3781b536f038a49e07b443def681782050ef0441f1e085413a910827820900f040a09e082403c10400000000000000000000000000000000000000000000000) else (if i<264 then (0x3c3c1107378224fcf045800000000000008f7821d16f03fa31e07a413c0ee81781d91cf039a01e07644bc0ea83781f500f03da0de27a40bc0f800000000000000000000000000000000000000000000000) else (0x3fbc1047b7821110f04300000000000000957323112f048215e48a3c3c112767822500f0401d5e07d3ebc1047f77200f4f03f9f1e0843e3c30a00000000000000000000000000000000000000000000000))))) else (if i<269 then (if i<267 then (if i<266 then (0x403c1347e782691af04700000000000000a0781fd30f0420000000403c1167e7822cfef0449c5e0903f3c1107e7820cf0f0429fde085403bf0000000000000000000000000000000000000000000000000) else (0x4cbc128977824d34f049800000000000009e7822536f0450000000453c114887821d0ef043201e08342bc0fc8078210f8f042a0ddf7d3fbc10000000000000000000000000000000000000000000000000)) else (if i<268 then (0x563c0a6a97812558f02a00000000000000a67816948f032800000049bc0d68e781b518f039a09e078413c0fa837820100f0411fde0843f3c30800000000000000000000000000000000000000000000000) else (0x3f3c110717820cfef03f800000000000007f7822910f03c00000003ebc8fe7a78224fcf0451e5ea883f3c104827820d02f03ea09e07e40bc10000000000000000000000000000000000000000000000000))) else (if i<271 then (if i<270 then (0x42b912c7378258faf4cb00000000000000887820cfef0420000000000000082781cd0ef03a00000003fbc0fe84781f0faf0419fde07f403c10000000000000000000000000000000000000000000000000) else (0x8878234000000000000000000008a781f904f043000000000000007478244f4f048800000000000007f77a18fef03f1f5e2823fbc10400000000000000000000000000000000000000000000000)) else (if i<272 then (0x94789d40000000000000000000087782210ef0440000000000000084781f914f5c0800000000000000000000f8f0410000000403c0fe00000000000000000000000000000000000000000000000) else (if i<273 then (0x8e781cd1cf03c0000000000000081781ec000000000000000000000000000faf03e80000003f3c30000000000000000000000000000000000000000000000000) else (0x80766490af9cb000000000000007b79240000000000000000000000000000f2eec48000000000000000000000000000000000000000000000000000000000000)))))))))) else 0
+end SunPrimeRaceEasy.RaceLookup.SweepData
+end
+
+section
+namespace SunPrimePermutation.WordRank
+
+private def rep (b : ℕ) : ℕ → ℕ
+  | 0 => 0
+  | n+1 => 1 + b*rep b n
+
+private theorem rep_key {b : ℕ} (hb : 1 ≤ b) (n : ℕ) : (b-1)*rep b n+1 = b^n := by
+  induction n with
+  | zero => simp [rep]
+  | succ n h =>
+    rw [rep, pow_succ, ← h]
+    calc
+      _ = ((b-1)*rep b n)*b + ((b-1)+1) := by ring
+      _ = _ := by rw [Nat.sub_add_cancel hb]; ring
+
+def mask (w n m : ℕ) : ℕ := m*((2^(w*n)-1)/(2^w-1))
+
+private theorem mask_rep {w : ℕ} (hw : 0 < w) (n m : ℕ) :
+    mask w n m = m*rep (2^w) n := by
+  have h : 1 < 2^w := Nat.one_lt_two_pow hw.ne'
+  unfold mask
+  rw [pow_mul, ← rep_key h.le, Nat.add_sub_cancel, Nat.mul_div_cancel_left _ (by omega)]
+
+theorem mask_succ {w : ℕ} (hw : 0 < w) (n m : ℕ) :
+    mask w (n+1) m = 2^w*mask w n m + m := by
+  rw [mask_rep hw, mask_rep hw, rep]
+  ring
+
+def extract (k n m : ℕ) := (n >>> k) &&& m
+
+theorem extract_split {w a b k x y : ℕ} (ha : a < 2^w) (hb : b < 2^(w-k)) (hk : k ≤ w) :
+    extract k (2^w*x+a) (2^w*y+b) = 2^w*extract k x y + extract k a b := by
+  have hb' : b < 2^w := hb.trans_le (Nat.pow_le_pow_right (by decide) (by omega))
+  have lowBound : extract k a b < 2^w := (Nat.and_le_right ..).trans_lt hb'
+  apply Nat.eq_of_testBit_eq
+  intro j
+  rw [Nat.testBit_two_pow_mul_add _ lowBound]
+  simp only [extract, Nat.testBit_and, Nat.testBit_shiftRight,
+    Nat.testBit_two_pow_mul_add _ ha, Nat.testBit_two_pow_mul_add _ hb']
+  by_cases hj : j < w
+  · by_cases h : k+j < w
+    · simp [hj, h]
+    · have zero : b.testBit j = false := Nat.testBit_lt_two_pow
+        (hb.trans_le (Nat.pow_le_pow_right (by decide) (by omega)))
+      simp [hj,zero]
+  · have high : ¬ k+j < w := by omega
+    simp [hj, high, show k+j-w=k+(j-w) by omega]
+
+def step (k n m : ℕ) := extract 0 n m + extract k n m
+
+theorem step_split {w a b k x y : ℕ} (ha : a < 2^w) (hb : b < 2^(w-k)) (hk : k ≤ w) :
+    step k (2^w*x+a) (2^w*y+b) = 2^w*step k x y + step k a b := by
+  have hb' : b < 2^(w-0) := hb.trans_le (Nat.pow_le_pow_right (by decide) (by omega))
+  simp only [step, extract_split ha hb' (Nat.zero_le w), extract_split ha hb hk]
+  ring
+
+def pack (w : ℕ) : ℕ → (ℕ → ℕ) → ℕ
+  | 0, _ => 0
+  | g+1, f => 2^w * pack w g (fun i => f (i+1)) + f 0
+
+theorem step_pair {w a b : ℕ} (ha : a < 2^w) (hb : b < 2^w) :
+    step w (2^w*b+a) (2^w-1) = a+b := by
+  simp only [step, extract, Nat.and_two_pow_sub_one_eq_mod,
+    Nat.shiftRight_eq_div_pow, Nat.mul_add_mod_self_left, Nat.mod_eq_of_lt ha,
+    Nat.mul_add_div (Nat.two_pow_pos w), Nat.div_eq_of_lt ha, Nat.add_zero, Nat.mod_eq_of_lt hb,
+    pow_zero, Nat.div_one]
+
+theorem merge_pairs {w : ℕ} (hw : 0 < w) (g : ℕ) (f : ℕ → ℕ) (hf : ∀ i, f i < 2^w) :
+    step w (pack w (2*g) f) (mask (w+w) g (2^w-1)) =
+      pack (w+w) g (fun i => f (2*i) + f (2*i+1)) := by
+  induction g generalizing f with
+  | zero => simp [pack, mask, step, extract]
+  | succ g ih =>
+    let f' := fun i => f (i+2)
+    have unpack : pack w (2*(g+1)) f =
+        2^(w+w)*pack w (2*g) f' + (2^w*f 1 + f 0) := by
+      rw [show 2*(g+1) = (2*g+1)+1 by omega, pack, pack, pow_add]
+      dsimp [f']
+      ring
+    have hv : 2^w*f 1 + f 0 < 2^(w+w) := by
+      rw [pow_add]
+      have h := Nat.mul_le_mul_left (2^w) (show f 1+1 ≤ 2^w from hf 1)
+      rw [Nat.mul_succ] at h
+      have := hf 0
+      omega
+    have hm : 2^w-1 < 2^(w+w-w) := by rw [Nat.add_sub_cancel]; exact Nat.sub_lt (Nat.two_pow_pos w) (by decide)
+    rw [unpack, mask_succ (by omega), step_split hv hm (by omega), step_pair (hf 0) (hf 1),
+      ih f' (fun i => hf (i+2)), pack]
+    congr 2
+
+def sums (f : ℕ → ℕ) : ℕ → ℕ → ℕ
+  | 0, i => f i
+  | s+1, i => sums f s (2*i) + sums f s (2*i+1)
+
+theorem sums_bound {f : ℕ → ℕ} (hf : ∀ i, f i ≤ 1) (s i : ℕ) : sums f s i ≤ 2^s := by
+  induction s generalizing i with
+  | zero => exact hf i
+  | succ s ih =>
+    rw [sums, pow_succ]
+    have h := Nat.add_le_add (ih (2*i)) (ih (2*i+1))
+    omega
+
+def packedPop : ℕ → ℕ → ℕ → ℕ
+  | 0, g, x => x % 2^g
+  | s+1, g, x => step (2^s) (packedPop s (2*g) x) (mask (2^s+2^s) g (2^(2^s)-1))
+
+def bits (x i : ℕ) := (x.testBit i).toNat
+
+theorem pack_bits (g x : ℕ) : pack 1 g (bits x) = x%2^g := by
+  induction g generalizing x with
+  | zero => simp [pack, Nat.mod_one]
+  | succ g ih =>
+    have hf : (fun i => bits x (i+1)) = bits (x/2) := by
+      funext i
+      simp [bits, Nat.testBit_add_one]
+    rw [pack, hf, ih, show 2^(g+1) = 2*2^g by rw [pow_succ, Nat.mul_comm], Nat.mod_mul]
+    simp only [bits, pow_one, Nat.testBit_zero]
+    have hm := Nat.mod_lt x (by decide : 0 < 2)
+    rcases (show x%2 = 0 ∨ x%2 = 1 by omega) with hx | hx <;> simp [hx, Nat.add_comm]
+
+theorem packedPop_eq (s g x : ℕ) :
+    packedPop s g x = pack (2^s) g (sums (bits x) s) := by
+  induction s generalizing g with
+  | zero => exact (pack_bits g x).symm
+  | succ s ih =>
+    rw [packedPop, ih, merge_pairs (Nat.two_pow_pos _), pow_succ, Nat.mul_two]
+    · rfl
+    · intro i
+      apply lt_of_le_of_lt (sums_bound (fun j => Bool.toNat_le _) _ _)
+      exact Nat.lt_two_pow_self
+
+
+open Finset
+
+theorem pack_mod (g : ℕ) (f : ℕ → ℕ) :
+    pack 32 g f ≡ ∑ i ∈ range g, f i [MOD 4294967295] := by
+  induction g generalizing f with
+  | zero => simp only [pack, range_zero, sum_empty]; rfl
+  | succ g ih =>
+    rw [pack, sum_range_succ' f g]
+    have b : 2^32 ≡ 1 [MOD 4294967295] := by decide
+    simpa only [one_mul] using (b.mul (ih (fun i => f (i+1)))).add (Nat.ModEq.refl (f 0))
+
+theorem sum_pairs (f : ℕ → ℕ) (g : ℕ) :
+    (∑ i ∈ range g, (f (2*i)+f (2*i+1))) = ∑ i ∈ range (2*g), f i := by
+  induction g with
+  | zero => simp
+  | succ g ih =>
+    rw [sum_range_succ, ih, show 2*(g+1) = (2*g+1)+1 by omega,
+      sum_range_succ f (2*g+1), sum_range_succ f (2*g)]
+    omega
+
+theorem total_sums (f : ℕ → ℕ) (s g : ℕ) :
+    (∑ i ∈ range g, sums f s i) = ∑ i ∈ range (2^s*g), f i := by
+  induction s generalizing g with
+  | zero => simp [sums]
+  | succ s ih =>
+    simp only [sums, sum_pairs, ih]
+    rw [pow_succ, Nat.mul_assoc]
+
+def fastCount (g x : ℕ) : ℕ := packedPop 5 g x % 4294967295
+
+theorem bits_card (x n : ℕ) : (∑ i ∈ range n, bits x i) =
+    ((range n).filter (fun i => x.testBit i)).card := by
+  calc
+    _ = ∑ i ∈ range n, if x.testBit i then 1 else 0 := by
+      apply sum_congr rfl
+      intro i _
+      cases h : x.testBit i <;> simp [bits, h]
+    _ = _ := by simpa using (sum_boole (R := ℕ) (fun i => x.testBit i = true) (range n))
+
+theorem fastCount_eq (g x : ℕ) (hg : 32*g < 4294967295) :
+    fastCount g x = ((range (32*g)).filter (fun i => x.testBit i)).card := by
+  unfold fastCount
+  rw [packedPop_eq]
+  change pack 32 g (sums (bits x) 5) % 4294967295 = _
+  rw [show pack 32 g (sums (bits x) 5) % 4294967295 =
+      (∑ i ∈ range g, sums (bits x) 5 i) % 4294967295 from pack_mod .., total_sums]
+  change (∑ i ∈ range (32*g), bits x i) % 4294967295 = _
+  rw [bits_card]
+  apply Nat.mod_eq_of_lt
+  exact lt_of_le_of_lt ((card_le_card (filter_subset _ _)).trans_eq (card_range _)) hg
+
+theorem fastCount_reference (x : ℕ) :
+    fastCount 8192 x = SunPrimeNumeric.wordCount 14 x := by
+  rw [fastCount_eq _ _ (by decide), SunPrimeNumeric.wordCount_eq _ _ (by decide)]
+  rfl
+
+end SunPrimePermutation.WordRank
+end
+
+section
+namespace SunPrimePermutation.WordRank
+open Finset
+
+theorem pack_append (w l r : ℕ) (f : ℕ → ℕ) :
+    pack w (l+r) f = 2^(w*l) * pack w r (fun i => f (i+l)) + pack w l f := by
+  induction l generalizing f with
+  | zero => simp [pack]
+  | succ l ih =>
+    rw [Nat.succ_add, pack, ih, pack, Nat.mul_succ, pow_add]
+    simp only [Nat.add_assoc]
+    ring
+
+theorem pack_bound (w l : ℕ) (f : ℕ → ℕ) (hf : ∀ i, f i < 2^w) :
+    pack w l f < 2^(w*l) := by
+  induction l generalizing f with
+  | zero => simp [pack]
+  | succ l ih =>
+    rw [pack, Nat.mul_succ, pow_add, Nat.mul_comm (2^(w*l))]
+    have h := Nat.mul_le_mul_left (2^w) (ih (fun i => f (i+1)) (fun i => hf _) :
+      pack w l (fun i => f (i+1))+1 ≤ 2^(w*l))
+    rw [Nat.mul_succ] at h
+    have := hf 0
+    omega
+
+theorem bank_prefix {q g : ℕ} (x : ℕ) (hq : q ≤ g) :
+    packedPop 5 g x % 2^(32*q) = packedPop 5 q x := by
+  simp only [packedPop_eq]
+  change pack 32 g _ % _ = pack 32 q _
+  rw [show g = q + (g-q) by omega, pack_append, Nat.mul_add_mod_self_left]
+  apply Nat.mod_eq_of_lt
+  apply pack_bound
+  intro i
+  apply lt_of_le_of_lt (sums_bound (fun j => Bool.toNat_le _) _ _)
+  decide
+
+def prefixFromBank (bank x k : ℕ) : ℕ :=
+  let q := k/32
+  let r := k%32
+  let w := (x >>> (32*q)) % 4294967296
+  bank % 2^(32*q) % 4294967295 + ∑ i ∈ range r, bits w i
+
+theorem prefix_sound (x k : ℕ) (hk : k ≤ 262144) :
+    prefixFromBank (packedPop 5 8192 x) x k = SunPrimeNumeric.wordCount 14 (x%2^k) := by
+  have hq : k/32 ≤ 8192 := by omega
+  have hg : 32*(k/32) < 4294967295 := by omega
+  unfold prefixFromBank
+  dsimp only
+  rw [bank_prefix x hq]
+  change fastCount (k/32) x + _ = _
+  rw [fastCount_eq _ _ hg, ← bits_card, SunPrimeNumeric.wordCount_eq _ _ (by decide)]
+  have split : 32*(k/32)+k%32 = k := by omega
+  have hi : (∑ i ∈ range (k%32), bits ((x >>> (32*(k/32))) % 4294967296) i) =
+      ∑ i ∈ range (k%32), bits x (32*(k/32)+i) := by
+    apply sum_congr rfl
+    intro i hm
+    have lt : i < 32 := by have := mem_range.mp hm; omega
+    apply congrArg Bool.toNat
+    exact (Nat.testBit_mod_two_pow (x >>> (32*(k/32))) 32 i).trans
+      (by simp only [lt, decide_true, Bool.true_and, Nat.testBit_shiftRight])
+  have eqSets : (range k).filter (fun i => x.testBit i) =
+      (range 262144).filter (fun i => (x%2^k).testBit i) := by
+    ext i
+    simp only [mem_filter, mem_range, Nat.testBit_mod_two_pow, Bool.and_eq_true, decide_eq_true_eq]
+    constructor
+    · rintro ⟨hl,hb⟩
+      exact ⟨hl.trans_le hk,hl,hb⟩
+    · exact fun h => h.2
+  exact ((congrArg (fun y => _ + y) hi).trans
+    ((sum_range_add (f := bits x) (32*(k/32)) (k%32)).symm.trans
+      (by rw [split]; exact bits_card x k))).trans (congrArg Finset.card eqSets)
+
+def fastCell (s : ℕ) (ds : List ℕ) (base : ℤ) (qs : List (ℕ × ℤ)) : ℤ × ℤ :=
+  let m := roughMask (s+1) 262144 ds
+  let pos := m &&& divMask (s+1+2) 3 262144
+  let neg := m &&& divMask (s+1+1) 3 262144
+  let bp := packedPop 5 8192 pos
+  let bn := packedPop 5 8192 neg
+  let val := fun k => base + (((prefixFromBank bp pos k : ℕ) : ℤ) - prefixFromBank bn neg k)
+  (val 262144, (qs.map (fun z => z.2*val z.1)).sum)
+
+theorem fastCell_eq (s : ℕ) (ds : List ℕ) (base : ℤ) (qs : List (ℕ × ℤ))
+    (h : ∀ z ∈ qs, z.1 ≤ 262144) : fastCell s ds base qs = SunHardRank.cell 14 s ds base qs := by
+  let m := roughMask (s+1) 262144 ds
+  let pos := m &&& divMask (s+1+2) 3 262144
+  let neg := m &&& divMask (s+1+1) 3 262144
+  let val := fun k => base + (((prefixFromBank (packedPop 5 8192 pos) pos k : ℕ) : ℤ) -
+    prefixFromBank (packedPop 5 8192 neg) neg k)
+  let refValue := fun k => base + SunHardRank.rankBits 14 pos neg k
+  have equal (k : ℕ) (hk : k ≤ 262144) : val k = refValue k :=
+    congrArg (fun d : ℤ => base+d)
+      (congrArg₂ (fun (a b : ℕ) => (a : ℤ) - b) (prefix_sound pos k hk) (prefix_sound neg k hk))
+  change (val 262144, (qs.map (fun z => z.2*val z.1)).sum) =
+    (refValue 262144, (qs.map (fun z => z.2*refValue z.1)).sum)
+  apply Prod.ext
+  · exact equal 262144 (le_refl _)
+  · apply congrArg List.sum
+    apply List.map_congr_left
+    intro z hz
+    exact congrArg (fun a => z.2*a) (equal z.1 (h z hz))
+
+end SunPrimePermutation.WordRank
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.Cached
+open SunPrimePermutation SunHardCompact SunHardRank
+open SunPrimePermutation.WordRank
+
+/-- In base 2^32 the j-th digit is the cumulative count through word j. -/
+def cumulative (x : ℕ) : ℕ :=
+  let b := packedPop 5 8192 x
+  ((((b%4294967295) <<< 262144)-b)/4294967295)
+
+def pop32 (v : ℕ) : ℕ :=
+  let a := (v &&& 1431655765) + ((v>>>1) &&& 1431655765)
+  let b := (a &&& 858993459) + ((a>>>2) &&& 858993459)
+  let c := (b &&& 252645135) + ((b>>>4) &&& 252645135)
+  let d := (c &&& 16711935) + ((c>>>8) &&& 16711935)
+  (d &&& 65535)+((d>>>16) &&& 65535)
+
+def lookup (bank bits k : ℕ) : ℕ :=
+  let q := k/32
+  let r := k%32
+  let a := if q=0 then 0 else (bank >>> (32*(q-1)))%4294967296
+  let w := (bits >>> (32*q)) &&& (2^r-1)
+  a+pop32 w
+
+def evaluate (s mask : ℕ) (base : ℤ) (qs : List (ℕ × ℤ)) : ℤ × ℤ :=
+  let pos := mask &&& divMask (s+3) 3 262144
+  let neg := mask &&& divMask (s+2) 3 262144
+  let bp := cumulative pos
+  let bn := cumulative neg
+  let val := fun k => base+((lookup bp pos k : ℤ)-lookup bn neg k)
+  (val 262144,(qs.map fun z => z.2*val (z.1-s)).sum)
+
+def check (s : ℕ) : ℕ → List ℕ → ℕ → Bool
+  | _,[],_ => true
+  | col,p::ps,blocked => if col=0 then true else
+    let u := col%Sweep.radix
+    let b := Sweep.initial u
+    (u==0 || decide (evaluate s ((2^262144-1) ^^^ blocked) b (cellRows p s) =
+      (b+traceDelta (Sweep.code u),traceWeight (Sweep.code u)))) &&
+    check s (col/Sweep.radix) ps (divMask (s+1) p 262144 ||| blocked)
+
+end SunPrimeRaceEasy.RaceLookup.Cached
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.Cached
+open Finset SunPrimePermutation.WordRank
+
+private theorem pack_snoc (f : ℕ → ℕ) (n : ℕ) :
+    pack 32 (n+1) f = 2^(32*n)*f n+pack 32 n f := by
+  calc
+    _ = 2^(32*n)*pack 32 1 (fun i => f (i+n))+pack 32 n f := pack_append 32 n 1 f
+    _ = _ := by simp [pack]
+
+private theorem telescoping (f : ℕ → ℕ) (g : ℕ) :
+    4294967295*pack 32 g (fun j => ∑ i ∈ range (j+1), f i) + pack 32 g f =
+    2^(32*g)*(∑ i ∈ range g, f i) := by
+  induction g with
+  | zero => simp [pack]
+  | succ g ih =>
+    rw [pack_snoc,pack_snoc,Finset.sum_range_succ,Nat.mul_succ,pow_add]
+    simp only [Finset.sum_range_succ]
+    let a := 2^(32*g)
+    let total := ∑ i ∈ range g, f i
+    let pp := pack 32 g (fun j => ∑ i ∈ range (j+1), f i)
+    let bb := pack 32 g f
+    change 4294967295*pp+bb=a*total at ih
+    change 4294967295*(a*(total+f g)+_)+(a*f g+bb)=(a*4294967296)*(total+f g)
+    have hpp : (pack 32 g (fun j => (∑ i ∈ range j, f i)+f j)) = pp := by
+      simp only [pp,Finset.sum_range_succ]
+    rw [hpp]
+    calc
+      _ = a*(4294967295*(total+f g)+f g)+(4294967295*pp+bb) := by ring
+      _ = _ := by rw [ih]; ring
+
+private theorem sum_bound {f : ℕ → ℕ} (hf : ∀ i, f i≤32) (g : ℕ) :
+    (∑ i ∈ range g, f i)≤g*32 := by
+  simpa using
+    (Finset.sum_le_sum (s := range g) (f := f) (g := fun _ => 32) (fun i _ => hf i))
+
+private theorem prefix_formula (g : ℕ) (f : ℕ → ℕ) (ht : (∑ i ∈ range g,f i)<4294967295) :
+    ((((pack 32 g f%4294967295) <<< (32*g))-pack 32 g f)/4294967295) =
+    pack 32 g (fun j => ∑ i ∈ range (j+1),f i) := by
+  have hmod := pack_mod g f
+  change (pack 32 g f)%4294967295 = (∑ i ∈ range g,f i)%4294967295 at hmod
+  rw [Nat.mod_eq_of_lt ht] at hmod
+  rw [hmod,Nat.shiftLeft_eq,Nat.mul_comm _ (2^(32*g)),← telescoping f g,
+    Nat.add_sub_cancel,Nat.mul_div_cancel_left _ (by decide)]
+
+theorem cumulative_eq (x : ℕ) :
+    cumulative x = pack 32 8192 (fun j => ∑ i ∈ range (j+1), sums (bits x) 5 i) := by
+  let f := sums (bits x) 5
+  have hsmall (i : ℕ) : f i≤32 := sums_bound (fun j => Bool.toNat_le _) 5 i
+  have ht : (∑ i ∈ range 8192,f i) < 4294967295 :=
+    (sum_bound hsmall 8192).trans_lt (by decide)
+  simpa only [cumulative,packedPop_eq,show 2^5=32 by decide,show 32*8192=262144 by decide] using
+    prefix_formula 8192 f ht
+
+private theorem pack_digit {g i : ℕ} {f : ℕ → ℕ} (hi : i<g) (hf : ∀ j<g, f j<4294967296) :
+    ((pack 32 g f >>> (32*i)) % 4294967296) = f i := by
+  induction g generalizing i f with
+  | zero => omega
+  | succ g ih =>
+    cases i with
+    | zero =>
+      simp only [pack,Nat.mul_zero,Nat.shiftRight_zero]
+      change (4294967296*pack 32 g (fun i => f (i+1))+f 0)%4294967296=f 0
+      rw [Nat.mul_add_mod_self_left,Nat.mod_eq_of_lt (hf 0 (by omega))]
+    | succ i =>
+      have h := ih (f := fun j => f (j+1)) (i := i) (by omega) (fun j hj => hf _ (by omega))
+      rw [pack,show 32*(i+1)=32+32*i by omega,Nat.shiftRight_add]
+      have low := hf 0 (by omega)
+      have hsplit : (2^32*pack 32 g (fun j => f (j+1))+f 0) >>> 32 =
+          pack 32 g (fun j => f (j+1)) := by
+        rw [Nat.shiftRight_eq_div_pow,Nat.mul_add_div (by decide),show 2^32=4294967296 by decide,
+          Nat.div_eq_of_lt low,Nat.add_zero]
+      rw [hsplit]
+      exact h
+
+theorem cumulative_prefix (x q : ℕ) (hq : q≤8192) :
+    (if q=0 then 0 else (cumulative x >>> (32*(q-1)))%4294967296) =
+    (packedPop 5 8192 x)%2^(32*q)%4294967295 := by
+  cases q with
+  | zero => simp [Nat.mod_one]
+  | succ q =>
+    let f := sums (bits x) 5
+    have hf (i : ℕ) : f i≤32 := sums_bound (fun j => Bool.toNat_le _) 5 i
+    have hbound (j : ℕ) (hj : j<8192) : (∑ i ∈ range (j+1),f i)<4294967296 :=
+      (sum_bound hf (j+1)).trans_lt (by omega)
+    rw [if_neg (by omega),Nat.add_one_sub_one,cumulative_eq,pack_digit (by omega) hbound,
+      bank_prefix x hq,packedPop_eq]
+    have hm := pack_mod (q+1) f
+    change (pack 32 (q+1) f)%4294967295 = (∑ i ∈ range (q+1),f i)%4294967295 at hm
+    rw [Nat.mod_eq_of_lt ((sum_bound hf (q+1)).trans_lt (by omega))] at hm
+    exact hm.symm
+
+end SunPrimeRaceEasy.RaceLookup.Cached
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.Cached
+open Finset SunPrimePermutation SunPrimePermutation.WordRank SunPrimeNumeric SunHardRank SunHardCompact
+
+private theorem pop32_eq {v : ℕ} (hv : v<4294967296) : pop32 v = fastCount 1 v := by
+  have hb : packedPop 5 1 v < 4294967295 := by
+    rw [packedPop_eq]
+    simpa only [pack,Nat.zero_add,Nat.mul_zero] using
+      ((sums_bound (f := bits v) (fun j => Bool.toNat_le _) 5 0).trans_lt
+        (show 2^5<4294967295 by decide))
+  rw [fastCount,Nat.mod_eq_of_lt hb]
+  norm_num [pop32,packedPop,step,extract,mask,Nat.mod_eq_of_lt hv]
+
+private theorem tail_eq (x q r : ℕ) (hr : r<32) :
+    pop32 ((x >>> (32*q)) &&& (2^r-1)) =
+    ∑ i ∈ range r, bits ((x >>> (32*q))%4294967296) i := by
+  let v := x >>> (32*q)
+  have h32 : 2^r ≤ 4294967296 := Nat.pow_le_pow_right (by decide : 0<2) (show r≤32 by omega)
+  rw [Nat.and_two_pow_sub_one_eq_mod,pop32_eq ((Nat.mod_lt _ (by positivity)).trans_le h32),
+    fastCount_eq _ _ (by decide),bits_card]
+  change ((range 32).filter (fun i => (v%2^r).testBit i)).card =
+    ((range r).filter (fun i => (v%2^32).testBit i)).card
+  congr 1
+  ext i
+  by_cases hi : i < r
+  · have hi' : i < 32 := by omega
+    simp [Nat.testBit_mod_two_pow,hi,hi']
+    change v.testBit i = (v % 2^32).testBit i
+    rw [Nat.testBit_mod_two_pow]
+    simp [hi']
+  · simp [Nat.testBit_mod_two_pow,hi]
+
+theorem lookup_eq (x k : ℕ) (hk : k ≤ 262144) :
+    lookup (cumulative x) x k = wordCount 14 (x%2^k) := by
+  rw [← prefix_sound x k hk]
+  unfold lookup prefixFromBank
+  dsimp only
+  rw [cumulative_prefix x _ (by omega),tail_eq x _ _ (Nat.mod_lt _ (by decide))]
+
+theorem evaluate_eq (s mask : ℕ) (base : ℤ) (qs : List (ℕ × ℤ))
+    (hq : ∀ z∈qs, z.1 ≤ s+262144) :
+    evaluate s mask base qs = Sweep.evaluate s mask base qs := by
+  let pos := mask &&& divMask (s+3) 3 262144
+  let neg := mask &&& divMask (s+2) 3 262144
+  let val := fun k => base + ((lookup (cumulative pos) pos k : ℤ) - lookup (cumulative neg) neg k)
+  let refValue := fun k => base + rankBits 14 pos neg k
+  have equal (k : ℕ) (hk : k ≤ 262144) : val k = refValue k :=
+    congrArg (fun d : ℤ => base+d)
+      (congrArg₂ (fun (a b : ℕ) => (a : ℤ) - b) (lookup_eq pos k hk) (lookup_eq neg k hk))
+  change (val 262144, (qs.map (fun z => z.2*val (z.1-s))).sum) =
+    (refValue 262144, (qs.map (fun z => z.2*refValue (z.1-s))).sum)
+  apply Prod.ext
+  · exact equal 262144 (le_refl _)
+  · apply congrArg List.sum
+    apply List.map_congr_left
+    intro z hz
+    exact congrArg (fun a => z.2*a) (equal _ (by have := hq z hz; omega))
+
+theorem check_sound (s col blocked : ℕ) (ps : List ℕ) (h : check s col ps blocked=true) :
+    Sweep.scan s col ps blocked=true := by
+  induction ps generalizing col blocked with
+  | nil => rfl
+  | cons p ps ih =>
+    by_cases hc : col=0
+    · simp [Sweep.scan,hc]
+    · simp only [check,if_neg hc,Bool.and_eq_true] at h
+      simp only [Sweep.scan,if_neg hc,Bool.and_eq_true]
+      refine ⟨?_,ih _ _ h.2⟩
+      unfold Sweep.test
+      simpa only [evaluate_eq _ _ _ _ (fun z hz => (cellRows_bounds hz).2)] using h.1
+
+end SunPrimeRaceEasy.RaceLookup.Cached
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.Cached
+open SunHardRank SunPrimePermutation
+
+def fastChunk (i col lo len : ℕ) : Bool :=
+  let s := i*262144
+  let ps := trialList 881
+  check s (col/Sweep.radix^lo) ((ps.drop lo).take len) (blockedMask (s+1) 262144 (ps.take lo))
+
+theorem chunk_sound {i col lo len : ℕ} (h : fastChunk i col lo len=true) :
+    Sweep.chunkOK i col lo len=true := check_sound _ _ _ _ h
+
+end SunPrimeRaceEasy.RaceLookup.Cached
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.SweepData
+open SunPrimeRaceEasy.RaceLookup.Sweep
+def chunks0 : List (List ℕ) := [[24,24,16,3,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,3,24,24,13]]
+def chunks1 : List (List ℕ) := [[24,14,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,3,4,6,24,10]]
+def chunks2 : List (List ℕ) := [[24,4,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,5,5,5,5,6,8,15]]
+def chunks3 : List (List ℕ) := [[23,2,2,2,2,2,2,3,3,3,3,4,4,4,5,6,6,7,7,8,9,10,10,13,12]]
+def chunks4 : List (List ℕ) := [[19,2,2,3,3,4,4,5,6,7,8,9,11,12,15,20,22]]
+def chunks5 : List (List ℕ) := [[17,3,3,4,5,7,8,10,12,15,20,24,24]]
+def chunks6 : List (List ℕ) := [[16,4,5,7,10,13,18,24,24,31]]
+def chunks7 : List (List ℕ) := [[14,4,7,10,15,22,24,24,32]]
+def chunks8 : List (List ℕ) := [[14,6,10,17,24,24,24,33]]
+def chunks9 : List (List ℕ) := [[13,7,14,24,24,24,46]]
+def chunks10 : List (List ℕ) := [[14,11,23,24,24,56]]
+def chunks11 : List (List ℕ) := [[15,16,24,24,24,49]]
+def chunks12 : List (List ℕ) := [[15,22,24,24,67]]
+def chunks13 : List (List ℕ) := [[16,24,24,24,64],[17,24,24,24,63]]
+def chunks15 : List (List ℕ) := [[19,24,24,24,61],[21,24,24,24,59]]
+def chunks17 : List (List ℕ) := [[24,24,24,80],[24,24,24,80]]
+def chunks19 : List (List ℕ) := [[24,24,24,80],[24,24,24,80],[24,24,24,80]]
+def chunks22 : List (List ℕ) := [[24,24,24,80],[24,24,24,80],[24,24,24,80]]
+def chunks25 : List (List ℕ) := [[24,24,24,80],[24,24,24,80],[24,24,24,80],[24,24,24,80]]
+def chunks29 : List (List ℕ) := [[24,24,24,80],[24,24,24,80],[24,24,24,80],[24,24,24,80],[24,24,24,80]]
+def chunks34 : List (List ℕ) := [[24,24,24,80],[24,24,24,80],[24,24,24,80],[24,24,24,80],[24,24,24,80]]
+def chunks39 : List (List ℕ) := [[24,24,24,80],[24,24,24,80],[24,24,24,80],[24,24,24,80],[24,24,24,80],[24,24,24,80]]
+def chunks45 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks52 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks59 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks67 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks76 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks86 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks96 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks107 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks119 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks132 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks145 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks159 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks173 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks188 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks204 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104]]
+def chunks221 : List (List ℕ) := [[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,24,104],[24,128]]
+def chunks239 : List (List ℕ) := [[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128]]
+def chunks259 : List (List ℕ) := [[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128],[24,128]]
+set_option maxRecDepth 100000 in
+set_option maxHeartbeats 0 in
+private theorem numeric_regions : (BatchOK table 0 chunks0) ∧ (BatchOK table 1 chunks1) ∧ (BatchOK table 2 chunks2) ∧ (BatchOK table 3 chunks3) ∧ (BatchOK table 4 chunks4) ∧ (BatchOK table 5 chunks5) ∧ (BatchOK table 6 chunks6) ∧ (BatchOK table 7 chunks7) ∧ (BatchOK table 8 chunks8) ∧ (BatchOK table 9 chunks9) ∧ (BatchOK table 10 chunks10) ∧ (BatchOK table 11 chunks11) ∧ (BatchOK table 12 chunks12) ∧ (BatchOK table 13 chunks13) ∧ (BatchOK table 15 chunks15) ∧ (BatchOK table 17 chunks17) ∧ (BatchOK table 19 chunks19) ∧ (BatchOK table 22 chunks22) ∧ (BatchOK table 25 chunks25) ∧ (BatchOK table 29 chunks29) ∧ (BatchOK table 34 chunks34) ∧ (BatchOK table 39 chunks39) ∧ (BatchOK table 45 chunks45) ∧ (BatchOK table 52 chunks52) ∧ (BatchOK table 59 chunks59) ∧ (BatchOK table 67 chunks67) ∧ (BatchOK table 76 chunks76) ∧ (BatchOK table 86 chunks86) ∧ (BatchOK table 96 chunks96) ∧ (BatchOK table 107 chunks107) ∧ (BatchOK table 119 chunks119) ∧ (BatchOK table 132 chunks132) ∧ (BatchOK table 145 chunks145) ∧ (BatchOK table 159 chunks159) ∧ (BatchOK table 173 chunks173) ∧ (BatchOK table 188 chunks188) ∧ (BatchOK table 204 chunks204) ∧ (BatchOK table 221 chunks221) ∧ (BatchOK table 239 chunks239) ∧ (BatchOK table 259 chunks259) := by
+  refine ⟨?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_,?_⟩
+  · simp only [chunks0, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks1, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks2, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks3, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks4, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks5, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks6, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks7, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks8, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks9, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks10, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks11, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks12, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks13, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks15, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks17, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks19, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks22, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks25, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks29, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks34, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks39, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks45, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks52, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks59, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks67, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks76, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks86, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks96, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks107, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks119, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks132, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks145, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks159, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks173, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks188, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks204, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks221, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks239, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+  · simp only [chunks259, BatchOK, PiecesOK]
+    repeat' apply And.intro
+    all_goals first | apply SunPrimeRaceEasy.RaceLookup.Cached.chunk_sound; decide +kernel | exact True.intro | decide +kernel
+theorem checked0 : (BatchOK table 0 chunks0) := numeric_regions.1
+theorem checked1 : (BatchOK table 1 chunks1) := numeric_regions.2.1
+theorem checked2 : (BatchOK table 2 chunks2) := numeric_regions.2.2.1
+theorem checked3 : (BatchOK table 3 chunks3) := numeric_regions.2.2.2.1
+theorem checked4 : (BatchOK table 4 chunks4) := numeric_regions.2.2.2.2.1
+theorem checked5 : (BatchOK table 5 chunks5) := numeric_regions.2.2.2.2.2.1
+theorem checked6 : (BatchOK table 6 chunks6) := numeric_regions.2.2.2.2.2.2.1
+theorem checked7 : (BatchOK table 7 chunks7) := numeric_regions.2.2.2.2.2.2.2.1
+theorem checked8 : (BatchOK table 8 chunks8) := numeric_regions.2.2.2.2.2.2.2.2.1
+theorem checked9 : (BatchOK table 9 chunks9) := numeric_regions.2.2.2.2.2.2.2.2.2.1
+theorem checked10 : (BatchOK table 10 chunks10) := numeric_regions.2.2.2.2.2.2.2.2.2.2.1
+theorem checked11 : (BatchOK table 11 chunks11) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked12 : (BatchOK table 12 chunks12) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked13 : (BatchOK table 13 chunks13) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked15 : (BatchOK table 15 chunks15) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked17 : (BatchOK table 17 chunks17) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked19 : (BatchOK table 19 chunks19) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked22 : (BatchOK table 22 chunks22) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked25 : (BatchOK table 25 chunks25) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked29 : (BatchOK table 29 chunks29) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked34 : (BatchOK table 34 chunks34) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked39 : (BatchOK table 39 chunks39) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked45 : (BatchOK table 45 chunks45) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked52 : (BatchOK table 52 chunks52) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked59 : (BatchOK table 59 chunks59) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked67 : (BatchOK table 67 chunks67) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked76 : (BatchOK table 76 chunks76) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked86 : (BatchOK table 86 chunks86) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked96 : (BatchOK table 96 chunks96) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked107 : (BatchOK table 107 chunks107) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked119 : (BatchOK table 119 chunks119) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked132 : (BatchOK table 132 chunks132) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked145 : (BatchOK table 145 chunks145) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked159 : (BatchOK table 159 chunks159) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked173 : (BatchOK table 173 chunks173) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked188 : (BatchOK table 188 chunks188) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked204 : (BatchOK table 204 chunks204) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked221 : (BatchOK table 221 chunks221) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked239 : (BatchOK table 239 chunks239) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.1
+theorem checked259 : (BatchOK table 259 chunks259) := numeric_regions.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2
+end SunPrimeRaceEasy.RaceLookup.SweepData
+end
+
+section
+namespace SunPrimeRaceEasy.RaceLookup.SweepData
+open SunPrimeRaceEasy.RaceLookup.Sweep
+
+theorem table_ok (i : ℕ) : columnOK i (table i)=true := by
+  by_cases ht : i<274
+  ·
+    by_cases split34 : i < 34
+    ·
+      by_cases split10 : i < 10
+      ·
+        by_cases split5 : i < 5
+        ·
+          by_cases split2 : i < 2
+          ·
+            by_cases split1 : i < 1
+            ·
+              exact batch_range checked0 (by omega) (by change i < 1; omega)
+            ·
+              exact batch_range checked1 (by omega) (by change i < 2; omega)
+          ·
+            by_cases split3 : i < 3
+            ·
+              exact batch_range checked2 (by omega) (by change i < 3; omega)
+            ·
+              by_cases split4 : i < 4
+              ·
+                exact batch_range checked3 (by omega) (by change i < 4; omega)
+              ·
+                exact batch_range checked4 (by omega) (by change i < 5; omega)
+        ·
+          by_cases split7 : i < 7
+          ·
+            by_cases split6 : i < 6
+            ·
+              exact batch_range checked5 (by omega) (by change i < 6; omega)
+            ·
+              exact batch_range checked6 (by omega) (by change i < 7; omega)
+          ·
+            by_cases split8 : i < 8
+            ·
+              exact batch_range checked7 (by omega) (by change i < 8; omega)
+            ·
+              by_cases split9 : i < 9
+              ·
+                exact batch_range checked8 (by omega) (by change i < 9; omega)
+              ·
+                exact batch_range checked9 (by omega) (by change i < 10; omega)
+      ·
+        by_cases split17 : i < 17
+        ·
+          by_cases split12 : i < 12
+          ·
+            by_cases split11 : i < 11
+            ·
+              exact batch_range checked10 (by omega) (by change i < 11; omega)
+            ·
+              exact batch_range checked11 (by omega) (by change i < 12; omega)
+          ·
+            by_cases split13 : i < 13
+            ·
+              exact batch_range checked12 (by omega) (by change i < 13; omega)
+            ·
+              by_cases split15 : i < 15
+              ·
+                exact batch_range checked13 (by omega) (by change i < 15; omega)
+              ·
+                exact batch_range checked15 (by omega) (by change i < 17; omega)
+        ·
+          by_cases split22 : i < 22
+          ·
+            by_cases split19 : i < 19
+            ·
+              exact batch_range checked17 (by omega) (by change i < 19; omega)
+            ·
+              exact batch_range checked19 (by omega) (by change i < 22; omega)
+          ·
+            by_cases split25 : i < 25
+            ·
+              exact batch_range checked22 (by omega) (by change i < 25; omega)
+            ·
+              by_cases split29 : i < 29
+              ·
+                exact batch_range checked25 (by omega) (by change i < 29; omega)
+              ·
+                exact batch_range checked29 (by omega) (by change i < 34; omega)
+    ·
+      by_cases split119 : i < 119
+      ·
+        by_cases split67 : i < 67
+        ·
+          by_cases split45 : i < 45
+          ·
+            by_cases split39 : i < 39
+            ·
+              exact batch_range checked34 (by omega) (by change i < 39; omega)
+            ·
+              exact batch_range checked39 (by omega) (by change i < 45; omega)
+          ·
+            by_cases split52 : i < 52
+            ·
+              exact batch_range checked45 (by omega) (by change i < 52; omega)
+            ·
+              by_cases split59 : i < 59
+              ·
+                exact batch_range checked52 (by omega) (by change i < 59; omega)
+              ·
+                exact batch_range checked59 (by omega) (by change i < 67; omega)
+        ·
+          by_cases split86 : i < 86
+          ·
+            by_cases split76 : i < 76
+            ·
+              exact batch_range checked67 (by omega) (by change i < 76; omega)
+            ·
+              exact batch_range checked76 (by omega) (by change i < 86; omega)
+          ·
+            by_cases split96 : i < 96
+            ·
+              exact batch_range checked86 (by omega) (by change i < 96; omega)
+            ·
+              by_cases split107 : i < 107
+              ·
+                exact batch_range checked96 (by omega) (by change i < 107; omega)
+              ·
+                exact batch_range checked107 (by omega) (by change i < 119; omega)
+      ·
+        by_cases split188 : i < 188
+        ·
+          by_cases split145 : i < 145
+          ·
+            by_cases split132 : i < 132
+            ·
+              exact batch_range checked119 (by omega) (by change i < 132; omega)
+            ·
+              exact batch_range checked132 (by omega) (by change i < 145; omega)
+          ·
+            by_cases split159 : i < 159
+            ·
+              exact batch_range checked145 (by omega) (by change i < 159; omega)
+            ·
+              by_cases split173 : i < 173
+              ·
+                exact batch_range checked159 (by omega) (by change i < 173; omega)
+              ·
+                exact batch_range checked173 (by omega) (by change i < 188; omega)
+        ·
+          by_cases split221 : i < 221
+          ·
+            by_cases split204 : i < 204
+            ·
+              exact batch_range checked188 (by omega) (by change i < 204; omega)
+            ·
+              exact batch_range checked204 (by omega) (by change i < 221; omega)
+          ·
+            by_cases split239 : i < 239
+            ·
+              exact batch_range checked221 (by omega) (by change i < 239; omega)
+            ·
+              by_cases split259 : i < 259
+              ·
+                exact batch_range checked239 (by omega) (by change i < 259; omega)
+              ·
+                exact batch_range checked259 (by omega) (by change i < 274; omega)
+  · rw [show table i=0 by simp only [table,if_neg ht]]
+    exact no_columns i
+end SunPrimeRaceEasy.RaceLookup.SweepData
+end
+
+section
+namespace SunHardCompact.Proof
+open SunHardRank SunHardCompact SunPrimeRaceEasy.RaceLookup.Sweep
+open SunPrimeRaceEasy.RaceLookup.SweepData
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v881 : evalPairs 880 (fullRow 881) = (-7) := by
-  apply checked_row (p := 881) (cs := c881) (by decide)
-  · simp only [c881, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 881) (n := 3)
   all_goals decide +kernel
-
-private def c877 : List TraceChunk := [(4,0x93745df2778289e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v877 : evalPairs 876 (fullRow 877) = 108 := by
-  apply checked_row (p := 877) (cs := c877) (by decide)
-  · simp only [c877, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v877 : evalPairs 876 (fullRow 877) = (108) := by
+  apply row_from_table table_ok (p := 877) (n := 4)
   all_goals decide +kernel
-
-private def c863 : List TraceChunk := [(4,0x79745952878289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v863 : evalPairs 862 (fullRow 863) = (-70) := by
-  apply checked_row (p := 863) (cs := c863) (by decide)
-  · simp only [c863, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 863) (n := 4)
   all_goals decide +kernel
-
-private def c859 : List TraceChunk := [(4,0x96342792878289e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v859 : evalPairs 858 (fullRow 859) = 273 := by
-  apply checked_row (p := 859) (cs := c859) (by decide)
-  · simp only [c859, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v859 : evalPairs 858 (fullRow 859) = (273) := by
+  apply row_from_table table_ok (p := 859) (n := 4)
   all_goals decide +kernel
-
-private def c857 : List TraceChunk := [(4,0x77749cb2978289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v857 : evalPairs 856 (fullRow 857) = (-24) := by
-  apply checked_row (p := 857) (cs := c857) (by decide)
-  · simp only [c857, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 857) (n := 4)
   all_goals decide +kernel
-
-private def c853 : List TraceChunk := [(4,0x72b3b3c2a78289e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v853 : evalPairs 852 (fullRow 853) = 326 := by
-  apply checked_row (p := 853) (cs := c853) (by decide)
-  · simp only [c853, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v853 : evalPairs 852 (fullRow 853) = (326) := by
+  apply row_from_table table_ok (p := 853) (n := 4)
   all_goals decide +kernel
-
-private def c839 : List TraceChunk := [(4,0x9133c962a78289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v839 : evalPairs 838 (fullRow 839) = (-230) := by
-  apply checked_row (p := 839) (cs := c839) (by decide)
-  · simp only [c839, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 839) (n := 4)
   all_goals decide +kernel
-
-private def c829 : List TraceChunk := [(4,0x8333e0e2978289e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v829 : evalPairs 828 (fullRow 829) = 90 := by
-  apply checked_row (p := 829) (cs := c829) (by decide)
-  · simp only [c829, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v829 : evalPairs 828 (fullRow 829) = (90) := by
+  apply row_from_table table_ok (p := 829) (n := 4)
   all_goals decide +kernel
-
-private def c827 : List TraceChunk := [(4,0x70b3de92b78289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v827 : evalPairs 826 (fullRow 827) = (-21) := by
-  apply checked_row (p := 827) (cs := c827) (by decide)
-  · simp only [c827, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 827) (n := 4)
   all_goals decide +kernel
-
-private def c823 : List TraceChunk := [(4,0x69342a12978289e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v823 : evalPairs 822 (fullRow 823) = 133 := by
-  apply checked_row (p := 823) (cs := c823) (by decide)
-  · simp only [c823, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v823 : evalPairs 822 (fullRow 823) = (133) := by
+  apply row_from_table table_ok (p := 823) (n := 4)
   all_goals decide +kernel
-
-private def c821 : List TraceChunk := [(4,0x77b419a2c78289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v821 : evalPairs 820 (fullRow 821) = (-72) := by
-  apply checked_row (p := 821) (cs := c821) (by decide)
-  · simp only [c821, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 821) (n := 4)
   all_goals decide +kernel
-
-private def c811 : List TraceChunk := [(4,0xc833d6f2b78289e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v811 : evalPairs 810 (fullRow 811) = 207 := by
-  apply checked_row (p := 811) (cs := c811) (by decide)
-  · simp only [c811, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v811 : evalPairs 810 (fullRow 811) = (207) := by
+  apply row_from_table table_ok (p := 811) (n := 4)
   all_goals decide +kernel
-
-private def c809 : List TraceChunk := [(4,0x3473e7e2e78289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v809 : evalPairs 808 (fullRow 809) = (-113) := by
-  apply checked_row (p := 809) (cs := c809) (by decide)
-  · simp only [c809, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 809) (n := 4)
   all_goals decide +kernel
-
-private def c797 : List TraceChunk := [(4,0x33f367c3478289e03f)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v797 : evalPairs 796 (fullRow 797) = (-117) := by
-  apply checked_row (p := 797) (cs := c797) (by decide)
-  · simp only [c797, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 797) (n := 4)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c787 : List TraceChunk := [(4,0xfd338463178289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v787 : evalPairs 786 (fullRow 787) = 122 := by
-  apply checked_row (p := 787) (cs := c787) (by decide)
-  · simp only [c787, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v787 : evalPairs 786 (fullRow 787) = (122) := by
+  apply row_from_table table_ok (p := 787) (n := 4)
   all_goals decide +kernel
-
-private def c773 : List TraceChunk := [(4,0x48f35a53578289e03f)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v773 : evalPairs 772 (fullRow 773) = (-248) := by
-  apply checked_row (p := 773) (cs := c773) (by decide)
-  · simp only [c773, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 773) (n := 4)
   all_goals decide +kernel
-
-private def c769 : List TraceChunk := [(4,0xbaf35ec3278289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v769 : evalPairs 768 (fullRow 769) = 279 := by
-  apply checked_row (p := 769) (cs := c769) (by decide)
-  · simp only [c769, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v769 : evalPairs 768 (fullRow 769) = (279) := by
+  apply row_from_table table_ok (p := 769) (n := 4)
   all_goals decide +kernel
-
-private def c761 : List TraceChunk := [(4,0x6373d583678289e03f)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v761 : evalPairs 760 (fullRow 761) = (-219) := by
-  apply checked_row (p := 761) (cs := c761) (by decide)
-  · simp only [c761, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 761) (n := 4)
   all_goals decide +kernel
-
-private def c757 : List TraceChunk := [(5,0x20d659ff3a293378289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v757 : evalPairs 756 (fullRow 757) = 277 := by
-  apply checked_row (p := 757) (cs := c757) (by decide)
-  · simp only [c757, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v757 : evalPairs 756 (fullRow 757) = (277) := by
+  apply row_from_table table_ok (p := 757) (n := 5)
   all_goals decide +kernel
-
-private def c751 : List TraceChunk := [(5,0x1c065aff31593278289e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v751 : evalPairs 750 (fullRow 751) = 56 := by
-  apply checked_row (p := 751) (cs := c751) (by decide)
-  · simp only [c751, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v751 : evalPairs 750 (fullRow 751) = (56) := by
+  apply row_from_table table_ok (p := 751) (n := 5)
   all_goals decide +kernel
-
-private def c743 : List TraceChunk := [(5,0x21d626833a4c3478289e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v743 : evalPairs 742 (fullRow 743) = 105 := by
-  apply checked_row (p := 743) (cs := c743) (by decide)
-  · simp only [c743, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v743 : evalPairs 742 (fullRow 743) = (105) := by
+  apply row_from_table table_ok (p := 743) (n := 5)
   all_goals decide +kernel
-
-private def c739 : List TraceChunk := [(5,0x1d56573b31633378289e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v739 : evalPairs 738 (fullRow 739) = (-154) := by
-  apply checked_row (p := 739) (cs := c739) (by decide)
-  · simp only [c739, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 739) (n := 5)
   all_goals decide +kernel
-
-private def c733 : List TraceChunk := [(5,0x190688332a093478289e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v733 : evalPairs 732 (fullRow 733) = 5 := by
-  apply checked_row (p := 733) (cs := c733) (by decide)
-  · simp only [c733, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v733 : evalPairs 732 (fullRow 733) = (5) := by
+  apply row_from_table table_ok (p := 733) (n := 5)
   all_goals decide +kernel
-
-private def c727 : List TraceChunk := [(5,0x1866f79b1a6d3678289e043)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v727 : evalPairs 726 (fullRow 727) = 57 := by
-  apply checked_row (p := 727) (cs := c727) (by decide)
-  · simp only [c727, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v727 : evalPairs 726 (fullRow 727) = (57) := by
+  apply row_from_table table_ok (p := 727) (n := 5)
   all_goals decide +kernel
-
-private def c719 : List TraceChunk := [(5,0x2696a88b28c43477a89e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v719 : evalPairs 718 (fullRow 719) = (-83) := by
-  apply checked_row (p := 719) (cs := c719) (by decide)
-  · simp only [c719, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 719) (n := 5)
   all_goals decide +kernel
-
-private def c709 : List TraceChunk := [(5,0x1666c6932f16315a295e043)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v709 : evalPairs 708 (fullRow 709) = 8 := by
-  apply checked_row (p := 709) (cs := c709) (by decide)
-  · simp only [c709, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v709 : evalPairs 708 (fullRow 709) = (8) := by
+  apply row_from_table table_ok (p := 709) (n := 5)
   all_goals decide +kernel
-
-private def c701 : List TraceChunk := [(5,0x2276775f30f332ad691e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v701 : evalPairs 700 (fullRow 701) = 38 := by
-  apply checked_row (p := 701) (cs := c701) (by decide)
-  · simp only [c701, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v701 : evalPairs 700 (fullRow 701) = (38) := by
+  apply row_from_table table_ok (p := 701) (n := 5)
   all_goals decide +kernel
-
-private def c691 : List TraceChunk := [(5,0x1b56d8731e523131ea1e043)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v691 : evalPairs 690 (fullRow 691) = (-150) := by
-  apply checked_row (p := 691) (cs := c691) (by decide)
-  · simp only [c691, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 691) (n := 5)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c683 : List TraceChunk := [(5,0x2456aaf32cee32a9699e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v683 : evalPairs 682 (fullRow 683) = 276 := by
-  apply checked_row (p := 683) (cs := c683) (by decide)
-  · simp only [c683, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v683 : evalPairs 682 (fullRow 683) = (276) := by
+  apply row_from_table table_ok (p := 683) (n := 5)
   all_goals decide +kernel
-
-private def c677 : List TraceChunk := [(6,0x6799224689333d66329de95e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v677 : evalPairs 676 (fullRow 677) = 139 := by
-  apply checked_row (p := 677) (cs := c677) (by decide)
-  · simp only [c677, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v677 : evalPairs 676 (fullRow 677) = (139) := by
+  apply row_from_table table_ok (p := 677) (n := 6)
   all_goals decide +kernel
-
-private def c673 : List TraceChunk := [(6,0x90d91a56a7e332dc3166a9de042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v673 : evalPairs 672 (fullRow 673) = 246 := by
-  apply checked_row (p := 673) (cs := c673) (by decide)
-  · simp only [c673, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v673 : evalPairs 672 (fullRow 673) = (246) := by
+  apply row_from_table table_ok (p := 673) (n := 6)
   all_goals decide +kernel
-
-private def c661 : List TraceChunk := [(6,0x8c59d066b65727452e92eade043)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v661 : evalPairs 660 (fullRow 661) = 252 := by
-  apply checked_row (p := 661) (cs := c661) (by decide)
-  · simp only [c661, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v661 : evalPairs 660 (fullRow 661) = (252) := by
+  apply row_from_table table_ok (p := 661) (n := 6)
   all_goals decide +kernel
-
-private def c659 : List TraceChunk := [(6,0x7f996a4698e32c6732582a1e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v659 : evalPairs 658 (fullRow 659) = (-191) := by
-  apply checked_row (p := 659) (cs := c659) (by decide)
-  · simp only [c659, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 659) (n := 6)
   all_goals decide +kernel
-
-private def c653 : List TraceChunk := [(6,0x79d92646782f38f43476e9de041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v653 : evalPairs 652 (fullRow 653) = (-59) := by
-  apply checked_row (p := 653) (cs := c653) (by decide)
-  · simp only [c653, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 653) (n := 6)
   all_goals decide +kernel
-
-private def c647 : List TraceChunk := [(6,0x591a1c76147b523e343cea1e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v647 : evalPairs 646 (fullRow 647) = (-486) := by
-  apply checked_row (p := 647) (cs := c647) (by decide)
-  · simp only [c647, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 647) (n := 6)
   all_goals decide +kernel
-
-private def c643 : List TraceChunk := [(6,0xbd991616587b49ad31952a5e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v643 : evalPairs 642 (fullRow 643) = 278 := by
-  apply checked_row (p := 643) (cs := c643) (by decide)
-  · simp only [c643, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v643 : evalPairs 642 (fullRow 643) = (278) := by
+  apply row_from_table table_ok (p := 643) (n := 6)
   all_goals decide +kernel
-
-private def c641 : List TraceChunk := [(6,0x481a2436266352163453aa5e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v641 : evalPairs 640 (fullRow 641) = (-257) := by
-  apply checked_row (p := 641) (cs := c641) (by decide)
-  · simp only [c641, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 641) (n := 6)
   all_goals decide +kernel
-
-private def c631 : List TraceChunk := [(6,0x96595cb6495344d132dbea9e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v631 : evalPairs 630 (fullRow 631) = 344 := by
-  apply checked_row (p := 631) (cs := c631) (by decide)
-  · simp only [c631, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v631 : evalPairs 630 (fullRow 631) = (344) := by
+  apply row_from_table table_ok (p := 631) (n := 6)
   all_goals decide +kernel
-
-private def c619 : List TraceChunk := [(6,0x80d95ae6373b41fa31a7eade042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v619 : evalPairs 618 (fullRow 619) = 184 := by
-  apply checked_row (p := 619) (cs := c619) (by decide)
-  · simp only [c619, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v619 : evalPairs 618 (fullRow 619) = (184) := by
+  apply row_from_table table_ok (p := 619) (n := 6)
   all_goals decide +kernel
-
-private def c617 : List TraceChunk := [(7,0x22faa8259dc5646cf459c32212ade041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v617 : evalPairs 616 (fullRow 617) = (-368) := by
-  apply checked_row (p := 617) (cs := c617) (by decide)
-  · simp only [c617, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 617) (n := 7)
   all_goals decide +kernel
-
-private def c613 : List TraceChunk := [(7,0x19aa46299a1a658f73df330d76b5e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v613 : evalPairs 612 (fullRow 613) = 395 := by
-  apply checked_row (p := 613) (cs := c613) (by decide)
-  · simp only [c613, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v613 : evalPairs 612 (fullRow 613) = (395) := by
+  apply row_from_table table_ok (p := 613) (n := 7)
   all_goals decide +kernel
-
-private def c607 : List TraceChunk := [(7,0x16a9f71d924b656e739cb2e886bde043)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v607 : evalPairs 606 (fullRow 607) = (-31) := by
-  apply checked_row (p := 607) (cs := c607) (by decide)
-  · simp only [c607, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 607) (n := 7)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c601 : List TraceChunk := [(7,0x1919a89d86516784335d32c8cac9e044)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v601 : evalPairs 600 (fullRow 601) = 222 := by
-  apply checked_row (p := 601) (cs := c601) (by decide)
-  · simp only [c601, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v601 : evalPairs 600 (fullRow 601) = (222) := by
+  apply row_from_table table_ok (p := 601) (n := 7)
   all_goals decide +kernel
-
-private def c599 : List TraceChunk := [(7,0x28c9d82995856664336372e5cec1e043)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v599 : evalPairs 598 (fullRow 599) = 21 := by
-  apply checked_row (p := 599) (cs := c599) (by decide)
-  · simp only [c599, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v599 : evalPairs 598 (fullRow 599) = (21) := by
+  apply row_from_table table_ok (p := 599) (n := 7)
   all_goals decide +kernel
-
-private def c593 : List TraceChunk := [(7,0x1fea0b19a557677eb2dcf313f6b9e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v593 : evalPairs 592 (fullRow 593) = (-95) := by
-  apply checked_row (p := 593) (cs := c593) (by decide)
-  · simp only [c593, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 593) (n := 7)
   all_goals decide +kernel
-
-private def c587 : List TraceChunk := [(7,0x17ea3bf1b1086a57b22d73207eb9e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v587 : evalPairs 586 (fullRow 587) = (-362) := by
-  apply checked_row (p := 587) (cs := c587) (by decide)
-  · simp only [c587, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 587) (n := 7)
   all_goals decide +kernel
-
-private def c577 : List TraceChunk := [(7,0x23a9f455aa596765f327a2fc52c1e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v577 : evalPairs 576 (fullRow 577) = 397 := by
-  apply checked_row (p := 577) (cs := c577) (by decide)
-  · simp only [c577, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v577 : evalPairs 576 (fullRow 577) = (397) := by
+  apply row_from_table table_ok (p := 577) (n := 7)
   all_goals decide +kernel
-
-private def c571 : List TraceChunk := [(8,0x6e59e149b3a5964c6673b4a882ba82c9e043)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v571 : evalPairs 570 (fullRow 571) = 216 := by
-  apply checked_row (p := 571) (cs := c571) (by decide)
-  · simp only [c571, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v571 : evalPairs 570 (fullRow 571) = (216) := by
+  apply row_from_table table_ok (p := 571) (n := 8)
   all_goals decide +kernel
-
-private def c569 : List TraceChunk := [(8,0x89985cd9fb01a59a688db35612f476c1e042)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v569 : evalPairs 568 (fullRow 569) = (-31) := by
-  apply checked_row (p := 569) (cs := c569) (by decide)
-  · simp only [c569, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 569) (n := 8)
   all_goals decide +kernel
-
-private def c563 : List TraceChunk := [(8,0x7296dc2a2a99b59c6a54f23263236ec1e041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v563 : evalPairs 562 (fullRow 563) = 2 := by
-  apply checked_row (p := 563) (cs := c563) (by decide)
-  · simp only [c563, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v563 : evalPairs 562 (fullRow 563) = (2) := by
+  apply row_from_table table_ok (p := 563) (n := 8)
   all_goals decide +kernel
-
-private def c557 : List TraceChunk := [(8,0x6015238a4a55c1b26e6bf0a7a356c6c5e040)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v557 : evalPairs 556 (fullRow 557) = 185 := by
-  apply checked_row (p := 557) (cs := c557) (by decide)
-  · simp only [c557, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v557 : evalPairs 556 (fullRow 557) = (185) := by
+  apply row_from_table table_ok (p := 557) (n := 8)
   all_goals decide +kernel
-
-private def c547 : List TraceChunk := [(8,0x9155a1ea45b9b1fd6fa2b1181347e2bde041)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v547 : evalPairs 546 (fullRow 547) = 177 := by
-  apply checked_row (p := 547) (cs := c547) (by decide)
-  · simp only [c547, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v547 : evalPairs 546 (fullRow 547) = (177) := by
+  apply row_from_table table_ok (p := 547) (n := 8)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c541 : List TraceChunk := [(7,0x19fa6665a5c16da8719f83276abde042),(1,0x1f458)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v541 : evalPairs 540 (fullRow 541) = 64 := by
-  apply checked_row (p := 541) (cs := c541) (by decide)
-  · simp only [c541, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v541 : evalPairs 540 (fullRow 541) = (64) := by
+  apply row_from_table table_ok (p := 541) (n := 8)
   all_goals decide +kernel
-
-private def c523 : List TraceChunk := [(4,0x4c31e7f317e2bde043),(5,0x18abc7016985aa85d91d16b)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v523 : evalPairs 522 (fullRow 523) = (-162) := by
-  apply checked_row (p := 523) (cs := c523) (by decide)
-  · simp only [c523, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 523) (n := 9)
   all_goals decide +kernel
-
-private def c521 : List TraceChunk := [(4,0xa8f154c32426c1e042),(5,0x20cbf8cd6dffa3851a9ce6e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v521 : evalPairs 520 (fullRow 521) = 24 := by
-  apply checked_row (p := 521) (cs := c521) (by decide)
-  · simp only [c521, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v521 : evalPairs 520 (fullRow 521) = (24) := by
+  apply row_from_table table_ok (p := 521) (n := 9)
   all_goals decide +kernel
-
-private def c509 : List TraceChunk := [(3,0x25e333f2c68442),(6,0x546fe5b5aa3e79706f575c532c2)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v509 : evalPairs 508 (fullRow 509) = (-200) := by
-  apply checked_row (p := 509) (cs := c509) (by decide)
-  · simp only [c509, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 509) (n := 9)
   all_goals decide +kernel
-
-private def c503 : List TraceChunk := [(3,0x29636816c1c244),(7,0x1cc7e892fdc85d8725da67282dcce5c0)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v503 : evalPairs 502 (fullRow 503) = 7 := by
-  apply checked_row (p := 503) (cs := c503) (by decide)
-  · simp only [c503, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v503 : evalPairs 502 (fullRow 503) = (7) := by
+  apply row_from_table table_ok (p := 503) (n := 10)
   all_goals decide +kernel
-
-private def c499 : List TraceChunk := [(3,0x1863496abe5c44),(7,0x1ef80616edcd5e7c276326f7a1c5f7c1)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v499 : evalPairs 498 (fullRow 499) = 190 := by
-  apply checked_row (p := 499) (cs := c499) (by decide)
-  · simp only [c499, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v499 : evalPairs 498 (fullRow 499) = (190) := by
+  apply row_from_table table_ok (p := 499) (n := 10)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c491 : List TraceChunk := [(2,0x636bdda45),(8,0x7960dc3bc7ad8dd2955b9c1a474583030b37)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v491 : evalPairs 490 (fullRow 491) = (-119) := by
-  apply checked_row (p := 491) (cs := c491) (by decide)
-  · simp only [c491, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 491) (n := 10)
   all_goals decide +kernel
-
-private def c487 : List TraceChunk := [(2,0xb86c1a445),(8,0x7f5fa37bc8057d969cab5b15774a33095032)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v487 : evalPairs 486 (fullRow 487) = 368 := by
-  apply checked_row (p := 487) (cs := c487) (by decide)
-  · simp only [c487, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v487 : evalPairs 486 (fullRow 487) = (368) := by
+  apply row_from_table table_ok (p := 487) (n := 10)
   all_goals decide +kernel
-
-private def c479 : List TraceChunk := [(2,0x816c0de44),(8,0x53e0594be88585d797661be2d76572fa9538)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v479 : evalPairs 478 (fullRow 479) = (-332) := by
-  apply checked_row (p := 479) (cs := c479) (by decide)
-  · simp only [c479, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 479) (n := 10)
   all_goals decide +kernel
-
-private def c467 : List TraceChunk := [(2,0x6dac5f045),(9,0x1d83e7ee0e30bd6959610965a9c254776daf6043a)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v467 : evalPairs 466 (fullRow 467) = 54 := by
-  apply checked_row (p := 467) (cs := c467) (by decide)
-  · simp only [c467, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v467 : evalPairs 466 (fullRow 467) = (54) := by
+  apply row_from_table table_ok (p := 467) (n := 11)
   all_goals decide +kernel
-
-private def c463 : List TraceChunk := [(1,0x22e44),(2,0x688d94ab3),(8,0x898f1dd8366efa286065662e970539d1c8bf)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v463 : evalPairs 462 (fullRow 463) = (-44) := by
-  apply checked_row (p := 463) (cs := c463) (by decide)
-  · simp only [c463, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 463) (n := 11)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c461 : List TraceChunk := [(1,0x15c46),(2,0x7d0e6beb1),(8,0x7a8f1d485846ed4f66796510d708a5ddaebf)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v461 : evalPairs 460 (fullRow 461) = (-171) := by
-  apply checked_row (p := 461) (cs := c461) (by decide)
-  · simp only [c461, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 461) (n := 11)
   all_goals decide +kernel
-
-private def c457 : List TraceChunk := [(1,0x29545),(2,0x810d552b3),(9,0x20d8778cedda83592f29b6476a56f56f789c9b5c3)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v457 : evalPairs 456 (fullRow 457) = 410 := by
-  apply checked_row (p := 457) (cs := c457) (by decide)
-  · simp only [c457, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v457 : evalPairs 456 (fullRow 457) = (410) := by
+  apply row_from_table table_ok (p := 457) (n := 12)
   all_goals decide +kernel
-
-private def c449 : List TraceChunk := [(1,0x1a146),(2,0x8a4de98b3),(9,0x1ee876e8f641857aef9c3616c650d06e819de4ec2)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v449 : evalPairs 448 (fullRow 449) = 78 := by
-  apply checked_row (p := 449) (cs := c449) (by decide)
-  · simp only [c449, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v449 : evalPairs 448 (fullRow 449) = (78) := by
+  apply row_from_table table_ok (p := 449) (n := 12)
   all_goals decide +kernel
-
-private def c443 : List TraceChunk := [(1,0x13849),(1,0x2d0b2),(10,0x70e21ed3c7e21599c085989cd95535a5e47d8ff11f837)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v443 : evalPairs 442 (fullRow 443) = 20 := by
-  apply checked_row (p := 443) (cs := c443) (by decide)
-  · simp only [c443, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v443 : evalPairs 442 (fullRow 443) = (20) := by
+  apply row_from_table table_ok (p := 443) (n := 12)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c439 : List TraceChunk := [(1,0x22f46),(1,0x1e7b2),(10,0x88612213d7ae1a20bd5f97d9096841be5e7431f0a0f3b)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v439 : evalPairs 438 (fullRow 439) = 53 := by
-  apply checked_row (p := 439) (cs := c439) (by decide)
-  · simp only [c439, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v439 : evalPairs 438 (fullRow 439) = (53) := by
+  apply row_from_table table_ok (p := 439) (n := 12)
   all_goals decide +kernel
-
-private def c433 : List TraceChunk := [(1,0x1e744),(1,0x1d7b3),(11,0x1e59c6d20213419161212b951975f3967d9ddb16d3eef6d63e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v433 : evalPairs 432 (fullRow 433) = 18 := by
-  apply checked_row (p := 433) (cs := c433) (by decide)
-  · simp only [c433, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v433 : evalPairs 432 (fullRow 433) = (18) := by
+  apply row_from_table table_ok (p := 433) (n := 13)
   all_goals decide +kernel
-
-private def c431 : List TraceChunk := [(1,0x26246),(1,0x21fb2),(11,0x1ca9e7ca19b03e5d60e0bbe959759799795b64f73d1708b53d)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v431 : evalPairs 430 (fullRow 431) = 296 := by
-  apply checked_row (p := 431) (cs := c431) (by decide)
-  · simp only [c431, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v431 : evalPairs 430 (fullRow 431) = (296) := by
+  apply row_from_table table_ok (p := 431) (n := 13)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c421 : List TraceChunk := [(1,0x25346),(1,0x2fab1),(11,0x1d2997d60a0b436e60e59bc45969d295725d6797136aea4841)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v421 : evalPairs 420 (fullRow 421) = 285 := by
-  apply checked_row (p := 421) (cs := c421) (by decide)
-  · simp only [c421, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v421 : evalPairs 420 (fullRow 421) = (285) := by
+  apply row_from_table table_ok (p := 421) (n := 13)
   all_goals decide +kernel
-
-private def c419 : List TraceChunk := [(1,0x1ab47),(1,0x118b1),(12,0x779c1c2a062a11a1427ee09f1bf9d16e189a6a1b1a2738ff09623e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v419 : evalPairs 418 (fullRow 419) = (-335) := by
-  apply checked_row (p := 419) (cs := c419) (by decide)
-  · simp only [c419, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 419) (n := 14)
   all_goals decide +kernel
-
-private def c409 : List TraceChunk := [(1,0x1a548),(1,0x281af),(12,0x7b5ce02a186609bf42841fddebd5757dec95479c6ca6f36f03cc3e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v409 : evalPairs 408 (fullRow 409) = 371 := by
-  apply checked_row (p := 409) (cs := c409) (by decide)
-  · simp only [c409, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v409 : evalPairs 408 (fullRow 409) = (371) := by
+  apply row_from_table table_ok (p := 409) (n := 14)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c401 : List TraceChunk := [(1,0x1d94a),(1,0x11db0),(12,0x7ddb1959d7ba0df74685e0198c0875718b999d1ada87156f11c43d),(1,0x21e5d)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v401 : evalPairs 400 (fullRow 401) = (-265) := by
-  apply checked_row (p := 401) (cs := c401) (by decide)
-  · simp only [c401, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 401) (n := 15)
   all_goals decide +kernel
-
-private def c397 : List TraceChunk := [(1,0x1ac48),(1,0x253af),(12,0x815c5fca4849fdc1436820566bd60d664799621be097199f066b3d),(1,0x1dc5c)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v397 : evalPairs 396 (fullRow 397) = 194 := by
-  apply checked_row (p := 397) (cs := c397) (by decide)
-  · simp only [c397, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v397 : evalPairs 396 (fullRow 397) = (194) := by
+  apply row_from_table table_ok (p := 397) (n := 15)
   all_goals decide +kernel
-
-private def c389 : List TraceChunk := [(1,0x2b949),(1,0x162b0),(12,0x7e5b5ac9f70211e446859e9f9bd791799f9b775ba71716ef15c13c),(2,0x89255d15d)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v389 : evalPairs 388 (fullRow 389) = 181 := by
-  apply checked_row (p := 389) (cs := c389) (by decide)
-  · simp only [c389, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v389 : evalPairs 388 (fullRow 389) = (181) := by
+  apply row_from_table table_ok (p := 389) (n := 16)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c383 : List TraceChunk := [(1,0x2504d),(1,0x1eab1),(12,0x745c1cb9a6d6199a4c849d627bd60989f69c989adb47495f20b939),(2,0x7124df85e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v383 : evalPairs 382 (fullRow 383) = (-72) := by
-  apply checked_row (p := 383) (cs := c383) (by decide)
-  · simp only [c383, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 383) (n := 16)
   all_goals decide +kernel
-
-private def c379 : List TraceChunk := [(1,0x15b4b),(1,0x1dcaf),(12,0x71dc606a07a6162a46841e1e7bf7d571c79c681b27c7370b1ad23a),(3,0x1feb78d2559d59)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v379 : evalPairs 378 (fullRow 379) = 361 := by
-  apply checked_row (p := 379) (cs := c379) (by decide)
-  · simp only [c379, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v379 : evalPairs 378 (fullRow 379) = (361) := by
+  apply row_from_table table_ok (p := 379) (n := 17)
   all_goals decide +kernel
-
-private def c373 : List TraceChunk := [(1,0x1f449),(1,0x237af),(12,0x769b60ba972615c045801edf0bc86565ea997c1b9e3729671af939),(3,0x237b45ae61e453)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v373 : evalPairs 372 (fullRow 373) = 599 := by
-  apply checked_row (p := 373) (cs := c373) (by decide)
-  · simp only [c373, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v373 : evalPairs 372 (fullRow 373) = (599) := by
+  apply row_from_table table_ok (p := 373) (n := 17)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c367 : List TraceChunk := [(1,0xe349),(1,0x2d4ad),(12,0x6c1ba20ae5fa29b0437dddd7abc94d59d89a9d1b2127393b1a9739),(3,0x1f6b271269ff4a)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v367 : evalPairs 366 (fullRow 367) = 405 := by
-  apply checked_row (p := 367) (cs := c367) (by decide)
-  · simp only [c367, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v367 : evalPairs 366 (fullRow 367) = (405) := by
+  apply row_from_table table_ok (p := 367) (n := 17)
   all_goals decide +kernel
-
-private def c359 : List TraceChunk := [(1,0x15f4a),(1,0x19bae),(12,0x7e9bdbeaf70a15e5436f1ee09be75d55fa9c4f5bd976d6a72dfb38),(4,0x72e2dd5b87d269f14b)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v359 : evalPairs 358 (fullRow 359) = (-468) := by
-  apply checked_row (p := 359) (cs := c359) (by decide)
-  · simp only [c359, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 359) (n := 18)
   all_goals decide +kernel
-
-private def c353 : List TraceChunk := [(1,0xe54a),(1,0x104b0),(12,0x6d9d24eaf699fa0f4b71df5a9b97bd65ee9b515d1a4638cb515c38),(5,0x1cb7c60a360cb972a69e547)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v353 : evalPairs 352 (fullRow 353) = (-818) := by
-  apply checked_row (p := 353) (cs := c353) (by decide)
-  · simp only [c353, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 353) (n := 19)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c349 : List TraceChunk := [(1,0x2244b),(1,0x2d7ac),(12,0x6edbd96af896199845771e5ccbe8215251a0725aa256ea0f32573a),(5,0x1ec788ea2daeba7325a024b)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v349 : evalPairs 348 (fullRow 349) = 724 := by
-  apply checked_row (p := 349) (cs := c349) (by decide)
-  · simp only [c349, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v349 : evalPairs 348 (fullRow 349) = (724) := by
+  apply row_from_table table_ok (p := 349) (n := 19)
   all_goals decide +kernel
-
-private def c347 : List TraceChunk := [(1,0x1674b),(1,0x165b0),(12,0x7b9da2dac81202074770e01e4b97815d7e9e6e5c989645bf509638),(6,0x6ddf5ec7b79639eeb97ee69a245)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v347 : evalPairs 346 (fullRow 347) = (-815) := by
-  apply checked_row (p := 347) (cs := c347) (by decide)
-  · simp only [c347, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 347) (n := 20)
   all_goals decide +kernel
-
-private def c337 : List TraceChunk := [(1,0x3124c),(1,0x1d7ac),(12,0x769ba10ae7e211d946755fddebbb155dad97a89c9946a6033b3a3a),(6,0x6d5edc97979629bbbc732562847)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v337 : evalPairs 336 (fullRow 337) = 843 := by
-  apply checked_row (p := 337) (cs := c337) (by decide)
-  · simp only [c337, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v337 : evalPairs 336 (fullRow 337) = (843) := by
+  apply row_from_table table_ok (p := 337) (n := 20)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c331 : List TraceChunk := [(1,0x1d94f),(1,0x1f4a6),(12,0x7d5c1f0ab78a12234d599f1a9bc9bd55d793871b9e8709731e733d),(7,0x1e79f6f9e5dc776e215f4be91241c848)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v331 : evalPairs 330 (fullRow 331) = 440 := by
-  apply checked_row (p := 331) (cs := c331) (by decide)
-  · simp only [c331, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v331 : evalPairs 330 (fullRow 331) = (440) := by
+  apply row_from_table table_ok (p := 331) (n := 21)
   all_goals decide +kernel
-
-private def c317 : List TraceChunk := [(1,0x22c4e),(1,0xa0ac),(12,0x875b1c3b28620dc7466da05b5bc6dd59f5935b5c22a6e46b1dcd3d),(9,0x1d1467b9f6249d6c5f1d67573a19e6c3612358a50)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v317 : evalPairs 316 (fullRow 317) = (-724) := by
-  apply checked_row (p := 317) (cs := c317) (by decide)
-  · simp only [c317, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 317) (n := 23)
   all_goals decide +kernel
-
-private def c313 : List TraceChunk := [(1,0x24050),(1,0x211a8),(12,0x671b9c7aa75e09d15073e01abb698d6218928a5b9b170b331dfb3c),(10,0x851a9e44573e01b0a3855f1e57578211c7be98a41e84b)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v313 : evalPairs 312 (fullRow 313) = 596 := by
-  apply checked_row (p := 313) (cs := c313) (by decide)
-  · simp only [c313, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v313 : evalPairs 312 (fullRow 313) = (596) := by
+  apply row_from_table table_ok (p := 313) (n := 24)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c311 : List TraceChunk := [(1,0x18a50),(1,0x14aab),(11,0x217af64a05ca49751fdc0be6ad55d392595ca2b6d53b25de3c),(11,0x1dc687412df77676275d17e81dc1f08a7b30d73927c932076e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v311 : evalPairs 310 (fullRow 311) = (-592) := by
-  apply checked_row (p := 311) (cs := c311) (by decide)
-  · simp only [c311, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 311) (n := 24)
   all_goals decide +kernel
-
-private def c307 : List TraceChunk := [(1,0x22152),(1,0x33fa8),(11,0x193ad899f5a54e75a0611b78d166098e885c95870aa31a113b),(12,0x71f160b6673d31d0788c691d18270db2098481f16288f84935f16e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v307 : evalPairs 306 (fullRow 307) = 933 := by
-  apply checked_row (p := 307) (cs := c307) (by decide)
-  · simp only [c307, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v307 : evalPairs 306 (fullRow 307) = (933) := by
+  apply row_from_table table_ok (p := 307) (n := 25)
   all_goals decide +kernel
-
-private def c293 : List TraceChunk := [(1,0x2d852),(1,0x10ea6),(9,0x2214e715e9dab790175778d6d1cdc57553716c940),(12,0x7a53184787da85eb78749b60d827ff2975967511dc175576a9d682),(3,0x20265783163a6a)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v293 : evalPairs 292 (fullRow 293) = (-79) := by
-  apply checked_row (p := 293) (cs := c293) (by decide)
-  · simp only [c293, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 293) (n := 26)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c283 : List TraceChunk := [(1,0x14554),(1,0x34da6),(7,0x203b55996e3c91a45b1f57476321fd3b),(12,0x8be71ba80825d9ed7d93f35259274d11bf758f6a1c87f72931ec80),(8,0x81239e0877355e116760ada106b7e535ca79)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v283 : evalPairs 282 (fullRow 283) = 489 := by
-  apply checked_row (p := 283) (cs := c283) (by decide)
-  · simp only [c283, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v283 : evalPairs 282 (fullRow 283) = (489) := by
+  apply row_from_table table_ok (p := 283) (n := 29)
   all_goals decide +kernel
-
-private def c281 : List TraceChunk := [(1,0x27654),(1,0x8ea4),(7,0x1e9b7a45718e8f691ce1275547157e40),(12,0x74a8a0278731bdec7c67b3a7e957191dd07667eae3b7c7d549b47b),(9,0x1f59d79e8de07f80161e0647f2fd976a7ad3e2c77)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v281 : evalPairs 280 (fullRow 281) = (-168) := by
-  apply checked_row (p := 281) (cs := c281) (by decide)
-  · simp only [c281, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 281) (n := 30)
   all_goals decide +kernel
-
-private def c277 : List TraceChunk := [(1,0x19655),(1,0x233a6),(7,0x1c7b86555d8e91769c17971843258c3a),(12,0x71aa1de776d1ede2777df4d7e919590d8a787e689b48279d29e782),(9,0x1e29a806698c828cd65a8696e6ce4b6674941b473)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v277 : evalPairs 276 (fullRow 277) = (-448) := by
-  apply checked_row (p := 277) (cs := c277) (by decide)
-  · simp only [c277, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 277) (n := 30)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c271 : List TraceChunk := [(1,0x1e056),(1,0x2d4a6),(6,0x919461093911bda86f74b31e236),(12,0x7c5d9ee83739e9ead47f221c645749e99b9b61a21d5437e615a2b9),(11,0x1945c86e8de09a731bde0615519a2db878d69c4517bdd208a8)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v271 : evalPairs 270 (fullRow 271) = 160 := by
-  apply checked_row (p := 271) (cs := c271) (by decide)
-  · simp only [c271, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v271 : evalPairs 270 (fullRow 271) = (160) := by
+  apply row_from_table table_ok (p := 271) (n := 31)
   all_goals decide +kernel
-
-private def c269 : List TraceChunk := [(1,0x1e057),(1,0x178a6),(6,0x5b951f592701c242727931dfb3a),(12,0x729e5a57b6fdc9dfd5676424b45831e5cb9f91215e6496ba1226b7),(12,0x86de9d1616b671fd9b675e9fd61819858fb481d91f1536cdd9eea8)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v269 : evalPairs 268 (fullRow 269) = (-60) := by
-  apply checked_row (p := 269) (cs := c269) (by decide)
-  · simp only [c269, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 269) (n := 32)
   all_goals decide +kernel
-
-private def c263 : List TraceChunk := [(1,0x1e05a),(1,0x1b1a4),(6,0x73166219285dc588773eafe1742),(12,0x809d1d27a8959a2edc59a35f148711f622a174619f34e7c9fda2b2),(12,0x765f1e55778281ff94701edfc6d76981e3af82999e75a725ddabad),(1,0x1d69b)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v263 : evalPairs 262 (fullRow 263) = (-165) := by
-  apply checked_row (p := 263) (cs := c263) (by decide)
-  · simp only [c263, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 263) (n := 33)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c257 : List TraceChunk := [(1,0x1e05e),(1,0x1eaa2),(5,0x21a939fdce187a3f2ea7b4a),(12,0x7bdf2035c68369a58d80132148089e7d898d6f93da084816918c5e),(12,0x78d51db9a78e3e00807b9d5d76087ab5f15f73599e7797a2bdcd72),(4,0x82d8df1a28067df482)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v257 : evalPairs 256 (fullRow 257) = 267 := by
-  apply checked_row (p := 257) (cs := c257) (by decide)
-  · simp only [c257, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v257 : evalPairs 256 (fullRow 257) = (267) := by
+  apply row_from_table table_ok (p := 257) (n := 35)
   all_goals decide +kernel
-
-private def c251 : List TraceChunk := [(1,0x1e061),(1,0x1e6a4),(5,0x1d595a35e1bc7b7cad6184e),(12,0x809e9d65782b45c8917fd41d57f80a75a89374532458d6da79c05c),(12,0x7096e0b9578239b57a81dd1ec717be95f15f751897082992c9e476),(6,0x819ce098776d89b7a67b279f185)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v251 : evalPairs 250 (fullRow 251) = 385 := by
-  apply checked_row (p := 251) (cs := c251) (by decide)
-  · simp only [c251, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v251 : evalPairs 250 (fullRow 251) = (385) := by
+  apply row_from_table table_ok (p := 251) (n := 37)
   all_goals decide +kernel
-
-private def c241 : List TraceChunk := [(2,0x77a85e061),(4,0x2bde5ef7787ee17849),(12,0x76d4dd3dc5a655d651855ede19981641b04c72a21f2a369d7e2791),(12,0x7ce39fd937e9f1e3796c1d2039379599f2647a9f593ac729d1e27d),(9,0x1b19c691e9bd7277a1e016c782a1e59c78e15ee57)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v241 : evalPairs 240 (fullRow 241) = (-516) := by
-  apply checked_row (p := 241) (cs := c241) (by decide)
-  · simp only [c241, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 241) (n := 39)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c239 : List TraceChunk := [(2,0x69a8de062),(4,0x9edda317d85ad59d4e),(12,0x7b55e1cd377e3dc053771edbe9d7ae4e024d6da2dcea27a9660a96),(12,0x71641d9937f5ddab7176de9e69c79195bd6298de628b4849e1fa7d),(11,0x19191781f5fca1849d65a7364e21d6657e691e09d7921a045e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v239 : evalPairs 238 (fullRow 239) = 494 := by
-  apply checked_row (p := 239) (cs := c239) (by decide)
-  · simp only [c239, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v239 : evalPairs 238 (fullRow 239) = (494) := by
+  apply row_from_table table_ok (p := 239) (n := 41)
   all_goals decide +kernel
-
-private def c233 : List TraceChunk := [(2,0x99695e065),(4,0x619c93f7c99ae63250),(12,0x769522bd575611b9575c5fdd09c83a4650547c642159d6415a139d),(12,0x6a24a389a6f9c9ab71749d5d5967a5d6295b7e9de5ec0859e5c17d),(12,0x79e09e097892121ea093ddd956e66e2a3b6678279e19679e259a61)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v233 : evalPairs 232 (fullRow 233) = 499 := by
-  apply checked_row (p := 233) (cs := c233) (by decide)
-  · simp only [c233, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v233 : evalPairs 232 (fullRow 233) = (499) := by
+  apply row_from_table table_ok (p := 233) (n := 42)
   all_goals decide +kernel
-
-private def c229 : List TraceChunk := [(2,0x92e91e064),(4,0x865d21c7a56ee5ef4b),(12,0x6a165ffd175a45f356872020b9475e49ab5174251a5916e589fa97),(12,0x7b25d8f94809b5d57a775e1db93811ad705e67de9fcbe70dc5c979),(12,0x78205a2966f9f5b5a47b1d1c16882251c16285e71e1a07822e215a),(2,0x68531c975)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v229 : evalPairs 228 (fullRow 229) = (-290) := by
-  apply checked_row (p := 229) (cs := c229) (by decide)
-  · simp only [c229, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 229) (n := 44)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c227 : List TraceChunk := [(2,0x4c299e066),(4,0x705d5f67c80eddce4f),(12,0x855658dd26fa199554551fe0b9a7664df1566ba3e0e9a70965de9c),(12,0x71e5e4393631de4471709e9e58c741dddd5c8e5ee6ab8789edd37d),(12,0x78212439686e0e5ba9679d1a66c782322b656be7a2c93782258761),(3,0x191a486135c66e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v227 : evalPairs 226 (fullRow 227) = (-47) := by
-  apply checked_row (p := 227) (cs := c227) (by decide)
-  · simp only [c227, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 227) (n := 45)
   all_goals decide +kernel
-
-private def c223 : List TraceChunk := [(2,0x99291e065),(3,0x2087b6aada454d),(12,0x91b45e48b78d6608817aa62028b70d4def9479e45ef63762668772),(12,0x83631e97373dd9c87c772459e7c7413593837aade1f6d7fdfdac58),(12,0x67e61af8478e8dfc7688db1b784781b6139d6d24df7916b58ddf93),(5,0x1e57e68a8de64e781b98a81)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v223 : evalPairs 222 (fullRow 223) = 265 := by
-  apply checked_row (p := 223) (cs := c223) (by decide)
-  · simp only [c223, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v223 : evalPairs 222 (fullRow 223) = (265) := by
+  apply row_from_table table_ok (p := 223) (n := 46)
   all_goals decide +kernel
-
-private def c211 : List TraceChunk := [(2,0x55681e063),(3,0x1d47864ec6b252),(12,0x76b29e38c79995b3837e265bd847c956038e892360367866662e73),(12,0x71a25d570761cdd4787ae65ae827a529987282efdc87277dcdd159),(12,0x7625dd68b7fe859b787819210856f9b20b9979a59e292735a1ec99),(9,0x201447e1b9cca16d9f1f67e78285c64c68db5a581)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v211 : evalPairs 210 (fullRow 211) = (-63) := by
-  apply checked_row (p := 211) (cs := c211) (by decide)
-  · simp only [c211, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 211) (n := 50)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c199 : List TraceChunk := [(2,0x9c671e061),(3,0x291767f6be4056),(12,0x78721bf8b7c991c89191e6df87a6b159c88a6a642835e85691f86d),(12,0x74e59e7706f9b1d37580261d6867ed2a127a692c9f6756e1e5ef4c),(12,0x7824de58577e81db8273d89f6867bd9de2967a659e89171da9d696),(12,0x7edf9e5ac7923de04d7adc1e09d7de15d1787b289ca48805add388),(3,0x1d26d78255e06a)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v199 : evalPairs 198 (fullRow 199) = 682 := by
-  apply checked_row (p := 199) (cs := c199) (by decide)
-  · simp only [c199, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v199 : evalPairs 198 (fullRow 199) = (682) := by
+  apply row_from_table table_ok (p := 199) (n := 56)
   all_goals decide +kernel
-
-private def c197 : List TraceChunk := [(2,0x85281e063),(2,0x6b6d5ef53),(12,0x8262deb666ee118a9c819f5da598962e308c6d599a59c8fdd1d273),(12,0x75db9f1717bdc9ee9d80a15e64b755c1f1bb745e5f1747f159e6ca),(12,0x78219c19e7aa05e0646e229bf6082a85c09576255e06372a55ed92),(12,0x7ca9e00957e139b3737826dfb8280dedfca473d0da26c79e2e1292),(8,0x7d23de08a7818de070749a1e09478195b085)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v197 : evalPairs 196 (fullRow 197) = 178 := by
-  apply checked_row (p := 197) (cs := c197) (by decide)
-  · simp only [c197, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v197 : evalPairs 196 (fullRow 197) = (178) := by
+  apply row_from_table table_ok (p := 197) (n := 60)
   all_goals decide +kernel
-
-private def c193 : List TraceChunk := [(2,0x7d675e062),(2,0x71ebe0c54),(12,0x7162a0c698721e4aa1699f626547222e31896c191c7a4775a65b78),(12,0x775e5ed75875c1b194831f5f6596b5d1e4b9779ba18777956604be),(12,0x77225ea9d795fdf3637b62dba606fe76139279e59dc6179265e490),(12,0x70e91e29472519e07573661e385725f5e0a58390def666e629e094),(10,0x72dadd29178249e08573db5e068781a1e093715a5f08d)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v193 : evalPairs 192 (fullRow 193) = 381 := by
-  apply checked_row (p := 193) (cs := c193) (by decide)
-  · simp only [c193, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v193 : evalPairs 192 (fullRow 193) = (381) := by
+  apply row_from_table table_ok (p := 193) (n := 62)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c191 : List TraceChunk := [(2,0x68279e066),(2,0x65ed9bc52),(12,0x6ce36226378221ea9b7cdf20d5b6e219fd8f72191d3a2751c1d073),(12,0x7d9c9da7276dddbd9475e09b35184dd245b6709f1ea6c8396da1c7),(12,0x7a22dd49e781f9766180e21e4667da61a09a82a5dd96773245dd90),(12,0x78261dda27810e28837ce39ec877d1e9cba383d0dac6884621e098),(12,0x72a99e092745b5e0937821de084741c9e06d78199a290759aa148a)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v191 : evalPairs 190 (fullRow 191) = (-148) := by
-  apply checked_row (p := 191) (cs := c191) (by decide)
-  · simp only [c191, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 191) (n := 64)
   all_goals decide +kernel
-
-private def c181 : List TraceChunk := [(2,0x68275e063),(2,0x79ad5ce53),(12,0x7e209f6626ce1d81a4775f2105572a15d08e5318221a5949cdba6e),(12,0x7a5c5e3797a1fddd9270a01ed4d745d22bb772e06285f83591bac9),(12,0x7821dd99f781f5f36274615fc6c78a59e39a7a645f56471a45dd90),(12,0x72e81e0a07a525c28475625e18672df1e09d7391de06b84e19be98),(12,0x782d5e097781adfc8f78209e0827a1c9d9757098de09071d9de085),(4,0x651de22aa72631fa59)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v181 : evalPairs 180 (fullRow 181) = (-128) := by
-  apply checked_row (p := 181) (cs := c181) (by decide)
-  · simp only [c181, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 181) (n := 68)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c179 : List TraceChunk := [(2,0x88a89e066),(2,0x682d55a50),(12,0x70e41b96277a0e01a5819d5cd596d221bf919b57da7a858dbdfc73),(12,0x789b5cd7975dddf78c85215fc51729e19fb67a1da086c6318db9c1),(12,0x7320dbda17ddf650606de2d7c6a8f655f29773a39d56c752520b90),(12,0x83a8dec9b7e526217872655f4836a635d3937810dad717920613a0),(12,0x782d1e08f781b1e08b78229e27e791d9c9738198228946e18de086),(8,0x701dde088781b9e06980dede0ac6a239e051)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v179 : evalPairs 178 (fullRow 179) = (-192) := by
-  apply checked_row (p := 179) (cs := c179) (by decide)
-  · simp only [c179, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 179) (n := 72)
   all_goals decide +kernel
-
-private def c173 : List TraceChunk := [(2,0x92ea1e06c),(2,0x5eee1774d),(12,0x7864dfe677ce0daaa385da9dc5772e4a2a9178d79f2af72da98472),(12,0x769b61275721ddda826b21e0a53571f633b3861cdf468651ba4fc0),(12,0x70215d7a688de9796370232276e79e59dd9072241e36b84261ee93),(12,0x8966de09d745399c7674e41e07e87245e0977e50de6777820d9895),(12,0x6bebde08a781bdb9817d219f67d81dfa0c6b6f19de08c8dd9e3389),(12,0x7de4184547826de07e781f5f38c6b9a222615d5f5e0ab78259e051)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v173 : evalPairs 172 (fullRow 173) = 4 := by
-  apply checked_row (p := 173) (cs := c173) (by decide)
-  · simp only [c173, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v173 : evalPairs 172 (fullRow 173) = (4) := by
+  apply row_from_table table_ok (p := 173) (n := 76)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c167 : List TraceChunk := [(2,0x7cab5e072),(2,0x8d6e90d4a),(12,0x726366f756b20e14a47618249588224a0c946a589bab560d85a276),(12,0x795a9e176749d60d7f8ce053c58a4e01dfb77519939668fdce30c2),(12,0x7aa0a05a64f9ddce6a79235ce6c75a59c89175e29c2748924dfd99),(12,0x7f669aba074935e07c88611e08268e25e69c89d158282615fa1d95),(12,0x78295e68f7f9b5bc828221e056f659f9e069895be4281781be3084),(12,0x7825de05778271ee8278205f28a711b1e064781d5e0ac6ca49e057),(5,0x23094781e1e0768de59a7a1)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v167 : evalPairs 166 (fullRow 167) = 189 := by
-  apply checked_row (p := 167) (cs := c167) (by decide)
-  · simp only [c167, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v167 : evalPairs 166 (fullRow 167) = (189) := by
+  apply row_from_table table_ok (p := 167) (n := 81)
   all_goals decide +kernel
-
-private def c163 : List TraceChunk := [(3,0x15b4d762a9e06b),(7,0x1ee8d85a421b61762da1466821c645b9),(12,0x781e59cb5821962e656c1f5c1b97ee35b1708be09e6a36e595e75b),(12,0x7b265dc8d74a21b6787123dce987c1b6117769dd9e7818a619db5d),(12,0x77e05b8a28ad0e1f81611d1ec9b6da0e25a57c5f5b66572241c466),(12,0x78209bf716d1c59782781add88484a65e39f7813d967c782062a8b),(12,0x78199e06492dc1e0aa7824de05c80a99d092731ade0817460de076),(12,0x781dde08c6a5c6438278261e09978241955c87671cd80801fde088),(4,0x6298de09278235a49c)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v163 : evalPairs 162 (fullRow 163) = 13 := by
-  apply checked_row (p := 163) (cs := c163) (by decide)
-  · simp only [c163, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v163 : evalPairs 162 (fullRow 163) = (13) := by
+  apply row_from_table table_ok (p := 163) (n := 86)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c157 : List TraceChunk := [(3,0x2604c6a6a5e067),(6,0x98e1dd8607a6be396e791b281ba),(12,0x846da005c715be0b8479ac2178b791d6077585689dc667e19dba8c),(12,0x6d239cc8a7b1cddc947d655d76a6ede9e0747ae1df28268d89bb79),(12,0x87695ff457a6218c6c8426a428170296297d7c1a5e09276579e299),(12,0x6b1f1be7682a1210707edfde09874e79e057801e1c77c70629e07f),(12,0x7819de06c86a8d9a9182d6da4a878249ca6c78215e07d739d5a983),(12,0x78219e0777820dbc8f79659d39788581e091781f5e08071a3de05f),(10,0x7cd69e0836ae69e05d782419a5d78265e0896ee69ef75)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v157 : evalPairs 156 (fullRow 157) = 499 := by
-  apply checked_row (p := 157) (cs := c157) (by decide)
-  · simp only [c157, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v157 : evalPairs 156 (fullRow 157) = (499) := by
+  apply row_from_table table_ok (p := 157) (n := 91)
   all_goals decide +kernel
-
-private def c151 : List TraceChunk := [(3,0x1e74d656a1e063),(6,0x6a616405f80ab5f46a721b149b8),(12,0x8e2dde456839b1e190842d9a77978deddd6f77689de69689b9eb8b),(12,0x6ca35ed88735c1f6976ce7e4060749edd37374a11ef887ad69cc80),(12,0x75a99da3e6de26017479265d4816e669fa7f711a1ea996a17e0294),(12,0x7e1d202787d231e0747121de09973265ee546ddd9e0837922df77c),(12,0x7a58e036a72689e08d6b57200aa7823dd16478225d886785b1d58c),(12,0x77a2e056b71a0dd88f7827de0907816de08b78219e0837820de064),(12,0x75619e0927815de08a62e81e05978229a47288e65e08578269e074),(5,0x2018378139e09b885b1e09a)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v151 : evalPairs 150 (fullRow 151) = (-164) := by
-  apply checked_row (p := 151) (cs := c151) (by decide)
-  · simp only [c151, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 151) (n := 98)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c149 : List TraceChunk := [(3,0x2364f83eade064),(5,0x1ff6177ec1986f751a63ebb),(12,0x7557233717321de3b67e60dd974819cdc0a6699ade26b73a09b489),(12,0x79a2e01707926dda9b6f985fa7c805ddd5827221e0a59561edd4b3),(12,0x8751d9e8460dee408d72629ed997a20dfa6679269d15d86255d38a),(12,0x785ede0887c5b5e0847823def9a7615de0737222dc48278205e39e),(12,0x781b629aa8b221a75a782c9f190781a9ee8576621e06a77235c275),(12,0x84591898f78241e0a078229e06172e2de092781e5e07e759c9e45b),(12,0x782521b657821de09c86d4db290781c5e08a7821de09b845c5cc89),(12,0x61e35e08478209e0826ae35e08378231e04b68a85e06e87e2de084)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v149 : evalPairs 148 (fullRow 149) = 62 := by
-  apply checked_row (p := 149) (cs := c149) (by decide)
-  · simp only [c149, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v149 : evalPairs 148 (fullRow 149) = (62) := by
+  apply row_from_table table_ok (p := 149) (n := 104)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c139 : List TraceChunk := [(3,0x2294775aa5e067),(5,0x19f596feadff6c711c5d2b8),(12,0x7dda1ee6d5edfde9bd7c229cb68791d6339e651a5cf6e6ce424387),(12,0x78a35d96f77262079b7158de07b795d9be8478e12265377609bbb0),(12,0x7c529c882711f1f38678231d89c6ee25fc6074249d75f74645c08e),(12,0x781ea108c7adc9c47f78245ef9a7b581cb7978a35e27e7ce15d89c),(12,0x7819192b476209e0556dad9ea9174195ee857c201e06e77619e075),(12,0x81971e0a278255e09e78221c86970a25c88a79dc5e08784db9e059),(12,0x7822de0617821de09b6a1761292781a59e8287a21e0a4781d1e087),(12,0x7825a358678215a68c7825de07d7822dc95278261e0746fa39f781),(9,0x19d6b782423381781f5e0977815e2d9a78119e08e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v139 : evalPairs 138 (fullRow 139) = (-116) := by
-  apply checked_row (p := 139) (cs := c139) (by decide)
-  · simp only [c139, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 139) (n := 113)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c137 : List TraceChunk := [(3,0x1474c782a5e069),(4,0x87ab5d66a841be57bd),(12,0x7b1ca297f7a6edb7825f9a9f77c77a6a1c73759aa00898421a1162),(12,0x831c5e59e7c26e185d7fe01c87275605ce8b73946068475eb5e363),(12,0x77dfdb07d78e09d39077e69f28484d8e0f947b58a078f77235d68d),(12,0x7ba1e1e72781f1b79376e55e060879c2058e6bde9b68771a79f64f),(12,0x782f6017482979ebc074a35c3607de21c984781ca1086781f1d979),(12,0x7828de08575675e086771b5e0867a629e0787d235e067781763963),(12,0x781a5e08c87681af6480209a46278229e08d78291e0706f219e05d),(12,0x781fa2e8678219e08d821e1e08778149e099875e1a68d781f9e089),(12,0x7825dfa5e699bde09078211e07b6f66de05f78259e0476125de093),(7,0x1e56978119e09c78139e09c781e9e093)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v137 : evalPairs 136 (fullRow 137) = 564 := by
-  apply checked_row (p := 137) (cs := c137) (by decide)
-  · simp only [c137, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v137 : evalPairs 136 (fullRow 137) = (564) := by
+  apply row_from_table table_ok (p := 137) (n := 122)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c131 : List TraceChunk := [(3,0x16852782ade06c),(4,0x82ec5fc7399d9616bf),(12,0xa25a15b8274af9fa7b83592128f7664a0d7b549a2058987df1ba64),(12,0x7a9b2069d6e661d9657b5f5cf757e9edb88c7e161ff84696a1f768),(12,0x7ba121f7967e0216977525a2a847a599d58c9499d9995652322d8e),(12,0x7821db479731c60b977b641e8676bdbdcb897d9d617846fa5da851),(12,0x782c1c87c6617dfcbd72a11e06d7de15e087781d9af846bdf9fa80),(12,0x80a81c07c7be9de08689589a08178225e07b8121a1c62781a63c6f),(12,0x8b5b1b4887826de06478235e0696822de08d78261e06d782259e66),(12,0x86211e0807822df893781c9b47d7815de08f781c9e0818b601908d),(12,0x78259e0656bdb1e09278211e08265e61e06287e5de04b7825de097),(12,0x78321e06e781f9e07778255e06a781021fa57814975a3781dde088),(3,0x2028e7815d9b87)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v131 : evalPairs 130 (fullRow 131) = 200 := by
-  apply checked_row (p := 131) (cs := c131) (by decide)
-  · simp only [c131, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v131 : evalPairs 130 (fullRow 131) = (200) := by
+  apply row_from_table table_ok (p := 131) (n := 130)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c127 : List TraceChunk := [(3,0x23e4d782a5e06a),(4,0x692cd0d707d99de8ba),(12,0x7c1c608816cef5e8777fda9d4917b63dd4747ed89f9897ba35ec5f),(12,0x83da9e4a279665ca5f751f1dd7d771e6008a6f571bb7e7928da46a),(12,0x7620dee7f749ddcb997224dd38979585a88e7e5b64c9168a1a038e),(12,0x821e9e0817c1a1aa9a6d64e0c69825cdb480839d9b58784a920a51),(12,0x7e6a1aa70899a5e0ba7b201e07278225e27f711c9b187781e1e183),(12,0x6be85e07573699f18978195e07d70e2de48478229b964781adf772),(12,0x781c1e08a78261e06087a31e0727821de0847e649e06b69e261471),(12,0x66e121c847820de090781d1e07e7812da196885ede07f6662a2195),(12,0x7824de0668bdc1e0997820d93817824de06578255b64a78251e097),(12,0x78305e06b781cde08275e69f96178115e0a478161e09a835ede07d),(12,0x78295e07578179e05c782a9e19c781b9f3557825de08c7817de089),(1,0x1c65b)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v127 : evalPairs 126 (fullRow 127) = (-54) := by
-  apply checked_row (p := 127) (cs := c127) (by decide)
-  · simp only [c127, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 127) (n := 140)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c113 : List TraceChunk := [(4,0x956d60552782ade06c),(8,0x4fa02016093249f3909113e1eb6629e1e06b),(12,0x80a1dd25ea01ddbaa45e9d1986d8d609d6b8809d5a76a6ee3df386),(12,0x78636017360a31d78b8821e0b6b79a9dd79a78171cd7c80a01d87d),(12,0x78df9f97d83e0db8a178135ff87736062f737d625be956aa125165),(12,0x7ca0dd17880625b8766ee15af778a1f2147877e69d4978398daa7f),(12,0x781fdd97d781b1e07578195c1a96e1d61a64782c9c67d6ddcde084),(12,0x78201e08f7f179e086851c60fa4781e208996e225a67384a0db98d),(12,0x78261e07c781e5998f78252046d6be5df8977817a0296795d1e07f),(12,0x7f18db4987811e539d6a669e07d7823de0837820de0766c1fde04d),(12,0x782960b5c7825de074781f60f8f6757de07878285e081781f9e092),(12,0x78169b89978209e05c78231d0bb781b1e071805f9e09b78191e04f),(12,0x78265e078781c1e0b17819de09d735ddc95b78171e0ae7825de072),(12,0x781d1e09f781ede09378189f39f7818de0746d9f1e09478125e0b1),(6,0x679b1e094781fde091781ce2793)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v113 : evalPairs 112 (fullRow 113) = 365 := by
-  apply checked_row (p := 113) (cs := c113) (by decide)
-  · simp only [c113, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v113 : evalPairs 112 (fullRow 113) = (365) := by
+  apply row_from_table table_ok (p := 113) (n := 162)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c109 : List TraceChunk := [(4,0x8a6e1ed4d7829de06a),(7,0x1c86479235f1917716a1bb17fdd1d869),(12,0x6c581f97b7de89d7747bda5cd816baedd7787f9be098177e559576),(12,0x7f9e2058b6e231c37f7b5bddea97f261e05c789f1e780791fa097f),(12,0x775c9bc8670a75b95477e15b8807c9c6059076e71c28574d9e1d8c),(12,0x7c9edea81841d5c484711e1e476809ede09b7e631e7687a5e9cf80),(12,0x781fe086c7b9f5b9657828de07289db9fcaf781ede57a75e21ef86),(12,0x6da29a36778231ab7c84ab5e07882265e188781d5e08876a1de072),(12,0x781ea047c7821db395781c5c3997c249e05d7823de072681f9e079),(12,0x78261e05078255e09d781ea0494781f9e07e781d5e07d781563499),(12,0x7816a1e9d781a5e07778225e061782059da6835f9e0846fe2a135d),(12,0x7b251e07a78181b188782e9e072781d1c07d78271e0657815dc5a5),(12,0x781e6016c782cde06878249e072781adef6478281e0a0781b1e062),(12,0x78289e67a7825de05b78259e069781d5e07c78261e046782d5da99),(12,0x78295e07c78179e08d6fdd9e06e7826de07778239e0747825da970),(12,0x781ade07f7826de07f78235e07978201e07f78199e09c781c20c7e),(10,0x61631e08e781e1e0977819de09178135e0917829de089)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v109 : evalPairs 108 (fullRow 109) = 142 := by
-  apply checked_row (p := 109) (cs := c109) (by decide)
-  · simp only [c109, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v109 : evalPairs 108 (fullRow 109) = (142) := by
+  apply row_from_table table_ok (p := 109) (n := 189)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c107 : List TraceChunk := [(4,0x54aca6051782a1e071),(7,0x1c16978a55ee916d13992b46b9d65c70),(12,0x965918f7e54a6dd577931bdd68273ae9ed707b5d1e58165a3a0f72),(12,0x69dea438a73e49e778819e182a074669fb61785fdd57b7d9f5e07e),(12,0x781d2028e74279d758805f9e2826b1bdb6908f651b87d8a595818c),(12,0x709e9b57e84dea038774de99f7278201e8977ae31de70849d9f386),(12,0x71e25c678819e9e05f78281b0746c9c9e0ab7adedf87b7ea05c580),(12,0x7d625e0746e605e0796be91eb7271a49e08782de1e08778201e073),(12,0x6d1b2347d7822de09b735b9e0997823de05f7fe51e07281629e075),(12,0x78279e05578245e09c6a1f9e08f781ede081781d9bb887816a1e96),(12,0x78165e09f781b1e07278246115f67e21e0a7861e9ae7d7823de055),(12,0x80229e07f7817de089782c60778781e5e07f78249f56778155a59f),(12,0x781ede067782cde06e72a39e073781c1e06b78275e091781d9e066),(12,0x78289e07578255e06278249e06b781e9e07c782420352782bdb895),(12,0x7827a25857816de082781f9e06b78255e0828322de06e70a71e07b),(12,0x781b9e07978245e08578235e074781f1e083699a5e0a3781bde077),(12,0x78231e06978219e08e781c5e09378199e09278169e09978285e087),(9,0x1928d78241e09278191e08e781dde07590ddde08b)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v107 : evalPairs 106 (fullRow 107) = (-116) := by
-  apply checked_row (p := 107) (cs := c107) (by decide)
-  · simp only [c107, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 107) (n := 200)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c103 : List TraceChunk := [(4,0x546e1f04d78299e06c),(6,0x7da61ae866415a4abe825b6196a),(12,0x879f9ae9b701d60674745edd2ba6fdb9da7d7e205fe8c759f9c85b),(12,0x6ce1de7967e1da157a81a85e6a17bd69e47a7b5e1d98271605fe5f),(12,0x71a31b89472171e07a86dfd747381669918282e1a0d6e7e2419677),(12,0x731f5c2847ae11e0757e1c1e67f7aa59ad8a7b9c5d178729f1fd79),(12,0x781f5ed727815a04a2781c1e47d6eaa1c7797d601ec7e77601bd85),(12,0x889ada3828a1cde09b781e9b59378245e07e7ce29d384799dde086),(12,0x8a1f1e08178289e0786ee41e0906c97de094721d5e08b801c5e089),(12,0x78171e08c78295e07984221e08071219fa6d7821dbe5f78249a16a),(12,0x78285ef6e781d9ba8b831ade07f78291e079781e9e08c78166329f),(12,0x781ede075781ede5af781ede37b78209e08d781b1e04f782819158),(12,0x781c9e0ac781c1eb91781c5e072741b1e09f78249e07678191e285),(12,0x781bde08d73d99e0937d9a5e07678205e09278135e0b18065de06f),(12,0x78215c855781fa0a8678195e09a78211e08c781c1e098781f1e0a7),(12,0x8b1fde090781d9e08c781edab7178241e06778295e071781d1e0a8),(12,0x781c5e07a7823de06e7824de06278259e06178269e0a178235e06d),(12,0x78139e0915fa3de08d7823de0717823de07b781bde0757820de08f),(9,0x1c351781dde0677820a33ad78139e087781b9e0ab)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v103 : evalPairs 102 (fullRow 103) = (-96) := by
-  apply checked_row (p := 103) (cs := c103) (by decide)
-  · simp only [c103, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 103) (n := 211)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c101 : List TraceChunk := [(4,0x7c6ea194f7829de072),(6,0x82639c7946ed4d2db36c1d1bf68),(12,0x5b1f2029b869c60777656020abd739a5e67861e01ac92821c9e467),(12,0x83a25e2976a5d9ca7f74e79e29d78165eb80799e1f88175a05c263),(12,0x8be25f394741a994777ce19e56b77e69f28169621b0658da29c274),(12,0x755ddab7f78201d97778dc9ac8389a61be89795d20c776ddfdcc7e),(12,0x6cdedbe6d781660bad7c1f9fd7478291c87671a1df078799fde083),(12,0x781a9e081781e616997820de09778225d377735f9f383781c5e088),(12,0x781f1e08a83685e07785631e08b87195e0997cdb5ab926edbde08e),(12,0x78159e08b6a291e07c881f5ab8478235f1667821627676564de067),(12,0x7829608716b9c9e08978199e07d78269e07f6b1e5e08f78181e0a3),(12,0x781e1eb8075201e0a6781d5e082781e1e0927819e165172681e05c),(12,0x6ddd5e0ab781e9e089779d9e072781a5e0a478241d96d78191e08c),(12,0x781d9d68b78171e0a0781a9e072781f5c69578141e0ab7826de06f),(12,0x6aa39e053781d5e08c781a9e09c7820de08b781b1e097781d5eaa8),(12,0x781f5e097895d1e07e781ede07c78251e06478289e07a835b9e098),(12,0x781f1e07778259e06f78231e06c78245e06064e75e09c78251e066),(12,0x7812de09078225e08b78235e06a78245e07b781b5e06f78221e084),(12,0x78239e0677be7de054781e5e05e78219e0ae78155e084879c1e0b0),(10,0x6ba15e089782a1e072781d1e076781dde08d781edf086)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v101 : evalPairs 100 (fullRow 101) = (-478) := by
-  apply checked_row (p := 101) (cs := c101) (by decide)
-  · simp only [c101, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 101) (n := 224)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c97 : List TraceChunk := [(5,0x1a86597efdce5078281e06c),(11,0x1e76b7a1ddef8887245b173705b1bb8559a3db5547d6e9f371),(12,0x74d61e287815c9d17e77df60a6e835d17f97755cdf67d6a601e3b5),(12,0x89641da8e79611b9666d625df827ae21f995789d9dd8076e6dd6a1),(12,0x76659e0857b5c5d47b735dde086755fde78c7bdb58e76889f98270),(12,0x7d28dc17671a0de885781f9f87e759e5f77c73a0dee7c6b5f20382),(12,0x71e45e06b781e5ff8d7f1f1e08b6f1f1f8736d16da7ab825f20d70),(12,0x7818a069872dde108e781ade0916e5a5e087781d2059472621e78a),(12,0x7ea31e0687823de06765225e06b6260de08373a71e07d73a21fc83),(12,0x78281e086781dde0977f57de0a16f15a378378279c87b78201b984),(12,0x781a5e09076dc20b5778279e06578279e071781c9e0897fd91e07a),(12,0x781a1e09b7d255cb7578175e090781d1e0817822de0a1775e1c183),(12,0x781da099378175e09b72661e076781d1e0aa781f1e383781e9e06c),(12,0x7821de28a781c1e09b781cde0a0781dde8877818de0a678199e07b),(12,0x7825de06878281e077781e1e09a781fde058781fde080781d59998),(12,0x7823d986078271e09878249e071781c1e098781e99e737820a1478),(12,0x7824de078781a1e07b78219e084781f2357c78261e0717822de073),(12,0x78201e0ac78159e081781ede0a678129e08f7822de08d78219e068),(12,0x77dd9e081781f1e087781f1e08578231e0666dea5e05b781c9e05b),(12,0x781e5e069781fde09378205e07a78239e06c6c601e08d78289e070),(6,0x69dd5e087781b1e0b77817dcf95)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v97 : evalPairs 96 (fullRow 97) = (-513) := by
-  apply checked_row (p := 97) (cs := c97) (by decide)
-  · simp only [c97, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 97) (n := 238)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c89 : List TraceChunk := [(5,0x1b86f922f1e05178275e076),(9,0x2047e6f639bc76a75a5ac8a7ce294c6496ebe086a),(12,0x6fdddc177729f5f178879cdc0938f9d5c084965e9bfb3791c5a27a),(12,0x79e19ce706cde1c28170635fd93839bde87c7ca81cc9b73549d08b),(12,0x761c9be756f1de1e8e76dfe268b6f5ddb6696e62a127186a360f97),(12,0x781fddd8974a021388741b9cd847ede2157e74dfdb3807fe6df47a),(12,0x7e9ea088d741dde09077dfde37783d9de09d7ddd1e06e70a75dc74),(12,0x705e9e090725adf58d781bde08e781e1ad8670649e0847f64db56c),(12,0x8364db16b7823d9d6b7822de68278251e0827d9f5e083781b9e08e),(12,0x865f5c3927816de09f7817de08487e81e078869ede08280a11e067),(12,0x781c1e05c78255e0696f265e0747818e248b6a9c61e8078265e082),(12,0x78231e78776191e083781d5e08578221e09e781f9e0827b5d5e088),(12,0x7c57dcc9d78235e07c781e1e0a5781ede085781e1e66c711a5e098),(12,0x781b5f494781ede09f781a1e087781d1eba278191e079781c9e091),(12,0x78275e078781d9c19c78209e05c781e5e087781d5a49178231e089),(12,0x78295e0977823de074781cde08f7ede5e07778211b66b78269e068),(12,0x78185e085781fe3b8a78205e07962e6de07278235e0747823de05a),(12,0x67569e087781e1e0ab78125e0878aa2de094781f1e06878259e078),(12,0x781d5e081781fde08578221e07078289e056781dde06078219e0a8),(12,0x78205e09e781f1e07d78241e06978209e09278261e07b78209e07d),(12,0x78201e0756ca3de083781a9e07a781a5e0b678185e09f781ce0062),(12,0x77171e07678169e0bb781a1e09c781b1e07a7823de0957b5b5e073),(12,0x78265e0817821de06378261e084781d1d782782a9e04f78271e076),(4,0x72255e08778149e093)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v89 : evalPairs 88 (fullRow 89) = 370 := by
-  apply checked_row (p := 89) (cs := c89) (by decide)
-  · simp only [c89, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v89 : evalPairs 88 (fullRow 89) = (370) := by
+  apply row_from_table table_ok (p := 89) (n := 270)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c83 : List TraceChunk := [(5,0x1ba7874ef5e04978279e081),(8,0x7121e0d71651b6757f66e59a2677aaa1eb64),(12,0x771d1d6797ddf1dd727f65dd17a8ce0a2e7c686b5a978845e5f381),(12,0x771d5ec83745f1f48b78a35dd74759edde9780e51f7576fa360e75),(12,0x6f5da2d6e71221ad826ca2a057d815adb98a7a9cde88272299b982),(12,0x75df5f18077211de6d6ee0e0c7d80e19c57778205b1937f6020176),(12,0x78229e0817663ded7d76ddde06677671e07c77da5d4a879dc5d777),(12,0x71245be6178235e07970225ee7d78222018778211d399781c1e174),(12,0x781b21c8c78199e08b78215b59178209e07f7fa29e07378241e077),(12,0x82639e05683e85e06b87619bd8e78221a36e7821e277d6cdc9e092),(12,0x81981e095781adff9a739e5e05f78239e072781fa16947821de078),(12,0x7b21de06978209e0727821de0807827dd97d781edec8175621e06a),(12,0x78261e086781fde0817a685e07978201e074781b5e06778265e08d),(12,0x7b249e07979291e06d78205e07c78269e068781c9e07a77a25b664),(12,0x781f5e07478279e07f78159e07c782160a7178241e096781f5e06e),(12,0x78245e09473dc9e07978235e083781d1e085781b9cc97781a1e0a1),(12,0x781f9e08a78221e089781ea1c94781b1ae8e781cde08a78191e09e),(12,0x81a41e07278291a950781f9e08e78251e072781ade09278215e066),(12,0x78225e07878235ec81781e1e0967818de0737819de08778261e06c),(12,0x7826de07a78211e093781ade07878271e090799cde07a781f5e079),(12,0x781d9e08b781f5e06c781d1e067782e5e0677827de07678195e07d),(12,0x781f5e05d782d1e05b78275f47078215e09478271e073781b9e088),(12,0x7820de088781a9db91781f9e07a781ede0a37ed55e09a781c5e058),(7,0x1e27478231e09578209e04878249e099)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v83 : evalPairs 82 (fullRow 83) = 271 := by
-  apply checked_row (p := 83) (cs := c83) (by decide)
-  · simp only [c83, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v83 : evalPairs 82 (fullRow 83) = (271) := by
+  apply row_from_table table_ok (p := 83) (n := 272)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c79 : List TraceChunk := [(6,0x5d5cddd7174eede04c78275e07b),(12,0x83a0a65a47bdfdf4787fdf1f08a7bdd9316d81dfe7092811adae9c),(12,0x7ea51f39573195e888751e9cb777d1ea0677691e1d791765e9bb7d),(12,0x7a216106d83e09eba87b621ca6d729eddd7c7662de183761f9a27b),(12,0x831edc37b77655e27d6c5ee0f79811b6038667df5cf8f6ee0dfd6e),(12,0x72e15fe697b6adef6372dedf8756e612038d6c1b9e58a781f5f687),(12,0x7b61dd68572269f36b72df9e084765edf58f7ae15cc6f7b99dec93),(12,0x78221fb8f865d1e08d781c9cb8c6f975e08b6e9fe2b82782260c86),(12,0x781b9ba7778201e08078215e07482639b063842219f8178239e084),(12,0x781d9e07771649e08666dca039b7814616a2781c58e8184a3de091),(12,0x781d1e07677229dc85781bde05f78259e07471e41e07c78185ce89),(12,0x781e9e07578199e08e78259e088749c5e084791e5d8817821de698),(12,0x78db1e074805f1e085781a1e08e78225e08178209e09673615e075),(12,0x781ade08378281e07c781c5e098781e1e0a5795b9ed86781dde09e),(12,0x7820de07278269e06273a69e07b781bde09c781e9e15a781e2008b),(12,0x7822de06c7821de0617825218957822de07d781e5c28c7822de07a),(12,0x6f5d5e07078215fd82781b5e08078221e08a78229e0797f645e075),(12,0x781e5e06e78221e08c781c1e08f781bde09e7816de07778251e08e),(12,0x78241e06e781cde080781fde08b781d9d08978209e0767fe4de06f),(12,0x7819de0977c9b5e06f781ede09e781cde08578251b36c781fde098),(12,0x78261e098781b1e07178225e07a78215e084781e9e070781a9e0a6),(12,0x78275e05678289e07478191e07678181e0af78169e0a4781b1e08b),(12,0x7a655e07e7814de09278235e08578229e05d78275d47d781e9e083)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v79 : evalPairs 78 (fullRow 79) = 144 := by
-  apply checked_row (p := 79) (cs := c79) (by decide)
-  · simp only [c79, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v79 : evalPairs 78 (fullRow 79) = (144) := by
+  apply row_from_table table_ok (p := 79) (n := 270)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c73 : List TraceChunk := [(6,0x741bd867a87ad9e04f7825de078),(11,0x175a8725f60a7b681e5d3886d5dd9f77829d63e9e7ed860c9b),(12,0x6de5a00646f635e1857bdbddc79721edb17c72a51dc7b7e9ba0284),(12,0x7d5c5d1847b279d1847a9b5f3866fde9b58577611e673851e1f997),(12,0x81a0de8957be0dc372761d1cf6c7ba0dc18e79e2209807c1c9af87),(12,0x755dddb9f75591cd78815e5e0808da3dc7656e61e1f78742518780),(12,0x781fdec9a781a1dd8d7b611de7e7c24dde7b7bdc5e06e75a3dea7c),(12,0x7262de07b7d219de6b78225ca6978225c37a86a1dd38b78201f585),(12,0x6fdf1e08078209e08982db5e09481191e08b781ddda9072a1de08a),(12,0x7bdf1e08c78211e07d71a39e05278265e0747820dfe8870e3df170),(12,0x781b5df8c78229e5727818de093755c9f992781f5e05a80a39c07c),(12,0x78dd5e0657824dd48a78229e06e78221e0797822de07f7aa91e073),(12,0x78195e08278211e07378229e0887e5fde08976a51e089765c5e081),(12,0x781d616a6781ede07078261e07378271e06f78201e07778a89e06f),(12,0x781d9e09778161e09e781c9e0726fe51e0787a191e07878235d479),(12,0x781bdba837818de09b78225e0897820dbb7b78222058d781fde082),(12,0x781de16827822de071781f9e0896c615e093781c5e08a781e5e08d),(12,0x7819de0897823de06d7823de06b8464de064781f5e0937820de07d),(12,0x781cde081781f1e07d78205e07478215df7c781d1e0927cdc5e07b),(12,0x77269e06c781ade08884e5de0777822de091781a9e07f78265e08d),(12,0x78269e06b7a989e09a781d1e08b781f9e076781d9e0787829de067),(6,0x80abde05d78295e07078219e093)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v73 : evalPairs 72 (fullRow 73) = 96 := by
-  apply checked_row (p := 73) (cs := c73) (by decide)
-  · simp only [c73, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v73 : evalPairs 72 (fullRow 73) = (96) := by
+  apply row_from_table table_ok (p := 73) (n := 251)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c71 : List TraceChunk := [(6,0x709b6616c546f5e04c78279e07b),(10,0x77a11db76775e9ea8d8e5d97374641c1ec9c6b1b2379f),(12,0x72595df8b77601ed6a7e1f1df747f1e9ee9b771dd36728a61e11a3),(12,0x77e19f99a79e15da747d61213737fe35cf88775c5a88685259e28f),(12,0x78245f47f7cdb5ea7574dc9e1877b221bf826d209fa7072a3dd968),(12,0x7829dca61781edcf7b705fa118d779adbc8986de1e79873df5da7c),(12,0x79a71cb6c79235e183775d1d090781e1de736e9e5ea8a791d6017d),(12,0x71629e08377985df92781a9ce8481df5e08370e1df97e75e21e086),(12,0x781f9b98d705ede07478239fe636c626197881a25e09375221e082),(12,0x7d619e081781dde0957814daa917f1e9a28c82a29e08c781b9e07e),(12,0x78215e08375dc9e86878245ba6378269ea7c71d5de0877820de083),(12,0x78999e08d78219e08c781b5e285781f9e08b785f1e0a8781bde779),(12,0x78219d986781bdf48f78209dc8478209d79878225e072781d5e479),(12,0x7829de07e78185e095709dde09a781d5e086781d5e09e781e1e06a),(12,0x7aa61e05873a71e06e781cdee9d781edda6278219e087781f5e071),(12,0x781fe176878261b58778229e088781d1e0827827de085781d1e078),(12,0x839f5e083781f1e07778231e08881a2de06c78219e07878265e06b),(12,0x78211e095781ade094781bde09078185be7a7826de08278209e074),(12,0x78611e07a781fdd280781e5e082781b1e07778251e07378225c66e),(12,0x781bde06c7820de08c781e1e0887824de06d781dde0967822de071),(12,0x781b1e06578281e06c7823de484781d1e07a725fde09a781a5e095),(12,0x7828de070781b1e077781a5e0ae7d559e0a8781bde0857823de091),(2,0x77671e060)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v71 : evalPairs 70 (fullRow 71) = (-158) := by
-  apply checked_row (p := 71) (cs := c71) (by decide)
-  · simp only [c71, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 71) (n := 258)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c67 : List TraceChunk := [(6,0x639863375782e1e05078261e079),(9,0x1fd767a9cdcf957c1be2a7b8a5d9a391731da049d),(12,0x78e55f278769c9ea82775c9dd7b84676387273df5ed837466dde87),(12,0x7ca3dda90771e1ba7f791c1e59180a19d26e88e11e4907c63dce5f),(12,0x80e09d276749de12757fa360281785ddc48b79de1dc8a7cdb5eb84),(12,0x785add3797f5edc97a7662de4687ee31e0767ce7dc47b7addde68c),(12,0x759b5e08c78e19df6d78e21ea7a759c1e08577a29e0757a9e9e1a1),(12,0x7821de0607ba39e075785d9e07e79221e082781f9d68678255f295),(12,0x6f219e082721d5e0908196de08a839da0e8e78a35db8e781f6018b),(12,0x8060dab7a7825de04f78235e07a84a45e0897fa39e0697820df57c),(12,0x701dde070781a1e0937458de09078205e05c7821de08582219ba8b),(12,0x6f615e08e78225e56f78219e08376e21e77f782a9cf75781c1df93),(12,0x78231d66d78235dd8078221e0777825de08b761bde074781d5e06b),(12,0x781f5e05f78229fe8178231e07873e06007678281e077749c5e085),(12,0x7817de0a578195e0787826de07078995e08a78211e07e781c9e0ae),(12,0x78179bb9b78245f77f7825de074745fde09b795fde077781dde092),(12,0x781d9ce7d781ee24877821de08f781a5e089781c5e09a781c9e087),(12,0x7824de06c78261e06b78245e06e739ede094781d5e07c781ade08b),(12,0x781e1e07f781fde08878215e0697d9ede094781f5e082781ddcd7f),(12,0x781c9f87f78231e07378241e08c781a1e0767822de08e7e5e9e089),(12,0x7817de09e781b5e08e78239e06e781d9e08478265e06873a65e074),(12,0x781ddbf70781e9e067782c9ee5e78281e0727821de09278235e064),(12,0x78221e07e7322de086781b1e092781f1e07878219e096781a5e096),(7,0x1d991781c9e087781f5e08278225e059)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v67 : evalPairs 66 (fullRow 67) = 627 := by
-  apply checked_row (p := 67) (cs := c67) (by decide)
-  · simp only [c67, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v67 : evalPairs 66 (fullRow 67) = (627) := by
+  apply row_from_table table_ok (p := 67) (n := 274)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c61 : List TraceChunk := [(7,0x201934c59a057c782a9e0567825de077),(12,0x6d5fdde7e79a7e4e7f68de2067267e49f96d761edbc7b7324df376),(12,0x7a625e38f756121b6278631cb777d1f9d780811c6638574a5dd377),(12,0x7a1f9d78071d99c58c79a3e0490781d5e47f75dc1f49683e09dd6a),(12,0x77661ea837c9c9f78b79a05d37d7cdc1c27b7820ddf8b739edea92),(12,0x7b619e0736f5c5dca4741a5d581799e5ec7b72a15de6d74e3df673),(12,0x7da01dc8974e39e38c759b5f68f76e09e06d76e39e078785f1df82),(12,0x77235e0897820de3877661dec5e74e39d97978dc1cb8378215d487),(12,0x7d23de06f7be15cd7c7822dcf7e781bdf39174d89fe8a781d1e08f),(12,0x7821e068678229e07e7820de37b7824dd25c6ee15e07a78245f18a),(12,0x782a9e072775b9e0937d9d5e475741a9e091781b5e091781fa0065),(12,0x781adfc78781f5c9717de15e08b78239e06f7820dd285781fde07b),(12,0x78261e07d76ddde07b7823de06e77e35e07d781e9d28576629e088),(12,0x78245e084781c5dd9d76e11e05e78209e08e78235e0717820ddb79),(12,0x781dde073781e1e0977b56de09e781b1d28377661e069781a9d084),(12,0x781e9e096781e1e08b78199e0907ea1de07978251e07278211e09d),(12,0x781c1f87d781f5e089781d9cc7e781f2128a7821de093781a9e07f),(12,0x80e0de088781d5e07678289e0657823de06978231e077781edd599),(12,0x78215e087739c5e08a781f5e084781e1e08978211e06e6d9bde097),(12,0x78241ed6d7824de07e781b1e08572e3de07878231e08a781c5e078),(12,0x7820de0977821de06e7a979e093781ede08d7822de076781ede080),(12,0x7821de09078185cd94781e1e07686de9e06a782a9e0667823de07a),(12,0x78215e083781dde06478225e0837823de07e781c1e08d781e9e07c),(3,0x1f395781dde087)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v61 : evalPairs 60 (fullRow 61) = 172 := by
-  apply checked_row (p := 61) (cs := c61) (by decide)
-  · simp only [c61, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v61 : evalPairs 60 (fullRow 61) = (172) := by
+  apply row_from_table table_ok (p := 61) (n := 274)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c59 : List TraceChunk := [(7,0x1c6907b5b99977782a5e05578255e07d),(10,0x6ee61e2837460db4727fe55ca66809f9b97980635ca80),(12,0x7fa11d06e7b641c97771a05c77c5bdd1dc7987e5e027472201d27d),(12,0x809b9968e78a49d9867a5e9e67b735cdde9b7ddddea6b7d235d28a),(12,0x755cdd78e785eddb80769b5e37878e31db94791d5d5897a1f21b79),(12,0x6bdf1d5a67a5adec847d1eddb7276615f46b78231c67b7aa35ce8a),(12,0x78239e886781d9e08578635fc6879a35eb817a5e9e37776e19e371),(12,0x7a605f0867ba29d6637ba21e0807d1c5e0857ba11e088799e1e98a),(12,0x7822dc8737ee05e0816dda9e0947819dcb8c781c6048771e39d18e),(12,0x70a15eb7778209f97c7826dca6078211d07978235c69379619f46f),(12,0x73dede096781f1e06f781dde08d769bde08d781d9e06c781e5fa8f),(12,0x781f1e0717c219e08f78221e06f781f9e08575a0de07879ab5f965),(12,0x781e9e07c7ba25d47c78221e07d7a1f1e08178e31dc8b781c9e078),(12,0x781e5e09978215e05c7b5d9e09278249de7378201e07e78229d182),(12,0x781d5c89c78181e099785c1e08378261e06f775bde98378209e082),(12,0x781ede084781ade08e78231e0737823de06d70605e0a7781f9e879),(12,0x78211e087781b9e07a781e9e08c78219e08b781b1e07b6fde5e08f),(12,0x781ede0747827de06d79e2de06b78229e078781fdfb94781cdd37f),(12,0x781a6008478211bc7e781ede08578235e06f781d1e09078219e083),(12,0x78229e081781b1e07f78231e27e78231e090781c9e07878201e087),(12,0x7822de069781a1ca8a78225e08a7822de07478205ec7878249e075),(12,0x78181e094781f5e077781c9e0796d261e06c78251e07e78211e090),(8,0x79225e079781e9e083715ede07d78211e090)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v59 : evalPairs 58 (fullRow 59) = (-320) := by
-  apply checked_row (p := 59) (cs := c59) (by decide)
-  · simp only [c59, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 59) (n := 265)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c53 : List TraceChunk := [(8,0x6a602078d8c9b9e07b78291e05b78249e082),(12,0x76dce0a7d6d1fdd0967ba05cf81749e5ee92721a9f2786f9f6808b),(12,0x7b9b5e38880619dd84765cdc38d761cde28a7e1fa147b811c9c194),(12,0x71e25d179799f1d0737de25d59079e01d27e77e09fe6f78651dd7d),(12,0x755edfe9078e19ef7373635df7874601e47477de5eb847da4def7b),(12,0x785e5e786751ddea7a77275cc7877df9e17a735b9ed887a1c5e28a),(12,0x7822ded857a605db8877619ec83771fdec8d7d9ade788769f1e07d),(12,0x7de1dd99479a01e07f71e25d08878195e78677e05e06c74205b084),(12,0x78279e078751b5e08a779d5ef7c7ba2de06d73e55d2667d609e07a),(12,0x789c1eb7a78231f182781e9c587801f9e097775a5e087781c9de87),(12,0x781f9cca7785a1d57d78261d877781c5e07b7ae2de06f75a1de077),(12,0x78225ea78781c5e084781c9e08a78235d48c78199da8678215e083),(12,0x78215e08775619e07b781fde084781dde085781f9ed7b78211d97e),(12,0x78219eb8373dfde07378241d0887819de07a80a55d48a781f5e07d),(12,0x7827dd680781c5e0777825def5d78241e07178215f093781c1e070),(12,0x781ede07a7824de0827b9f5e06c72e45e090781b9e08d781d9e084),(12,0x78249e070781d9da8b78209e06f815e5e08371635e08778231eb68),(12,0x78241e07d78211e07c799d1e09d781b5e08f781a5e088781e5e080),(12,0x781f1ee887821dda677820de08678215e07f78215e08d781a1e07e),(12,0x781d9e08c781f9e080781fde06d80205e08d759e9e08f78225e072),(12,0x781ede08278231ed80781c5d37278215e08878231e07f781e5e084),(12,0x781f5e08078259e06778245e07a79de5e0777820de08d781a9e098),(9,0x1e47e781a9e08978229e088781d9ef7a781f5e07f)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v53 : evalPairs 52 (fullRow 53) = 323 := by
-  apply checked_row (p := 53) (cs := c53) (by decide)
-  · simp only [c53, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v53 : evalPairs 52 (fullRow 53) = (323) := by
+  apply row_from_table table_ok (p := 53) (n := 269)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c47 : List TraceChunk := [(9,0x1c48a71dfa7a8b6e5a5e08478269e06078239e088),(12,0x71279e272769de177e7fa4dd07f7f21a03756f63245717d1e1c380),(12,0x7adede27d7adfdbb8679a21ee7577e31f66d79a1e017d729e9d677),(12,0x7b9e9de8578a15d675789e5d2837c251c284791ddd784791b5d58c),(12,0x72e09df8378a4dcc8176dd1ef8b775e5d980745e1e07677e15cb8f),(12,0x77df1e27b77a25e77974ddddb9c7c1d1e075779f9db7a7b20de474),(12,0x7da15d78372e01e68576a1ddf8776e11d07c77615df6e77e35eb7f),(12,0x781e1de8578e4de07e77e01e78479a11e96c76229d97e78dd1dc7c),(12,0x78201d5a4781d9dd6d79635db767c5f9ec86781c9e09576dbde07d),(12,0x781ede06e7b5e5e08d76e0de97d79221e07b79255db7076229d66f),(12,0x78211d08478289e0687a1cdd896781f1e0727aa01e08a781c5e081),(12,0x7b9f5e09478201d4707822de0697464de08878639e06a7c23ddd72),(12,0x7820de07a78225e782781dde08079a05e07d78209e07f765f1d877),(12,0x781f1e07c78205e483781e5e0877620ddf72781fde595781fde07a),(12,0x78219e18d78a11e071781f1e09278195e09b769a5e08378259e073),(12,0x781c5d87078211e08b78215e97c741a1e09778235e07576a01e07e),(12,0x78201e08a781c9e07f78611e07f781c1e07b7bdfde09778211e088),(12,0x791fde0857821de081781e9e0787925dea6d78225e07178211e083),(12,0x781d9e0797821deb8378199e08378211de84781f5e18678239e06a),(12,0x781fde0857ae29e07f781f5e075781d5e08078241e08478211e08b),(12,0x79655e084781f1e085781fde079781c9e0827822de08c781f9e07a),(12,0x781ede07b771d9e09b785d1e08b781e5e07d78205e0767d63de06d),(12,0x781e9e07d78241e07278221e06c78219e08a78221e07578201e07f),(1,0x1e48f)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v47 : evalPairs 46 (fullRow 47) = 201 := by
-  apply checked_row (p := 47) (cs := c47) (by decide)
-  · simp only [c47, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v47 : evalPairs 46 (fullRow 47) = (201) := by
+  apply row_from_table table_ok (p := 47) (n := 274)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c43 : List TraceChunk := [(9,0x2058b689e9e39178195e08a78245e06878239e082),(9,0x21081796320d837e621d2737f635ce79541c64182),(12,0x76625e87c7ddddd38b7bdc9ea8572e1db979755f9c18e771cdb577),(12,0x77dddeb7c74601d89177e19ed7a70a01e77176a25ea7a7a2020e83),(12,0x7c1fdd7757aa41e56e78209eb7879dddf48071641df817960de082),(12,0x76dc5e67a7ca59d973769e5de817b1d9d6817b5edcc8776df9ea92),(12,0x74e01ec8777e0de788769f1d386761b1cb96799f1df7976df1e395),(12,0x7d1e1e88577e05e07f789c1e78c78a19d772785f5f7877462df275),(12,0x781ade08777df9e87a78215d27472a4de36d78a01cc7376e45c58a),(12,0x7823dd081781fde882781eddd987bde1e481781c5e07f75e75e079),(12,0x7a1c1db7174661e078799d5e67d7820ddd827adf9e77a779ade082),(12,0x781d5df8b781c5d88d78215da8b781c9e08a781f5e18478201e092),(12,0x78221e0757ddfde085781edef81781ede78673dd9e08378235d587),(12,0x781e9df8678215e084781d9e07778239e47b775fde080781d9df82),(12,0x779dddf7578249d06578279e0697821de096781b9e07c75205e082),(12,0x7820dd686781f1e06f78235e08a781dde07f78209e08379641e083),(12,0x781d5e08977df9e071781f1d48078239df8678215e075781d1e084),(12,0x78215e07a781e1e093799a5e08a781d5e08578219e38178239e077),(12,0x781fde06a7820de083781f9e085771ede0987819de08178229e383),(12,0x781f5e07f7b1c9e07178235e08478229e57c78229df78781f1e087),(12,0x78205e080781d5d77978201e08978211e0847a5f9e08376e09e082),(12,0x78251e27378239e07b781e5e081781e9e08c781c9e08e78229e07a),(12,0x781cde089781c9e08578221e07f781c9e0877820de080781ede07b),(2,0x7ae01e090)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v43 : evalPairs 42 (fullRow 43) = (-51) := by
-  apply checked_row (p := 43) (cs := c43) (by decide)
-  · simp only [c43, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 43) (n := 272)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c41 : List TraceChunk := [(10,0x86a11fa8c925d5858e781bde08378241e06b78225e085),(11,0x1e18a75de5e17c6d9fdda8d771ee0285775e1d78c779c1de7b),(12,0x711f1dd82799fdf186735d9c6807ea29de776c209d586769d5f680),(12,0x7860de58379205d97678a01e7817861dde88791e5de81769e5dc83),(12,0x77219d87d74a3de17f785e9db8b7a5d9db7f77de9f67878a19e987),(12,0x7adf5dc7977635eb757b1e9ee90785d1e47c77a21e07478a05e779),(12,0x78205e0827a5e5e3837aa11d8807822dde7d781f9f17b74a3dd67c),(12,0x781e9e58c78231da7275619e58579df1e27677625d28176deddb80),(12,0x761e9e39b781bdda7779615e27d78201e08679dd5f38c769c5d982),(12,0x785e1df74781fde48e771edda86781f9e07a79a51e07a781ede07d),(12,0x78209d87f73a4de070781c9dd91749d9e27b78211e08477df1e084),(12,0x78215e08d79205e07878239dc6a77e35e08878211df7278a25e379),(12,0x781f9e37b78211db7e78205e081781f5eb7e78221e08076e01f177),(12,0x7820dd87d79a19e07278e25e08378201da7f781dde08a785f9e07d),(12,0x78211e08c78201e07a781e1ea907819de08e795ede08578235e070),(12,0x781ede0717821de08477a19e07d7adcdd98b78239e071759e5e08b),(12,0x7a5ede08d781fde07278225e085781c9db73781ede09078215e081),(12,0x7821de08774e19ed7e781f9e07e78225e06f78615e07a781fdd389),(12,0x781f9e07f78215e08575dc5e07978201e08378225d67a78241e06a),(12,0x78201e4787822de086781e5e075781d9e08478235e085781e5d786),(12,0x7821deb8a781e1e089781f5d877781e5e08178211e08578205d184),(12,0x781f1e07f781fde08d781c5e081775fde08078221e07b78211df73),(8,0x7aa1de07778209e08f781f1e07578211e082)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v41 : evalPairs 40 (fullRow 41) = (-16) := by
-  apply checked_row (p := 41) (cs := c41) (by decide)
-  · simp only [c41, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 41) (n := 269)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c37 : List TraceChunk := [(11,0x1ca7f795f9918e68dd5e08b781e1e08378219e0717821de083),(11,0x1e57e79e35f77a78a19f9756f629bf777b629de7d6b2163276),(12,0x74de5cf7e7360ddb7f78611d8797a609ed8b735f9d5757da29e574),(12,0x75a05e98878a05e77d785e1eb84705edde8a77e19dc7a7d1fde781),(12,0x7be05de8477dedec877ba11e87679221dd7d75a01d37d789d5d38a),(12,0x79201dc81789c5e98a781f5d27876e31d47a7adcddc89765fde27c),(12,0x795ede08677e01d377791fddc8778601d2887ce01e77c795f9e28f),(12,0x779f9e38277e11df8f765b9d58675611d97b755e9df7f76a15d67d),(12,0x7c1c9ee787b659dd727a201e081799f5e07f77e25d27774a21dd7a),(12,0x7821dd57c781d9dd7a78231e37d78a29e479785f1f389781ede289),(12,0x781d9e28175e29e085779d5df7b75a25e076781fdde807822de07c),(12,0x785e9e08777a2de080791d5e99074db5e58478211e083775d9e08a),(12,0x769fde07f781e9e08a795fde07d78219e07b78e05e086785f9e07b),(12,0x78dd5e082795e9e088759dde08578215e58078219df77781f9e083),(12,0x75611e0817821de18b781f5e07677a45e06b7821de57b7820de087),(12,0x77a01e082781bde687781f9e089781e5e07b78229dc8a79db9e07f),(12,0x77619e18078219e580781dde08478205e076781d5e07f7822de086),(12,0x781c9e08478215e081781f9e07a78205e086781d1e086781f9e07d),(12,0x78225e08079e11e088775e9e079781e5e07c78225e087781f1ec8b),(12,0x78225e07e781d1e08a79e19e08676dd9e07b78205e089781f1e377),(12,0x781cde08378229e0727822dd77e78201e075781fde08378211dd80),(12,0x78201eb7c78201e08478205e07378219e084781f1e0857820dd484),(8,0x781f9e081781f1e07d7821de081781d1d487)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v37 : evalPairs 36 (fullRow 37) = (-192) := by
-  apply checked_row (p := 37) (cs := c37) (by decide)
-  · simp only [c37, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 37) (n := 270)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c31 : List TraceChunk := [(12,0x751ee138071df5e48f781c9e086781f5e0837820de07878215e07e),(9,0x1cf84755dde486785e9f28b7a9ea0c848f1e9ce88),(12,0x77dfdeb8476df9db877b1e9e37c75631d17d7b1d5d98a7bde5d183),(12,0x75a01e28a711f5d4757aa15d8797aa11f18b789e5d17f7adfdd07d),(12,0x791f5d77d76e11e485755e5e68677dfdcf7f74a09eb747ce15de84),(12,0x765f1e17a74619de7e761edef88795e9e17e7aa11e77a73e01e585),(12,0x76205e280751f1e17f755fdf38679e11e17c7620ddb7d78215e083),(12,0x77e05df827622de37578211e77f781edd87d781f5e08879df9e480),(12,0x75a01e98879dd9e08578205e281791fdd78a785e9ec7e76de5e086),(12,0x7a1e1db7a76a05df86781f1e583781f9da757ae2de07e78a11df78),(12,0x78201d9847be19e47d77ddde38b769e1e17c7820de087771d1e08d),(12,0x7821de08977dd9e08578631e06f77a11e38378215e07978215e07b),(12,0x771e5e07e7662de07e765edd68178205e08178219d483781d5e07b),(12,0x781fde07b7762de87878a05e08278201e08577df1e07b78211e180),(12,0x781e9e08678209e482781c9e090765e1e383781f5e08678a09e076),(12,0x799fde07778a15e08178225e976781e9e08d7821de0727ae09e086),(12,0x77e01e086781f1e37c7820ddc7d78201e07f765f5e0807820de084),(12,0x771fde08978205e07778e15e07b7820de07a79619e07b781f9e086),(12,0x78201e08677e01e07a781f9e07c781f1e08578231e8757721de079),(12,0x77a09e07978229e07f78225e079781e5e08378211e07c769e9e086),(12,0x78229e084781c9e087775fde082781d5e08378215e37f7820de07d),(12,0x781f5e07f78211e081781d1e1847821de07978201e08778211e075),(10,0x77a15e07b78209e07f7820de082771fde07c78205e083)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v31 : evalPairs 30 (fullRow 31) = 73 := by
-  apply checked_row (p := 31) (cs := c31) (by decide)
-  · simp only [c31, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v31 : evalPairs 30 (fullRow 31) = (73) := by
+  apply row_from_table table_ok (p := 31) (n := 271)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c29 : List TraceChunk := [(12,0x6a9ede67b7e211e08a781d9e083781ede08078215e07a7821de07e),(8,0x7d9f5be8470e0dd8817b5edd884801f9f285),(12,0x79605e17d7a61dd47e77df1e88a7bdf9c67d7be11bf79779fde481),(12,0x7a61ddd7d765d9f28878df5e98176e25ef7877e0de77d779f9de7f),(12,0x775fdd78577211e37a7620dea82785f5df847a1ddd98075a15dd7e),(12,0x799f5e38977e05e87878a1dd07d769e9e287781e5f08477a01e77d),(12,0x7a1ede283779fde37d77a09dd89785d5e88078e09e1837a20deb7a),(12,0x779f1d888781e5e28c785e9e47f781f5e37d78209df8079611da81),(12,0x78211e07977611e58278609dc7b79e2de27b799f9e07c7ae05e281),(12,0x79de1e37f7821dde7c79e05db80775e1db8a77dfde084791d5e384),(12,0x7821de881781fde17777219e27a77df5e08a7aa01e27c77a11e07e),(12,0x7820de17d7820dda87761c9e08478e0de085795dde58677205e07b),(12,0x781e9e08d78201db7d78215e17b78211e08477205dc78781e5dd8a),(12,0x791fde086781e9e083791f9e08777df5e080781f5e083791f1e07c),(12,0x78e05e08179209e07478229e0787820de07d78615e083781f5e17c),(12,0x781f1e08079a05e088781d1e07e78219df84781e9e58278219e07c),(12,0x79219e07e78205e07f785f9e082781e5e08177e09e382781f1e086),(12,0x77a15e08278de9e088781ede08277de5e07f78205e07f78e1de07c),(12,0x78a11e080781fde07c781f5dd807820de084781ddde8378201e07f),(12,0x781f9e083781fde083781f9e07977a11e08078205db7c7820de083),(12,0x7820de07378211e07f78209d97c7820de08378201e08176de9e084),(12,0x78209e08777de9e07a79a1de082781f5dd7f78211e082781cde08a),(12,0x78205e07d78209e07c78205e08478211e07e781e9e0807820de47c),(2,0x77621e07c)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v29 : evalPairs 28 (fullRow 29) = 91 := by
-  apply checked_row (p := 29) (cs := c29) (by decide)
-  · simp only [c29, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v29 : evalPairs 28 (fullRow 29) = (91) := by
+  apply row_from_table table_ok (p := 29) (n := 274)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c23 : List TraceChunk := [(12,0x7ce01e07a7821de084781dde08378201e07e7820de07a7821de07d),(5,0x1d582761edd387725d9b986),(12,0x771fddc7c79a19e4827a9e9f08275df9d780751fdd77d7421dc780),(12,0x7760dd17c7b211ee84761f5d97e76a01ec8377a01e580769f1ec85),(12,0x775f1e186779f1d67e78a11de7b79e05df85735f1e583755f9e37b),(12,0x789fdd3817920de67978225e37b7aa0ddf7b7a5fde08178e0dde83),(12,0x771f9e18178215e37b785f5dd8278a0dda81789f5e37d79615e27e),(12,0x78a31e27878209df7f779f9e08277609e07d76e11e17d76e01ea80),(12,0x78209dc8677dd5e189789fde07c785f9e08377e01de7e78615e478),(12,0x775f5e185781fddd7c77a05df8278205db7d785fddf87781ede47f),(12,0x781e5dd82789fddf7b77621e07e785f1d785781f9df7a78211dc81),(12,0x79e15e17478211e18279605dd7c77615e07f789f1e088771e5e088),(12,0x78209e281795f9e07d78a15e07e785fde07b78625e07f79df5e183),(12,0x77a11e081781f1dc84789fde07d7960de48077de9e07e77e21df7e),(12,0x789d9e084799f5e08577dede08377e0de08078205e37878219e07c),(12,0x77a09e07e781fde0837820dde7c78201de8376e01e07c78209e085),(12,0x78201e07b7820dd97e7820de07f78205e07a78215e07f78211e07c),(12,0x78211e27e78211df7e781f9e082771fde084775e9e086789fde07f),(12,0x781f5de8078e0de081775f5e07f7820de084781e1e08877a05e077),(12,0x78201e081789f1e08078209e081781e5e08478e09e07e78211de7e),(12,0x78201e081781f9dd8278205df8178201e07c78209e07f79e05e381),(12,0x781e5e08877e09e07c78209e77f78211e07678225e08279dcde086),(12,0x781f5e08377df1e0847820de27978205e084781fddc8078209e07e),(2,0x78a05e07e)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 theorem v23 : evalPairs 22 (fullRow 23) = (-118) := by
-  apply checked_row (p := 23) (cs := c23) (by decide)
-  · simp only [c23, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+  apply row_from_table table_ok (p := 23) (n := 271)
   all_goals decide +kernel
-
-end SunHardCompact.Proof
-end
-
-section
-namespace SunHardCompact.Proof
-open SunHardRank SunHardCompact
-
-private def c19 : List TraceChunk := [(12,0x78215e07a78215e084781e9e080781f9e08478205e07c7820de07e),(8,0x7adf9da85779fdca817adf9f084781e1e082),(12,0x7ba0dd97e79609ec7e77dfdd384759fddc7f77dfdde817e5fdf080),(12,0x789fde17f77e09d97e789f9dd807720ddd7c77e0de07e7a211e77c),(12,0x7660dec8277a05de7e78a15dc7d781f1d484759fdda7e76e1de57d),(12,0x78601e18078e01e28079a05df7e78dfdda85789f9e07f78e05d57b),(12,0x795fde28477df9dd8075a01da82761f1e78077609da81795f9df80),(12,0x78a01df81791ede288785ede07f78a05de8177e05de8178a01e17d),(12,0x7920de07d77e01dd8076e11e37a78215e080781ede18277601e281),(12,0x78dfde0807820ddd7b78215e07e779fddf8178205de7d78601e081),(12,0x7820dde7d78219e37b779f9e181785f9e386781f9df7e78a01e080),(12,0x781fdde7f77a09e084781e1e08278609e081785f9e08177a09e27d),(12,0x781e9e088781f1e58177e01e081775f5e08577de9dd83785f5e084),(12,0x781f5df84789f5e2807820de07e7820de07f78201e07f77a05e080),(12,0x781fde08178211e37b77209df7b78215e07c78205dd8378209e17d),(12,0x77a01e081779f5df8078a05e07f78a15de7b77a09e08178205e17e),(12,0x78211e082781ede083781f5e08277df9e085781e9e18078209e381),(12,0x78219e07f781f5e181781f9e18378205e17c78609e08078a01e07d),(12,0x785e9e085781f5e07f78201e08477dede08278209de8078205e07b),(12,0x78205df7f78605e08278201e07e78205e07d78201df8078209e083),(12,0x781fde07c77e09e08078df9e08278201e38178209e07f781f1e081),(12,0x78205e08178201e07b78219e07d78201e08377df9e08077dede087),(12,0x781f9e081781fde07f7860de07f77dfde184781ede08177e11e07c),(1,0x1e17f)]
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem v19 : evalPairs 18 (fullRow 19) = 4 := by
-  apply checked_row (p := 19) (cs := c19) (by decide)
-  · simp only [c19, RunOK]
-    repeat' apply And.intro
-    all_goals decide +kernel
+theorem v19 : evalPairs 18 (fullRow 19) = (4) := by
+  apply row_from_table table_ok (p := 19) (n := 273)
   all_goals decide +kernel
-
 end SunHardCompact.Proof
 end
 
