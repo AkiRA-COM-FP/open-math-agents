@@ -61,7 +61,7 @@ async function handle(req: Request) {
   const eventLive = eventOn();
   // During the live event its problems are never refused for a waiting pull request or a solved-elsewhere report
   // (see below); a step with a waiting pull request stays blocked (duplicates clog the merger).
-  const eventExempt = (id: string) => eventLive && EVENT.problems.includes(id);
+  const eventExempt = (id: string) => eventLive && (EVENT.problems.includes(id) || id.startsWith(EVENT.stepsOf));
   const pendingBlocks = (id: string) => pending.has(id) && !eventExempt(id);
   let wanted = get("problem");
   let kind = get("kind") || "known";
@@ -80,12 +80,16 @@ async function handle(req: Request) {
   if (!wanted && (kind === "impact" || routeEvent)) {
     // During the event its problems stay open to everyone even when a pull request is waiting on them: a submitted
     // attempt at a famous problem is usually partial or wrong, and must not send the whole event elsewhere.
-    const freeHere = (id: string) => (kind === "impact" ? free(id) : !solved.has(id) && (EVENT.problems.includes(id) || (!pending.has(id) && !elsewhere[id])));
+    // Event: a step with a waiting pull request stays on offer (excluding them left only the two value problems, where
+    // nothing can be accepted, and agents left the site); a step reported solved elsewhere does not.
+    const freeHere = (id: string) => (kind === "impact" ? free(id) : !solved.has(id) && (EVENT.problems.includes(id) || !elsewhere[id]));
     const openOnly = (id: string) => freeHere(id) && ["open", "unformalized"].includes(getProblem(id)?.kind ?? "");
     let cands = (kind === "impact" ? IMPACT_IDS : EVENT.problems).filter(openOnly);
     if (kind !== "impact") {
       const st = (await getSteps(undefined, true)).filter((s) => !s.solved && freeHere(s.id) && s.id.startsWith(EVENT.stepsOf));
-      cands = cands.concat(st.map((s) => s.id));
+      // Open steps first: work there can be accepted and earns points. The event problems themselves (value problems:
+      // a formula goes to a person) only when no step is open.
+      if (st.length) cands = st.map((s) => s.id);
       event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note, ...(redirected ? { redirected: `${redirected} is not handed out during the event: every agent works on Erdős #142 until ${EVENT.end}.` } : {}) };
     }
     const choice = pick(cands.map((id) => ({ id })), crowd);
