@@ -61,7 +61,7 @@ else
   BPID=""; LAST_BACKLOG=0; LAST_SCAN=0
 fi
 touch "$ROOT/queue.tsv"
-SLOTS=${SLOTS:-8}; FEED=${FEED:-25}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0; CPID=""
+SLOTS=${SLOTS:-16}; declare -A SPID; LAST_REFRESH=0; LAST_OLD=0; OLDJOBS=1; LAST_CREDIT=0; REQ_SHA=""; LAST_PENDING=0; CPID=""
 wait_slots() { local i; for i in $(seq 1 "$SLOTS"); do [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""; done; }
 iso() { date -u -d "@$1" +%Y-%m-%dT%H:%M:%SZ; }
 nap() { local S=$1 L=$(( END - $(date -u +%s) )); [ "$S" -gt "$L" ] && S=$L; [ "$S" -gt 0 ] && sleep "$S"; return 0; }
@@ -100,19 +100,24 @@ JQ_RUN='[.id, .head_sha, .run_attempt, .html_url, .updated_at, (.conclusion // "
 remaining() { gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset)"' 2>/dev/null || echo "999 0"; }
 budget() {  # never let the repository run dry: other jobs (checks, deploys) need the API too; GraphQL is checked too
   local rem reset grem greset; read -r rem reset grem greset < <(gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset) \(.resources.graphql.remaining) \(.resources.graphql.reset)"' 2>/dev/null || echo "999 0 999 0")
-  echo "budget: core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv")"
+  echo "budget: core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv"), busy slots $(cat "$ROOT/busy" 2>/dev/null || echo ?)/$SLOTS, verdicts in 10 min $(awk -v t=$(( $(date -u +%s) - 600 )) '$1 >= t' "$ROOT/verdicts.log" 2>/dev/null | wc -l)"
   # the wait never runs past the end of this job, and the queue is saved first (the next merger resumes it)
-  if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; state_save; nap $(( reset - $(date -u +%s) + 5 )); fi
-  if [ "${grem:-999}" -lt 60 ]; then echo "GraphQL budget low ($grem left), waiting for the reset"; state_save; nap $(( greset - $(date -u +%s) + 5 )); fi
+  if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; touch "$ROOT/budget_low"; nap $(( reset - $(date -u +%s) + 5 )); fi
+  if [ "${grem:-999}" -lt 60 ]; then echo "GraphQL budget low ($grem left), waiting for the reset"; touch "$ROOT/budget_low"; nap $(( greset - $(date -u +%s) + 5 )); fi
+  rm -f "$ROOT/budget_low"
 }
 refresh() {  # main moved on (merges): pull it; each verdict slot's copy is synced when the slot next starts (sync_slot)
-  git -C "$ROOT/base" fetch -q --depth 1 origin main && git -C "$ROOT/base" reset -q --hard FETCH_HEAD; git -C "$ROOT/base" clean -fdq
+  ( flock -w 300 7
+    git -C "$ROOT/base" fetch -q --depth 1 origin main && git -C "$ROOT/base" reset -q --hard FETCH_HEAD; git -C "$ROOT/base" clean -fdq
+  ) 7> "$ROOT/base.lock"
   BASE_REV=$(git -C "$ROOT/base" rev-parse HEAD 2>/dev/null || date +%s%N)
 }
 declare -A SYNCED
 sync_slot() {  # $1 slot: bring its copy of main up to date (rsync: only what changed), never while it works
   [ "${SYNCED[$1]:-}" = "$BASE_REV" ] && [ -d "$ROOT/base_$1" ] && return 0
-  if command -v rsync >/dev/null; then rsync -a --delete "$ROOT/base/" "$ROOT/base_$1/"; else rm -rf "$ROOT/base_$1"; cp -a "$ROOT/base" "$ROOT/base_$1"; fi
+  ( flock -w 300 7
+    if command -v rsync >/dev/null; then rsync -a --delete "$ROOT/base/" "$ROOT/base_$1/"; else rm -rf "$ROOT/base_$1"; cp -a "$ROOT/base" "$ROOT/base_$1"; fi
+  ) 7> "$ROOT/base.lock"
   SYNCED[$1]=$BASE_REV
 }
 scan() {  # completed runs created in the last $1 seconds, in 30-minute slices (at most 1,000 runs per query)
@@ -152,7 +157,7 @@ publish_pending() {  # the open pull requests, by problem id (their title), to t
   [[ "$QUEUED" =~ ^[0-9]+$ ]] || QUEUED=null
   RUNNING=$(awk 'END { print NR }' prev_inprog.tsv 2>/dev/null); [[ "$RUNNING" =~ ^[0-9]+$ ]] || RUNNING=0
   # verdicts given in the last hour (one done/pr.<n>.<head> per verdict): the pace that the site's wait estimates use
-  PERHOUR=$(find "$ROOT/done" -maxdepth 1 -name 'pr.*' -mmin -60 2>/dev/null | wc -l); [[ "$PERHOUR" =~ ^[0-9]+$ ]] || PERHOUR=0
+  PERHOUR=$(awk -v t=$(( $(date -u +%s) - 3600 )) '$1 >= t' "$ROOT/verdicts.log" 2>/dev/null | wc -l); [[ "$PERHOUR" =~ ^[0-9]+$ ]] || PERHOUR=0
   local OIDC=""
   if [ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ]; then
     OIDC=$(curl -sS -m 30 -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=lefttosolve.com" | jq -r '.value // ""')
@@ -210,111 +215,141 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
     [ "$MODE" = batch ] || echo "$ID" >> "$ROOT/watch.txt"        # a batch verdict comes back with the next pass
   fi
   [ -e "$W/remerge.flag" ] || [ -e "$W/rerun.flag" ] || touch "$ROOT/done/pr.$PR.$SHA"
+  echo "$(date -u +%s) $PR" >> "$ROOT/verdicts.log"
   git -C "$B" clean -fdq -- proofs reductions statements 2>/dev/null || true
 }
 refresh
 [ -n "${MERGER_RESUME:-}" ] || state_load
+# As many slots as the disk holds (each has a full copy of main), keeping 3 GB free.
+SZ=$(du -sm "$ROOT/base" 2>/dev/null | cut -f1); SZ=$(( ${SZ:-500} + 20 ))
+HAVE=$(ls -d "$ROOT"/base_* 2>/dev/null | wc -l); FREE=$(df -Pm "$ROOT" | awk 'NR == 2 {print $4}')
+MAXS=$(( (${FREE:-0} + HAVE * SZ - 3072) / SZ )); [ "$MAXS" -lt 1 ] && MAXS=1
+[ "$SLOTS" -gt "$MAXS" ] && { echo "merger: disk for $MAXS slots only (copy of main ${SZ} MB, ${FREE} MB free)"; SLOTS=$MAXS; }
+echo "merger: $SLOTS slots"
 LLID="$$-$(date +%s%N)"; echo "$LLID" > "$ROOT/ledger_loop.id"; bash "$ROOT/base/tools/ledger_post.sh" loop "$LLID" & LLOOP=$!
+SPOOL="$ROOT/spool"; mkdir -p "$SPOOL"; touch watch.txt pending.txt
+spool() { local F="$SPOOL/.c.$BASHPID.$(date +%s%N)"; cat > "$F"; [ -s "$F" ] && mv "$F" "${F/\/.c./\/c.}" || rm -f "$F"; }
+# The work is split in three processes, so that polling never leaves a slot idle:
+# - fast_poll: the check-proof runs that left the in-progress list, and the watched ones (every ~15 s);
+# - slow_poll: the 10-minute scan, the batch checker's verdicts, old verdict jobs, requeued runs, credits to resend,
+#   the pending list for the site, the backlog pass and the saved state;
+# - the dispatcher (this shell): merges what the pollers found into the queue (oldest pull request first) and keeps
+#   every slot busy; it also refreshes main and restarts in place on a new version of this script.
+fast_poll() {
+  while [ "$(date -u +%s)" -lt "$END" ]; do
+    local T=$(date -u +%s); budget
+    { gh api --paginate "repos/$REPO/actions/workflows/check-proof.yml/runs?status=in_progress&per_page=100" --jq ".workflow_runs[] | $JQ_RUN" > inprog.tsv 2>/dev/null || cp prev_inprog.tsv inprog.tsv
+      cut -f1 inprog.tsv | sort > now_ids; cut -f1 prev_inprog.tsv | sort > prev_ids
+      for LID in $(comm -23 prev_ids now_ids); do
+        gh api "repos/$REPO/actions/runs/$LID" --jq "select(.status == \"completed\" and .conclusion != \"cancelled\") | $JQ_RUN" 2>/dev/null \
+          || echo "$LID" >> watch.txt
+      done
+      mv inprog.tsv prev_inprog.tsv
+      mv watch.txt watch.cur 2>/dev/null || : > watch.cur; touch watch.txt
+      for WID in $(sort -u watch.cur); do
+        gh api "repos/$REPO/actions/runs/$WID" --jq "select(.status == \"completed\" and .conclusion != \"cancelled\") | $JQ_RUN" 2>/dev/null || true
+      done
+    } | spool
+    local L=$(( 15 - $(date -u +%s) + T )); [ "$L" -gt 0 ] && sleep "$L"
+  done
+}
+slow_poll() {
+  local LAST_SCAN=0 LAST_BATCH=0 LAST_OLD=0 OLDJOBS=1 LAST_CREDIT=0 LAST_PENDING=0 REQ_SHA="" CPID="" NOW REM B
+  while [ "$(date -u +%s)" -lt "$END" ]; do
+    NOW=$(date -u +%s)
+    if [ $(( NOW - LAST_SCAN )) -ge 600 ]; then LAST_SCAN=$NOW; scan 10800 | spool; fi
+    if [ -f base/tools/batch_verdicts.sh ] && [ $(( NOW - LAST_BATCH )) -ge 90 ]; then
+      # three hours back even after a hand-over: a queue lost with the previous merger is found again (cheaply: verdicts
+      # of pull requests merged or closed since are dropped without an API call)
+      LAST_BATCH=$NOW; ROOT="$ROOT" START="$START" FLOOR=$(( START - 10800 )) timeout 240 bash base/tools/batch_verdicts.sh 2>> batchv.log | spool || true
+    fi
+    # verdict jobs queued by the old per-proof trigger still run: leave their commits to them (no double report)
+    if [ "$OLDJOBS" = 1 ] && [ $(( NOW - LAST_OLD )) -ge 300 ]; then
+      LAST_OLD=$NOW
+      gh api --paginate "repos/$REPO/actions/workflows/verdict.yml/runs?status=queued&per_page=100" \
+        --jq '.workflow_runs[] | select(.event == "workflow_run") | .head_sha' > pending.new 2>/dev/null || echo x >> pending.new
+      mv pending.new pending.txt; [ -s pending.txt ] || OLDJOBS=0
+    fi
+    # runs that earlier versions lost (base/tools/requeue.tsv, same columns plus a mode): queued once per version of it
+    if [ -s base/tools/requeue.tsv ] && [ "$(sha1sum base/tools/requeue.tsv | cut -d' ' -f1)" != "$REQ_SHA" ]; then
+      REQ_SHA=$(sha1sum base/tools/requeue.tsv | cut -d' ' -f1); grep -v '^#' base/tools/requeue.tsv | spool
+      echo "merger: requeued $(grep -vc '^#' base/tools/requeue.tsv) runs"
+    fi
+    # credits the site did not record (it answered an error): retry every 10 minutes, at most 5 minutes per pass
+    if [ -s "$CREDIT_RETRY_FILE" ] && [ $(( NOW - LAST_CREDIT )) -ge 600 ] && { [ -z "$CPID" ] || ! kill -0 "$CPID" 2>/dev/null; }; then
+      LAST_CREDIT=$NOW; sort -u "$CREDIT_RETRY_FILE" > credit_all.txt; head -n 30 credit_all.txt > credit_todo.txt
+      tail -n +31 credit_all.txt > "$CREDIT_RETRY_FILE"
+      ( C="$ROOT/credit_work"; rm -rf "$C"; mkdir -p "$C"; cd "$C"
+        timeout 300 bash -c 'for P in $(cat "$1"); do bash "$2/tools/credit.sh" "$P" >/dev/null 2>&1 || true; done' _ "$ROOT/credit_todo.txt" "$ROOT/base" || true
+        echo "merger: retried $(wc -l < "$ROOT/credit_todo.txt") credits in the background" ) &
+      CPID=$!
+    fi
+    # every 15 minutes: the open pull requests to the site, so no agent is sent to a problem with a proof waiting
+    if [ $(( NOW - LAST_PENDING )) -ge 900 ]; then LAST_PENDING=$NOW; publish_pending; fi
+    # backlog: only when no pass is running, at most every 15 minutes, and with budget to spare for the verdicts
+    read -r REM _ < <(remaining)
+    if { [ -z "$BPID" ] || ! kill -0 "$BPID" 2>/dev/null; } && [ $(( NOW - LAST_BACKLOG )) -ge 900 ] && [ "${REM:-0}" -gt 1500 ] && [ ! -s queue.tsv ]; then
+      LAST_BACKLOG=$NOW; B="$ROOT/backlog"; rm -rf "$B"; mkdir -p "$B"
+      ( flock -w 300 7; cp -a "$ROOT/base" "$B/base" ) 7> "$ROOT/base.lock"
+      ( cd "$B" && LANES=1 BACKLOG_MIN_BUDGET=800 timeout 3000 bash "$B/base/tools/backlog_pass.sh" 2>&1 | grep -E "merged|batch|done:|budget" | sed 's/^/backlog: /' ) &
+      BPID=$!
+    fi
+    [ $(( NOW - LAST_STATE )) -ge 300 ] && state_save
+    sleep 10
+  done
+}
+fast_poll & FPID=$!
+slow_poll & SPPID=$!
+stop_pollers() { kill "$FPID" "$SPPID" 2>/dev/null; wait "$FPID" "$SPPID" 2>/dev/null; }
+mapfile -t QL < <(awk 'NF' queue.tsv); QI=0; LAST_MERGE=0; LAST_QSAVE=0
 while [ "$(date -u +%s)" -lt "$END" ]; do
-  NOW=$(date -u +%s); budget
-  : > cand.tsv
-  # 1. runs that were in progress at the last poll and are not any more
-  gh api --paginate "repos/$REPO/actions/workflows/check-proof.yml/runs?status=in_progress&per_page=100" --jq ".workflow_runs[] | $JQ_RUN" > inprog.tsv 2>/dev/null || cp prev_inprog.tsv inprog.tsv
-  cut -f1 inprog.tsv | sort > now_ids; cut -f1 prev_inprog.tsv | sort > prev_ids
-  comm -23 prev_ids now_ids > left_ids
-  for LID in $(cat left_ids); do
-    gh api "repos/$REPO/actions/runs/$LID" --jq "select(.status == \"completed\" and .conclusion != \"cancelled\") | $JQ_RUN" >> cand.tsv 2>/dev/null \
-      || echo "$LID" >> watch.txt
-  done
-  mv inprog.tsv prev_inprog.tsv
-  # 2. every 10 minutes (and at start): a full scan of runs created in the last three hours, in slices
-  if [ $(( NOW - LAST_SCAN )) -ge 600 ]; then LAST_SCAN=$NOW; scan 10800 >> cand.tsv; fi
-  # 3. re-runs and runs that were not finished when first seen
-  mv watch.txt watch.cur 2>/dev/null || : > watch.cur; touch watch.txt
-  for WID in $(sort -u watch.cur); do
-    gh api "repos/$REPO/actions/runs/$WID" --jq "select(.status == \"completed\" and .conclusion != \"cancelled\") | $JQ_RUN" >> cand.tsv 2>/dev/null || true
-  done
-  # 3b. verdicts of the batch checker (batch-check.yml), every 90 seconds at most (tools/batch_verdicts.sh: ~4 API calls)
-  if [ -f base/tools/batch_verdicts.sh ] && [ $(( NOW - ${LAST_BATCH:-0} )) -ge 90 ]; then
-    # three hours back even after a hand-over: a queue lost with the previous merger is found again (cheaply: verdicts
-    # of pull requests merged or closed since are dropped without an API call)
-    LAST_BATCH=$NOW; ROOT="$ROOT" START="$START" FLOOR=$(( START - 10800 )) timeout 240 bash base/tools/batch_verdicts.sh >> cand.tsv 2>> batchv.log || true
-  fi
-  # verdict jobs queued by the old per-proof trigger still run: leave their commits to them (no double report)
-  if [ "$OLDJOBS" = 1 ] && [ $(( NOW - LAST_OLD )) -ge 300 ]; then
-    LAST_OLD=$NOW; : > pending.txt
-    gh api --paginate "repos/$REPO/actions/workflows/verdict.yml/runs?status=queued&per_page=100" \
-      --jq '.workflow_runs[] | select(.event == "workflow_run") | .head_sha' >> pending.txt 2>/dev/null || echo x >> pending.txt
-    [ -s pending.txt ] || OLDJOBS=0
-  fi
+  NOW=$(date -u +%s)
   if [ $(( NOW - LAST_REFRESH )) -ge 120 ]; then
     LAST_REFRESH=$NOW; refresh
     if [ "$(sha1sum "$SELF" | cut -d' ' -f1)" != "$SELF_SHA" ]; then
-      echo "merger: new version on main, restarting in place"; wait_slots
-      export MERGER_RESUME=1 MERGER_START=$START MERGER_END=$END MERGER_BPID=$BPID MERGER_LAST_BACKLOG=$LAST_BACKLOG MERGER_INITIAL_BACK=$INITIAL_BACK
+      echo "merger: new version on main, restarting in place"; stop_pollers; wait_slots
+      printf '%s\n' "${QL[@]:$QI}" | awk 'NF' > queue.tsv
+      export MERGER_RESUME=1 MERGER_START=$START MERGER_END=$END MERGER_BPID="" MERGER_LAST_BACKLOG=$NOW MERGER_INITIAL_BACK=$INITIAL_BACK
       exec bash "$SELF"
     fi
   fi
-  # 4. runs that earlier versions lost (base/tools/requeue.tsv, same columns plus a mode): queued once per version of it
-  if [ -s base/tools/requeue.tsv ] && [ "$(sha1sum base/tools/requeue.tsv | cut -d' ' -f1)" != "$REQ_SHA" ]; then
-    REQ_SHA=$(sha1sum base/tools/requeue.tsv | cut -d' ' -f1); grep -v '^#' base/tools/requeue.tsv >> cand.tsv
-    echo "merger: requeued $(grep -vc '^#' base/tools/requeue.tsv) runs"
+  # what the pollers found joins the queue, oldest pull request first (every 5 s at most: the sort reads the whole queue)
+  if [ $(( NOW - LAST_MERGE )) -ge 5 ] && ls "$SPOOL"/c.* >/dev/null 2>&1; then
+    LAST_MERGE=$NOW; ls "$SPOOL"/c.* > spool.list
+    { printf '%s\n' "${QL[@]:$QI}"; xargs -r cat < spool.list; } | awk -F'\t' 'NF >= 6 && !seen[$1]++' > all.tsv
+    xargs -r rm -f < spool.list
+    : > next.tsv
+    while IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE; do
+      [ -n "$ID" ] || continue
+      [ -n "$CONC" ] || { echo "$ID" >> watch.txt; continue; }   # not finished yet
+      [ "$CONC" = skipped ] && continue   # check-proof switched off (vars.OMA_CHECK_PROOF): the batch checker answers
+      [ -e "done/$ID.$ATT" ] && continue
+      [ -s pending.txt ] && grep -qx "$SHA" pending.txt 2>/dev/null && { touch "done/$ID.$ATT"; continue; }   # an old verdict job reports it
+      N=999999; [[ "$TITLE" =~ ([0-9]+)$ ]] && N=${BASH_REMATCH[1]}
+      printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$N" "$ID" "$SHA" "$ATT" "$URL" "$UPD" "$CONC" "$TITLE" "${MODE:-}" >> next.tsv
+    done < all.tsv
+    mapfile -t QL < <(sort -t$'\t' -k1,1n -k2,2n next.tsv | cut -f2-); QI=0
   fi
-  # 5. the queue: new candidates join what is left from earlier loops; oldest pull request first; at most BATCH now
-  cat queue.tsv cand.tsv | awk -F'\t' 'NF >= 6 && !seen[$1]++' > all.tsv
-  : > next.tsv
-  while IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE; do
-    [ -n "$ID" ] || continue
-    [ -n "$CONC" ] || { echo "$ID" >> watch.txt; continue; }   # not finished yet
-    [ "$CONC" = skipped ] && continue   # check-proof switched off (vars.OMA_CHECK_PROOF): the batch checker answers
+  # every free slot takes the next item at once
+  BUSY=0
+  for i in $(seq 1 "$SLOTS"); do
+    if [ -n "${SPID[$i]:-}" ] && kill -0 "${SPID[$i]}" 2>/dev/null; then BUSY=$((BUSY + 1)); continue; fi
+    [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""
+    [ "$QI" -lt "${#QL[@]}" ] && [ ! -e "$ROOT/budget_low" ] || continue
+    IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE <<< "${QL[$QI]}"; QI=$((QI + 1))
     [ -e "done/$ID.$ATT" ] && continue
-    [ "$OLDJOBS" = 1 ] && grep -qx "$SHA" pending.txt 2>/dev/null && { touch "done/$ID.$ATT"; continue; }   # an old verdict job reports it
-    N=$(printf '%s' "$TITLE" | grep -oE '[0-9]+$' || echo 999999)
-    printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$N" "$ID" "$SHA" "$ATT" "$URL" "$UPD" "$CONC" "$TITLE" "${MODE:-}" >> next.tsv
-  done < all.tsv
-  sort -t$'\t' -k1,1n -k2,2n next.tsv | cut -f2- > sorted.tsv
-  # Slots are fed continuously, oldest pull request first: a slot that finishes takes the next item at once, and the
-  # loop goes back to polling after about $FEED seconds (no barrier waiting for the slowest of a batch any more).
-  mapfile -t QL < sorted.tsv; QI=0; T0=$(date -u +%s)
-  while [ "$QI" -lt "${#QL[@]}" ]; do
-    for i in $(seq 1 "$SLOTS"); do
-      [ "$QI" -lt "${#QL[@]}" ] || break
-      { [ -z "${SPID[$i]:-}" ] || ! kill -0 "${SPID[$i]}" 2>/dev/null; } || continue
-      [ -n "${SPID[$i]:-}" ] && wait "${SPID[$i]}" 2>/dev/null; SPID[$i]=""
-      IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE <<< "${QL[$QI]}"; QI=$((QI + 1))
-      touch "done/$ID.$ATT"
-      OLD=0; [ "$(date -u -d "$UPD" +%s 2>/dev/null || echo 0)" -lt "$START" ] && OLD=1
-      [ -n "${MODE:-}" ] && OLD=0   # requeued runs: checked by hand to have no verdict (or a refused merge)
-      sync_slot "$i"
-      verdict "$ID" "$SHA" "$ATT" "$URL" "$OLD" "$i" "$CONC" "$TITLE" "${MODE:-}" & SPID[$i]=$!
-    done
-    [ $(( $(date -u +%s) - T0 )) -ge "$FEED" ] && break
-    sleep 1
+    touch "done/$ID.$ATT"
+    OLD=0; [ "$(date -u -d "$UPD" +%s 2>/dev/null || echo 0)" -lt "$START" ] && OLD=1
+    [ -n "${MODE:-}" ] && OLD=0   # requeued runs: checked by hand to have no verdict (or a refused merge)
+    sync_slot "$i"
+    verdict "$ID" "$SHA" "$ATT" "$URL" "$OLD" "$i" "$CONC" "$TITLE" "${MODE:-}" & SPID[$i]=$!; BUSY=$((BUSY + 1))
   done
-  printf '%s\n' "${QL[@]:$QI}" | awk 'NF' > queue.tsv
-  # 6. credits the site did not record (it answered an error): retry every 10 minutes
-  # in the background and at most 5 minutes per pass, never blocking the verdicts (the site may be down for hours)
-  if [ -s "$CREDIT_RETRY_FILE" ] && [ $(( NOW - LAST_CREDIT )) -ge 600 ] && { [ -z "${CPID:-}" ] || ! kill -0 "$CPID" 2>/dev/null; }; then
-    LAST_CREDIT=$NOW; sort -u "$CREDIT_RETRY_FILE" > credit_all.txt; head -n 30 credit_all.txt > credit_todo.txt
-    tail -n +31 credit_all.txt > "$CREDIT_RETRY_FILE"
-    ( C="$ROOT/credit_work"; rm -rf "$C"; mkdir -p "$C"; cd "$C"
-      timeout 300 bash -c 'for P in $(cat "$1"); do bash "$2/tools/credit.sh" "$P" >/dev/null 2>&1 || true; done' _ "$ROOT/credit_todo.txt" "$ROOT/base" || true
-      echo "merger: retried $(wc -l < "$ROOT/credit_todo.txt") credits in the background" ) &
-    CPID=$!
-  fi
-  # 7. every 15 minutes: the open pull requests to the site, so no agent is sent to a problem with a proof waiting
-  if [ $(( NOW - LAST_PENDING )) -ge 900 ]; then LAST_PENDING=$NOW; publish_pending; fi
-  # backlog: only when no pass is running, at most every 15 minutes, and with budget to spare for the verdicts
-  read -r REM _ < <(remaining)
-  if { [ -z "$BPID" ] || ! kill -0 "$BPID" 2>/dev/null; } && [ $(( NOW - LAST_BACKLOG )) -ge 900 ] && [ "${REM:-0}" -gt 1500 ] && [ ! -s queue.tsv ]; then
-    LAST_BACKLOG=$NOW; B="$ROOT/backlog"; rm -rf "$B"; mkdir -p "$B"; cp -a "$ROOT/base" "$B/base"
-    ( cd "$B" && LANES=1 BACKLOG_MIN_BUDGET=800 timeout 3000 bash "$B/base/tools/backlog_pass.sh" 2>&1 | grep -E "merged|batch|done:|budget" | sed 's/^/backlog: /' ) &
-    BPID=$!
-  fi
-  [ $(( NOW - LAST_STATE )) -ge 300 ] && state_save
-  [ -s queue.tsv ] || sleep 30
+  echo "$BUSY" > "$ROOT/busy"
+  # the queue on disk, for the saved state and the pending list (written by the pollers' side)
+  if [ $(( NOW - LAST_QSAVE )) -ge 30 ]; then LAST_QSAVE=$NOW; printf '%s\n' "${QL[@]:$QI}" | awk 'NF' > queue.tmp && mv queue.tmp queue.tsv; fi
+  sleep 1
 done
-wait_slots; state_save
+stop_pollers; wait_slots; printf '%s\n' "${QL[@]:$QI}" | awk 'NF' > queue.tsv; state_save
 echo stop > "$ROOT/ledger_loop.id"; kill "$LLOOP" 2>/dev/null; bash "$ROOT/base/tools/ledger_post.sh" once   # last lines
 wait
 echo "merger: time is up; the next scheduled run takes over"
