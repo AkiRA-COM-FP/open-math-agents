@@ -15,7 +15,7 @@ abbrev IsOd (x : G) := sign x.1 = -1 ∧ sign x.2 = -1
 def entries (r a : G) : List G := [1, a, a * a, r, r * a, r * a * a]
 
 set_option maxRecDepth 4096 in
-def checked : ∀ r a : G, IsOd r → IsEv a →
+theorem checked : ∀ r a : G, IsOd r → IsEv a →
     (entries r a).all (fun x => decide (x⁻¹ ∈ entries r a)) = true ∧
     (entries r a).all (fun x => (entries r a).all (fun y => decide (x * y ∈ entries r a))) = true ∧
     ∃ b : G, IsEv b ∧ b ∉ entries r a := by decide +kernel
@@ -39,7 +39,7 @@ def evenPart : Subgroup G where
   one_mem' := by simp [IsEv]
   mul_mem' := by
     rintro x y ⟨hx1, hx2⟩ ⟨hy1, hy2⟩
-    simp [IsEv, sign_mul, hx1, hx2, hy1, hy2]
+    simp [IsEv, Equiv.Perm.sign_mul, hx1, hx2, hy1, hy2]
   inv_mem' := by
     rintro x ⟨hx1, hx2⟩
     simp [IsEv, hx1, hx2]
@@ -83,7 +83,7 @@ lemma rank33 : ∀ u v : Arxiv.«2605.12342».gammaSubgroup 3 3,
   · exact dihedral_case v.val u.val hvo hue u v (by simp [entries]) (by simp [entries])
   · exact dihedral_case u.val v.val huo hve u v (by simp [entries]) (by simp [entries])
   · have ha : IsEv (u.val * v.val) := by
-      simp [IsEv, sign_mul, huo.1, huo.2, hvo.1, hvo.2]
+      simp [IsEv, Equiv.Perm.sign_mul, huo.1, huo.2, hvo.1, hvo.2]
     have h : u.val * (u.val * v.val) = v.val := by
       rw [← mul_assoc, odd_square _ huo, one_mul]
     exact dihedral_case u.val (u.val * v.val) huo ha u v (by simp [entries]) (by simp [entries, h])
