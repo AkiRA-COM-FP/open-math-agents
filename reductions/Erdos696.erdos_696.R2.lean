@@ -1,6 +1,6 @@
 import FormalConjectures.ErdosProblems.«696»
 
-/- Erdős 696. The two inputs isolate the upper divisor-chain bound and the
+/-! Erdős 696. The two inputs isolate the upper divisor-chain bound and the
 lower prime-chain bound in sections 3 and 5 of David Turturean's
 Normal orders of the Erdős chain functions h(n) and H(n).
 For the latter, a positive proportion along a subsequence suffices. -/
