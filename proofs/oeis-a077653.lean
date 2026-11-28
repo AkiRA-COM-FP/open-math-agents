@@ -1,7 +1,7 @@
 import OMAStatements.S_oeis_a077653
 
 -- OEIS A077653, general conjecture of Benoit Cloitre.
--- Counterexample and proof: @Youssef000299 with Codex.
+-- Counterexample and proof by Youssef BERHAYLA (@Youssef000299) with the assistance of Codex.
 namespace OMA.A077653Counterexample
 open OMA.S_oeis_a077653
 
