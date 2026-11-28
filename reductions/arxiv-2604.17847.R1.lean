@@ -1,12 +1,16 @@
 import OMAStatements.S_arxiv_2604_17847
+import Mathlib.NumberTheory.LSeries.PrimesInAP
 
 namespace OMA.R_arxiv_2604_17847_R1
 
 open OMA.S_arxiv_2604_17847
 
--- The open finite-witness question: can one good class be covered by a finite pool?
+-- It suffices to find a finite cover in the case of a recurring prime-index rank family.
 def H1 : Prop :=
-  ∀ q : ℕ, q.Prime → q ≠ 2 → (S q).Nonempty →
+  ∀ q r : ℕ, q.Prime → q ≠ 2 → r ∈ S q →
+    (∃ e : ℕ, e ∣ r.gcd (pisano q) ∧ ∀ B : ℕ, ∃ l > B, ∃ p > B,
+      l.Prime ∧ r.gcd (pisano q) * l ≡ r [MOD pisano q] ∧
+      p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p = e * l) →
     ∃ (r : ℕ) (W : Finset ℕ), r < pisano q ∧
       ∀ m : ℕ, 0 < m → m ≡ r [MOD pisano q] → q ^ 2 ∣ Nat.fib m ∨
         ∃ p ∈ W, p.Prime ∧ p ≡ 1 [MOD q] ∧ p ∣ Nat.fib m
@@ -158,11 +162,104 @@ lemma finite_prime_cover_iff {q P : ℕ} (hq : q.Prime) (hP : 0 < P) :
       exact Or.inr ⟨p, Finset.mem_singleton_self p, hp, hpmod,
         hrank.2.trans (Nat.fib_dvd _ _ (hrP.trans (Nat.modEq_zero_iff_dvd.mp hm)))⟩
 
+lemma factor_rank_at_prime_index {k g l : ℕ} (hl : l.Prime) (hk : k ∣ g * l) (hkg : ¬ k ∣ g) :
+    ∃ e : ℕ, e ∣ g ∧ k = e * l := by
+  by_cases h : l ∣ k
+  · obtain ⟨e, he⟩ := h
+    have hke : k = e * l := he.trans (Nat.mul_comm _ _)
+    exact ⟨e, Nat.dvd_of_mul_dvd_mul_right hl.pos (hke ▸ hk), hke⟩
+  · exact False.elim (hkg ((hl.coprime_iff_not_dvd.mpr h).symm.dvd_of_dvd_mul_right hk))
+
+lemma witness_totient_at_period {w q P : ℕ} (hP : 0 < P)
+    (hrP : rankOfApparition w ∣ P) (hqw : q ∣ Nat.totient w) :
+    q ∣ Nat.totient (Nat.fib P) := by
+  have hindices := Nat.nonempty_of_pos_sInf (s := {k : ℕ | 0 < k ∧ w ∣ Nat.fib k})
+    (Nat.pos_of_dvd_of_pos hrP hP)
+  have hr : 0 < rankOfApparition w ∧ w ∣ Nat.fib (rankOfApparition w) := Nat.sInf_mem hindices
+  exact hqw.trans (Nat.totient_dvd_of_dvd (hr.2.trans (Nat.fib_dvd _ _ hrP)))
+
+-- At every sufficiently large prime index in the normalized class the square witness drops out.
+lemma prime_index_rank {q r l : ℕ} (hq : q.Prime) (hr : r ∈ S q)
+    (hbad : ¬ q ∣ Nat.totient (Nat.fib (pisano q))) (hl : l.Prime)
+    (hlarge : rankOfApparition (q ^ 2) < l)
+    (hmod : r.gcd (pisano q) * l ≡ r [MOD pisano q]) :
+    ∃ e : ℕ, e ∣ r.gcd (pisano q) ∧ ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p = e * l := by
+  let g := r.gcd (pisano q)
+  have hP := Nat.zero_lt_of_lt hr.1
+  have hg : 0 < g := Nat.gcd_pos_of_pos_right _ hP
+  have indexpos := Nat.mul_pos hg hl.pos
+  have unaligned (w : ℕ) (hw : q ∣ Nat.totient w) : ¬ rankOfApparition w ∣ g :=
+    fun hd => hbad (witness_totient_at_period hP (hd.trans (Nat.gcd_dvd_right _ _)) hw)
+  rcases totient_fib_witness hq (hr.2 _ hmod) with hs | ⟨p, hp, hpmod, hrank⟩
+  · have hsq : q ∣ Nat.totient (q ^ 2) := by
+      rw [Nat.totient_prime_pow_succ hq 1, pow_one]
+      exact dvd_mul_right _ _
+    have hd := rank_dvd_index indexpos hs
+    obtain ⟨e, he, heq⟩ := factor_rank_at_prime_index hl hd (unaligned _ hsq)
+    have hepos := Nat.pos_of_dvd_of_pos he hg
+    have hle : l ≤ e * l := by simpa using Nat.mul_le_mul_right l hepos
+    omega
+  · have hqt : q ∣ Nat.totient p := by rw [Nat.totient_prime hp]; exact hpmod.symm.dvd'
+    obtain ⟨e, he, heq⟩ := factor_rank_at_prime_index hl hrank (unaligned _ hqt)
+    exact ⟨e, he, p, hp, hpmod, heq⟩
+
+-- Normalize before applying Dirichlet's theorem, as in project PR 5789.
+lemma normalized_prime_indices {r P : ℕ} (hP : 0 < P) :
+    ∀ B : ℕ, ∃ l > B, l.Prime ∧ r.gcd P * l ≡ r [MOD P] := by
+  obtain ⟨a, b, hab, ha, hb⟩ := Nat.exists_coprime r P
+  have hb0 : b ≠ 0 := by
+    intro hz
+    rw [hz, Nat.zero_mul] at hb
+    omega
+  intro B
+  obtain ⟨l, hlarge, hl, hmod⟩ := Nat.forall_exists_prime_gt_and_modEq B hb0 hab
+  refine ⟨l, hlarge, hl, ?_⟩
+  simpa only [Nat.mul_comm (r.gcd P) l, ← ha, ← hb] using hmod.mul_right' (r.gcd P)
+
+-- Select an infinite fiber of the divisor choice, as in project PR 8141.
+lemma fixed_rank_family {q r : ℕ} (hq : q.Prime) (hr : r ∈ S q)
+    (hbad : ¬ q ∣ Nat.totient (Nat.fib (pisano q))) :
+    ∃ e : ℕ, e ∣ r.gcd (pisano q) ∧ ∀ B : ℕ, ∃ l > B, ∃ p > B,
+      l.Prime ∧ r.gcd (pisano q) * l ≡ r [MOD pisano q] ∧
+      p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p = e * l := by
+  classical
+  let g := r.gcd (pisano q)
+  have hg : 0 < g := Nat.gcd_pos_of_pos_right _ (Nat.zero_lt_of_lt hr.1)
+  have pick (B : ℕ) : ∃ e : ↥g.divisors, ∃ l > B, ∃ p > B,
+      l.Prime ∧ g * l ≡ r [MOD pisano q] ∧ p.Prime ∧ p ≡ 1 [MOD q] ∧
+      rankOfApparition p = e.val * l := by
+    let cap := (Finset.range (B + 1)).sup rankOfApparition
+    obtain ⟨l, hbound, hl, hmod⟩ := normalized_prime_indices (r := r)
+      (Nat.zero_lt_of_lt hr.1) (max B (max cap (rankOfApparition (q ^ 2))))
+    have hlB : B < l := lt_of_le_of_lt (le_max_left ..) hbound
+    have hother := lt_of_le_of_lt (le_max_right ..) hbound
+    obtain ⟨e, he, p, hp, hpmod, heq⟩ := prime_index_rank hq hr hbad hl
+      (lt_of_le_of_lt (le_max_right ..) hother) hmod
+    have hepos := Nat.pos_of_dvd_of_pos he hg
+    have hle : l ≤ e * l := by simpa using Nat.mul_le_mul_right l hepos
+    have hpB : B < p := by
+      by_contra! hsmall
+      have hcap : rankOfApparition p ≤ cap := Finset.le_sup (Finset.mem_range_succ_iff.mpr hsmall)
+      have := lt_of_le_of_lt (le_max_left ..) hother
+      omega
+    exact ⟨⟨e, Nat.mem_divisors.mpr ⟨he, hg.ne'⟩⟩, l, hlB, p, hpB, hl, hmod, hp, hpmod, heq⟩
+  choose color hcolor using pick
+  obtain ⟨v, hv⟩ := Finite.exists_infinite_fiber color
+  refine ⟨v.val, (Nat.mem_divisors.mp v.property).1, ?_⟩
+  intro B
+  obtain ⟨i, hi, hBi⟩ := (Set.infinite_coe_iff.mp hv).exists_gt B
+  change color i = v at hi
+  obtain ⟨l, hil, p, hip, rest⟩ := hcolor i
+  exact ⟨l, hBi.trans hil, p, hBi.trans hip, hi ▸ rest⟩
+
 theorem main : H1 → H2 → type_of% @OMA.S_arxiv_2604_17847.main := by
   intro finiteCover exceptional q hq hodd hS
   obtain ⟨r, hr⟩ := hS
   have hP : 0 < pisano q := Nat.zero_lt_of_lt hr.1
-  have descend := (finite_prime_cover_iff hq hP).mp (finiteCover q hq hodd ⟨r, hr⟩)
+  have descend : q ∣ Nat.totient (Nat.fib (pisano q)) := by
+    by_contra hbad
+    exact hbad ((finite_prime_cover_iff hq hP).mp
+      (finiteCover q r hq hodd hr (fixed_rank_family hq hr hbad)))
   rcases totient_fib_witness hq descend with hsquare | hwitness
   · exact exceptional q hq hodd hsquare
   · exact hwitness
