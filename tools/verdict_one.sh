@@ -4,6 +4,8 @@
 # Needs: GH_TOKEN REPO RUN_URL RUN_ID RUN_ATTEMPT HEAD_SHA [OMA_SITE]; the current directory holds artifact/ (the run's
 # verdict artifact) and base/ (main, with tools/ and data/).
 set -euo pipefail
+T0=$(date +%s); TL=""; tick() { TL="$TL $1=$(( $(date +%s) - T0 ))"; }
+trap 'tick end; echo "Tphases=${TL# }"' EXIT
 # Comments and labels go through REST: the GraphQL budget of GITHUB_TOKEN (about 1,000 points an hour for the whole
 # repository) is kept for the merge itself.
 comment() { gh api "repos/$REPO/issues/$PR/comments" -f body="$1" >/dev/null; }
@@ -19,7 +21,7 @@ if [ -e base/tools/merger.v2 ] && [ -z "${MERGER_V2:-}" ]; then exit 0; fi
 if [ -e base/tools/merger.v3 ] && [ -z "${MERGER_V3:-}" ]; then exit 0; fi   # the v3 merger has taken over
 PR=$(head -c 12 artifact/pr.txt | tr -cd '0-9')
 [ -n "$PR" ] || exit 0
-gh api "repos/$REPO/pulls/$PR" > pr.json
+tick pr; gh api "repos/$REPO/pulls/$PR" > pr.json
 [ "$(jq -r .state pr.json)" = open ] || exit 0   # merged or closed meanwhile: nothing to report
 # Only pull requests into main are ever merged or credited: a pull request into another branch runs whatever copy of
 # check-proof that branch holds, which proves nothing.
@@ -40,7 +42,7 @@ json.dump([{"filename": r[-1], "status": st.get(r[0][0], r[0])} for r in rows], 
 else
   gh api "repos/$REPO/pulls/$PR/files" > files.json
 fi
-python3 -I - <<'PY' > decision.txt
+tick refs; python3 -I - <<'PY' > decision.txt
 import json, os, re
 pr = json.load(open("pr.json")); files = json.load(open("files.json")); v = json.load(open("artifact/verdict.json"))
 cat = {p["id"]: p for p in json.load(open("base/data/catalog.json"))["problems"]}
@@ -61,6 +63,7 @@ VERDICT="${D[0]}"; FPATH="${D[1]}"; KIND="${D[2]}"; POL="${D[3]}"; REASON="${D[4
 PID="$(basename "$FPATH" .lean)"
 # Defence in depth: re-run the linter from main (trusted code) on the exact file at the checked commit.
 # Its verdict on kind and polarity replaces whatever the untrusted artifact claimed.
+tick decide
 if [ "$VERDICT" = "accepted" ]; then
   # main moves every few seconds (merges): lint against its latest statements, reductions and catalogue, so a proof of a
   # problem whose statement was merged minutes ago is not refused for a missing statement
@@ -83,6 +86,7 @@ if [ "$VERDICT" = "accepted" ]; then
       VERDICT=rejected; REASON="already proved: \`$FPATH\` is on main; a new proof replaces it only if it is at least 5% and 20 characters shorter, comments and spaces not counted (yours: $NEWLEN, current: $OLDLEN)"
     fi
   fi
+tick lintprep
   if [ "$VERDICT" != accepted ]; then :
   elif ! (cd base && python3 -I tools/lint.py "$FPATH" data/catalog.json > "${RELINT:-/tmp/relint.json}"); then
     VERDICT=rejected; REASON="lint (trusted re-check): $(python3 -I -c 'import json,os;print("; ".join(json.load(open(os.environ.get("RELINT","/tmp/relint.json")))["errors"]))')"
@@ -91,6 +95,7 @@ if [ "$VERDICT" = "accepted" ]; then
     KIND=$(python3 -I -c 'import json,os;d=json.load(open(os.environ.get("RELINT","/tmp/relint.json")));print(d["type"] if d["type"] in ("reduction","statement") else d["kind"])')
   fi
 fi
+tick lint
 case "$VERDICT" in
   accepted)
     # Everything Lean accepts is merged and credited at once (no human gate). A proof of an open problem shows
@@ -118,7 +123,7 @@ case "$VERDICT" in
       # The merged pull request is then the verdict: no comment. Exit 2 there: a rule says no (handled below); any
       # other failure falls back to the merge API.
       if [ -f base/tools/merge_by_git ] && [ -f base/tools/git_merge.sh ]; then
-        if GM="$(gitmerge)"; then MERGED=1; MERGE_SHA="$GM"; echo "merged by git: $GM"; else GMRC=$?; echo "git merge ($GMRC): $(tail -c 300 git_merge.log)"; fi
+        tick premerge; if GM="$(gitmerge)"; then MERGED=1; MERGE_SHA="$GM"; echo "merged by git: $GM"; else GMRC=$?; echo "git merge ($GMRC): $(tail -c 300 git_merge.log)"; fi
       fi
       if [ "$MERGED" = 0 ] && [ "$GMRC" != 2 ]; then
       if [ "${REMERGE:-0}" = 0 ]; then comment "$MSG"; fi   # a merge retry does not repeat the verdict

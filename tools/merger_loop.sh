@@ -251,9 +251,11 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
     [ "$CONC" = success ] || return 0
     [ "$RM" = 0 ] && RM=1
   fi
+  local VT0; VT0=$(date +%s)
   ( cd "$W" && VERDICT_MODE="$MODE" RELINT="$W/relint.json" RUN_ID="$ID" RUN_ATTEMPT="$ATT" HEAD_SHA="$SHA" RUN_URL="$URL" REMERGE="$RM" \
       timeout 900 bash "$B/tools/verdict_one.sh" ) > "$W/log.txt" 2>&1
-  local RC=$? SUM; SUM="#$PR run $ID.$ATT: exit $RC $(grep -m1 -oiE 'merged by git|rate limit|ACCEPTED|REJECTED|FAULT|already on main|not into main|secondary' "$W/log.txt" || true)"
+  local RC=$? SUM VT; VT=$(( $(date +%s) - VT0 ))
+  SUM="#$PR run $ID.$ATT: ${VT}s $(grep -m1 -oE 'group commit: [0-9]+' "$W/git_merge.log" 2>/dev/null) $(grep -m1 -oE '^T[a-z_]+=[0-9 a-z_=]+' "$W/log.txt" 2>/dev/null)exit $RC $(grep -m1 -oiE 'merged by git|rate limit|ACCEPTED|REJECTED|FAULT|already on main|not into main|secondary' "$W/log.txt" || true)"
   # a rejection whose comment GitHub refused (secondary rate limit on comments): the verdict is not given yet, retry
   # it later (three times at most), instead of marking it given with nobody told
   if [ "$RC" != 0 ] && [ -s "$W/reason.txt" ] && [ ! -e "$W/remerge.flag" ]; then
