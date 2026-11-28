@@ -16793,6 +16793,32 @@
     "https://oeis.org/A301877"
    ],
    "reason": "Barker's g.f. is correct (I checked A*D=N to 59 terms), but the printed order-7 recurrence a(n)=7a(n-1)-18a(n-2)+... (n>10) is inconsistent with it: the g.f. denominator has degree 9, and the listed data already fail the recurrence at n=11 (it gives 908, not 969) and every later n checked. So the stated package is false by the entry's own data. The disproof is correct but exploits an evident transcription error in the recurrence, a trivial refutation."
+  },
+  "oeis-a288020": {
+   "date": "2026-11-28",
+   "pr": 26730,
+   "evidence": [
+    "https://oeis.org/A288020",
+    "https://github.com/UoA-eResearch/citations/blob/main/research-lab/runs/experimental-math-oeis-conjecture-audit/review/review.md"
+   ],
+   "reason": "Disproof of a printed range slip. Barker's recurrence a(n)=101a(n-2)-100a(n-4) is printed 'for n>4', but his g.f. has a numerator of degree 9; the data already violate it at n=6 (101*11-100*1=1011, a(6)=11). The Lean disproof only reads coefficients of the g.f. and compares with the recurrence at n=6, never touching the Rule 501 automaton. My simulation reproduces the data (diagonal reading), and the g.f. and both closed forms hold to n=70; a public audit (UoA-eResearch) had already noted A288020's stated range is wrong."
+  },
+  "oeis-a288761": {
+   "date": "2026-11-28",
+   "pr": 26689,
+   "evidence": [
+    "https://oeis.org/A288761"
+   ],
+   "reason": "Same range slip as A288020: Barker's recurrence a(n)=101a(n-2)-100a(n-4) is printed 'for n>4' while his g.f. numerator has degree 9, so the conjunction is inconsistent at n=6 (the data give a(6)=1100000, the recurrence 1101000). The disproof uses only this coefficient clash. My Rule 501 simulation matches the data (origin-to-corner diagonal), and the g.f. and closed forms 11*10^(n-1), (10^n-10)/90 hold to n=70."
+  },
+  "oeis-a288168": {
+   "date": "2026-11-28",
+   "pr": 24744,
+   "evidence": [
+    "https://oeis.org/A288168",
+    "https://oeis.org/A288167"
+   ],
+   "reason": "Kimberling's bound -1 < 6/5 - a(n)/n < 1 for the zeros of the fixed point of 00->0010, 1->000 is transcribed literally and faithfully, and my simulation of W reproduces the 10000-term b-file (observed range (-0.13,0.20)). But as stated it says only n/5 < a(n) < 11n/5: the lower half is vacuous (a(n) >= n), and the upper half follows from the fact that every 1 the rules emit is followed by 0, so 1s are isolated and a(n) <= 2n (proof lemma 'every letter 1 is followed by a letter 0'). There is no limit clause here, unlike its siblings, so the statement is essentially trivial."
   }
  },
  "known": {
@@ -29859,6 +29885,52 @@
     "https://github.com/the-omega-institute/trureturing/blob/dev/D5/S1/Words/Patterns/BarkerRegularRelationCounting.lean"
    ],
    "reason": "Second review: Barker's g.f./recurrence for row 7 of A269678 is a coefficient extraction from Ma-Zhang's Corollary 4 (Zenodo 24410605, 21 Nov 2026; also a Lean theorem in trureturing), which covers every alphabet size q>=3 at once (d=2). The paper never names A269678, but the family coverage is exact (successive repeat labels related by a loopless indegree-2 relation), and it predates the site proof (28 Nov). The site proof is still independent and faithful."
+  },
+  "oeis-a288511": {
+   "date": "2026-11-28",
+   "pr": 27303,
+   "evidence": [
+    "https://oeis.org/A288511",
+    "https://github.com/blakestone-x/math/blob/main/A288511/README.md"
+   ],
+   "reason": "Kimberling's conjecture that the n-th iterate of 00->0101, 10->001 (StringReplace from 00) has A288511(n) letters is stated faithfully, and my simulation matches. But Blake Stone published a complete Lean proof in blakestone-x/math (commit 2026-11-27 20:10 UTC, 'Prove ... A288511 word lengths'), before the site statement (Nov 28 04:09 UTC) and proof (Nov 28 11:02 UTC). The site proof uses the same architecture (three blocks with substitution A->B, B->C, C->AAB and ten boundary phases)."
+  },
+  "oeis-a288668": {
+   "date": "2026-11-28",
+   "pr": 22113,
+   "evidence": [
+    "https://oeis.org/A288668",
+    "https://github.com/blakestone-x/math/blob/main/A288668/README.md",
+    "https://github.com/guirguispierre/oeis-a288668-proof"
+   ],
+   "reason": "The length conjecture (n-th iterate of 00->0110, 10->000 has A288668(n) letters, with the data's initial values 2,4,5) is stated faithfully and checked numerically. It was proved publicly before the site proof (Nov 28 07:01 UTC): blakestone-x/math commit c9d796a (Nov 27 07:06 UTC) proves it in Lean via w(n+3) = w(n)w(n)w(n+1), and guirguispierre/oeis-a288668-proof (Nov 27 19:04 UTC) gives another Lean proof. The site proof uses the same word identity, and the statement itself credits @blakestone-x."
+  },
+  "oeis-a288732": {
+   "date": "2026-11-28",
+   "pr": 27093,
+   "evidence": [
+    "https://oeis.org/A288732",
+    "https://oeis.org/A288729"
+   ],
+   "reason": "Kimberling's conjecture that the n-th iterate of 00->1000, 10->01 (StringReplace from 00) has A288732(n) letters is stated faithfully, and my simulation agrees for n<=30. Michel Dekking posted a proof of this exact length conjecture in A288729 (Mar 29 2018), with the block structure also noted in A288732; the same claim was merged on this site earlier as oeis-a288733 (judged known)."
+  },
+  "oeis-a288736": {
+   "date": "2026-11-28",
+   "pr": 27074,
+   "evidence": [
+    "https://oeis.org/A288736",
+    "https://oeis.org/A288729"
+   ],
+   "reason": "The formal statement is the shared length conjecture (|w(n)| = A288732(n) for the iterates of 00->1000, 10->01), stated faithfully; the 2-limiting word itself does not enter. Michel Dekking posted a proof of this exact length conjecture in A288729 (Mar 29 2018), with the block structure also noted in A288732; the same claim was merged on this site earlier as oeis-a288733 (judged known)."
+  },
+  "oeis-a288741": {
+   "date": "2026-11-28",
+   "pr": 27083,
+   "evidence": [
+    "https://oeis.org/A288741",
+    "https://oeis.org/A288729"
+   ],
+   "reason": "The formal statement is the shared length conjecture (|w(n)| = A288732(n) for the iterates of 00->1000, 10->01), stated faithfully; the 3-limiting word itself does not enter. Michel Dekking posted a proof of this exact length conjecture in A288729 (Mar 29 2018), with the block structure also noted in A288732; the same claim was merged on this site earlier as oeis-a288733 (judged known)."
   }
  },
  "reviewed": "2026-11-28"
