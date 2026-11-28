@@ -13,36 +13,35 @@ namespace OMA.S_oeis_a110666
 
 open Finset PowerSeries
 
-private abbrev S := PowerSeries ℤ
-private noncomputable def x : S := PowerSeries.X
-private noncomputable def c (a : ℤ) : S := PowerSeries.C (R := ℤ) a
-private noncomputable def cf (n : ℕ) : S →ₗ[ℤ] ℤ := PowerSeries.coeff (R := ℤ) n
+private noncomputable def x : (PowerSeries ℤ) := PowerSeries.X
+private noncomputable def c (a : ℤ) : (PowerSeries ℤ) := PowerSeries.C (R := ℤ) a
+private noncomputable def cf (n : ℕ) := PowerSeries.coeff (R := ℤ) n
 
 private theorem cf_one (n : ℕ) : cf n 1 = if n = 0 then 1 else 0 :=
   PowerSeries.coeff_one n
 
-private theorem cf_c (n : ℕ) (a : ℤ) (f : S) : cf n (c a*f) = a * cf n f :=
+private theorem cf_c (n : ℕ) (a : ℤ) (f : (PowerSeries ℤ)) : cf n (c a*f) = a * cf n f :=
   PowerSeries.coeff_C_mul _ _ _
 
-private theorem cf_xpow (n k : ℕ) (f : S) :
+private theorem cf_xpow (n k : ℕ) (f : (PowerSeries ℤ)) :
     cf n (x^k*f) = if k ≤ n then cf (n-k) f else 0 :=
   PowerSeries.coeff_X_pow_mul' f k n
 
-private theorem cf_x_mul (n : ℕ) (f : S) : cf (n+1) (x*f) = cf n f := by
+private theorem cf_x_mul (n : ℕ) (f : (PowerSeries ℤ)) : cf (n+1) (x*f) = cf n f := by
   simpa only [x, cf, pow_one] using PowerSeries.coeff_X_pow_mul f 1 n
 
-private theorem cf_x_zero (f : S) : cf 0 (x*f) = 0 := by
+private theorem cf_x_zero (f : (PowerSeries ℤ)) : cf 0 (x*f) = 0 := by
   simpa only [pow_one, show ¬ 1 ≤ (0 : ℕ) by decide, if_false] using cf_xpow 0 1 f
 
 private theorem cf_mk (f : ℕ → ℤ) (n : ℕ) : cf n (PowerSeries.mk f) = f n :=
   PowerSeries.coeff_mk _ _
 
-private noncomputable def q (v : S) : S := x*v
+private noncomputable def q (v : (PowerSeries ℤ)) : (PowerSeries ℤ) := x*v
 
-private noncomputable def part (v f : S) (n : ℕ) : S :=
+private noncomputable def part (v f : (PowerSeries ℤ)) (n : ℕ) : (PowerSeries ℤ) :=
   ∑ k ∈ range (n+1), c (cf k f) * q v ^ k
 
-private theorem part_agree (v f : S) (m n : ℕ) (hmn : m ≤ n) :
+private theorem part_agree (v f : (PowerSeries ℤ)) (m n : ℕ) (hmn : m ≤ n) :
     cf m (part v f n) = cf m (part v f m) := by
   induction n, hmn using Nat.le_induction with
   | base => rfl
@@ -51,7 +50,7 @@ private theorem part_agree (v f : S) (m n : ℕ) (hmn : m ≤ n) :
       unfold part; rw [sum_range_succ]]
     rw [map_add, ih, cf_c, q, mul_pow, cf_xpow, if_neg (by omega), mul_zero, add_zero]
 
-private noncomputable def compose (v : S) : S →+ S where
+private noncomputable def compose (v : (PowerSeries ℤ)) : (PowerSeries ℤ) →+ (PowerSeries ℤ) where
   toFun f := PowerSeries.mk fun n => cf n (part v f n)
   map_zero' := by
     apply PowerSeries.ext
@@ -69,12 +68,12 @@ private noncomputable def compose (v : S) : S →+ S where
       cf n (PowerSeries.mk (fun k => cf k (part v f k)) + PowerSeries.mk (fun k => cf k (part v g k)))
     simp only [cf_mk, h, map_add]
 
-private theorem cf_compose (v f : S) (n : ℕ) :
+private theorem cf_compose (v f : (PowerSeries ℤ)) (n : ℕ) :
     cf n (compose v f) = cf n (part v f n) := by
   change cf n (PowerSeries.mk (fun k => cf k (part v f k))) = _
   rw [cf_mk]
 
-private theorem cf_mul_compose (v f g : S) (n : ℕ) :
+private theorem cf_mul_compose (v f g : (PowerSeries ℤ)) (n : ℕ) :
     cf n (g * compose v f) = cf n (g * part v f n) := by
   unfold cf
   rw [PowerSeries.coeff_mul, PowerSeries.coeff_mul]
@@ -86,7 +85,7 @@ private theorem cf_mul_compose (v f g : S) (n : ℕ) :
     omega
   rw [cf_compose, part_agree _ _ _ _ hl]
 
-private theorem compose_one (v : S) : compose v 1 = 1 := by
+private theorem compose_one (v : (PowerSeries ℤ)) : compose v 1 = 1 := by
   apply PowerSeries.ext
   intro n
   change cf n (compose v 1) = cf n 1
@@ -99,7 +98,7 @@ private theorem compose_one (v : S) : compose v 1 = 1 := by
       simp [cf_one, c, hk]
   rw [h]
 
-private theorem compose_x_mul (v f : S) : compose v (x*f) = q v * compose v f := by
+private theorem compose_x_mul (v f : (PowerSeries ℤ)) : compose v (x*f) = q v * compose v f := by
   apply PowerSeries.ext
   intro n
   change cf n (compose v (x*f)) = cf n (q v * compose v f)
@@ -122,22 +121,22 @@ private theorem compose_x_mul (v f : S) : compose v (x*f) = q v * compose v f :=
     rw [cf_x_mul, pow_succ]
     ring
 
-private theorem compose_powers_mul (v f : S) (k : ℕ) :
+private theorem compose_powers_mul (v f : (PowerSeries ℤ)) (k : ℕ) :
     compose v (x^k*f) = q v ^ k * compose v f := by
   induction k with
   | zero => simp
   | succ k ih => rw [pow_succ' x, mul_assoc, compose_x_mul, ih, pow_succ', mul_assoc]
 
-private theorem compose_x_pow (v : S) (k : ℕ) : compose v (x^k) = q v ^ k := by
+private theorem compose_x_pow (v : (PowerSeries ℤ)) (k : ℕ) : compose v (x^k) = q v ^ k := by
   simpa only [mul_one, compose_one] using compose_powers_mul v 1 k
 
 
-private noncomputable def J : S := 1+x
-private noncomputable def Ji : S := PowerSeries.invOfUnit J 1
-private noncomputable def D : S := 1-x+x^2
-private noncomputable def U : S := 1-x
-private noncomputable def target : S := x-x^2-x^2
-private noncomputable def G : S := PowerSeries.mk fun n => (n : ℤ)+1
+private noncomputable def J : (PowerSeries ℤ) := 1+x
+private noncomputable def Ji : (PowerSeries ℤ) := PowerSeries.invOfUnit J 1
+private noncomputable def D : (PowerSeries ℤ) := 1-x+x^2
+private noncomputable def U : (PowerSeries ℤ) := 1-x
+private noncomputable def target : (PowerSeries ℤ) := x-x^2-x^2
+private noncomputable def G : (PowerSeries ℤ) := PowerSeries.mk fun n => (n : ℤ)+1
 
 private theorem J_mul_Ji : J*Ji=1 := by
   apply PowerSeries.mul_invOfUnit
@@ -153,29 +152,29 @@ private theorem J_power_cancel (n k : ℕ) (hk : k ≤ n) : J^n * Ji^k = J^(n-k)
   rw [mul_assoc, ←mul_pow, J_mul_Ji, one_pow, mul_one]
 
 private theorem cf_J_pow (n k : ℕ) : cf k (J^n) = (n.choose k : ℤ) := by
-  have h : J^n = (((1 + Polynomial.X : Polynomial ℤ)^n : Polynomial ℤ) : S) := by
+  have h : J^n = (((1 + Polynomial.X : Polynomial ℤ)^n : Polynomial ℤ) : (PowerSeries ℤ)) := by
     simp [J, x]
   rw [h, cf, Polynomial.coeff_coe, Polynomial.coeff_one_add_X_pow]
 
-private theorem compose_x (v : S) : compose v x = q v := by
+private theorem compose_x (v : (PowerSeries ℤ)) : compose v x = q v := by
   simpa only [pow_one] using compose_x_pow v 1
 
-private theorem compose_D_mul (v f : S) :
+private theorem compose_D_mul (v f : (PowerSeries ℤ)) :
     compose v (D*f) = (1-q v+q v^2)*compose v f := by
   rw [show D*f=f-x*f+x^2*f by unfold D; ring, map_add, map_sub,
     compose_x_mul, compose_powers_mul]
   ring
 
-private theorem compose_D_sq_mul (v f : S) :
+private theorem compose_D_sq_mul (v f : (PowerSeries ℤ)) :
     compose v (D^2*f) = (1-q v+q v^2)^2 * compose v f := by
   rw [pow_two, mul_assoc, compose_D_mul, compose_D_mul, ←mul_assoc, ←pow_two]
 
-private theorem compose_U_mul (v f : S) :
+private theorem compose_U_mul (v f : (PowerSeries ℤ)) :
     compose v (U*f) = (1-q v)*compose v f := by
   rw [show U*f=f-x*f by unfold U; ring, map_sub, compose_x_mul]
   ring
 
-private theorem compose_U_sq_mul (v f : S) :
+private theorem compose_U_sq_mul (v f : (PowerSeries ℤ)) :
     compose v (U^2*f) = (1-q v)^2 * compose v f := by
   rw [pow_two, mul_assoc, compose_U_mul, compose_U_mul, ←mul_assoc, ←pow_two]
 
@@ -213,7 +212,7 @@ private theorem transformed_target :
   unfold J at hi
   linear_combination -x*Ji*hi
 
-private theorem transformed_row (R : S) (hR : D^2*R=target) :
+private theorem transformed_row (R : (PowerSeries ℤ)) (hR : D^2*R=target) :
     compose Ji R = x*(1-x)*Ji^2*compose (Ji^2) G := by
   have hi := congrArg (compose (Ji^2)) u_sq_G
   have hr := congrArg (compose Ji) hR
@@ -227,7 +226,7 @@ private theorem transformed_row (R : S) (hR : D^2*R=target) :
     _ = _ := by rw [hr]
 
 
-private theorem binomial_weight (R : S) (n : ℕ) (hn : 1 ≤ n) :
+private theorem binomial_weight (R : (PowerSeries ℤ)) (n : ℕ) (hn : 1 ≤ n) :
     cf n (J^(2*n-1)*compose Ji R) =
       ∑ k ∈ range (n+1), cf k R * ((2*n-k-1).choose (n-1) : ℤ) := by
   rw [cf_mul_compose, part, mul_sum, map_sum]
@@ -271,7 +270,7 @@ private theorem transformed_other (m j : ℕ) (hj : j < m) :
   rw [transformed_term, cf_c, cf_xpow, if_pos hj.le, J_power_cancel _ _ (by omega),
     show 2*m+1-(2*j+2)=2*(m-j)-1 by omega, centered_J _ (by omega), mul_zero]
 
-private theorem transformed_coefficient (R : S) (hR : D^2*R=target) (m : ℕ) :
+private theorem transformed_coefficient (R : (PowerSeries ℤ)) (hR : D^2*R=target) (m : ℕ) :
     cf (m+1) (J^(2*(m+1)-1)*compose Ji R) = (m : ℤ)+1 := by
   rw [transformed_row R hR, show 2*(m+1)-1=2*m+1 by omega]
   have hr : J^(2*m+1) * (x*(1-x)*Ji^2*compose (Ji^2) G) =
@@ -279,7 +278,7 @@ private theorem transformed_coefficient (R : S) (hR : D^2*R=target) (m : ℕ) :
   rw [hr, cf_x_mul, cf_mul_compose, part, mul_sum, map_sum, sum_range_succ, transformed_last]
   rw [sum_eq_zero (fun j hj => transformed_other m j (mem_range.1 hj)), zero_add]
 
-private theorem triangular (R : S) (hR : D^2*R=target) (n : ℕ) (hn : 1 ≤ n) :
+private theorem triangular (R : (PowerSeries ℤ)) (hR : D^2*R=target) (n : ℕ) (hn : 1 ≤ n) :
     (∑ k ∈ range (n+1), cf k R * ((2*n-k-1).choose (n-1) : ℤ)) = (n : ℤ) := by
   rw [← binomial_weight R n hn]
   have h := transformed_coefficient R hR (n-1)
@@ -287,7 +286,7 @@ private theorem triangular (R : S) (hR : D^2*R=target) (n : ℕ) (hn : 1 ≤ n) 
   have hc : ((n-1 : ℕ) : ℤ)+1=(n : ℤ) := by exact_mod_cast he
   simpa only [he, hc] using h
 
-private theorem cf_R_zero (R : S) (hR : D^2*R=target) : cf 0 R = 0 := by
+private theorem cf_R_zero (R : (PowerSeries ℤ)) (hR : D^2*R=target) : cf 0 R = 0 := by
   have h := congrArg (PowerSeries.constantCoeff (R := ℤ)) hR
   change PowerSeries.constantCoeff (R := ℤ) (D^2*R) = PowerSeries.constantCoeff (R := ℤ) target at h
   simp only [D, target, map_mul, map_pow, map_add, map_sub, map_one, x,
@@ -297,7 +296,7 @@ private theorem cf_R_zero (R : S) (hR : D^2*R=target) : cf 0 R = 0 := by
   exact h
 
 
-private theorem row0_coeff (R : S) (hR : D^2*R=target) (n : ℕ) : cf n R = row0 n := by
+private theorem row0_coeff (R : (PowerSeries ℤ)) (hR : D^2*R=target) (n : ℕ) : cf n R = row0 n := by
   induction n using Nat.strong_induction_on with
   | h n ih =>
     by_cases hz : n = 0
@@ -319,7 +318,7 @@ private theorem row0_coeff (R : S) (hR : D^2*R=target) (n : ℕ) : cf n R = row0
       rw [row0]
       omega
 
-private theorem row1_from_row0 (R : S) (hR : D^2*R=target) :
+private theorem row1_from_row0 (R : (PowerSeries ℤ)) (hR : D^2*R=target) :
     U * PowerSeries.mk a = R := by
   apply PowerSeries.ext
   intro n
@@ -330,7 +329,7 @@ private theorem row1_from_row0 (R : S) (hR : D^2*R=target) :
   | zero => rw [cf_x_zero, a, row0]; simp
   | succ n => rw [cf_x_mul, cf_mk, a]; ring
 
-private noncomputable def ones : S := PowerSeries.mk (fun _ => 1)
+private noncomputable def ones : (PowerSeries ℤ) := PowerSeries.mk (fun _ => 1)
 
 private theorem U_ones : U * ones = 1 := by
   apply PowerSeries.ext
@@ -341,7 +340,7 @@ private theorem U_ones : U * ones = 1 := by
   | zero => rw [cf_x_zero]; decide
   | succ n => rw [cf_x_mul, cf_mk]; simp
 
-private theorem row1_alternate (B Cseq : S)
+private theorem row1_alternate (B Cseq : (PowerSeries ℤ))
     (hB : D*B=1) (hC : D^2*Cseq=1+x) (hT : D^2*(U*PowerSeries.mk a)=target) :
     PowerSeries.mk a = -x*B+Cseq-ones := by
   have hinv : (D^2*U)*(B^2*ones) = 1 := by
