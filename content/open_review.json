@@ -6753,6 +6753,600 @@
     "https://oeis.org/A266444/b266444.txt"
    ],
    "note": "Barker's closed form (n>11), recurrence (n>13) and g.f. for the middle column of Rule 25; conventions (Wolfram numbering, evolved on the whole line from one ON cell) as in the entry. My independent simulation reproduces all 1001 b-file terms (n = 0..1000), and the formulas are transcribed faithfully. No prior settlement was found in the searched sources (trureturing, thatnealpatel/proofs, openai/math, math0, formal-conjectures, Palomar, Epoch, Zenodo, GitHub code search). Routine. Second review: Faithful and true; the conjectured formulas agree with an exact simulation of the Lean definition far beyond the data. Proof is a finite certified computation of an eventually periodic pattern, so routine."
+  },
+  "oeis-a121584": {
+   "date": "2026-11-28",
+   "pr": 24449,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121584",
+    "https://oeis.org/A121584"
+   ],
+   "note": "Mathar's order-5 recurrence for n>=6 is transcribed correctly (expanded coefficients checked). The definition is Deutsch's recurrence from the entry, which reproduces the data. The recurrence holds for n<40, and the proof eliminates the factorial term from four instances of the defining recurrence; routine. No prior proof found. Second review: Faithful and true. Mathar's D-finite recurrence follows from Deutsch's first-order recurrence recorded in the entry, which the statement uses as the definition; routine holonomic identity."
+  },
+  "oeis-a121636": {
+   "date": "2026-11-28",
+   "pr": 23811,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121636",
+    "https://oeis.org/A121636"
+   ],
+   "note": "Mathar's recurrence fails at the first index n=4 (left side 1), and the statement proves it for n>=5, saying so openly; from n=5 on it holds (checked to n=20). The 'D-finite with recurrence' claim is about the asymptotic recurrence, so this range repair is reasonable. The definition is Deutsch's recurrence a(n) = n(n-2)! + (n-1)a(n-1) from the entry, and the proof combines three instances of it, which is routine. No prior proof found. Second review: Mathar's recurrence fails at n=4 (left side 1), confirmed independently; the corrected version n>=5 is what is proved and the statement says so openly. Routine D-finite identity from Deutsch's recurrence in the entry."
+  },
+  "oeis-a121639": {
+   "date": "2026-11-28",
+   "pr": 23816,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121639",
+    "https://oeis.org/A121639"
+   ],
+   "note": "Mathar's recurrence fails at n=6 (left side 1; it is 0 at n=5), and the statement proves it for n>=7, saying so openly; I checked it holds from n=7 to n=20. The definition is Deutsch's recurrence a(n) = n a(n-1) + (n-1)! - (n-3)! from the entry, and the proof is a routine elimination. Read the restricted range as a repair of the D-finite claim's starting index. Second review: Mathar's recurrence fails at n=6 on the data, confirmed independently; the corrected n>=7 version is proved and declared as such. Routine D-finite identity."
+  },
+  "oeis-a121747": {
+   "date": "2026-11-28",
+   "pr": 24501,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121747",
+    "https://oeis.org/A121747"
+   ],
+   "note": "Mathar's order-5 recurrence for n>=6 is transcribed correctly (expanded coefficients checked symbolically). The definition is Deutsch's recurrence a(n) = n a(n-1) - d(n-1) + (n-1)! floor(n/2) with the entry's d, which reproduces the data; the recurrence holds for n<30. The proof eliminates d and the factorials from instances of the defining recurrence; routine. No prior proof found. Second review: Faithful and true. Mathar's D-finite recurrence follows from Deutsch's first-order recurrence recorded in the entry, which the statement uses as the definition; routine holonomic identity."
+  },
+  "oeis-a121750": {
+   "date": "2026-11-28",
+   "pr": 24496,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121750",
+    "https://oeis.org/A121750"
+   ],
+   "note": "Mathar's order-6 recurrence for n>=7 is transcribed correctly (expanded coefficients checked). The definition is Deutsch's recurrence a(n) = n a(n-1) + d(n-1) + (n-1)! floor((n-1)/2), which reproduces the data; the recurrence holds for 7<=n<30. Routine elimination proof; no prior proof found. Second review: Faithful and true. Mathar's D-finite recurrence follows from Deutsch's first-order recurrence recorded in the entry, which the statement uses as the definition; routine holonomic identity."
+  },
+  "oeis-a121751": {
+   "date": "2026-11-28",
+   "pr": 24440,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A121751",
+    "https://oeis.org/A121751"
+   ],
+   "note": "Mathar's order-6 recurrence for n>=7 is transcribed correctly (all expanded coefficients checked). The definition is Deutsch's floor recurrence from the entry, which reproduces the data; the recurrence holds for 7<=n<30. The proof is a parity-split elimination; routine. No prior proof found. Second review: Faithful and true. Mathar's D-finite recurrence follows from Deutsch's first-order recurrence recorded in the entry, which the statement uses as the definition; routine holonomic identity."
+  },
+  "oeis-a125306": {
+   "date": "2026-11-28",
+   "pr": 24167,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A125306",
+    "https://oeis.org/A125306"
+   ],
+   "note": "Mathar's order-6 recurrence for n>=6 is transcribed correctly; the normalised g.f. equals Claesson's g.f. 1+(C-1)/(1-x(C-1)/(1+x^2)) as a series (checked to x^40), and the recurrence holds for n<40. The g.f. is used as the definition instead of the segmented-permutation count, which is standard. Routine certificate proof; no prior proof found. The statement credits @vivanpoddar, the PR ivillar. Second review: Faithful and true; Mathar's recurrence for an algebraic g.f. given in the entry (Kotesovec-corrected). Routine holonomic certificate."
+  },
+  "oeis-a125792": {
+   "date": "2026-11-28",
+   "pr": 23986,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A125792",
+    "https://oeis.org/A125790",
+    "https://oeis.org/A125792",
+    "https://oeis.org/A125790"
+   ],
+   "note": "Irwin's nested-sum conjecture is stated faithfully for n>=1, with a(n) = T(n,2) from A125790's recurrence T(n,k) = T(n,k-1) + T(n-1,2k) and N(n,3) as the n-fold nested sum; checked for n<=7. The proof telescopes to T(n+1,k) = Sum_{j<=k} T(n,2j) and runs an induction; routine. Somos's PARI program in the entry computes the same nested sum but proves nothing; no prior proof found. Second review: Faithful and true. Irwin's nested-sum conjecture follows by telescoping the defining recurrence of A125790; short argument from the entry's own definition, so routine."
+  },
+  "oeis-a126617": {
+   "date": "2026-11-28",
+   "pr": 24527,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A126617",
+    "https://oeis.org/A126617"
+   ],
+   "note": "Gladkovskii's 2013 continued-fraction conjecture for e.g.f. exp(exp(x)-1+px) is stated for all rational p, with G(k) = 1+(2-p-k)x + x((k-1+p)x-1)/G(k+1) transcribed correctly and the claim that depth-d truncation (d >= n+1) gives the exact coefficient of x^(n+1); this is stronger than coefficientwise convergence. I checked p = -2, 1/3 and 5 for n<9 against Sum p^(n-i) B(i) C(n,i). The proof is a genuine continued-fraction argument. No prior proof found. Second review: Faithful and true; a J-fraction for the Charlier-type moments of exp(e^x-1+px), classical in spirit (Flajolet) but not recorded as proved. Routine continued-fraction identity."
+  },
+  "oeis-a127068": {
+   "date": "2026-11-28",
+   "pr": 24502,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A127068",
+    "https://oeis.org/A105937",
+    "https://oeis.org/A127080",
+    "https://oeis.org/A127068"
+   ],
+   "note": "Bala's 2022 conjectures are stated faithfully, with the array recurrence transcribed correctly in Z: the even terms a(2n) = (-1)^(n+1)(n+1)(2n-1)(2n)!, plus the order-2 recurrence for odd terms with a(1)=3, a(3)=-30 (n>=2). Both checked for n<40. The related e.g.f. in A127080 belongs to a differently normalised array, whose link to d(3,2k) is not stated anywhere, and it is unproved, so the result is not immediate from the OEIS. The proof is a substantial power-series argument; no prior proof found. Second review: Faithful and true. Bala's closed form and recurrence follow from the defining two-parameter recurrence; routine recurrence identity."
+  },
+  "oeis-a127804": {
+   "date": "2026-11-28",
+   "pr": 24688,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A127804",
+    "https://oeis.org/A187767",
+    "https://oeis.org/A000048",
+    "https://oeis.org/A127804",
+    "https://oeis.org/A187767",
+    "https://oeis.org/A000048"
+   ],
+   "note": "Howroyd's conjecture a(n) = 1 + A187767(n+1) is stated for all n>=0. a(n) uses its defining parity recursion, and A187767 uses Howroyd's own formula -1 + Sum_{d|n} d*A000048(d), written as a Dirichlet convolution (odd Moebius * 2^(m-1)); this matches the A000048 formula. Checked for n<300. A routine Moebius/divisor-sum argument; it is equivalent to the 'conjectured' recursion in A187767, for which no proof is recorded. Second review: Faithful given Howroyd's (unconjectured) formula for A187767; the combinatorial definition of A187767 is not used, which matches the entry's own computation. Follows quickly from formulas already in A000048/A127804, so routine."
+  },
+  "oeis-a128096": {
+   "date": "2026-11-28",
+   "pr": 23959,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A128096",
+    "https://oeis.org/A128096"
+   ],
+   "note": "Mathar's order-5 recurrence for n>=6 (offset 1) is transcribed correctly (expanded coefficients checked), with Deutsch's g.f. as the definition; the normalised form equals the g.f. as a series. It holds for 6<=n<40. Routine certificate proof; no prior proof found. The statement credits @vivanpoddar, the PR ivillar. Second review: Faithful and true; Mathar recurrence for the algebraic g.f. in the entry. Routine."
+  },
+  "oeis-a023554": {
+   "date": "2026-11-28",
+   "pr": 23519,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A023554",
+    "https://oeis.org/A022308",
+    "https://oeis.org/A023554",
+    "https://oeis.org/A022308"
+   ],
+   "note": "Dement's identity 2(n+5) = A022308(n+4) - a(n+1) is stated faithfully: the convolution definition reproduces the data, and A022308 follows its name-recurrence. It follows quickly from the closed forms a(n) = F(n+5)+2F(n+3)-(2n+9) and A022308(n)+1 = F(n-1)+4F(n). Not in Fried's papers or the libraries. Routine. Second review: Faithful and true; Dement's identity is a two-line consequence of Fibonacci closed forms already in the entries. Routine."
+  },
+  "oeis-a024472": {
+   "date": "2026-11-28",
+   "pr": 24217,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A024472",
+    "https://oeis.org/A024472"
+   ],
+   "note": "Mathar's g.f. is stated after clearing denominators, with the signs normalised correctly. s = Lucas with s(1) = 1, t(i) = F(i+1), and k = floor((n+1)/2) match the name, and the definition reproduces the data. I checked the product identity to x^60. Routine Fibonacci/Lucas g.f. computation, and no prior proof was found. Second review: Faithful and true; rational g.f. for a Fibonacci-Lucas convolution. Routine."
+  },
+  "oeis-a026975": {
+   "date": "2026-11-28",
+   "pr": 23531,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A026975",
+    "https://oeis.org/A026648",
+    "https://oeis.org/A026975",
+    "https://oeis.org/A026648"
+   ],
+   "note": "Barker's order-8 recurrence for n > 7 is stated faithfully over the A026648 triangle as named (the extra T(n-2,k-1) term when n is even and k is odd). The definition reproduces both the A026648 and A026975 data, and the recurrence holds for n < 120. Routine: row-sum generating functions of a linear triangle recurrence. Second review: Faithful and true; Barker's linear recurrence. Routine."
+  },
+  "oeis-a027117": {
+   "date": "2026-11-28",
+   "pr": 23544,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A027117",
+    "https://oeis.org/A027113",
+    "https://oeis.org/A027117",
+    "https://oeis.org/A027113"
+   ],
+   "note": "Barker's order-6 recurrence for n > 9 is stated faithfully over the A027113 array exactly as named, with offset 4. The definition reproduces the A027113 rows and the A027117 data, and the recurrence holds for n < 150. Routine (tribonacci-type column closed forms). Second review: Faithful and true; Barker's recurrence, with the correct lower bound. Routine."
+  },
+  "oeis-a038261": {
+   "date": "2026-11-28",
+   "pr": 24567,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A038261",
+    "https://oeis.org/A038201",
+    "https://oeis.org/A038261",
+    "https://oeis.org/A038201",
+    "https://oeis.org/A006358"
+   ],
+   "note": "Meeussen's g.f. is stated faithfully, with a(n) = w(8n) for the 5-wave sequence A038201 as defined by its recurrence. The definition reproduces the data, and I checked the product identity to x^200. Routine: a multisection of the rational g.f. of A038201. No prior proof found (not in Fried's papers, the libraries or Palomar). Second review: Faithful and true; Meeussen's g.f. is the bisection of a rational g.f.; routine."
+  },
+  "oeis-a041042": {
+   "date": "2026-11-28",
+   "pr": 22794,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A041042",
+    "https://oeis.org/A002316",
+    "https://oeis.org/A041042",
+    "https://oeis.org/A002316"
+   ],
+   "note": "The comment 'Subset of |A002316|' is stated faithfully. The numerators of the sqrt(27) convergents come from the period [5;5,10] block recurrence (it reproduces the data), and A002316 (Lehmer's beta_n) comes from its 12 listed signed terms and the order-12 recurrence of its entry. Numerically every numerator up to index 30 appears among the |beta|. The proof matches the two recurrences in Z[sqrt 3]. Routine, and no prior proof was found. Second review: Faithful and true. Subset claim reduces to matching two linear recurrence sequences; routine."
+  },
+  "oeis-a041243": {
+   "date": "2026-11-28",
+   "pr": 24200,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A041243",
+    "https://oeis.org/A041243"
+   ],
+   "note": "Dale's signature conjecture a(n+32) = 5177198 a(n+16) - a(n) is stated over Mathlib's GenContFract.of (sqrt 133) denominators, offset 0, which reproduce the data. The CF has period 16 (11;1,1,7,5,1,1,1,2,1,1,1,5,7,1,1,22), and I checked the recurrence numerically for n < 150. It is an instance of the classical fact that convergents of a periodic CF with even period L satisfy q(n+2L) = t q(n+L) - q(n). Routine. Second review: Faithful and true; Dale's signature is the standard recurrence for convergent denominators of a period-16 CF. Routine."
+  },
+  "oeis-a049638": {
+   "date": "2026-11-28",
+   "pr": 22693,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A049638",
+    "https://oeis.org/A049627",
+    "https://oeis.org/A049615",
+    "https://oeis.org/A049638",
+    "https://oeis.org/A049627"
+   ],
+   "note": "Mathar's g.f. is stated faithfully. T(n,4) uses the entry's PARI formula (n+1)(k+1) - #{0<=i<=n, 0<=j<=k: gcd(i,j) > 1}, which agrees with the hidden-point definition of A049615 (u = i-x, v = j-y) and reproduces the data. I checked the product identity numerically. Routine: g(i) = 1 + 2[2|i] + [3|i] gives a periodic difference sequence. Second review: Faithful and true; eventually-periodic differences give the rational g.f. Routine."
+  },
+  "oeis-a079670": {
+   "date": "2026-11-28",
+   "pr": 24604,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A079670",
+    "https://oeis.org/A080050",
+    "https://oeis.org/A079670",
+    "https://oeis.org/A080050",
+    "https://arxiv.org/abs/math/0409509"
+   ],
+   "note": "Both of Stephan's claims are stated faithfully over all primes p in A080050: 8p divides gcd(2^p-1, F(p)) - 1, and a > 1 when p is not 1 mod 10. I checked both for every such p < 30000 (14 primes, including 11, 8501, 10867). No proof found in the entry, Fried's papers or the libraries. The proof is a genuine elementary argument: common prime factors are 1 mod p, 2 is a QR, odd prime factors of F(odd) are 1 mod 4, and the rank of apparition forces 8p+1 to be 1 mod 5. Not a template. Second review: Faithful and true, with a short elementary proof (orders mod q, rank of apparition, quadratic reciprocity). Not noted as proved anywhere I could find, though it is a listed conjecture in Stephan's 2004 collection."
+  },
+  "oeis-a081052": {
+   "date": "2026-11-28",
+   "pr": 23824,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A081052",
+    "https://oeis.org/A081052"
+   ],
+   "note": "Mathar's recurrence for n >= 3 is stated faithfully, with the listed terms a(n) = s(n+1,2) - s(n+1,3) at offset 0 (the PARI program and e.g.f. confirm the shift; it reproduces the data). I checked it for n < 60. The proof unfolds the Stirling recurrence and closes with ring. Routine. Second review: Faithful and true; Mathar's recurrence follows from the Stirling recurrence (the proof is a few rewrites plus ring). Routine."
+  },
+  "oeis-a083807": {
+   "date": "2026-11-28",
+   "pr": 7321,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A083807",
+    "https://oeis.org/A083807"
+   ],
+   "note": "The conjecture (infinitely many nontrivial perfect powers with digits in {0,4,6,8,9}, nontrivial meaning not 10^k times another term) is formalized faithfully. The proof uses the explicit family (2+20*10^k)^2 = 4 0..0 8 0..0 4, which ends in 4 and so is never 10^k times a term. A correct and easy resolution; no prior record of it was found. Second review: Faithful and true via the explicit family (2+20*10^k)^2. Easy problem, not a formalization artifact; routine."
+  },
+  "oeis-a087734": {
+   "date": "2026-11-28",
+   "pr": 23964,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A087734",
+    "https://oeis.org/A035327",
+    "https://oeis.org/A087734",
+    "http://www.plouffe.fr/simon/articles/kreg2.pdf"
+   ],
+   "note": "Kurkov's recurrence a(n) = 2a(floor(n/2)) + (n mod 2) - A036987(n) for n > 1, with a(0) = a(1) = 0, is stated faithfully. f(0) = 0 replaces A035327(0) = 1, which is documented and needed to reproduce the data: a(1) = a(3) = 0. The definition matches the data, and the recurrence holds for n < 5000. Routine binary-length induction. Second review: Faithful and true; elementary binary-digit recurrence. Only one of Kurkov's four conjectures in the entry is claimed."
+  },
+  "oeis-a129654": {
+   "date": "2026-11-28",
+   "pr": 23565,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A129654",
+    "https://oeis.org/A129654",
+    "https://oeis.org/A177025"
+   ],
+   "note": "Statement faithful: the pairs (m,r) with m,r > 1 and P(m,r) = n, and Gutkovskiy's g.f. truncated to k <= n, which is exact because the k-th summand starts at x^(k+1). The proof is the bijection P(t+2,k+1) = t*T_k + k + 1. Brute force matches the g.f. for n < 60. No prior proof found. Second review: Faithful and true; a one-line bijection. Routine."
+  },
+  "oeis-a129695": {
+   "date": "2026-11-28",
+   "pr": 23214,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A129695",
+    "https://oeis.org/A129695"
+   ],
+   "note": "Mathar's order-4 holonomic recurrence for the Laguerre transform of the Jacobsthal numbers is stated faithfully for n >= 4, with a(n) taken from the entry's explicit sum. The data match, and the recurrence holds for n = 4..39. It fails at n = 1, so the range is the natural one. Routine holonomic algebra; no prior proof found. Second review: Faithful and true; holonomic recurrence. Routine."
+  },
+  "oeis-a133603": {
+   "date": "2026-11-28",
+   "pr": 24230,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A133603",
+    "https://oeis.org/A133603"
+   ],
+   "note": "Statement uses the entry's own formula (a(n) = C(n) for odd n, C(n)+C(n-1) for even n), which reproduces the data. Mathar's recurrence is stated for n >= 3 because it genuinely fails at n = 2. I verified it for n = 3..59. Routine holonomic recurrence for a parity-split Catalan expression; no prior proof found. Second review: True for n>=3 (the usual 'eventually' reading of Mathar recurrences); false at the first index n=2, documented. Any announcement should mention the n=2 exception. Routine Catalan identity."
+  },
+  "oeis-a134635": {
+   "date": "2026-11-28",
+   "pr": 23764,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A134635",
+    "https://oeis.org/A134634",
+    "https://oeis.org/A134635",
+    "https://oeis.org/A134634"
+   ],
+   "note": "Statement faithful: the A134634 triangle has Catalan borders and the Pascal rule inside; row sums match the data. Mathar's order-3 recurrence holds for n = 3..39. The proof is routine: a(n+1) = 2a(n) - 2C(n) + 2C(n+1), then holonomic algebra. No prior proof was found (Tebni's formula is not a proof of the recurrence). Second review: Faithful and true; routine P-recurrence."
+  },
+  "oeis-a135582": {
+   "date": "2026-11-28",
+   "pr": 14421,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A135582",
+    "https://oeis.org/A135582"
+   ],
+   "note": "The g.f. 1/((1-x^2 c(x))(1-x-2x^2)) is encoded faithfully: S^2 = 1-4x with S(0) = 1 and 2xc = 1-S fix c uniquely, so the hypotheses are not vacuous. All seven coefficients of Mathar's recurrence are transcribed correctly, and it holds for n = 6..59. Routine algebraic-g.f. recurrence; no prior proof found. Second review: Faithful and true; algebraic g.f., routine."
+  },
+  "oeis-a138164": {
+   "date": "2026-11-28",
+   "pr": 24189,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A138164",
+    "https://oeis.org/A138164"
+   ],
+   "note": "Faithful: T is the series reversion of x(1-x^2) (T - T^3 = X, T(0) = 0, unique) and G = 1/(1-T-T^2) as in the entry. All seven quadratic coefficients of Mathar's order-6 recurrence are expanded correctly, and it holds for n = 6..59. Kotesovec's separate order-4 recurrence in the entry is not this one and carries no proof. Routine holonomic proof. Second review: Faithful and true; routine algebraic-g.f. recurrence."
+  },
+  "oeis-a138904": {
+   "date": "2026-11-28",
+   "pr": 22641,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A138904",
+    "https://oeis.org/A138904"
+   ],
+   "note": "Statement faithful to the first conjecture: among binary expansions of length n, the attained numbers of rotational symmetries are exactly the divisors of n. One direction holds because the symmetry count is n/period; for the other, the d-fold repetition of 1 0^(n/d-1) attains d. Checked for n <= 15. Elementary cyclic-group fact, routine. Second review: Faithful and true; short argument. Second conjecture of the entry is not claimed."
+  },
+  "oeis-a139376": {
+   "date": "2026-11-28",
+   "pr": 14433,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A139376",
+    "https://oeis.org/A139376"
+   ],
+   "note": "Same structure as A135582, with (1-x-x^2): the hypotheses determine G uniquely, and all seven coefficients of Mathar's recurrence are transcribed correctly. G reproduces the data, and the recurrence holds for n = 6..59. Routine; no prior proof found. Second review: Faithful and true; routine."
+  },
+  "oeis-a145052": {
+   "date": "2026-11-28",
+   "pr": 24309,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A145052",
+    "https://oeis.org/A145052"
+   ],
+   "note": "Faithful: for n >= 3 every cell lies in some 3x3 block, so the nonnegative entries are forced into {0,1} and Fin 2 loses nothing; a(n) = 0 for n < 3 matches the g.f. Both Povolotsky's g.f. and Corneth's closed form, (6+4(n mod 3))3^(n div 3 - 1) - 3, are proved. A brute-force transfer count gives 3,7,11,15,27,39 for n = 3..8. A genuine (if elementary) classification of such arrays; no prior proof found. Second review: Faithful and true. Proof is an elementary structural classification (vertical/horizontal strip arrays, intersection = grids) plus inclusion-exclusion, not a pure identity check."
+  },
+  "oeis-a154138": {
+   "date": "2026-11-28",
+   "pr": 23603,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154138",
+    "https://oeis.org/A154138",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 3+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 3 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a154140": {
+   "date": "2026-11-28",
+   "pr": 24030,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154140",
+    "https://oeis.org/A154140",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 6+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 6 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; routine Pell argument. Weakest novelty of the family: the entry's own unmarked closed forms in A001652/A001653 (and Marion's 2011 comment) already imply it, though without proof."
+  },
+  "oeis-a154141": {
+   "date": "2026-11-28",
+   "pr": 23434,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154141",
+    "https://oeis.org/A154141",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 8+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 8 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a154143": {
+   "date": "2026-11-28",
+   "pr": 23560,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154143",
+    "https://oeis.org/A154143",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 10+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 10 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a154144": {
+   "date": "2026-11-28",
+   "pr": 23564,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154144",
+    "https://oeis.org/A154144",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 13+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 13 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a154145": {
+   "date": "2026-11-28",
+   "pr": 24093,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154145",
+    "https://oeis.org/A154145",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 15+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 15 is a square), and Mathar's order-9 recurrence (n>9) and the two g.f.s with (x^4+-2x^2-1) factors transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; four Pell orbit classes, hence the lag-4 recurrence. Routine. Side finding: the Zizka formula line in this entry is wrong."
+  },
+  "oeis-a154148": {
+   "date": "2026-11-28",
+   "pr": 23574,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154148",
+    "https://oeis.org/A154148",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 21+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 21 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a154150": {
+   "date": "2026-11-28",
+   "pr": 23527,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154150",
+    "https://oeis.org/A154150",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 24+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 24 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a154151": {
+   "date": "2026-11-28",
+   "pr": 23584,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154151",
+    "https://oeis.org/A154151",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 25+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 25 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a154153": {
+   "date": "2026-11-28",
+   "pr": 23592,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154153",
+    "https://oeis.org/A154153",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 28+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 28 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a154154": {
+   "date": "2026-11-28",
+   "pr": 23445,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154154",
+    "https://oeis.org/A154154",
+    "https://oeis.org/A154142",
+    "https://oeis.org/A154146"
+   ],
+   "note": "Faithful: Nat.nth of k with 30+k(k+1)/2 a square, offset 1 (k=0 correctly included only when 30 is a square), and Mathar's order-5 recurrence (n>5) and the g.f.(s) transcribed exactly. I enumerated all solutions k < 3*10^6; the recurrence and g.f. numerator match every term. Standard Pell-class argument ((2k+1)^2 - 8m^2 = 1-8c); Israel notes this method for siblings A154142/A154146. The linked Adams-Watters SeqFan thread (Oct 2009) was unreachable, but Mathar kept the 'Conjectures' label after linking it, and no proof of this entry was found. Second review: Faithful and true; standard Pell-equation argument (x=2k+1, x^2-8m^2=1-8c, orbit classes under 3+2sqrt2). Routine; same method already proved sister entries A154142/A154146."
+  },
+  "oeis-a156201": {
+   "date": "2026-11-28",
+   "pr": 24257,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A156201",
+    "https://oeis.org/A156201",
+    "https://oeis.org/A122045"
+   ],
+   "note": "Faithful: the numerator of E_n(1/8) equals 8^n E_n(1/8) (checked for n < 25), and Gladkovskii's continued fraction is encoded by depth-N convergents with tail 1, claimed for n <= 2N. That truncation order is correct: depth 3, 6 and 10 agree through n = 7, 13 and 21. The proof derives exact tails via Laplace transforms of e^(-3t) sinh^k sech^(k+1)(4t), a classical Rogers/Stieltjes-type argument. No prior proof found. Second review: Faithful and true. It reduces by a binomial (Euler) transform to Stieltjes' classical continued fraction for the secant numbers, so routine; the proof is long only because of Lean series plumbing."
+  },
+  "oeis-a156377": {
+   "date": "2026-11-28",
+   "pr": 24293,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A156377",
+    "https://oeis.org/A156377",
+    "https://oeis.org/A122045"
+   ],
+   "note": "Same as A156201 with E_n(1/16), 64(k+1)^2 and 1+7x. The numerator equals 16^n E_n(1/16), and the depth-N convergents agree through n = 2N+1 numerically. The proof is the same classical Laplace-transform derivation of the continued fraction. No prior proof found. Second review: Faithful and true. It reduces by a binomial (Euler) transform to Stieltjes' classical continued fraction for the secant numbers, so routine; the proof is long only because of Lean series plumbing."
+  },
+  "oeis-a164586": {
+   "date": "2026-11-28",
+   "pr": 24412,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A164586",
+    "https://oeis.org/A164586"
+   ],
+   "note": "Faithful: the coefficient shift n+1 and the denominator 2-2x-8x^2-6x^3-2x^4 correctly rewrite the entry's g.f., and the radicand matches; the series reproduces the data. Mathar's order-7 recurrence holds for n = 7..58. The proof is a routine annihilator certificate; no prior proof found. Second review: Faithful and true; routine algebraic-g.f. recurrence."
+  },
+  "oeis-a166228": {
+   "date": "2026-11-28",
+   "pr": 22223,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A166228",
+    "https://oeis.org/A166228"
+   ],
+   "note": "Faithful: a(n) = Sum (-1)^(n-k) S(k) with large Schroeder numbers (data match). Mathar's order-3 recurrence holds for n = 3..49. Routine algebraic-g.f. recurrence; no prior proof found. Second review: Faithful and true; routine."
+  },
+  "oeis-a166290": {
+   "date": "2026-11-28",
+   "pr": 24470,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A166290",
+    "https://oeis.org/A166290"
+   ],
+   "note": "Faithful: the entry's g.f. (z-1)(z+2)/(2z^2) + P/(2z^2 sqrt(R)) is rationalized correctly, with (z^2+z-2)R expanded and checked. The series reproduces the data. Mathar's large order-6 recurrence is expanded correctly ((n+2)(60283n-319055) and (166729n-863288)(n-6)) and holds for n = 6..57. Routine certificate proof; no prior proof found. Second review: Faithful and true; routine (big coefficients, same method)."
+  },
+  "oeis-a166300": {
+   "date": "2026-11-28",
+   "pr": 24083,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A166300",
+    "https://oeis.org/A166300"
+   ],
+   "note": "Faithful: 2/(1+z+z^2+sqrt(R)) = (1+z+z^2-sqrt R)/(2z(1+z+z^2)), since (1+z+z^2)^2 - R = 4z(1+z+z^2); this is the coefficient shift used, and it reproduces the data. Mathar's recurrence holds for n = 4..58. Routine; no prior proof found. Second review: Faithful and true; routine."
+  },
+  "oeis-a166694": {
+   "date": "2026-11-28",
+   "pr": 22545,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A166694",
+    "https://oeis.org/A166694"
+   ],
+   "note": "Faithful algebraic g.f. (with an existence clause, so not vacuous), reproducing the data. Mathar's order-4 recurrence holds for n = 5..57. Routine; no prior proof found. Second review: True from n=5; fails at the first index n=4, which the statement documents (usual reading of Mathar recurrences). Mention the exception if announced. Routine."
+  },
+  "oeis-a166696": {
+   "date": "2026-11-28",
+   "pr": 22566,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A166696",
+    "https://oeis.org/A166696"
+   ],
+   "note": "Faithful algebraic g.f. (1-3x+x^2-sqrt(1-14x+27x^2-14x^3+x^4))/(4x) with an existence clause; it reproduces the data. Mathar's recurrence holds for n = 5..57. Routine; no prior proof found. Second review: True from n=5; fails at the first index n=4, which the statement documents (usual reading of Mathar recurrences). Mention the exception if announced. Routine."
+  },
+  "oeis-a166697": {
+   "date": "2026-11-28",
+   "pr": 22608,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A166697",
+    "https://oeis.org/A166697"
+   ],
+   "note": "Faithful g.f. (the A166696 g.f. divided by (1-x)) with an existence clause; it reproduces the data. Mathar's order-5 recurrence holds for n = 5..57. Routine; no prior proof found. Second review: Faithful and true; routine."
+  },
+  "oeis-a168503": {
+   "date": "2026-11-28",
+   "pr": 22626,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A168503",
+    "https://oeis.org/A168503"
+   ],
+   "note": "The period-3 continued fraction 1/(1-x/(1-2x/(1-3x/...))) is encoded faithfully by its three tails, with an existence clause, and reproduces the data. Mathar's recurrence holds for n = 4..59. Routine; no prior proof found. Second review: Faithful and true; the entry's algebraic g.f. makes it routine."
   }
  },
  "flagged": {
@@ -7986,6 +8580,14 @@
     "https://oeis.org/A190917"
    ],
    "reason": "Trivial. For length 3n, three counts that are within one of each other and sum to 3n must all equal n. So the A199126 words of length 3n are by definition the A190917 words (n copies of each value, values introduced in order, no equal neighbours). My brute force gives a(3),a(6),a(9),a(12) = 1,5,29,182 = A190917(1..4). Mathar's 'conjecture' follows directly from the definitions."
+  },
+  "oeis-a121757": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A121757",
+    "https://oeis.org/A253938"
+   ],
+   "reason": "Second review: The formalized identity is not an open problem: the OEIS comment states it as fact, and it follows from Pascal's rule in one step. The only conjecture mentioned (the F(n,p,r) formula of A253938) is not what was formalized, so the 'solve' is vacuous as an open-problem result."
   }
  },
  "known": {
@@ -15285,6 +15887,81 @@
     "https://oeis.org/A193351"
    ],
    "reason": "Lagneau's conjecture is stated faithfully: for k>3, if the alternating divisor sum A071324(k) is prime, then k is a square or twice a square. But trureturing already proved exactly this claim in Lean (commit 9681e8245a, 2026-09-13, theorem lagneau_a193351, Problems/oeis-a193351-...). Its route is T(k) = sigma(k) mod 2 plus 2T(k) >= k. That is well before the site merge on 2026-11-28."
+  },
+  "oeis-a025567": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A025567",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "Second review: Faithful and true, but already proved in Blanco Gomez's Zenodo collection (Proposition 7.55, 2026-10-02), about eight weeks before the site proof."
+  },
+  "oeis-a052275": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A052275",
+    "http://math.colgate.edu/~integers/x62/x62.pdf",
+    "https://oeis.org/A293482/a293482.pdf",
+    "https://oeis.org/A052273"
+   ],
+   "reason": "Second review: Mathar's A052275 g.f. conjectures are equivalent to his 2017 power-residue conjectures (closed forms for 6th powers mod 2^e and 3^e and the constant-coefficient recurrence), all proved by Seraj in INTEGERS 23 (2023) #A62. The OEIS entry was never updated, but the result is published."
+  },
+  "oeis-a053532": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A053532",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "Second review: Faithful and true, but already proved in Blanco Gomez's Zenodo collection (Proposition 9.5, 2026-10-02), about eight weeks before the site proof."
+  },
+  "oeis-a054109": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A054109",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "Second review: Faithful and true, but already proved in Blanco Gomez's Zenodo collection (Proposition 7.32, 2026-10-02), about eight weeks before the site proof."
+  },
+  "oeis-a081207": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A081207",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "Second review: Faithful and true, but already proved in Blanco Gomez's Zenodo collection (Proposition 8.2, 2026-10-02), about eight weeks before the site proof."
+  },
+  "oeis-a085387": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A085387",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "Second review: Faithful and true, but already proved in Blanco Gomez's Zenodo collection (Proposition 8.35, 2026-10-02), about eight weeks before the site proof."
+  },
+  "oeis-a129439": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A129439",
+    "https://oeis.org/A092143",
+    "https://arxiv.org/abs/2302.02243"
+   ],
+   "reason": "Second review: Integrality is a special case of Ward's 1939 theorem (Shapiro 2023, Thm 15) and is a one-liner from the entry's floor-factorial formula. Should not be counted as new."
+  },
+  "oeis-a143902": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A143902",
+    "https://oeis.org/A006584"
+   ],
+   "reason": "Second review: The identity is already recorded as a (non-conjectural) formula in A006584 since 2016, so the A143902 'conjectured' tag is stale. Elementary in any case; not a new solve."
+  },
+  "oeis-a160823": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A160823",
+    "https://zenodo.org/records/23112421"
+   ],
+   "reason": "Second review: Already proved by Blanco Gomez (Zenodo, Oct 2 2026), about eight weeks before the site proof. Not new."
   }
  },
  "reviewed": "2026-11-28"
