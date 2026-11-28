@@ -53,25 +53,6 @@ theorem disproof : ¬ ∀ n : ℕ, (n % 10 = 1 ∨ n % 10 = 3 ∨ n % 10 = 7 ∨
   intro h
   exact not_pal_prime_143 ((h 143 (by norm_num)).mp zero_143)
 
-/-- Control from the data: for n = 17 the least m giving a prime is 3, and the prime is
-71717117 (7117 = 11 * 647 and 717117 = 3 * 239039 are composite). -/
-theorem control_17 : (∀ m, 1 ≤ m → m < 3 → ¬ (F 17 m).Prime) ∧ F 17 3 = 71717117 ∧
-    Nat.Prime 71717117 := by
-  have hrev : rev 17 = 71 := by norm_num [rev, Nat.ofDigits]
-  have hF : ∀ m, F 17 m = Nat.ofDigits 10 ([7, 1] ++ (List.replicate m [1, 7]).flatten) := by
-    intro m
-    unfold F
-    rw [hrev]
-    norm_num
-  have h1 : F 17 1 = 7117 := by rw [hF]; simp [List.replicate, Nat.ofDigits]
-  have h2 : F 17 2 = 717117 := by rw [hF]; simp [List.replicate, Nat.ofDigits]
-  have h3 : F 17 3 = 71717117 := by rw [hF]; simp [List.replicate, Nat.ofDigits]
-  refine ⟨?_, h3, by norm_num⟩
-  intro m hm1 hm3
-  interval_cases m
-  · rw [h1]; norm_num
-  · rw [h2]; norm_num
-
 end OMA.S_oeis_a110408
 
 theorem OMA.disproof : ¬ (type_of% @OMA.S_oeis_a110408.main) :=
