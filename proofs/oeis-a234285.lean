@@ -39,36 +39,11 @@ theorem OMA.disproof : ¬ (type_of% @OMA.S_oeis_a234285.main) := by
     have ht24 : t < 24 := by omega
     rw [← ht]
     interval_cases t
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨7, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨5, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨13, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨5, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨17, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨5, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨7, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨5, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨13, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨5, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨241, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨3, by norm_num, by norm_num, by norm_num, by norm_num⟩
-    · exact ⟨5, by norm_num, by norm_num, by norm_num, by norm_num⟩
+    all_goals first | (refine ⟨3, ?_⟩; decide) | (refine ⟨5, ?_⟩; decide) | (refine ⟨7, ?_⟩; decide) | (refine ⟨13, ?_⟩; decide) | (refine ⟨17, ?_⟩; decide) | (refine ⟨241, ?_⟩; decide)
   obtain ⟨p, hp2, hp241, hpN, hc⟩ := hex
   have hpq := hdvd p hpN hc
   have hqle : q ≤ 241 := by
-    rcases hq.eq_one_or_self_of_dvd p hpq with h1 | h1
-    · omega
-    · omega
+    rcases hq.eq_one_or_self_of_dvd p hpq with h1 | h1 <;> omega
   have hq2 := hq.two_le
   obtain ⟨X, hX⟩ : ∃ X, 2 ^ k = X := ⟨_, rfl⟩
   rcases Nat.lt_or_ge k 19 with hk | hk

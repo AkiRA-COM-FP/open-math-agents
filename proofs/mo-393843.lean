@@ -1,6 +1,9 @@
 import OMAStatements.S_mo_393843
 import Mathlib
 
+-- Original Lean proof by @AkiRA-COM-FP (PR #17739; statement #13354).
+-- Multiset product bounds and root transport now use Mathlib directly.
+
 open Polynomial Set
 open scoped NNReal
 
@@ -50,25 +53,14 @@ private theorem root_bound_int_polynomial (H : ℕ) {f : ℤ[X]} (hf : f ≠ 0)
 private theorem root_product_bound (H : ℕ) (G : ℂ[X])
     (hBound : ∀ z ∈ G.roots, ‖z‖ ≤ (H : ℝ)+1) :
     (G.roots.map (fun z => max 1 ‖z‖)).prod ≤ ((H : ℝ)+1)^G.natDegree := by
-  let R := (H : ℝ)+1
-  have hR : 1 ≤ R := by
-    dsimp [R]
-    have hH : (0 : ℝ) ≤ H := Nat.cast_nonneg H
-    linarith
-  have hAux (s : Multiset ℂ) (h : ∀ z ∈ s, ‖z‖ ≤ R) :
-      (s.map (fun z => max 1 ‖z‖)).prod ≤ R^s.card := by
-    induction s using Multiset.induction_on with
-    | empty => simp
-    | cons z zs ih =>
-      have hZ : max 1 ‖z‖ ≤ R := max_le hR (h z (Multiset.mem_cons_self _ _))
-      rw [Multiset.map_cons,Multiset.prod_cons,Multiset.card_cons,pow_succ']
-      apply mul_le_mul hZ (ih (fun x hx => h x (Multiset.mem_cons_of_mem hx)))
-      · exact Multiset.prod_nonneg (by
-          intro x hx
-          obtain ⟨y,_,rfl⟩ := Multiset.mem_map.mp hx
-          exact zero_le_one.trans (le_max_left _ _))
-      · exact zero_le_one.trans hR
-  exact (hAux G.roots hBound).trans (pow_le_pow_right₀ hR (card_roots' G))
+  have hR : (1 : ℝ) ≤ (H : ℝ) + 1 := le_add_of_nonneg_left (Nat.cast_nonneg H)
+  have hProd : (G.roots.map (fun z => max 1 ‖z‖)).prod ≤
+      ((H : ℝ) + 1) ^ G.roots.card := by
+    simpa using Multiset.prod_map_le_prod_map₀ (fun z : ℂ => max 1 ‖z‖)
+      (fun _ => (H : ℝ) + 1)
+      (fun _ _ => le_trans zero_le_one (le_max_left _ _))
+      (fun z hz => max_le hR (hBound z hz))
+  exact hProd.trans (pow_le_pow_right₀ hR (card_roots' G))
 
 private theorem factor_height_bound {d H : ℕ} {g : ℤ[X]} (hg : g ∈ boundedHeightFactors d H) :
     HasHeightAtMost g (H*(H+1)^d*2^d) := by
@@ -88,10 +80,8 @@ private theorem factor_height_bound {d H : ℕ} {g : ℤ[X]} (hg : g ∈ bounded
   have hRoots (z : ℂ) (hz : z ∈ G.roots) : ‖z‖ ≤ (H : ℝ)+1 := by
     have hZ : G.IsRoot z := (mem_roots hG0).mp hz
     have hDiv : G ∣ F := map_dvd (Polynomial.mapRingHom (algebraMap ℤ ℂ)) hDvd
-    obtain ⟨q,hq⟩ := hDiv
-    apply root_bound_int_polynomial H hf hH
-    change F.IsRoot z
-    rw [hq,IsRoot.def,eval_mul,hZ,zero_mul]
+    exact root_bound_int_polynomial H hf hH (hZ.dvd hDiv)
+
   have hLC : ‖G.leadingCoeff‖ ≤ (H : ℝ) := by
     have hDiv : g.leadingCoeff.natAbs ∣ f.leadingCoeff.natAbs :=
       Int.natAbs_dvd_natAbs.mpr (leadingCoeff_dvd_leadingCoeff hDvd)
@@ -108,10 +98,10 @@ private theorem factor_height_bound {d H : ℕ} {g : ℤ[X]} (hg : g ∈ bounded
     rw [mahlerMeasure_eq_leadingCoeff_mul_prod_roots]
     have hProd := root_product_bound H G hRoots
     rw [hGD] at hProd
-    exact mul_le_mul hLC hProd (Multiset.prod_nonneg (by
-      intro x hx
-      obtain ⟨y,_,rfl⟩ := Multiset.mem_map.mp hx
-      exact zero_le_one.trans (le_max_left _ _))) (by positivity)
+    exact mul_le_mul hLC hProd
+      (Multiset.prod_map_nonneg fun _ _ => le_trans zero_le_one (le_max_left _ _))
+      (by positivity)
+
   intro i
   have hBig : ((g.coeff i).natAbs : ℝ) ≤ (H : ℝ)*((H : ℝ)+1)^d*2^d := by
     have h := norm_coeff_le_choose_mul_mahlerMeasure i G

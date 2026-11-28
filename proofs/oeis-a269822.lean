@@ -1,233 +1,201 @@
 import OMAStatements.S_oeis_a269822
-import Mathlib
 
-/-
-A269822: the number of words x_1 ... x_n over 0..4 with exactly one adjacent pair summing to 4
-is 5 * 4^(n-2) * (n-1) for n >= 1; the recurrence and the generating function follow.
-
-The count is done for an arbitrary alphabet 0..c and an abstract pair counter pr with
-pr(cons b y) = [b + y_0 = c] + pr(y).
-- cnt1, cnt0: for a fixed letter t exactly one letter b has b + t = c, and c letters do not.
-- inner0, inner1: the number of b with [b + t = c] + p = 0 (or 1), as a function of p.
-- step: splitting a word into its first letter and the rest gives
-  N0(m+1) = c N0(m) and N1(m+1) = N0(m) + c N1(m), where Nj counts words with j such pairs.
-- closed: N0(m) = (c+1) c^m and N1(m+1) = (c+1) c^m (m+1), by induction.
-The three claims are then algebra; the generating function is checked coefficient by coefficient.
--/
-
-namespace OMA.P269822
+-- Problem: OEIS A269822, the number of words of length n over 0..4 with exactly one adjacent pair
+-- of sum 4. Conjectures: a(n) = 8 a(n-1) - 16 a(n-2), the generating function
+-- 5 x^2 / (1 - 4 x)^2, and a(n) = 5 * 4^(n-2) * (n-1).
+-- Proof, for q letters and target sum q - 1. Every letter has exactly one partner making the
+-- sum q - 1. Prepending a letter to a word either creates one more such pair (1 choice) or not
+-- (q - 1 choices), so the numbers W(m,k) of words of length m+1 with k pairs satisfy
+-- W(m+1,0) = (q-1) W(m,0) and W(m+1,1) = W(m,0) + (q-1) W(m,1). Hence W(m,0) = q (q-1)^m and
+-- W(m+1,1) = q (m+1) (q-1)^m, which gives the closed form; the recurrence and the generating
+-- function follow from it.
 
 open Finset
 
-lemma cnt1 (c : ℕ) (t : Fin (c + 1)) :
-    (univ.filter (fun b : Fin (c + 1) => (b : ℕ) + (t : ℕ) = c)).card = 1 := by
-  have e : univ.filter (fun b : Fin (c + 1) => (b : ℕ) + (t : ℕ) = c) = {Fin.rev t} := by
-    ext b
-    have h1 := t.isLt
-    have h2 := b.isLt
-    simp only [mem_filter, mem_univ, true_and, mem_singleton, Fin.ext_iff, Fin.val_rev]
+/-- Number of adjacent pairs of the word `x` (length `m + 1`, letters in `Fin q`) with sum `T`. -/
+def OMA.pairs (q T m : ℕ) (x : Fin (m + 1) → Fin q) : ℕ :=
+  (Finset.univ.filter (fun i : Fin m => (x i.castSucc : ℕ) + (x i.succ : ℕ) = T)).card
+
+/-- Number of words of length `m + 1` with exactly `k` adjacent pairs of sum `T`. -/
+def OMA.W (q T m k : ℕ) : ℕ :=
+  (Finset.univ.filter (fun x : Fin (m + 1) → Fin q => OMA.pairs q T m x = k)).card
+
+lemma OMA.pairs_cons (q T m : ℕ) (y : Fin q) (x : Fin (m + 1) → Fin q) :
+    OMA.pairs q T (m + 1) (Fin.cons y x : Fin (m + 1 + 1) → Fin q)
+      = (if (y : ℕ) + (x 0 : ℕ) = T then 1 else 0) + OMA.pairs q T m x := by
+  unfold OMA.pairs
+  rw [Fin.card_filter_univ_succ']
+  have h0 : ((Fin.cons y x : Fin (m + 1 + 1) → Fin q) (Fin.castSucc (0 : Fin (m + 1))) : ℕ) = (y : ℕ) := by
+    rw [Fin.castSucc_zero, Fin.cons_zero]
+  have h1 : ((Fin.cons y x : Fin (m + 1 + 1) → Fin q) (Fin.succ (0 : Fin (m + 1))) : ℕ) = (x 0 : ℕ) := by
+    rw [Fin.cons_succ]
+  have h2 : ∀ j : Fin m, ((Fin.cons y x : Fin (m + 1 + 1) → Fin q) (Fin.castSucc (Fin.succ j)) : ℕ)
+      = (x (Fin.castSucc j) : ℕ) := by
+    intro j
+    rw [← Fin.succ_castSucc, Fin.cons_succ]
+  have h3 : ∀ j : Fin m, ((Fin.cons y x : Fin (m + 1 + 1) → Fin q) (Fin.succ (Fin.succ j)) : ℕ)
+      = (x (Fin.succ j) : ℕ) := by
+    intro j
+    rw [Fin.cons_succ]
+  simp only [h0, h1, h2, h3]
+
+lemma OMA.W_step (q T m k : ℕ)
+    (hT : ∀ v : Fin q, (univ.filter (fun y : Fin q => (y : ℕ) + (v : ℕ) = T)).card = 1) :
+    OMA.W q T (m + 1) k
+      = (univ.filter (fun x : Fin (m + 1) → Fin q => 1 + OMA.pairs q T m x = k)).card
+        + (q - 1) * OMA.W q T m k := by
+  unfold OMA.W
+  rw [Finset.card_filter, Finset.card_filter, Finset.card_filter,
+    ← (Fin.consEquiv (fun _ : Fin (m + 1 + 1) => Fin q)).sum_comp, Fintype.sum_prod_type_right,
+    Finset.mul_sum, ← Finset.sum_add_distrib]
+  refine Finset.sum_congr rfl (fun x _ => ?_)
+  have hx : ∀ y : Fin q,
+      (if OMA.pairs q T (m + 1) ((Fin.consEquiv (fun _ : Fin (m + 1 + 1) => Fin q)) (y, x)) = k
+        then 1 else 0)
+      = if (y : ℕ) + (x 0 : ℕ) = T then (if 1 + OMA.pairs q T m x = k then 1 else 0)
+        else (if OMA.pairs q T m x = k then 1 else 0) := by
+    intro y
+    have h := OMA.pairs_cons q T m y x
+    have he : (Fin.consEquiv (fun _ : Fin (m + 1 + 1) => Fin q)) (y, x)
+        = (Fin.cons y x : Fin (m + 1 + 1) → Fin q) := rfl
+    rw [he, h]
+    split_ifs <;> simp_all
+  rw [Finset.sum_congr rfl (fun y _ => hx y), Finset.sum_ite, Finset.sum_const, Finset.sum_const,
+    hT (x 0)]
+  have hc : (univ.filter (fun y : Fin q => ¬ ((y : ℕ) + (x 0 : ℕ) = T))).card = q - 1 := by
+    have h := Finset.card_filter_add_card_filter_not (s := (univ : Finset (Fin q)))
+      (fun y : Fin q => (y : ℕ) + (x 0 : ℕ) = T)
+    rw [hT (x 0), Finset.card_univ, Fintype.card_fin] at h
     omega
-  rw [e, card_singleton]
+  rw [hc]
+  simp
 
-lemma cnt0 (c : ℕ) (t : Fin (c + 1)) :
-    (univ.filter (fun b : Fin (c + 1) => ¬ ((b : ℕ) + (t : ℕ) = c))).card = c := by
-  have h := Finset.card_filter_add_card_filter_not (s := (univ : Finset (Fin (c + 1))))
-    (fun b : Fin (c + 1) => (b : ℕ) + (t : ℕ) = c)
-  rw [cnt1, card_univ, Fintype.card_fin] at h
-  omega
+lemma OMA.W00 (q T : ℕ) : OMA.W q T 0 0 = q := by
+  unfold OMA.W OMA.pairs
+  simp
 
-lemma inner0 (c : ℕ) (t : Fin (c + 1)) (p : ℕ) :
-    ∑ b : Fin (c + 1), (if (if (b : ℕ) + (t : ℕ) = c then 1 else 0) + p = 0 then 1 else 0) =
-      if p = 0 then c else 0 := by
-  rcases Nat.eq_zero_or_pos p with rfl | hp
-  · have e : ∀ b : Fin (c + 1),
-        (if (if (b : ℕ) + (t : ℕ) = c then 1 else 0) + 0 = 0 then 1 else 0) =
-          if ¬ ((b : ℕ) + (t : ℕ) = c) then 1 else 0 := fun b => by split_ifs <;> simp_all
-    rw [if_pos rfl]
-    simp only [e]
-    rw [← Finset.card_filter]
-    exact cnt0 c t
-  · have e : ∀ b : Fin (c + 1),
-        (if (if (b : ℕ) + (t : ℕ) = c then 1 else 0) + p = 0 then 1 else 0) = 0 :=
-      fun b => by split_ifs <;> omega
-    simp only [e, Finset.sum_const_zero]
-    rw [if_neg (by omega)]
+lemma OMA.W01 (q T : ℕ) : OMA.W q T 0 1 = 0 := by
+  unfold OMA.W OMA.pairs
+  simp
 
-lemma inner1 (c : ℕ) (t : Fin (c + 1)) (p : ℕ) :
-    ∑ b : Fin (c + 1), (if (if (b : ℕ) + (t : ℕ) = c then 1 else 0) + p = 1 then 1 else 0) =
-      (if p = 0 then 1 else 0) + (if p = 1 then c else 0) := by
-  rcases p with _ | _ | p
-  · have e : ∀ b : Fin (c + 1),
-        (if (if (b : ℕ) + (t : ℕ) = c then 1 else 0) + 0 = 1 then 1 else 0) =
-          if (b : ℕ) + (t : ℕ) = c then 1 else 0 := fun b => by split_ifs <;> simp_all
-    simp only [e]
-    rw [← Finset.card_filter, cnt1]
-    simp
-  · have e : ∀ b : Fin (c + 1),
-        (if (if (b : ℕ) + (t : ℕ) = c then 1 else 0) + (0 + 1) = 1 then 1 else 0) =
-          if ¬ ((b : ℕ) + (t : ℕ) = c) then 1 else 0 := fun b => by split_ifs <;> simp_all
-    simp only [e]
-    rw [← Finset.card_filter, cnt0]
-    simp
-  · have e : ∀ b : Fin (c + 1),
-        (if (if (b : ℕ) + (t : ℕ) = c then 1 else 0) + (p + 1 + 1) = 1 then 1 else 0) = 0 :=
-      fun b => by split_ifs <;> omega
-    simp only [e, Finset.sum_const_zero]
-    simp
-
-lemma pr_cons (c m : ℕ) (b : Fin (c + 1)) (y : Fin (m + 1) → Fin (c + 1)) :
-    (univ.filter (fun i : Fin (m + 1) =>
-      ((Fin.cons b y : Fin (m + 1 + 1) → Fin (c + 1)) i.castSucc : ℕ) +
-        ((Fin.cons b y : Fin (m + 1 + 1) → Fin (c + 1)) i.succ : ℕ) = c)).card =
-      (if (b : ℕ) + (y 0 : ℕ) = c then 1 else 0) +
-        (univ.filter (fun i : Fin m => (y i.castSucc : ℕ) + (y i.succ : ℕ) = c)).card := by
-  rw [Finset.card_filter, Finset.card_filter, Fin.sum_univ_succ]
-  simp only [Fin.castSucc_zero, Fin.cons_zero, Fin.cons_succ, ← Fin.succ_castSucc]
-
-lemma step (c : ℕ) (pr : ∀ m, (Fin (m + 1) → Fin (c + 1)) → ℕ)
-    (hprs : ∀ m (b : Fin (c + 1)) (y : Fin (m + 1) → Fin (c + 1)),
-      pr (m + 1) (Fin.cons b y : Fin (m + 1 + 1) → Fin (c + 1)) =
-        (if (b : ℕ) + (y 0 : ℕ) = c then 1 else 0) + pr m y) (m : ℕ) :
-    (univ.filter (fun x : Fin (m + 1 + 1) → Fin (c + 1) => pr (m + 1) x = 0)).card =
-        c * (univ.filter (fun y : Fin (m + 1) → Fin (c + 1) => pr m y = 0)).card ∧
-    (univ.filter (fun x : Fin (m + 1 + 1) → Fin (c + 1) => pr (m + 1) x = 1)).card =
-        (univ.filter (fun y : Fin (m + 1) → Fin (c + 1) => pr m y = 0)).card +
-          c * (univ.filter (fun y : Fin (m + 1) → Fin (c + 1) => pr m y = 1)).card := by
-  have reindex : ∀ F : (Fin (m + 1 + 1) → Fin (c + 1)) → ℕ,
-      ∑ x, F x = ∑ y : Fin (m + 1) → Fin (c + 1), ∑ b : Fin (c + 1),
-        F (Fin.cons b y : Fin (m + 1 + 1) → Fin (c + 1)) := by
-    intro F
-    rw [← Equiv.sum_comp (Fin.consEquiv (fun _ : Fin (m + 1 + 1) => Fin (c + 1))) F,
-      Fintype.sum_prod_type, Finset.sum_comm]
-    rfl
-  constructor
-  · rw [Finset.card_filter, reindex]
-    simp only [hprs, inner0]
-    rw [Finset.card_filter, Finset.mul_sum]
-    exact Finset.sum_congr rfl fun y _ => by split_ifs <;> simp
-  · rw [Finset.card_filter, reindex]
-    simp only [hprs, inner1, Finset.sum_add_distrib]
-    rw [Finset.card_filter, Finset.card_filter, Finset.mul_sum]
-    congr 1
-    exact Finset.sum_congr rfl fun y _ => by split_ifs <;> simp
-
-lemma closed (c : ℕ) (pr : ∀ m, (Fin (m + 1) → Fin (c + 1)) → ℕ)
-    (hpr0 : ∀ x : Fin (0 + 1) → Fin (c + 1), pr 0 x = 0)
-    (hprs : ∀ m (b : Fin (c + 1)) (y : Fin (m + 1) → Fin (c + 1)),
-      pr (m + 1) (Fin.cons b y : Fin (m + 1 + 1) → Fin (c + 1)) =
-        (if (b : ℕ) + (y 0 : ℕ) = c then 1 else 0) + pr m y) :
-    (univ.filter (fun x : Fin (0 + 1) → Fin (c + 1) => pr 0 x = 1)).card = 0 ∧
-    ∀ m, (univ.filter (fun x : Fin (m + 1) → Fin (c + 1) => pr m x = 0)).card = (c + 1) * c ^ m ∧
-      (univ.filter (fun x : Fin (m + 1 + 1) → Fin (c + 1) => pr (m + 1) x = 1)).card =
-        (c + 1) * c ^ m * (m + 1) := by
-  have base1 : (univ.filter (fun x : Fin (0 + 1) → Fin (c + 1) => pr 0 x = 1)).card = 0 := by
-    simp [hpr0]
-  have base0 : (univ.filter (fun x : Fin (0 + 1) → Fin (c + 1) => pr 0 x = 0)).card = c + 1 := by
-    simp [hpr0]
-  refine ⟨base1, fun m => ?_⟩
+lemma OMA.W0 (q T : ℕ)
+    (hT : ∀ v : Fin q, (univ.filter (fun y : Fin q => (y : ℕ) + (v : ℕ) = T)).card = 1) (m : ℕ) :
+    OMA.W q T m 0 = q * (q - 1) ^ m := by
   induction m with
-  | zero =>
-    refine ⟨by rw [base0]; ring, ?_⟩
-    rw [(step c pr hprs 0).2, base1, base0]
-    ring
+  | zero => rw [OMA.W00]; simp
   | succ m ih =>
-    obtain ⟨h0, h1⟩ := ih
-    refine ⟨?_, ?_⟩
-    · rw [(step c pr hprs m).1, h0]
-      ring
-    · rw [(step c pr hprs (m + 1)).2, (step c pr hprs m).1, h0, h1]
-      ring
+    rw [OMA.W_step q T m 0 hT, ih]
+    have h : (univ.filter (fun x : Fin (m + 1) → Fin q => 1 + OMA.pairs q T m x = 0)).card = 0 := by
+      rw [Finset.card_eq_zero, Finset.filter_eq_empty_iff]
+      intro x _
+      omega
+    rw [h, pow_succ]
+    ring
 
-lemma main' (pr : ∀ m, (Fin (m + 1) → Fin 5) → ℕ)
-    (hpr : ∀ m x, pr m x =
-      (univ.filter (fun i : Fin m => (x i.castSucc : ℕ) + (x i.succ : ℕ) = 4)).card)
-    (a : ℕ → ℕ) (ha0 : a 0 = 0)
-    (has : ∀ m, a (m + 1) = (univ.filter (fun x : Fin (m + 1) → Fin 5 => pr m x = 1)).card) :
-    (∀ n : ℕ, 3 ≤ n → (a n : ℤ) = 8 * a (n - 1) - 16 * a (n - 2)) ∧
-    (PowerSeries.mk (fun n => (a n : ℚ)) * (1 - 4 * PowerSeries.X) ^ 2 =
-      5 * PowerSeries.X ^ 2) ∧
-    (∀ n : ℕ, 1 ≤ n → a n = 5 * 4 ^ (n - 2) * (n - 1)) := by
-  have hpr0 : ∀ x : Fin (0 + 1) → Fin (4 + 1), pr 0 x = 0 := fun x => by
-    rw [hpr]
-    simp
-  have hprs : ∀ m (b : Fin (4 + 1)) (y : Fin (m + 1) → Fin (4 + 1)),
-      pr (m + 1) (Fin.cons b y : Fin (m + 1 + 1) → Fin (4 + 1)) =
-        (if (b : ℕ) + (y 0 : ℕ) = 4 then 1 else 0) + pr m y := fun m b y => by
-    rw [hpr, hpr]
-    exact pr_cons 4 m b y
-  obtain ⟨hb, hcl⟩ := closed 4 pr hpr0 hprs
-  have hA1 : a 1 = 0 := (has 0).trans hb
-  have hA : ∀ m, a (m + 2) = 5 * 4 ^ m * (m + 1) := fun m => (has (m + 1)).trans (hcl m).2
-  have hB : ∀ k, 4 * a (k + 1) = 5 * 4 ^ k * k := by
-    intro k
-    rcases k with _ | j
-    · rw [hA1]
-      simp
-    · rw [hA j]
-      ring
-  refine ⟨?_, ?_, ?_⟩
+lemma OMA.W1 (q T : ℕ)
+    (hT : ∀ v : Fin q, (univ.filter (fun y : Fin q => (y : ℕ) + (v : ℕ) = T)).card = 1) (m : ℕ) :
+    OMA.W q T (m + 1) 1 = q * (m + 1) * (q - 1) ^ m := by
+  have hstep : ∀ m, OMA.W q T (m + 1) 1 = OMA.W q T m 0 + (q - 1) * OMA.W q T m 1 := by
+    intro m
+    rw [OMA.W_step q T m 1 hT]
+    congr 1
+    unfold OMA.W
+    congr 1
+    refine Finset.filter_congr (fun x _ => ?_)
+    omega
+  induction m with
+  | zero => rw [hstep, OMA.W00, OMA.W01]; simp
+  | succ m ih =>
+    rw [hstep, ih, OMA.W0 q T hT, pow_succ]
+    ring
+
+open OMA.S_oeis_a269822 PowerSeries
+
+lemma OMA.hT : ∀ v : Fin 5, (univ.filter (fun y : Fin 5 => (y : ℕ) + (v : ℕ) = 4)).card = 1 := by
+  decide
+
+lemma OMA.a_zero : a 0 = 0 := rfl
+
+lemma OMA.a_one : a 1 = 0 := by
+  have h := OMA.W01 5 4
+  exact h
+
+lemma OMA.a_two (m : ℕ) : a (m + 2) = 5 * (m + 1) * 4 ^ m := by
+  have h := OMA.W1 5 4 OMA.hT m
+  have h2 : (5 - 1 : ℕ) = 4 := rfl
+  rw [h2] at h
+  exact h
+
+lemma OMA.a_rec (n : ℕ) : (a (n + 3) : ℤ) = 8 * a (n + 2) - 16 * a (n + 1) := by
+  rcases n with _ | k
+  · rw [OMA.a_two 1, OMA.a_two 0, OMA.a_one]
+    norm_num
+  · have e3 : k + 1 + 3 = (k + 2) + 2 := rfl
+    have e2 : k + 1 + 2 = (k + 1) + 2 := rfl
+    have e1 : k + 1 + 1 = k + 2 := rfl
+    rw [e3, e2, e1, OMA.a_two, OMA.a_two, OMA.a_two]
+    push_cast
+    ring
+
+lemma OMA.coeff_rat_mul (z : ℚ) (g : ℚ⟦X⟧) (n : ℕ) :
+    coeff n ((C z : ℚ⟦X⟧) * g) = z * coeff n g := by
+  rw [coeff_C_mul]
+
+lemma OMA.gf : PowerSeries.mk (fun n => (a n : ℚ)) * (1 - 4 * X) ^ 2 = 5 * X ^ 2 := by
+  have hL : PowerSeries.mk (fun n => (a n : ℚ)) * (1 - 4 * X) ^ 2
+      = PowerSeries.mk (fun n => (a n : ℚ)) + C (-8 : ℚ) * (X * PowerSeries.mk (fun n => (a n : ℚ)))
+        + C (16 : ℚ) * (X * (X * PowerSeries.mk (fun n => (a n : ℚ)))) := by
+    simp only [map_neg, map_ofNat]
+    ring
+  have hR : (5 * X ^ 2 : ℚ⟦X⟧) = C (5 : ℚ) * X ^ 2 := by
+    simp only [map_ofNat]
+  rw [hL, hR]
+  ext n
+  rcases n with _ | _ | _ | n
+  · simp [OMA.a_zero]
+  · have e1 : coeff (0 + 1) (X * PowerSeries.mk (fun n => (a n : ℚ)) : ℚ⟦X⟧)
+        = coeff 0 (PowerSeries.mk (fun n => (a n : ℚ)) : ℚ⟦X⟧) := coeff_succ_X_mul 0 _
+    have e2 : coeff (0 + 1) (X * (X * PowerSeries.mk (fun n => (a n : ℚ))) : ℚ⟦X⟧) = 0 := by
+      rw [coeff_succ_X_mul, coeff_zero_X_mul]
+    rw [map_add, map_add, OMA.coeff_rat_mul, OMA.coeff_rat_mul, OMA.coeff_rat_mul, e1, e2,
+      coeff_mk, coeff_mk, coeff_X_pow, OMA.a_zero, OMA.a_one]
+    norm_num
+  · have e1 : coeff (0 + 1 + 1) (X * PowerSeries.mk (fun n => (a n : ℚ)) : ℚ⟦X⟧)
+        = coeff (0 + 1) (PowerSeries.mk (fun n => (a n : ℚ)) : ℚ⟦X⟧) := coeff_succ_X_mul (0 + 1) _
+    have e2 : coeff (0 + 1 + 1) (X * (X * PowerSeries.mk (fun n => (a n : ℚ))) : ℚ⟦X⟧)
+        = coeff 0 (PowerSeries.mk (fun n => (a n : ℚ)) : ℚ⟦X⟧) := by
+      rw [coeff_succ_X_mul, coeff_succ_X_mul]
+    have h2 : a (0 + 1 + 1) = 5 := by
+      have h := OMA.a_two 0
+      simpa using h
+    rw [map_add, map_add, OMA.coeff_rat_mul, OMA.coeff_rat_mul, OMA.coeff_rat_mul, e1, e2,
+      coeff_mk, coeff_mk, coeff_mk, coeff_X_pow, OMA.a_zero, h2]
+    have h1 : a (0 + 1) = 0 := OMA.a_one
+    rw [h1]
+    norm_num
+  · have e1 : coeff (n + 1 + 1 + 1) (X * PowerSeries.mk (fun n => (a n : ℚ)) : ℚ⟦X⟧)
+        = coeff (n + 1 + 1) (PowerSeries.mk (fun n => (a n : ℚ)) : ℚ⟦X⟧) := coeff_succ_X_mul (n + 1 + 1) _
+    have e2 : coeff (n + 1 + 1 + 1) (X * (X * PowerSeries.mk (fun n => (a n : ℚ))) : ℚ⟦X⟧)
+        = coeff (n + 1) (PowerSeries.mk (fun n => (a n : ℚ)) : ℚ⟦X⟧) := by
+      rw [coeff_succ_X_mul, coeff_succ_X_mul]
+    have hr : (a (n + 1 + 1 + 1) : ℚ) = 8 * a (n + 1 + 1) - 16 * a (n + 1) := by
+      exact_mod_cast OMA.a_rec n
+    have hne : ¬ (n + 1 + 1 + 1 = 2) := by omega
+    rw [map_add, map_add, OMA.coeff_rat_mul, OMA.coeff_rat_mul, OMA.coeff_rat_mul, e1, e2,
+      coeff_mk, coeff_mk, coeff_mk, coeff_X_pow, if_neg hne, hr]
+    ring
+
+theorem OMA.solution : type_of% @OMA.S_oeis_a269822.main := by
+  refine ⟨?_, OMA.gf, ?_⟩
   · intro n hn
     obtain ⟨k, rfl⟩ : ∃ k, n = k + 3 := ⟨n - 3, by omega⟩
-    rw [show k + 3 - 1 = k + 2 by omega, show k + 3 - 2 = k + 1 by omega]
-    have h3 : (a (k + 3) : ℤ) = 5 * 4 ^ (k + 1) * ((k : ℤ) + 2) := by
-      have := hA (k + 1)
-      rw [show k + 1 + 2 = k + 3 by ring] at this
-      rw [this]
-      push_cast
-      ring
-    have h2 : (a (k + 2) : ℤ) = 5 * 4 ^ k * ((k : ℤ) + 1) := by
-      rw [hA k]
-      push_cast
-      ring
-    have h1 : 4 * (a (k + 1) : ℤ) = 5 * 4 ^ k * (k : ℤ) := by
-      exact_mod_cast hB k
-    linear_combination h3 - 8 * h2 + 4 * h1
-  · have e8 : (PowerSeries.C (8 : ℚ) : PowerSeries ℚ) = 8 := map_ofNat _ 8
-    have e16 : (PowerSeries.C (16 : ℚ) : PowerSeries ℚ) = 16 := map_ofNat _ 16
-    have e5 : (PowerSeries.C (5 : ℚ) : PowerSeries ℚ) = 5 := map_ofNat _ 5
-    have key : PowerSeries.mk (fun n => (a n : ℚ)) * (1 - 4 * PowerSeries.X) ^ 2 =
-        PowerSeries.mk (fun n => (a n : ℚ)) -
-          PowerSeries.C (8 : ℚ) * (PowerSeries.mk (fun n => (a n : ℚ)) * PowerSeries.X ^ 1) +
-          PowerSeries.C (16 : ℚ) * (PowerSeries.mk (fun n => (a n : ℚ)) * PowerSeries.X ^ 2) := by
-      rw [e8, e16]
-      ring
-    rw [key, ← e5]
-    ext n
-    simp only [map_add, map_sub, PowerSeries.coeff_C_mul, PowerSeries.coeff_mul_X_pow',
-      PowerSeries.coeff_mk, PowerSeries.coeff_C]
-    rcases n with _ | _ | _ | k
-    · simp [ha0]
-    · simp [ha0, hA1]
-    · have h := hA 0
-      simp [ha0, hA1, h]
-    · have h3 : (a (k + 1 + 1 + 1) : ℚ) = 5 * 4 ^ (k + 1) * ((k : ℚ) + 2) := by
-        have := hA (k + 1)
-        rw [show k + 1 + 2 = k + 1 + 1 + 1 from rfl] at this
-        rw [this]
-        push_cast
-        ring
-      have h2 : (a (k + 2) : ℚ) = 5 * 4 ^ k * ((k : ℚ) + 1) := by
-        rw [hA k]
-        push_cast
-        ring
-      have h1 : 4 * (a (k + 1) : ℚ) = 5 * 4 ^ k * (k : ℚ) := by
-        exact_mod_cast hB k
-      have c1 : 1 ≤ k + 1 + 1 + 1 := by omega
-      have c2 : 2 ≤ k + 1 + 1 + 1 := by omega
-      have c3 : ¬ (k + 1 = 0) := by omega
-      have e1 : k + 1 + 1 + 1 - 1 = k + 2 := by omega
-      have e2 : k + 1 + 1 + 1 - 2 = k + 1 := by omega
-      simp only [if_pos c1, if_pos c2, if_neg c3, e1, e2]
-      linear_combination h3 - 8 * h2 + 4 * h1
+    exact OMA.a_rec k
   · intro n hn
-    rcases Nat.lt_or_ge n 2 with h2 | h2
-    · obtain rfl : n = 1 := by omega
-      rw [hA1]
-      simp
-    · obtain ⟨m, rfl⟩ : ∃ m, n = m + 2 := ⟨n - 2, by omega⟩
-      rw [hA m, show m + 2 - 2 = m by omega, show m + 2 - 1 = m + 1 by omega]
-
-end OMA.P269822
-
-theorem OMA.solution : type_of% @OMA.S_oeis_a269822.main :=
-  OMA.P269822.main' OMA.S_oeis_a269822.pairsTotallingFour (fun _ _ => rfl) OMA.S_oeis_a269822.a rfl (fun _ => rfl)
+    rcases n with _ | _ | k
+    · omega
+    · simp [OMA.a_one]
+    · have h0 := OMA.a_two k
+      have h1 : k + 1 + 1 - 2 = k := rfl
+      have h2 : k + 1 + 1 - 1 = k + 1 := rfl
+      rw [h0, h1, h2]
+      ring

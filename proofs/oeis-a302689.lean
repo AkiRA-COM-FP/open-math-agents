@@ -11,13 +11,4 @@ import OMAStatements.S_oeis_a302689
 open OMA.S_oeis_a302689 in
 theorem OMA.disproof : ¬ (type_of% @OMA.S_oeis_a302689.main) := by
   intro H
-  have h6 := H 6 (by norm_num)
-  have h1 : A258547 1 = 16 := by
-    unfold A258547 hardin
-    rw [Finset.filter_true_of_mem]
-    · simp [Finset.card_univ]
-    · intro x _
-      simp [Good]
-  rw [show (6 : ℕ) - 5 = 1 by norm_num, h1] at h6
-  unfold a at h6
-  norm_num at h6
+  exact absurd (H 6 (by decide)) (by decide)
