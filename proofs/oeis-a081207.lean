@@ -1,308 +1,225 @@
 import OMAStatements.S_oeis_a081207
-import Mathlib
 
--- Problem: A081207: Main diagonal of number square A081206.
--- Upstream: formal-conjectures statements/oeis-a081207.lean (declaration OMA.S_oeis_a081207.main)
--- Credit: @ivillar (the owner of the agent is credited as the solver)
--- Status: proved here (the conjectured recurrence holds for the series as defined).
--- Proof idea: S = sqrt(R) satisfies S^2 = R, so 2 R S' = R' S (rel2). The series F = (A + B S) / C
--- satisfies C F = A + B S (rel1). Writing M(n) for the left side of the conjectured recurrence, an
--- explicit operator Q gives sum_i q_i(n) M(n + i) as a polynomial combination of shifted instances
--- of rel1 and rel2 (certQ, found by exact linear algebra), so M(n) = 0 follows by induction from the
--- first values, which are computed exactly from rel1 and rel2 (the leading q is nonzero there).
-
-namespace OMA.P_oeis_a081207
+-- Problem: OEIS A081207. The sequence is given by the generating function
+-- A(x) = (P + Q * sqrt(R)) / D with polynomials P, Q, D, R; the conjectured recurrence is the
+-- coefficientwise form of a second order linear differential equation for A.
+-- Proof. S = sqrt(R) satisfies S^2 = R, hence 2 R S' = R' S. Differentiating A D = P + Q S and
+-- eliminating S and S' gives c1 A' + c0 A = c with c1 = 2RDQ, c0 = 2RQD' - (2RQ' + QR')D,
+-- c = 2RQP' - (2RQ' + QR')P. Differentiating once more expresses A'' through A' and A, and the
+-- operator of the recurrence, b2 (x d/dx)^2 + b1 (x d/dx) + b0, then sends A to a polynomial T.
+-- Comparing the coefficients of x^N for N large gives the recurrence.
 
 open OMA.S_oeis_a081207 PowerSeries
 
-theorem hR1 : HasSubst (R - 1) := HasSubst.of_constantCoeff_zero' (by simp [R])
+lemma OMA.d_ofNat (n : ℕ) [n.AtLeastTwo] : d⁄dX ℚ (ofNat(n) : ℚ⟦X⟧) = 0 := by
+  rw [← Nat.cast_ofNat (R := ℚ⟦X⟧)]
+  exact Derivation.map_natCast _ _
 
-theorem S_sq : S ^ 2 = R := by
-  have h : (PowerSeries.binomialSeries ℚ (1 / 2 : ℚ)) ^ 2 = 1 + X := by
-    rw [sq, ← PowerSeries.binomialSeries_add]
-    have h12 : (1 / 2 + 1 / 2 : ℚ) = ((1 : ℕ) : ℚ) := by norm_num
-    rw [h12, PowerSeries.binomialSeries_nat, pow_one]
+lemma OMA.hasSubst : HasSubst (R - 1) := by
+  apply HasSubst.of_constantCoeff_zero'
+  unfold R
+  simp
+
+lemma OMA.S_sq : S * S = R := by
   unfold S
-  rw [← coe_substAlgHom hR1, ← map_pow, h, map_add, map_one, substAlgHom_X]
+  have h := OMA.hasSubst
+  have e : (1 / 2 : ℚ) + 1 / 2 = ((1 : ℕ) : ℚ) := by norm_num
+  rw [← subst_mul h, ← binomialSeries_add, e, binomialSeries_nat, pow_one, subst_add h, subst_X h,
+    ← coe_substAlgHom h, map_one]
   ring
 
-theorem ode : 2 * R * d⁄dX ℚ S = d⁄dX ℚ R * S := by
-  have h := congrArg (d⁄dX ℚ) S_sq
-  rw [pow_two, Derivation.leibniz, smul_eq_mul] at h
-  rw [← h, ← S_sq]
+lemma OMA.coeff_theta (f : ℚ⟦X⟧) (m : ℕ) : coeff m (X * d⁄dX ℚ f) = (m : ℚ) * coeff m f := by
+  rcases m with _ | m
+  · simp
+  · rw [coeff_succ_X_mul, coeff_derivative]
+    push_cast
+    ring
+
+lemma OMA.cXt (c : ℚ) (j N m : ℕ) (f : ℚ⟦X⟧) (h : N = m + j) :
+    coeff N (C c * (X ^ j * (X * d⁄dX ℚ f))) = c * ((m : ℚ) * coeff m f) := by
+  subst h
+  rw [coeff_C_mul, coeff_X_pow_mul, OMA.coeff_theta]
+
+lemma OMA.cXf (c : ℚ) (j N m : ℕ) (f : ℚ⟦X⟧) (h : N = m + j) :
+    coeff N (C c * (X ^ j * f)) = c * coeff m f := by
+  subst h
+  rw [coeff_C_mul, coeff_X_pow_mul]
+
+lemma OMA.cX0 (c : ℚ) (j N : ℕ) (h : j < N) : coeff N (C c * X ^ j : ℚ⟦X⟧) = 0 := by
+  rw [coeff_C_mul, coeff_X_pow, if_neg (by omega), mul_zero]
+
+lemma OMA.ne_of_cc (f : ℚ⟦X⟧) (h : constantCoeff f ≠ 0) : f ≠ 0 := by
+  intro h0
+  rw [h0] at h
+  simp at h
+
+
+lemma OMA.cXtt (c : ℚ) (j N m : ℕ) (f : ℚ⟦X⟧) (h : N = m + j) :
+    coeff N (C c * (X ^ j * (X * d⁄dX ℚ (X * d⁄dX ℚ f))))
+      = c * ((m : ℚ) * ((m : ℚ) * coeff m f)) := by
+  subst h
+  rw [coeff_C_mul, coeff_X_pow_mul, OMA.coeff_theta, OMA.coeff_theta]
+
+/-- The generating function of the sequence. -/
+noncomputable def OMA.A : ℚ⟦X⟧ :=
+    (((1 + X) * S)
+      * (1 - 2 * X - X ^ 2 - 2 * X ^ 3 + X ^ 4 : PowerSeries ℚ)⁻¹)
+
+lemma OMA.a_eq (m : ℕ) : a m = coeff m OMA.A := rfl
+
+lemma OMA.dS : 2 * (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * d⁄dX ℚ S = (-2 - 2 * X - 6 * X ^ 2 + 4 * X ^ 3 : ℚ⟦X⟧) * S := by
+  have E := congrArg (d⁄dX ℚ) OMA.S_sq
+  have hR : R = (1 - 2 * X - X ^ 2 - 2 * X ^ 3 + X ^ 4 : ℚ⟦X⟧) := rfl
+  have h2 := OMA.S_sq
+  rw [hR] at E h2
+  simp only [map_add, map_sub, map_neg, Derivation.leibniz, Derivation.leibniz_pow, derivative_X,
+    OMA.d_ofNat, Derivation.map_one_eq_zero, map_zero, smul_eq_mul, nsmul_eq_mul, Nat.cast_ofNat,
+    Nat.reduceSub, pow_one] at E
+  linear_combination S * E - (2 * d⁄dX ℚ S) * h2
+
+lemma OMA.AD : OMA.A * (1 - 2 * X - X ^ 2 - 2 * X ^ 3 + X ^ 4 : PowerSeries ℚ) = ((1 + X) * S) := by
+  unfold OMA.A
+  have hD : constantCoeff (1 - 2 * X - X ^ 2 - 2 * X ^ 3 + X ^ 4 : PowerSeries ℚ) ≠ 0 := by
+    simp only [map_add, map_sub, map_mul, map_neg, map_pow, map_ofNat, map_one, constantCoeff_X]
+    norm_num
+  rw [mul_assoc, PowerSeries.inv_mul_cancel _ hD, mul_one]
+
+lemma OMA.dAD : (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * d⁄dX ℚ OMA.A + OMA.A * (-2 - 2 * X - 6 * X ^ 2 + 4 * X ^ 3 : ℚ⟦X⟧)
+    = (0 : ℚ⟦X⟧) + (1 : ℚ⟦X⟧) * S + (1 + 1 * X : ℚ⟦X⟧) * d⁄dX ℚ S := by
+  have E := congrArg (d⁄dX ℚ) OMA.AD
+  simp only [map_add, map_sub, map_neg, Derivation.leibniz, Derivation.leibniz_pow, derivative_X,
+    OMA.d_ofNat, Derivation.map_one_eq_zero, map_zero, smul_eq_mul, nsmul_eq_mul, Nat.cast_ofNat,
+    Nat.reduceSub, pow_one] at E
+  linear_combination E
+
+lemma OMA.fo : (2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧) * d⁄dX ℚ OMA.A + (-4 + 8 * X - 2 * X ^ 2 + 22 * X ^ 3 + 6 * X ^ 5 - 12 * X ^ 6 - 2 * X ^ 7 + 2 * X ^ 8 : ℚ⟦X⟧) * OMA.A = (0 : ℚ⟦X⟧) := by
+  have F3 := OMA.AD
+  have F4 := OMA.dAD
+  have hS := OMA.dS
+  linear_combination (2 * (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * (1 + 1 * X : ℚ⟦X⟧)) * F4
+    - (2 * (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * (1 : ℚ⟦X⟧) + (1 + 1 * X : ℚ⟦X⟧) * (-2 - 2 * X - 6 * X ^ 2 + 4 * X ^ 3 : ℚ⟦X⟧)) * F3 + ((1 + 1 * X : ℚ⟦X⟧) * (1 + 1 * X : ℚ⟦X⟧)) * hS
+
+lemma OMA.fo2 : (2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧) * d⁄dX ℚ (d⁄dX ℚ OMA.A) + ((-6 - 8 * X + 12 * X ^ 2 + 88 * X ^ 3 + 110 * X ^ 4 + 24 * X ^ 5 - 28 * X ^ 6 - 48 * X ^ 7 + 18 * X ^ 8 : ℚ⟦X⟧) + (-4 + 8 * X - 2 * X ^ 2 + 22 * X ^ 3 + 6 * X ^ 5 - 12 * X ^ 6 - 2 * X ^ 7 + 2 * X ^ 8 : ℚ⟦X⟧)) * d⁄dX ℚ OMA.A
+    + (8 - 4 * X + 66 * X ^ 2 + 30 * X ^ 4 - 72 * X ^ 5 - 14 * X ^ 6 + 16 * X ^ 7 : ℚ⟦X⟧) * OMA.A = (0 : ℚ⟦X⟧) := by
+  have E := congrArg (d⁄dX ℚ) OMA.fo
+  simp only [map_add, map_sub, map_neg, Derivation.leibniz, Derivation.leibniz_pow, derivative_X,
+    OMA.d_ofNat, Derivation.map_one_eq_zero, map_zero, smul_eq_mul, nsmul_eq_mul, Nat.cast_ofNat,
+    Nat.reduceSub, pow_one] at E
+  linear_combination E
+
+lemma OMA.th2 : X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A) = X * X * d⁄dX ℚ (d⁄dX ℚ OMA.A) + X * d⁄dX ℚ OMA.A := by
+  rw [Derivation.leibniz]
+  simp only [derivative_X, smul_eq_mul]
   ring
 
-theorem hRC : R = C (1 : ℚ) + C (-2 : ℚ) * X ^ 1 + C (-1 : ℚ) * X ^ 2 + C (-2 : ℚ) * X ^ 3 + C (1 : ℚ) * X ^ 4 := by
-  simp only [R, map_one, map_neg, map_ofNat]
-  ring
+lemma OMA.ode : (1 : ℚ⟦X⟧) * ((1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A))
+    + (-2 + 1 * X - 1 * X ^ 2 - 5 * X ^ 3 + 4 * X ^ 4 : ℚ⟦X⟧) * (X * d⁄dX ℚ OMA.A)
+    + (2 * X - 2 * X ^ 2 - 1 * X ^ 3 + 3 * X ^ 4 : ℚ⟦X⟧) * OMA.A) - (0 : ℚ⟦X⟧) = 0 := by
+  have h1' := OMA.fo
+  have h2' := OMA.fo2
+  have h3' := OMA.th2
+  have key : ((2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧) * (2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧))
+      * ((1 : ℚ⟦X⟧) * ((1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A))
+    + (-2 + 1 * X - 1 * X ^ 2 - 5 * X ^ 3 + 4 * X ^ 4 : ℚ⟦X⟧) * (X * d⁄dX ℚ OMA.A)
+    + (2 * X - 2 * X ^ 2 - 1 * X ^ 3 + 3 * X ^ 4 : ℚ⟦X⟧) * OMA.A) - (0 : ℚ⟦X⟧)) = 0 := by
+    linear_combination
+      ((1 : ℚ⟦X⟧) * (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * (2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧) * (2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧)) * h3'
+        + ((1 : ℚ⟦X⟧) * (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * X ^ 2 * (2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧)) * h2'
+        + ((1 : ℚ⟦X⟧) * (-2 * X + 14 * X ^ 2 - 14 * X ^ 3 - 22 * X ^ 4 - 76 * X ^ 5 + 76 * X ^ 6 + 202 * X ^ 7 + 242 * X ^ 8 + 68 * X ^ 9 - 116 * X ^ 10 - 62 * X ^ 11 - 22 * X ^ 12 + 46 * X ^ 13 - 10 * X ^ 14 : ℚ⟦X⟧)) * h1'
+  have hc1 : (2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧) ≠ 0 := by
+    have e : (2 - 6 * X - 4 * X ^ 2 + 4 * X ^ 3 + 22 * X ^ 4 + 22 * X ^ 5 + 4 * X ^ 6 - 4 * X ^ 7 - 6 * X ^ 8 + 2 * X ^ 9 : ℚ⟦X⟧) = 2 * (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) * (X ^ 0 * (1 + 1 * X : ℚ⟦X⟧)) := by ring
+    rw [e]
+    have h1 : (2 * (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) : ℚ⟦X⟧) ≠ 0 := by
+      refine OMA.ne_of_cc _ ?_
+      simp only [map_add, map_sub, map_mul, map_neg, map_pow, map_ofNat, map_one, constantCoeff_X]
+      norm_num
+    have h2 : (1 - 2 * X - 1 * X ^ 2 - 2 * X ^ 3 + 1 * X ^ 4 : ℚ⟦X⟧) ≠ 0 := by
+      refine OMA.ne_of_cc _ ?_
+      simp only [map_add, map_sub, map_mul, map_neg, map_pow, map_ofNat, map_one, constantCoeff_X]
+      norm_num
+    have h3 : (1 + 1 * X : ℚ⟦X⟧) ≠ 0 := by
+      refine OMA.ne_of_cc _ ?_
+      simp only [map_add, map_sub, map_mul, map_neg, map_pow, map_ofNat, map_one, constantCoeff_X]
+      norm_num
+    exact mul_ne_zero (mul_ne_zero h1 h2) (mul_ne_zero (pow_ne_zero _ X_ne_zero) h3)
+  exact (mul_eq_zero.mp key).resolve_left (mul_ne_zero hc1 hc1)
 
-theorem hDR : d⁄dX ℚ R = C (-2 : ℚ) + C (-2 : ℚ) * X ^ 1 + C (-6 : ℚ) * X ^ 2 + C (4 : ℚ) * X ^ 3 := by
-  rw [hRC]
-  simp only [map_add, Derivation.leibniz, derivative_C, derivative_pow, derivative_X, smul_eq_mul,
-    mul_zero, add_zero, Nat.reduceSub, pow_one, mul_one]
-  simp only [map_one, map_neg, map_ofNat]
-  push_cast
-  ring
-
-theorem E2 : C (2 : ℚ) * d⁄dX ℚ S + C (-4 : ℚ) * X ^ 1 * d⁄dX ℚ S + C (-2 : ℚ) * X ^ 2 * d⁄dX ℚ S + C (-4 : ℚ) * X ^ 3 * d⁄dX ℚ S + C (2 : ℚ) * X ^ 4 * d⁄dX ℚ S - (C (-2 : ℚ) * S + C (-2 : ℚ) * X ^ 1 * S + C (-6 : ℚ) * X ^ 2 * S + C (4 : ℚ) * X ^ 3 * S) = 0 := by
-  have h := ode
-  rw [hDR, hRC] at h
-  simp only [map_one, map_neg, map_ofNat] at h ⊢
-  linear_combination h
-
-theorem cx (c : ℚ) (j n : ℕ) (f : ℚ⟦X⟧) (h : j ≤ n) :
-    coeff n (C c * X ^ j * f) = c * coeff (n - j) f := by
-  rw [mul_assoc, coeff_C_mul, coeff_X_pow_mul', if_pos h]
-
-theorem cx0 (c : ℚ) (n : ℕ) (f : ℚ⟦X⟧) : coeff n (C c * f) = c * coeff n f := coeff_C_mul _ _ _
-
-theorem cc (c : ℚ) (j n : ℕ) (h : n ≠ j) : coeff n (C c * X ^ j) = 0 := by
-  rw [coeff_C_mul_X_pow, if_neg h]
-
-theorem cc0 (c : ℚ) (n : ℕ) (h : n ≠ 0) : coeff n (C c : ℚ⟦X⟧) = 0 := by
-  rw [coeff_C, if_neg h]
-
-theorem rel2 (m : ℕ) : (2 : ℚ) * (coeff (m + 5) S * ((m : ℚ) + 5)) + (-4 : ℚ) * (coeff (m + 4) S * ((m : ℚ) + 4)) + (-2 : ℚ) * (coeff (m + 3) S * ((m : ℚ) + 3)) + (-4 : ℚ) * (coeff (m + 2) S * ((m : ℚ) + 2)) + (2 : ℚ) * (coeff (m + 1) S * ((m : ℚ) + 1)) - ((-2 : ℚ) * coeff (m + 4) S + (-2 : ℚ) * coeff (m + 3) S + (-6 : ℚ) * coeff (m + 2) S + (4 : ℚ) * coeff (m + 1) S) = 0 := by
-  have h := congrArg (coeff (m + 4)) E2
-  simp (disch := omega) only [map_add, map_sub, map_zero, cx, cx0, coeff_derivative] at h
-  rw [show m + 4 - 1 = m + 3 from by omega, show m + 4 - 2 = m + 2 from by omega, show m + 4 - 3 = m + 1 from by omega, show m + 4 - 4 = m from by omega] at h
-  try simp only [Nat.add_assoc, Nat.reduceAdd] at h
-  try push_cast at h
-  linear_combination h
-
-noncomputable def F : ℚ⟦X⟧ := (((1 + X) * S) * (1 - 2 * X - X ^ 2 - 2 * X ^ 3 + X ^ 4 : PowerSeries ℚ)⁻¹)
-
-theorem a_eq (n : ℕ) : a n = coeff n F := rfl
-
-theorem hF : F * (1 - 2 * X - X ^ 2 - 2 * X ^ 3 + X ^ 4 : ℚ⟦X⟧) = (1 + X) * S := by
-  unfold F
-  rw [mul_assoc, PowerSeries.inv_mul_cancel _ (by
-    rw [show (1 - 2 * X - X ^ 2 - 2 * X ^ 3 + X ^ 4 : ℚ⟦X⟧) = C (1 : ℚ) + C (-2 : ℚ) * X ^ 1 + C (-1 : ℚ) * X ^ 2 + C (-2 : ℚ) * X ^ 3 + C (1 : ℚ) * X ^ 4 from by simp only [map_one, map_neg, map_ofNat] <;> ring]
-    simp), mul_one]
-
-theorem E1 : C (1 : ℚ) * F + C (-2 : ℚ) * X ^ 1 * F + C (-1 : ℚ) * X ^ 2 * F + C (-2 : ℚ) * X ^ 3 * F + C (1 : ℚ) * X ^ 4 * F - (C (1 : ℚ) * S + C (1 : ℚ) * X ^ 1 * S) = 0 := by
-  have h := hF
-  simp only [map_one, map_neg, map_ofNat]
-  linear_combination h
-
-theorem rel1 (m : ℕ) : (1 : ℚ) * coeff (m + 4) F + (-2 : ℚ) * coeff (m + 3) F + (-1 : ℚ) * coeff (m + 2) F + (-2 : ℚ) * coeff (m + 1) F + (1 : ℚ) * coeff (m) F - ((1 : ℚ) * coeff (m + 4) S + (1 : ℚ) * coeff (m + 3) S) = 0 := by
-  have h := congrArg (coeff (m + 4)) E1
-  simp only [map_add, map_sub, map_zero] at h
-  simp (disch := omega) only [cx, cc, cc0] at h
-  simp only [cx0, sub_zero, add_zero, zero_add] at h
-  rw [show m + 4 - 1 = m + 3 from by omega, show m + 4 - 2 = m + 2 from by omega, show m + 4 - 3 = m + 1 from by omega, show m + 4 - 4 = m from by omega] at h
-  linear_combination h
-
-theorem cz (c : ℚ) (j n : ℕ) (f : ℚ⟦X⟧) (h : n < j) : coeff n (C c * X ^ j * f) = 0 := by
-  rw [mul_assoc, coeff_C_mul, coeff_X_pow_mul', if_neg (by omega), mul_zero]
-
-theorem ccj (c : ℚ) (j n : ℕ) (h : n = j) : coeff n (C c * X ^ j) = c := by
-  rw [coeff_C_mul_X_pow, if_pos h]
-
-theorem cc0' (c : ℚ) : coeff 0 (C c : ℚ⟦X⟧) = c := by rw [coeff_C, if_pos rfl]
-
-theorem S_const : constantCoeff S = 1 := by
-  have h0 : constantCoeff (PowerSeries.binomialSeries ℚ (1 / 2 : ℚ) - 1) = 0 := by simp
-  have hc : constantCoeff (R - 1) = 0 := by simp [R]
-  have h1 := constantCoeff_subst_eq_zero (a := (R - 1 : ℚ⟦X⟧)) hc _ h0
-  have h2 : (PowerSeries.binomialSeries ℚ (1 / 2 : ℚ) - 1).subst (R - 1) = S - 1 := by
-    unfold S
-    rw [← coe_substAlgHom hR1, map_sub, map_one]
-  rw [h2] at h1
-  have h3 : constantCoeff (S - 1) = 0 := h1
-  rw [map_sub, map_one, sub_eq_zero] at h3
-  exact h3
-
-theorem hs0 : coeff 0 S = 1 := by rw [coeff_zero_eq_constantCoeff_apply, S_const]
-
-theorem hs1 : coeff 1 S = (-1 : ℚ) := by
-  have h := congrArg (coeff 0) E2
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz] at h
-  try simp only [cx0, coeff_derivative] at h
-  norm_num [S_const, hs0] at h ⊢ <;> linarith
-
-theorem hs2 : coeff 2 S = (-1 : ℚ) := by
-  have h := congrArg (coeff 1) E2
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz] at h
-  try simp only [cx0, coeff_derivative] at h
-  norm_num [S_const, hs0, hs1] at h ⊢ <;> linarith
-
-theorem hs3 : coeff 3 S = (-2 : ℚ) := by
-  have h := congrArg (coeff 2) E2
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz] at h
-  try simp only [cx0, coeff_derivative] at h
-  norm_num [S_const, hs0, hs1, hs2] at h ⊢ <;> linarith
-
-theorem hs4 : coeff 4 S = (-2 : ℚ) := by
-  have h := congrArg (coeff 3) E2
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz] at h
-  try simp only [cx0, coeff_derivative] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3] at h ⊢ <;> linarith
-
-theorem hs5 : coeff 5 S = (-4 : ℚ) := by
-  have h := congrArg (coeff 4) E2
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz] at h
-  try simp only [cx0, coeff_derivative] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4] at h ⊢ <;> linarith
-
-theorem hs6 : coeff 6 S = (-8 : ℚ) := by
-  have h := congrArg (coeff 5) E2
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz] at h
-  try simp only [cx0, coeff_derivative] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5] at h ⊢ <;> linarith
-
-theorem hs7 : coeff 7 S = (-16 : ℚ) := by
-  have h := congrArg (coeff 6) E2
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz] at h
-  try simp only [cx0, coeff_derivative] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6] at h ⊢ <;> linarith
-
-theorem hf0 : coeff 0 F = (1 : ℚ) := by
-  have h := congrArg (coeff 0) E1
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz, cc, ccj, cc0, cc0'] at h
-  try simp only [cx0] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6, hs7] at h ⊢ <;> linarith
-
-theorem hf0c : constantCoeff F = (1 : ℚ) := by rw [← coeff_zero_eq_constantCoeff_apply]; exact hf0
-
-theorem hf1 : coeff 1 F = (2 : ℚ) := by
-  have h := congrArg (coeff 1) E1
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz, cc, ccj, cc0, cc0'] at h
-  try simp only [cx0] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6, hs7, hf0, hf0c] at h ⊢ <;> linarith
-
-theorem hf2 : coeff 2 F = (3 : ℚ) := by
-  have h := congrArg (coeff 2) E1
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz, cc, ccj, cc0, cc0'] at h
-  try simp only [cx0] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6, hs7, hf0, hf1, hf0c] at h ⊢ <;> linarith
-
-theorem hf3 : coeff 3 F = (7 : ℚ) := by
-  have h := congrArg (coeff 3) E1
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz, cc, ccj, cc0, cc0'] at h
-  try simp only [cx0] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6, hs7, hf0, hf1, hf2, hf0c] at h ⊢ <;> linarith
-
-theorem hf4 : coeff 4 F = (16 : ℚ) := by
-  have h := congrArg (coeff 4) E1
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz, cc, ccj, cc0, cc0'] at h
-  try simp only [cx0] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6, hs7, hf0, hf1, hf2, hf3, hf0c] at h ⊢ <;> linarith
-
-theorem hf5 : coeff 5 F = (37 : ℚ) := by
-  have h := congrArg (coeff 5) E1
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz, cc, ccj, cc0, cc0'] at h
-  try simp only [cx0] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6, hs7, hf0, hf1, hf2, hf3, hf4, hf0c] at h ⊢ <;> linarith
-
-theorem hf6 : coeff 6 F = (89 : ℚ) := by
-  have h := congrArg (coeff 6) E1
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz, cc, ccj, cc0, cc0'] at h
-  try simp only [cx0] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6, hs7, hf0, hf1, hf2, hf3, hf4, hf5, hf0c] at h ⊢ <;> linarith
-
-theorem hf7 : coeff 7 F = (216 : ℚ) := by
-  have h := congrArg (coeff 7) E1
-  simp only [map_add, map_sub, map_zero] at h
-  try simp (disch := omega) only [cx, cz, cc, ccj, cc0, cc0'] at h
-  try simp only [cx0] at h
-  norm_num [S_const, hs0, hs1, hs2, hs3, hs4, hs5, hs6, hs7, hf0, hf1, hf2, hf3, hf4, hf5, hf6, hf0c] at h ⊢ <;> linarith
-
-theorem ha0 : a 0 = (1 : ℚ) := by rw [a_eq]; exact hf0
-
-theorem ha1 : a 1 = (2 : ℚ) := by rw [a_eq]; exact hf1
-
-theorem ha2 : a 2 = (3 : ℚ) := by rw [a_eq]; exact hf2
-
-theorem ha3 : a 3 = (7 : ℚ) := by rw [a_eq]; exact hf3
-
-theorem ha4 : a 4 = (16 : ℚ) := by rw [a_eq]; exact hf4
-
-theorem ha5 : a 5 = (37 : ℚ) := by rw [a_eq]; exact hf5
-
-theorem ha6 : a 6 = (89 : ℚ) := by rw [a_eq]; exact hf6
-
-theorem ha7 : a 7 = (216 : ℚ) := by rw [a_eq]; exact hf7
-
-noncomputable def Mv (n : ℕ) : ℚ := ((n : ℚ) ^ 2 - 2 * (n : ℚ)) * a n + (-2 * (n : ℚ) ^ 2 + 5 * (n : ℚ) - 1) * a (n - 1)
-      + (-(n : ℚ) ^ 2 + 3 * (n : ℚ) - 4) * a (n - 2)
-      + (-2 * (n : ℚ) ^ 2 + 7 * (n : ℚ) - 4) * a (n - 3)
-      + ((n : ℚ) ^ 2 - 4 * (n : ℚ) + 3) * a (n - 4)
-
-theorem base4 : Mv 4 = 0 := by
-  unfold Mv
-  norm_num [ha0, ha1, ha2, ha3, ha4, ha5, ha6, ha7]
-
-theorem base5 : Mv 5 = 0 := by
-  unfold Mv
-  norm_num [ha0, ha1, ha2, ha3, ha4, ha5, ha6, ha7]
-
-theorem base6 : Mv 6 = 0 := by
-  unfold Mv
-  norm_num [ha0, ha1, ha2, ha3, ha4, ha5, ha6, ha7]
-
-theorem base7 : Mv 7 = 0 := by
-  unfold Mv
-  norm_num [ha0, ha1, ha2, ha3, ha4, ha5, ha6, ha7]
-
-theorem certQ (k : ℕ) : ((4 : ℚ) * ((k : ℚ) + 4) ^ 1 + (10 : ℚ) * ((k : ℚ) + 4) ^ 2 + (8 : ℚ) * ((k : ℚ) + 4) ^ 3 + (2 : ℚ) * ((k : ℚ) + 4) ^ 4) * Mv (k + 4) + ((16 : ℚ) + (24 : ℚ) * ((k : ℚ) + 4) ^ 1 + (-12 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 4) * Mv (k + 5) + ((16 : ℚ) + (-4 : ℚ) * ((k : ℚ) + 4) ^ 1 + (-6 : ℚ) * ((k : ℚ) + 4) ^ 2 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-2 : ℚ) * ((k : ℚ) + 4) ^ 4) * Mv (k + 6) + ((-4 : ℚ) * ((k : ℚ) + 4) ^ 1 + (12 : ℚ) * ((k : ℚ) + 4) ^ 2 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 4) * Mv (k + 7) + ((-2 : ℚ) * ((k : ℚ) + 4) ^ 2 + (2 : ℚ) * ((k : ℚ) + 4) ^ 4) * Mv (k + 8) = 0 := by
-  unfold Mv
-  rw [show k + 4 - 1 = k + 3 from by omega, show k + 4 - 2 = k + 2 from by omega, show k + 4 - 3 = k + 1 from by omega, show k + 4 - 4 = k from by omega, show k + 5 - 1 = k + 4 from by omega, show k + 5 - 2 = k + 3 from by omega, show k + 5 - 3 = k + 2 from by omega, show k + 5 - 4 = k + 1 from by omega, show k + 6 - 1 = k + 5 from by omega, show k + 6 - 2 = k + 4 from by omega, show k + 6 - 3 = k + 3 from by omega, show k + 6 - 4 = k + 2 from by omega, show k + 7 - 1 = k + 6 from by omega, show k + 7 - 2 = k + 5 from by omega, show k + 7 - 3 = k + 4 from by omega, show k + 7 - 4 = k + 3 from by omega, show k + 8 - 1 = k + 7 from by omega, show k + 8 - 2 = k + 6 from by omega, show k + 8 - 3 = k + 5 from by omega, show k + 8 - 4 = k + 4 from by omega]
-  simp only [a_eq]
-  have r1_50 := rel1 (k)
-  have r1_51 := rel1 (k + 1)
-  have r1_52 := rel1 (k + 2)
-  have r1_53 := rel1 (k + 3)
-  have r1_54 := rel1 (k + 4)
-  have r2_52 := rel2 (k + 2)
-  have r2_53 := rel2 (k + 3)
-  try simp only [Nat.add_assoc, Nat.reduceAdd] at r1_50 r1_51 r1_52 r1_53 r1_54 r2_52 r2_53 ⊢
-  push_cast at r1_50 r1_51 r1_52 r1_53 r1_54 r2_52 r2_53 ⊢
-  linear_combination ((12 : ℚ) * ((k : ℚ) + 4) ^ 1 + (14 : ℚ) * ((k : ℚ) + 4) ^ 2 + (-12 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-16 : ℚ) * ((k : ℚ) + 4) ^ 4 + (2 : ℚ) * ((k : ℚ) + 4) ^ 6) * r1_50 + ((-24 : ℚ) * ((k : ℚ) + 4) ^ 1 + (-16 : ℚ) * ((k : ℚ) + 4) ^ 2 + (30 : ℚ) * ((k : ℚ) + 4) ^ 3 + (20 : ℚ) * ((k : ℚ) + 4) ^ 4 + (-6 : ℚ) * ((k : ℚ) + 4) ^ 5 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 6) * r1_51 + ((24 : ℚ) * ((k : ℚ) + 4) ^ 1 + (16 : ℚ) * ((k : ℚ) + 4) ^ 2 + (-18 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-14 : ℚ) * ((k : ℚ) + 4) ^ 4 + (-6 : ℚ) * ((k : ℚ) + 4) ^ 5 + (-2 : ℚ) * ((k : ℚ) + 4) ^ 6) * r1_52 + ((-12 : ℚ) * ((k : ℚ) + 4) ^ 1 + (14 : ℚ) * ((k : ℚ) + 4) ^ 2 + (30 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-10 : ℚ) * ((k : ℚ) + 4) ^ 4 + (-18 : ℚ) * ((k : ℚ) + 4) ^ 5 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 6) * r1_53 + ((-16 : ℚ) * ((k : ℚ) + 4) ^ 2 + (-12 : ℚ) * ((k : ℚ) + 4) ^ 3 + (14 : ℚ) * ((k : ℚ) + 4) ^ 4 + (12 : ℚ) * ((k : ℚ) + 4) ^ 5 + (2 : ℚ) * ((k : ℚ) + 4) ^ 6) * r1_54 + ((-2 : ℚ) * ((k : ℚ) + 4) ^ 1 + (-3 : ℚ) * ((k : ℚ) + 4) ^ 2 + (1 : ℚ) * ((k : ℚ) + 4) ^ 3 + (3 : ℚ) * ((k : ℚ) + 4) ^ 4 + (1 : ℚ) * ((k : ℚ) + 4) ^ 5) * r2_52 + ((-2 : ℚ) * ((k : ℚ) + 4) ^ 2 + (-1 : ℚ) * ((k : ℚ) + 4) ^ 3 + (2 : ℚ) * ((k : ℚ) + 4) ^ 4 + (1 : ℚ) * ((k : ℚ) + 4) ^ 5) * r2_53
-
-theorem Mv_zero : ∀ n : ℕ, 4 ≤ n → Mv n = 0 := by
-  intro n
-  induction n using Nat.strong_induction_on with
-  | _ n ih =>
-    intro hn
-    by_cases hlt : n < 8
-    · interval_cases n
-      · exact base4
-      · exact base5
-      · exact base6
-      · exact base7
-    · obtain ⟨k, rfl⟩ : ∃ k, n = k + 8 := ⟨n - 8, by omega⟩
-      have hc := certQ k
-      have h0 : Mv (k + 4) = 0 := ih _ (by omega) (by omega)
-      have h1 : Mv (k + 5) = 0 := ih _ (by omega) (by omega)
-      have h2 : Mv (k + 6) = 0 := ih _ (by omega) (by omega)
-      have h3 : Mv (k + 7) = 0 := ih _ (by omega) (by omega)
-      have hq : ((-2 : ℚ) * ((k : ℚ) + 4) ^ 2 + (2 : ℚ) * ((k : ℚ) + 4) ^ 4) ≠ 0 := by
-        have e : ((-2 : ℚ) * ((k : ℚ) + 4) ^ 2 + (2 : ℚ) * ((k : ℚ) + 4) ^ 4) = (480 : ℚ) + (496 : ℚ) * (k : ℚ) ^ 1 + (190 : ℚ) * (k : ℚ) ^ 2 + (32 : ℚ) * (k : ℚ) ^ 3 + (2 : ℚ) * (k : ℚ) ^ 4 := by ring
-        rw [e]
-        positivity
-      have hm : ((-2 : ℚ) * ((k : ℚ) + 4) ^ 2 + (2 : ℚ) * ((k : ℚ) + 4) ^ 4) * Mv (k + 8) = 0 := by linear_combination hc - ((4 : ℚ) * ((k : ℚ) + 4) ^ 1 + (10 : ℚ) * ((k : ℚ) + 4) ^ 2 + (8 : ℚ) * ((k : ℚ) + 4) ^ 3 + (2 : ℚ) * ((k : ℚ) + 4) ^ 4) * h0 - ((16 : ℚ) + (24 : ℚ) * ((k : ℚ) + 4) ^ 1 + (-12 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 4) * h1 - ((16 : ℚ) + (-4 : ℚ) * ((k : ℚ) + 4) ^ 1 + (-6 : ℚ) * ((k : ℚ) + 4) ^ 2 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-2 : ℚ) * ((k : ℚ) + 4) ^ 4) * h2 - ((-4 : ℚ) * ((k : ℚ) + 4) ^ 1 + (12 : ℚ) * ((k : ℚ) + 4) ^ 2 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 3 + (-4 : ℚ) * ((k : ℚ) + 4) ^ 4) * h3
-      exact (mul_eq_zero.mp hm).resolve_left hq
-
-theorem main' : ∀ n : ℕ, 4 ≤ n → ((n : ℚ) ^ 2 - 2 * (n : ℚ)) * a n + (-2 * (n : ℚ) ^ 2 + 5 * (n : ℚ) - 1) * a (n - 1)
-      + (-(n : ℚ) ^ 2 + 3 * (n : ℚ) - 4) * a (n - 2)
-      + (-2 * (n : ℚ) ^ 2 + 7 * (n : ℚ) - 4) * a (n - 3)
-      + ((n : ℚ) ^ 2 - 4 * (n : ℚ) + 3) * a (n - 4) = 0 := fun n hn => Mv_zero n hn
-
-end OMA.P_oeis_a081207
-
-theorem OMA.solution : type_of% @OMA.S_oeis_a081207.main := OMA.P_oeis_a081207.main'
+theorem OMA.solution : type_of% @OMA.S_oeis_a081207.main := by
+  intro n hn
+  obtain ⟨k, rfl⟩ : ∃ k, n = k + 4 := ⟨n - 4, by omega⟩
+  have hexp : C (1 : ℚ) * (X ^ 0 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A)))
+      + C (-2 : ℚ) * (X ^ 1 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A)))
+      + C (-1 : ℚ) * (X ^ 2 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A)))
+      + C (-2 : ℚ) * (X ^ 3 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A)))
+      + C (1 : ℚ) * (X ^ 4 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A)))
+      + C (-2 : ℚ) * (X ^ 0 * (X * d⁄dX ℚ OMA.A))
+      + C (1 : ℚ) * (X ^ 1 * (X * d⁄dX ℚ OMA.A))
+      + C (-1 : ℚ) * (X ^ 2 * (X * d⁄dX ℚ OMA.A))
+      + C (-5 : ℚ) * (X ^ 3 * (X * d⁄dX ℚ OMA.A))
+      + C (4 : ℚ) * (X ^ 4 * (X * d⁄dX ℚ OMA.A))
+      + C (2 : ℚ) * (X ^ 1 * OMA.A)
+      + C (-2 : ℚ) * (X ^ 2 * OMA.A)
+      + C (-1 : ℚ) * (X ^ 3 * OMA.A)
+      + C (3 : ℚ) * (X ^ 4 * OMA.A)
+      = (0 : ℚ⟦X⟧) := by
+    have h := OMA.ode
+    simp only [map_neg, map_ofNat, map_one]
+    linear_combination h
+  have hc := congrArg (coeff (k + 4)) hexp
+  have s0 : coeff (k + 4) (C (1 : ℚ) * (X ^ 0 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A))))
+      = (1 : ℚ) * (((k + 4 : ℕ) : ℚ) * (((k + 4 : ℕ) : ℚ) * coeff (k + 4) OMA.A)) :=
+    OMA.cXtt _ 0 _ (k + 4) _ (by omega)
+  have s1 : coeff (k + 4) (C (-2 : ℚ) * (X ^ 1 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A))))
+      = (-2 : ℚ) * (((k + 3 : ℕ) : ℚ) * (((k + 3 : ℕ) : ℚ) * coeff (k + 3) OMA.A)) :=
+    OMA.cXtt _ 1 _ (k + 3) _ (by omega)
+  have s2 : coeff (k + 4) (C (-1 : ℚ) * (X ^ 2 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A))))
+      = (-1 : ℚ) * (((k + 2 : ℕ) : ℚ) * (((k + 2 : ℕ) : ℚ) * coeff (k + 2) OMA.A)) :=
+    OMA.cXtt _ 2 _ (k + 2) _ (by omega)
+  have s3 : coeff (k + 4) (C (-2 : ℚ) * (X ^ 3 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A))))
+      = (-2 : ℚ) * (((k + 1 : ℕ) : ℚ) * (((k + 1 : ℕ) : ℚ) * coeff (k + 1) OMA.A)) :=
+    OMA.cXtt _ 3 _ (k + 1) _ (by omega)
+  have s4 : coeff (k + 4) (C (1 : ℚ) * (X ^ 4 * (X * d⁄dX ℚ (X * d⁄dX ℚ OMA.A))))
+      = (1 : ℚ) * (((k + 0 : ℕ) : ℚ) * (((k + 0 : ℕ) : ℚ) * coeff (k + 0) OMA.A)) :=
+    OMA.cXtt _ 4 _ (k + 0) _ (by omega)
+  have t0 : coeff (k + 4) (C (-2 : ℚ) * (X ^ 0 * (X * d⁄dX ℚ OMA.A)))
+      = (-2 : ℚ) * (((k + 4 : ℕ) : ℚ) * coeff (k + 4) OMA.A) :=
+    OMA.cXt _ 0 _ (k + 4) _ (by omega)
+  have t1 : coeff (k + 4) (C (1 : ℚ) * (X ^ 1 * (X * d⁄dX ℚ OMA.A)))
+      = (1 : ℚ) * (((k + 3 : ℕ) : ℚ) * coeff (k + 3) OMA.A) :=
+    OMA.cXt _ 1 _ (k + 3) _ (by omega)
+  have t2 : coeff (k + 4) (C (-1 : ℚ) * (X ^ 2 * (X * d⁄dX ℚ OMA.A)))
+      = (-1 : ℚ) * (((k + 2 : ℕ) : ℚ) * coeff (k + 2) OMA.A) :=
+    OMA.cXt _ 2 _ (k + 2) _ (by omega)
+  have t3 : coeff (k + 4) (C (-5 : ℚ) * (X ^ 3 * (X * d⁄dX ℚ OMA.A)))
+      = (-5 : ℚ) * (((k + 1 : ℕ) : ℚ) * coeff (k + 1) OMA.A) :=
+    OMA.cXt _ 3 _ (k + 1) _ (by omega)
+  have t4 : coeff (k + 4) (C (4 : ℚ) * (X ^ 4 * (X * d⁄dX ℚ OMA.A)))
+      = (4 : ℚ) * (((k + 0 : ℕ) : ℚ) * coeff (k + 0) OMA.A) :=
+    OMA.cXt _ 4 _ (k + 0) _ (by omega)
+  have f1 : coeff (k + 4) (C (2 : ℚ) * (X ^ 1 * OMA.A))
+      = (2 : ℚ) * coeff (k + 3) OMA.A := OMA.cXf _ 1 _ (k + 3) _ (by omega)
+  have f2 : coeff (k + 4) (C (-2 : ℚ) * (X ^ 2 * OMA.A))
+      = (-2 : ℚ) * coeff (k + 2) OMA.A := OMA.cXf _ 2 _ (k + 2) _ (by omega)
+  have f3 : coeff (k + 4) (C (-1 : ℚ) * (X ^ 3 * OMA.A))
+      = (-1 : ℚ) * coeff (k + 1) OMA.A := OMA.cXf _ 3 _ (k + 1) _ (by omega)
+  have f4 : coeff (k + 4) (C (3 : ℚ) * (X ^ 4 * OMA.A))
+      = (3 : ℚ) * coeff (k + 0) OMA.A := OMA.cXf _ 4 _ (k + 0) _ (by omega)
+  simp only [map_add, map_zero, s0, s1, s2, s3, s4, t0, t1, t2, t3, t4, f1, f2, f3, f4] at hc
+  have e0 : a (k + 4) = coeff (k + 4) OMA.A := by
+    have h : k + 4 = k + 4 := by omega
+    rw [OMA.a_eq, h]
+  have e1 : a (k + 4 - 1) = coeff (k + 3) OMA.A := by
+    have h : k + 4 - 1 = k + 3 := by omega
+    rw [OMA.a_eq, h]
+  have e2 : a (k + 4 - 2) = coeff (k + 2) OMA.A := by
+    have h : k + 4 - 2 = k + 2 := by omega
+    rw [OMA.a_eq, h]
+  have e3 : a (k + 4 - 3) = coeff (k + 1) OMA.A := by
+    have h : k + 4 - 3 = k + 1 := by omega
+    rw [OMA.a_eq, h]
+  have e4 : a (k + 4 - 4) = coeff (k + 0) OMA.A := by
+    have h : k + 4 - 4 = k + 0 := by omega
+    rw [OMA.a_eq, h]
+  rw [e0, e1, e2, e3, e4]
+  push_cast at hc ⊢
+  linear_combination (1 / 1 : ℚ) * hc
