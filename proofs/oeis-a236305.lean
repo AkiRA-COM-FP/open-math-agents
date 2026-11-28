@@ -10,7 +10,4 @@ import OMAStatements.S_oeis_a236305
 open OMA.S_oeis_a236305 in
 theorem OMA.disproof : ¬ (type_of% @OMA.S_oeis_a236305.main) := by
   intro H
-  have h1 := H 1 le_rfl
-  have ha : a 1 = 4 := by decide
-  rw [ha, Nat.log_one_right] at h1
-  norm_num at h1
+  exact absurd (H 1 le_rfl) (by decide)
