@@ -443,38 +443,38 @@ theorem main :
     · exact (hcontra 0 (hsub_deg 0 0 1 h0a).1 (hsub_deg 1 0 3 h1a).1 (hsub_deg 2 0 2 h2a).1).elim
     · refine ⟨2, fun k hk => ?_⟩
       fin_cases k <;> try exact (hk rfl).elim
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 0) x (hxnotB 0) 2 0 1 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 0) x (hxnotB 0) 2 0 1 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 0 0 1 h0a).1 (hsub_deg 1 0 3 h1a).1)
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 1) x (hxnotB 1) 1 0 2 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 1) x (hxnotB 1) 1 0 2 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 0 0 1 h0a).2 (hsub_deg 2 1 3 h2b).1)
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 3) x (hxnotB 3) 0 1 2 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 3) x (hxnotB 3) 0 1 2 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 1 0 3 h1a).2 (hsub_deg 2 1 3 h2b).2)
     · refine ⟨3, fun k hk => ?_⟩
       fin_cases k <;> try exact (hk rfl).elim
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 0) x (hxnotB 0) 1 0 2 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 0) x (hxnotB 0) 1 0 2 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 0 0 1 h0a).1 (hsub_deg 2 0 2 h2a).1)
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 1) x (hxnotB 1) 2 0 1 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 1) x (hxnotB 1) 2 0 1 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 0 0 1 h0a).2 (hsub_deg 1 1 2 h1b).1)
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 2) x (hxnotB 2) 0 1 2 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 2) x (hxnotB 2) 0 1 2 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 1 1 2 h1b).2 (hsub_deg 2 0 2 h2a).2)
     · exact (hcontra 1 (hsub_deg 0 0 1 h0a).2 (hsub_deg 1 1 2 h1b).1 (hsub_deg 2 1 3 h2b).1).elim
     · refine ⟨1, fun k hk => ?_⟩
       fin_cases k <;> try exact (hk rfl).elim
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 0) x (hxnotB 0) 0 1 2 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 0) x (hxnotB 0) 0 1 2 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 1 0 3 h1a).1 (hsub_deg 2 0 2 h2a).1)
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 2) x (hxnotB 2) 1 0 2 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 2) x (hxnotB 2) 1 0 2 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 0 2 3 h0b).1 (hsub_deg 2 0 2 h2a).2)
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 3) x (hxnotB 3) 2 0 1 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 3) x (hxnotB 3) 2 0 1 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 0 2 3 h0b).2 (hsub_deg 1 0 3 h1a).2)
     · exact (hcontra 3 (hsub_deg 0 2 3 h0b).2 (hsub_deg 1 0 3 h1a).2 (hsub_deg 2 1 3 h2b).2).elim
     · exact (hcontra 2 (hsub_deg 0 2 3 h0b).1 (hsub_deg 1 1 2 h1b).2 (hsub_deg 2 0 2 h2a).2).elim
     · refine ⟨0, fun k hk => ?_⟩
       fin_cases k <;> try exact (hk rfl).elim
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 1) x (hxnotB 1) 0 1 2 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 1) x (hxnotB 1) 0 1 2 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 1 1 2 h1b).1 (hsub_deg 2 1 3 h2b).1)
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 2) x (hxnotB 2) 2 0 1 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 2) x (hxnotB 2) 2 0 1 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 0 2 3 h0b).1 (hsub_deg 1 1 2 h1b).2)
-      · simpa [col, Nat.mul_assoc] using (miss_le_of_two_small c hc (B 3) x (hxnotB 3) 1 0 2 (by decide) (by decide) (by decide) (20 * d)
+      · simpa [col, ← Nat.mul_assoc] using (miss_le_of_two_small c hc (B 3) x (hxnotB 3) 1 0 2 (by decide) (by decide) (by decide) (20 * d)
           (hsub_deg 0 2 3 h0b).2 (hsub_deg 2 1 3 h2b).2)
   let cls : Fin (4 * m) → Fin 4 := fun x =>
     if hx : x ∈ L0 then Classical.choose (halign x hx) else 0
