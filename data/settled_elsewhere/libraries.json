@@ -4435,6 +4435,326 @@
    "reason": "Same statement as oeis-a156869, settled by Franklin T. Adams-Watters's 2009 comment in OEIS A156869 (main direction; the converse follows from the same argument).",
    "source": "https://oeis.org/A156869",
    "date": "2026-11-28"
+  },
+  "oeis-a390246": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00201), checked against the exact statement: The preprint's 'remark on OEIS' proves A390246(n) = A219787(n) - (n-1) by definition: k is an admissible width iff n+k-1 is an admissible right endpoint, so the minima differ by n-1. This is exactly the site's statement (n >= 1); the argument is complete though brief.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268967": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00271), checked against the exact statement: Row A268967: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's recurrence (n >= 4), g.f. (with a(0) = 0) and closed form for n >= 2 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233078": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00271), checked against the exact statement: Row A233078: Barker's g.f. (and Hardin's recurrence, n>2) are proved by an exact transfer matrix. The site's g.f. and closed form (49+27*49^n)/98 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233094": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00271), checked against the exact statement: Row A233094: Barker's g.f. (and Hardin's recurrence, n>3) are proved by an exact transfer matrix. The site's g.f. and sqrt(55) closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268900": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00271), checked against the exact statement: Row A268900: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's recurrence (n >= 4), g.f. (with a(0) = 0) and closed form for n >= 2 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207450": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00284), checked against the exact statement: Row A207450: Barker's g.f. and Barker's recurrence (n>4) are proved by an exact width-5 transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 5).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a222835": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00284), checked against the exact statement: Row A222835: Barker's g.f. (and Hardin's recurrence, n>7) are proved by an exact transfer matrix. The site's g.f. and complex closed form for n > 3 follow from the g.f. (closed form checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268053": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00284), checked against the exact statement: Row A268053: Barker's g.f. (and Hardin's recurrence, n>4) are proved by an exact transfer matrix. The site's g.f. and closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a209649": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A209649: Barker's g.f. and Barker's recurrence (n>6) are proved by an exact width-7 transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 7).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207702": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A207702: Barker's g.f. (and Hardin's recurrence, n>8) are proved by an exact transfer matrix. The site's degree-7 polynomial closed form for n >= 1 is the coefficient formula of that g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207937": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A207937: Barker's g.f. (and Hardin's recurrence, n>8) are proved by an exact transfer matrix. The site's degree-7 polynomial closed form for n >= 1 follows from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207402": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A207402: Barker's g.f. and Barker's recurrence (n>8) are proved by an exact transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 9).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207390": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A207390: Barker's g.f. and Barker's recurrence (n>8) are proved by an exact transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 9).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a128750": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A128750: o.g.f., E = -(x-1)(x^2+1), 'true, all n>=4', exactly the site's range n >= 4.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a191398": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A191398: o.g.f., E = -2(2x^3+2x^2+4x-3), a polynomial of degree 3, 'true, all n>=6', exactly the site's range n >= 6.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a210064": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A210064: o.g.f., E = 0, 'true, all n>=2'. That covers the site's range n >= 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a174195": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A174195: E = 2(28788x^3+6999x^2+84367x+83100), 'true for n>3; false at n=2,3'. That matches the site's corrected recurrence for n >= 4, and the failure values 13998 and 57576 it records.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a157021": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: The first of the two A157021 rows (the order-7 recurrence): E = -4(x-1)(2x^2-2x+1)^2, 'true, all n>=7'. That is exactly the site's statement of the order-7 conjecture for n >= 7.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a182879": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A182879: o.g.f., E = 0, 'true, all n>=5', exactly the site's range n >= 5.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a130655": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A130655: o.g.f., E = 2x(4x-3), 'true, all n>=3', exactly the site's range n >= 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a053482": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A053482 sits in the preprint's 'already settled in OEIS (cross-checks, not claimed)' table: e.g.f., E = 0, 'true, all n>=3'. The exact computation covers the site's statement for n >= 3, but the preprint does not claim it as new; OEIS itself records Choulet's proof.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a166135": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A166135: o.g.f., E = 6x(x+1), 'true, all n>=3', exactly the site's range n >= 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a218185": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A218185: E = -16x^4, 'true for n>4; false at n=4'. That matches the site's corrected recurrence for n >= 5 and the value -16 it records at n = 4.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a220433": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00206), checked against the exact statement: The preprint shows L(y) = 2 exactly for the series reversion of t-t^2+t^3/6, so Mathar's recurrence holds for all n >= 3 and fails only at n = 2. This is exactly the site's corrected statement (n >= 3).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a162548": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A162548 sits in the preprint's 'already settled in OEIS (cross-checks, not claimed)' table: o.g.f., E = -(x-1)(x+1)(x^2-x+1), 'true, all n>=6'. The exact computation covers the site's range n >= 6, but the preprint does not claim it as new (OEIS has Fung Lam's 'formula verified').",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a188482": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A188482: o.g.f., E = (x-1)^2, 'true, all n>=4', exactly the site's range n >= 4.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a225887": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A225887: o.g.f., E = 1-7x, 'true, all n>=3', exactly the site's range n >= 3. The site defines a(n) by the entry's equation A = 1 + xA(5 - A(1-6x)), the same algebraic g.f.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a133307": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A133307: o.g.f., E = x+1, 'true, all n>=2', exactly the site's range. The preprint works from the entry's g.f. (1-z-sqrt(z^2-26z+1))/(12z), a classical (Narayana) equivalent of the site's defining sum.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a133305": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A133305: o.g.f., E = x+1, 'true, all n>=2', exactly the site's range. The preprint works from the entry's g.f. (1-z-sqrt(z^2-18z+1))/(8z), a classical (Narayana) equivalent of the site's defining sum.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a176479": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A176479: o.g.f., E = 0, 'true, all n>=2', exactly the site's range. The preprint works from the entry's g.f. 1/4 - (x-3)/(4 sqrt(x^2-6x+1)), the classical g.f. of (n+1)*A001003(n) that the site uses as its definition.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a115256": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A115256: o.g.f., E = 0, 'true, all n>=6', exactly the site's range n >= 6.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a182887": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A182887: o.g.f., E = 0, 'true, all n>=5', exactly the site's range n >= 5.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a151483": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A151483: o.g.f., E = 3 (constant, so only n = 0 is affected), 'true, all n>=2', exactly the site's range n >= 2.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a182881": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A182881: o.g.f., E = 0, 'true, all n>=4', exactly the site's range n >= 4.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a101478": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A101478: E = 48x^3, 'true for n>3; false at n=3'. That matches the site's corrected recurrence for n >= 4 and the value 48 it records at n = 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a168506": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A168506: E = 4x^2(6x^2+25x-4), a polynomial of degree 4, 'true for n>4; false at n=4'. So the recurrence holds for all n >= 5 with a(k) = [x^k]G, which is exactly the site's statement.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a141222": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00211), checked against the exact statement: Row A141222: o.g.f., E = 2x+1 exactly, 'true, all n>=2'. That covers the site's statement of Mathar's recurrence for n >= 2.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a119975": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00211), checked against the exact statement: Row A119975: e.g.f. Bessel pipeline, E = 0 exactly, 'true, all n>=3'. That covers the site's statement for n >= 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a188821": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00288), checked against the exact statement: Row A188821: Barker's g.f. and Barker's recurrence (n>5) are proved by an exact width-6 transfer matrix. The site's third conjunct, Hardin's quadratic 256n^2-384n+144 for n >= 3, follows from the proved g.f., whose numerator has degree 5 over (1-x)^3 (checked); the preprint does not list that formula explicitly.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207066": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00288), checked against the exact statement: Row A207066: Barker's g.f. and Barker's recurrence (n>7) are proved by an exact transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 8).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233077": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A233077: Barker's g.f. is proved by an exact transfer matrix built from the definition. The site's second conjunct, the closed form (7+3^(n+1)7^n)/14, is the partial-fraction expansion of that g.f. (checked), so the proof covers the whole statement.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268898": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A268898: Barker's g.f. and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's third conjunct, the closed form 4^n(6n+3), follows from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a269284": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A269284: Barker's g.f. and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's closed-form conjunct follows from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233211": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A233211: Barker's g.f. is proved by an exact transfer matrix (and Hardin's recurrence too). The site's closed-form conjunct is the g.f.'s partial-fraction expansion (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207363": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A207363: Barker's g.f. and Hardin's recurrence (n>8) are proved by an exact transfer matrix. The site's even/odd quasi-polynomial conjuncts follow from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233212": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A233212: Barker's g.f. is proved by an exact transfer matrix. The site's closed-form conjunct is the g.f.'s partial-fraction expansion (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a208064": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A208064: Barker's g.f. and Hardin's recurrence (n>5) are proved by an exact transfer matrix. The site's 9n^2 and 9n^2-9 parity conjuncts follow from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233020": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A233020: Barker's g.f. 3x/(1-5x-2x^2) and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's sqrt closed form and a(n) = 3*A015535(n) follow from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a280668": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00260), checked against the exact statement: Row A280668: Barker's g.f. and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's g.f. and sqrt(57) closed form follow (closed form checked against the g.f.).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a060774": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00226), checked against the exact statement: Two A060774 rows, using the g.f. corrected by +1: E = -72x^2(x^2-6x-2) gives 'true for n>4, false at n=4' for the first recurrence, and E = 288x^2 gives 'true for n>2, false at n=2' for the second. This is exactly the site's conjunction (n >= 5 and n >= 3).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a228180": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00226), checked against the exact statement: Row A228180: E = x(12x^2-9x+4), 'true for n>3; false at n=3'. That matches the site's corrected recurrence for n >= 4 and the value 12 it records at n = 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a026571": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00226), checked against the exact statement: Row A026571: o.g.f., E = -2x^2(x-2), 'true, all n>=5'. That covers the site's range n >= 7.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a279262": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00237), checked against the exact statement: Row A279262: Barker's g.f. and Hardin's recurrence (n>5) are proved by an exact transfer matrix. The site's sqrt(5) closed form follows from the g.f. (checked numerically against the series).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a279735": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00237), checked against the exact statement: Row A279735: Barker's g.f. and Hardin's recurrence (n>4) are proved by an exact transfer matrix. The site's sqrt(5) closed form follows from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a222777": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00258), checked against the exact statement: Row A222777: Barker's g.f. and Hardin's recurrence (n>6) are proved by an exact transfer matrix. The site states the g.f. (as a coefficient identity) and Barker's closed form for n > 2, which follows from the g.f. (checked). The site's own row-DP reproduces the OEIS data (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a209094": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00246), checked against the exact statement: Row A209094: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's g.f. and closed form for n > 1 follow (closed form checked against the g.f.).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a208316": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00246), checked against the exact statement: Row A208316: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's g.f. and closed form for n > 1 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a280474": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00246), checked against the exact statement: Row A280474: Barker's g.f. and Hardin's recurrence (n>6) are proved by an exact transfer matrix. The site's g.f. and closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a277761": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00246), checked against the exact statement: Row A277761: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's g.f. and closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268052": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00264), checked against the exact statement: Row A268052: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact width-4 transfer matrix. The site's g.f. and closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a208705": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00264), checked against the exact statement: Row A208705: Barker's g.f. and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's recurrence (n >= 3), g.f. and sqrt(17) closed form all follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a208065": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00264), checked against the exact statement: Row A208065: Barker's g.f. and Hardin's recurrence (n>9) are proved by an exact transfer matrix. The site's g.f. and its even/odd quartic closed forms for n >= 2 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a118447": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00230), checked against the exact statement: Row A118447: o.g.f., minimal-polynomial reduction, E = 0, 'true, all n>=2', exactly the site's range n >= 2.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a309515": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00231), checked against the exact statement: Row A309515: Barker's g.f. is proved from an exact partition g.f., and his recurrence is proved for n > 18 (RG has degree 16). The site states exactly this g.f. and recurrence.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
   }
  }
 }
