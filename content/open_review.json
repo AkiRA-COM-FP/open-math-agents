@@ -15339,6 +15339,553 @@
     "https://www.anstuocmath.ro/mathematics/anale2026v2/10_ZanoniAlberto_et_all.pdf"
    ],
    "note": "The statement is faithful: representations use distinct bases > 1 whose exponent multiset is a permutation of the bases, and the claim is that the minimal number of powers is unbounded. The proof counts: the 2^m self-power subset sums sum_{s in S} s^s are distinct and below 2^((m+3)^2), while sums of at most k powers below that bound number only polynomially many. This is a clean pigeonhole argument, and I found no prior proof. Second review: Faithful; short counting argument (self-power subset sums are distinct, short representations are polylogarithmically few). No prior proof found."
+  },
+  "oeis-a227513": {
+   "date": "2026-11-28",
+   "pr": 28877,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A227513",
+    "https://oeis.org/A227512",
+    "https://oeis.org/A227513",
+    "https://oeis.org/A227512"
+   ],
+   "note": "The name's formula is garbled; the statement correctly follows the comment, example and data, a(n)=round(1/(log((2n+1)/(2n-1))-1/n)), and states the closed form, the order-8 recurrence (n>=9) and the g.f. I checked the closed form for n<400. The proof is an asymptotic sandwich 12n^3-9n/5-1/10 < value < 12n^3-9n/5 from the log series. No earlier proof found; the sister A227512 (floor version) was solved on this site at the same time. Second review: Faithful to the data/Mathematica definition rather than the garbled name. Proof is a two-sided series bound placing the value in (12n^3-9n/5-1/10, 12n^3-9n/5). No prior proof found."
+  },
+  "oeis-a228767": {
+   "date": "2026-11-28",
+   "pr": 28635,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A228767",
+    "https://oeis.org/A228767",
+    "https://oeis.org/A176328"
+   ],
+   "note": "The input sequence is Marcus's PARI fr(n) = (-1)^n (B_n(1)+B_n(2))/2. I checked that it equals the e.g.f. coefficients of (x/2)(e^-x+1)/(e^x-1) and reproduces the listed inverse binomial transform and all the data. Berselli's closed form and g.f. follow from the standard Bernoulli-polynomial sum identity. No earlier proof found. Second review: Faithful; both Berselli conjectures stated. Short Bernoulli-polynomial computation; no prior proof found."
+  },
+  "oeis-a229775": {
+   "date": "2026-11-28",
+   "pr": 27919,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A229775",
+    "https://oeis.org/A229774",
+    "https://oeis.org/A229775",
+    "https://oeis.org/A229774"
+   ],
+   "note": "Barker's recurrence and g.f. for Hardin's 3x3 array count. The lexicographic reading of 'columns in nonincreasing order' reproduces the data; I brute-forced n=1..4. The parent table A229774 has no proof, and none was found on isitsolved or elsewhere. Routine counting (a degree-9 polynomial). Second review: Faithful conjunction of Barker's two conjectures; counting of lex-ordered arrays reduced to a finite pattern count. No prior proof found."
+  },
+  "oeis-a229796": {
+   "date": "2026-11-28",
+   "pr": 27924,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A229796",
+    "https://oeis.org/A229794",
+    "https://oeis.org/A229796",
+    "https://oeis.org/A229794"
+   ],
+   "note": "Barker's recurrence and g.f. for Hardin's 3x3 array count with lexicographically nondecreasing rows and columns. The definition reproduces the data (brute force n=1..4). No proof in the parent A229794 or elsewhere. Routine polynomial-count identity. Second review: Same family and method as A229775. No prior proof found."
+  },
+  "oeis-a230260": {
+   "date": "2026-11-28",
+   "pr": 28769,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A230260",
+    "https://oeis.org/A230260",
+    "https://oeis.org/A045917"
+   ],
+   "note": "Disproof of the entry's 'b(n) > 0 for all n > 94' (a strengthening of Goldbach). I checked independently that for n = 139 every prime pair p+q = 278 has an even total binary weight; 151, 256 and 1024 are also counterexamples, and the complement argument gives b(4^m)=0. The statement is the comment verbatim. A trivial finite counterexample. Second review: Correct disproof: n=139 (and 151, and every n=4^m) has b(n)=0. The n=4^m family follows from the argument already in Stephan's comment for a(n), but nobody recorded it for b(n). Treat it as a routine counterexample."
+  },
+  "oeis-a230269": {
+   "date": "2026-11-28",
+   "pr": 17653,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A230269",
+    "https://oeis.org/A230275",
+    "https://oeis.org/A230269",
+    "https://oeis.org/A230275",
+    "https://isitsolved.com/journal"
+   ],
+   "note": "Hardin's recurrence and Barker's g.f. and radical formula for the two-column ternary successor-neighbour count. The row-recursion definition reproduces the data (brute force n=1..7). The parent A230275 has no proof. isitsolved iis:2611.00233 covers it but was filed 2026-11-28 04:57 UTC, after the site proof commit (02:08 UTC). Routine transfer-matrix result. Second review: Faithful, and the site was first by about 3 hours over isitsolved. Routine transfer-matrix result."
+  },
+  "oeis-a230496": {
+   "date": "2026-11-28",
+   "pr": 28795,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A230496",
+    "https://oeis.org/A230495",
+    "https://oeis.org/A230496",
+    "https://oeis.org/A230495",
+    "https://arxiv.org/abs/1001.4170"
+   ],
+   "note": "Shevelev-Moses conjecture: for every n there is an odd k>1 with k, k^2, ..., k^n all odious. The statement is faithful (it is the existence form of a(n)>0). The proof builds an explicit witness from widely spaced binary blocks and controls the parity of the weight of each power. No earlier proof was found in the entry, its sisters, Zenodo, Palomar or the web. A real combinatorial construction, not routine. Second review: Faithful. The construction uses disjoint binary blocks of multinomial coefficients plus a rotation-parity argument. No prior proof found, though related literature on Thue-Morse along polynomials exists."
+  },
+  "oeis-a230498": {
+   "date": "2026-11-28",
+   "pr": 28915,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A230498",
+    "https://oeis.org/A230497",
+    "https://oeis.org/A230498",
+    "https://oeis.org/A230497"
+   ],
+   "note": "Conjugate conjecture: for every n>=2 there is an odd odious k>1 with k^2..k^n all evil. Faithful existence form. The proof is an explicit construction with widely separated bits that repair each parity in turn. No prior proof found; the sisters A230495 and A230497 are still open and not solved on this site. Second review: Faithful. The proof realizes any finite parity pattern by adding widely separated bits. No prior proof found."
+  },
+  "oeis-a231317": {
+   "date": "2026-11-28",
+   "pr": 27883,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A231317",
+    "https://oeis.org/A231324",
+    "https://oeis.org/A231317",
+    "https://oeis.org/A231324"
+   ],
+   "note": "Barker's g.f. and closed form for Hardin's (n+1)x2 diagonal-majority count. The row-major normalisation (each nonzero value has an earlier value one less) is equivalent to 'introduced in row major order'. The definition reproduces the data (brute force n=1..6). No proof in the parent A231324 or elsewhere. Routine transfer matrix. Second review: Faithful transfer-matrix result. No prior proof found."
+  },
+  "oeis-a234133": {
+   "date": "2026-11-28",
+   "pr": 28557,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A234133",
+    "https://oeis.org/A234140",
+    "https://oeis.org/A234133",
+    "https://oeis.org/A234140"
+   ],
+   "note": "Barker's g.f. and closed form for Hardin's (n+1)x2 0..3 arrays with each 2x2 block's six differences summing to 9. The definition reproduces the data (brute force n=1..5). No earlier proof found (parent A234140, isitsolved, Zenodo). Routine transfer matrix. Second review: Faithful; a routine two-column transfer-matrix proof of Barker's conjectures. No prior proof found."
+  },
+  "oeis-a234259": {
+   "date": "2026-11-28",
+   "pr": 28165,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A234259",
+    "https://oeis.org/A234266",
+    "https://oeis.org/A234259",
+    "https://oeis.org/A234266"
+   ],
+   "note": "Barker's g.f. and closed form for Hardin's constant-stress (diagonal minus antidiagonal = +-2) 0..2 two-column count. The closed form is rewritten as integer parity cases (5*6^(n/2) or 12*6^((n-1)/2)), which I checked is algebraically equal to Barker's radical form. A transfer-matrix check reproduces the data. No prior proof found. Routine. Second review: Faithful; a routine two-column transfer-matrix proof of Barker's conjectures. No prior proof found."
+  },
+  "oeis-a234789": {
+   "date": "2026-11-28",
+   "pr": 28670,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A234789",
+    "https://oeis.org/A234796",
+    "https://oeis.org/A234789",
+    "https://oeis.org/A234796"
+   ],
+   "note": "Counterclockwise edge increases are encoded correctly as clockwise decreases. The definition reproduces all listed data in a transfer-matrix check. Barker's g.f. and radical form. No prior proof in the parent A234796 or the collections. Routine. Second review: Faithful; a routine two-column transfer-matrix proof of Barker's conjectures. No prior proof found."
+  },
+  "oeis-a234875": {
+   "date": "2026-11-28",
+   "pr": 28868,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A234875",
+    "https://oeis.org/A234882",
+    "https://oeis.org/A234875",
+    "https://oeis.org/A234882"
+   ],
+   "note": "Hardin's empirical recurrence (n>=5), Barker's g.f. and both parity closed forms for the tilted constant-stress 0..4 count, stated faithfully. The definition reproduces the data. No earlier proof found. Routine transfer matrix. Second review: Faithful. Routine."
+  },
+  "oeis-a235271": {
+   "date": "2026-11-28",
+   "pr": 28569,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235271",
+    "https://oeis.org/A235280",
+    "https://oeis.org/A235271",
+    "https://oeis.org/A235280"
+   ],
+   "note": "Barker's g.f. and closed form for the constant-stress (difference 5) 0..4 two-column count. The definition reproduces the data (transfer matrix). No prior proof found. Routine. Second review: Faithful; a routine two-column transfer-matrix proof of Barker's conjectures. No prior proof found."
+  },
+  "oeis-a235282": {
+   "date": "2026-11-28",
+   "pr": 16550,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235282",
+    "https://oeis.org/A235289",
+    "https://oeis.org/A235282",
+    "https://oeis.org/A235289"
+   ],
+   "note": "The empirical recurrence (n>=4), Barker's g.f. and closed form for the constant-stress (difference 4) 0..3 two-column count. The definition reproduces the data. No earlier proof found. Routine transfer matrix. Second review: Faithful; a routine two-column transfer-matrix proof of Barker's conjectures. No prior proof found."
+  },
+  "oeis-a235895": {
+   "date": "2026-11-28",
+   "pr": 27920,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A235895",
+    "https://oeis.org/A235902",
+    "https://oeis.org/A235895",
+    "https://oeis.org/A235902"
+   ],
+   "note": "Barker's g.f. and sqrt(17) closed form for Hardin's min+max = median-sum 0..2 two-column count. The equivalent block condition 2(min+max) = sum reproduces the data in a transfer-matrix check. No prior proof found. Routine. Second review: Faithful two-column transfer-matrix proof. No prior proof found."
+  },
+  "oeis-a236407": {
+   "date": "2026-11-28",
+   "pr": 28005,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A236407",
+    "https://oeis.org/A002003",
+    "https://oeis.org/A236407",
+    "https://oeis.org/A002003"
+   ],
+   "note": "Mathar's order-4 P-recurrence for a(n) = 2*Sum C(n-1,k)C(n+k,k) + n. The expanded coefficients match the entry, and it holds for 4<=n<60. Mechanical holonomic identity, derivable from the known recurrence for A002003. No recorded proof found. Second review: Faithful; a routine creative-telescoping certificate. No prior proof found."
+  },
+  "oeis-a242076": {
+   "date": "2026-11-28",
+   "pr": 28829,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A242076",
+    "https://oeis.org/A242076"
+   ],
+   "note": "Lowell's conjecture that 6 is the only term with k = 2 mod 4, stated faithfully: (2^k+1) = F_j * q with q prime. For k = 2m with m odd, only F_1 = 5 can divide, and the Aurifeuillian factorization 4^m+1 = (2^m-2^((m+1)/2)+1)(2^m+2^((m+1)/2)+1) leaves (4^m+1)/5 prime only for m = 3. Short elementary argument; no earlier proof found. Second review: Faithful; the proof is a short Aurifeuillean factorization argument. No prior record."
+  },
+  "oeis-a249264": {
+   "date": "2026-11-28",
+   "pr": 28544,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A249264",
+    "https://oeis.org/A249264",
+    "https://oeis.org/A000566"
+   ],
+   "note": "Valid disproof of Orr's 'for n>6, a(2n-1) = n(5n-3)/2 and a(2n) = n(n+1)/2'. The heptagonal H(221) = 121771 equals the triangular T(493), so the conjecture would force a(441) = a(986), contradicting distinctness. My simulation of the greedy sequence confirms the pattern holds up to n=985 and first fails at a(986) = 608855. The definition matches the data. A short counterexample; no prior report found. Second review: Correct disproof: heptagonal H(221) = triangular T(493) = 121771, so the conjectured pattern would repeat a term; the true sequence departs at n=986. Not recorded anywhere I could find."
+  },
+  "oeis-a249966": {
+   "date": "2026-11-28",
+   "pr": 28261,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A249966",
+    "https://oeis.org/A249960",
+    "https://oeis.org/A249966",
+    "https://oeis.org/A249960"
+   ],
+   "note": "Barker's g.f. and order-12 recurrence for Hardin's length-11, window-6 'max of two = min of other four' count. The definition reproduces the data (my brute force n=1; the statement's checks go up to n=17). The proof reuses another site proof's threshold-chain method (A250064), not a public solution of this entry. No proof in the parent A249960 or elsewhere. Routine. Second review: Faithful; a polynomial-counting (threshold-chain) proof; within-site adaptation credit only. No prior proof found."
+  },
+  "oeis-a250061": {
+   "date": "2026-11-28",
+   "pr": 28101,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250061",
+    "https://oeis.org/A250059",
+    "https://oeis.org/A250061",
+    "https://oeis.org/A250059"
+   ],
+   "note": "Barker's g.f. and recurrence for row 2 of A250059 (length 8, window 7). The definition reproduces the data (my brute force n=1,2). The threshold-set chain gives a unitriangular transfer matrix. No prior proof found in the parent or the collections. Routine. Second review: Faithful; a polynomial-counting (threshold-chain) proof; within-site adaptation credit only. No prior proof found."
+  },
+  "oeis-a250063": {
+   "date": "2026-11-28",
+   "pr": 28033,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250063",
+    "https://oeis.org/A250059",
+    "https://oeis.org/A250063",
+    "https://oeis.org/A250059"
+   ],
+   "note": "Barker's g.f. and recurrence for row 5 of A250059 (length 11, window 7), stated faithfully; brute force matches a(1). The proof adapts the site's own A250064/A249850 threshold-chain proofs, which are not prior public solutions of this entry. No earlier proof found. Routine. Second review: Faithful; a polynomial-counting (threshold-chain) proof; within-site adaptation credit only. No prior proof found."
+  },
+  "oeis-a250064": {
+   "date": "2026-11-28",
+   "pr": 27975,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250064",
+    "https://oeis.org/A250059",
+    "https://oeis.org/A250064",
+    "https://oeis.org/A250059"
+   ],
+   "note": "Barker's g.f. and recurrence for row 4 of A250059 (length 10, window 7), stated faithfully; brute force matches a(1), and the formulas match the data. No proof in the parent table, isitsolved, Zenodo or the Lean libraries. Routine threshold-chain transfer argument. Second review: Faithful; a polynomial-counting (threshold-chain) proof; within-site adaptation credit only. No prior proof found."
+  },
+  "oeis-a250846": {
+   "date": "2026-11-28",
+   "pr": 28952,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A250846",
+    "https://oeis.org/A250853",
+    "https://oeis.org/A250846",
+    "https://oeis.org/A250853"
+   ],
+   "note": "Barker's g.f. for Hardin's (n+1)x2 0..3 difference/minimum-monotone arrays. The reading of the two directions reproduces the data (transfer-matrix check); the statement notes that the swapped reading does not. Only the g.f. is stated, not Hardin's empirical lines. No prior proof found. Routine. Second review: Faithful. Routine."
+  },
+  "oeis-a251130": {
+   "date": "2026-11-28",
+   "pr": 29096,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A251130",
+    "https://oeis.org/A251137",
+    "https://oeis.org/A251130",
+    "https://oeis.org/A251137"
+   ],
+   "note": "Hardin's order-6 recurrence (n>=7), Barker's g.f. and the cubic-plus-exponential closed form for the 'diagonal sum <= antidiagonal max' 0..2 count. The definition reproduces the data. No prior proof found. Routine transfer matrix. Second review: Faithful. Routine."
+  },
+  "oeis-a251276": {
+   "date": "2026-11-28",
+   "pr": 28545,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A251276",
+    "https://oeis.org/A251283",
+    "https://oeis.org/A251276",
+    "https://oeis.org/A251283"
+   ],
+   "note": "Barker's g.f. and sqrt(38) Binet form for the 'not max diagonal < min antidiagonal' 0..3 two-column count. The definition reproduces the data. No earlier proof found. Routine. Second review: Faithful; a routine two-column transfer-matrix proof of Barker's conjectures. No prior proof found."
+  },
+  "oeis-a251328": {
+   "date": "2026-11-28",
+   "pr": 29071,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A251328",
+    "https://oeis.org/A251335",
+    "https://oeis.org/A251328",
+    "https://oeis.org/A251335"
+   ],
+   "note": "Barker's g.f. and sqrt(7) closed form for 0..2 two-column arrays with every 2x2 block sum in {2,4,6}. The closed form is encoded exactly in Z[sqrt 7] (coordinates (14a(n),0)), which is equivalent to the real identity, and the g.f. coefficientwise. The definition reproduces the data. Routine; no prior proof found. Second review: Faithful; a routine two-column transfer-matrix proof of Barker's conjectures. No prior proof found."
+  },
+  "oeis-a257470": {
+   "date": "2026-11-28",
+   "pr": 28586,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A257470",
+    "https://oeis.org/A257470"
+   ],
+   "note": "Hasler's four conjectures (the exceptional set S, its differences D, and the 4/8 and 3/7 run structure) are formalized carefully, with the set and run notions made precise. The definition reproduces all 87 data terms. The proof finds the structural description (leaders of the form o*8^c) that settles the pattern. No prior proof found in the entry, A139080 or the collections. A genuine structural argument. Second review: Faithful formalization of a multi-part structural conjecture; 1000-line proof via the leader-set enumeration. No prior proof found."
+  },
+  "oeis-a002815": {
+   "date": "2026-11-28",
+   "pr": 28506,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A002815",
+    "https://oeis.org/A002815",
+    "https://oeis.org/A008578"
+   ],
+   "note": "Jeffery's g.f. is stated with the denominator cleared over Z: a(n)(1-x)^2 has coefficient 1 at n=1 or n prime, else 0. This matches A008578 (1 and the primes), and a(0)=0 matches n=0. It is a second-difference computation: a(n+1)-a(n)=1+pi(n+1). No prior proof found (entry, Lean libraries, BG/Fried, Zenodo, aiXiv, Palomar). Routine. Second review: Faithful; the 'conjecture' is a one-line second-difference identity. No prior record."
+  },
+  "oeis-a005726": {
+   "date": "2026-11-28",
+   "pr": 14388,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A005726",
+    "https://oeis.org/A005726"
+   ],
+   "note": "Mathar's order-3 P-recurrence is stated for n>=4 with a(n) from Barry's formula sum C(n,k)C(n,2k+1). The formula reproduces the data, and I checked the recurrence exactly for n=4..79. n>=4 is the first index with a(n-3) defined (offset 1), so the range is natural. No prior proof found (entry, libraries, BG/Fried, Zenodo, Palomar). Routine holonomic derivation. Second review: Faithful; routine holonomic recurrence. No prior proof found."
+  },
+  "oeis-a024399": {
+   "date": "2026-11-28",
+   "pr": 28594,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A024399",
+    "https://oeis.org/A024399"
+   ],
+   "note": "Mathar's recurrence (n>7) and g.f. are stated with S(n) = the first n+2 numbers = 2 mod 3 and a = floor(e3/e1). a(0)=0 is padding that makes the g.f. divisible by x. I reproduced the data, the recurrence for n<60, and the g.f. coefficients exactly. The proof writes e1 and e3 as polynomials and handles the floor by residue class. No prior proof found. Routine. Second review: Faithful; a closed form for e3/e1 gives a quasi-polynomial. No prior proof found."
+  },
+  "oeis-a025255": {
+   "date": "2026-11-28",
+   "pr": 16581,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A025255",
+    "https://oeis.org/A025255",
+    "https://oeis.org/A025258"
+   ],
+   "note": "Mathar's recurrence is stated for n>=6, with the defining convolution recurrence and a(1..3)=1,3,1 (a(4)=1 agrees with the recurrence). The printed recurrence genuinely fails at n=5, the first index where it is defined (LHS -3, which I confirm). It holds from n=6 on (checked to n=69), so the range repairs the start index rather than exploiting a weakening; an announcement should say it fails at n=5. isitsolved iis:2611.00219 (filed 2026-11-28 03:18 UTC) decides sister entry A025259 of this family the same way, but it is later than this proof (2026-11-27 22:19 UTC). Routine algebraic-g.f. derivation. Second review: Faithful with the sharp range. Routine reduction modulo the quadratic g.f. equation. Same family as joaquimmj's A025258 proof, but this A-number is not covered."
+  },
+  "oeis-a025259": {
+   "date": "2026-11-28",
+   "pr": 16603,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A025259",
+    "https://oeis.org/A025259",
+    "https://oeis.org/A025258",
+    "https://isitsolved.com/journal"
+   ],
+   "note": "Mathar's recurrence is stated for n>=6, with initial terms 2,-1,1 and the convolution recurrence (a(4)=2 agrees). The printed recurrence fails at n=5 (LHS 1, which I confirm) and holds for n=6..69, so the n>=6 range is the natural repair, disclosed in the statement. isitsolved iis:2611.00219 lists A025259 as 'true for n>5; false at n=5', but it was filed 2026-11-28 03:18 UTC, after this proof (2026-11-27 22:19 UTC). Routine. Second review: Faithful with the sharp range. Routine reduction modulo the quadratic g.f. equation. Same family as joaquimmj's A025258 proof, but this A-number is not covered."
+  },
+  "oeis-a025261": {
+   "date": "2026-11-28",
+   "pr": 16681,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A025261",
+    "https://oeis.org/A025261",
+    "https://oeis.org/A025258"
+   ],
+   "note": "Mathar's recurrence is stated for n>=6, with initial terms 3,-2,1 and the convolution recurrence (a(4)=3 agrees). The printed recurrence fails at n=5 (LHS 2, which I confirm) and holds for n=6..69, so the range is a disclosed repair of the start index. isitsolved iis:2611.00219 (filed 2026-11-28 03:18 UTC) decides sister entry A025259 of this family the same way, but it is later than this proof (2026-11-27 22:19 UTC). Routine. Second review: Faithful with the sharp range. Routine reduction modulo the quadratic g.f. equation. Same family as joaquimmj's A025258 proof, but this A-number is not covered."
+  },
+  "oeis-a027261": {
+   "date": "2026-11-28",
+   "pr": 28625,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A027261",
+    "https://oeis.org/A025177",
+    "https://oeis.org/A027261",
+    "https://oeis.org/A025177",
+    "https://isitsolved.com/journal"
+   ],
+   "note": "Stephan's closed form 2(n+1)3^(n-1) (n>1), Barker's recurrence (n>3) and the g.f. (1-2x+3x^2)/(1-3x)^2 are stated with T = A025177 (rows [1],[1,0,1], then the three-term rule). I reproduced the data and all three claims to n=39. With the row g.f. (1-y)(1+y+y^2)^n for n>=1 it is a short derivative computation, and the ranges are the printed ones. isitsolved iis:2611.00230 (2026-11-28 04:26 UTC) also decides it, but this proof is earlier (2026-11-27 22:12 UTC). Routine. Second review: Faithful; the site was first relative to isitsolved. Routine."
+  },
+  "oeis-a034097": {
+   "date": "2026-11-28",
+   "pr": 28195,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A034097",
+    "https://oeis.org/A034097"
+   ],
+   "note": "Papadopoulos's run-length conjecture is stated faithfully. The first decimal of sqrt(n) is 1 iff floor(sqrt(100n)) = 1 mod 10, maximal runs are taken at both ends, and round(1/25+k/5) is written exactly as floor((10k+27)/50). I checked every run for n<200000: each lies inside one k = floor(sqrt n) and has the stated length. The entry also has Israel's description m^2+m/5 < n <= m^2+2m/5. Routine counting of integers in that interval, though fiddly. No prior proof found. Second review: Faithful and true; immediate from Israel's characterization in the entry. Routine."
+  },
+  "oeis-a037988": {
+   "date": "2026-11-28",
+   "pr": 28958,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A037988",
+    "https://oeis.org/A272727",
+    "https://oeis.org/A272729",
+    "https://oeis.org/A037988",
+    "https://oeis.org/A272729",
+    "https://oeis.org/A272727",
+    "https://oeis.org/A359807",
+    "https://github.com/archmageirvine/joeis/blob/master/src/irvine/oeis/a037/A037988.java"
+   ],
+   "note": "Irvine's conjecture: the critical values equal the partial sums of A272729. It is formalized with Angelini's characterization in the entry (the slowest increasing sequence in which each term n has exactly n terms <= 2n) as the definition. A272729(j+1) is taken as the multiplicity of 2j+1 in Neretin's reversal-coincidence sequence A272727. My computation of A272727 reproduces the A037988 data from these partial sums. Caveat: the link from Angelini's characterization to phutball play is taken from the entry, not proved, but Irvine's own program computes Angelini's sequence. No prior proof found. Non-routine (ported from @frido22's earlier proof on this site). Second review: Faithful to Irvine's conjecture as he computed it (Angelini characterization). It does not prove anything about the phutball game definition itself; the entry treats the two as equal. No prior proof found."
+  },
+  "oeis-a050189": {
+   "date": "2026-11-28",
+   "pr": 28614,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A050189",
+    "https://oeis.org/A050186",
+    "https://oeis.org/A050189",
+    "https://oeis.org/A050186"
+   ],
+   "note": "Wu's recurrence (n>11) and g.f. x^5(5+2x+x^2)/((1-x)^5(1+x)^3) are stated for primitive (not a proper power) binary words of length n with exactly four 1's. I brute-forced the counts and the g.f. identity for n<30 and they match the data. The parent A050186 is the Moebius transform of Pascal's triangle, which gives a(n)=C(n,4)-[2|n]C(n/2,2), and from that the g.f. is a routine computation. That formula is not printed for k=4 (the sister A050190 gives the k=5 analogue). Routine. Second review: Faithful. Routine."
+  },
+  "oeis-a054390": {
+   "date": "2026-11-28",
+   "pr": 28309,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A054390",
+    "https://oeis.org/A038754",
+    "https://oeis.org/A054390",
+    "https://oeis.org/A038754"
+   ],
+   "note": "Mathar's conjecture: partitions of n into powers of 3, each used at most 3 times, are equinumerous with partitions into distinct parts from A038754 = {3^j, 2*3^j}. It is stated over Fin n exponents, which suffice. Writing a multiplicity in {0,1,2,3} in binary as a subset of {w,2w} gives the bijection, and the parts are distinct for w=3^j. I checked the counts for n<200. Equivalently (1+x+x^2+x^3) = (1+x)(1+x^2) for each 3^j, a one-line g.f. identity. No prior proof found. Routine. Second review: Faithful; one-line product identity. No prior record."
+  },
+  "oeis-a059140": {
+   "date": "2026-11-28",
+   "pr": 29163,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A059140",
+    "https://oeis.org/A059133",
+    "https://oeis.org/A059140",
+    "https://oeis.org/A059126"
+   ],
+   "note": "Barker's closed form 2(-5+7*2^n)-3n, recurrence (n>2) and g.f. (x-4)/((x-1)^2(2x-1)) are stated with W2{2}*c following Wallgren's note: the phrase sums are 3*A001511(k)+1, and a(n) sums the first 2^(n+1)-1 of them. This reproduces the data, and I checked the closed form for n<16. It is the same self-similarity argument that Neder recorded for sister A059133 (judged known there because the derivation is in that entry); A059140 has no such derivation. Routine. Second review: Faithful (data-verified encoding). Routine."
+  },
+  "oeis-a067057": {
+   "date": "2026-11-28",
+   "pr": 27676,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A067057",
+    "https://oeis.org/A067057",
+    "https://oeis.org/A000914"
+   ],
+   "note": "Voznyy's g.f. -2x^2(x+1)/(2x-1)^5 is stated for a(n) = half the sum over all subsets S of {1..n} of sum(S)*sum(complement). Halving matches the entry's example a(4)=140, and the empty split adds 0. I reproduced the data and checked the identity to n=16. Layman's empirical 2^(n-2)s(n+1,n-1) is also unproved in the entry. Routine: sum(S)*sum(S') expands into pair sums over 2^n subsets. Second review: Faithful. Routine closed-form computation."
+  },
+  "oeis-a067392": {
+   "date": "2026-11-28",
+   "pr": 28404,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A067392",
+    "https://math.stackexchange.com/questions/3962246",
+    "https://oeis.org/A067392"
+   ],
+   "note": "Guba's conjecture (via Alekseyev): a(n) != a(n+p) for all n>0 and primes p, with a(n) = the sum of k<=n having gcd(n,k)>1 = n(n+1-phi(n))/2. Stated faithfully. I found no equality with prime distance for n,n+p <= 200000. The proof forces two consecutive even totients and bounds the case phi = 2 mod 4. The composite-shift analogue is VMO 2021 (shift 2021; MSE 3962246), which uses a similar case split, but I found no published prime-p proof (entry, MSE/MO, Zenodo, aiXiv, Lean libraries). Non-routine. Second review: Faithful; a substantive elementary proof. No prior proof found."
+  },
+  "oeis-a072031": {
+   "date": "2026-11-28",
+   "pr": 27685,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A072031",
+    "https://oeis.org/A072030",
+    "https://oeis.org/A072031",
+    "https://oeis.org/A072030"
+   ],
+   "note": "Bala's coefficient form of his Lambert-series conjecture is stated exactly as he gives it: for n>=2, sum_{k=1..n} tau(k)tau(n-k) = sum_{d|n} sum_{k=1..d} tau(k(d-k)), with tau(0)=0. I verified it for 2<=n<300. The proof is an explicit gcd-scaling bijection between triples (k, x|k, y|n-k) and (d|n, k<=d, z|k(d-k)). I found no prior proof (entry, MO/MSE, Zenodo, aiXiv, Lean libraries; GitHub code search was rate-limited). Non-routine. Second review: Faithful to the form Bala states. The equivalence to the g.f. form depends on Luschny's (unlabelled) formula, which I verified numerically only. No prior proof found."
+  },
+  "oeis-a072339": {
+   "date": "2026-11-28",
+   "pr": 29146,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A072339",
+    "https://oeis.org/A072339",
+    "https://oeis.org/A069010"
+   ],
+   "note": "Layman's conjecture is a(2^k)=1 and a(n)=a(2^k-i)+1 'if 2^k<n+i<2^(k+1)'. The printed clause has a variable clash. The statement uses the reflection a(2^k+i)=a(2^k-i)+1 for 0<i<2^k, and this is the same as the other natural reading a(n)=1+a(2^(k+1)-n), since 2^(k+1)-n=2^k-i. Both fit the data. Minimal alternating-representation length is defined directly (sInf over strictly decreasing exponent lists). My brute force (exponents <= 14) confirms both clauses for n < 2^11. Gomez Calderon's 2025 formula is unproved. Routine. Second review: Faithful reading of a garbled formula line. Short proof. No prior record."
+  },
+  "oeis-a075855": {
+   "date": "2026-11-28",
+   "pr": 28695,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A075855",
+    "https://oeis.org/A075855"
+   ],
+   "note": "Both formulas are stated as IsGreatest over simple diagonal-step paths on the black squares (corner (0,0) black): 2k^2+1 for side 2k+1 (stated in the entry) and 2k^2-k+1 for side 2k (conjectured). These match the data 1,2,3,7,9,16,19,29,33. The proof gives an edge-counting upper bound via an antidiagonal cut, plus an explicit two-column sweep path. No prior proof found (entry has keyword 'more'; no hits in Zenodo, aiXiv, Palomar, libraries; GitHub code search was rate-limited). Non-routine. It is a port of @wtho704's earlier proof on this site. Second review: Faithful; a real combinatorial upper-bound proof. No prior proof found."
+  },
+  "oeis-a088884": {
+   "date": "2026-11-28",
+   "pr": 15995,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A088884",
+    "https://oeis.org/A088884",
+    "https://oeis.org/A088883"
+   ],
+   "note": "Both comments are stated faithfully (concatRev 53 = 5335; 6k-1 rendered as p%6=5; '+2 and -2 not both prime' in both directions). I checked them for p<200000. Both follow mod 3: concat(p,rev p) = 2*digitsum(p) = 2p (mod 3). So p=1 (mod 6) makes c-2 divisible by 3, and for p != 3 one of c-2, c+2 is a multiple of 3 above 3; p=3 is checked directly. No prior proof found. Routine (elementary). Second review: Faithful; a one-line mod-3 argument. No prior record."
+  },
+  "oeis-a091817": {
+   "date": "2026-11-28",
+   "pr": 22957,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A091817",
+    "https://oeis.org/A091817"
+   ],
+   "note": "Quet's integrality conjecture is stated faithfully: p | 2num(H(p-3)) - 3den(H(p-3)) for primes p>=3, with reduced num/den. I checked p<400 and the data. It follows from H(p-1) = 0 (mod p): H(p-3) = H(p-1) - 1/(p-1) - 1/(p-2) = 1 + 1/2 = 3/2 (mod p), and den(H(p-3)) is prime to p. No prior proof found in the entry or the searched sources. Routine. Second review: Faithful; immediate from H_{p-1} = 0 mod p. Not recorded in the entry."
   }
  },
  "flagged": {
@@ -35527,6 +36074,39 @@
     "https://doi.org/10.5281/zenodo.23407381"
    ],
    "reason": "Disproof of Maiga's printed formula a(n)=Sum_{k=1..n}(4-A036987(k)) at n=2 (7 vs 6). It is an offset slip: Sum_{k=0..n-1} holds on all terms I checked. Ashburn (Zenodo 23407381, 16 Oct 2026, Theorem 11) already proved a(n)=4n-floor(log2 n)-1 and showed the printed formula fails first at n=2. So the refutation is known and the corrected version is proved there."
+  },
+  "oeis-a023365": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A023365",
+    "https://oeis.org/A376867"
+   ],
+   "reason": "Second review: The A023365 formula line says 'conjectured', but the companion entry A376867 asserts the same denominators as fact, and Wu's numerator recurrence there proves it in one line. This is not a new result. At most it is routine."
+  },
+  "oeis-a078841": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A078841",
+    "https://github.com/joaquimmj/oeis-conjectures",
+    "https://raw.githubusercontent.com/joaquimmj/oeis-conjectures/main/LOG.md"
+   ],
+   "reason": "Second review: Proved publicly by Joaquim Manji-Jung on 2026-11-19, with the same 2^n*t(n+1) reduction, before the site's 2026-11-27 proof."
+  },
+  "oeis-a083452": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A083452",
+    "https://oeis.org/A083451"
+   ],
+   "reason": "Second review: Equivalent to A083451's positivity, proved in that entry in 2003. It also duplicates the site's own oeis-a083451."
+  },
+  "oeis-a090893": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A090893",
+    "https://doi.org/10.4064/aa-12-2-193-212"
+   ],
+   "reason": "Second review: The disproof is correct but follows directly from Kesten's 1966 bounded-remainder theorem after a one-line reduction. Count it as known in substance, or at least not new."
   }
  },
  "reviewed": "2026-11-28"
