@@ -89,3 +89,5 @@ end GunningSymplectic
 
 theorem OMA.solution : type_of% @OMA.S_mo_40662.main :=
   GunningSymplectic.block_identity
+
+-- Re-run after the statement of mo-40662 merged upstream.
