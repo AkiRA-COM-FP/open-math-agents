@@ -7,8 +7,10 @@ namespace OMA.R_Erdos89_erdos_89_R1_H2_R1
 
 /-- Packing for squarefree diagonal forms. Count disjoint collinear k-point
 blocks using all form values realized on their union, including cross-block
-differences. Assume any k lines cover less than half the union and, after tilting and dividing out any common lattice scale, its squared
-horizontal span exceeds d times its vertical span times k when its height is positive.
+differences. Any k lines cover less than half the union. Every subset containing
+at least half the points must satisfy the width condition in every normalized
+tilted model: when its height is positive, its squared width exceeds d times
+its height times k.
 The constant is independent of the form and the block size. -/
 def H1 : Prop :=
   ∃ C : ℕ, ∀ (d k : ℕ) (F : Finset (Finset (ℤ × ℤ))), 0 < d → Squarefree d → 0 < k →
@@ -19,8 +21,8 @@ def H1 : Prop :=
       (∀ T ∈ G, T ⊆ F.biUnion id ∧ ∃ a b c : ℤ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p.1+b*p.2=c) →
       2*(G.biUnion id).card < (F.biUnion id).card) →
     (let S := F.biUnion id
-     (∀ a b : ℤ, (a ≠ 0 ∨ b ≠ 0) →
-      let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
+     (∀ A : Finset (ℤ × ℤ), A ⊆ S → S.card ≤ 2*A.card → ∀ a b : ℤ, (a ≠ 0 ∨ b ≠ 0) →
+      let R := A.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
       ∀ (g : ℤ) (o : ℤ × ℤ) (B : Finset (ℤ × ℤ)), 0 < g →
         B.image (fun z : ℤ × ℤ => (g*z.1+o.1,g*z.2+o.2)) = R →
         ∀ p ∈ B, ∀ t ∈ B, p.2 < t.2 →
@@ -412,37 +414,55 @@ private theorem tilted_values (d a b : ℤ) (hd : 0 < d) (hab : a ≠ 0 ∨ b �
         mem_image_of_mem _ hr,inj.ne hne⟩,scale p r⟩
   rw [hv,card_image_of_injective _ (mul_right_injective₀ hm.ne')]
 
-/-- Two rows certify the packing bound for a union of disjoint equal-size blocks after an integral similarity. -/
+/-- Transfer a value bound on a positive fraction of the points to the block count. -/
+private theorem packing_of_dense_subset (F : Finset (Finset (ℤ × ℤ))) (k : ℕ) (hk : 0 < k)
+    (hdis : (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id)
+    (hcard : ∀ T ∈ F, T.card = k) (A : Finset (ℤ × ℤ)) (q : ℤ × ℤ → ℤ)
+    (L C : ℕ) (hsub : A ⊆ F.biUnion id) (hdense : (F.biUnion id).card ≤ L*A.card)
+    (hbound : A.card ≤ C*k*(A.offDiag.image fun xy => q (xy.1-xy.2)).card) :
+    F.card ≤ (L*C)*((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card := by
+  classical
+  let D := fun T : Finset (ℤ × ℤ) => (T.offDiag.image fun xy => q (xy.1-xy.2)).card
+  have hsize : (F.biUnion id).card = F.card*k := by
+    rw [card_biUnion hdis]
+    calc
+      _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => (hcard T hT)
+      _ = _ := by simp
+  apply Nat.le_of_mul_le_mul_right _ hk
+  calc
+    F.card*k = (F.biUnion id).card := hsize.symm
+    _ ≤ L*A.card := hdense
+    _ ≤ L*(C*k*D A) := Nat.mul_le_mul_left _ hbound
+    _ ≤ L*(C*k*D (F.biUnion id)) :=
+      Nat.mul_le_mul_left _ (Nat.mul_le_mul_left _ (value_mono hsub q))
+    _ = _ := by dsimp [D]; ring
+
+/-- Two rows certify the packing bound for a union of disjoint equal-size blocks from a normalized subset carrying a fraction of the points. -/
 private theorem narrow_packing (d a b : ℤ) (hd : 0 < d) (hab : a ≠ 0 ∨ b ≠ 0) (k : ℕ) (hk : 0 < k)
     (F : Finset (Finset (ℤ × ℤ))) (hdis : (F : Set (Finset (ℤ × ℤ))).PairwiseDisjoint id)
     (hcard : ∀ T ∈ F, T.card = k) :
     let S := F.biUnion id
-    let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
+    ∀ (L : ℕ) (A : Finset (ℤ × ℤ)), A ⊆ S → S.card ≤ L*A.card →
+    let R := A.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
     ∀ (g : ℤ) (o : ℤ × ℤ) (B : Finset (ℤ × ℤ)), 0 < g →
       B.image (fun z : ℤ × ℤ => (g*z.1+o.1,g*z.2+o.2)) = R →
       ∀ p ∈ B, ∀ t ∈ B, p.2 < t.2 →
       (∀ z ∈ B, ∀ u ∈ B, (z.1-u.1)^2 ≤ d*(t.2-p.2)*k) →
-      F.card ≤ 4*(S.offDiag.image fun xy => (fun z : ℤ × ℤ => z.1^2+d*z.2^2) (xy.1-xy.2)).card := by
+      F.card ≤ (L*4)*(S.offDiag.image fun xy => (fun z : ℤ × ℤ => z.1^2+d*z.2^2) (xy.1-xy.2)).card := by
   classical
-  intro S R g o B hg hmodel p hp t ht hpt hw
-  have hsize : S.card = F.card*k := by
-    dsimp [S]; rw [card_biUnion hdis]
-    calc
-      _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => hcard T hT
-      _ = _ := by simp
+  intro S L A hsub hdense R g o B hg hmodel p hp t ht hpt hw
   let V := fun T : Finset (ℤ × ℤ) => (T.offDiag.image fun xy =>
     ((xy.1-xy.2).1)^2+d*((xy.1-xy.2).2)^2).card
-  have hTilt : R.card = S.card ∧ V R = V S := by
-    simpa [R,V] using tilted_values d a b hd hab (0,0) S
+  have hTilt : R.card = A.card ∧ V R = V A := by
+    simpa [R,V] using tilted_values d a b hd hab (0,0) A
   have hScale : R.card = B.card ∧ V R = V B := by
     rw [← hmodel]
     simpa [V] using tilted_values d g 0 hd (Or.inl hg.ne') o B
   have h := two_extreme_rows_bound k hk d hd B p t hp ht hpt hw
   change B.card ≤ 4*k*V B at h
-  rw [← hScale.1, hTilt.1, hsize, ← hScale.2, hTilt.2] at h
-  change F.card ≤ 4*V S
-  apply Nat.le_of_mul_le_mul_right _ hk
-  simpa only [Nat.mul_right_comm 4 k] using h
+  rw [← hScale.1, hTilt.1, ← hScale.2, hTilt.2] at h
+  exact packing_of_dense_subset F k hk hdis hcard A (fun z => z.1^2+d*z.2^2)
+    L 4 hsub hdense h
 
 /-- The wide-union estimate implies the previous spread-only hypothesis. -/
 private theorem packing_from_width (packing : H1) :
@@ -457,27 +477,27 @@ private theorem packing_from_width (packing : H1) :
     F.card ≤ C * (((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
   classical
   obtain ⟨C,pack⟩ := packing
-  refine ⟨max C 4,?_⟩
+  refine ⟨max C 8,?_⟩
   intro d k F hd hsq hk hdis hline hsize hspread q
   let S := F.biUnion id
   let D := (S.offDiag.image fun xy => q (xy.1-xy.2)).card
-  change F.card ≤ max C 4 * (D+1)
-  by_cases hw : (∀ a b : ℤ, (a ≠ 0 ∨ b ≠ 0) →
-      let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
+  change F.card ≤ max C 8 * (D+1)
+  by_cases hw : (∀ A : Finset (ℤ × ℤ), A ⊆ S → S.card ≤ 2*A.card → ∀ a b : ℤ, (a ≠ 0 ∨ b ≠ 0) →
+      let R := A.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
       ∀ (g : ℤ) (o : ℤ × ℤ) (B : Finset (ℤ × ℤ)), 0 < g →
         B.image (fun z : ℤ × ℤ => (g*z.1+o.1,g*z.2+o.2)) = R →
         ∀ p ∈ B, ∀ t ∈ B, p.2 < t.2 →
         ∃ z ∈ B, ∃ u ∈ B, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)
   · exact (pack d k F hd hsq hk hdis hline hsize hspread hw).trans
-      (Nat.mul_le_mul_right _ (le_max_left C 4))
+      (Nat.mul_le_mul_right _ (le_max_left C 8))
   push Not at hw
-  obtain ⟨a,b,hab,hbad⟩ := hw
+  obtain ⟨A,hsub,hdense,a,b,hab,hbad⟩ := hw
   dsimp only at hbad
   push Not at hbad
   obtain ⟨g,o,B,hg,hmodel,p,hp,t,ht,hpt,hwidth⟩ := hbad
-  have h : F.card ≤ 4*D := narrow_packing d a b (by exact_mod_cast hd) hab k hk F hdis
-    (fun T hT => (hline T hT).1) g o B hg hmodel p hp t ht hpt hwidth
-  exact h.trans (Nat.mul_le_mul (le_max_right C 4) (Nat.le_succ D))
+  have h : F.card ≤ 8*D := narrow_packing d a b (by exact_mod_cast hd) hab k hk F hdis
+    (fun T hT => (hline T hT).1) 2 A hsub hdense g o B hg hmodel p hp t ht hpt hwidth
+  exact h.trans (Nat.mul_le_mul (le_max_right C 8) (Nat.le_succ D))
 
 private theorem packing_from_spread (packing : H1) :
   ∃ C : ℕ, ∀ (d k : ℕ) (F : Finset (Finset (ℤ × ℤ))), 0 < d → Squarefree d → 0 < k →
