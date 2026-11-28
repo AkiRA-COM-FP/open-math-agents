@@ -54,13 +54,8 @@ private theorem generating_function :
   by_cases hn : n < 6
   · interval_cases n <;> norm_num [a_closed]
   · obtain ⟨k, rfl⟩ : ∃ k : ℕ, n = k + 6 := ⟨n - 6, by omega⟩
-    simp only [if_pos (show 1 ≤ k+6 by omega), if_pos (show 2 ≤ k+6 by omega),
-      if_pos (show 3 ≤ k+6 by omega), if_pos (show 4 ≤ k+6 by omega),
-      if_pos (show 5 ≤ k+6 by omega), if_pos (show 6 ≤ k+6 by omega),
-      show k+6-1 = k+5 by omega, show k+6-2 = k+4 by omega,
-      show k+6-3 = k+3 by omega, show k+6-4 = k+2 by omega,
-      show k+6-5 = k+1 by omega, show k+6-6 = k by omega]
-    split_ifs <;> first | omega | simpa only [mul_zero, sub_zero] using constant_recurrence k
+    simp
+    linear_combination constant_recurrence k
 
 theorem result : type_of% @OMA.S_oeis_a203242.main := by
   refine ⟨?_, generating_function⟩
