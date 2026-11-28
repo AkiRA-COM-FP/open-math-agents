@@ -14,24 +14,18 @@ open OMA.R_arxiv_2604_17847_R1 (rank_dvd_index pisano_eq_of_certificate)
 -- Exclude exceptional square divisibility away from the necessary companion residue.
 def H1 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
-    (¬ ∃ k : ℕ, 100 < k ∧ Even k ∧ (k*q+1).Prime ∧
-      k*q+1 ∣ Nat.fib ((pisano q).gcd (if (k*q+1)%5 = 1 ∨ (k*q+1)%5 = 4 then k
-        else if q%5 = 1 ∨ q%5 = 4 then k+2 else k-2))) → q % 15 ≠ 8 →
+    (¬ q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient) → q % 15 ≠ 8 →
     ¬ q ^ 2 ∣ Nat.fib (if q % 5 = 1 ∨ q % 5 = 4 then q-1 else q+1)
 
 -- On the remaining class, the square test uses only the upper neighbor.
 def H2 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
-    (¬ ∃ k : ℕ, 100 < k ∧ Even k ∧ (k*q+1).Prime ∧
-      k*q+1 ∣ Nat.fib ((pisano q).gcd (if (k*q+1)%5 = 1 ∨ (k*q+1)%5 = 4 then k
-        else if q%5 = 1 ∨ q%5 = 4 then k+2 else k-2))) → q % 15 = 8 →
+    (¬ q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient) → q % 15 = 8 →
     q ^ 2 ∣ Nat.fib (q+1) → (2*q+1).Prime
 
 def H3 : Prop :=
   ∀ q : ℕ, q.Prime → 1000 < q → 96 < pisano q →
-    (¬ ∃ k : ℕ, 100 < k ∧ Even k ∧ (k*q+1).Prime ∧
-      k*q+1 ∣ Nat.fib ((pisano q).gcd (if (k*q+1)%5 = 1 ∨ (k*q+1)%5 = 4 then k
-        else if q%5 = 1 ∨ q%5 = 4 then k+2 else k-2))) → q % 15 = 8 →
+    (¬ q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient) → q % 15 = 8 →
     q ^ 2 ∣ Nat.fib (q+1) → (2*q+1).Prime →
     ∀ l : ℕ, l.Prime → 2 < l → l ∣ (2*(q+1) / pisano q) →
       (rankOfApparition (2*q+1)).factorization l ≤ (pisano q).factorization l
@@ -922,13 +916,210 @@ lemma square_period_through_1000 {q : ℕ} (hq : q.Prime) (hl : 5 < q) (small : 
     pisano (q^2) = q * pisano q :=
   (period_square_dichotomy hq).resolve_left (fun h => (Nat.not_lt_of_ge small) (large_prime_of_stability hq hl h))
 
--- Larger multipliers are tested first.
--- This equivalence audits the chosen 2q+1 witness strategy in both directions.
+-- Removing one prime power separates its entire contribution to the totient.
+lemma totient_remove_prime {n p : ℕ} (hp : p.Prime) (hn : n ≠ 0) (divides : p ∣ n) :
+    n.totient = p^(n.factorization p - 1) * (p-1) * (ordCompl[p] n).totient := by
+  have cop := (Nat.coprime_ordCompl hp hn).pow_left (n.factorization p)
+  calc n.totient = ((ordProj[p] n) * (ordCompl[p] n)).totient :=
+        congrArg Nat.totient (Nat.ordProj_mul_ordCompl_eq_self n p).symm
+       _ = _ := by rw [Nat.totient_mul cop, Nat.totient_prime_pow hp (hp.factorization_pos_of_dvd hn divides)]
+
+lemma totient_valuation_remove_self {n q : ℕ} (hq : q.Prime) (hn : n ≠ 0) (divides : q ∣ n) :
+    n.totient.factorization q = n.factorization q - 1 + (ordCompl[q] n).totient.factorization q := by
+  have predPos : 0 < q-1 := by have := hq.one_lt; omega
+  have predFree : ¬ q ∣ q-1 := fun h => (Nat.not_le_of_lt (Nat.sub_lt hq.pos (by decide : 0 < 1))) (Nat.le_of_dvd predPos h)
+  have unit := (Nat.totient_pos.mpr (Nat.ordCompl_pos q hn)).ne'
+  rw [totient_remove_prime hq hn divides, Nat.factorization_mul (mul_ne_zero (pow_ne_zero _ hq.ne_zero) predPos.ne') unit,
+    Finsupp.add_apply, Nat.factorization_mul (pow_ne_zero _ hq.ne_zero) predPos.ne', Finsupp.add_apply,
+    Nat.factorization_pow_self hq, Nat.factorization_eq_zero_of_not_dvd predFree, add_zero]
+
+-- For coprime inputs the prime-power factor in Euler's product cannot supply q.
+lemma coprime_totient_witness {n q : ℕ} (hq : q.Prime) (hn : n ≠ 0) (free : ¬ q ∣ n) :
+    q ∣ n.totient ↔ ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ p ∣ n := by
+  constructor
+  · intro divides
+    rw [Nat.totient_eq_prod_factorization hn, Finsupp.prod, Nat.support_factorization] at divides
+    obtain ⟨p, mem, term⟩ := (hq.prime.dvd_finsetProd_iff _).mp divides
+    have prime := Nat.prime_of_mem_primeFactors mem
+    have divisor := Nat.dvd_of_mem_primeFactors mem
+    have pred := (hq.dvd_mul.mp term).resolve_left (fun h => free ((hq.dvd_of_dvd_pow h).trans divisor))
+    exact ⟨p, prime, ((Nat.modEq_iff_dvd' prime.one_lt.le).mpr pred).symm, divisor⟩
+  · rintro ⟨p, prime, cong, divisor⟩
+    have pred := (Nat.modEq_iff_dvd' prime.one_lt.le).mp cong.symm
+    rw [← Nat.totient_prime prime] at pred
+    exact pred.trans (Nat.totient_dvd_of_dvd divisor)
+
+-- A divisor congruent to one is prime to q and survives removal of q.
+lemma stripped_totient_witness {n q : ℕ} (hq : q.Prime) (hn : n ≠ 0) :
+    q ∣ (ordCompl[q] n).totient ↔ ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ p ∣ n := by
+  rw [coprime_totient_witness hq (Nat.ordCompl_pos q hn).ne' (Nat.not_dvd_ordCompl hq hn)]
+  constructor
+  · rintro ⟨p,hp,hc,hd⟩
+    exact ⟨p,hp,hc,hd.trans (Nat.ordCompl_dvd _ _)⟩
+  · rintro ⟨p,hp,hc,hd⟩
+    have nq : ¬ q ∣ p := fun d => hq.not_dvd_one ((hc.dvd_iff (dvd_refl q)).mp d)
+    exact ⟨p,hp,hc,Nat.dvd_ordCompl_of_dvd_not_dvd hd nq⟩
+
+lemma companion_removed_witness {n q : ℕ} (hq : q.Prime) (hn : n ≠ 0) :
+    q ∣ (ordCompl[q] (ordCompl[2*q+1] n)).totient ↔
+      ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ p ∣ n ∧ p ≠ 2*q+1 := by
+  rw [stripped_totient_witness hq (Nat.ordCompl_pos _ hn).ne']
+  constructor
+  · rintro ⟨p,hp,hc,hd⟩
+    refine ⟨p,hp,hc,hd.trans (Nat.ordCompl_dvd _ _), ?_⟩
+    rintro rfl
+    exact Nat.not_dvd_ordCompl hp hn hd
+  · rintro ⟨p,hp,hc,hd,other⟩
+    have nc : ¬ 2*q+1 ∣ p := by
+      intro divides
+      exact other ((Nat.dvd_prime_two_le hp (by have := hq.two_le; omega)).mp divides).symm
+    exact ⟨p,hp,hc,Nat.dvd_ordCompl_of_dvd_not_dvd hd nc⟩
+
+-- The exponent supplied by the canonical companion is one, regardless of its multiplicity.
+lemma totient_valuation_remove_companion {n q : ℕ} (hq : q.Prime) (odd : 2 < q) (hn : n ≠ 0) :
+    n.totient.factorization q =
+      (if (2*q+1).Prime ∧ 2*q+1 ∣ n then 1 else 0) + (ordCompl[2*q+1] n).totient.factorization q := by
+  split
+  · rename_i yes
+    obtain ⟨hp,hd⟩ := yes
+    have nq : ¬ q ∣ 2*q+1 := fun h => hq.not_dvd_one ((Nat.dvd_add_iff_right (dvd_mul_left q 2)).mpr h)
+    have nt : ¬ q ∣ 2 := fun h => (Nat.not_le_of_lt odd) (Nat.le_of_dvd (by decide : 0 < 2) h)
+    have power := Nat.factorization_eq_zero_of_not_dvd (fun h => nq (hq.dvd_of_dvd_pow h) :
+      ¬ q ∣ (2*q+1)^(n.factorization (2*q+1)-1))
+    have pos := (Nat.totient_pos.mpr (Nat.ordCompl_pos (2*q+1) hn)).ne'
+    rw [totient_remove_prime hp hn hd, Nat.add_sub_cancel, Nat.factorization_mul (by positivity) pos,
+      Finsupp.add_apply, Nat.factorization_mul (by positivity) (by positivity), Finsupp.add_apply,
+      power, zero_add, Nat.factorization_mul (by decide : 2 ≠ 0) hq.ne_zero, Finsupp.add_apply,
+      Nat.factorization_eq_zero_of_not_dvd nt, hq.factorization_self, zero_add]
+  · rename_i no
+    by_cases hp : (2*q+1).Prime
+    · rw [(Nat.ordCompl_eq_self_iff_zero_or_not_dvd n hp).mpr (Or.inr (fun h => no ⟨hp,h⟩)), zero_add]
+    · rw [Nat.ordCompl_of_not_prime _ _ hp, zero_add]
+
+lemma period_totient_witness_iff {q : ℕ} (hq : q.Prime) :
+    (Nat.fib (pisano q)).factorization q ≤ (Nat.fib (pisano q)).totient.factorization q ↔
+      ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p ∣ pisano q := by
+  let : NeZero q := ⟨hq.ne_zero⟩
+  have pos := (period_and_returns q).1
+  have nz := (Nat.fib_pos.mpr pos).ne'
+  have divides := (((period_and_returns q).2 _).mp (dvd_refl _)).1
+  have e := hq.factorization_pos_of_dvd nz divides
+  rw [totient_valuation_remove_self hq nz divides]
+  have totpos := (Nat.totient_pos.mpr (Nat.ordCompl_pos q nz)).ne'
+  have cut : (Nat.fib (pisano q)).factorization q ≤ (Nat.fib (pisano q)).factorization q - 1 +
+      (ordCompl[q] (Nat.fib (pisano q))).totient.factorization q ↔
+      1 ≤ (ordCompl[q] (Nat.fib (pisano q))).totient.factorization q := by omega
+  rw [cut, ← Nat.Prime.dvd_iff_one_le_factorization hq totpos, stripped_totient_witness hq nz]
+  exact exists_congr fun p => and_congr_right fun hp => and_congr_right fun _ => (rank_test_at_period hp hq).symm
+
+-- One exponent comes from each copy of q after the first. An aligned prime
+-- 2q+1 contributes one further exponent, even if it occurs many times.
+lemma totient_valuation_two_primes {n q : ℕ} (hq : q.Prime) (hl : 2 < q)
+    (hn : n ≠ 0) (divides : q ∣ n) :
+    n.totient.factorization q = (n.factorization q - 1) +
+      (if (2*q+1).Prime ∧ 2*q+1 ∣ n then 1 else 0) +
+      (ordCompl[q] (ordCompl[2*q+1] n)).totient.factorization q := by
+  have nq : ¬ 2*q+1 ∣ q := fun d => (Nat.not_le_of_lt (by omega : q < 2*q+1)) (Nat.le_of_dvd hq.pos d)
+  have survives := Nat.dvd_ordCompl_of_dvd_not_dvd divides nq
+  rw [totient_valuation_remove_companion hq hl hn, totient_valuation_remove_self hq (Nat.ordCompl_pos _ hn).ne' survives,
+    Nat.factorization_ordCompl, Finsupp.erase_ne (by omega : q ≠ 2*q+1)]
+  omega
+
+lemma zero_residue_iff_period_totient {q : ℕ} (hq : q.Prime) :
+    0 ∈ S q ↔ q ∣ (Nat.fib (pisano q)).totient := by
+  let : NeZero q := ⟨hq.ne_zero⟩
+  constructor
+  · intro h
+    exact h.2 _ (Nat.modEq_zero_iff_dvd.mpr (dvd_refl _))
+  · intro h
+    exact ⟨(period_and_returns q).1, fun m hm =>
+      h.trans (Nat.totient_dvd_of_dvd (Nat.fib_dvd _ _ (Nat.modEq_zero_iff_dvd.mp hm)))⟩
+
+-- The two failure cases are disjoint: square divisibility itself puts zero in S.
+lemma converse_failure_iff {q : ℕ} (hq : q.Prime) :
+    ((S q).Nonempty ∧ ¬ ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p ∣ pisano q) ↔
+    ((S q).Nonempty ∧ 0 ∉ S q) ∨
+      (2 ≤ (Nat.fib (pisano q)).factorization q ∧
+       (Nat.fib (pisano q)).totient.factorization q + 1 = (Nat.fib (pisano q)).factorization q) := by
+  let : NeZero q := ⟨hq.ne_zero⟩
+  let n := Nat.fib (pisano q)
+  have pn : 0 < n := Nat.fib_pos.mpr (period_and_returns q).1
+  have divides : q ∣ n := (((period_and_returns q).2 _).mp (dvd_refl _)).1
+  have e := hq.factorization_pos_of_dvd pn.ne' divides
+  have lower : n.factorization q - 1 ≤ n.totient.factorization q := by
+    rw [totient_valuation_remove_self hq pn.ne' divides]
+    omega
+  have zero : 0 ∈ S q ↔ 1 ≤ n.totient.factorization q :=
+    (zero_residue_iff_period_totient hq).trans (Nat.Prime.dvd_iff_one_le_factorization hq (Nat.totient_pos.mpr pn).ne')
+  rw [← period_totient_witness_iff hq]
+  change ((S q).Nonempty ∧ ¬ n.factorization q ≤ n.totient.factorization q) ↔
+    ((S q).Nonempty ∧ 0 ∉ S q) ∨ (2 ≤ n.factorization q ∧ n.totient.factorization q + 1 = n.factorization q)
+  constructor
+  · rintro ⟨someResidue, deficit⟩
+    by_cases h : 0 ∈ S q
+    · have := zero.mp h
+      exact Or.inr ⟨by omega, by omega⟩
+    · exact Or.inl ⟨someResidue,h⟩
+  · rintro (⟨someResidue,missing⟩ | ⟨square,deficit⟩)
+    · have := mt zero.mpr missing
+      exact ⟨someResidue, by omega⟩
+    · exact ⟨⟨0, zero.mpr (by omega)⟩, by omega⟩
+
+-- At the level of the original reduction, H1 asks whether a good residue forces zero to be good.
+lemma descent_iff_zero_residue : OMA.R_arxiv_2604_17847_R1.H1 ↔
+    ∀ q : ℕ, q.Prime → 53 < q → (S q).Nonempty → 0 ∈ S q := by
+  constructor
+  · rintro descent q hq hl ⟨r,good⟩
+    apply (zero_residue_iff_period_totient hq).mpr
+    by_contra absent
+    have recurring := OMA.R_arxiv_2604_17847_R1.fixed_rank_family hq good absent
+    exact absent ((OMA.R_arxiv_2604_17847_R1.finite_prime_cover_iff hq (Nat.zero_lt_of_lt good.1)).mp
+      (descent q r hq hl good recurring))
+  · intro zero q r hq hl good _
+    apply (OMA.R_arxiv_2604_17847_R1.finite_prime_cover_iff hq (Nat.zero_lt_of_lt good.1)).mpr
+    exact (zero_residue_iff_period_totient hq).mp (zero q hq hl ⟨r,good⟩)
+
+lemma exceptional_iff_totient_valuation : OMA.R_arxiv_2604_17847_R1.H2 ↔
+    ∀ q : ℕ, q.Prime → 53 < q → let n := Nat.fib (pisano q)
+      2 ≤ n.factorization q → n.factorization q ≤ n.totient.factorization q := by
+  constructor
+  · intro parent q hq hl
+    let : NeZero q := ⟨hq.ne_zero⟩
+    dsimp only
+    intro square
+    exact (period_totient_witness_iff hq).mpr (parent q hq hl
+      ((hq.pow_dvd_iff_le_factorization (Nat.fib_pos.mpr (period_and_returns q).1).ne').mpr square))
+  · intro growth q hq hl square
+    let : NeZero q := ⟨hq.ne_zero⟩
+    exact (period_totient_witness_iff hq).mp (growth q hq hl
+      ((hq.pow_dvd_iff_le_factorization (Nat.fib_pos.mpr (period_and_returns q).1).ne').mp square))
+
+
+lemma stripped_period_large_iff {q : ℕ} (hq : q.Prime) (hl : 53 < q) :
+    q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient ↔
+    ∃ k : ℕ, 100 < k ∧ Even k ∧ (k*q+1).Prime ∧
+      k*q+1 ∣ Nat.fib ((pisano q).gcd (if (k*q+1)%5 = 1 ∨ (k*q+1)%5 = 4 then k
+        else if q%5 = 1 ∨ q%5 = 4 then k+2 else k-2)) := by
+  let : NeZero q := ⟨hq.ne_zero⟩
+  rw [companion_removed_witness hq (Nat.fib_pos.mpr (period_and_returns q).1).ne']
+  constructor
+  · rintro ⟨p,hp,cong,divides,other⟩
+    have aligned := (rank_test_at_period hp hq).mpr divides
+    obtain ⟨k,hk,he,rfl⟩ := witness_multiplier hq (by omega) hp cong
+    have large : 100 < k := by
+      by_contra! small
+      exact other (by rw [unique_witness_through_100 hq hl hk he small hp aligned])
+    exact ⟨k,large,he,hp,(witness_gcd_test hq (by omega) hk he hp).mp aligned⟩
+  · rintro ⟨k,large,he,hp,test⟩
+    have aligned := (witness_gcd_test hq (by omega) (by omega) he hp).mpr test
+    refine ⟨k*q+1,hp,by simp [Nat.ModEq, Nat.add_mod],(rank_test_at_period hp hq).mp aligned,?_⟩
+    have := Nat.mul_lt_mul_of_pos_right (show 2 < k by omega) hq.pos
+    omega
+
+-- When the reduced totient is prime to q, only the canonical witness can work.
 lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
     ∀ q : ℕ, q.Prime → 53 < q → pisano (q^2) = pisano q →
-    (¬ ∃ k : ℕ, 100 < k ∧ Even k ∧ (k*q+1).Prime ∧
-      k*q+1 ∣ Nat.fib ((pisano q).gcd (if (k*q+1)%5 = 1 ∨ (k*q+1)%5 = 4 then k
-        else if q%5 = 1 ∨ q%5 = 4 then k+2 else k-2))) →
+    (¬ q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient) →
       (2*q+1).Prime ∧ 2*q+1 ∣ Nat.fib (pisano q) := by
   constructor
   · rintro ⟨exclude, prime, align⟩ q hq hl stable noLarge
@@ -959,26 +1150,21 @@ lemma parent_iff : (H1 ∧ H2 ∧ H3) ↔ OMA.R_arxiv_2604_17847_R1.H2 := by
   · intro canonical q hq hl square
     let : NeZero q := ⟨hq.ne_zero⟩
     have stable := (period_power_eq_iff_at_period hq (by omega) (by decide : 0 < 2)).mpr square
-    by_cases large : ∃ k : ℕ, 100 < k ∧ Even k ∧ (k*q+1).Prime ∧
-      k*q+1 ∣ Nat.fib ((pisano q).gcd (if (k*q+1)%5 = 1 ∨ (k*q+1)%5 = 4 then k
-        else if q%5 = 1 ∨ q%5 = 4 then k+2 else k-2))
-    · obtain ⟨k, hk, he, hp, test⟩ := large
-      exact ⟨k*q+1, hp, by simp [Nat.ModEq, Nat.add_mod],
-        (witness_gcd_test hq (by omega) (by omega) he hp).mpr test⟩
-    · obtain ⟨hp, test⟩ := canonical q hq hl stable large
-      exact ⟨2*q+1, hp, by simp [Nat.ModEq, Nat.add_mod], (rank_test_at_period hp hq).mpr test⟩
-  · intro parent q hq hl stable noLarge
+    by_cases other : q ∣ (ordCompl[q] (ordCompl[2*q+1] (Nat.fib (pisano q)))).totient
+    · have nz := (Nat.fib_pos.mpr (period_and_returns q).1).ne'
+      obtain ⟨p,hp,cong,divides,_⟩ := (companion_removed_witness hq nz).mp other
+      exact ⟨p,hp,cong,(rank_test_at_period hp hq).mpr divides⟩
+    · obtain ⟨hp,divides⟩ := canonical q hq hl stable other
+      exact ⟨2*q+1,hp,by simp [Nat.ModEq, Nat.add_mod],(rank_test_at_period hp hq).mpr divides⟩
+  · intro parent q hq hl stable noOther
+    let : NeZero q := ⟨hq.ne_zero⟩
     have square := (period_power_eq_iff_at_period hq (by omega) (by decide : 0 < 2)).mp stable
-    obtain ⟨p, hp, cong, aligned⟩ := parent q hq hl square
-    obtain ⟨k, hk, he, rfl⟩ := witness_multiplier hq (by omega) hp cong
-    by_cases two : k = 2
-    · subst k
-      exact ⟨hp, (rank_test_at_period hp hq).mp aligned⟩
-    · have big : 100 < k := by
-        by_contra! small
-        exact two (unique_witness_through_100 hq hl hk he small hp aligned)
-      obtain ⟨j,hj⟩ := he
-      exact (noLarge ⟨k, by omega, ⟨j,hj⟩, hp, (witness_gcd_test hq (by omega) hk ⟨j,hj⟩ hp).mp aligned⟩).elim
+    obtain ⟨p,hp,cong,aligned⟩ := parent q hq hl square
+    have divides := (rank_test_at_period hp hq).mp aligned
+    by_cases canonical : p = 2*q+1
+    · exact canonical ▸ And.intro hp divides
+    · have nz := (Nat.fib_pos.mpr (period_and_returns q).1).ne'
+      exact (noOther ((companion_removed_witness hq nz).mpr ⟨p,hp,cong,divides,canonical⟩)).elim
 
 theorem main : H1 → H2 → H3 → OMA.R_arxiv_2604_17847_R1.H2 :=
   fun first second third => parent_iff.mp ⟨first,second,third⟩
