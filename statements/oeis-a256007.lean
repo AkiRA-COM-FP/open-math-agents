@@ -13,6 +13,7 @@ i > 0, so fib 0 = 0 is excluded. The OEIS offset is 0, so term n is the
 value with index n.
 
 Colin Barker conjectured that a(n) = 2 a(n - 3) - a(n - 9) for n > 12.
+That identity holds for the first fifty terms.
 -/
 
 namespace OMA.S_oeis_a256007
