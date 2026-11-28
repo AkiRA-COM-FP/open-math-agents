@@ -4430,6 +4430,11 @@
    "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the conjectured g.f. Public says proved. No site Lean or proof.",
    "source": "https://github.com/Asakitan/oeis-a187175",
    "date": "2026-11-28"
+  },
+  "oeis-a156870": {
+   "reason": "Same statement as oeis-a156869, settled by Franklin T. Adams-Watters's 2009 comment in OEIS A156869 (main direction; the converse follows from the same argument).",
+   "source": "https://oeis.org/A156869",
+   "date": "2026-11-28"
   }
  }
 }

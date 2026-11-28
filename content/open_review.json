@@ -16115,6 +16115,22 @@
     "https://oeis.org/A114468"
    ],
    "reason": "The disproof exploits a mistranslation. A002285 is a decimal-expansion entry, and Weisstein's remark 'Equals lim b(n)/10^(n-1)' means the limit has the same digits as log10(e) = 0.4342..., i.e. 10*log10(e) = 4.3429... (A114467 gives 4, 40, 433, 4345, ...). The statement instead asks the limit to equal log10(e) itself (and log_k e in the general clause), which is off by a factor 10 (k). The proof just shows the denominator's digit count divided by 10^(n-1) is eventually >= 1/2 > log10 e. The intended conjecture is untouched (it amounts to log den H(m) ~ m along powers)."
+  },
+  "oeis-a108954": {
+   "date": "2026-11-28",
+   "pr": 27952,
+   "evidence": [
+    "https://oeis.org/A108954"
+   ],
+   "reason": "Irwin's 'conjectured' g.f. is a reindexing of the definition: the coefficient of x^j in Sum_{i>0} Sum_{j>=i, i+j prime} x^j counts primes p=i+j in (j,2j], which is pi(2j)-pi(j) by definition. The formalization is faithful, but the statement follows directly from the definition (22-line proof); flagged as trivial."
+  },
+  "oeis-a123167": {
+   "date": "2026-11-28",
+   "pr": 25403,
+   "evidence": [
+    "https://oeis.org/A123167"
+   ],
+   "reason": "Hurt's conjecture is that (2n-1)*2^(n mod 2) is the numerator of 4/n-2/n^2=2(2n-1)/n^2, which is the one-line gcd fact gcd(2(2n-1),n^2)=gcd(2,n^2) (46-line proof). Faithful but trivial; also equivalent to Kimberling's 2025 comment in the entry."
   }
  },
  "known": {
@@ -30696,6 +30712,240 @@
     "https://oeis.org/A000166"
    ],
    "reason": "The statement (for n > 0, n! - D(n) equals round((1 - 1/e) n!), with Mathlib's round) is faithful to Plouffe's 1993 formula. It is an immediate consequence of the classical fact D(n) = round(n!/e) for n >= 1 (A000166; |n!/e - D(n)| < 1/(n+1) <= 1/2), since n! is an integer. The Lean proof is this standard alternating-series bound. It was known long before the PR, just never recorded as proved in the entry."
+  },
+  "oeis-a176605": {
+   "date": "2026-11-28",
+   "pr": 15420,
+   "evidence": [
+    "https://oeis.org/A176605",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,1,0,1); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 4 (k=0, order 4, n>=4); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176611": {
+   "date": "2026-11-28",
+   "pr": 15475,
+   "evidence": [
+    "https://oeis.org/A176611",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,1,1,1); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 3 (order 5, n>=5); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176749": {
+   "date": "2026-11-28",
+   "pr": 15996,
+   "evidence": [
+    "https://oeis.org/A176749",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,3,0,-1); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 4 (k=0, order 4, n>=4); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176750": {
+   "date": "2026-11-28",
+   "pr": 16034,
+   "evidence": [
+    "https://oeis.org/A176750",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,4,0,-1); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 4 (k=0, order 4, n>=4); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176751": {
+   "date": "2026-11-28",
+   "pr": 16051,
+   "evidence": [
+    "https://oeis.org/A176751",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,5,0,-1); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 4 (k=0, order 4, n>=4); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176752": {
+   "date": "2026-11-28",
+   "pr": 16136,
+   "evidence": [
+    "https://oeis.org/A176752",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,0,0,-2); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 4 (k=0, order 4, n>=4); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176830": {
+   "date": "2026-11-28",
+   "pr": 15989,
+   "evidence": [
+    "https://oeis.org/A176830",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,4,1,-1); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 3 (order 5, n>=5); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176856": {
+   "date": "2026-11-28",
+   "pr": 16205,
+   "evidence": [
+    "https://oeis.org/A176856",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,2,-1,0); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 3 (order 5, n>=5); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176859": {
+   "date": "2026-11-28",
+   "pr": 16211,
+   "evidence": [
+    "https://oeis.org/A176859",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,5,-1,0); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 3 (order 5, n>=5); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a176964": {
+   "date": "2026-11-28",
+   "pr": 16002,
+   "evidence": [
+    "https://oeis.org/A176964",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,3,-1,1); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 3 (order 5, n>=5); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a177113": {
+   "date": "2026-11-28",
+   "pr": 16153,
+   "evidence": [
+    "https://oeis.org/A177113",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,2,-2,0); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 3 (order 5, n>=5); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a177115": {
+   "date": "2026-11-28",
+   "pr": 16142,
+   "evidence": [
+    "https://oeis.org/A177115",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,3,-2,0); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 3 (order 5, n>=5); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a177127": {
+   "date": "2026-11-28",
+   "pr": 16261,
+   "evidence": [
+    "https://oeis.org/A177127",
+    "https://doi.org/10.3390/math14122177"
+   ],
+   "reason": "Choulet sequence (a0,a1,k,l)=(1,6,0,1); the statement is Mathar's conjectured P-recurrence, which is exactly the instance of Dubickas, 'Recurrence Formulas for Choulet Sequences', Mathematics 14 (2026) 2177 (published 2026-06-17), Theorem 4 (k=0, order 4, n>=4); the paper states it verifies all such OEIS conjectures. Statement coefficients match the paper's general formula identically, definition matches OEIS data, and the recurrence checks numerically to n=59."
+  },
+  "oeis-a094759": {
+   "date": "2026-11-28",
+   "pr": 28009,
+   "evidence": [
+    "https://oeis.org/A094759"
+   ],
+   "reason": "The conjecture (infinitely many n with a(n)<n) is already settled in the OEIS entry itself: Jeppe Stig Nielsen (Jul 09 2015) notes (6k,28k) with gcd(k,42)=1 are friendly pairs, so a(28k)<28k. The proof uses exactly this idea with n=28*5^j, k=6*5^j. Faithful formalization, but known and elementary."
+  },
+  "oeis-a102318": {
+   "date": "2026-11-28",
+   "pr": 28453,
+   "evidence": [
+    "https://oeis.org/A102318",
+    "https://isitsolved.com/journal (iis:2611.00219, filed 2026-11-28 03:18 UTC)"
+   ],
+   "reason": "Both Mathar recurrences (orders 5 and 4) for the mean binomial transform of the Catalan numbers are listed as decided true (n>=5, n>=4) in iis:2611.00219, filed 03:18 UTC on 2026-11-28, before the site proof commit (11:44 UTC). Statement indices match the OEIS formulas; numerically verified to n=59. Routine holonomic recurrence for an algebraic g.f."
+  },
+  "oeis-a110198": {
+   "date": "2026-11-28",
+   "pr": 19641,
+   "evidence": [
+    "https://oeis.org/A110198",
+    "https://isitsolved.com/journal (iis:2611.00226, filed 2026-11-28 04:01 UTC)"
+   ],
+   "reason": "Mathar's order-5 recurrence for the algebraic g.f. 1/((1-x)sqrt((1+x+x^2)(1-3x+x^2))) is listed as true for n>=5 in iis:2611.00226, filed 04:01 UTC on 2026-11-28, before the site proof commit (13:55 UTC). Statement's normalised g.f. sqrt(R)/((1-x)R) is algebraically equal to the OEIS one; routine."
+  },
+  "oeis-a116408": {
+   "date": "2026-11-28",
+   "pr": 28096,
+   "evidence": [
+    "https://oeis.org/A116408",
+    "https://isitsolved.com/journal (iis:2611.00211, filed 2026-11-28 02:37 UTC)"
+   ],
+   "reason": "Mathar's recurrence for the Bessel e.g.f. is listed as decided true for n>=4 in iis:2611.00211, filed 02:37 UTC on 2026-11-28, before the site proof commit (11:25 UTC). Formalization of the e.g.f. via the Bessel_I series is faithful; routine holonomic recurrence."
+  },
+  "oeis-a123329": {
+   "date": "2026-11-28",
+   "pr": 28008,
+   "evidence": [
+    "https://oeis.org/A123329",
+    "https://oeis.org/A072481"
+   ],
+   "reason": "All three Pol conjectures follow in a few lines from formulas already in OEIS: a(n)=binomial(n+2,3)-A072481(n+1) (Robert Israel, 2015, in this entry) and A072481(n)=A000330(n)-A175254(n) (Pol, 2015, A072481), giving a(n-1)=A175254(n)-A000292(n); conjectures 1-2 are then Sum (sigma(k)-k)(n+1-k) rearranged. Alois Heinz's Maple program in the entry also computes a(n) as the double partial sum of sigma(k)-k. Faithful statement, verified to n=59."
+  },
+  "oeis-a128723": {
+   "date": "2026-11-28",
+   "pr": 19680,
+   "evidence": [
+    "https://oeis.org/A128723",
+    "https://isitsolved.com/journal (iis:2611.00219, filed 2026-11-28 03:18 UTC)"
+   ],
+   "reason": "Mathar's recurrence for the skew-Dyck no-level-1-peaks g.f. is listed in iis:2611.00219 as true for n>3, false at n=3, exactly the range n>=4 in the statement; filed 03:18 UTC on 2026-11-28, before the site proof commit (14:09 UTC). The normalised g.f. in the statement equals the OEIS one; routine."
+  },
+  "oeis-a133044": {
+   "date": "2026-11-28",
+   "pr": 28555,
+   "evidence": [
+    "https://oeis.org/A133044",
+    "https://isitsolved.com/journal (iis:2611.00230, filed 2026-11-28 04:26 UTC)"
+   ],
+   "reason": "Barker's recurrence and g.f. are already established in the entry itself: Felix Breton (Dec 17 2015) gives a(n)=2p(n+4)p(n+5)-p(n+2)^2 and derives the recurrence, 'This establishes Colin Barker's conjecture'. iis:2611.00230 (04:26 UTC) also lists it before the site commit (09:08 UTC). Statement is faithful (sum of squares of Padovan side lengths)."
+  },
+  "oeis-a141344": {
+   "date": "2026-11-28",
+   "pr": 28849,
+   "evidence": [
+    "https://oeis.org/A141344",
+    "https://github.com/blakestone-x/math/tree/main/A141344",
+    "https://raw.githubusercontent.com/blakestone-x/math/main/A141344/recurrence.pdf"
+   ],
+   "reason": "Blake Stone's public repo blakestone-x/math has 'Mathar's recurrence for A141344 and its exact sign rule' (one-page proof, PDF CreationDate 2026-11-27 05:09 UTC) plus a Lean proof for every n>=3, before the site proof commit (2026-11-28 04:34 UTC). Statement indexing (k+3 = n) matches Mathar's D-finite recurrence; routine algebraic-g.f. argument. Exact public commit time not retrievable (GitHub API blocked), but the PDF date predates."
+  },
+  "oeis-a152929": {
+   "date": "2026-11-28",
+   "pr": 28543,
+   "evidence": [
+    "https://oeis.org/A152929",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL12/Schlicker/schlicker.pdf"
+   ],
+   "reason": "The statement takes the Fibonacci recurrence as the definition, making Weidmann's 2a(n)=163F(n)+63L(n) a two-initial-value check (31-line proof). The closed Fibonacci form is already implied by Theorem 20 of the cited Schlicker-Morales-Schultheis JIS 2009 paper (a(l)=7(L4F(l-2)+F6F(l-1))+8(L4F(l-1)+F6F(l))) and by Hasler's 2015 formula 50F(n)+63F(n+1) in the entry. Known and trivial."
+  },
+  "oeis-a156869": {
+   "date": "2026-11-28",
+   "pr": 28025,
+   "evidence": [
+    "https://oeis.org/A156869"
+   ],
+   "reason": "Voss's conjecture is answered in the entry itself: Franklin T. Adams-Watters (Feb 20 2009) writes 'Yes, the diagonals are constant for n <= 2k. Any such sequence must have at least one 1; remove that 1', which gives the m>=0 equality. The converse half (strict change for m<0) follows from the same removal argument, since for N>=2K there are sequences with no 1. Faithful statement; a duplicate open statement exists on the site as oeis-a156870."
+  },
+  "oeis-a159856": {
+   "date": "2026-11-28",
+   "pr": 28880,
+   "evidence": [
+    "https://oeis.org/A159856"
+   ],
+   "reason": "Mathar's conjecture is an immediate corollary of Kruchinin's formulas already in the entry (Nov 2016, corrected 2024): T(n,k)=(-1)^k * (positive sum) gives alternating signs, so Sum|T(n,k)| is the y=-1 specialization of his g.f. (1-2x)/((1-x)^2(1-2x+yx)) = (1-2x)/((1-x)^2(1-3x)), whose coefficients are (3^(n+1)+2n+1)/4. Statement faithful; proof is the same short sign-and-recurrence argument."
+  },
+  "oeis-a165719": {
+   "date": "2026-11-28",
+   "pr": 25396,
+   "evidence": [
+    "https://oeis.org/A165719",
+    "https://github.com/the-omega-institute/trureturing/blob/HEAD/D5/S3/PrimeForms/OrlovskyEighthQuadraticSolePrime.lean",
+    "https://github.com/the-omega-institute/trureturing/blob/HEAD/Problems/oeis-a165719-eighth-quadratic-integrality-and-sole-prime.md"
+   ],
+   "reason": "The trureturing library proved both claims (8 | k(k+9) iff k=8m-1 or 8m; 17 is the only prime term) in a sorry-free Lean file added 2026-09-16, long before the site proof (2026-11-27). The statement here is the same pair of assertions. Also elementary (residues mod 8 and a factorization)."
+  },
+  "oeis-a183409": {
+   "date": "2026-11-28",
+   "pr": 28887,
+   "evidence": [
+    "https://oeis.org/A183409",
+    "https://github.com/the-omega-institute/trureturing/blob/HEAD/D5/S3/Combinatorics/PermutationArrays/EtiennePrefixCount.lean",
+    "https://isitsolved.com/journal/0f6811814620"
+   ],
+   "reason": "Etienne's closed form was proved in the trureturing library (sorry-free EtiennePrefixCount.lean, added 2026-11-13, with Problems/oeis-a183409-etienne-prefix-count.md using the same lexicographic row/column reading). iis:2611.00258 (07:43 UTC 2026-11-28) also lists it. Both predate the site proof commit (2026-11-28 12:05 UTC)."
   }
  },
  "reviewed": "2026-11-28"
