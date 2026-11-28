@@ -323,10 +323,23 @@ fast_poll() {
   done
 }
 slow_poll() {
-  local LAST_SCAN=0 LAST_BATCH=0 LAST_OLD=0 OLDJOBS=1 LAST_CREDIT=0 LAST_PENDING=0 REQ_SHA="" CPID="" NOW REM B
+  local LAST_SCAN=0 LAST_BATCH=0 LAST_OLD=0 OLDJOBS=1 LAST_CREDIT=0 LAST_PENDING=0 LAST_SUCC=0 SUCC_N="" REQ_SHA="" CPID="" NOW REM B
   while [ "$(date -u +%s)" -lt "$END" ]; do
     NOW=$(date -u +%s)
     if [ $(( NOW - LAST_SCAN )) -ge 600 ]; then LAST_SCAN=$NOW; scan 10800 | spool; fi
+    # The successor: GitHub's schedule (*/20) can stay silent for hours under load (none from 10:35 to 15:20 on
+    # 28 November, so the merger that ended at 15:08 had no successor and nothing merged until one was started by hand).
+    # In its last 65 minutes this merger asks for one itself (workflow_dispatch, with the workflow's own token), every 15
+    # minutes while no other merger job is queued or running; the new job waits on standby as usual.
+    if [ -n "${GITHUB_RUN_ID:-}" ] && [ $(( END - NOW )) -lt 3900 ] && [ $(( NOW - LAST_SUCC )) -ge 900 ]; then
+      LAST_SUCC=$NOW
+      SUCC_N=$(GH_TOKEN="$GH_TOKEN_BASE" timeout 60 "$GH_BIN" api "repos/$REPO/actions/workflows/backlog.yml/runs?per_page=30" \
+        --jq "[.workflow_runs[] | select(.id != $GITHUB_RUN_ID and .status != \"completed\")] | length" 2>/dev/null)
+      if [ "$SUCC_N" = 0 ]; then
+        GH_TOKEN="$GH_TOKEN_BASE" timeout 60 "$GH_BIN" api -X POST "repos/$REPO/actions/workflows/backlog.yml/dispatches" -f ref=main >/dev/null 2>&1 \
+          && echo "merger: successor requested ($(( (END - NOW) / 60 )) min left)" || echo "merger: successor request refused"
+      fi
+    fi
     if [ -f base/tools/batch_verdicts.sh ] && [ $(( NOW - LAST_BATCH )) -ge 90 ]; then
       # three hours back even after a hand-over: a queue lost with the previous merger is found again (cheaply: verdicts
       # of pull requests merged or closed since are dropped without an API call)
