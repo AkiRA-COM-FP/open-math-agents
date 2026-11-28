@@ -13497,6 +13497,542 @@
     "https://doi.org/10.5281/zenodo.24384895"
    ],
    "note": "Wu's recurrence (n>33) and g.f. for 2D Rule 637 (left half, base 2) are stated faithfully, with the whole plane evolving (background included) as in Price's program. My own simulation reproduces the data (b-file where available) and every stated formula holds for n<150. No prior proof found (OEIS entry and cross-references, trureturing and thatnealpatel/proofs searched by rule number, Muñoz's Zenodo ECA paper (1D only), Palomar, Epoch, Blanco Gómez/Fried, formal-conjectures, conjectures.io). The proof reuses sections of longling12's A283407 proof on this site (a different statement), which does not make the result known. Second review: Faithful and true; the proof needs an eventual-structure argument for the automaton (light cone, moving front, stable axis strip), not a finite check. No prior proof of these formulas found."
+  },
+  "oeis-a295762": {
+   "date": "2026-11-28",
+   "pr": 24957,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A295762",
+    "https://oeis.org/A295762",
+    "https://oeis.org/A295760"
+   ],
+   "note": "Hanna's conjecture (a(n) odd iff n is a power of 2) is stated for every integer series with A(0)=0 and A(x-2A(x^2)) = x+A(x^2); composition and x^2-substitution are defined correctly (G(0)=0). The series exists (Hanna's data), so it is not vacuous. Routine: mod 2 the equation reads A(x) = x + A(x^2), forcing A == sum x^(2^k). No prior proof in the entry, sisters A295760/A295761/A141200, Palomar or Lean libraries. Second review: Faithful and true; the conjecture follows from a two-line mod-2 reduction of the functional equation, which the 122-line proof formalizes. Not previously recorded as proved. Routine."
+  },
+  "oeis-a297554": {
+   "date": "2026-11-28",
+   "pr": 25699,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A297554",
+    "https://oeis.org/A297551",
+    "https://oeis.org/A297554",
+    "https://oeis.org/A297551",
+    "https://github.com/blakestone-x/math/blob/main/ternary-digit-variation/README.md"
+   ],
+   "note": "Kimberling's conjecture that the recurrence sequence gives the least positive integer of base-4 total variation n is stated faithfully (tvList over LSB-first digits equals the sum of adjacent |differences|). Brute force to 6*10^6 confirms it for n<32. No prior proof found (entry, A297551, Palomar, Lean libraries, Blanco Gomez, Fried). Elementary minimal-digit-string argument. Second review: Faithful (with the data-consistent initial values) and checked by exhaustive search through n<=33. No prior proof of the base-4 case found. Short elementary digit argument, but not a consequence of facts in the entry, so not marked routine."
+  },
+  "oeis-a297555": {
+   "date": "2026-11-28",
+   "pr": 25730,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A297555",
+    "https://oeis.org/A297552",
+    "https://oeis.org/A297555",
+    "https://oeis.org/A297551",
+    "https://github.com/blakestone-x/math/blob/main/ternary-digit-variation/README.md"
+   ],
+   "note": "Base-4 down-variation is encoded correctly (drops from a more significant digit to the next less significant one, as A297552 defines DV). The least positive x with DV(x)=n matches the recurrence for n<17 (brute force to 6*10^6). No prior proof found (entry, A297552, Palomar, Lean libraries, Blanco Gomez, Fried). Elementary. Second review: Faithful (with the data-consistent initial values) and checked by exhaustive search through n<=18. No prior proof of the base-4 case found. Short elementary digit argument, but not a consequence of facts in the entry, so not marked routine."
+  },
+  "oeis-a297556": {
+   "date": "2026-11-28",
+   "pr": 25760,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A297556",
+    "https://oeis.org/A297553",
+    "https://oeis.org/A297556",
+    "https://oeis.org/A297551",
+    "https://github.com/blakestone-x/math/blob/main/ternary-digit-variation/README.md"
+   ],
+   "note": "The title's a(1)=4 is a typo for the data's 6 (4 = '10' in base 4 has up-variation 0). The statement uses the data's initial terms 1,6,7,19 and says so, which is the correct reading; up-variation matches A297553. Brute force confirms the least x with UV(x)=n for n<16. No prior proof found. Elementary. Second review: Faithful (with the data-consistent initial values) and checked by exhaustive search through n<=17. No prior proof of the base-4 case found. Short elementary digit argument, but not a consequence of facts in the entry, so not marked routine."
+  },
+  "oeis-a288131": {
+   "date": "2026-11-28",
+   "pr": 24706,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288131",
+    "https://oeis.org/A288131",
+    "https://doi.org/10.5281/zenodo.24384895",
+    "https://github.com/blakestone-x/math/blob/main/Von-Neumann-diagonals/README.md"
+   ],
+   "note": "Barker's g.f. for the corner-to-origin diagonal of 2D Rule 427 read in base 10. The model (outer-totalistic bit c+2s, background flipping since bit 0 is set, cells (n,n)..(0,0) with the corner most significant) reproduces all listed terms; the Mathematica %t line actually extracts a row, but the data are the diagonal, as the statement follows. The g.f. holds to n=70 in my simulation; the proof gives an explicit d=|x|+|y| pattern by t mod 3 and d mod 12. No prior proof found (entry, trureturing and thatnealpatel/proofs by id and rule number, GitHub code/commit search, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, Zenodo, formal-conjectures). Second review: Faithful statement of Barker's conjectured g.f. for the Rule 427 diagonal; verified to n=400 independently. No prior proof located; the only CA proof collections checked (Cohen, blakestone, Munoz) do not cover this rule's diagonal. Proof is an explicit eventually periodic pattern with finite case checks, so marked routine."
+  },
+  "oeis-a288136": {
+   "date": "2026-11-28",
+   "pr": 24711,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288136",
+    "https://oeis.org/A288136",
+    "https://doi.org/10.5281/zenodo.24384895",
+    "https://github.com/blakestone-x/math/blob/main/Von-Neumann-diagonals/README.md"
+   ],
+   "note": "Barker's g.f. for the origin-to-corner diagonal of Rule 427 in base 10, stated faithfully (origin most significant); my simulation reproduces the data and the g.f. to n=70. Same explicit-pattern proof as its siblings A288131/7/8 (solved in this batch by the same author). No prior proof found (entry, trureturing and thatnealpatel/proofs by id and rule number, GitHub code/commit search, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, Zenodo, formal-conjectures). Second review: Faithful statement of Barker's conjectured g.f. for the Rule 427 diagonal; verified to n=400 independently. No prior proof located; the only CA proof collections checked (Cohen, blakestone, Munoz) do not cover this rule's diagonal. Proof is an explicit eventually periodic pattern with finite case checks, so marked routine."
+  },
+  "oeis-a288137": {
+   "date": "2026-11-28",
+   "pr": 24702,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288137",
+    "https://oeis.org/A288137",
+    "https://doi.org/10.5281/zenodo.24384895",
+    "https://github.com/blakestone-x/math/blob/main/Von-Neumann-diagonals/README.md"
+   ],
+   "note": "Barker's g.f. for the corner-to-origin diagonal of Rule 427 read in base 2, stated faithfully; my simulation reproduces the 37 listed terms and the g.f. to n=70. Routine explicit-pattern proof (state of a cell depends on t mod 3 and |x|+|y| mod 12). No prior proof found (entry, trureturing and thatnealpatel/proofs by id and rule number, GitHub code/commit search, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, Zenodo, formal-conjectures). Second review: Faithful statement of Barker's conjectured g.f. for the Rule 427 diagonal; verified to n=400 independently. No prior proof located; the only CA proof collections checked (Cohen, blakestone, Munoz) do not cover this rule's diagonal. Proof is an explicit eventually periodic pattern with finite case checks, so marked routine."
+  },
+  "oeis-a288138": {
+   "date": "2026-11-28",
+   "pr": 24710,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288138",
+    "https://oeis.org/A288138",
+    "https://doi.org/10.5281/zenodo.24384895",
+    "https://github.com/blakestone-x/math/blob/main/Von-Neumann-diagonals/README.md"
+   ],
+   "note": "Barker's g.f. for the origin-to-corner diagonal of Rule 427 in base 2, stated faithfully; data and g.f. agree with my simulation to n=70. Routine explicit-pattern proof shared with A288131/6/7. No prior proof found (entry, trureturing and thatnealpatel/proofs by id and rule number, GitHub code/commit search, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, Zenodo, formal-conjectures). Second review: Faithful statement of Barker's conjectured g.f. for the Rule 427 diagonal; verified to n=400 independently. No prior proof located; the only CA proof collections checked (Cohen, blakestone, Munoz) do not cover this rule's diagonal. Proof is an explicit eventually periodic pattern with finite case checks, so marked routine."
+  },
+  "oeis-a288663": {
+   "date": "2026-11-28",
+   "pr": 26297,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288663",
+    "https://oeis.org/A288663",
+    "https://doi.org/10.5281/zenodo.24384895",
+    "https://github.com/blakestone-x/math/blob/main/Von-Neumann-diagonals/README.md"
+   ],
+   "note": "Barker's g.f. and recurrence a(n)=7a(n-2)-14a(n-4)+8a(n-6) (n>6, consistent with the degree-6 numerator) for the corner-to-origin diagonal of 2D Rule 493 in base 2. The model reproduces the data, and both claims hold to n=70 in my simulation. Routine explicit-pattern proof. No prior proof found (entry, trureturing and thatnealpatel/proofs by id and rule number, GitHub code/commit search, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, Zenodo, formal-conjectures). Second review: Faithful statement of Barker's conjectured g.f. for the Rule 493 diagonal; verified to n=400 independently. No prior proof located; the only CA proof collections checked (Cohen, blakestone, Munoz) do not cover this rule's diagonal. Proof is an explicit eventually periodic pattern with finite case checks, so marked routine."
+  },
+  "oeis-a288217": {
+   "date": "2026-11-28",
+   "pr": 26651,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288217",
+    "https://oeis.org/A288216",
+    "https://oeis.org/A288217",
+    "https://oeis.org/A288216",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.38,1.39), and the literal bound on m - a(n)/n) for the zeros of the 0-limiting word (iterates n = 0 mod 3) of A288216 (00->1000, 10->010, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ (5-sqrt5)/2 = 1.38197, and the bound holds with observed range (-0.12,0.38). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. Siblings A288221/A288224 are the other two residues. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288217; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288221": {
+   "date": "2026-11-28",
+   "pr": 26660,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288221",
+    "https://oeis.org/A288220",
+    "https://oeis.org/A288221",
+    "https://oeis.org/A288220",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.38,1.39), and the literal bound on m - a(n)/n) for the zeros of the 1-limiting word (iterates n = 1 mod 3) of A288220 (00->1000, 10->010, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ (5-sqrt5)/2, and the bound holds with observed range (-0.62,0.13). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288221; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288224": {
+   "date": "2026-11-28",
+   "pr": 26665,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288224",
+    "https://oeis.org/A288223",
+    "https://oeis.org/A288224",
+    "https://oeis.org/A288223",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.38,1.39), and the literal bound on m - a(n)/n) for the zeros of the 2-limiting word (iterates n = 2 mod 3) of A288223 (00->1000, 10->010, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ (5-sqrt5)/2, and the bound holds with observed range (-0.29,0.38). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288224; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288258": {
+   "date": "2026-11-28",
+   "pr": 26862,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288258",
+    "https://oeis.org/A288257",
+    "https://oeis.org/A288258",
+    "https://oeis.org/A288257",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.36,1.37), and the literal bound on m - a(n)/n) for the zeros of the fixed point of A288257 (00->0010, 1->100, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.3611, and the bound holds with observed range (-0.14,0.36). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288258; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288259": {
+   "date": "2026-11-28",
+   "pr": 26825,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288259",
+    "https://oeis.org/A288257",
+    "https://oeis.org/A288259",
+    "https://oeis.org/A288257",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [3.76,3.77), and the literal bound on m - a(n)/n) for the ones of the fixed point (bound -1 < . < 2) of A288257 (00->0010, 1->100, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 3.7693, and the bound holds with observed range (-0.01,1.27). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288259; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288373": {
+   "date": "2026-11-28",
+   "pr": 25404,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288373",
+    "https://oeis.org/A288372",
+    "https://oeis.org/A288373",
+    "https://oeis.org/A288372",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.44,1.45), and the literal bound on m - a(n)/n) for the zeros of the fixed point of A288372 (00->0001, 1->01, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.4450, and the bound holds with observed range (-0.00,0.45). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288373; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288374": {
+   "date": "2026-11-28",
+   "pr": 25426,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288374",
+    "https://oeis.org/A288372",
+    "https://oeis.org/A288374",
+    "https://oeis.org/A288372",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [3.24,3.25), and the literal bound on m - a(n)/n) for the ones of the fixed point of A288372 (00->0001, 1->01, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 3.2470, and the bound holds with observed range (-0.75,0.02). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288374; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288378": {
+   "date": "2026-11-28",
+   "pr": 27315,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288378",
+    "https://oeis.org/A288377",
+    "https://oeis.org/A288378",
+    "https://oeis.org/A288377",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.46,1.47), and the literal bound on m - a(n)/n) for the zeros of the fixed point of A288377 (00->0001, 1->10, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.4690, and the bound holds with observed range (-0.01,0.47). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288378; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288379": {
+   "date": "2026-11-28",
+   "pr": 27321,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288379",
+    "https://oeis.org/A288377",
+    "https://oeis.org/A288379",
+    "https://oeis.org/A288377",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [3.13,3.14), and the literal bound on m - a(n)/n) for the ones of the fixed point of A288377 (00->0001, 1->10, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 3.1322, and the bound holds with observed range (-0.87,0.13). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288379; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288427": {
+   "date": "2026-11-28",
+   "pr": 26336,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288427",
+    "https://oeis.org/A288426",
+    "https://oeis.org/A288427",
+    "https://oeis.org/A288426",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.93,1.94), and the literal bound on m - a(n)/n) for the zeros of the fixed point of A288426 (00->0101, 10->100, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.9311, and the bound holds with observed range (-0.00,0.93). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288427; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288428": {
+   "date": "2026-11-28",
+   "pr": 26352,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288428",
+    "https://oeis.org/A288426",
+    "https://oeis.org/A288428",
+    "https://oeis.org/A288426",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [2.07,2.08), and the literal bound on m - a(n)/n) for the ones of the fixed point of A288426 (00->0101, 10->100, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 2.0740, and the bound holds with observed range (-0.93,0.07). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288428; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288479": {
+   "date": "2026-11-28",
+   "pr": 24960,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288479",
+    "https://oeis.org/A288478",
+    "https://oeis.org/A288479",
+    "https://oeis.org/A288478",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in {1+sqrt2}, and the literal bound on m - a(n)/n) for the zeros of the fixed point (limit stated exactly as 1+sqrt2, bound -1 < . < 2) of A288478 (00->0101, 1->110, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 2.41421, and the bound holds with observed range (-0.00,1.41). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288479; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288480": {
+   "date": "2026-11-28",
+   "pr": 24963,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288480",
+    "https://oeis.org/A288478",
+    "https://oeis.org/A288480",
+    "https://oeis.org/A288478",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in {1+sqrt(1/2)}, and the literal bound on m - a(n)/n) for the ones of the fixed point (limit stated exactly as 1+sqrt(1/2)) of A288478 (00->0101, 1->110, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.70711, and the bound holds with observed range (-0.29,0.21). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288480; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288597": {
+   "date": "2026-11-28",
+   "pr": 26437,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288597",
+    "https://oeis.org/A288596",
+    "https://oeis.org/A288597",
+    "https://oeis.org/A288596",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.54,1.55), and the literal bound on m - a(n)/n) for the zeros of the fixed point of A288596 (00->0101, 10->1000, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.5436, and the bound holds with observed range (-0.00,0.54). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. The rule 10->1000 follows A288596's name and program; A288597's own %t line has '1'->'1000', which does not reproduce the data, so the statement's choice is right. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288597; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288598": {
+   "date": "2026-11-28",
+   "pr": 26439,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288598",
+    "https://oeis.org/A288596",
+    "https://oeis.org/A288598",
+    "https://oeis.org/A288596",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [2.83,2.84), and the literal bound on m - a(n)/n) for the ones of the fixed point of A288596 (00->0101, 10->1000, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 2.8393, and the bound holds with observed range (-0.66,0.84). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. As for A288597, the rule 10->1000 is the one that reproduces the data (the '1'->'1000' in this entry's %t line does not). No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288598; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288601": {
+   "date": "2026-11-28",
+   "pr": 24774,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288601",
+    "https://oeis.org/A288600",
+    "https://oeis.org/A288601",
+    "https://oeis.org/A288600",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in {2}, and the literal bound on m - a(n)/n) for the zeros of the fixed point (limit exactly 2, bound for n >= 2 as in the entry) of A288600 (00->0101, 10->1001, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 2, and the bound holds with observed range (0.00,0.67). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288601; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288634": {
+   "date": "2026-11-28",
+   "pr": 26143,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288634",
+    "https://oeis.org/A288633",
+    "https://oeis.org/A288634",
+    "https://oeis.org/A288633",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.83,1.84), and the literal bound on m - a(n)/n) for the zeros of the fixed point of A288633 (00->0110, 1->10, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.8393, and the bound holds with observed range (-0.01,0.84). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288634; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288635": {
+   "date": "2026-11-28",
+   "pr": 26164,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288635",
+    "https://oeis.org/A288633",
+    "https://oeis.org/A288635",
+    "https://oeis.org/A288633",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [2.19,2.20), and the literal bound on m - a(n)/n) for the ones of the fixed point of A288633 (00->0110, 1->10, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 2.1915, and the bound holds with observed range (-0.31,0.19). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288635; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288666": {
+   "date": "2026-11-28",
+   "pr": 26931,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288666",
+    "https://oeis.org/A288665",
+    "https://oeis.org/A288666",
+    "https://oeis.org/A288665",
+    "https://arxiv.org/abs/2510.11318",
+    "https://github.com/blakestone-x/math/blob/main/A288668/README.md"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.41,1.42), and the literal bound on m - a(n)/n) for the zeros of the 0-limiting word (iterates n = 0 mod 3) of A288665 (00->0110, 10->000, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.4175, and the bound holds with observed range (-0.10,0.42). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. blakestone-x/math (Nov 27) proved the word identity w(n+3)=w(n)w(n)w(n+1) for this map (used here too) and the existence of the limiting words, but not the position limits or bounds. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288666; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. blakestone-x/math (27 Nov 2026, before the site proof of 28 Nov) proves the word identity w(n+3)=w(n)w(n)w(n+1) for this rule and the length conjecture A288668, and notes the three limiting words exist, but does not address the position limit or the two-sided bound; the site proof uses the same identity (iter_rec) without citing it. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288667": {
+   "date": "2026-11-28",
+   "pr": 26934,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288667",
+    "https://oeis.org/A288665",
+    "https://oeis.org/A288667",
+    "https://oeis.org/A288665",
+    "https://arxiv.org/abs/2510.11318",
+    "https://github.com/blakestone-x/math/blob/main/A288668/README.md"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [3.39,3.40), and the literal bound on m - a(n)/n) for the ones of the 0-limiting word (bound -3 < . < 1) of A288665 (00->0110, 10->000, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 3.395, and the bound holds with observed range (-2.61,0.52). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. blakestone-x/math (Nov 27) proved the word identity w(n+3)=w(n)w(n)w(n+1) for this map (used here too) and the existence of the limiting words, but not the position limits or bounds. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288667; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. blakestone-x/math (27 Nov 2026, before the site proof of 28 Nov) proves the word identity w(n+3)=w(n)w(n)w(n+1) for this rule and the length conjecture A288668, and notes the three limiting words exist, but does not address the position limit or the two-sided bound; the site proof uses the same identity (iter_rec) without citing it. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288671": {
+   "date": "2026-11-28",
+   "pr": 26940,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288671",
+    "https://oeis.org/A288670",
+    "https://oeis.org/A288671",
+    "https://oeis.org/A288670",
+    "https://arxiv.org/abs/2510.11318",
+    "https://github.com/blakestone-x/math/blob/main/A288668/README.md"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.41,1.42), and the literal bound on m - a(n)/n) for the zeros of the 1-limiting word of A288670 (00->0110, 10->000, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.4175, and the bound holds with observed range (-0.58,0.42). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. blakestone-x/math (Nov 27) proved the word identity w(n+3)=w(n)w(n)w(n+1) for this map (used here too) and the existence of the limiting words, but not the position limits or bounds. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288671; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. blakestone-x/math (27 Nov 2026, before the site proof of 28 Nov) proves the word identity w(n+3)=w(n)w(n)w(n+1) for this rule and the length conjecture A288668, and notes the three limiting words exist, but does not address the position limit or the two-sided bound; the site proof uses the same identity (iter_rec) without citing it. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288672": {
+   "date": "2026-11-28",
+   "pr": 26944,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288672",
+    "https://oeis.org/A288670",
+    "https://oeis.org/A288672",
+    "https://oeis.org/A288670",
+    "https://arxiv.org/abs/2510.11318",
+    "https://github.com/blakestone-x/math/blob/main/A288668/README.md"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [3.39,3.40), and the literal bound on m - a(n)/n) for the ones of the 1-limiting word (bound -1 < . < 2) of A288670 (00->0110, 10->000, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 3.395, and the bound holds with observed range (-0.17,1.89). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. blakestone-x/math (Nov 27) proved the word identity w(n+3)=w(n)w(n)w(n+1) for this map (used here too) and the existence of the limiting words, but not the position limits or bounds. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288672; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. blakestone-x/math (27 Nov 2026, before the site proof of 28 Nov) proves the word identity w(n+3)=w(n)w(n)w(n+1) for this rule and the length conjecture A288668, and notes the three limiting words exist, but does not address the position limit or the two-sided bound; the site proof uses the same identity (iter_rec) without citing it. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288674": {
+   "date": "2026-11-28",
+   "pr": 26948,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288674",
+    "https://oeis.org/A288673",
+    "https://oeis.org/A288674",
+    "https://oeis.org/A288673",
+    "https://arxiv.org/abs/2510.11318",
+    "https://github.com/blakestone-x/math/blob/main/A288668/README.md"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.41,1.42), and the literal bound on m - a(n)/n) for the zeros of the 2-limiting word of A288673 (00->0110, 10->000, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.4175, and the bound holds with observed range (-0.08,0.42). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. blakestone-x/math (Nov 27) proved the word identity w(n+3)=w(n)w(n)w(n+1) for this map (used here too) and the existence of the limiting words, but not the position limits or bounds. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288674; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. blakestone-x/math (27 Nov 2026, before the site proof of 28 Nov) proves the word identity w(n+3)=w(n)w(n)w(n+1) for this rule and the length conjecture A288668, and notes the three limiting words exist, but does not address the position limit or the two-sided bound; the site proof uses the same identity (iter_rec) without citing it. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288675": {
+   "date": "2026-11-28",
+   "pr": 26952,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288675",
+    "https://oeis.org/A288673",
+    "https://oeis.org/A288675",
+    "https://oeis.org/A288673",
+    "https://arxiv.org/abs/2510.11318",
+    "https://github.com/blakestone-x/math/blob/main/A288668/README.md"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [3.39,3.40), and the literal bound on m - a(n)/n) for the ones of the 2-limiting word (bound -2 < . < 2) of A288673 (00->0110, 10->000, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 3.395, and the bound holds with observed range (-1.95,1.39). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. blakestone-x/math (Nov 27) proved the word identity w(n+3)=w(n)w(n)w(n+1) for this map (used here too) and the existence of the limiting words, but not the position limits or bounds. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288675; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. blakestone-x/math (27 Nov 2026, before the site proof of 28 Nov) proves the word identity w(n+3)=w(n)w(n)w(n+1) for this rule and the length conjecture A288668, and notes the three limiting words exist, but does not address the position limit or the two-sided bound; the site proof uses the same identity (iter_rec) without citing it. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288695": {
+   "date": "2026-11-28",
+   "pr": 26357,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288695",
+    "https://oeis.org/A288694",
+    "https://oeis.org/A288695",
+    "https://oeis.org/A288694",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [1.93,1.94), and the literal bound on m - a(n)/n) for the zeros of the fixed point of A288694 (00->0110, 10->100, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 1.9311, and the bound holds with observed range (-0.07,0.93). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288695; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288696": {
+   "date": "2026-11-28",
+   "pr": 26365,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288696",
+    "https://oeis.org/A288694",
+    "https://oeis.org/A288696",
+    "https://oeis.org/A288694",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [2.07,2.08), and the literal bound on m - a(n)/n) for the ones of the fixed point of A288694 (00->0110, 10->100, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 2.0739, and the bound holds with observed range (-0.26,0.57). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288696; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288755": {
+   "date": "2026-11-28",
+   "pr": 27269,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288755",
+    "https://oeis.org/A288710",
+    "https://oeis.org/A288755",
+    "https://oeis.org/A288710",
+    "https://arxiv.org/abs/2510.11318"
+   ],
+   "note": "Kimberling's two-part conjecture (a(n)/n -> m with m in [3.53,3.54), and the literal bound on m - a(n)/n) for the ones of the 0-limiting word (even iterates; bound -1 < . < 2) of A288710 (00->1000, 10->0001, left-to-right StringReplace from 00) is stated faithfully, with the parse and limiting-word indexing matching the program. My simulation of the statement's W reproduces the 10000-term b-file, gives m ~ 3.535, and the bound holds with observed range (-0.80,1.04). The bound is weak (the n*m - a(n) reading is false here), so the content is the frequency limit; routine block-substitution argument. The complement A287103 (zeros) was solved on this site the same hour; it is a different conjecture. No prior proof found (entry and parent/sister entries, trureturing/thatnealpatel id lists, blakestone-x/math, GitHub code and commit search, Palomar, Epoch OEIS Open, Ashburn's Kimberling-discrepancy preprint (covers letter morphisms, not these), Blanco Gómez/Fried, Zenodo). Second review: Faithful formalization of Kimberling's two-part conjecture for A288755; numerics over ~3e5-7e5 terms agree with the claimed limit and bounds. No earlier proof found for this rule. Proof is a substitution/eigenvector discrepancy argument, not routine."
+  },
+  "oeis-a288230": {
+   "date": "2026-11-28",
+   "pr": 15919,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288230",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821",
+    "https://oeis.org/A288230",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821",
+    "https://mathoverflow.net/questions/258155"
+   ],
+   "note": "Kimberling's conjecture that the coefficients of 1/(Sum floor((k+1)r)(-x)^k), r = sqrt(5/2), increase strictly is stated faithfully (inverse in Q[[x]], constant term floor(r)=1). My exact computation reproduces the data and gives strict increase for 400 terms (observed ratios c(k+1)/c(k) >= 5/3). The proof uses only 3/2 <= r < 5/3, so floor((k+1)r) has increments 1 or 2, and an induction giving growth by a factor >= 3/2: short but not purely mechanical. The general r in [3/2,5/3) claim in A078140 and the MathOverflow questions 258155/259821 remain without proof there; sibling r-values were solved on this site the same day, none a duplicate of this r. No prior proof found (GitHub, Palomar, Epoch, Zenodo, Blanco Gómez/Fried). Second review: Faithful formalization of Kimberling's monotonicity conjecture for r = sqrt(5/2); checked to 1500 terms. The general [3/2,5/3) question on MO remains open; no prior proof for this r found. Not routine (needs an analytic convolution argument)."
+  },
+  "oeis-a288234": {
+   "date": "2026-11-28",
+   "pr": 24807,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288234",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821",
+    "https://oeis.org/A288234",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821",
+    "https://mathoverflow.net/questions/258155"
+   ],
+   "note": "Kimberling's conjecture that the coefficients of 1/(Sum floor((k+1)r)(-x)^k), r = -1+sqrt(7), increase strictly is stated faithfully (inverse in Q[[x]], constant term floor(r)=1). My exact computation reproduces the data and gives strict increase for 400 terms (observed ratios c(k+1)/c(k) >= 5/3). The proof uses only 41/25 <= r < 5/3, so floor((k+1)r) has increments 1 or 2, and an induction giving growth by a factor >= 3/2: short but not purely mechanical. The general r in [3/2,5/3) claim in A078140 and the MathOverflow questions 258155/259821 remain without proof there; sibling r-values were solved on this site the same day, none a duplicate of this r. No prior proof found (GitHub, Palomar, Epoch, Zenodo, Blanco Gómez/Fried). Second review: Faithful formalization of Kimberling's monotonicity conjecture for r = -1+sqrt(7); checked to 1500 terms. The general [3/2,5/3) question on MO remains open; no prior proof for this r found. Not routine (needs an analytic convolution argument)."
+  },
+  "oeis-a288237": {
+   "date": "2026-11-28",
+   "pr": 24826,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A288237",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821",
+    "https://oeis.org/A288237",
+    "https://oeis.org/A078140",
+    "https://mathoverflow.net/questions/259821",
+    "https://mathoverflow.net/questions/258155"
+   ],
+   "note": "Kimberling's conjecture that the coefficients of 1/(Sum floor((k+1)r)(-x)^k), r = sqrt(11/4), increase strictly is stated faithfully (inverse in Q[[x]], constant term floor(r)=1). My exact computation reproduces the data and gives strict increase for 400 terms (observed ratios c(k+1)/c(k) >= 5/3). The proof uses only 41/25 <= r < 5/3, so floor((k+1)r) has increments 1 or 2, and an induction giving growth by a factor >= 3/2: short but not purely mechanical. The general r in [3/2,5/3) claim in A078140 and the MathOverflow questions 258155/259821 remain without proof there; sibling r-values were solved on this site the same day, none a duplicate of this r. No prior proof found (GitHub, Palomar, Epoch, Zenodo, Blanco Gómez/Fried). Second review: Faithful formalization of Kimberling's monotonicity conjecture for r = sqrt(11/4); checked to 1500 terms. The general [3/2,5/3) question on MO remains open; no prior proof for this r found. Not routine (needs an analytic convolution argument)."
+  },
+  "oeis-a288599": {
+   "date": "2026-11-28",
+   "pr": 27151,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288599",
+    "https://oeis.org/A288596",
+    "https://oeis.org/A288599",
+    "https://oeis.org/A288596"
+   ],
+   "note": "Kimberling's conjecture that the n-th iterate of 00->0101, 10->1000 (StringReplace from 00, as in A288596's name and program) has A288599(n) letters. The reference sequence follows the data and g.f. (recurrence from n=5; the name's 'n>=4' would give a(4)=18, not the listed 16), and the statement documents this. My simulation matches for n<=30. Routine block decomposition. The same claim was merged as oeis-a288596 about an hour later (authored 11:49 vs 10:57 UTC), so this is the earlier of the two. No prior proof found (entries A288596/A288599/A288600/A288603, blakestone-x/math, trureturing/thatnealpatel id lists, GitHub commit search, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, Zenodo). Second review: Faithful; lengths verified to n=26. Note the duplicate oeis-a288596 (same statement, solved later the same day), which should be linked or merged, not counted twice. Routine (block coding plus recurrence)."
+  },
+  "oeis-a288600": {
+   "date": "2026-11-28",
+   "pr": 27001,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A288600",
+    "https://oeis.org/A288603",
+    "https://oeis.org/A288600",
+    "https://oeis.org/A288603"
+   ],
+   "note": "Kimberling's conjecture that the n-th iterate of 00->0101, 10->1001 (StringReplace from 00, the rule in A288600's name and program) has A288603(n) letters. The reference uses the data's a(3)=8 with the recurrence from n=4 (the name's 'n>=3' is off by one). My simulation matches for n<=30; A288603's own comment ('1->1001') is a different, false map (lengths 2,4,10,...). Mathar's question whether A288600 = 0 + A288375 is not part of the statement. Routine block decomposition. No prior proof found (entries A288596/A288599/A288600/A288603, blakestone-x/math, trureturing/thatnealpatel id lists, GitHub commit search, Palomar, Epoch OEIS Open, Blanco Gómez/Fried, Zenodo). Second review: Faithful; verified to n=26; no prior proof found. Routine (block coding plus recurrence)."
   }
  },
  "flagged": {
