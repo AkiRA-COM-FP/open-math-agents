@@ -14,20 +14,20 @@ lemma val_of_mod4 (m : ℕ) (h : m % 4 = 2) : padicValNat 2 m = 1 := by
   rw [padicValNat.mul (by norm_num) (by omega), padicValNat.self (by norm_num),
     padicValNat.eq_zero_of_not_dvd (by omega)]
 
-lemma odd_case (n : ℕ) (hn : Odd n) : a n = 1 ∧ A090740 n = 1 := by
+lemma odd_case (n : ℕ) (hn : Odd n) : a n = 1 ∧ b n = 1 := by
   obtain ⟨m, rfl⟩ := hn
   have h5 : 5 ^ (2 * m + 1) % 4 = 1 := by rw [Nat.pow_mod]; norm_num
   have h3 : 3 ^ (2 * m + 1) % 4 = 3 := by
     rw [pow_succ, pow_mul, Nat.mul_mod, Nat.pow_mod]; norm_num
   have hlt : 3 ^ (2 * m + 1) < 5 ^ (2 * m + 1) := Nat.pow_lt_pow_left (by norm_num) (by omega)
   have h1 : 1 ≤ 3 ^ (2 * m + 1) := Nat.one_le_pow _ _ (by norm_num)
-  unfold a A090740
+  unfold a b
   generalize 5 ^ (2 * m + 1) = A at *
   generalize 3 ^ (2 * m + 1) = B at *
   exact ⟨val_of_mod4 _ (by omega), val_of_mod4 _ (by omega)⟩
 
 lemma even_case (n : ℕ) (hn0 : n ≠ 0) (hn : Even n) :
-    a n = padicValNat 2 n + 3 ∧ A090740 n = padicValNat 2 n + 2 := by
+    a n = padicValNat 2 n + 3 ∧ b n = padicValNat 2 n + 2 := by
   have hA := padicValNat.pow_two_sub_pow (x := 5) (y := 3) (by norm_num) (by norm_num)
     (by norm_num) hn0 hn
   have hB := padicValNat.pow_two_sub_pow (x := 3) (y := 1) (by norm_num) (by norm_num)
@@ -40,7 +40,7 @@ lemma even_case (n : ℕ) (hn0 : n ≠ 0) (hn : Even n) :
   have h2' : padicValNat 2 (3 - 1) = 1 := by norm_num
   rw [h8, h2] at hA
   rw [h4, h2', one_pow] at hB
-  unfold a A090740
+  unfold a b
   omega
 
 end OMA.P195986
