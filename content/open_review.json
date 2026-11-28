@@ -17084,6 +17084,30 @@
     "https://oeis.org/A377119"
    ],
    "reason": "The disproof refutes only the listed 'period' for p = 2: gap 2 0 = 3, not 2. Those listed periods cannot belong to this sequence, since a(n) = 6a(n-2) + 6a(n-3) is divisible by 6 for every n >= 3 (data 6, 12, 42, ...), so the index sets for 2 and 3 are {0,3,4,5,...}. The comment block looks copied from a sibling entry. The substantive general conjecture (every p divides infinitely many terms, with eventually periodic gaps) is untouched and in fact easy: for p > 3 the recurrence is invertible mod p, so a(n) mod p is purely periodic with a(0) = 0. The 'disproof' exploits a transcription error."
+  },
+  "oeis-a235804": {
+   "date": "2026-11-28",
+   "pr": 28483,
+   "evidence": [
+    "https://oeis.org/A235804"
+   ],
+   "reason": "Trivial. The array is defined by the explicit formula A(n,k) = n-2+k*2^(n-3), and the two conjectured g.f.s (rows: linear in k; columns: (n-2) plus k*2^(n-3)) are immediate from that definition. The only real content of the entry, the link to equivalence classes of A233332, is not stated. Correct, but it should not count as resolving an open problem."
+  },
+  "oeis-a245658": {
+   "date": "2026-11-28",
+   "pr": 28989,
+   "evidence": [
+    "https://oeis.org/A245658"
+   ],
+   "reason": "Trivial. The statement is Hanna's mod-3 conjecture: a(n) == 2 (mod 3) iff A247031(3n) == 2 (mod 3), where A247031 = A^3. Over Z, the Frobenius congruence A(x)^3 == A(x^3) (mod 3) gives A247031(3n) == a(n)^3 == a(n) (mod 3) at once. The defining hypothesis on A247031 is never needed. True, but it follows immediately from the definition; the substantive parity conjecture is not stated."
+  },
+  "oeis-a261702": {
+   "date": "2026-11-28",
+   "pr": 27828,
+   "evidence": [
+    "https://oeis.org/A261702"
+   ],
+   "reason": "The statement is 'Collatz implies the greedy preimage sequence is a permutation'. That is Paul Tek's remark in the entry, not an open conjecture; the open part is the Collatz conjecture, which is assumed. The implication is a few-line argument: each k becomes eligible once step(k) appears and is then picked within k steps. The definition matches the data, but this should not count as solving an open problem."
   }
  },
  "known": {
@@ -32160,6 +32184,116 @@
     "https://doi.org/10.5281/zenodo.23407380"
    ],
    "reason": "Second review: The statement is faithful and true, but Ashburn proved exactly this conjecture six weeks before the site proof (Table 2 row A287380 M10 \"true\"). Prior settlement, not new."
+  },
+  "oeis-a228329": {
+   "date": "2026-11-28",
+   "pr": 28150,
+   "evidence": [
+    "https://oeis.org/A228329",
+    "https://isitsolved.com/journal/6b0f6b23c8c4",
+    "https://doi.org/10.1016/j.jnt.2010.01.018"
+   ],
+   "reason": "Mathar's second-order recurrence for h(2) is stated faithfully and holds (checked n<40). It follows mechanically from the closed form C(4n,2n)(3n+1)/(2n+1), which is a published theorem (Miana-Romero, JNT 2010, Remark 3: Omega_2(n)=a(n-1)). The recurrence was also settled in isitsolved iis:2611.00230 (filed 2026-11-28 04:26 UTC), before the site proof commit (11:33 UTC)."
+  },
+  "oeis-a228330": {
+   "date": "2026-11-28",
+   "pr": 28209,
+   "evidence": [
+    "https://oeis.org/A228330",
+    "https://isitsolved.com/journal/6b0f6b23c8c4",
+    "https://doi.org/10.1016/j.jnt.2010.01.018"
+   ],
+   "reason": "Mathar's recurrence for h(4) is stated faithfully and holds (checked n<40). It follows from the published closed form (Miana-Romero 2010, Omega_4(n)=a(n-1); Kotesovec's formula line). It was also decided in isitsolved iis:2611.00230 (2026-11-28 04:26 UTC), before the site proof commit (11:35 UTC)."
+  },
+  "oeis-a228333": {
+   "date": "2026-11-28",
+   "pr": 28311,
+   "evidence": [
+    "https://oeis.org/A228333",
+    "https://doi.org/10.1016/j.jnt.2010.01.018"
+   ],
+   "reason": "Mathar's recurrence for h(7) is stated faithfully and holds (checked n<40), along with Kotesovec's closed form C(2n,n)^2(2n+1)(6n^3+6n^2-1)/(2n-1). That closed form is Omega_7 in Miana-Romero (JNT 2010, Remark 3), which the entry cites. The recurrence then reduces to a rational-function check, as in the sibling oeis-a228331 judged known earlier."
+  },
+  "oeis-a228410": {
+   "date": "2026-11-28",
+   "pr": 10288,
+   "evidence": [
+    "https://oeis.org/A228410",
+    "https://oeis.org/A228407"
+   ],
+   "reason": "The statement is faithful: the greedy positive-integer palindrome walk with a nonzero leading digit reproduces all the listed data. But the permutation property was settled in 2013 in the sister entry A228407: Sloane's theorem (with Rob Arthan) puts numbers in 2^b digit-parity classes and argues on the cube graph, and that argument applies unchanged to the positive variant. The proof file uses exactly that parity-class argument. So this is a direct transfer of a published proof."
+  },
+  "oeis-a244240": {
+   "date": "2026-11-28",
+   "pr": 28666,
+   "evidence": [
+    "https://oeis.org/A244240",
+    "https://arxiv.org/abs/2507.19047"
+   ],
+   "reason": "Wu's recurrence and g.f. are stated faithfully. But Guru Sharan and Straub (arXiv:2507.19047, 2025, cited in the entry) prove that a_d(n) is constant recursive with an order-T_d recurrence for n >= T_{d-2}, and they say explicitly that this proves Wu's conjectured g.f.s and recurrences for A244240-A244243."
+  },
+  "oeis-a246423": {
+   "date": "2026-11-28",
+   "pr": 28307,
+   "evidence": [
+    "https://oeis.org/A246423",
+    "https://github.com/the-omega-institute/trureturing/blob/main/Problems/hanna-a246423-legendre-central-binomial.md"
+   ],
+   "reason": "Faithful statement of Hanna's mod-4 conjecture. But trureturing settled exactly this claim (a(0)=1, == 2 mod 4 iff n=2^k with k>=2, else == 0) with the Lean result D5/S1/Recurrence/Invariants/HannaLegendreCentralBinomialModFour.result. Its dossier was added 2026-10-20, more than a month before the site proof (2026-11-28)."
+  },
+  "oeis-a267068": {
+   "date": "2026-11-28",
+   "pr": 29107,
+   "evidence": [
+    "https://oeis.org/A267068",
+    "https://github.com/the-omega-institute/trureturing/blob/main/D5/S1/Recurrence/Residue/OEISA267068Quotients.lean",
+    "https://doi.org/10.5281/zenodo.23957584"
+   ],
+   "reason": "Barker's recurrence and g.f. for (n+1)/A189733(n) are stated faithfully. trureturing's OEISA267068Quotients (added 2026-11-20) proves the six residue formulas and Barker's recurrence and g.f. for this sequence, building on Ma-Zhang's Zenodo proof of Curtz's A189733 denominator conjecture (10.5281/zenodo.23957584, Nov 2026). Both predate the site proof."
+  },
+  "oeis-a258369": {
+   "date": "2026-11-28",
+   "pr": 27845,
+   "evidence": [
+    "https://oeis.org/A258369",
+    "https://oeis.org/A005649"
+   ],
+   "reason": "Kurkov's conjecture (A258369 is the inverse binomial transform of A005649) is immediate from formulas already in the entries. A258369 has e.g.f. 1/(e^x(2-e^x)^2) (formula line), A005649 has e.g.f. 1/(2-e^x)^2, and an inverse binomial transform multiplies the e.g.f. by e^-x. Faithful and true, but already implied by the recorded e.g.f.s."
+  },
+  "oeis-a262534": {
+   "date": "2026-11-28",
+   "pr": 23198,
+   "evidence": [
+    "https://oeis.org/A262534"
+   ],
+   "reason": "The conjecture 'next term is 4294967297' was already settled in the entry itself in 2016. Nielsen reduced it to k-1 a power of 2 and k-2 a product of distinct Fermat primes, and Robert Israel's binary-digit argument (using that F_5 is composite) proves there are exactly these six terms; the entry is keyword fini,full. The formalization is faithful."
+  },
+  "oeis-a266073": {
+   "date": "2026-11-28",
+   "pr": 19285,
+   "evidence": [
+    "https://oeis.org/A266073",
+    "https://doi.org/10.5281/zenodo.24552741"
+   ],
+   "reason": "Barker's closed form and recurrence for the OFF-cell count of Rule 3 are stated faithfully. Both are marked 'proved' in Muñoz's 575-conjecture ECA certificate dump (Zenodo 24552741, 26 Nov 2026, claims.json), published before the site proof commit (2026-11-28 03:49 UTC)."
+  },
+  "oeis-a266220": {
+   "date": "2026-11-28",
+   "pr": 19678,
+   "evidence": [
+    "https://oeis.org/A266220",
+    "https://doi.org/10.5281/zenodo.24552741"
+   ],
+   "reason": "Barker's closed form (n>1), recurrence (n>5) and g.f. for Rule 7 are stated with the entry's ranges. All three are marked 'proved' in Muñoz's Zenodo 24552741 (26 Nov 2026), before the site proof (2026-11-28 04:14 UTC)."
+  },
+  "oeis-a266250": {
+   "date": "2026-11-28",
+   "pr": 28083,
+   "evidence": [
+    "https://oeis.org/A266250",
+    "https://doi.org/10.5281/zenodo.24552741"
+   ],
+   "reason": "Barker's closed form (n>2), recurrence (n>7) and g.f. for Rule 9 are stated with the entry's ranges. All three are marked 'proved' in Muñoz's Zenodo 24552741 (26 Nov 2026), before the site proof (2026-11-28 13:48 UTC)."
   }
  },
  "reviewed": "2026-11-28"
