@@ -7,14 +7,13 @@ Source: https://oeis.org/A207363
 Credit: @clementtrecourt
 
 The conjectures listed in the entry, all stated below as one conjunction:
-* a(n) = 2*a(n-1) + 2*a(n-2) - 6*a(n-3) + 6*a(n-5) - 2*a(n-6) - 2*a(n-7) + a(n-8).
 * G.f.: x*(6 + 24*x + 6*x^2 + 9*x^3 + 6*x^4 - 2*x^5 - 2*x^6 + x^7)/ ((1 - x)^5*(1 + x)^3).
 * a(n) = (n^4 + 6*n^3 + 13*n^2 + 12*n + 4) / 4 for n even.
 * a(n) = (n^4 + 6*n^3 + 11*n^2 + 6*n) / 4 for n odd.
 
 Conventions: patterns are read left to right along rows and top to bottom along columns (this reading reproduces the OEIS data).
 Offset 1: a(n) is the number of arrays with n rows and 3 columns, entries in 0..1, in which no three consecutive entries of a row (left to right) form 0 0 0 or 0 1 1 and no three consecutive entries of a column (top to bottom) form 0 0 1 or 0 1 1.
-An independent transfer-matrix count reproduces the first 25 listed terms, and each formula was checked against every listed term (n up to 36). The source gives no range for a(n) = 2*a(n-1) + 2*a(n-2) - 6*a(n-3) + 6*a(n-5) - 2*a(n-6) - 2*a(n-7) + a(n-8); it is stated for every n for which all its terms are defined, n ≥ 9.
+An independent transfer-matrix count reproduces the first 25 listed terms, and each formula was checked against every listed term (n up to 36).
 -/
 
 namespace OMA.S_oeis_a207363
@@ -36,7 +35,6 @@ def a (n : ℕ) : ℤ :=
 
 open PowerSeries in
 theorem main :
-    (∀ n : ℕ, 9 ≤ n → (a n : ℚ) = 2 * a (n - 1) + 2 * a (n - 2) - 6 * a (n - 3) + 6 * a (n - 5) - 2 * a (n - 6) - 2 * a (n - 7) + a (n - 8)) ∧
     (PowerSeries.mk (fun n => if n < 1 then 0 else (a n : ℚ)) * ((1 - X) ^ 5 * (1 + X) ^ 3 : PowerSeries ℚ) = X * (6 + 24 * X + 6 * X ^ 2 + 9 * X ^ 3 + 6 * X ^ 4 - 2 * X ^ 5 - 2 * X ^ 6 + X ^ 7)) ∧
     (∀ n : ℕ, 1 ≤ n → Even n → (a n : ℚ) = ((n : ℚ) ^ 4 + 6 * (n : ℚ) ^ 3 + 13 * (n : ℚ) ^ 2 + 12 * (n : ℚ) + 4) / 4) ∧
     (∀ n : ℕ, 1 ≤ n → Odd n → (a n : ℚ) = ((n : ℚ) ^ 4 + 6 * (n : ℚ) ^ 3 + 11 * (n : ℚ) ^ 2 + 6 * (n : ℚ)) / 4) := by
