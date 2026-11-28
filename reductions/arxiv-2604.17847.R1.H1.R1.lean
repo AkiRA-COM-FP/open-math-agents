@@ -13,16 +13,16 @@ def H1 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
     let g := r.gcd (pisano q)
     ¬ q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
-      let c := Nat.fib (g * t) / Nat.fib g
-      ¬ rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t ∧ ∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] → ¬ p ∣ c
+      ¬ rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t ∧
+        ∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] → ¬ rankOfApparition p / (rankOfApparition p).gcd g ∣ t
 
 -- When the common factor supplies one copy of q, the multiplier must avoid q.
 def H2 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
     let g := r.gcd (pisano q)
     q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
-      let c := Nat.fib (g * t) / Nat.fib g
-      ¬ q ∣ t ∧ ∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] → ¬ p ∣ c
+      ¬ q ∣ t ∧
+        ∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] → ¬ rankOfApparition p / (rankOfApparition p).gcd g ∣ t
 
 lemma gcd_dvd_class {r P m : ℕ} (hm : m ≡ r [MOD P]) : r.gcd P ∣ m :=
   Nat.modEq_zero_iff_dvd.mp ((hm.of_dvd (Nat.gcd_dvd_right _ _)).trans
@@ -172,11 +172,11 @@ lemma square_rank {q : ℕ} (hq : q.Prime) :
       rw [ht, Nat.mul_comm q z]
       exact Nat.mul_dvd_mul_left z ((lift t).mp second)
 
-lemma normalized_square_test {q g t : ℕ} (hg : 0 < g) :
-    q ^ 2 ∣ Nat.fib (g * t) ↔
-      rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t := by
+lemma normalized_rank_test {b g t : ℕ} (hg : 0 < g) :
+    b ∣ Nat.fib (g * t) ↔
+      rankOfApparition b / (rankOfApparition b).gcd g ∣ t := by
   rw [← rank_dvd_iff_fib]
-  let w := rankOfApparition (q ^ 2)
+  let w := rankOfApparition b
   let d := w.gcd g
   have hd : 0 < d := Nat.gcd_pos_of_pos_right _ hg
   obtain ⟨a, b, cop, ha, hb⟩ := Nat.exists_coprime w g
@@ -196,6 +196,11 @@ lemma normalized_square_test {q g t : ℕ} (hg : 0 < g) :
     rw [left, right, Nat.mul_assoc]
     exact Nat.mul_dvd_mul_left d (dvd_mul_of_dvd_right h _)
 
+lemma normalized_square_test {q g t : ℕ} (hg : 0 < g) :
+    q ^ 2 ∣ Nat.fib (g * t) ↔
+      rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t :=
+  normalized_rank_test hg
+
 -- At a prime multiplier, only the normalized square rank itself can introduce a square.
 lemma square_at_prime_multiplier {q g l : ℕ} (hg : 0 < g) (hl : l.Prime)
     (hbase : ¬ q ^ 2 ∣ Nat.fib g) :
@@ -205,6 +210,82 @@ lemma square_at_prime_multiplier {q g l : ℕ} (hg : 0 < g) (hl : l.Prime)
     exact hbase (by simpa using (normalized_square_test (t := 1) hg).mpr h)
   rw [normalized_square_test hg, Nat.dvd_prime hl]
   exact ⟨fun h => h.resolve_left (fun e => hunit (by rw [e])), Or.inr⟩
+
+-- If p already divides F_g its reappearance is controlled by p itself.
+-- Otherwise the reduced rank determines exactly when p enters the quotient.
+lemma quotient_prime_test {p g t : ℕ} (hp : p.Prime) (hg : 0 < g) :
+    p ∣ Nat.fib (g * t) / Nat.fib g ↔
+      (if p ∣ Nat.fib g then p else rankOfApparition p / (rankOfApparition p).gcd g) ∣ t := by
+  split_ifs with ha
+  · exact prime_dvd_quotient_iff hp hg ha t
+  · rw [← normalized_rank_test hg, ← fib_quotient_product g t,
+      Nat.mul_div_cancel_left _ (Nat.fib_pos.mpr hg)]
+    exact ⟨fun h => dvd_mul_of_dvd_right h _, (hp.coprime_iff_not_dvd.mpr ha).dvd_of_dvd_mul_left⟩
+
+lemma quotient_at_prime_multiplier {p g l : ℕ} (hp : p.Prime) (hg : 0 < g) (hl : l.Prime) :
+    p ∣ Nat.fib (g * l) / Nat.fib g ↔
+      (if p ∣ Nat.fib g then p else rankOfApparition p / (rankOfApparition p).gcd g) = l := by
+  have no : ¬ p ∣ Nat.fib (g * 1) / Nat.fib g := by
+    simpa [Nat.div_self (Nat.fib_pos.mpr hg)] using hp.not_dvd_one
+  rw [quotient_prime_test hp hg] at no
+  rw [quotient_prime_test hp hg, Nat.dvd_prime hl]
+  exact ⟨fun h => h.resolve_left (fun e => no (by rw [e])), Or.inr⟩
+
+-- A single prime multiplier in the requested class evades a whole finite list,
+-- even when some of the listed primes divide the common Fibonacci factor.
+lemma finite_quotient_avoidance {q r P : ℕ} (hP : 0 < P) (W : Finset ℕ)
+    (hbase : ¬ q ^ 2 ∣ Nat.fib (r.gcd P)) (B : ℕ) :
+    let g := r.gcd P
+    ∃ l > B, l.Prime ∧ g * l ≡ r [MOD P] ∧ ¬ q ^ 2 ∣ Nat.fib (g * l) ∧
+      ∀ p ∈ W, p.Prime → ¬ p ∣ Nat.fib (g * l) / Nat.fib g := by
+  let g := r.gcd P
+  have hg := Nat.gcd_pos_of_pos_right r hP
+  let divisor := fun p => if p ∣ Nat.fib g then p else rankOfApparition p / (rankOfApparition p).gcd g
+  let square := rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g
+  obtain ⟨l, hbound, hl, hc⟩ := OMA.R_arxiv_2604_17847_R1.normalized_prime_indices
+    (r := r) hP (max B (max square (W.sup divisor)))
+  have big := lt_of_le_of_lt (le_max_right ..) hbound
+  have hs : square < l := lt_of_le_of_lt (le_max_left ..) big
+  refine ⟨l, lt_of_le_of_lt (le_max_left ..) hbound, hl, hc, ?_, ?_⟩
+  · exact fun h => hs.ne ((square_at_prime_multiplier hg hl hbase).mp h)
+  · intro p hw hp h
+    have bound : divisor p ≤ W.sup divisor := Finset.le_sup hw
+    have small := lt_of_le_of_lt (bound.trans (le_max_right ..)) big
+    exact small.ne ((quotient_at_prime_multiplier hp hg hl).mp h)
+
+lemma witness_sieve_iff {q g P t : ℕ} (hq : q.Prime) (hP : 0 < P) (hgP : g ∣ P)
+    (hbad : ¬ q ∣ (Nat.fib P).totient) :
+    (∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] → ¬ p ∣ Nat.fib (g * t) / Nat.fib g) ↔
+    ∀ p : ℕ, p.Prime → p ≡ 1 [MOD q] → ¬ rankOfApparition p / (rankOfApparition p).gcd g ∣ t := by
+  have test (p : ℕ) (hp : p.Prime) (hc : p ≡ 1 [MOD q]) :
+      p ∣ Nat.fib (g * t) / Nat.fib g ↔ rankOfApparition p / (rankOfApparition p).gcd g ∣ t := by
+    have ha : ¬ p ∣ Nat.fib g := fun h =>
+      hbad ((totient_witness_iff hq hP).mpr (Or.inr ⟨p, hp, hc, h.trans (Nat.fib_dvd _ _ hgP)⟩))
+    simpa only [if_neg ha] using quotient_prime_test (t := t) hp (Nat.pos_of_dvd_of_pos hgP hP)
+  constructor
+  · exact fun h p hp hc => mt (test p hp hc).mpr (h p hp hc)
+  · exact fun h p hp hc => mt (test p hp hc).mp (h p hp hc)
+
+-- Failure of descent on a good class forces coverage of every prime in the
+-- normalized progression except possibly the single square multiplier.
+lemma prime_progression_coverage {q r l : ℕ} (hq : q.Prime) (hr : r ∈ S q)
+    (hbad : ¬ q ∣ (Nat.fib (pisano q)).totient) (hl : l.Prime)
+    (hc : r.gcd (pisano q) * l ≡ r [MOD pisano q]) :
+    let g := r.gcd (pisano q)
+    rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g = l ∨
+      ∃ p : ℕ, p.Prime ∧ p ≡ 1 [MOD q] ∧ rankOfApparition p / (rankOfApparition p).gcd g = l := by
+  let g := r.gcd (pisano q)
+  have hP := Nat.zero_lt_of_lt hr.1
+  have hg : 0 < g := Nat.gcd_pos_of_pos_right r hP
+  have common : Nat.fib g ∣ Nat.fib (pisano q) := Nat.fib_dvd _ _ (Nat.gcd_dvd_right r _)
+  have no := mt (totient_witness_iff hq hP).mpr hbad
+  rcases (totient_witness_iff hq (Nat.mul_pos hg hl.pos)).mp (hr.2 _ hc) with hs | ⟨p, hp, hmod, hd⟩
+  · exact Or.inl ((square_at_prime_multiplier hg hl (fun h => no (Or.inl (h.trans common)))).mp hs)
+  · have ha : ¬ p ∣ Nat.fib g := fun h => no (Or.inr ⟨p, hp, hmod, h.trans common⟩)
+    have prod : p ∣ Nat.fib g * (Nat.fib (g * l) / Nat.fib g) := by
+      rwa [fib_quotient_product]
+    have eq := (quotient_at_prime_multiplier hp hg hl).mp ((hp.dvd_mul.mp prod).resolve_left ha)
+    exact Or.inr ⟨p, hp, hmod, by simpa only [if_neg ha] using eq⟩
 
 lemma square_quotient_test {q g t : ℕ} (hq : q.Prime) (hg : 0 < g) (hd : ¬ q ∣ Nat.fib g) :
     q ^ 2 ∣ Nat.fib (g * t) / Nat.fib g ↔
@@ -257,14 +338,15 @@ theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H1 := by
   have fail (t : ℕ) (ht : 0 < t) (hc : g * t ≡ r [MOD pisano q]) :=
     mt (quotient_exception_iff hq hP (Nat.gcd_dvd_right r _) ht hbad).mpr
       (not_not_intro (hr.2 _ hc))
+  have sieve (t : ℕ) := witness_sieve_iff (t := t) hq hP (Nat.gcd_dvd_right r _) hbad
   by_cases hd : q ∣ Nat.fib (r.gcd (pisano q))
   · obtain ⟨t, ht, hc, hs, hp⟩ := second q r hq hlarge hr.1 hbad hd
     have hg := Nat.gcd_pos_of_pos_right r hP
     have no := mt (prime_dvd_quotient_iff hq hg hd t).mp hs
-    exact fail t ht hc ⟨by simpa only [if_pos hd] using no, hp⟩
+    exact fail t ht hc ⟨by simpa only [if_pos hd] using no, (sieve t).mpr hp⟩
   · obtain ⟨t, ht, hc, hs, hp⟩ := first q r hq hlarge hr.1 hbad hd
     have no := mt (square_quotient_test (t := t) hq (Nat.gcd_pos_of_pos_right r hP) hd).mp hs
-    exact fail t ht hc ⟨by simpa only [if_neg hd] using no, hp⟩
+    exact fail t ht hc ⟨by simpa only [if_neg hd] using no, (sieve t).mpr hp⟩
 
 -- Conversely, failure of descent supplies the recurring rank family used by the parent.
 lemma quotient_problems_of_cover (cover : OMA.R_arxiv_2604_17847_R1.H1) : H1 ∧ H2 := by
@@ -287,12 +369,12 @@ lemma quotient_problems_of_cover (cover : OMA.R_arxiv_2604_17847_R1.H1) : H1 ∧
     intro hd
     obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
     rw [if_neg hd, square_quotient_test hq (Nat.gcd_pos_of_pos_right r (Nat.zero_lt_of_lt hr)) hd] at hs
-    exact ⟨t, ht, hc, hs, hp⟩
+    exact ⟨t, ht, hc, hs, (witness_sieve_iff hq (Nat.zero_lt_of_lt hr) (Nat.gcd_dvd_right r _) hbad).mp hp⟩
   · intro q r hq hl hr hbad
     dsimp only
     intro hd
     obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
     rw [if_pos hd, prime_dvd_quotient_iff hq (Nat.gcd_pos_of_pos_right r (Nat.zero_lt_of_lt hr)) hd] at hs
-    exact ⟨t, ht, hc, hs, hp⟩
+    exact ⟨t, ht, hc, hs, (witness_sieve_iff hq (Nat.zero_lt_of_lt hr) (Nat.gcd_dvd_right r _) hbad).mp hp⟩
 
 end OMA.R_arxiv_2604_17847_R1_H1_R1
