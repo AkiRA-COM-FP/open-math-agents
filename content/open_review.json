@@ -5191,6 +5191,141 @@
     "https://github.com/Constakour/equal-angle-cevian-concurrency"
    ],
    "note": "The conjectured closed form for interior triple concurrences of equal-angle cevians in an equilateral triangle (m = 2n-1) is stated via trigonometric Ceva. d(m) counts ordered triples (i,j,k) with prod sin x/sin(pi/3-x) = 1, x = (i+1)pi/(3(m+1)), which matches the entry's R-function formulation, and each concurrency point has at most one cevian per vertex. The entry calls the formula conjectural (verified n <= 200). The proof classifies the solutions with a roots-of-unity bound on rational relations among six terms, in the spirit of Conway–Jones and Poonen–Rubinstein. Substantive. I found no earlier derivation of this count."
+  },
+  "oeis-a374365": {
+   "date": "2026-11-28",
+   "pr": 19316,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A374365"
+   ],
+   "note": "Granvik's 2024 conjecture: m is a term iff m has a prime factor = 1 mod 10. The statement uses the principal complex power (-1)^(2k/5) = zeta_5^k, exactly as the entry's Mathematica program does, with offset m>=1. Since primes = 1 mod 5 are odd, 'p = 1 mod 10' is the same as 'p = 1 mod 5'. The proof is short but genuine: an involution d <-> dp cancels the sum when such a p divides m, and otherwise linear independence of the powers of zeta_5 forces sum mu(d) d = prod(1-p) = 0 in Z/5, which is impossible. I found no earlier proof."
+  },
+  "oeis-a057566": {
+   "date": "2026-11-28",
+   "pr": 14356,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A057566"
+   ],
+   "note": "The floor formula (as corrected by Alper Ferudun, Oct 2026) is faithfully stated for n>=1 with Fin 3 x Fin n and the zero-cross-product test. Collinear triples are the 3*C(n,3) vertical ones plus one point per column in arithmetic progression, so a(n)=n^3/2-n^2+n+(1-(-1)^n)/4, which is already in the entry (Mathar 2010); the floor identity follows. Routine count."
+  },
+  "oeis-a166078": {
+   "date": "2026-11-28",
+   "pr": 13759,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A166078"
+   ],
+   "note": "Mathar's 2011 recurrence for the algebraic g.f. (3(1-x)-sqrt(1+6x-7x^2))/(2(1-x)(1-2x)). The statement pins the branch by coeff 0 S = 1 and fixes G uniquely since 2(1-x)(1-2x) is a unit; the coefficients 2(2n-5) and 14(n-2) match. Holonomic routine identity."
+  },
+  "oeis-a002791": {
+   "date": "2026-11-28",
+   "pr": 10630,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A002791"
+   ],
+   "note": "Irvine's 2014 formula a(n)=4 sigma(n)-f(n mod 6). 4sigma(n)-a(n)=sum_{d|n,d<=4} d(4-d)=3+4[2|n]+3[3|n], which is f(n mod 6). One-line routine identity; statement faithful."
+  },
+  "oeis-a274782": {
+   "date": "2026-11-28",
+   "pr": 19241,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A274782",
+    "https://academic.oup.com/imrn/article/2023/23/20433/7174376"
+   ],
+   "note": "Bala's 2023 supercongruence a(np^r) = a(np^(r-1)) mod p^(2r), p >= 5. The statement defines a(n) by Bala's sum Sum C(n,k)C(n+k,k)C(k,n-k), which the entry derives from Eger's theorem; I checked it against all listed terms of the diagonal. The quantifiers match (n, r > 0, p >= 5 prime). The proof is substantial: a Legendre-type identity with a period-6 twist, plus Jacobsthal-Kazandzidis scaling. I found no earlier proof. General Dwork-crystal results (Mellit-Vlasenko, Beukers-Vlasenko) give only mod p^r here, and the October 2026 Bala-conjecture preprints (Blanco Gomez and others) do not list A274782."
+  },
+  "oeis-a389591": {
+   "date": "2026-11-28",
+   "pr": 19239,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A389591",
+    "https://oeis.org/A379379"
+   ],
+   "note": "Pol's conjectured identity a(n)=sigma(n)-A379379(n). The proof is a three-line case split: a divisor r is not counted in a(n) iff r=1 or r>2*prevdiv, iff r is odd with no divisor d satisfying d<r<2d. Routine."
+  },
+  "oeis-a261681": {
+   "date": "2026-11-28",
+   "pr": 9399,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A261681"
+   ],
+   "note": "Mathar's 2017 order-4 P-recurrence for 2^n+C(n,floor(n/2))-1, stated for n>=4 exactly as in the entry. The proof is a direct factorial computation split by parity. Routine holonomic identity."
+  },
+  "oeis-a001076": {
+   "date": "2026-11-28",
+   "pr": 9472,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A001076",
+    "https://oeis.org/A001077"
+   ],
+   "note": "Dement's 2004 conjecture 2a(n+1)=a(n+2)-A001077(n+1), with both sequences defined by their recurrences and offsets (0,1,4,17 and 1,2,9,38). Two-step induction on a linear recurrence. Routine."
+  },
+  "oeis-a278415": {
+   "date": "2026-11-28",
+   "pr": 19197,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A278415",
+    "https://arxiv.org/abs/1610.03384"
+   ],
+   "note": "Sun's 2016 conjecture that (a(pn)-a(n))/(pn)^2 is a p-adic integer for p > 3. The statement forms the quotient in Q and asks that p not divide its denominator, which is exactly p-integrality; the definition matches the data. The entry itself only claims the weaker (p^2 n) version. Pan-Sun (2026) proved the analogous conjectures for A277640 and A208425 but not this sequence, and I found no other proof. The proof file says it is an original argument."
+  },
+  "oeis-a094288": {
+   "date": "2026-11-28",
+   "pr": 19150,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A094288"
+   ],
+   "note": "Mathar's recurrence and g.f. for Motzkin paths of height <= 6 (walks on 1..7). The statement handles the 2023 offset change correctly (g.f. for the terms n>=1). The transfer matrix plus Cayley-Hamilton argument is routine, and the recurrence already follows from the trigonometric closed form in the entry."
+  },
+  "oeis-a247727": {
+   "date": "2026-11-28",
+   "pr": 19062,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A247727"
+   ],
+   "note": "Hardin's empirical polynomial n^4+2n^3+3n^2+2n plus Barker's recurrence and g.f. and Spezia's e.g.f. The reading of 'no disjoint pairs ... same sum' as the three pairings of a length-4 array matches the data. Inclusion-exclusion count, so routine."
+  },
+  "oeis-a035378": {
+   "date": "2026-11-28",
+   "pr": 12266,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A035378",
+    "https://qseries.org/fgarvan/papers/fish.pdf",
+    "https://arxiv.org/abs/1411.1047"
+   ],
+   "note": "Bala's 2023 mod-5 congruences for the expansion of Kontsevich's F(q) = Sum (q;q)_k about q = -1. Writing x = Y-1 and truncating at k <= 2n+1 is exact, because the k-th product is divisible by Y^floor(k/2); the first terms match the data. These congruences mirror the Andrews-Sellers / Garthwaite-Rhoades mod-5 congruences for Fishburn numbers (the expansion at q = 1). But Garvan, Ahlgren-Kim, Straub and Guerzhoy-Kent-Rolen all treat expansions at q = 1 (or F((1-q)^r)), not at q = -1. I found no earlier proof."
+  },
+  "OeisA179524.conjecture3": {
+   "date": "2026-11-28",
+   "pr": 8179,
+   "routine": false,
+   "evidence": [
+    "https://raw.githubusercontent.com/google-deepmind/formal-conjectures/9097e2f90e66d2f6244209cb1c07f7120d17ec53/FormalConjectures/OEIS/179524.lean",
+    "https://oeis.org/A179524",
+    "https://arxiv.org/abs/1012.3898",
+    "https://arxiv.org/abs/2007.12042"
+   ],
+   "note": "The upstream statement (research open at the pinned commit) matches Sun's 2010 claim: Sum_{k<p} a(k) = 0 mod p^2 for p = 11,13,17,19 mod 20. Numerically this sum agrees mod p^2 with Sum C(2k,k)^2 C(4k,2k)/(-1024)^k. For that sum, Z.-H. Sun proved only the split case mod p (Legendre polynomials II, Thm 5.3), and his 2020 list still records the mod p^2 congruence as Z.-W. Sun's conjecture. I found no proof of either form before the PR. Some residual risk remains, because the Sun-conjecture literature is large."
+  },
+  "oeis-a297402": {
+   "date": "2026-11-28",
+   "pr": 7415,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A297402"
+   ],
+   "note": "Jackson's conjecture that the gcd over the first n odd primes equals the gcd over all odd primes. It is stated faithfully as initialGcd n | (p^n-1)/2 for every odd prime p (the reverse divisibility is automatic). Corneth's comments already show the gcd is a power of 2 and settle odd n. The even case is lifting-the-exponent with p = 3 among the first n primes. Routine."
   }
  },
  "flagged": {
@@ -10192,6 +10327,94 @@
     "https://oeis.org/A316584"
    ],
    "reason": "Howroyd's conjecture says the number of x in GL(2,Z/p) with x^p = I is p^2. In characteristic p, x^p = I iff (x-I)^p = 0 iff x is unipotent. Steinberg's classical theorem (the number of unipotent elements of GL_n(F_q) is q^{n(n-1)}) gives p^2 for n = 2. The statement is faithful and the proof (square-zero matrices) is correct, but the result is a direct special case of a classical theorem, so it was not open mathematically."
+  },
+  "oeis-a001653": {
+   "date": "2026-11-28",
+   "pr": 17116,
+   "evidence": [
+    "https://oeis.org/A001653"
+   ],
+   "reason": "The statement (consecutive pairs (a(n),a(n+1)) are exactly the positive solutions m1<m2 of m1^2-6m1m2+m2^2=-4) is the Markoff m=2 characterisation stated as a fact by Wolfdieter Lang in the entry's comments (Jun 13 2018), with the reduction to the indefinite form X^2+4XY-4Y^2=-4 and its unique fundamental solution. It was never a conjecture in the entry; it is a classical Vieta-jumping/Pell result. The Lean proof is a standard descent."
+  },
+  "mse-1911440": {
+   "date": "2026-11-28",
+   "pr": 17657,
+   "evidence": [
+    "https://math.stackexchange.com/questions/1911440",
+    "https://mathoverflow.net/questions/248913"
+   ],
+   "reason": "The formal statement only asks for existence of a strictly increasing f: Q->Q with f'=0 at every rational. The question itself (2016) already states that the asker has a construction (recursive, via an enumeration of Q) and asks only for a simpler or more explicit one, so existence was settled in the source. The proof uses the odd extension of Minkowski's question-mark function, a classical example (Q -> dyadic rationals, flat at rationals). The open part of the question (a 'simpler construction') is not a precise statement, and the formalization does not capture it."
+  },
+  "mo-217656": {
+   "date": "2026-11-28",
+   "pr": 9964,
+   "evidence": [
+    "https://mathoverflow.net/questions/217656"
+   ],
+   "reason": "The formalization (symmetric bijections fixing common elements, compatible under composition) matches the question. The asker answered it negatively in a comment the same day (Sep 7 2015): 'Ok, it's not true', with a counterexample for n=4, r=2. The PR's n=3, r=2 counterexample is a smaller variant of a settled disproof."
+  },
+  "oeis-a034836": {
+   "date": "2026-11-28",
+   "pr": 19079,
+   "evidence": [
+    "https://oeis.org/A034836",
+    "https://doi.org/10.2478/auom-2014-0001"
+   ],
+   "reason": "Biegstraaten's 2016 conjecture a(n)=(np+3 nsq+2 ntp)/6 is, term for term, the formula a(n)=(2*A010057(n)+A007425(n)+3*A046951(n))/6, which the entry credits to Andrica and Ionascu, 2013, p. 19, eq. 11 (added by Amiram Eldar, Apr 2024). np=d_3(n), nsq counts square divisors, and ntp is the cube indicator. So the identity was proved and published before the PR. Burnside's lemma also gives it at once."
+  },
+  "mo-35878": {
+   "date": "2026-11-28",
+   "pr": 19128,
+   "evidence": [
+    "https://mathoverflow.net/questions/35878"
+   ],
+   "reason": "The statement (dim_k of the residue field divides dim_k A for a finite local k-algebra) matches the question. A 2010 comment (score 8) settles it: each m^j/m^{j+1} is an L-vector space, so its k-dimension is divisible by [L:k]; sum over j. The PR's composition-series proof is the same idea."
+  },
+  "mo-475837": {
+   "date": "2026-11-28",
+   "pr": 10126,
+   "evidence": [
+    "https://mathoverflow.net/questions/475837"
+   ],
+   "reason": "The formalization (strictly increasing naturals whose range contains arbitrarily long APs have some consecutive ratio below any L>1) is faithful. fedja answered it in a comment on 27 Jul 2024 ('It is (1) and (2)', with the argument), and another comment gave the mediant bound. The OP accepted this. The PR uses the same argument."
+  },
+  "oeis-a361033": {
+   "date": "2026-11-28",
+   "pr": 19051,
+   "evidence": [
+    "https://github.com/VictorLiwentao/lean-oeis-proofs",
+    "https://oeis.org/A361033"
+   ],
+   "reason": "The statement (a(n) odd iff n = 2^k-1) is faithful. The proof file says it is ported verbatim from Wentao Li's Lean development (LeanOeisProofs/NewFormalization/A361033.lean in github.com/VictorLiwentao/lean-oeis-proofs). In that repository's git history the file was published on 9 Oct 2026, well before this PR (27 Nov 2026). So an earlier public proof exists."
+  },
+  "mo-473367": {
+   "date": "2026-11-28",
+   "pr": 9884,
+   "evidence": [
+    "https://mathoverflow.net/questions/473367"
+   ],
+   "reason": "Disproof that nonnegative cuts imply a PSD signed Laplacian. David Roberson's 2024 MO answer gives the triangle with one negative edge as a counterexample, and the proof file credits him for exactly this example."
+  },
+  "mse-2259412": {
+   "date": "2026-11-28",
+   "pr": 13034,
+   "evidence": [
+    "https://math.stackexchange.com/questions/831632",
+    "https://mirolimp.ru/tasks/216778",
+    "https://math.stackexchange.com/questions/2259412"
+   ],
+   "reason": "The statement (infinitely many primes divide some 1!+...+n!) is faithful. It is a known olympiad result: All-Russian 2012 asks to show that some S_n has a prime factor > 10^2012, with the same valuation argument (n+2 a multiple of the large primes), which gives infinitely many primes. MSE 831632 (2014) proves the general k!+(2k)!+...+(nk)! version (k=1 is this one) in an answer by Nick Strehlke. The MSE question has no answers, but the result was settled publicly before the PR."
+  },
+  "Constant1a.mem_Ioc_c1a": {
+   "date": "2026-11-28",
+   "pr": 7260,
+   "evidence": [
+    "https://doi.org/10.5281/zenodo.23480610",
+    "https://aixiv.online/problems/first-autocorrelation-constant",
+    "https://hexagonmath.org/2611.00395v1",
+    "https://teorth.github.io/optimizationproblems/constants/1a.html"
+   ],
+   "reason": "The proof fills the answer with 13/10 and proves 1.3 <= C1a, which beats the 1.292 named in the upstream question; the upstream C1a definition (nonnegative L^2 f) is faithful to Tao's 1a. But stronger certified lower bounds were public before the PR (merged 27 Nov 2026). Tejasvi Singh Tomar proved C1 >= 1.32 (Zenodo, 19 Oct 2026, with Lean-checked 1.31) and then C1 >= 1.335/1.337 (aiXiv 2610.02333 on 24 Oct, Hexagon 12 Nov 2026), citing an earlier 1.2937 by Kim-Pilanci. The constant is the same. So improving 1.292 was already done. (A Palomar entry for this same 1.30 proof is dated 27 Nov 23:17 UTC, after the merge.)"
   }
  },
  "reviewed": "2026-11-28"
