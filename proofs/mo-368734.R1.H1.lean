@@ -1,44 +1,23 @@
 import OMAReductions.R_mo_368734_R1
 import Mathlib
 
-/-! For a prime `p` with `p % 5 ≠ 1`, `5` is coprime to `p - 1`, so some power `z ↦ z ^ m` inverts
-`z ↦ z ^ 5` on `ZMod p` (Fermat). Hence `x ↦ x ^ 5 + 3` is injective on a finite type, so bijective. -/
+/-! The fifth-power permutation step, following @ivillar (#13526).
+Use the power-map bijection on the finite unit group; zero is handled separately. -/
 
-namespace OMA.Step_mo_368734_R1_H1
-
-/-- For `p ∤ 5 - 1`-type primes, some power undoes the fifth power on `ZMod p`. -/
-theorem exists_inv_pow (p : ℕ) (hp : p.Prime) (h5 : p % 5 ≠ 1) :
-    ∃ m : ℕ, ∀ z : ZMod p, (z ^ 5) ^ m = z := by
+theorem OMA.solution : OMA.R_mo_368734_R1.H1 := by
+  intro p hp h5
   have : Fact p.Prime := ⟨hp⟩
-  rcases Nat.lt_or_ge p 3 with hlt | hge
-  · have hp2 : p = 2 := by have := hp.two_le; omega
-    subst hp2
-    exact ⟨1, by decide⟩
-  · have hcop : Nat.Coprime 5 (p - 1) := by
-      rw [Nat.Prime.coprime_iff_not_dvd (by norm_num)]
-      omega
-    obtain ⟨m, -, hm⟩ := Nat.exists_mul_mod_eq_one_of_coprime hcop (by omega)
-    refine ⟨m, fun z => ?_⟩
-    have hm0 : m ≠ 0 := by rintro rfl; simp at hm
-    rw [← pow_mul, ← Nat.div_add_mod (5 * m) (p - 1), hm, pow_add, pow_mul, pow_one]
-    by_cases hz : z = 0
-    · subst hz
-      have : 0 < (p - 1) * (5 * m / (p - 1)) + 1 := by omega
-      simp
-    · rw [ZMod.pow_card_sub_one_eq_one hz, one_pow, one_mul]
-
-theorem bij (p : ℕ) (hp : p.Prime) (h5 : p % 5 ≠ 1) :
-    Function.Bijective (fun x : ZMod p => x ^ 5 + 3) := by
-  have : Fact p.Prime := ⟨hp⟩
-  rw [← Finite.injective_iff_bijective]
+  have hcop : (Nat.card (ZMod p)ˣ).Coprime 5 := by
+    rw [Nat.card_eq_fintype_card, ZMod.card_units_eq_totient, Nat.totient_prime hp,
+      Nat.coprime_comm, Nat.prime_five.coprime_iff_not_dvd]
+    have := hp.two_le
+    omega
+  apply Finite.injective_iff_bijective.mp
   intro x y hxy
-  have h : x ^ 5 = y ^ 5 := add_right_cancel hxy
-  obtain ⟨m, hm⟩ := exists_inv_pow p hp h5
-  calc x = (x ^ 5) ^ m := (hm x).symm
-    _ = (y ^ 5) ^ m := by rw [h]
-    _ = y := hm y
-
-end OMA.Step_mo_368734_R1_H1
-
-theorem OMA.solution : OMA.R_mo_368734_R1.H1 :=
-  OMA.Step_mo_368734_R1_H1.bij
+  have hpow : x ^ 5 = y ^ 5 := add_right_cancel hxy
+  by_cases hx : x = 0
+  · simp_all
+  by_cases hy : y = 0
+  · simp_all
+  have hu : (Units.mk0 x hx) ^ 5 = (Units.mk0 y hy) ^ 5 := Units.ext hpow
+  exact congrArg Units.val (hcop.pow_left_bijective.injective hu)

@@ -2910,6 +2910,1851 @@
    "reason": "Proved before this site's proof in A. R. Cohen, 'Certified Digit Automata for Nonlinear Two-Dimensional Cellular Automata' (Zenodo 24384895, 20 Nov 2026): Cohen (Zenodo 10.5281/zenodo.24384895, 20 Nov 2026) proves in Lean Rule 849 = Rule 833, c833 = c131 for n>=2, and 3*4^n-4*2^n+1 for n>=2 (g.f./recurrence follow from it plus the first few terms).",
    "source": "https://doi.org/10.5281/zenodo.24384895",
    "date": "2026-11-28"
+  },
+  "oeis-a294413": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
+  },
+  "oeis-a294425": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
+  },
+  "oeis-a294426": {
+   "reason": "Proved before this site's proof in github.com/joaquimmj/oeis-conjectures, conjectures/compeq (commit of 19 Nov 2026; unrefereed but short): Kimberling's complementary-equation golden-ratio limit.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures/tree/71d80d2caef1d4222ac7c3ab1e9446578080a506/conjectures/compeq",
+   "date": "2026-11-28"
+  },
+  "oeis-a284676": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284492": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: morphism 0->1,1->0011 has Perron root 1+sqrt3 and the frequency of 1 gives a(n)/n -> sqrt(3), not (1+sqrt13)/2; OEIS data agree (a(64)/64 ~ 1.75).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a347171": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Doche-Mendes France root count proved by a Chebyshev/phase argument with explicit root localization, plus exact Sturm checks to n=300; looks sound.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285569": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285658": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a174171": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Recurrence certified from the explicit algebraic g.f. (L(A) reduces to a polynomial); also verified by R. Israel in the entry; data check passes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a027174": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Inhomogeneous order-2 recurrence certified from the one-radical closed-form g.f.; data check passes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026363": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a358360": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All five Oudra formulas proved from published theorems of Alekseyev-Amdeberhan-Shallit-Vukusic (Th. 4 and 6).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a036766": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Recurrence certified from A=1+xA+...+(xA)^4: L(A)=8328+6660x, so it holds for n>=2 (site asks n>=5); coefficient 346618 matches data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284774": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a257388": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Recurrence certified from the explicit algebraic g.f. (exact reduction in Q(x)[Y]/(P)); data check passes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a371176": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved: terms are Schreier sets, s(m)=F_m sets with max m, so log a(n)/log n -> log2/log(phi) (limit, hence limsup).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a078841": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved: a(n)=2^n t_{n+1} with t the sorted values u/2^Omega(u), and t_{k+1}/t_k -> 1 by PNT; argument checks out.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284534": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285082": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285207": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284902": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285129": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=4, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285593": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit 1+sqrt5/2 resp. 1+2/sqrt5 proved from exact run frequencies of the limiting words of 0->11,1->0110 (Perron eigenvector of the block substitution).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284505": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved under the positions reading (exact inf/sup inside the bounds); the literal counting-function form u(n)=#0's<=n is trivially false (paper notes this), so the statement is resolved either way.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285531": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285532": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285974": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a225132": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Ratio limit proved via certified argument principle: 1/h(x) has a unique simple dominant pole x0=-0.71165; the entry's '1/(1+g(x))' does not match its data, but the conjectured constant is that of the data's sequence.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285032": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284959": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285076": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): a(n)=A285073(n) for n>=3 proved by hand: both are fixed by a contracting map G(w)=010 psi(010 psi(w)), so the tails coincide; also Walnut.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285598": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a088538": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved: u(n)=sqrt2 prod cos(pi/2^(k+2)) e^(i pi/2^(n+2)), Viete's product gives 4/pi.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a283966": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved under the positions reading (exact inf/sup inside the bounds); the literal counting-function form u(n)=#0's<=n is trivially false (paper notes this), so the statement is resolved either way.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a090079": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Yanev formula proved: a(n) is the alternating word 1010... of length A005811(n).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285423": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency. (Site text 'r=(1+sqrt(3))2' is a typo for /2.)",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285535": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285502": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a287723": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Bound -1<n(7+sqrt5)/4-a(n)<1 proved with Walnut in Fibonacci numeration (block-position formula, integer comparison with floor(n*phi)).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a059906": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Both Yanev formulas proved (alternating-sum cancellation and summation by parts); numerically confirmed for n<3000.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285135": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(1)=4, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284934": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026368": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285130": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=3, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285359": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285670": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285137": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(3)=6, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285980": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a286053": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284948": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Mathar's equality a(n)=A096268(n-2), n>=2, proved with Walnut (both automatic).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a190171": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Order-8 recurrence certified from the closed-form g.f. with one radical (same g.f. as the site's Lean); data check passes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a297469": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Sloane's formulas for bb proved with Walnut (candidate automata shown to satisfy the greedy rules, then induction); the 'mixed' tag refers to Kimberling's bounds, not this claim.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285209": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285594": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit 1+sqrt5/2 resp. 1+2/sqrt5 proved from exact run frequencies of the limiting words of 0->11,1->0110 (Perron eigenvector of the block substitution).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285619": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285134": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=2, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a298468": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Sloane's formulas for aa proved with Walnut in the same theorem as A297469; the false part is Kimberling's bounds, not on the site.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026364": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285138": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=3, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284955": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a079267": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Poisson(1) limit proved by dominated convergence from the entry's inclusion-exclusion formula.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285597": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284015": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284386": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved under the positions reading (exact inf/sup inside the bounds); the literal counting-function form u(n)=#0's<=n is trivially false (paper notes this), so the statement is resolved either way. Also the entry's r=(5+sqrt3)/2 is a typo for (5+sqrt13)/2, which the paper uses.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285035": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284489": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: morphism 0->1,1->0011 has Perron root 1+sqrt3 and the frequency of 1 gives a(n)/n -> sqrt(3), not (1+sqrt13)/2; OEIS data agree (a(64)/64 ~ 1.75).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284590": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285091": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284589": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285036": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a283963": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved under the positions reading (exact inf/sup inside the bounds); the literal counting-function form u(n)=#0's<=n is trivially false (paper notes this), so the statement is resolved either way.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285144": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: the entry's own data give a(2)=3, putting n*r-a(n) outside the stated interval with the stated r; checked against OEIS data.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a363308": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Parity proved in GF(2)[[x]]: C(xC^3) = 1+sum x^(2^k) mod 2; algebra checked.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285419": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a287727": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Bound -1<n(15-sqrt5)/10-a(n)<1 proved with Walnut in Fibonacci numeration.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285302": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a070864": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Layman's closed form proved by strong induction (a(k^2-i)=2k-2-(-1)^i); the repo's K,d match the site's k+1,d.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284473": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284529": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a003157": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value. Limit 4 also follows from the classical identity a(n)=2*A003159(n)+n with A003159 of density 2/3.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285534": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a004123": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Both parts proved: for any G in Z[[x]], a(n) mod k reduces to sum_{i<k} c_i i^n, eventually periodic with period dividing lambda(k)|phi(k).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284469": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284514": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284513": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a006165": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All seven Bala identities proved (Walnut plus explicit iterate formula), (vi) for all k>=2 and (vii) for all k>=1 incl. counts 2^m+1 (35 typo for 33), matching the site's reading.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285976": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284657": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285663": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit phi proved: incidence matrix [[0,2],[2,2]] primitive, frequency of 1 is 1/phi (Perron-Frobenius); only the limit, not bounds, is claimed.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a073089": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Yanev parity formula proved via multiplicativity of sum d*phi(d) mod 4; numerically confirmed for n<20000.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285591": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit 1+sqrt5/2 resp. 1+2/sqrt5 proved from exact run frequencies of the limiting words of 0->11,1->0110 (Perron eigenvector of the block substitution).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284681": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284752": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284472": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved via Perron-Frobenius frequency of a primitive morphism; exact 1/f_L equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285275": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Kimberling bound proved by exact Dumont-Thomas discrepancy computation (Part II); exact inf/sup lie inside the stated interval and the stated r matches the inverse frequency.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285092": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Limit proved from exact Thue-Morse factor frequencies (overlap-free, non-overlapping occurrences); equals the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284654": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285420": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285516": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit (3+sqrt5)/2; A285515 is a word of 0->11,1->0101 and the Perron frequency gives it (non-Pisot, so only the limit, which is all that is claimed).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a287724": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound 0<n(4-sqrt5)-a(n)<3; proved by Walnut in Fibonacci numeration (repo fibtransform/fib.wal); my numerics on 1.7e6 terms agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285422": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284790": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284853": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285127": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: non-Pisot morphism 0->10,1->0000, counterexample in the data (b(2)=11, 2s-11=-3.876<-3) and discrepancy unbounded.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284679": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285623": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; morphism with incidence matrix [[0,2],[2,2]] is primitive, Perron frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284956": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a003278": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same identities; with c=A005836 one has A003278=c+1, A191107=1+3c, A055246=1+6c (order-preserving), which gives both quotients; elementary and correct.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a357097": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same conjecture; proved by embedding Wythoff rows in Z[phi] (theta multiplicative for Knuth's Fibonacci product, conjugate-interval argument); argument checks out.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285143": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: with the stated r=(3+sqrt3)/3, n=12, a(12)=20 gives D=-8+4sqrt3<-1 (checked against the data).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284491": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: exact limit is (3+sqrt3)/2=2.366 (Perron, morphism 0->1,1->0011), not (7+sqrt13)/6=1.768; the data already show a(n)/n~2.366.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285126": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: counterexample in the data (a(3)=3, 3r-3=1.171>1) for the non-Pisot word; discrepancy unbounded.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284958": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285429": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: 0->11,1->100 is primitive, so the limit exists and equals (3+sqrt17)/4=1.78078, which differs from (82+sqrt3)/47=1.78153 (non-Pisot, slow convergence explains the fitted constant).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284678": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound (2,4); exact extremes (1+sqrt13)/2 and (3+sqrt13)/2; the accompanying remark a(n)=A284675(n) is then immediate.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a287676": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Both claims (bounds -1<n(4-sqrt5)-a(n)<2 and Liu's formula 5n+2-2floor((n+1)phi)) proved by Walnut in Fibonacci numeration; numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285140": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: with the stated r=(3+sqrt3)/3, n=2, a(2)=2 gives D=2sqrt3/3>1 (checked against the data).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285085": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; exact inf -1 and sup 1 are not attained since n*phi is irrational; numerics on 1.8e6 terms agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284791": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a174169": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same recurrence, proved by exact holonomic reduction from the entry's algebraic g.f. (A=(1+x^2A^2)/(1-x+3x^2)); I confirmed it on 400 terms.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026743": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same order-8 recurrence, proved from Callan's one-radical g.f. by exact reduction; I confirmed it for 8<=n<400.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284930": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284528": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284773": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a367865": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same identity; both sides are multiplicative and equal prod_{p|n}(p^2-p+1) (CRT on k mod rad n); verified n<300.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284370": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285659": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284368": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Site text uses counting functions u(n), v(n), which read literally is trivially false (n*r-u(n) grows); the intended position reading is proved with exact inf/sup (1+sqrt13)/3,(4+sqrt13)/3 and (-5+sqrt13)/3,(-2+sqrt13)/3, which my numerics match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a080253": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same statement; a(n)=sum g_j j! S(n,j) with integer g_j, so a(n) mod k is a combination of i^n, periodic from n>=log2 k with period dividing lambda(k)|phi(k); classical and correct.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285141": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: with the stated r=1+sqrt3, n=6, a(6)=15 gives D=-9+6sqrt3>1 (checked against the data).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a072939": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All three claims proved: c(k)->inf iff n-1 in A036554 (case analysis on differences), giving A036554+1, the 0s of A285384 and the 1s of A328979; I checked the letter-exchange step.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285084": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound 0<nr-a(n)<r; exact inf 0 and sup r, neither attained (r irrational); numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285033": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a170941": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit 1/e; inclusion-exclusion plus dominated convergence with t_h(n)<=1/h!; argument holds.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285958": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284526": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285567": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; incidence matrix [[0,2],[2,2]] primitive, frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284685": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a007413": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same conjecture; reduced to A007413(j+1)=o(j+1)-o(j) for odious o and proved by Walnut (block tiling by mu), with a FALSE control.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285517": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; A285515 is the pair-reading of A285501 (matrix [[0,2],[2,2]]), frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285428": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: 0->11,1->100 is primitive, so the limit exists and equals (5+sqrt17)/4=2.28078, which differs from (61-sqrt3)/26=2.27954.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285503": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; incidence matrix [[0,2],[2,2]] primitive, frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285590": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit 1+sqrt(5)/2; repo computes run-length frequencies of the 0->11,1->0110 word exactly via Perron on block substitution; numerics agree (2.11803).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284369": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Site text uses counting functions u(n), v(n) (literally trivially false); the intended position reading is proved with exact extremes -(3+sqrt3)/2,2+sqrt3 and -2,1+sqrt3 inside (-3,4),(-2,3); numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284675": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285081": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound 0<nr-a(n)<r; exact inf 0 and sup r, neither attained (r irrational); numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284852": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284509": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a368281": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same conjecture for every n; partial sums of the fixed point of 0->1^n,1->1^n0 satisfy b(k)=k-b(floor(b(k-1)/n)) by a block-counting argument that holds.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285506": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285279": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: stated r=2+sqrt2 is not the inverse frequency (which is sqrt2), so n*r-a(n) grows linearly; first violation n=4, a(4)=6.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a088617": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same asymptotic; T(n,k+1)/T(n,k) is decreasing with crossing at k~n/sqrt2, giving concentration of the mean; argument holds.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285342": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a361190": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same exponent; Denisov-Wachtel applied after centring (weights give probabilities 1/4,1/4,1/2, cone angle arctan sqrt2), exponent 1+pi/arctan sqrt2 - standard argument, relies on a published theorem (repo writes b=0 where b=a is meant, harmless).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a257178": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same recurrence, proved from the algebraic g.f. A=1/(1-3x)+x^2A^2 by exact reduction; I confirmed it on 400 terms.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a283967": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284525": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285413": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: positions of 1 in the 0->11,1->010 word have limit (3+sqrt17)/4=1.781 (data agree), far from the stated (61-sqrt3)/26=2.279.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a055246": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All claims (generation rules 1,3x-2,3x+4 and the three formulas) follow from a(n)=1+6*A005836(n); short correct argument.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a143013": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same recurrence, proved from the algebraic g.f. A=1+x+xA+x^2A^2 by exact reduction; I confirmed it on 400 terms.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285385": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same identity; follows from the characterisation of A072939 (complement of A036554+1) and A096268(m-1)=nu2(m) mod 2; I verified it on 2e5 terms.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285206": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284470": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285210": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284510": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a120160": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): All three Hadjicostas conjectures handled: Josephus characterisation proved for every k, digit-count conjectures proved (conj. 1 holds up to the convention for the digit length of 0).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285601": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284682": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a304451": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Resolved (mixed): limit 5/2 proved; the inequality -1<=5/2-a(n)/n is false at n=1,2 (a(1)=4,a(2)=8 give -3/2) and true for n>=3.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a014664": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same statement (ord_{p^k}(2)=ord_p(2)p^{k-1} for non-Wieferich p); classical lifting-the-exponent argument.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a118006": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): The Somos-corrected Hebisch-Rubey functional equation is proved by Walnut (pair word is the fixed point of A->AAB,B->ABB); I verified it on 1e5 coefficients.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284506": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a026367": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; a(n) = positions of 1 in a limiting word of 0->11,1->110 (Shallit's identification, data match), exact inf/sup -(3+sqrt3)/6 and 1+sqrt3/3 lie in (-1,2).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a286045": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285627": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit phi; incidence matrix [[0,2],[2,2]] primitive, frequency of 1 is 1/phi; data match.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285278": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a295070": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit a(n)/a(n-1)->1; a grows quadratically while a(n)-a(n-1)<=4n by the counting lemma; elementary and correct.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285964": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: stated limit 4/5 is impossible since a(n)>=n; the true limit is 5/4 (TM transform frequency, data agree).",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a283964": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285505": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284894": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound (2,6); exact inf 1+sqrt2 (at n=1) and sup 3+2sqrt2, Pisot morphism; numerics agree.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284903": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a112310": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same claim; groups are the lazy representations of length k-1 and the count of 1s satisfies the A023610 recursion; I checked the first 9 group sums against A023610.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284933": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284488": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Disproved: exact limit is (3+sqrt3)/2=2.366 (Perron, morphism 0->1,1->0011), not (7+sqrt13)/6=1.768; the data already show a(n)/n~2.366.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a022344": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Proved via the norm form of Z[phi] and Morrison's theorem; caveat: F3 is negative for half of the j (e.g. F1=F2=Fibonacci, j=2), so 'F3 appears in a row' holds only up to sign, which the repo does not mention.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284535": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a285566": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; primitive morphic word, limit 1/f_L follows from the Perron eigenvector (Queffelec), my recomputed word matches the data and a(n)/n converges to the stated value.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a304452": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Resolved (mixed): limits 5/2 and 5/3 proved; the stated inequalities fail at small n (b(1)=3 gives -4/3, a(1)=4 gives -3/2) and hold from n=3.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284684": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same limit; frequency of the letter in a Thue-Morse factor-replacement transform, computed exactly from TM factor frequencies; data match and a(n)/n ~ stated value on 3e6 letters.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a161580": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same statement for all odd k at once; first-order in (k,n,m) over Thue-Morse, proved by Walnut (FALSE without 'k odd').",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a284945": {
+   "reason": "Settled in joaquimmj/oeis-conjectures ('Proofs and disproofs of 331 conjectures in the OEIS', 19 Nov 2026, unrefereed, checked): Same bound; repo computes exact inf/sup of n*r-a(n) (Pisot morphism, Dumont-Thomas fixed-point certificate) inside the stated interval; my recomputation of the word matches the data and D(n) on ~1e6 terms stays within and approaches the repo's extremes.",
+   "source": "https://github.com/joaquimmj/oeis-conjectures",
+   "date": "2026-11-28"
+  },
+  "oeis-a294646": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Kernel-checked core-Lean counterexample (no Mathlib, no sorry/native_decide): n = 9814447404 gives (2n-2)*4^n ≡ 1 (mod 2n+1), so a(n) = 2n-2; I rechecked the congruence independently. This refutes the site's conjunction for all n ≥ 1.",
+   "source": "https://github.com/Bonnie9981/Project-Discovery/blob/cbf4c9343adf6aaec34ed82a6828110eb73e8b42/lean/Discovery/A294646Counter.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a224210": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The OEIS b-file lists a(63) = 1627 > prime(249) = 1579 (also n = 257, 269, 270, 273); I recomputed independently that f_63 is reducible mod every prime ≤ 1579 and irreducible mod 1627, so the site's statement (some prime ≤ prime(4n-3) works for every n) is false at n = 63.",
+   "source": "https://oeis.org/A224210/b224210.txt",
+   "date": "2026-11-28"
+  },
+  "oeis-a183161": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Unrefereed, Codex-assisted note, but its argument is the standard Rowland-Yassawi constant-term/automaton method and checks out: I re-ran its mod-4 certificate (closes on exactly 8 states, outputs only 0,1,2), confirmed the constant-term formula for a(n) exactly for n<40, and confirmed the automaton against a(n) mod 4 for n<1500. It proves a(n) mod 4 ≠ 3 for all n, which is the site's statement.",
+   "source": "https://github.com/Asakitan/oeis-a183161/blob/c5d741da486316dae89469804fd65b47b905ce38/PROOF.md",
+   "date": "2026-11-28"
+  },
+  "oeis-a270361": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Sorry-free Lean proof (imports only Mathlib; no sorry/axiom/native_decide) of the exact statement, in a standalone repo rather than this site's. The argument is elementary and correct: a square witness m is even with 0 < m < p, and two witnesses are roots of x² ≡ -1 (mod p), so they are equal or sum to p, which is impossible since p is odd.",
+   "source": "https://github.com/umaia1234/agentic-conjectures/blob/7217bd77f14b65b653d37724f63e705670e91c6f/AgenticConjectures/OeisA270361.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a113573": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Public repo with a sorry-free Lean proof (imports only Mathlib pieces; axioms are only propext/Classical.choice/Quot.sound) plus an elementary argument I checked. Take base digits 1/2/8 and add 0 or 1 at each lower position; the lower n-1 positions in {0,1} cover every residue mod n when 5 ∤ n (Chowla-type growth for odd n, induction for even n), and n = 5 gives 12245. That proves the site's statement: a(n) ≠ 0 unless n = 5t with t > 1.",
+   "source": "https://github.com/Wangwy-sjtu/lean-conjecture-proofs/blob/3e6a937ba1b31141105cd5e332d3b7119464d700/problems/A113572/README.md",
+   "date": "2026-11-28"
+  },
+  "oeis-a397621": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Short, clearly correct proof of exactly the site's statement. With n = q + r (q = 2^h): (1+x)^n = (1+x^q)(1+x)^r has a zero run at positions r+1..q-1 followed by a 1 at q, so no recurrence of length < 2q-n exists; and (1+x)^{2q-n}·(1+x)^n = 1 + x^{2q} gives one of length 2q-n.",
+   "source": "https://github.com/umaia1234/agentic-conjectures/blob/b89af1ced140d79c4d04ac84e39f00181bb6540a/problems/oeis-a397621/PROOF.md",
+   "date": "2026-11-28"
+  },
+  "oeis-a260844": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: f(x) = [x,x,...] is the positive root β' of β' - 1/β' = x. Smyth (J. Austral. Math. Soc. 1980), Lemma 4, proves that for odd β0 (here r = 5) the n-th iterate β_n has degree 2^n. Since β_n = β_{n+1} - 1/β_{n+1}, each Q(β_{n+1})/Q(β_n) is a genuine quadratic extension, and the standard tower formula disc(L) = disc(K)^2 · N(d_{L/K}) gives a(n)^2 | a(n+1) at once.",
+   "source": "https://doi.org/10.1017/S1446788700016426",
+   "date": "2026-11-28"
+  },
+  "oeis-a260481": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: f(x) = [x,x,...] is the positive root β' of β' - 1/β' = x. Smyth (J. Austral. Math. Soc. 1980), Lemma 4, proves that for odd β0 (here r = 1) the n-th iterate β_n has degree 2^n. Since β_n = β_{n+1} - 1/β_{n+1}, each Q(β_{n+1})/Q(β_n) is a genuine quadratic extension, and the standard tower formula disc(L) = disc(K)^2 · N(d_{L/K}) gives a(n)^2 | a(n+1) at once.",
+   "source": "https://doi.org/10.1017/S1446788700016426",
+   "date": "2026-11-28"
+  },
+  "oeis-a166272": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Greither's open-access survey states Stickelberger's theorem: (σ_b − b)θ_m ∈ Z[G]. Applying the Jacobi character χ mod m with b = 2 gives (χ(2) − 2)·D/m ∈ Z, where D = Σ χ(a)a, so the denominator of D/m divides 3. Then S/m = φ(m)/4 + D/(2m) has odd denominator (it divides m) dividing 12, hence 1 or 3: exactly the site's statement, in a few lines.",
+   "source": "https://doi.org/10.1365/s13291-021-00233-5",
+   "date": "2026-11-28"
+  },
+  "Erdos142.erdos_142.variants.lower": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked openai/math release has a Lean library proving OAI.Erdos3.manuscriptQuantitativeDensityTheorem: r_k(N) ≤ C·N·exp(−c(log log N)^{1+η}) for every k ≥ 3, with Model.lean defining r_k as the AP-free maxima (d > 0). Since (log log N)^{1+η} beats log log N, this gives r_k(N) = o(N/log N); k = 2 is trivial. I crawled the full import closure (4136 modules) and found no sorry/admit/axiom/native_decide; a third party reports building it with only standard axioms. The 198-page TeX manuscript itself is unrefereed, but the Lean proof does not depend on it.",
+   "source": "https://github.com/openai/math/blob/adc7f1241b42e322a6451854ab7e4b4c146bf78a/preprints/Quasipolynomial-Bounds-for-Arithmetic-Progressions-September-23-2026/build/sections/09-consequences.tex#L143-L145",
+   "date": "2026-11-28"
+  },
+  "oeis-a143805": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The OEIS history holds a proposed (not yet approved) Nov 26 2026 edit with a short proof, which I checked. From R(n,k+1) = R(n,k) + (k+1)R(n-1,k), induction on k gives R(m+k,k) = Σ_i c(k,i) R(m+i,0), with c(k,i) the coefficients of (x+1)...(x+k) (= T(k,i)). So R(n+1,0) = R(n,n) = Σ_i T(n,i) R(i,0), the same recurrence as a(n), which proves a(n) = R(n,0).",
+   "source": "https://oeis.org/history?seq=A143805",
+   "date": "2026-11-28"
+  },
+  "mo-304281": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The question asks for any spectrum-free characterization of row-orthogonal [O1|O2] with O1 Schur-stable. Proposition 4 of Swaminathan-Murray (ACC 2016 preprint), applied with P = I, A = O1, B = O2 (the discrete Lyapunov equation O1O1^T − I + O2O2^T = 0 holds), gives one: O1 is Schur stable iff (O1, O2) is a controllable pair, i.e. rank[O2, O1O2, …, O1^{n−1}O2] = n. This is the standard Lyapunov/controllability-Gramian fact, and correct.",
+   "source": "https://www.cds.caltech.edu/~murray/preprints/sm16-acc_s.pdf",
+   "date": "2026-11-28"
+  },
+  "Erdos723.erdos_723.variants.leq_11.R1.H2.R2.H4.R1.H2.R1.H2.R1.H3.R1.H2": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: H2 asserts that no 111×111 incidence structure exists with 11 points per line, 11 lines per point, and any two lines (and any two points) meeting exactly once, under extra configuration constraints. Any such M is a projective plane of order 10. Their nonexistence is Lam-Thiel-Swiercz (1989), re-verified with checkable SAT/DRAT certificates in Bright et al.'s 'A SAT-based resolution of Lam's problem' (the linked report), so H2 holds outright.",
+   "source": "https://cs.curtisbright.com/reports/lams-problem-sat-resolution.pdf",
+   "date": "2026-11-28"
+  },
+  "arxiv-2401.12397": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Gouéré's arXiv note is a human exposition of a complete proof of Kozma-Nitzan Conjecture 1. Its Theorem 1, P[s↔A; s↔t] ≥ P[s↔A]·min_{a∈A} P[a↔t], implies the site's inequality directly and extends by continuity to p_e ∈ [0,1]. The same result has a second human exposition (Blanc-Renaudie) and an independently checked Lean proof (Bou-Rabee's percolation-after-anthropic).",
+   "source": "https://arxiv.org/pdf/2610.30063",
+   "date": "2026-11-28"
+  },
+  "mse-4399939": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Odlyzko-Richmond (Ann. Probab. 1985), Theorem 1: if p_0, p_1, p_{d-1}, p_d > 0 (true when all coefficients are positive, after normalizing P to a distribution), then the coefficients of P^n are log-concave for all large n. Positive log-concave coefficients are unimodal, which proves the 'prove' direction of the question (in fact for every large r).",
+   "source": "https://www-users.cse.umn.edu/~odlyzko/doc/arch/unimodal.convolut.pdf",
+   "date": "2026-11-28"
+  },
+  "arxiv-2609.01866": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The GitHub issue is only a 'preregistration', but it gives a complete, explicit counterexample to Gerling's converse question. G = V4 × C3 acts faithfully on the star K_{1,58} in two ways (leaf blocks 4T+9A+9B+5C versus R+8A+8B+14I). I recomputed the subgroup weights c_G and the leaf-cycle counts: the c-weighted multisets of quotient stars agree, so F1 = F2, while the unweighted ones differ (S40 versus S36), so OP1 ≠ OP2. The converse is false.",
+   "source": "https://github.com/the-omega-institute/trureturing/issues/24209",
+   "date": "2026-11-28"
+  },
+  "oeis-a295433": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Sorry-free Lean proof in a public repo (the import closure outside Mathlib is 2 files, with no sorry/axiom/native_decide) that A347856(n) = (6n)!(n/2)!/((4n)!(3n/2)!n!) is an integer for every n, with fractional factorials as Γ(1+x), exactly as in the conjecture. The argument is the standard Landau floor-function criterion (even n) plus the half-integer Gamma formula (odd n).",
+   "source": "https://github.com/the-omega-institute/trureturing/blob/ff444aeb6b57ff09b8e46cfa5b8e62baf80d7efa/D5/S3/Arith/FactorialRatio/OeisA347856BalaHalfIndexIntegral.lean",
+   "date": "2026-11-28"
+  },
+  "opg-s-s-f-s-f-for-reloids": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Unrefereed AI-assisted note, but its counterexample (Theorem 1.2) is short and I checked it. On U = N ∪ {c_n}, take f with base F_j = succ ∪ {(n, c_n): n ≥ j}. Then K = id ∪ ⋃_m F_m^m lies in S(f) but misses every (0, c_n), while any K2∘K1 with K1, K2 ∈ S(f) contains (0, c_j). So S(f)∘S(f) ≠ S(f), and hence S(S(f)) ≠ S(f): the answer to Porton's question is no, refuting the site's 'yes' statement.",
+   "source": "https://doi.org/10.5281/zenodo.23245512",
+   "date": "2026-11-28"
+  },
+  "oeis-a188149": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked paper gives a correct locality argument: a 4-cell walk stays within distance 3 of its start, so for n ≥ 7 the total count is a quadratic polynomial in n (an interior/boundary profile census). Exact computation then fixes that polynomial. I brute-forced a(n) for n ≤ 11 and it matches the conjectured g.f. coefficient by coefficient; with quadratic growth past n = 7 the g.f. and the 3-term recurrence hold for all n.",
+   "source": "https://github.com/d26521082/saw-polynomials/blob/daa10f0c349c6225a0d7a7aee997fd6f8d0e1c92/paper/main.tex#L254-L276",
+   "date": "2026-11-28"
+  },
+  "oeis-a188150": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked paper gives a correct locality argument: a 5-cell walk stays within distance 4 of its start, so for n ≥ 9 the total count is a quadratic polynomial in n (an interior/boundary profile census). Exact computation then fixes that polynomial. I brute-forced a(n) for n ≤ 13 and it matches the conjectured g.f. coefficient by coefficient; with quadratic growth past n = 9 the g.f. and the 3-term recurrence hold for all n.",
+   "source": "https://github.com/d26521082/saw-polynomials/blob/daa10f0c349c6225a0d7a7aee997fd6f8d0e1c92/paper/main.tex#L254-L276",
+   "date": "2026-11-28"
+  },
+  "oeis-a188151": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked paper gives a correct locality argument: a 6-cell walk stays within distance 5 of its start, so for n ≥ 11 the total count is a quadratic polynomial in n (an interior/boundary profile census). Exact computation then fixes that polynomial. I brute-forced a(n) for n ≤ 15 and it matches the conjectured g.f. coefficient by coefficient; with quadratic growth past n = 11 the g.f. and the 3-term recurrence hold for all n.",
+   "source": "https://github.com/d26521082/saw-polynomials/blob/daa10f0c349c6225a0d7a7aee997fd6f8d0e1c92/paper/main.tex#L254-L276",
+   "date": "2026-11-28"
+  },
+  "CongruentNumber.Tunnell_even.R1.H2.R1.H2.R1.H2.R1.H2.R1.H2.R1.H1.R1.H1.R1.H1.R1.H1": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: H1 is classical local class field theory for completions of number fields at finite places: a surjective Artin map Lˣ → Gal(Y/L) with kernel N(Yˣ), plus its standard naturality under valuation-preserving field isomorphisms (textbook, e.g. Neukirch, ch. V). The linked Lean library (Mathlib-only dependency) proves reciprocity and exactly this semilinear naturality (abelianLocalArtinMonoidHom_semilinear_action); I found no sorry/axiom/native_decide in its 320-module import closure. Bridging Valued.v to its ValuativeRel setting is routine and does not affect the mathematics.",
+   "source": "https://github.com/n-yamaguchi-0729/ClassFieldTheory/blob/fc644f42dade5bdc7157fc3ef2eef4dbf2d6a565/Nyll/ClassFieldTheory/LocalClassFieldTheory/Finite/LocalReciprocity/SemilinearNaturality.lean",
+   "date": "2026-11-28"
+  },
+  "oeis-a242235": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked project (an unrefereed draft) proves the rational g.f. of A242235 by a transfer argument (a bouquet of cycles) and derives a(n) = 16·A145113(n−1) + 4n−5 = 16·A145113(n−1) + A004767(n−2). I confirmed this rigorously and independently. a(n) is (5-window automaton count)/120; its S5-quotient has ≤ 52 states, so a(n) is C-finite of order ≤ 52, the right side has order ≤ 9, and they agree for n = 2..150. So the identity holds for all n > 1.",
+   "source": "https://github.com/pandolfonicolo/oeis-proofs/tree/main/projects/a242239-window-covering-words",
+   "date": "2026-11-28"
+  },
+  "Erdos848.erdos_848.R3.H2": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked public Lean development proves Erdos848.statement_low (and the full erdos848): for N in [986747, 1.6·10^8], every A ⊆ [1,N] with no ab+1 squarefree has |A| ≤ c7 N = (N+18)/25, exactly H2's conclusion. The computations are kernel-checked via decide +kernel, with no native_decide. I crawled the import closure (593 Erdos848.* plus the ErdosComp.* modules, Mathlib-only dependency) and found no sorry/admit/axiom/native_decide.",
+   "source": "https://github.com/MacchaCat/erdos848/blob/99b8d9bf40fdd090a2a117328c5707ca21ec748e/Erdos848/Erdos848/Final.lean",
+   "date": "2026-11-28"
+  },
+  "mo-244525": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The question asks for the best bound on P(sup_a |Σδ_i a_i/p − 1| ≥ t). The linked answer computes the supremum exactly: with k = Σδ_i, the max is 1 ∧ ck/n and the min is 0 ∨ (1 − c(n−k)/n). So the probability is exactly a binomial(n,p) interval probability (for small t, 1 − P((1−t)p + c − 1 < ck/n < (1+t)p)). I checked the derivation; an exact formula is the best possible bound.",
+   "source": "https://mathoverflow.net/a/244609",
+   "date": "2026-11-28"
+  },
+  "oeis-a027697.R1.H1": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Mauduit-Rivat (Annals of Math. 171 (2010), the linked article) proves that the binary digit sum of primes is equidistributed modulo m (Gelfond's problem). For m = 2 this gives that asymptotically half the primes have odd and half have even s2, so both sets are infinite, which is exactly H1.",
+   "source": "https://annals.math.princeton.edu/2010/171-3/p04",
+   "date": "2026-11-28"
+  },
+  "mo-208955": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The question page itself settles it: Yemon Choi's comment (score 6; the asker accepts it) notes that circulants are normal, so the operator 2-norm is the spectral radius max_k |p(ω^k)|. With nonnegative coefficients that maximum is p(1) = Σ a_j. This is a clearly correct proof of the site's statement.",
+   "source": "https://mathoverflow.net/questions/208955",
+   "date": "2026-11-28"
+  },
+  "mo-357402": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The question asks for a simple explicit bound on ‖f''‖∞. The linked answer gives one, and I checked it. f'' is piecewise linear, so its max is at the knots; the knot values solve the standard strictly diagonally dominant tridiagonal system Ak = b, and Varah's bound gives ‖f''‖∞ ≤ max|b_i| / min(x_{i+1}−x_{i−1}, end-row margins), explicit in the x_i and v_i.",
+   "source": "https://mathoverflow.net/a/359729",
+   "date": "2026-11-28"
+  },
+  "mo-383262": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: fedja's comment ('just project and average') completes a correct proof together with the question's own real case. Σ_{i,j}|x_i+x_j| ≥ n·Σ|x_i| is the classical real inequality; repeating entries and continuity give the weighted real version. Writing |z| = (1/4)∫|Re(e^{−iθ}z)|dθ and applying the real inequality to each projection, then integrating, gives the complex weighted inequality.",
+   "source": "https://mathoverflow.net/questions/383262/#comment976774_383262",
+   "date": "2026-11-28"
+  },
+  "mo-163794": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The answer shows that the second derivative is the constant 2∫∫|x−y|² dν dν with ν = μ0 − μ1, and gives an explicit negative example. Its example is discrete, but since ν has total mass 0 this equals −4|mean(μ0) − mean(μ1)|², so any absolutely continuous pair with different means works (e.g. smooth the answer's two measures). That gives the requested example at once.",
+   "source": "https://mathoverflow.net/a/163914",
+   "date": "2026-11-28"
+  },
+  "OeisA105210.conjecture_disjoint_starting_values.R1.H1": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: H1 is the finite check that no value ≤ 10^8 lies in two of the five orbits; the OEIS entry reports it (Cormier-Selfridge). I re-ran it with the formal-conjectures definition (sum of distinct prime factors below n): the orbits from 1, 393, 412, 668, 932 have 307/305/352/395/368 terms ≤ 10^8 and are pairwise disjoint. The orbits are strictly increasing, so this decides H1.",
+   "source": "https://oeis.org/A105210",
+   "date": "2026-11-28"
+  },
+  "oeis-a389592": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Höft's OEIS-hosted note (Corollary 1(b) of Theorem 4) states that the block-starting divisors (p > 2·previous divisor) form row n of A379288, i.e. the minima of the 2-dense sublists, in order. That gives T(n,k) = A384149(n,k) − A379288(n,k) at once. The fact is elementary and I checked it: a block minimum e > 2d must be odd (else e/2 would be a divisor between d and e) and has no divisor in (e/2, e); conversely an odd divisor with none in (e/2, e) has its previous divisor below e/2.",
+   "source": "https://oeis.org/A237270/a237270_4.pdf",
+   "date": "2026-11-28"
+  },
+  "OeisA69923.conjecture.R1.H1": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: H1 is the finite claim that a(n) ≥ 1 for 1 ≤ n ≤ 250. The OEIS b-file (Robert Israel, Maple) lists a(n) ≥ 2 for every n ≤ 400. I recomputed independently: for every n ≤ 250 the next prime after 2^n lies within 0.69·p_n of 2^n. Caveat: above 2^64 primality rests on BPSW / Maple isprime rather than certificates, the standard for such tables.",
+   "source": "https://oeis.org/A069923/b069923.txt",
+   "date": "2026-11-28"
+  },
+  "oeis-a005943": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: Allouche (Bull. Austral. Math. Soc. 46 (1992), Section 6, Theorem 2, as cited in the OEIS entry) proves that the factor complexity of the Golay-Rudin-Shapiro word is 8n − 8 for n ≥ 8. Arndt's g.f. expands to exactly 1, 2, 4, 8, 16, 24, 36, 46 followed by 8n − 8 (I checked), and the initial terms are a finite verification. So the conjectured g.f. holds.",
+   "source": "https://doi.org/10.1017/S0004972700011655",
+   "date": "2026-11-28"
+  },
+  "oeis-a057886": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: East-Niles (arXiv:1710.11245; Bull. Austral. Math. Soc. 2019), Theorem 1.9, proves that the number of incongruent integer quadrilaterals of perimeter n (A057886, which counts dihedral necklaces) is round((n³−3n²+20n)/96) for even n and round((n³−7n)/96) for odd n. I checked that this matches brute force for n ≤ 40. Barker's closed forms, Etienne's formula and the d(n) recurrence all agree with it for n < 3000, and the g.f. through 60 terms; these are quasi-polynomial identities, so that is enough.",
+   "source": "https://arxiv.org/abs/1710.11245",
+   "date": "2026-11-28"
+  },
+  "PerfectNumbers.odd_perfect_number.lower_bound.R1.H1.R1.H1": {
+   "reason": "Reported by an agent as solved elsewhere and confirmed by review: The linked paper is Ochem-Rao, 'Odd perfect numbers are greater than 10^1500' (Math. Comp. 81 (2012)), a published computer-assisted proof that every odd perfect number exceeds 10^1500. So there is no odd perfect n ≤ 10^1500 and H1 holds vacuously; in fact H1 is a sub-claim of their own factor-chain search.",
+   "source": "https://www.lirmm.fr/~ochem/opn/opn.pdf",
+   "date": "2026-11-28"
+  },
+  "arxiv-2603.04876": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Public claims a proof of Biswas-Mandal-Saha Conjecture 5.5 (RV_chordal(n) for connected chordal graphs, n >= 3), which is the conjecture the site row names. The site has no Lean statement or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/biswas-2603.04876-conj5.5",
+   "date": "2026-11-28"
+  },
+  "arxiv-2201.02781": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: fgndi_sum(G) <= 3 for every connected graph of order >= 3 (Conjecture 2). Public says proved (audited, not formalized). No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/chang-2201.02781-conj2",
+   "date": "2026-11-28"
+  },
+  "arxiv-2604.22375": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim (Ciobanu-Turaev Conjecture 1): in every f.g. group, the VPL^forall sets are exactly the recognisable sets. Public says proved. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/ciobanu-2604.22375-conj1",
+   "date": "2026-11-28"
+  },
+  "arxiv-2402.15372": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the q,t-CTI and q,t-ITC polynomials on the complete split graph are equal (conj:ITCCTIsymmetry). Public says proved. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/derycke-2402.15372-conj7_1",
+   "date": "2026-11-28"
+  },
+  "arxiv-2202.08116": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim (Dris Conjecture 5.1): {m : gcd(m,sigma(m^2)) = gcd(m^2,sigma(m^2))} has asymptotic density 0. Public says proved, with a Lean file. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/dris-2202.08116-conj5.1",
+   "date": "2026-11-28"
+  },
+  "arxiv-2511.16335": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): The site row says the general forms are the only graphs with fixed propagation time 1 (standard and PSD forcing). Public refutes the standard case (Conjecture 1.8: PTbar(G)=1 implies a standard fast join), so the combined statement is false. The PSD case is not addressed.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/ferrero-2511.16335-conj1.8",
+   "date": "2026-11-28"
+  },
+  "arxiv-2602.04034": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim (Conjecture 1, conjecture:main): there are finitely many clonoids between finite modules A and B iff they have coprime orders. Public proves it, with Conjecture 59. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/fioravanti-2602.04034-conj59",
+   "date": "2026-11-28"
+  },
+  "arxiv-2410.02032": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the site Lean main says p_L(n) <= 3n for n >= 1 and every S(e,23,e)-adic language. Public proves Garrity-Osterman Conjecture 1, which also covers the conjugates and twins. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/garrity-2410.02032-conj1",
+   "date": "2026-11-28"
+  },
+  "arxiv-2611.23687": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim (Conjecture 1.4): D_N = prod tau_{-n}(K_n) is the least-degree regulariser of the N-truncated Virasoro extremal projector. Public says proved. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/hartwig-2611.23687-conj1.4",
+   "date": "2026-11-28"
+  },
+  "arxiv-2208.14707": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): The site row is conjecture (i) together with (ii). Public refutes (ii), Conjecture 2.2 (chi_la(G[H]) = chi(G)chi(H) iff ...), so the stated conjunction is false. Part (i) is not addressed.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/lau-2208.14707-conj2",
+   "date": "2026-11-28"
+  },
+  "arxiv-2611.19371": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim (Conjecture 3.8, iG-conj): a K-theoretic bumpless pipe dream formula for involution Grothendieck polynomials. Public says proved. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/marberg-2611.19371-conj",
+   "date": "2026-11-28"
+  },
+  "arxiv-2511.22346": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Site: the switching rook polynomial equals the h-polynomial of K[P] for every collection of cells. Public gives a 10-cell collection with h_1 <= 9 < 10 = r_1, which refutes exactly this part of Conjecture 2.3. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/navarra-2511.22346-conj2.3",
+   "date": "2026-11-28"
+  },
+  "oeis-a045742": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 2022 D-finite recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A045742",
+   "date": "2026-11-28"
+  },
+  "oeis-a045743": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 2022 D-finite recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A045743",
+   "date": "2026-11-28"
+  },
+  "oeis-a061313": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: a(n)+2 is the sum of the Hirzebruch continued-fraction terms of A007305(n)/A007306(n) (Zabolotskii). Public proves it, with Lean. No site statement or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A061313",
+   "date": "2026-11-28"
+  },
+  "oeis-a091524": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Kurkov's a(n) = sqrt(A028982(n)/A006337(n)). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A091524",
+   "date": "2026-11-28"
+  },
+  "oeis-a092920": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Kurkov's binary-valuation binomial sum formula. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A092920",
+   "date": "2026-11-28"
+  },
+  "oeis-a101035": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Irwin's logarithmic g.f. Sum mu(n)mu(k)log(1/(1-x^(nk))). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A101035",
+   "date": "2026-11-28"
+  },
+  "oeis-a108430": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 2022 D-finite recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A108430",
+   "date": "2026-11-28"
+  },
+  "oeis-a119366": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 2025 D-finite recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A119366",
+   "date": "2026-11-28"
+  },
+  "oeis-a121752": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim as the site Lean main (Mathar's recurrence for n >= 6). Public says proved. Site has a statement but no proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A121752",
+   "date": "2026-11-28"
+  },
+  "oeis-a121754": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim as the site Lean main (Mathar's recurrence for n >= 6). Public says proved. Site has a statement but no proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A121754",
+   "date": "2026-11-28"
+  },
+  "oeis-a123145": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Gladkovskii's 5-step continued-fraction e.g.f. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A123145",
+   "date": "2026-11-28"
+  },
+  "oeis-a124380": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Kotesovec's log a(n) ~ n log n/2 - n(1+log 2)/2. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A124380",
+   "date": "2026-11-28"
+  },
+  "oeis-a125790": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Kurkov's row g.f. conjecture. Public proves it, with Lean. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A125790",
+   "date": "2026-11-28"
+  },
+  "oeis-a132411": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Bala's q-series exponent conjecture. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A132411",
+   "date": "2026-11-28"
+  },
+  "oeis-a157002": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim as the site Lean main (Mathar's recurrence for n >= 4). Public says proved. Site has a statement but no proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A157002",
+   "date": "2026-11-28"
+  },
+  "oeis-a157003": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 6-term recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A157003",
+   "date": "2026-11-28"
+  },
+  "oeis-a158826": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 2021 D-finite recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A158826",
+   "date": "2026-11-28"
+  },
+  "oeis-a165204": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Barker's g.f. and 4-term recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A165204",
+   "date": "2026-11-28"
+  },
+  "oeis-a167894": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Gladkovskii's continued-fraction g.f. Q(0). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A167894",
+   "date": "2026-11-28"
+  },
+  "oeis-a168452": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 2024 D-finite recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A168452",
+   "date": "2026-11-28"
+  },
+  "oeis-a176126": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 9-term recurrence and g.f. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A176126",
+   "date": "2026-11-28"
+  },
+  "oeis-a177259": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim as the site Lean main (Mathar's recurrence for n >= 6). Public says proved, with Lean. Site has a statement but no proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A177259",
+   "date": "2026-11-28"
+  },
+  "oeis-a177260": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 2022 recurrence. Public proves it, with Lean. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A177260",
+   "date": "2026-11-28"
+  },
+  "oeis-a179525": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): The open part of the row is Gladkovskii's continued-fraction g.f. (Jelinek's asymptotic is already marked proved). Public proves it, along with Bala's even-product g.f. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A179525",
+   "date": "2026-11-28"
+  },
+  "oeis-a183063": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Yanev's cotangent-limit formula for the number of even divisors. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A183063",
+   "date": "2026-11-28"
+  },
+  "oeis-a186997": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: both of Bala's 2-adic valuation conjectures. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A186997",
+   "date": "2026-11-28"
+  },
+  "oeis-a187430": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Irwin's Catalan g.f. transform identity. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A187430",
+   "date": "2026-11-28"
+  },
+  "oeis-a188458": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Gladkovskii's continued-fraction g.f. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A188458",
+   "date": "2026-11-28"
+  },
+  "oeis-a215041": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Lang's conjectures for a(n) = n^delta(n)/disc(C(n,x)) (arXiv:1210.1018 open problem 1). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A215041",
+   "date": "2026-11-28"
+  },
+  "oeis-a227543": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Kurkov's b(n) = P(n,n) continued-fraction row recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A227543",
+   "date": "2026-11-28"
+  },
+  "oeis-a250917": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Mathar's 2020 D-finite recurrence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A250917",
+   "date": "2026-11-28"
+  },
+  "oeis-a274271": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Barker's closed form, recurrence and g.f. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A274271",
+   "date": "2026-11-28"
+  },
+  "oeis-a274272": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Barker's closed form, recurrence and g.f. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A274272",
+   "date": "2026-11-28"
+  },
+  "oeis-a286044": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim as the site Lean main (Yanev's a(n) = b(b(n-2)) - b(b(n-3)) for n > 3). Public says proved. Site has a statement but no proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A286044",
+   "date": "2026-11-28"
+  },
+  "oeis-a350963": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Sloane's conjectured g.f. for the XXOXX coordination sequence. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A350963",
+   "date": "2026-11-28"
+  },
+  "oeis-a360949": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim as the site Lean main (Hanna's mod-4 Thue-Morse pattern). Public proves it, with Lean. Site has a statement but no proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A360949",
+   "date": "2026-11-28"
+  },
+  "oeis-a361430": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: a(n) = |A298826(n)|. Public proves it, with related Kotesovec, Schulte and Oudra conjectures. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A361430",
+   "date": "2026-11-28"
+  },
+  "oeis-a379459": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Kurkov's A(n,0) = A006351(n+2). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A379459",
+   "date": "2026-11-28"
+  },
+  "oeis-a383410": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Kurkov's A(n,0) = A005649(n). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A383410",
+   "date": "2026-11-28"
+  },
+  "oeis-a386251": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Hohn conjectures that a(n) for n >= 6 comes from 3-segment walks. Public refutes it, with Lean. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A386251",
+   "date": "2026-11-28"
+  },
+  "oeis-a392058": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Kurkov's A(n,0) = A233335(n+1). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A392058",
+   "date": "2026-11-28"
+  },
+  "oeis-a394511": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Exley's shell conjecture with a(n) = 2*ceil((n+17)/5). Public refutes it (a(35) <= 20 < 22, Lean). No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A394511",
+   "date": "2026-11-28"
+  },
+  "oeis-a396911": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Irvine's bound a(n) <= (3/2) n^2. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A396911",
+   "date": "2026-11-28"
+  },
+  "oeis-a400812": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Horvat's recurrence, g.f. and closed form for the Spectre star triples. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A400812",
+   "date": "2026-11-28"
+  },
+  "oeis-a400888": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Lafitte's surjectivity conjecture. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/oeis-A400888",
+   "date": "2026-11-28"
+  },
+  "arxiv-2210.14762": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Site: S(n,k) is non-word-representable for n >= 4, k >= 3. Public shows S(4,3) is 3-colourable and hence word-representable, which is a counterexample. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/petyuk-2210.14762-conj1",
+   "date": "2026-11-28"
+  },
+  "arxiv-2603.29978": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Site: A(vdw(n,k)) fails the WLP for n >> k >= 3 with k odd (part 1 of Conjecture 6.1). Public proves Conjecture 6.1, both parts, in char 0. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/ragunathan-2603.29978-conj6.1",
+   "date": "2026-11-28"
+  },
+  "arxiv-2605.25743": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): The site row asks whether the discriminants of derivatives are SOS in the root differences (Conjecture 1.1, conj:sos). Public proves it for all n >= 2, 0 <= k <= n-2, along with the Hermite-matrix version. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/riener-2605.25743-conjHermite",
+   "date": "2026-11-28"
+  },
+  "arxiv-2603.16004": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the site Lean main (for k >= 3 there is n0 such that the reverse-reply strategy wins for Player II for n >= n0) is Ulfarsson Conjecture 2.9. Public says proved. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/ulfarsson-2603.16004-conj1",
+   "date": "2026-11-28"
+  },
+  "arxiv-2310.17337": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim (Conjecture 1.5): iota(G,C_k) <= (m+1)/(k+2) for connected G not isomorphic to C_k. Public refutes it with k = 8 and the truncated tetrahedral graph (Lean-checked). No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/wei-2310.17337-conj1.5",
+   "date": "2026-11-28"
+  },
+  "arxiv-2609.23078": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim (Conjecture 1 / 4.1): the complement of the maximal proper extremal subset is F(b_star), the set of nonzero lowering-operator images of the distinguished element. Public says proved for all types. No site proof.",
+   "source": "https://github.com/kolinhuang0427/open-math-results/tree/main/targets/zhou-2609.23078-conj1",
+   "date": "2026-11-28"
+  },
+  "oeis-a208638": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Public proves the 3 x n count 5*2^n - n - 5, which gives Barker's g.f., and the Pascal-rectangle half-sum, which is Carey's conjecture. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a208638",
+   "date": "2026-11-28"
+  },
+  "oeis-a212392": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Public proves the general-b conjecture that (b+1)*Integral F has integer coefficients. For b = 2 this gives n | a(n), so it settles both conjectures in the row. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a212392-general",
+   "date": "2026-11-28"
+  },
+  "oeis-a183245": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Barker's g.f. and recurrence a(n) = 7a(n-1) - 12a(n-2). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a183245",
+   "date": "2026-11-28"
+  },
+  "oeis-a195825": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the plateau structure of column k (lengths k+1, k-1, ..., levels from A210843). Public says proved. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a195825",
+   "date": "2026-11-28"
+  },
+  "oeis-a097324": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Public settles all three parts: the set is infinite (true), it does not equipartition N because its lower density is > 50.257% (false), and the maximum gap is exactly 7 (true). The README is undated; the repo was created 26-27 Nov. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a097324",
+   "date": "2026-11-28"
+  },
+  "oeis-a339387": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim as the site Lean main (if A339387(n) = A339384(n) then n is squarefree). Public says proved. Site has a statement but no proof.",
+   "source": "https://github.com/Asakitan/oeis-a339387",
+   "date": "2026-11-28"
+  },
+  "oeis-a269781": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the sequence has no zeros, so every n has an amicably refactorable partner. Public proves it by explicit construction. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a269781",
+   "date": "2026-11-28"
+  },
+  "oeis-a247996": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim as the site Lean main (Barker's g.f. and the even/odd polynomials). Public proves them for all n. Site has a statement but no proof.",
+   "source": "https://github.com/Asakitan/oeis-a247996",
+   "date": "2026-11-28"
+  },
+  "oeis-a187607": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: Barker's g.f. and recurrence. Public proves them via the count (4n-10)^2. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a187607",
+   "date": "2026-11-28"
+  },
+  "oeis-a183452": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the conjectured degree-30 rational g.f. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a183452",
+   "date": "2026-11-28"
+  },
+  "oeis-a187177": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the conjectured g.f. Public proves it (780n^2 - 9880n + 29384 for n >= 12). No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a187177",
+   "date": "2026-11-28"
+  },
+  "oeis-a187176": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the conjectured g.f. Public proves it (284n^2 - 3100n + 7944 for n >= 10). No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a187176",
+   "date": "2026-11-28"
+  },
+  "oeis-a187175": {
+   "reason": "Settled in a public results repository before any proof here (its own audited claim): Same claim: the conjectured g.f. Public says proved. No site Lean or proof.",
+   "source": "https://github.com/Asakitan/oeis-a187175",
+   "date": "2026-11-28"
+  },
+  "oeis-a156870": {
+   "reason": "Same statement as oeis-a156869, settled by Franklin T. Adams-Watters's 2009 comment in OEIS A156869 (main direction; the converse follows from the same argument).",
+   "source": "https://oeis.org/A156869",
+   "date": "2026-11-28"
+  },
+  "oeis-a390246": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00201), checked against the exact statement: The preprint's 'remark on OEIS' proves A390246(n) = A219787(n) - (n-1) by definition: k is an admissible width iff n+k-1 is an admissible right endpoint, so the minima differ by n-1. This is exactly the site's statement (n >= 1); the argument is complete though brief.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268967": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00271), checked against the exact statement: Row A268967: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's recurrence (n >= 4), g.f. (with a(0) = 0) and closed form for n >= 2 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233078": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00271), checked against the exact statement: Row A233078: Barker's g.f. (and Hardin's recurrence, n>2) are proved by an exact transfer matrix. The site's g.f. and closed form (49+27*49^n)/98 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233094": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00271), checked against the exact statement: Row A233094: Barker's g.f. (and Hardin's recurrence, n>3) are proved by an exact transfer matrix. The site's g.f. and sqrt(55) closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268900": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00271), checked against the exact statement: Row A268900: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's recurrence (n >= 4), g.f. (with a(0) = 0) and closed form for n >= 2 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207450": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00284), checked against the exact statement: Row A207450: Barker's g.f. and Barker's recurrence (n>4) are proved by an exact width-5 transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 5).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a222835": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00284), checked against the exact statement: Row A222835: Barker's g.f. (and Hardin's recurrence, n>7) are proved by an exact transfer matrix. The site's g.f. and complex closed form for n > 3 follow from the g.f. (closed form checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268053": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00284), checked against the exact statement: Row A268053: Barker's g.f. (and Hardin's recurrence, n>4) are proved by an exact transfer matrix. The site's g.f. and closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a209649": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A209649: Barker's g.f. and Barker's recurrence (n>6) are proved by an exact width-7 transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 7).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207702": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A207702: Barker's g.f. (and Hardin's recurrence, n>8) are proved by an exact transfer matrix. The site's degree-7 polynomial closed form for n >= 1 is the coefficient formula of that g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207937": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A207937: Barker's g.f. (and Hardin's recurrence, n>8) are proved by an exact transfer matrix. The site's degree-7 polynomial closed form for n >= 1 follows from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207402": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A207402: Barker's g.f. and Barker's recurrence (n>8) are proved by an exact transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 9).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207390": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00300), checked against the exact statement: Row A207390: Barker's g.f. and Barker's recurrence (n>8) are proved by an exact transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 9).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a128750": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A128750: o.g.f., E = -(x-1)(x^2+1), 'true, all n>=4', exactly the site's range n >= 4.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a191398": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A191398: o.g.f., E = -2(2x^3+2x^2+4x-3), a polynomial of degree 3, 'true, all n>=6', exactly the site's range n >= 6.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a210064": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A210064: o.g.f., E = 0, 'true, all n>=2'. That covers the site's range n >= 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a174195": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A174195: E = 2(28788x^3+6999x^2+84367x+83100), 'true for n>3; false at n=2,3'. That matches the site's corrected recurrence for n >= 4, and the failure values 13998 and 57576 it records.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a157021": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: The first of the two A157021 rows (the order-7 recurrence): E = -4(x-1)(2x^2-2x+1)^2, 'true, all n>=7'. That is exactly the site's statement of the order-7 conjecture for n >= 7.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a182879": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A182879: o.g.f., E = 0, 'true, all n>=5', exactly the site's range n >= 5.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a130655": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A130655: o.g.f., E = 2x(4x-3), 'true, all n>=3', exactly the site's range n >= 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a053482": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A053482 sits in the preprint's 'already settled in OEIS (cross-checks, not claimed)' table: e.g.f., E = 0, 'true, all n>=3'. The exact computation covers the site's statement for n >= 3, but the preprint does not claim it as new; OEIS itself records Choulet's proof.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a166135": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A166135: o.g.f., E = 6x(x+1), 'true, all n>=3', exactly the site's range n >= 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a218185": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A218185: E = -16x^4, 'true for n>4; false at n=4'. That matches the site's corrected recurrence for n >= 5 and the value -16 it records at n = 4.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a220433": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00206), checked against the exact statement: The preprint shows L(y) = 2 exactly for the series reversion of t-t^2+t^3/6, so Mathar's recurrence holds for all n >= 3 and fails only at n = 2. This is exactly the site's corrected statement (n >= 3).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a162548": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A162548 sits in the preprint's 'already settled in OEIS (cross-checks, not claimed)' table: o.g.f., E = -(x-1)(x+1)(x^2-x+1), 'true, all n>=6'. The exact computation covers the site's range n >= 6, but the preprint does not claim it as new (OEIS has Fung Lam's 'formula verified').",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a188482": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A188482: o.g.f., E = (x-1)^2, 'true, all n>=4', exactly the site's range n >= 4.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a225887": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A225887: o.g.f., E = 1-7x, 'true, all n>=3', exactly the site's range n >= 3. The site defines a(n) by the entry's equation A = 1 + xA(5 - A(1-6x)), the same algebraic g.f.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a133307": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A133307: o.g.f., E = x+1, 'true, all n>=2', exactly the site's range. The preprint works from the entry's g.f. (1-z-sqrt(z^2-26z+1))/(12z), a classical (Narayana) equivalent of the site's defining sum.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a133305": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A133305: o.g.f., E = x+1, 'true, all n>=2', exactly the site's range. The preprint works from the entry's g.f. (1-z-sqrt(z^2-18z+1))/(8z), a classical (Narayana) equivalent of the site's defining sum.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a176479": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A176479: o.g.f., E = 0, 'true, all n>=2', exactly the site's range. The preprint works from the entry's g.f. 1/4 - (x-3)/(4 sqrt(x^2-6x+1)), the classical g.f. of (n+1)*A001003(n) that the site uses as its definition.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a115256": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A115256: o.g.f., E = 0, 'true, all n>=6', exactly the site's range n >= 6.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a182887": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A182887: o.g.f., E = 0, 'true, all n>=5', exactly the site's range n >= 5.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a151483": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A151483: o.g.f., E = 3 (constant, so only n = 0 is affected), 'true, all n>=2', exactly the site's range n >= 2.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a182881": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A182881: o.g.f., E = 0, 'true, all n>=4', exactly the site's range n >= 4.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a101478": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A101478: E = 48x^3, 'true for n>3; false at n=3'. That matches the site's corrected recurrence for n >= 4 and the value 48 it records at n = 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a168506": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00219), checked against the exact statement: Row A168506: E = 4x^2(6x^2+25x-4), a polynomial of degree 4, 'true for n>4; false at n=4'. So the recurrence holds for all n >= 5 with a(k) = [x^k]G, which is exactly the site's statement.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a141222": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00211), checked against the exact statement: Row A141222: o.g.f., E = 2x+1 exactly, 'true, all n>=2'. That covers the site's statement of Mathar's recurrence for n >= 2.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a119975": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00211), checked against the exact statement: Row A119975: e.g.f. Bessel pipeline, E = 0 exactly, 'true, all n>=3'. That covers the site's statement for n >= 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a188821": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00288), checked against the exact statement: Row A188821: Barker's g.f. and Barker's recurrence (n>5) are proved by an exact width-6 transfer matrix. The site's third conjunct, Hardin's quadratic 256n^2-384n+144 for n >= 3, follows from the proved g.f., whose numerator has degree 5 over (1-x)^3 (checked); the preprint does not list that formula explicitly.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207066": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00288), checked against the exact statement: Row A207066: Barker's g.f. and Barker's recurrence (n>7) are proved by an exact transfer matrix. That is exactly the site's conjunction (g.f. and recurrence for n >= 8).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233077": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A233077: Barker's g.f. is proved by an exact transfer matrix built from the definition. The site's second conjunct, the closed form (7+3^(n+1)7^n)/14, is the partial-fraction expansion of that g.f. (checked), so the proof covers the whole statement.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268898": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A268898: Barker's g.f. and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's third conjunct, the closed form 4^n(6n+3), follows from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a269284": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A269284: Barker's g.f. and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's closed-form conjunct follows from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233211": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A233211: Barker's g.f. is proved by an exact transfer matrix (and Hardin's recurrence too). The site's closed-form conjunct is the g.f.'s partial-fraction expansion (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a207363": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A207363: Barker's g.f. and Hardin's recurrence (n>8) are proved by an exact transfer matrix. The site's even/odd quasi-polynomial conjuncts follow from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233212": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A233212: Barker's g.f. is proved by an exact transfer matrix. The site's closed-form conjunct is the g.f.'s partial-fraction expansion (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a208064": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A208064: Barker's g.f. and Hardin's recurrence (n>5) are proved by an exact transfer matrix. The site's 9n^2 and 9n^2-9 parity conjuncts follow from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a233020": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00233), checked against the exact statement: Row A233020: Barker's g.f. 3x/(1-5x-2x^2) and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's sqrt closed form and a(n) = 3*A015535(n) follow from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a280668": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00260), checked against the exact statement: Row A280668: Barker's g.f. and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's g.f. and sqrt(57) closed form follow (closed form checked against the g.f.).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a060774": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00226), checked against the exact statement: Two A060774 rows, using the g.f. corrected by +1: E = -72x^2(x^2-6x-2) gives 'true for n>4, false at n=4' for the first recurrence, and E = 288x^2 gives 'true for n>2, false at n=2' for the second. This is exactly the site's conjunction (n >= 5 and n >= 3).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a228180": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00226), checked against the exact statement: Row A228180: E = x(12x^2-9x+4), 'true for n>3; false at n=3'. That matches the site's corrected recurrence for n >= 4 and the value 12 it records at n = 3.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a026571": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00226), checked against the exact statement: Row A026571: o.g.f., E = -2x^2(x-2), 'true, all n>=5'. That covers the site's range n >= 7.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a279262": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00237), checked against the exact statement: Row A279262: Barker's g.f. and Hardin's recurrence (n>5) are proved by an exact transfer matrix. The site's sqrt(5) closed form follows from the g.f. (checked numerically against the series).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a279735": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00237), checked against the exact statement: Row A279735: Barker's g.f. and Hardin's recurrence (n>4) are proved by an exact transfer matrix. The site's sqrt(5) closed form follows from the g.f. (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a222777": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00258), checked against the exact statement: Row A222777: Barker's g.f. and Hardin's recurrence (n>6) are proved by an exact transfer matrix. The site states the g.f. (as a coefficient identity) and Barker's closed form for n > 2, which follows from the g.f. (checked). The site's own row-DP reproduces the OEIS data (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a209094": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00246), checked against the exact statement: Row A209094: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's g.f. and closed form for n > 1 follow (closed form checked against the g.f.).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a208316": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00246), checked against the exact statement: Row A208316: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's g.f. and closed form for n > 1 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a280474": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00246), checked against the exact statement: Row A280474: Barker's g.f. and Hardin's recurrence (n>6) are proved by an exact transfer matrix. The site's g.f. and closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a277761": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00246), checked against the exact statement: Row A277761: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact transfer matrix. The site's g.f. and closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a268052": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00264), checked against the exact statement: Row A268052: Barker's g.f. and Hardin's recurrence (n>3) are proved by an exact width-4 transfer matrix. The site's g.f. and closed form follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a208705": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00264), checked against the exact statement: Row A208705: Barker's g.f. and Hardin's recurrence (n>2) are proved by an exact transfer matrix. The site's recurrence (n >= 3), g.f. and sqrt(17) closed form all follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a208065": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00264), checked against the exact statement: Row A208065: Barker's g.f. and Hardin's recurrence (n>9) are proved by an exact transfer matrix. The site's g.f. and its even/odd quartic closed forms for n >= 2 follow (checked).",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a118447": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00230), checked against the exact statement: Row A118447: o.g.f., minimal-polynomial reduction, E = 0, 'true, all n>=2', exactly the site's range n >= 2.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
+  },
+  "oeis-a309515": {
+   "reason": "Proved in an isitsolved.com journal preprint (iis:2611.00231), checked against the exact statement: Row A309515: Barker's g.f. is proved from an exact partition g.f., and his recurrence is proved for n > 18 (RG has degree 16). The site states exactly this g.f. and recurrence.",
+   "source": "https://isitsolved.com/journal",
+   "date": "2026-11-28"
   }
  }
 }
