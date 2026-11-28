@@ -21,7 +21,9 @@ half the points of the union. At each pin, assume that ordered equidistant
 target pairs in two other distinct blocks exceed k times the number of targets. After deleting any target pairs
 with at most k² deletions per distinct pin pair and discarding up to k target
 directions at each first endpoint, rich bisectors must still
-contribute more than twice k times the square of the union size. -/
+contribute more than twice k times the square of the union size. Equal-length
+directed segment pairs must exceed k times the cube of the union size after
+excluding any k complex rotation factors. -/
 def H2 : Prop :=
   ∃ C : ℕ, ∀ (k : ℕ) (F : Finset (Finset ℝ²)), 0 < k →
     (F : Set (Finset ℝ²)).PairwiseDisjoint id →
@@ -42,6 +44,12 @@ def H2 : Prop :=
           (∀ x ∈ S, ∃ J : Finset (Finset ℝ²), J.card ≤ k ∧ H x ⊆ J.biUnion id ∧
             ∀ T ∈ J, Collinear ℝ (insert x (T : Set ℝ²))) →
           2*k*S.card^2 < ∑ x ∈ S, ∑ y ∈ (S.erase x \ G x) \ H x, if k < (W x y).card then (W x y).card else 0) →
+    (let S := F.biUnion id
+      let z := fun p : ℝ² => Complex.mk (p 0) (p 1)
+      let E := S.offDiag
+      let f := fun e t : ℝ² × ℝ² => (z t.2-z t.1)/(z e.2-z e.1)
+      ∀ A : Finset ℂ, A.card ≤ k → k*S.card^3 <
+        ∑ e ∈ E, (E.filter fun t => dist t.1 t.2 = dist e.1 e.2 ∧ f e t ∉ A).card) →
     F.card ≤ C * (distinctDistances (F.biUnion id)+1)
 
 section Bisectors
@@ -486,6 +494,78 @@ private theorem direction_mass (S : Finset ℝ²) (k : ℕ) (H : ℝ² → Finse
     _ ≤ ∑ _x ∈ S, ∑ _p ∈ S, k := sum_le_sum fun x hx => sum_le_sum fun p _ => row x hx p
     _ = _ := by simp; ring
 
+/-- With one factor and one corresponding endpoint fixed, the image of the
+second endpoint is unique. Thus k factors account for at most kn matches per
+source segment, including all translations when factor one is selected. -/
+private theorem rotation_bound (S : Finset ℝ²) (k : ℕ) (hk : 0 < k) (A : Finset ℂ)
+    (hA : A.card ≤ k) :
+    let z := fun p : ℝ² => Complex.mk (p 0) (p 1)
+    let E := S.offDiag
+    let f := fun e t : ℝ² × ℝ² => (z t.2-z t.1)/(z e.2-z e.1)
+    (∑ e ∈ E, (E.filter fun t => dist t.1 t.2 = dist e.1 e.2 ∧ f e t ∉ A).card) ≤ k*S.card^3 →
+      S.card ≤ 2*k*(distinctDistances S+1) := by
+  classical
+  intro z E f hrest
+  let n := S.card
+  let D := distanceSet S
+  have inj : Function.Injective z := by
+    intro x y h
+    have h₀ := congrArg Complex.re h
+    have h₁ := congrArg Complex.im h
+    ext i
+    fin_cases i
+    · exact h₀
+    · exact h₁
+  have row (e : ℝ² × ℝ²) (he : e ∈ E) :
+      (E.filter fun t => dist t.1 t.2 = dist e.1 e.2).card ≤ k*n +
+        (E.filter fun t => dist t.1 t.2 = dist e.1 e.2 ∧ f e t ∉ A).card := by
+    let U := E.filter fun t => f e t ∈ A
+    have hnz : z e.2-z e.1 ≠ 0 := sub_ne_zero.mpr (inj.ne (mem_offDiag.mp he).2.2.symm)
+    have hu : U.card ≤ (A ×ˢ S).card := by
+      apply card_le_card_of_injOn (fun t => (f e t,t.1))
+      · intro t ht
+        obtain ⟨ht,ha⟩ := mem_filter.mp ht
+        exact mem_product.mpr ⟨ha,(mem_offDiag.mp ht).1⟩
+      · intro t ht u hu heq
+        have h₁ : t.1 = u.1 := congrArg Prod.snd heq
+        have h₂ : (z t.2-z t.1)/(z e.2-z e.1) = (z u.2-z u.1)/(z e.2-z e.1) := congrArg Prod.fst heq
+        have he' := (div_left_inj' hnz).mp h₂
+        rw [h₁] at he'
+        exact Prod.ext h₁ (inj (sub_left_inj.mp he'))
+    have hs : (E.filter fun t => dist t.1 t.2 = dist e.1 e.2) ⊆
+        U ∪ (E.filter fun t => dist t.1 t.2 = dist e.1 e.2 ∧ f e t ∉ A) := by
+      intro t ht
+      obtain ⟨ht,hd⟩ := mem_filter.mp ht
+      by_cases h : f e t ∈ A
+      · exact mem_union_left _ (mem_filter.mpr ⟨ht,h⟩)
+      · exact mem_union_right _ (mem_filter.mpr ⟨ht,hd,h⟩)
+    rw [card_product] at hu
+    exact (card_le_card hs).trans ((card_union_le ..).trans
+      (Nat.add_le_add_right (hu.trans (Nat.mul_le_mul_right _ hA)) _))
+  have hE : E.card + n = n*n := by
+    dsimp [E,n]; rw [offDiag_card,Nat.sub_add_cancel]
+    exact Nat.le_mul_self _
+  have hc := pin_count E D (fun e => dist e.1 e.2)
+    (fun e he => mem_image.mpr ⟨e,he,rfl⟩)
+  simp only [sum_boole,Nat.cast_id] at hc
+  have hsum : (∑ e ∈ E, (E.filter fun t => dist t.1 t.2 = dist e.1 e.2).card) ≤ 2*k*n^3 := calc
+    _ ≤ _ := sum_le_sum row
+    _ = E.card*(k*n) + (∑ e ∈ E, (E.filter fun t =>
+        dist t.1 t.2 = dist e.1 e.2 ∧ f e t ∉ A).card) := by simp [sum_add_distrib]
+    _ ≤ (n*n)*(k*n) + k*n^3 := Nat.add_le_add (Nat.mul_le_mul_right _ (by omega)) hrest
+    _ = _ := by ring
+  have hs := hc.trans (Nat.mul_le_mul_left D.card hsum)
+  by_cases hn : n = 0
+  · change n ≤ _; simp [hn]
+  have hsq := congrArg (fun v : ℕ => v^2) hE
+  have hlin := congrArg (fun v : ℕ => v*n) hE
+  have hpow : n*n^3 ≤ (2*k*D.card+2)*n^3 := by
+    nlinarith only [hs,hsq,hlin,Nat.zero_le (n^2)]
+  have h := Nat.le_of_mul_le_mul_right hpow (pow_pos (Nat.pos_of_ne_zero hn) 3)
+  change n ≤ 2*k*(D.card+1)
+  rw [Nat.mul_add,Nat.mul_one]
+  omega
+
 /-- The remaining packing case implies the unrestricted block estimate. -/
 private theorem packing_from_curves (packing : H2) :
   ∃ C : ℕ, ∀ (k : ℕ) (F : Finset (Finset ℝ²)), 0 < k →
@@ -512,8 +592,26 @@ private theorem packing_from_curves (packing : H2) :
           (∀ x ∈ S, ∃ J : Finset (Finset ℝ²), J.card ≤ k ∧ H x ⊆ J.biUnion id ∧
             ∀ T ∈ J, Collinear ℝ (insert x (T : Set ℝ²))) →
           2*k*S.card^2 < ∑ x ∈ S, ∑ y ∈ (S.erase x \ G x) \ H x, if k < (W x y).card then (W x y).card else 0)
-      · exact (pack k F hk hdis hline hcap spread many persistent).trans
-          (Nat.mul_le_mul_right _ (le_max_left C 6))
+      · by_cases rotations : (let S := F.biUnion id
+      let z := fun p : ℝ² => Complex.mk (p 0) (p 1)
+      let E := S.offDiag
+      let f := fun e t : ℝ² × ℝ² => (z t.2-z t.1)/(z e.2-z e.1)
+      ∀ A : Finset ℂ, A.card ≤ k → k*S.card^3 <
+        ∑ e ∈ E, (E.filter fun t => dist t.1 t.2 = dist e.1 e.2 ∧ f e t ∉ A).card)
+        · exact (pack k F hk hdis hline hcap spread many persistent rotations).trans
+            (Nat.mul_le_mul_right _ (le_max_left C 6))
+        dsimp only at rotations
+        push Not at rotations
+        obtain ⟨A,hA,hrem⟩ := rotations
+        have hb := rotation_bound (F.biUnion id) k hk A hA hrem
+        have hs : (F.biUnion id).card = F.card*k := by
+          rw [card_biUnion hdis]
+          calc
+            _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => (hline T hT).1
+            _ = _ := by simp
+        rw [hs,Nat.mul_right_comm 2 k] at hb
+        exact (Nat.le_of_mul_le_mul_right hb hk).trans
+          (Nat.mul_le_mul_right _ (by omega : 2 ≤ max C 6))
       let S := F.biUnion id
       let W := fun x y : ℝ² => S.filter fun p => dist p y = dist p x
       let m := fun x y : ℝ² => if k < (W x y).card then (W x y).card else 0
