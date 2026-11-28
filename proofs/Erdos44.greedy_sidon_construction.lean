@@ -19,12 +19,12 @@ lemma OMA.sidon_blocked {A : Finset ℕ} (hA : IsSidon (A : Set ℕ)) {x : ℕ} 
   have one : ∀ a ∈ A, ∀ b ∈ A, ∀ c ∈ A, x + a = b + c → P := by
     intro a ha b hb c hc h
     by_cases hab : a = b
-    · exact hx ((show x = c by omega) ▸ hc)
+    · exact absurd ((show x = c by omega) ▸ hc) hx
     · exact Or.inl ⟨a, ha, b, hb, c, hc, hab, h⟩
   have two : ∀ b ∈ A, ∀ c ∈ A, 2 * x = b + c → P := by
     intro b hb c hc h
     by_cases hbc : b = c
-    · exact hx ((show x = b by omega) ▸ hb)
+    · exact absurd ((show x = b by omega) ▸ hb) hx
     · exact Or.inr ⟨b, hb, c, hc, hbc, h⟩
   have mem_abs : ∀ a ∈ A, a = x → False := fun a ha h => hx (h ▸ ha)
   unfold IsSidon at hins
