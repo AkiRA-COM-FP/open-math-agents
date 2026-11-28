@@ -987,9 +987,737 @@ theorem witness_after_classification {N : ℕ} (big : 223<N)
 
 end Erdos889.MissingPrimeSieve
 
+
+
+
+/- The sixth-offset constraint for a prime-square successor away from multiples of seven. -/
+namespace Erdos889.SquareSeven
+open OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2
+
+/-- For a large square successor missing seven at the starting value, only the
+sixth offset remains. Every prime divisor there is two, three, or seven. -/
+theorem sixth_offset {n p : ℕ} (big : 330 < n) (div : 30 ∣ n)
+    (miss : ¬7 ∣ n) (pp : p.Prime) (shape : n+1=p^2) (sol : v_l 1 n=1) :
+    n%7=1 ∧ ∀ q : ℕ, q.Prime → q∣n+6 → q=2 ∨ q=3 ∨ q=7 := by
+  have hp : 7<p := by
+    by_contra! small
+    have := Nat.pow_le_pow_left small 2
+    omega
+  have none : ¬∃ d q s : ℕ, q.Prime ∧ s.Prime ∧ q≠s ∧ d+1<q ∧ d+1<s ∧
+      q∣p^2+d ∧ s∣p^2+d := by
+    rintro ⟨d,q,s,pq,ps,ne,lq,ls,dq,ds⟩
+    have h : n+(d+1)=p^2+d := by omega
+    exact two_primes (by omega : 0<d+1) pq ps ne lq ls (h ▸ dq) (h ▸ ds) sol
+  obtain ⟨_,r,_,b,_,pr,_,_,rr,_,_,_,ob,_,f3⟩ :=
+    square_survivor pp (pp.odd_of_ne_two (by omega)) (by omega) none
+  have skip : ¬7∣n+4 := by
+    intro d
+    have seven : Nat.Prime 7 := by decide
+    have dp : 7∣r^b := by omega
+    have eq := (Nat.prime_dvd_prime_iff_eq seven pr).mp (seven.dvd_of_dvd_pow dp)
+    subst r
+    have cycle : Nat.ModEq 5 (7^b) (7^(b%4)) := by
+      calc
+        7^b = 7^(b%4)*(7^4)^(b/4) := by rw [←pow_mul,←pow_add,Nat.mod_add_div]
+        _ ≡ 7^(b%4)*1^(b/4) [MOD 5] :=
+          ((by decide : Nat.ModEq 5 (7^4) 1).pow _).mul_left _
+        _ = _ := by simp
+    change 7^b%5=7^(b%4)%5 at cycle
+    obtain ⟨k,hk⟩ := ob
+    have rem : b%4=1 ∨ b%4=3 := by omega
+    rcases rem with h|h <;> rw [h] at cycle <;> norm_num at cycle <;> omega
+  have pd : ¬7∣p := by
+    intro d
+    have := (Nat.prime_dvd_prime_iff_eq (by decide : Nat.Prime 7) pp).mp d
+    omega
+  have res : n%7=1 := by
+    have sq := Nat.pow_mod p 2 7
+    have small := Nat.mod_lt p (by decide : 0<7)
+    interval_cases t : p%7 <;> norm_num at sq <;> omega
+  refine ⟨res,?_⟩
+  intro q pq dq
+  by_cases hi : 6<q
+  · by_contra no
+    exact two_primes (by decide : 0<6) pq (by decide : Nat.Prime 7)
+      (by tauto) hi (by decide) dq (by omega) sol
+  · have nd5 : ¬5∣n+6 := by omega
+    interval_cases q <;> tauto
+
+end Erdos889.SquareSeven
+
+
+/- Reduction of the sixth offset to the two smooth Pell equations. -/
+namespace Erdos889.SquareSeven
+
+private theorem two_prime_shape {z : ℕ} (pos : 0 < z)
+    (sup : ∀ q : ℕ, q.Prime → q∣z → q=3 ∨ q=7) : ∃ a b : ℕ, z=3^a*7^b := by
+  let a := z.factorization 3
+  let m := z/3^a
+  have mp : 0 < m := Nat.ordCompl_pos 3 pos.ne'
+  have fac : 3^a*m=z := Nat.ordProj_mul_ordCompl_eq_self _ _
+  have pure : m=7^m.primeFactorsList.length := Nat.eq_prime_pow_of_unique_prime_dvd mp.ne' (by
+    intro q pq dv
+    rcases sup q pq (fac ▸ dvd_mul_of_dvd_right dv _) with rfl|h
+    · exact (Nat.not_dvd_ordCompl Nat.prime_three pos.ne' dv).elim
+    · exact h)
+  exact ⟨a,_,by rw [←pure,fac]⟩
+
+private theorem peel (p e : ℕ) : p^e = p^(e%2)*(p^(e/2))^2 := by
+  rw [←pow_mul,←pow_add]
+  congr 1
+  omega
+
+/-- Removing a square from the part supported at three and seven leaves
+coefficient six or fourteen. -/
+theorem pell_shape {n p : ℕ} (large : 330<n) (div : 30∣n) (hp : p.Prime)
+    (shape : n+1=p^2) (sup : ∀ q : ℕ, q.Prime → q∣n+6 → q=2 ∨ q=3 ∨ q=7) :
+    ∃ u v : ℕ, (p^2+5=6*(3^u*7^v)^2 ∨ p^2+5=14*(3^u*7^v)^2) := by
+  have mod8 : p^2%8=1 := by
+    have pp : p≠2 := by rintro rfl; norm_num at shape; omega
+    obtain ⟨j,hj⟩ := hp.odd_of_ne_two pp
+    have sq := Nat.pow_mod p 2 8
+    have lt := Nat.mod_lt p (by decide : 0<8)
+    interval_cases t : p%8 <;> norm_num at sq <;> omega
+  let z := (n+6)/2
+  have zeq : 2*z=n+6 := by dsimp [z]; omega
+  obtain ⟨a,b,h⟩ := two_prime_shape (z:=z) (by omega) (by
+    intro q pq dv
+    rcases sup q pq (zeq ▸ dvd_mul_of_dvd_right dv 2) with rfl|h|h
+    · omega
+    · exact Or.inl h
+    · exact Or.inr h)
+  let y := 3^(a/2)*7^(b/2)
+  have fac : p^2+5=(2*3^(a%2)*7^(b%2))*y^2 := by
+    calc
+      p^2+5 = 2*z := by omega
+      _ = 2*(3^a*7^b) := by rw [h]
+      _ = _ := by rw [peel 3 a,peel 7 b]; dsimp only [y]; ring
+  have oddY : Odd y := (Odd.pow (by decide : Odd 3)).mul (Odd.pow (by decide : Odd 7))
+  obtain ⟨j,hj⟩ := oddY
+  have y8 : y^2%8=1 := by
+    have sq := Nat.pow_mod y 2 8
+    have lt := Nat.mod_lt y (by decide : 0<8)
+    interval_cases t : y%8 <;> norm_num at sq <;> omega
+  refine ⟨a/2,b/2,?_⟩
+  change p^2+5=6*y^2 ∨ p^2+5=14*y^2
+  have ar := Nat.mod_lt a (by decide : 0<2)
+  have br := Nat.mod_lt b (by decide : 0<2)
+  interval_cases i : a%2 <;> interval_cases j : b%2 <;> norm_num at fac <;> omega
+
+theorem smooth_powers (u v : ℕ) :
+    ∀ q : ℕ, q.Prime → q∣3^u*7^v → q=3 ∨ q=7 := by
+  intro q pq dv
+  rcases pq.dvd_mul.mp dv with d|d
+  · exact Or.inl ((Nat.prime_dvd_prime_iff_eq pq Nat.prime_three).mp (pq.dvd_of_dvd_pow d))
+  · exact Or.inr ((Nat.prime_dvd_prime_iff_eq pq (by decide : Nat.Prime 7)).mp (pq.dvd_of_dvd_pow d))
+
+theorem pell_size {p y D : ℕ} (hp : 7<p) (cap : p^2≤2^2097152) (d : 2≤D)
+    (eq : p^2+5=D*y^2) : y<2^2097152 := by
+  have small : y≤p := by
+    by_contra! notsmall
+    have h := Nat.pow_le_pow_left notsmall.le 2
+    have h2 := Nat.mul_le_mul_right (y^2) d
+    nlinarith
+  have : p<p^2 := by nlinarith
+  exact lt_of_lt_of_le (lt_of_le_of_lt small this) cap
+
+end Erdos889.SquareSeven
+
+namespace Erdos889.SquareSeven
+open OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2
+
+/-- Every further solution with a prime-square successor is a multiple of 210. -/
+theorem multiple_of_210_from_pell
+    (six : ∀ {p u v : ℕ}, p^2+5=6*(3^u*7^v)^2 → 3^u*7^v<2^2097152 → p≤101)
+    (fourteen : ∀ {p u v : ℕ}, p^2+5=14*(3^u*7^v)^2 → 3^u*7^v<2^2097152 → p≤101)
+    {n p : ℕ} (big : 330<n) (pp : p.Prime) (shape : n+1=p^2) (sol : v_l 1 n=1) :
+    210∣n := by
+  obtain ⟨lower,upper,div⟩ := Erdos889.MissingPrimeSieve.further_solution_bounds_thirty big sol
+  by_contra missing
+  have miss : ¬7∣n := by omega
+  have hp : 7<p := by
+    by_contra! low
+    have := Nat.pow_le_pow_left low 2
+    omega
+  have cap : p^2≤2^2097152 := by
+    rw [←shape]
+    rw [show (2:ℕ)^21=2097152 by decide] at upper
+    exact Nat.succ_le_of_lt upper
+  have sf := (sixth_offset big div miss pp shape sol).2
+  obtain ⟨u,v,h|h⟩ := pell_shape big div pp shape sf
+  · have b := six h (pell_size hp cap (by decide) h)
+    have := Nat.pow_le_pow_left b 2
+    omega
+  · have b := fourteen h (pell_size hp cap (by decide) h)
+    have := Nat.pow_le_pow_left b 2
+    omega
+
+theorem outside_210_from_divisibility
+    (necessary : ∀ {n p : ℕ}, 330<n → p.Prime → n+1=p^2 → v_l 1 n=1 → 210∣n)
+    {n p : ℕ} (pp : p.Prime) (shape : n+1=p^2) (miss : ¬210∣n) :
+    v_l 1 n=1 ↔ n ∈ [3,8,24,48,120] := by
+  have pos : 0<n := by have := Nat.pow_le_pow_left pp.two_le 2; omega
+  constructor
+  · intro sol
+    have low : n≤330 := by by_contra! hi; exact miss (necessary hi pp shape sol)
+    have bound : p<19 := by
+      by_contra! hi
+      have := Nat.pow_le_pow_left hi 2
+      omega
+    have known := (solutions_through_330 pos low).mp sol
+    have tab : ∀ q : Fin 19, q.val.Prime →
+        q.val^2-1 ∈ ([1,2,3,4,6,7,8,10,12,15,16,18,22,24,26,30,36,42,46,48,60,70,78,80,96,120,190,222,330] : List ℕ) →
+        q.val^2-1 ∈ ([3,8,24,48,120] : List ℕ) := by decide +kernel
+    have eq : p^2-1=n := by omega
+    have mem := tab ⟨p,bound⟩ pp (eq.symm ▸ known)
+    simpa only [eq] using mem
+  · intro mem
+    simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+    rcases mem with rfl|rfl|rfl|rfl|rfl <;>
+      apply (solutions_through_330 (by decide) (by decide)).mpr <;> decide
+
+end Erdos889.SquareSeven
+
+
+/- Modular period lifting for two quadratic Pell orbits. -/
+namespace Erdos889.PellSixSieve
+
+def mul (d : ℕ) (a b : ℕ × ℕ) : ℕ × ℕ :=
+  (a.1*b.1+d*a.2*b.2,a.1*b.2+a.2*b.1)
+
+private def norm (m : ℕ) (a : ℕ × ℕ) := (a.1%m,a.2%m)
+
+private theorem assoc (d : ℕ) (a b c : ℕ × ℕ) :
+    mul d (mul d a b) c=mul d a (mul d b c) := by
+  ext <;> simp only [mul] <;> ring
+
+private theorem comm (d : ℕ) (a b : ℕ × ℕ) : mul d a b=mul d b a := by
+  ext <;> simp only [mul] <;> ring
+
+private theorem one_mul (d : ℕ) (a : ℕ × ℕ) : mul d (1,0) a=a := by simp [mul]
+
+private theorem norm_mul (d m : ℕ) (a b : ℕ × ℕ) :
+    norm m (mul d (norm m a) (norm m b))=norm m (mul d a b) := by
+  ext <;> simp only [mul,norm] <;> simp [Nat.add_mod,Nat.mul_mod]
+
+def power (d : ℕ) (unit : ℕ × ℕ) : ℕ → ℕ × ℕ
+  | 0 => (1,0)
+  | n+1 => mul d (power d unit n) unit
+
+private theorem power_add (d : ℕ) (unit : ℕ × ℕ) (i j : ℕ) :
+    power d unit (i+j)=mul d (power d unit i) (power d unit j) := by
+  induction j with
+  | zero => simp only [Nat.add_zero,power,comm d _ (1,0),one_mul]
+  | succ j ih => rw [Nat.add_succ,power,ih,assoc,power]
+
+def orbit (d : ℕ) (unit seed : ℕ × ℕ) (n : ℕ) := mul d (power d unit n) seed
+
+theorem orbit_zero (d : ℕ) (unit seed : ℕ × ℕ) : orbit d unit seed 0=seed := one_mul d seed
+
+theorem orbit_succ (d : ℕ) (unit seed : ℕ × ℕ) (n : ℕ) :
+    orbit d unit seed (n+1)=mul d unit (orbit d unit seed n) := by
+  simp only [orbit,power,comm d (power d unit n) unit,assoc]
+
+private def fastAux (d m : ℕ) (unit : ℕ × ℕ) : ℕ → ℕ → ℕ × ℕ
+  | 0,_ => norm m (1,0)
+  | k+1,n =>
+      let a := fastAux d m unit k (n/2)
+      let b := norm m (mul d a a)
+      if n%2=0 then b else norm m (mul d b (norm m unit))
+
+private def fast (d m : ℕ) (unit : ℕ × ℕ) (n : ℕ) :=
+  fastAux d m unit (n.log2+1) n
+
+private theorem fast_eq (d m : ℕ) (unit : ℕ × ℕ) (n : ℕ) :
+    fast d m unit n=norm m (power d unit n) := by
+  have sound (k e : ℕ) (he : e<2^k) : fastAux d m unit k e=norm m (power d unit e) := by
+    induction k generalizing e with
+    | zero =>
+      have h : e=0 := by simpa using he
+      subst e
+      rfl
+    | succ k ih =>
+      rw [pow_succ] at he
+      have h : e/2<2^k := by omega
+      rw [fastAux,ih (e/2) h,norm_mul,←power_add]
+      split_ifs with ev
+      · congr 2
+        omega
+      · rw [norm_mul,←power]
+        congr 2
+        omega
+  exact sound _ _ Nat.lt_log2_self
+
+private def atMod (d m : ℕ) (unit seed : ℕ × ℕ) (n : ℕ) :=
+  (norm m (mul d (fast d m unit n) (norm m seed))).2
+
+private theorem atMod_eq (d m : ℕ) (unit seed : ℕ × ℕ) (n : ℕ) :
+    atMod d m unit seed n=(orbit d unit seed n).2%m := by
+  rw [atMod,fast_eq,norm_mul]
+  rfl
+
+private theorem reduced {d m t : ℕ} {unit seed : ℕ × ℕ}
+    (per : fast d m unit t=norm m (1,0)) (n : ℕ) :
+    atMod d m unit seed (n%t)=(orbit d unit seed n).2%m := by
+  rw [fast_eq] at per
+  have step (i : ℕ) : norm m (power d unit (i+t))=norm m (power d unit i) := by
+    rw [power_add,←norm_mul,per,norm_mul,comm d _ (1,0),one_mul]
+  have steps (i j : ℕ) : norm m (power d unit (i+t*j))=norm m (power d unit i) := by
+    induction j with
+    | zero => simp
+    | succ j ih => rw [Nat.mul_succ,←Nat.add_assoc,step,ih]
+  have en := steps (n%t) (n/t)
+  rw [Nat.mod_add_div] at en
+  rw [atMod,fast_eq,←en,norm_mul]
+  rfl
+
+private def Good (d m t : ℕ) (unit seed : ℕ × ℕ) (roots : List ℕ) :=
+  ∀ n : ℕ, m∣(orbit d unit seed n).2 → n%t∈roots
+
+private theorem good_one (d : ℕ) (unit seed : ℕ × ℕ) : Good d 1 1 unit seed [0] := by
+  intro n _
+  simp [Nat.mod_one]
+
+private theorem lift {d m m' t s : ℕ} {unit seed : ℕ × ℕ} {rr next : List ℕ}
+    (old : Good d m t unit seed rr) (dvd : m∣m') (ht : 0<t) (hs : 0<s)
+    (per : fast d m' unit (t*s)=norm m' (1,0))
+    (cells : ∀ r∈rr, ∀ i : Fin s, atMod d m' unit seed (r+t*i.val)=0 → r+t*i.val∈next) :
+    Good d m' (t*s) unit seed next := by
+  intro n hit
+  let a := n%(t*s)
+  have small : a<t*s := Nat.mod_lt _ (Nat.mul_pos ht hs)
+  have ai : a/t<s := (Nat.div_lt_iff_lt_mul ht).mpr (by simpa only [Nat.mul_comm t s] using small)
+  have split := Nat.mod_add_div a t
+  have rmem : a%t∈rr := by
+    dsimp [a]
+    rw [Nat.mod_mod_of_dvd _ (dvd_mul_right t s)]
+    exact old n (dvd.trans hit)
+  have h := cells (a%t) rmem ⟨a/t,ai⟩
+  rw [split] at h
+  exact h ((reduced per n).trans (Nat.mod_eq_zero_of_dvd hit))
+
+/-- The modular orbit avoids zero up to the effective index cutoff. -/
+theorem avoid_6_1_3 {n : ℕ} :
+    ¬3^2∣(orbit 6 (5,2) (1,1) n).2 := by
+  have h0 : Good 6 3 6 (5,2) (1,1) [2, 5] :=
+    lift (t:=1) (s:=6) (good_one 6 (5,2) (1,1)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 6 9 6 (5,2) (1,1) [] :=
+    lift (t:=6) (s:=1) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h1 n dvd
+  exact List.not_mem_nil mem
+
+/-- The modular orbit avoids zero up to the effective index cutoff. -/
+theorem avoid_6_1_7 {n : ℕ} :
+    ¬7^2∣(orbit 6 (5,2) (1,1) n).2 := by
+  have h0 : Good 6 7 8 (5,2) (1,1) [1, 5] :=
+    lift (t:=1) (s:=8) (good_one 6 (5,2) (1,1)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 6 49 8 (5,2) (1,1) [] :=
+    lift (t:=8) (s:=1) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h1 n dvd
+  exact List.not_mem_nil mem
+
+/-- The modular orbit avoids zero up to the effective index cutoff. -/
+theorem avoid_6_7_3 {n : ℕ} :
+    ¬3^2∣(orbit 6 (5,2) (7,3) n).2 := by
+  have h0 : Good 6 3 6 (5,2) (7,3) [0, 3] :=
+    lift (t:=1) (s:=6) (good_one 6 (5,2) (7,3)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 6 9 6 (5,2) (7,3) [] :=
+    lift (t:=6) (s:=1) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h1 n dvd
+  exact List.not_mem_nil mem
+
+/-- The modular orbit avoids zero up to the effective index cutoff. -/
+theorem avoid_6_7_7 {n : ℕ} :
+    ¬7^2∣(orbit 6 (5,2) (7,3) n).2 := by
+  have h0 : Good 6 7 8 (5,2) (7,3) [2, 6] :=
+    lift (t:=1) (s:=8) (good_one 6 (5,2) (7,3)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 6 49 8 (5,2) (7,3) [] :=
+    lift (t:=8) (s:=1) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h1 n dvd
+  exact List.not_mem_nil mem
+
+/-- The modular orbit avoids zero up to the effective index cutoff. -/
+theorem avoid_14_3_3 {n : ℕ} (hn : n<2097152) :
+    ¬3^15∣(orbit 14 (15,4) (3,1) n).2 := by
+  have h0 : Good 14 3 4 (15,4) (3,1) [1, 3] :=
+    lift (t:=1) (s:=4) (good_one 14 (15,4) (3,1)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 14 9 12 (15,4) (3,1) [1, 7] :=
+    lift (t:=4) (s:=3) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 14 27 36 (15,4) (3,1) [1, 19] :=
+    lift (t:=12) (s:=3) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 14 81 108 (15,4) (3,1) [37, 91] :=
+    lift (t:=36) (s:=3) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 14 243 324 (15,4) (3,1) [91, 253] :=
+    lift (t:=108) (s:=3) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 14 729 972 (15,4) (3,1) [253, 739] :=
+    lift (t:=324) (s:=3) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 14 2187 2916 (15,4) (3,1) [739, 2197] :=
+    lift (t:=972) (s:=3) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h7 : Good 14 6561 8748 (15,4) (3,1) [739, 5113] :=
+    lift (t:=2916) (s:=3) (h6) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h8 : Good 14 19683 26244 (15,4) (3,1) [9487, 22609] :=
+    lift (t:=8748) (s:=3) (h7) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h9 : Good 14 59049 78732 (15,4) (3,1) [22609, 61975] :=
+    lift (t:=26244) (s:=3) (h8) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h10 : Good 14 177147 236196 (15,4) (3,1) [22609, 140707] :=
+    lift (t:=78732) (s:=3) (h9) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h11 : Good 14 531441 708588 (15,4) (3,1) [258805, 613099] :=
+    lift (t:=236196) (s:=3) (h10) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h12 : Good 14 1594323 2125764 (15,4) (3,1) [613099, 1675981] :=
+    lift (t:=708588) (s:=3) (h11) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h13 : Good 14 4782969 6377292 (15,4) (3,1) [1675981, 4864627] :=
+    lift (t:=2125764) (s:=3) (h12) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h14 : Good 14 14348907 19131876 (15,4) (3,1) [4864627, 14430565] :=
+    lift (t:=6377292) (s:=3) (h13) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h14 n dvd
+  rw [Nat.mod_eq_of_lt (by omega)] at mem
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+  omega
+
+/-- The modular orbit avoids zero up to the effective index cutoff. -/
+theorem avoid_14_3_7 {n : ℕ} (hn : n<2097152) :
+    ¬7^9∣(orbit 14 (15,4) (3,1) n).2 := by
+  have h0 : Good 14 7 7 (15,4) (3,1) [4] :=
+    lift (t:=1) (s:=7) (good_one 14 (15,4) (3,1)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 14 49 49 (15,4) (3,1) [32] :=
+    lift (t:=7) (s:=7) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 14 343 343 (15,4) (3,1) [32] :=
+    lift (t:=49) (s:=7) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 14 2401 2401 (15,4) (3,1) [1747] :=
+    lift (t:=343) (s:=7) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 14 16807 16807 (15,4) (3,1) [1747] :=
+    lift (t:=2401) (s:=7) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 14 117649 117649 (15,4) (3,1) [18554] :=
+    lift (t:=16807) (s:=7) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 14 823543 823543 (15,4) (3,1) [724448] :=
+    lift (t:=117649) (s:=7) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h7 : Good 14 5764801 5764801 (15,4) (3,1) [724448] :=
+    lift (t:=823543) (s:=7) (h6) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h8 : Good 14 40353607 40353607 (15,4) (3,1) [6489249] :=
+    lift (t:=5764801) (s:=7) (h7) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h8 n dvd
+  rw [Nat.mod_eq_of_lt (by omega)] at mem
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+  omega
+
+/-- The modular orbit avoids zero up to the effective index cutoff. -/
+theorem avoid_14_11_3 {n : ℕ} (hn : n<2097152) :
+    ¬3^15∣(orbit 14 (15,4) (11,3) n).2 := by
+  have h0 : Good 14 3 4 (15,4) (11,3) [0, 2] :=
+    lift (t:=1) (s:=4) (good_one 14 (15,4) (11,3)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 14 9 12 (15,4) (11,3) [4, 10] :=
+    lift (t:=4) (s:=3) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 14 27 36 (15,4) (11,3) [16, 34] :=
+    lift (t:=12) (s:=3) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 14 81 108 (15,4) (11,3) [16, 70] :=
+    lift (t:=36) (s:=3) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 14 243 324 (15,4) (11,3) [70, 232] :=
+    lift (t:=108) (s:=3) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 14 729 972 (15,4) (11,3) [232, 718] :=
+    lift (t:=324) (s:=3) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 14 2187 2916 (15,4) (11,3) [718, 2176] :=
+    lift (t:=972) (s:=3) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h7 : Good 14 6561 8748 (15,4) (11,3) [3634, 8008] :=
+    lift (t:=2916) (s:=3) (h6) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h8 : Good 14 19683 26244 (15,4) (11,3) [3634, 16756] :=
+    lift (t:=8748) (s:=3) (h7) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h9 : Good 14 59049 78732 (15,4) (11,3) [16756, 56122] :=
+    lift (t:=26244) (s:=3) (h8) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h10 : Good 14 177147 236196 (15,4) (11,3) [95488, 213586] :=
+    lift (t:=78732) (s:=3) (h9) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h11 : Good 14 531441 708588 (15,4) (11,3) [95488, 449782] :=
+    lift (t:=236196) (s:=3) (h10) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h12 : Good 14 1594323 2125764 (15,4) (11,3) [449782, 1512664] :=
+    lift (t:=708588) (s:=3) (h11) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h13 : Good 14 4782969 6377292 (15,4) (11,3) [1512664, 4701310] :=
+    lift (t:=2125764) (s:=3) (h12) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h14 : Good 14 14348907 19131876 (15,4) (11,3) [4701310, 14267248] :=
+    lift (t:=6377292) (s:=3) (h13) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h14 n dvd
+  rw [Nat.mod_eq_of_lt (by omega)] at mem
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+  omega
+
+/-- The modular orbit avoids zero up to the effective index cutoff. -/
+theorem avoid_14_11_7 {n : ℕ} (hn : n<2097152) :
+    ¬7^8∣(orbit 14 (15,4) (11,3) n).2 := by
+  have h0 : Good 14 7 7 (15,4) (11,3) [2] :=
+    lift (t:=1) (s:=7) (good_one 14 (15,4) (11,3)) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h1 : Good 14 49 49 (15,4) (11,3) [16] :=
+    lift (t:=7) (s:=7) (h0) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h2 : Good 14 343 343 (15,4) (11,3) [310] :=
+    lift (t:=49) (s:=7) (h1) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h3 : Good 14 2401 2401 (15,4) (11,3) [653] :=
+    lift (t:=343) (s:=7) (h2) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h4 : Good 14 16807 16807 (15,4) (11,3) [15059] :=
+    lift (t:=2401) (s:=7) (h3) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h5 : Good 14 117649 117649 (15,4) (11,3) [99094] :=
+    lift (t:=16807) (s:=7) (h4) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h6 : Good 14 823543 823543 (15,4) (11,3) [99094] :=
+    lift (t:=117649) (s:=7) (h5) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  have h7 : Good 14 5764801 5764801 (15,4) (11,3) [5040352] :=
+    lift (t:=823543) (s:=7) (h6) (by decide) (by decide) (by decide) (by decide +kernel) (by decide +kernel)
+  intro dvd
+  have mem := h7 n dvd
+  rw [Nat.mod_eq_of_lt (by omega)] at mem
+  simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+  omega
+
+end Erdos889.PellSixSieve
+
+namespace Erdos889.PellSixSieve
+
+private theorem six_orbits (x y : ℕ) (normEq : x^2+5=6*y^2) :
+    ∃ n, orbit 6 (5,2) (1,1) n=(x,y) ∨ orbit 6 (5,2) (7,3) n=(x,y) := by
+  induction y using Nat.strong_induction_on generalizing x with
+  | h y ih =>
+    by_cases small : y<5
+    · have xl : x<12 := by
+        by_contra! hx
+        nlinarith [Nat.pow_le_pow_left hx 2,Nat.pow_le_pow_left (show y≤4 by omega) 2]
+      have tab : ∀ a : Fin 12, ∀ b : Fin 5, a.val^2+5=6*b.val^2 →
+          (1,1)=(a.val,b.val) ∨ (7,3)=(a.val,b.val) := by decide +kernel
+      exact ⟨0,by simpa only [orbit_zero] using tab ⟨x,xl⟩ ⟨y,small⟩ normEq⟩
+    have hy : 5≤y := by omega
+    have leA : 12*y≤5*x := by
+      by_contra! bad
+      nlinarith [Nat.pow_le_pow_left bad.le 2,Nat.pow_le_pow_left hy 2]
+    have leB : 2*x≤5*y := by
+      by_contra! bad
+      nlinarith [Nat.pow_le_pow_left bad.le 2]
+    have bound : 4*y<2*x := by
+      by_contra! bad
+      nlinarith [Nat.pow_le_pow_left bad 2,Nat.pow_le_pow_left hy 2]
+    let a := 5*x-12*y
+    let b := 5*y-2*x
+    have ea : a+12*y=5*x := Nat.sub_add_cancel leA
+    have eb : b+2*x=5*y := Nat.sub_add_cancel leB
+    have smallB : b<y := by omega
+    have rx : x=5*a+12*b := by omega
+    have ry : y=2*a+5*b := by omega
+    have eq : a^2+5=6*b^2 := by
+      rw [rx,ry] at normEq
+      nlinarith [normEq]
+    obtain ⟨n,hn|hn⟩ := ih b smallB a eq
+    · refine ⟨n+1,Or.inl ?_⟩
+      rw [orbit_succ,hn]
+      ext <;> simp only [mul] <;> omega
+    · refine ⟨n+1,Or.inr ?_⟩
+      rw [orbit_succ,hn]
+      ext <;> simp only [mul] <;> omega
+
+private theorem smooth_small (y : ℕ) (smooth : ∀ p : ℕ, p.Prime → p∣y → p=3 ∨ p=7)
+    (a : ¬9∣y) (b : ¬49∣y) : y=1 ∨ y=3 ∨ y=7 ∨ y=21 := by
+  induction y using induction_on_primes with
+  | zero => omega
+  | one => tauto
+  | prime_mul p t pp ih =>
+    have t := ih (fun q pq dq => smooth q pq (dvd_mul_of_dvd_right dq p))
+      (fun h => a (dvd_mul_of_dvd_right h p)) (fun h => b (dvd_mul_of_dvd_right h p))
+    rcases smooth p pp (dvd_mul_right p _) with rfl|rfl <;> omega
+
+/-- The complete x-coordinate list for the negative norm with smooth y, without an index cutoff. -/
+theorem pell_six_smooth {x y : ℕ} (eq : x^2+5=6*y^2)
+    (smooth : ∀ p : ℕ, p.Prime → p∣y → p=3 ∨ p=7) : x=1 ∨ x=7 ∨ x=17 := by
+  obtain ⟨n,hn|hn⟩ := six_orbits x y eq
+  all_goals
+    have divs : ¬9∣y ∧ ¬49∣y := by
+      first
+      | simpa only [hn,Nat.reducePow] using And.intro (avoid_6_1_3 (n:=n)) (avoid_6_1_7 (n:=n))
+      | simpa only [hn,Nat.reducePow] using And.intro (avoid_6_7_3 (n:=n)) (avoid_6_7_7 (n:=n))
+    have cases := smooth_small y smooth divs.1 divs.2
+    have bound : x≤52 := by
+      by_contra! bad
+      have sy : y≤21 := by omega
+      nlinarith [Nat.pow_le_pow_left sy 2,Nat.pow_le_pow_left bad.le 2]
+    have tab : ∀ a : Fin 53, ∀ b : Fin 22, a.val^2+5=6*b.val^2 →
+        (b.val=1 ∨ b.val=3 ∨ b.val=7 ∨ b.val=21) →
+        a.val=1 ∨ a.val=7 ∨ a.val=17 := by decide +kernel
+    exact tab ⟨x,by omega⟩ ⟨y,by omega⟩ eq cases
+
+end Erdos889.PellSixSieve
+
+
+/- Descent and bounded smooth coordinates on the positive Pell conic of norm minus five. -/
+
+namespace Erdos889.PellFourteen
+
+def term (s : ℕ × ℕ) : ℕ → ℕ × ℕ
+  | 0 => s
+  | k+1 => let z := term s k; (15*z.1+56*z.2,4*z.1+15*z.2)
+
+theorem descent {x y : ℕ} (eqn : x^2+5=14*y^2) :
+    ∃ s : ℕ × ℕ, (s=(3,1) ∨ s=(11,3)) ∧
+      ∃ k : ℕ, term s k=(x,y) ∧ 8^k≤y := by
+  induction y using Nat.strong_induction_on generalizing x with
+  | h y ih =>
+    by_cases small : y<9
+    · have hx : x<30 := by
+        by_contra! ge
+        have := Nat.pow_le_pow_left ge 2
+        have := Nat.pow_le_pow_left (show y≤8 by omega) 2
+        nlinarith
+      have cases' : ∀ i : Fin 30, ∀ j : Fin 9, i.val^2+5=14*j.val^2 →
+          (i.val=3 ∧ j.val=1) ∨ (i.val=11 ∧ j.val=3) := by decide +kernel
+      rcases cases' ⟨x,hx⟩ ⟨y,small⟩ eqn with ⟨rfl,rfl⟩|⟨rfl,rfl⟩
+      · exact ⟨(3,1),Or.inl rfl,0,rfl,by decide⟩
+      · exact ⟨(11,3),Or.inr rfl,0,rfl,by decide⟩
+    have low : 9^2≤y^2 := Nat.pow_le_pow_left (by omega) 2
+    have ax : 56*y≤15*x := by
+      apply (Nat.pow_le_pow_iff_left (by decide : 2≠0)).mp
+      nlinarith only [low,eqn]
+    have ay : 4*x≤15*y := by
+      apply (Nat.pow_le_pow_iff_left (by decide : 2≠0)).mp
+      nlinarith only [low,eqn]
+    have gy : 14*y<4*x := by
+      by_contra! bad
+      have := Nat.pow_le_pow_left bad 2
+      nlinarith only [this,low,eqn]
+    let u := 15*x-56*y
+    let v := 15*y-4*x
+    have hu : u+56*y=15*x := Nat.sub_add_cancel ax
+    have hv : v+4*x=15*y := Nat.sub_add_cancel ay
+    have ev : u^2+5=14*v^2 := by
+      dsimp only [u,v]
+      zify [ax,ay] at eqn ⊢
+      nlinarith only [eqn]
+    have smaller : v<y := by omega
+    obtain ⟨s,hs,k,hk,lim⟩ := ih v smaller ev
+    refine ⟨s,hs,k+1,?_,?_⟩
+    · simp only [term,hk]
+      exact Prod.ext (by dsimp; omega) (by dsimp; omega)
+    · rw [pow_succ]
+      omega
+
+/-- Once the two modular valuation bounds hold on the orbit, only three smooth
+solutions remain. Both the descent and the finite prefix are checked in the kernel. -/
+theorem smooth_from_orbit_bounds
+    (v3 : ∀ s : ℕ × ℕ, (s=(3,1) ∨ s=(11,3)) → ∀ k : ℕ, k<2097152 → ¬3^40∣(term s k).2)
+    (v7 : ∀ s : ℕ × ℕ, (s=(3,1) ∨ s=(11,3)) → ∀ k : ℕ, k<2097152 → ¬7^40∣(term s k).2)
+    {x y a b : ℕ} (eqn : x^2+5=14*y^2) (size : y<2^2097152) (form : y=3^a*7^b) :
+    (x=3 ∧ y=1) ∨ (x=11 ∧ y=3) ∨ (x=101 ∧ y=27) := by
+  obtain ⟨s,hs,k,hk,lim⟩ := descent eqn
+  have small : k<2097152 := by
+    by_contra! le
+    have h := Nat.pow_le_pow_right (by decide : 0<2) le
+    have h' := Nat.pow_le_pow_left (by decide : 2≤8) k
+    omega
+  have no3 := v3 s hs k small
+  have no7 := v7 s hs k small
+  rw [hk] at no3 no7
+  change ¬3^40∣y at no3
+  change ¬7^40∣y at no7
+  have ha : a≤40 := by
+    by_contra! big
+    exact no3 (form ▸ dvd_mul_of_dvd_left (pow_dvd_pow 3 big.le) _)
+  have hb : b≤40 := by
+    by_contra! big
+    exact no7 (form ▸ dvd_mul_of_dvd_right (pow_dvd_pow 7 big.le) _)
+  have yd : y∣21^40 := by
+    rw [form,show (21:ℕ)=3*7 by decide,mul_pow]
+    exact Nat.mul_dvd_mul (pow_dvd_pow 3 ha) (pow_dvd_pow 7 hb)
+  have lk : k<64 := by
+    by_contra! ge
+    have := Nat.pow_le_pow_right (by decide : 0<8) ge
+    have := Nat.le_of_dvd (by decide : 0<21^40) yd
+    have : 21^40<8^64 := by decide
+    omega
+  have tab : ∀ e : Bool, ∀ i : Fin 64,
+      let z := term (if e then (3,1) else (11,3)) i.val
+      z.2∣21^40 → (z.1=3 ∧ z.2=1) ∨ (z.1=11 ∧ z.2=3) ∨ (z.1=101 ∧ z.2=27) := by
+    decide +kernel
+  rcases hs with rfl|rfl
+  · have t := tab true ⟨k,lk⟩
+    simp only [if_true,hk] at t
+    exact t yd
+  · have t := tab false ⟨k,lk⟩
+    simp only [Bool.false_eq_true,if_false,hk] at t
+    exact t yd
+
+end Erdos889.PellFourteen
+
+
+namespace Erdos889.PellFourteen
+open Erdos889.PellSixSieve
+
+private theorem term_eq_orbit (s : ℕ × ℕ) (k : ℕ) :
+    term s k = orbit 14 (15,4) s k := by
+  induction k with
+  | zero => exact (orbit_zero 14 (15,4) s).symm
+  | succ k ih =>
+    rw [term,ih,orbit_succ]
+    apply Prod.ext
+    · rfl
+    · exact Nat.add_comm _ _
+
+/-- The exact positive smooth-coordinate solutions up to the effective binary
+bound for exceptional starting values. No upper bound on the exponents is necessary. -/
+theorem smooth_coordinates {x y a b : ℕ} (eqn : x^2+5=14*y^2)
+    (size : y<2^2097152) (form : y=3^a*7^b) :
+    (x=3 ∧ y=1) ∨ (x=11 ∧ y=3) ∨ (x=101 ∧ y=27) := by
+  apply smooth_from_orbit_bounds _ _ eqn size form
+  · intro s hs k hk
+    rw [term_eq_orbit]
+    rcases hs with rfl|rfl
+    · exact fun h => avoid_14_3_3 hk ((pow_dvd_pow 3 (by decide : 15≤40)).trans h)
+    · exact fun h => avoid_14_11_3 hk ((pow_dvd_pow 3 (by decide : 15≤40)).trans h)
+  · intro s hs k hk
+    rw [term_eq_orbit]
+    rcases hs with rfl|rfl
+    · exact fun h => avoid_14_3_7 hk ((pow_dvd_pow 7 (by decide : 9≤40)).trans h)
+    · exact fun h => avoid_14_11_7 hk ((pow_dvd_pow 7 (by decide : 8≤40)).trans h)
+
+end Erdos889.PellFourteen
+
+
+namespace Erdos889.SquareSeven
+open OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2
+
+/-- The prime-square branch above the known list requires every prime through seven. -/
+theorem square_multiple_of_210 {n p : ℕ} (big : 330<n)
+    (pp : p.Prime) (shape : n+1=p^2) (sol : v_l 1 n=1) : 210∣n := by
+  refine multiple_of_210_from_pell ?_ ?_ big pp shape sol
+  · intro p u v eq _
+    rcases Erdos889.PellSixSieve.pell_six_smooth eq (smooth_powers u v) with h|h|h <;> rw [h] <;> decide
+  · intro p u v eq size
+    rcases Erdos889.PellFourteen.smooth_coordinates eq size (a:=u) (b:=v) rfl with
+      ⟨h,_⟩|⟨h,_⟩|⟨h,_⟩ <;> rw [h] <;> decide
+
+/-- Exact positive solutions with a prime-square successor outside multiples of 210. -/
+theorem prime_square_outside_210 {n p : ℕ} (pp : p.Prime) (shape : n+1=p^2) (miss : ¬210∣n) :
+    v_l 1 n=1 ↔ n ∈ [3,8,24,48,120] :=
+  outside_210_from_divisibility (fun hi pr eq sol => square_multiple_of_210 hi pr eq sol) pp shape miss
+
+private theorem round_square {N cap : ℕ} (hi : N-1<cap) (dv : 210∣N-1) :
+    N≤1+210*((cap-1)/210) := by omega
+
+/-- A square above the rounded cutoff, or with a predecessor outside 210ℕ
+above the last known such predecessor, has a two-prime witness. -/
+theorem square_witness {p : ℕ} (pp : p.Prime) (big : 121<p^2)
+    (bound : 1+210*((2^(2^21)-1)/210)<p^2 ∨ ¬210∣p^2-1) :
+    ∃ d q s : ℕ, q.Prime ∧ s.Prime ∧ q≠s ∧ d+1<q ∧ d+1<s ∧ q∣p^2+d ∧ s∣p^2+d := by
+  by_contra none
+  have sol := Erdos889.Missing.predecessor_solution_of_missing (by omega : 1<p^2) none
+  by_cases div : 210∣p^2-1
+  · have lim := round_square (Erdos889.effective_binary_cutoff sol) div
+    exact bound.elim (Nat.not_lt_of_ge lim) (fun missing => missing div)
+  · have eq : p^2-1+1=p^2 := by omega
+    have mem := (prime_square_outside_210 pp eq div).mp sol
+    simp only [List.mem_cons,List.not_mem_nil,or_false] at mem
+    omega
+
+end Erdos889.SquareSeven
+
 theorem OMA.solution : OMA.R_Erdos889_erdos_889_variants_v1_eq_1_finite_R2_H2_R1.H1 := by
-  refine ⟨0,max 223 (1+30*((2^(2^21)-1)/30)),?_⟩
-  intro p _ _ high _ _ _ _
-  exact Erdos889.MissingPrimeSieve.witness_after_classification
+  refine ⟨0,max 121 (1+210*((2^(2^21)-1)/210)),?_⟩
+  intro p pp _ high _ _ _ _
+  exact Erdos889.SquareSeven.square_witness pp
     (lt_of_le_of_lt (Nat.le_max_left _ _) high)
     (Or.inl (lt_of_le_of_lt (Nat.le_max_right _ _) high))
