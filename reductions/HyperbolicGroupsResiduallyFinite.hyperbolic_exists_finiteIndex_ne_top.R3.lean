@@ -23,7 +23,8 @@ def H1 : Prop :=
   ∃ (G : Type) (_ : Group G) (_ : Group.IsHyperbolic G),
     (∀ (g : G) (n : ℕ), 0 < n → g ^ n = 1 → g = 1) ∧
     ∃ i : FreeGroup (Fin 2) →* G, Function.Injective i ∧
-      ∀ (F : Type) [Group F] [Finite F] (u : G →* F) (x : FreeGroup (Fin 2)), u (i x) = 1
+      ∀ (F : Type) [Group F] [Finite F] (u : G →* F) (j : Fin 2),
+        u (i (FreeGroup.of j)) = 1
 
 def H2 : Prop :=
   ∀ (G : Type) [Group G] [Group.IsHyperbolic G],
@@ -46,6 +47,11 @@ theorem main : H1 → H2 → type_of% @HyperbolicGroupsResiduallyFinite.hyperbol
   rw [Subgroup.normalCore_eq_ker]
   apply MonoidHom.mem_ker.mpr
   obtain ⟨x, rfl⟩ := hf q
-  exact hk (Equiv.Perm (Q ⧸ S)) ((MulAction.toPermHom Q (Q ⧸ S)).comp f) x
+  let u := (MulAction.toPermHom Q (Q ⧸ S)).comp f
+  have trivial : u.comp i = 1 := by
+    apply FreeGroup.lift.symm.injective
+    funext j
+    exact hk (Equiv.Perm (Q ⧸ S)) u j
+  exact DFunLike.congr_fun trivial x
 
 end OMA.R_HyperbolicGroupsResiduallyFinite_hyperbolic_exists_finiteIndex_ne_top_R3
