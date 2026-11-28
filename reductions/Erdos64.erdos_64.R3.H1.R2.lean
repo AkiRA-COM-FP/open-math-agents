@@ -2,6 +2,13 @@ import OMAReductions.R_Erdos64_erdos_64_R3
 import Mathlib.Combinatorics.SimpleGraph.Coloring.Constructions
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
 import Mathlib.Data.Set.Card
+import Mathlib.Combinatorics.SimpleGraph.Connectivity.Connected
+import Mathlib.Combinatorics.SimpleGraph.Finite
+import Mathlib.Combinatorics.SimpleGraph.Paths
+import Mathlib.Data.Fintype.Prod
+import Mathlib.Data.Fintype.Sum
+import Mathlib.Order.Interval.Finset.Nat
+import Mathlib.Tactic.IntervalCases
 
 /-!
 # Cycles through edges of a smallest biconnected counterexample to Erdős 64
@@ -32,9 +39,30 @@ an internal edge. Repeating away from its endpoints yields four distinct
 vertices with all incident edges nonseparating. Degree-sum gives the bound
 n+2, attained for contractible edges in the complete graph on four vertices.
 
+An uncovered edge yields two disjoint such regions. Absence of a square forces
+at least seven vertices per region. Hence at least fourteen vertices have
+degree at least three in the covered spanning graph, giving at least n+7 edges.
+
+Retaining any union of components together with both adjacent terminals
+preserves biconnectivity. Each proper nonempty side is connected
+and, at an uncovered edge, each terminal has a unique neighbor there.
+Every uncovered edge joins cubic vertices, and uncovered edges form a matching.
+Two copies of a side of size m glued along both terminals have 2m+2 vertices. When this
+is strictly less than n, minimality forces two terminal paths in that side
+whose lengths sum to a power of two. Gluing along any disjoint side proves
+that both lengths are exclusive to the first side. On every proper side, suppressing both
+terminals produces a smaller block.
+Deleting the virtual edge from its dyadic cycle and restoring the two
+terminal edges gives a path in that side of length one more than a power of two.
+
+The duplication of a region at a single cut vertex in Ducoffe--Dumitru,
+Theorem 2.3, does not create cycles crossing the two copies. With two shared
+terminals, such crossing cycles yield the path lengths used here.
+
 Related Lean work includes the marked path decomposition in PR #2529, the
 bipartite contraction in PR #31338, and the high-degree edge deletion in
-PR #21911. The two remaining hypotheses are open cases of the block problem.
+PR #21911. PR #32185 duplicates a terminal piece to force both path parities.
+PR #31004 treats degree-two terminals in cubic networks. The two remaining hypotheses are open cases of the block problem.
 -/
 
 namespace OMA.R_Erdos64_erdos_64_R3_H1_R2
@@ -649,6 +677,1743 @@ theorem evenSpectrumOfBipartiteBlock {V : Type} [Fintype V] (G : SimpleGraph V)
     rw [extra,Nat.even_add_one] at ed
     exact (ed even).elim
 
+
+/-- Two common neighbors display an explicit four-cycle through both terminals. -/
+theorem squareOfCommonNeighbors {V : Type*} {G : SimpleGraph V} {x y p q : V}
+    (xy : x ≠ y) (pq : p ≠ q) (xp : G.Adj x p) (yp : G.Adj y p)
+    (xq : G.Adj x q) (yq : G.Adj y q) :
+    ∃ c : G.Walk x x, c.IsCycle ∧ c.length = 4 := by
+  let c : G.Walk x x := .cons xp (.cons yp.symm (.cons yq (.cons xq.symm .nil)))
+  refine ⟨c,?_,rfl⟩
+  apply Walk.isCycle_iff_isPath_tail_and_le_length.mpr
+  constructor
+  · rw [show c = _ from rfl,Walk.tail_cons]
+    apply (Walk.isPath_copy _ _ _).mpr
+    simp [Walk.cons_isPath_iff,yp.ne.symm,pq,xp.ne.symm,yq.ne,xy.symm,xq.ne.symm]
+  · exact (by decide : 3 ≤ 4)
+
+/-- Absence of dyadic cycles makes each pair of distinct vertices determine
+at most one common neighbor, without a finiteness assumption. -/
+theorem noDyadic_commonNeighbor_unique {V : Type*} {G : SimpleGraph V}
+    (avoid : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    {x y p q : V} (xy : x ≠ y)
+    (xp : G.Adj x p) (yp : G.Adj y p) (xq : G.Adj x q) (yq : G.Adj y q) : p = q := by
+  by_contra ne
+  obtain ⟨c,hc,len⟩ := squareOfCommonNeighbors xy ne xp yp xq yq
+  exact avoid ⟨2,x,c,le_rfl,hc,len⟩
+
+
+/-- In a graph of minimum degree three with at most one common neighbor per
+distinct pair, a region attached at the ends of an edge has at least seven
+vertices. The argument counts a two-step neighborhood at an interior vertex. -/
+theorem bankSeven {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (floor : ∀ x, 3 ≤ G.degree x)
+    (unique : ∀ {x y p q : V}, x ≠ y → G.Adj x p → G.Adj y p →
+      G.Adj x q → G.Adj y q → p = q)
+    (p q : V) (pq : G.Adj p q) (R : Set V) (live : R.Nonempty)
+    (rp : p ∉ R) (rq : q ∉ R)
+    (near : ∀ x ∈ R, ∀ y, G.Adj x y → y ∈ R ∨ y = p ∨ y = q) :
+    7 ≤ R.ncard := by
+  classical
+  have center : ∃ z ∈ R, ¬G.Adj z p ∧ ¬G.Adj z q := by
+    by_contra! touch
+    have small (a b : V) (ab : G.Adj a b) (bb : b ∉ R)
+        (bound : ∀ x ∈ R, ∀ y, G.Adj x y → y ∈ R ∨ y = a ∨ y = b)
+        (cover : ∀ x ∈ R, G.Adj x a ∨ G.Adj x b) (x : V) (hx : x ∈ R)
+        (xa : G.Adj x a) : False := by
+      have common (y : V) (hy : G.Adj x y) (ya : y ≠ a) : G.Adj a y := by
+        rcases bound x hx y hy with hR | h | h
+        · rcases cover y hR with h | h
+          · exact h.symm
+          · exact (ya (unique (show x ≠ b from fun e => bb (e ▸ hx)) hy h.symm xa ab.symm)).elim
+        · exact (ya h).elim
+        · exact h ▸ ab
+      have one : ((G.neighborFinset x).erase a).card ≤ 1 := by
+        apply Finset.card_le_one.mpr
+        intro y hy z hz
+        obtain ⟨ya,xy⟩ := Finset.mem_erase.mp hy
+        obtain ⟨za,xz⟩ := Finset.mem_erase.mp hz
+        have e := (G.mem_neighborFinset ..).1 xy
+        have f := (G.mem_neighborFinset ..).1 xz
+        exact unique xa.ne e (common y e ya) f (common z f za)
+      rw [Finset.card_erase_of_mem ((G.mem_neighborFinset ..).2 xa),card_neighborFinset_eq_degree] at one
+      have := floor x
+      omega
+    have cover (x : V) (hx : x ∈ R) : G.Adj x p ∨ G.Adj x q :=
+      or_iff_not_imp_left.mpr (touch x hx)
+    obtain ⟨x,hx⟩ := live
+    rcases cover x hx with h | h
+    · exact small p q pq rq near cover x hx h
+    · exact small q p pq.symm rp (fun x hx y e => (near x hx y e).imp_right Or.symm)
+        (fun x hx => (cover x hx).symm) x hx h
+  obtain ⟨z,hz,zp,zq⟩ := center
+  let N := G.neighborFinset z
+  let F (v : V) := (G.neighborFinset v).erase z
+  have neighbor {v : V} (hv : v ∈ N) : G.Adj z v := (G.mem_neighborFinset ..).1 hv
+  have inner {v : V} (hv : v ∈ N) : v ∈ R := by
+    rcases near z hz v (neighbor hv) with h | h | h
+    · exact h
+    · exact (zp (h ▸ neighbor hv)).elim
+    · exact (zq (h ▸ neighbor hv)).elim
+  have disj : (N : Set V).PairwiseDisjoint F := by
+    intro v hv w hw vw
+    apply Finset.disjoint_left.mpr
+    intro t htv htw
+    obtain ⟨tz,vt⟩ := Finset.mem_erase.mp htv
+    have wt := (Finset.mem_erase.mp htw).2
+    exact tz (unique vw ((G.mem_neighborFinset ..).1 vt) ((G.mem_neighborFinset ..).1 wt)
+      (neighbor hv).symm (neighbor hw).symm)
+  have point (v) (hv : v ∈ N) : 2 ≤ (F v).card := by
+    rw [show F v = _ from rfl,Finset.card_erase_of_mem ((G.mem_neighborFinset ..).2 (neighbor hv).symm),
+      card_neighborFinset_eq_degree]
+    have := floor v
+    omega
+  have total : 2 * N.card ≤ (N.biUnion F).card := by
+    rw [Finset.card_biUnion disj]
+    simpa [Nat.mul_comm] using Finset.sum_le_sum point
+  have znot : z ∉ N.biUnion F := by
+    intro h
+    obtain ⟨v,_,hv⟩ := Finset.mem_biUnion.mp h
+    exact (Finset.mem_erase.mp hv).1 rfl
+  have subset : insert z (N.biUnion F) ⊆ insert p (insert q R.toFinset) := by
+    intro t ht
+    rcases Finset.mem_insert.mp ht with rfl | ht
+    · simp [hz]
+    · obtain ⟨v,hv,vt⟩ := Finset.mem_biUnion.mp ht
+      have e := (G.mem_neighborFinset ..).1 (Finset.mem_erase.mp vt).2
+      rcases near v (inner hv) t e with h | h | h <;> simp [h]
+  have count := Finset.card_le_card subset
+  rw [Finset.card_insert_of_notMem znot] at count
+  have cap₁ := Finset.card_insert_le p (insert q R.toFinset)
+  have cap₂ := Finset.card_insert_le q R.toFinset
+  have cardN : N.card = G.degree z := G.card_neighborFinset_eq_degree z
+  rw [Set.ncard_eq_toFinset_card']
+  have degree := floor z
+  by_contra! tooSmall
+  have three : N.card = 3 := by omega
+  let K := insert p (insert q R.toFinset)
+  let U := N.biUnion F
+  have cap : K.card ≤ 8 := by dsimp [K]; omega
+  have encl : N ⊆ K := by
+    intro v hv
+    simp [K,inner hv]
+  have only {u v w : V} (hu : u ∈ N) (hv : v ∈ N) (hw : w ∈ N)
+      (uv : G.Adj u v) (uw : G.Adj u w) : v = w :=
+    unique (neighbor hu).ne (neighbor hv) uv (neighbor hw) uw
+  have adjacent : ∃ a ∈ N, ∃ b ∈ N, G.Adj a b := by
+    by_contra! ind
+    have sep : Disjoint N (insert z U) := by
+      apply Finset.disjoint_left.mpr
+      intro t ht ht'
+      rcases Finset.mem_insert.mp ht' with e | h
+      · exact (neighbor ht).ne e.symm
+      · obtain ⟨v,hv,vt⟩ := Finset.mem_biUnion.mp h
+        exact ind v hv t ht ((G.mem_neighborFinset ..).1 (Finset.mem_erase.mp vt).2)
+    have lt := Finset.card_le_card (Finset.union_subset encl subset)
+    rw [Finset.card_union_of_disjoint sep,Finset.card_insert_of_notMem znot] at lt
+    change N.card + ((N.biUnion F).card + 1) ≤ K.card at lt
+    omega
+  obtain ⟨a,ha,b,hb,ab⟩ := adjacent
+  have third : ¬ N ⊆ {a,b} := by
+    intro incl
+    have bound := Finset.card_le_card incl
+    simp [three,ab.ne] at bound
+  obtain ⟨c,hc,fresh⟩ := Finset.not_subset.mp third
+  have ca : c ≠ a := fun e => fresh (by simp [e])
+  have cb : c ≠ b := fun e => fresh (by simp [e])
+  have enum : N = {a,b,c} := by
+    apply Eq.symm
+    apply Finset.eq_of_subset_of_card_le
+    · exact Finset.insert_subset ha (Finset.insert_subset hb (Finset.singleton_subset_iff.mpr hc))
+    · simp [three,ab.ne,ca.symm,cb.symm]
+  have noC (v) (hv : v ∈ N) : ¬ G.Adj c v := by
+    have choice : v = a ∨ v = b ∨ v = c := by simpa [enum] using hv
+    rintro e
+    rcases choice with rfl | rfl | rfl
+    · exact cb (only ha hc hb e.symm ab)
+    · exact ca (only hb hc ha e.symm ab.symm)
+    · exact e.ne rfl
+  have cnot : c ∉ insert z U := by
+    intro mem
+    rcases Finset.mem_insert.mp mem with h | h
+    · exact (neighbor hc).ne h.symm
+    · obtain ⟨v,hv,vc⟩ := Finset.mem_biUnion.mp h
+      exact noC v hv ((G.mem_neighborFinset ..).1 (Finset.mem_erase.mp vc).2).symm
+  have wide : insert c (insert z U) ⊆ K :=
+    Finset.insert_subset (encl hc) subset
+  have eq : insert c (insert z U) = K := by
+    apply Finset.eq_of_subset_of_card_le wide
+    rw [Finset.card_insert_of_notMem cnot,Finset.card_insert_of_notMem znot]
+    omega
+  have sum3 := congrArg Finset.card eq
+  rw [Finset.card_insert_of_notMem cnot,Finset.card_insert_of_notMem znot] at sum3
+  change (N.biUnion F).card + 1 + 1 = K.card at sum3
+  rw [Finset.card_biUnion disj,enum] at sum3
+  simp [ab.ne,ca.symm,cb.symm] at sum3
+  have a2 : (F a).card = 2 := by have := point a ha; have := point b hb; have := point c hc; omega
+  have b2 : (F b).card = 2 := by have := point a ha; have := point b hb; have := point c hc; omega
+  have baF : b ∈ F a := Finset.mem_erase.mpr ⟨(neighbor hb).ne.symm,(G.mem_neighborFinset ..).2 ab⟩
+  have abF : a ∈ F b := Finset.mem_erase.mpr ⟨(neighbor ha).ne.symm,(G.mem_neighborFinset ..).2 ab.symm⟩
+  obtain ⟨x,hx,xb⟩ := Finset.exists_mem_ne (a2 ▸ (by decide : 1 < 2) : 1 < (F a).card) b
+  obtain ⟨y,hy,ya⟩ := Finset.exists_mem_ne (b2 ▸ (by decide : 1 < 2) : 1 < (F b).card) a
+  have edgeF {u v : V} (h : v ∈ F u) : G.Adj u v := (G.mem_neighborFinset ..).1 (Finset.mem_erase.mp h).2
+  have rangeF {u v w : V} (card : (F u).card = 2) (hv : v ∈ F u) (hw : w ∈ F u) (vw : v ≠ w) :
+      F u = {v,w} := by
+    apply Eq.symm
+    apply Finset.eq_of_subset_of_card_le
+    · exact Finset.insert_subset hv (Finset.singleton_subset_iff.mpr hw)
+    · simp [card,vw]
+  have fa := rangeF a2 baF hx xb.symm
+  have fb := rangeF b2 abF hy ya.symm
+  have xy : x ≠ y := fun h => (Finset.disjoint_left.mp (disj ha hb ab.ne)) hx (h ▸ hy)
+  have nonedge : ¬G.Adj x y := by
+    intro e
+    exact ya (unique xb e (edgeF hy) (edgeF hx).symm ab.symm)
+  have out (u v X Y : V) (hu : u ∈ N) (hv : v ∈ N) (uv : G.Adj u v)
+      (hX : X ∈ F u) (Xv : X ≠ v) (noXY : ¬G.Adj X Y)
+      (fu : F u = {v,X}) (fv : F v = {u,Y})
+      (allN : ∀ w ∈ N, w = u ∨ w = v ∨ w = c) : X ∉ R := by
+    intro XR
+    have Xc : X ≠ c := fun e => noC u hu (e ▸ (edgeF hX).symm)
+    have Xz : X ≠ z := (Finset.mem_erase.mp hX).1
+    have notZ : ¬ G.Adj X z := fun e => Xv (only hu ((G.mem_neighborFinset ..).2 e.symm) hv (edgeF hX) uv)
+    have notV : ¬ G.Adj X v := fun e => Xz (unique uv.ne (edgeF hX) e.symm (neighbor hu).symm (neighbor hv).symm)
+    have atC (t : V) (xt : G.Adj X t) (tu : t ≠ u) : G.Adj c t := by
+      have mem : t ∈ K := by
+        rcases near X XR t xt with h | h | h <;> simp [K,h]
+      rw [← eq] at mem
+      rcases Finset.mem_insert.mp mem with e | mem
+      · exact (Xz (unique (by intro h; exact noC v hv (h ▸ uv) : u ≠ c)
+          (edgeF hX) (e ▸ xt.symm) (neighbor hu).symm (neighbor hc).symm)).elim
+      rcases Finset.mem_insert.mp mem with e | mem
+      · exact (notZ (e ▸ xt)).elim
+      obtain ⟨w,hw,wt⟩ := Finset.mem_biUnion.mp mem
+      rcases allN w hw with h | h | h
+      · subst w
+        have choice : t = v ∨ t = X := by simpa [fu] using wt
+        rcases choice with h | h
+        · exact (notV (h ▸ xt)).elim
+        · exact (xt.ne h.symm).elim
+      · subst w
+        have choice : t = u ∨ t = Y := by simpa [fv] using wt
+        rcases choice with h | h
+        · exact (tu h).elim
+        · exact (noXY (h ▸ xt)).elim
+      · exact h ▸ edgeF wt
+    have small : ((G.neighborFinset X).erase u).card ≤ 1 := by
+      apply Finset.card_le_one.mpr
+      intro s hs t ht
+      obtain ⟨su,xs⟩ := Finset.mem_erase.mp hs
+      obtain ⟨tu,xt⟩ := Finset.mem_erase.mp ht
+      have e := (G.mem_neighborFinset ..).1 xs
+      have f := (G.mem_neighborFinset ..).1 xt
+      exact unique Xc e (atC s e su) f (atC t f tu)
+    rw [Finset.card_erase_of_mem ((G.mem_neighborFinset ..).2 (edgeF hX).symm),card_neighborFinset_eq_degree] at small
+    have := floor X
+    omega
+  have allN (w) (hw : w ∈ N) : w = a ∨ w = b ∨ w = c := by simpa [enum] using hw
+  have outX := out a b x y ha hb ab hx xb nonedge fa fb allN
+  have outY := out b a y x hb ha ab.symm hy ya (fun e => nonedge e.symm) fb fa
+    (by
+      intro w hw
+      rcases allN w hw with h | h | h
+      · exact Or.inr (Or.inl h)
+      · exact Or.inl h
+      · exact Or.inr (Or.inr h))
+  have term {u w : V} (hu : u ∈ N) (hw : w ∈ F u) (outside : w ∉ R) : w = p ∨ w = q :=
+    (near u (inner hu) w (edgeF hw)).resolve_left outside
+  rcases term ha hx outX with rfl | rfl <;> rcases term hb hy outY with rfl | rfl
+  · exact xy rfl
+  · exact nonedge pq
+  · exact nonedge pq.symm
+  · exact xy rfl
+
+
+/-- A uniform lower bound on the size of every region attached at an edge
+transfers to the excess of edges over vertices in any graph containing the
+nonseparating edges of a biconnected graph of minimum degree three. -/
+theorem twoBankCount {V : Type*} [Fintype V]
+    (G H : SimpleGraph V) [DecidableRel G.Adj] [DecidableRel H.Adj]
+    (floor : ∀ t, 3 ≤ G.degree t)
+    {k : ℕ}
+    (size : ∀ p q, G.Adj p q → ∀ R : Set V, R.Nonempty → p ∉ R → q ∉ R →
+      (∀ x ∈ R, ∀ y, G.Adj x y → y ∈ R ∨ y = p ∨ y = q) → k ≤ R.ncard)
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, G.Adj x y)
+    (contains : ∀ a b, G.Adj a b →
+      (∀ S : Set V, a ∈ S → b ∈ S → (∃ x ∈ S, x ≠ a ∧ x ≠ b) → (∃ y, y ∉ S) →
+        ∃ x ∈ S, x ≠ a ∧ x ≠ b ∧ ∃ y ∉ S, G.Adj x y) → H.Adj a b)
+    {a b : V} (ab : G.Adj a b) (S : Set V) (ha : a ∈ S) (hb : b ∈ S)
+    (inside : ∃ x ∈ S, x ≠ a ∧ x ≠ b) (outside : ∃ y, y ∉ S)
+    (gap : ∀ x ∈ S, x ≠ a → x ≠ b → ∀ y ∉ S, ¬ G.Adj x y) :
+    2 * k ≤ (Finset.univ.filter (fun v => 3 ≤ H.degree v)).card ∧
+      Fintype.card V + k ≤ H.edgeFinset.card := by
+  classical
+  let Q := Finset.univ.filter (fun v => 3 ≤ H.degree v)
+  have bank (C : Set V) (live : C.Nonempty) (ca : a ∉ C) (cb : b ∉ C)
+      (near : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b) :
+      ∃ R : Finset V, k ≤ R.card ∧ R ⊆ Q ∧ ∀ v ∈ R, v ∈ C := by
+    obtain ⟨p,q,T,subT,neT,pq,tp,tq,bound,safe⟩ :=
+      regionOfNonseparatingStars G block ab C live ca cb near
+    refine ⟨T.toFinset,?_,?_,fun v hv => subT (Set.mem_toFinset.mp hv)⟩
+    · simpa only [Set.ncard_eq_toFinset_card'] using size p q pq T neT tp tq bound
+    · intro w hw
+      have incl : G.neighborFinset w ⊆ H.neighborFinset w := by
+        intro t ht
+        have e := (G.mem_neighborFinset ..).1 ht
+        exact (H.mem_neighborFinset ..).2 (contains w t e (safe w (Set.mem_toFinset.mp hw) t e))
+      have deg : G.degree w ≤ H.degree w := by
+        simpa only [card_neighborFinset_eq_degree] using Finset.card_le_card incl
+      exact Finset.mem_filter.mpr ⟨Finset.mem_univ _, (floor w).trans deg⟩
+  let X := {v : V | v ∈ S ∧ v ≠ a ∧ v ≠ b}
+  obtain ⟨i,hi,ia,ib⟩ := inside
+  obtain ⟨L,nL,qL,sideL⟩ := bank X ⟨i,hi,ia,ib⟩ (fun h => h.2.1 rfl) (fun h => h.2.2 rfl) (by
+    intro x hx y xy
+    by_contra! miss
+    exact gap x hx.1 hx.2.1 hx.2.2 y (fun h => miss.1 ⟨h,miss.2⟩) xy)
+  obtain ⟨R,nR,qR,sideR⟩ := bank Sᶜ outside (fun h => h ha) (fun h => h hb) (by
+    intro x hx y xy
+    by_contra! miss
+    exact gap y (by simpa using miss.1) miss.2.1 miss.2.2 x hx xy.symm)
+  have disj : Disjoint L R := Finset.disjoint_left.mpr fun _ hL hR => sideR _ hR (sideL _ hL).1
+  have count := Finset.card_le_card (Finset.union_subset qL qR)
+  rw [Finset.card_union_of_disjoint disj] at count
+  have highCount : 2 * k ≤ Q.card := by omega
+  obtain ⟨J,sub,bJ,edges⟩ := spanningNonseparatingEdges G block
+  have another (t r : V) (tr : t ≠ r) : ∃ b, H.Adj t b ∧ b ≠ r := by
+    have many : 1 < (G.neighborFinset t).card := by rw [card_neighborFinset_eq_degree]; have := floor t; omega
+    obtain ⟨y,hy,yr⟩ := Finset.exists_mem_ne many r
+    have yt := ((G.mem_neighborFinset ..).1 hy).ne.symm
+    let P : Set V := {t,r}
+    obtain ⟨x,hx,xr,u,hu,xu⟩ := bJ r P (by simp [P]) ⟨t,by simp [P],tr⟩ ⟨y,by simp [P,yt,yr]⟩
+    have xt : x = t := by simpa [P,xr] using hx
+    exact ⟨u,xt ▸ contains x u (sub xu) (edges x u xu),fun e => hu (by simp [P,e])⟩
+  have base (t : V) : 2 ≤ H.degree t := by
+    have r : ∃ r : V, t ≠ r := by
+      by_cases h : t = a
+      · exact ⟨b,h ▸ ab.ne⟩
+      · exact ⟨a,h⟩
+    obtain ⟨r,tr⟩ := r
+    obtain ⟨u,tu,_⟩ := another t r tr
+    obtain ⟨v,tv,vu⟩ := another t u tu.ne
+    rw [← card_neighborFinset_eq_degree]
+    exact Finset.one_lt_card.mpr
+      ⟨v,(H.mem_neighborFinset ..).2 tv,u,(H.mem_neighborFinset ..).2 tu,vu⟩
+  have point (w : V) : 2 + (if w ∈ Q then 1 else 0) ≤ H.degree w := by
+    by_cases hw : w ∈ Q
+    · simpa [hw] using (Finset.mem_filter.mp hw).2
+    · simpa [hw] using base w
+  have total := Finset.sum_le_sum (s := Finset.univ) (fun w _ => point w)
+  simp [Finset.sum_add_distrib,H.sum_degrees_eq_twice_card_edges] at total
+  exact ⟨highCount, by omega⟩
+
+/-- An adjacent separating pair in a four-cycle-free block forces at least
+fourteen vertices of degree at least three in any graph containing every
+nonseparating edge, and at least seven more edges than vertices. -/
+theorem twoBankCore {V : Type*} [Fintype V]
+    (G H : SimpleGraph V) [DecidableRel G.Adj] [DecidableRel H.Adj]
+    (floor : ∀ t, 3 ≤ G.degree t)
+    (unique : ∀ {x y p q : V}, x ≠ y → G.Adj x p → G.Adj y p →
+      G.Adj x q → G.Adj y q → p = q)
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, G.Adj x y)
+    (contains : ∀ a b, G.Adj a b →
+      (∀ S : Set V, a ∈ S → b ∈ S → (∃ x ∈ S, x ≠ a ∧ x ≠ b) → (∃ y, y ∉ S) →
+        ∃ x ∈ S, x ≠ a ∧ x ≠ b ∧ ∃ y ∉ S, G.Adj x y) → H.Adj a b)
+    {a b : V} (ab : G.Adj a b) (S : Set V) (ha : a ∈ S) (hb : b ∈ S)
+    (inside : ∃ x ∈ S, x ≠ a ∧ x ≠ b) (outside : ∃ y, y ∉ S)
+    (gap : ∀ x ∈ S, x ≠ a → x ≠ b → ∀ y ∉ S, ¬ G.Adj x y) :
+    14 ≤ (Finset.univ.filter (fun v => 3 ≤ H.degree v)).card ∧
+      Fintype.card V + 7 ≤ H.edgeFinset.card :=
+  twoBankCount G H floor (bankSeven G floor unique) block contains ab S ha hb inside outside gap
+
+
+/-- Two simple terminal paths with disjoint interiors realize the sum of their
+lengths as a simple cycle, subject only to the sharp minimum length three. -/
+theorem joinTerminalPaths {V : Type*} {G : SimpleGraph V} {a b : V}
+    (p q : G.Walk a b) (hp : p.IsPath) (hq : q.IsPath)
+    (overlap : ∀ x, x ∈ p.support → x ∈ q.support → x = a ∨ x = b)
+    (size : 3 ≤ p.length + q.length) :
+    ∃ c : G.Walk a a, c.IsCycle ∧ c.length = p.length + q.length := by
+  let r := q.reverse
+  have hr : r.IsPath := hq.reverse
+  have freshP : a ∉ p.support.tail := by
+    have hn := hp.support_nodup
+    rw [← p.cons_tail_support, List.nodup_cons] at hn
+    exact hn.1
+  have freshR : b ∉ r.support.tail := by
+    have hn := hr.support_nodup
+    rw [← r.cons_tail_support, List.nodup_cons] at hn
+    exact hn.1
+  have disj : p.support.tail.Disjoint r.support.tail := by
+    intro x xp xr
+    have pMem : x ∈ p.support := by rw [← p.cons_tail_support]; exact List.mem_cons_of_mem _ xp
+    have rMem : x ∈ r.support := by rw [← r.cons_tail_support]; exact List.mem_cons_of_mem _ xr
+    have qMem : x ∈ q.support := by simpa [r,Walk.support_reverse] using rMem
+    rcases overlap x pMem qMem with h | h
+    · exact freshP (h ▸ xp)
+    · exact freshR (h ▸ xr)
+  have l : r.length = q.length := q.length_reverse
+  exact ⟨p.append r, hp.isCycle_append hr disj (by omega), by simp [l]⟩
+
+/-- A component behind a separation pair has a neighbor at either terminal.
+No degree or finiteness hypothesis is needed. -/
+theorem componentSeesBoth {V : Type*} {G : SimpleGraph V}
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : a ≠ b) (C : Set V) (u : C) (ca : a ∉ C) (cb : b ∉ C)
+    (boundary : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b) :
+    (∃ x : C, (G.induce C).Reachable u x ∧ G.Adj a x) ∧
+    (∃ y : C, (G.induce C).Reachable u y ∧ G.Adj b y) := by
+  classical
+  let J := G.induce C
+  let R := {v : V | ∃ hv : v ∈ C, J.Reachable u ⟨v,hv⟩}
+  have ru : u.val ∈ R := ⟨u.property,Reachable.refl _⟩
+  have sub : R ⊆ C := fun _ h => h.choose
+  have closes {x y : V} (rx : x ∈ R) (yx : y ∈ C) (xy : G.Adj x y) : y ∈ R := by
+    obtain ⟨xc,ux⟩ := rx
+    have e : J.Adj ⟨x,xc⟩ ⟨y,yx⟩ := xy
+    exact ⟨yx,ux.trans e.reachable⟩
+  have see (s t : V) (st : s ≠ t) (cs : s ∉ C) (ct : t ∉ C)
+      (ends : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = s ∨ y = t) :
+      ∃ x : C, J.Reachable u x ∧ G.Adj t x := by
+    let S := {v : V | v = s ∨ v ∈ R}
+    have out : t ∉ S := fun h => h.elim st.symm (fun tr => ct (sub tr))
+    obtain ⟨x,hx,xs,y,hy,edge⟩ := block s S (Or.inl rfl)
+      ⟨u.val, Or.inr ru, fun h => cs (h ▸ u.property)⟩ ⟨t,out⟩
+    have rx : x ∈ R := hx.resolve_left xs
+    obtain ⟨xc,ux⟩ := rx
+    have et : y = t := by
+      rcases ends x xc y edge with yc | ys | yt
+      · exact (hy (Or.inr (closes ⟨xc,ux⟩ yc edge))).elim
+      · exact (hy (Or.inl ys)).elim
+      · exact yt
+    exact ⟨⟨x,xc⟩,ux,et ▸ edge.symm⟩
+  exact ⟨see b a ab.symm cb ca (fun x hx y e => (boundary x hx y e).imp_right Or.symm),
+    see a b ab ca cb boundary⟩
+
+
+/-- A proper region with a thin terminal in a block has connected interior:
+every interior component must meet both terminal neighborhoods. -/
+theorem thinBankConnected {V : Type*} {G : SimpleGraph V}
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : a ≠ b) (C : Set V) (live : C.Nonempty) (ca : a ∉ C) (cb : b ∉ C)
+    (boundary : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b)
+    (thin : ¬ ((∃ x ∈ C, ∃ y ∈ C, x ≠ y ∧ G.Adj a x ∧ G.Adj a y) ∧
+       (∃ x ∈ C, ∃ y ∈ C, x ≠ y ∧ G.Adj b x ∧ G.Adj b y))) :
+    (G.induce C).Connected := by
+  obtain ⟨v,hv⟩ := live
+  apply (G.induce C).connected_iff_exists_forall_reachable.mpr
+  refine ⟨⟨v,hv⟩,?_⟩
+  intro w
+  by_contra far
+  obtain ⟨⟨x,vx,ax⟩,⟨s,vs,bs⟩⟩ := componentSeesBoth block ab C ⟨v,hv⟩ ca cb boundary
+  obtain ⟨⟨y,wy,ay⟩,⟨t,wt,bt⟩⟩ := componentSeesBoth block ab C w ca cb boundary
+  have different {u z : C} (vu : (G.induce C).Reachable ⟨v,hv⟩ u)
+      (wz : (G.induce C).Reachable w z) : u.val ≠ z.val := by
+    intro eq
+    have h : u = z := Subtype.ext eq
+    exact far ((h ▸ vu).trans wz.symm)
+  exact thin ⟨⟨x,x.property,y,y.property,different vx wy,ax,ay⟩,
+    ⟨s,s.property,t,t.property,different vs wt,bs,bt⟩⟩
+
+
+private theorem noIsolatedRegion {V : Type*} {G : SimpleGraph V}
+    (block : ∀ (z : V) (S : Set V), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, G.Adj x y)
+    (r : V) (D : Set V) (outside : ∃ t ∉ D, t ≠ r)
+    (avoids : r ∉ D) (closed : ∀ x ∈ D, ∀ y, G.Adj x y → y ∈ D ∨ y = r) :
+    ∀ v, v ∉ D := by
+  intro v hv
+  let S : Set V := {x | x = r ∨ x ∈ D}
+  obtain ⟨t,ht,tr⟩ := outside
+  obtain ⟨x,hx,xr,y,hy,e⟩ := block r S (Or.inl rfl)
+    ⟨v,Or.inr hv,fun eq => avoids (eq ▸ hv)⟩ ⟨t,fun h => h.elim tr ht⟩
+  exact hy ((closed x (hx.resolve_left xr) y e).symm)
+
+private theorem bankNeighbor {V : Type*} {G : SimpleGraph V}
+    (block : ∀ (z : V) (S : Set V), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : a ≠ b) (C : Set V) (ne : C.Nonempty) (ca : a ∉ C) (cb : b ∉ C)
+    (bound : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b) :
+    ∃ u : C, G.Adj a u.val := by
+  obtain ⟨v,hv⟩ := ne
+  by_contra! h
+  apply noIsolatedRegion block b C ⟨a,ca,ab⟩ cb _ v hv
+  intro x hx y xy
+  rcases bound x hx y xy with hy | eq | eq
+  · exact Or.inl hy
+  · exact (h ⟨x,hx⟩ (eq ▸ xy.symm)).elim
+  · exact Or.inr eq
+
+theorem sheetQuiet {V W : Type*} {G : SimpleGraph V} {K : SimpleGraph W}
+    (block : ∀ (z : V) (S : Set V), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : a ≠ b) (C : Set V) (ca : a ∉ C) (cb : b ∉ C)
+    (bound : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b)
+    (A B z : W) (f : C → W) (r : V)
+    (rf : ∀ u : C, f u = z ↔ u.val = r) (ra : A = z → a = r) (rb : B = z → b = r)
+    (ef : ∀ u v : C, G.Adj u.val v.val → K.Adj (f u) (f v))
+    (ea : ∀ u : C, G.Adj u.val a → K.Adj (f u) A)
+    (eb : ∀ u : C, G.Adj u.val b → K.Adj (f u) B)
+    (P : W → Prop) (same : ∀ u v, u ≠ z → v ≠ z → K.Adj u v → P u → P v)
+    (pa : A ≠ z → ¬ P A) (pb : B ≠ z → ¬ P B) :
+    ∀ u : C, f u ≠ z → ¬ P (f u) := by
+  intro u uz bad
+  let D := {v : V | ∃ hv : v ∈ C, f ⟨v,hv⟩ ≠ z ∧ P (f ⟨v,hv⟩)}
+  have outside : ∃ t ∉ D, t ≠ r := by
+    by_cases ar : a = r
+    · exact ⟨b,fun ⟨h,_⟩ => cb h,ar ▸ ab.symm⟩
+    · exact ⟨a,fun ⟨h,_⟩ => ca h,ar⟩
+  apply noIsolatedRegion block r D outside _ _ u.val ⟨u.property,uz,bad⟩
+  · exact fun ⟨h,hz,_⟩ => hz ((rf ⟨r,h⟩).2 rfl)
+  · rintro x ⟨hx,hz,px⟩ y xy
+    rcases bound x hx y xy with iy | rfl | rfl
+    · by_cases yr : y = r
+      · exact .inr yr
+      · have ok := mt (rf ⟨y,iy⟩).1 yr
+        exact .inl ⟨iy,ok,same _ _ hz ok (ef ⟨x,hx⟩ ⟨y,iy⟩ xy) px⟩
+    · by_cases az : A = z
+      · exact .inr (ra az)
+      · exact (pa az (same _ _ hz az (ea ⟨x,hx⟩ xy) px)).elim
+    · by_cases bz : B = z
+      · exact .inr (rb bz)
+      · exact (pb bz (same _ _ hz bz (eb ⟨x,hx⟩ xy) px)).elim
+
+theorem doubleBank {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (block : ∀ (z : V) (S : Set V), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : G.Adj a b) (C : Set V) (ne : C.Nonempty) (ca : a ∉ C) (cb : b ∉ C)
+    (bound : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b)
+    (deg : ∀ u : C, 3 ≤ G.degree u.val) :
+    let W := Bool ⊕ (Bool × C)
+    let π : W → V := Sum.elim (fun t : Bool => if t then b else a) (fun p : Bool × C => p.2.val)
+    ∃ K : SimpleGraph W,
+      (∀ u v, K.Adj u v → G.Adj (π u) (π v)) ∧
+      (∀ i j x y, K.Adj (.inr (i,x)) (.inr (j,y)) → i = j) ∧
+      (∀ u : W, 3 ≤ K.degree u) ∧
+      (∀ (z : W) (S : Set W), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+        ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, K.Adj x y) ∧
+      Fintype.card W = 2 + 2 * Fintype.card C := by
+  classical
+  let W := Bool ⊕ (Bool × C)
+  let π : W → V := Sum.elim (fun t : Bool => if t then b else a) (fun p : Bool × C => p.2.val)
+  let tag : W → Option Bool := Sum.elim (fun _ => none) (fun p => some p.1)
+  let K : SimpleGraph W := {
+    Adj := fun u v => G.Adj (π u) (π v) ∧ (tag u = none ∨ tag v = none ∨ tag u = tag v)
+    symm := ⟨fun _ _ h => ⟨h.1.symm,h.2.elim (fun e => .inr (.inl e))
+      (fun h' => h'.elim Or.inl (fun e => .inr (.inr e.symm)))⟩⟩
+    loopless := ⟨fun _ h => h.1.ne rfl⟩ }
+  let : DecidableRel K.Adj := fun _ _ => Classical.propDecidable _
+  let A : W := .inl false
+  let B : W := .inl true
+  let f (i : Bool) (x : C) : W := .inr (i,x)
+  have AB : K.Adj A B := ⟨ab,Or.inl rfl⟩
+  have ef (i : Bool) (x y : C) (xy : G.Adj x.val y.val) : K.Adj (f i x) (f i y) :=
+    ⟨xy,Or.inr (Or.inr rfl)⟩
+  have ea (i : Bool) (x : C) (xa : G.Adj x.val a) : K.Adj (f i x) A := ⟨xa,Or.inr (Or.inl rfl)⟩
+  have eb (i : Bool) (x : C) (xb : G.Adj x.val b) : K.Adj (f i x) B := ⟨xb,Or.inr (Or.inl rfl)⟩
+  refine ⟨K,fun _ _ h => h.1,?_,?_,?_,?_⟩
+  · intro i j x y e
+    have h := e.2
+    simpa [tag] using h
+  · have three {v i j k : W} (vi : K.Adj v i) (vj : K.Adj v j) (vk : K.Adj v k)
+        (ij : i ≠ j) (ik : i ≠ k) (jk : j ≠ k) : 3 ≤ K.degree v := by
+      have sub : ({i,j,k} : Finset W) ⊆ K.neighborFinset v := by
+        intro t ht
+        simp only [Finset.mem_insert,Finset.mem_singleton] at ht
+        rcases ht with rfl | rfl | rfl <;> simpa
+      have h := Finset.card_le_card sub
+      simpa [ij,ik,jk,card_neighborFinset_eq_degree] using h
+    intro w
+    rcases w with (u | ⟨i,x⟩)
+    · cases u
+      · obtain ⟨x,hx⟩ := bankNeighbor block ab.ne C ne ca cb bound
+        exact three AB (ea false x hx.symm).symm (ea true x hx.symm).symm
+          (by simp [B,f]) (by simp [B,f]) (fun e => Bool.noConfusion (congrArg Prod.fst (Sum.inr.inj e)))
+      · obtain ⟨x,hx⟩ := bankNeighbor block ab.ne.symm C ne cb ca
+          (fun v hv w vw => (bound v hv w vw).imp_right Or.symm)
+        exact three AB.symm (eb false x hx.symm).symm (eb true x hx.symm).symm
+          (by simp [A,f]) (by simp [A,f]) (fun e => Bool.noConfusion (congrArg Prod.fst (Sum.inr.inj e)))
+    · let lift (v : V) : W := if h : v ∈ C then f i ⟨v,h⟩ else if v = a then A else B
+      have maps (v : V) (hv : G.Adj x.val v) : K.Adj (f i x) (lift v) ∧ π (lift v) = v := by
+        rcases bound x.val x.property v hv with h | rfl | rfl
+        · simp only [lift,dif_pos h]
+          exact ⟨ef i x ⟨v,h⟩ hv,rfl⟩
+        · simp only [lift,dif_neg ca]
+          exact ⟨ea i x hv,rfl⟩
+        · simp only [lift,dif_neg cb,if_neg ab.ne.symm]
+          exact ⟨eb i x hv,rfl⟩
+      have h := Finset.card_le_card_of_injOn (s := G.neighborFinset x.val)
+        (t := K.neighborFinset (f i x)) lift
+        (fun v hv => (K.mem_neighborFinset ..).2 (maps v ((G.mem_neighborFinset ..).1 hv)).1)
+        (fun v hv w hw e => (maps v ((G.mem_neighborFinset ..).1 hv)).2.symm.trans
+          ((congrArg π e).trans (maps w ((G.mem_neighborFinset ..).1 hw)).2))
+      exact (deg x).trans (by simpa only [card_neighborFinset_eq_degree] using h)
+  · intro z S hz inside outside
+    by_contra! none
+    have agree (x y : W) (xz : x ≠ z) (yz : y ≠ z) (e : K.Adj x y) : x ∈ S ↔ y ∈ S := by
+      constructor
+      · intro hx
+        by_contra hy
+        exact none x hx xz y hy e
+      · intro hy
+        by_contra hx
+        exact none y hy yz x hx e.symm
+    let T : W := if A = z then B else A
+    let P (w : W) := ¬ (w ∈ S ↔ T ∈ S)
+    have pa (az : A ≠ z) : ¬ P A := by simp [P,T,az]
+    have pb (bz : B ≠ z) : ¬ P B := by
+      by_cases az : A = z
+      · simp [P,T,az]
+      · simpa [P,T,az] using (agree B A bz az AB.symm)
+    have stable (u v : W) (hu : u ≠ z) (hv : v ≠ z) (uv : K.Adj u v) (h : P u) : P v :=
+      fun e => h ((agree u v hu hv uv).trans e)
+    have clear (w : W) (wz : w ≠ z) : ¬ P w := by
+      rcases w with (t | ⟨i,x⟩)
+      · cases t
+        · exact pa wz
+        · exact pb wz
+      · let r : V := match z with
+          | .inl t => if t then b else a
+          | .inr (j,y) => if i = j then y.val else a
+        have rf (u : C) : f i u = z ↔ u.val = r := by
+          have ua : u.val ≠ a := fun e => ca (e ▸ u.property)
+          have ub : u.val ≠ b := fun e => cb (e ▸ u.property)
+          cases z with
+          | inl t =>
+            cases t
+            · exact ⟨(fun e => nomatch e), fun e => (ua e).elim⟩
+            · exact ⟨(fun e => nomatch e), fun e => (ub e).elim⟩
+          | inr p =>
+            rcases p with ⟨j,y⟩
+            by_cases h : i = j
+            · subst j
+              change f i u = f i y ↔ u.val = (if i = i then y.val else a)
+              rw [if_pos rfl]
+              exact ⟨fun e => congrArg Subtype.val (congrArg Prod.snd (Sum.inr.inj e)),
+                fun e => congrArg (f i) (Subtype.ext e)⟩
+            · change f i u = f j y ↔ u.val = (if i = j then y.val else a)
+              rw [if_neg h]
+              exact ⟨fun e => (h (congrArg Prod.fst (Sum.inr.inj e))).elim, fun e => (ua e).elim⟩
+        have ra (e : A = z) : a = r := by subst z; rfl
+        have rb (e : B = z) : b = r := by subst z; rfl
+        exact sheetQuiet block ab.ne C ca cb bound A B z (f i) r rf ra rb (ef i) (ea i) (eb i)
+          P stable pa pb x wz
+    obtain ⟨x,hx,xz⟩ := inside
+    obtain ⟨y,hy⟩ := outside
+    have yz : y ≠ z := fun e => hy (e ▸ hz)
+    exact hy ((Classical.not_not.mp (clear y yz)).mpr ((Classical.not_not.mp (clear x xz)).mp hx))
+  · simp [Fintype.card_sum,Fintype.card_prod]
+
+
+/-- A walk avoiding both terminals stays on one sheet. -/
+private theorem freeWalkOneSheet {X : Type*} {K : SimpleGraph (Bool ⊕ (Bool × X))}
+    (separate : ∀ i j (x y : X), K.Adj (.inr (i,x)) (.inr (j,y)) → i = j)
+    {u v} (p : K.Walk u v) (free : ∀ t, Sum.inl t ∉ p.support) :
+    ∃ i, ∀ j (x : X), Sum.inr (j,x) ∈ p.support → j = i := by
+  induction p with
+  | @nil u =>
+    cases u with
+    | inl t => exact False.elim (free t (by simp))
+    | inr z => exact ⟨z.1, fun j x h => by simpa using congrArg Prod.fst (Sum.inr.inj (List.mem_singleton.mp h))⟩
+  | @cons u v w e q ih =>
+    obtain ⟨i,qi⟩ := ih (fun t h => free t (List.mem_cons_of_mem _ h))
+    cases u with
+    | inl t => exact False.elim (free t (by simp))
+    | inr u =>
+      cases v with
+      | inl t => exact False.elim (free t (List.mem_cons_of_mem _ q.start_mem_support))
+      | inr v =>
+        have vi := qi v.1 v.2 q.start_mem_support
+        have ui := separate u.1 v.1 u.2 v.2 e
+        refine ⟨i, fun j x h => ?_⟩
+        rcases List.mem_cons.mp h with eq | hq
+        · exact (congrArg Prod.fst (Sum.inr.inj eq)).trans (ui.trans vi)
+        · exact qi j x hq
+
+/-- A simple path ending at its only terminal stays on one sheet up to that terminal. -/
+private theorem oneTerminalPathSheet {X : Type*} {K : SimpleGraph (Bool ⊕ (Bool × X))}
+    (separate : ∀ i j (x y : X), K.Adj (.inr (i,x)) (.inr (j,y)) → i = j)
+    {u t} (p : K.Walk u (.inl t)) (hp : p.IsPath)
+    (only : ∀ k, k ≠ t → Sum.inl k ∉ p.support) :
+    ∃ i, ∀ j (x : X), Sum.inr (j,x) ∈ p.support → j = i := by
+  by_cases empty : p.Nil
+  · cases empty
+    exact ⟨false, by simp⟩
+  let last := p.adj_penultimate empty
+  have eq : p.dropLast.concat last = p := Walk.concat_dropLast last
+  have ht := ((Walk.concat_isPath_iff last).mp (eq ▸ hp)).2
+  have free (k : Bool) : Sum.inl k ∉ p.dropLast.support := by
+    by_cases kt : k = t
+    · simpa [kt] using ht
+    · exact fun h => only k kt (eq ▸ p.dropLast.support_subset_support_concat last h)
+  obtain ⟨i,hi⟩ := freeWalkOneSheet separate p.dropLast free
+  refine ⟨i, fun j x hx => hi j x ?_⟩
+  rw [← eq, Walk.support_concat] at hx
+  simpa using hx
+
+private theorem terminalPathSheet {X : Type*} {K : SimpleGraph (Bool ⊕ (Bool × X))}
+    (separate : ∀ i j (x y : X), K.Adj (.inr (i,x)) (.inr (j,y)) → i = j)
+    {s t : Bool} (st : s ≠ t) (p : K.Walk (.inl s) (.inl t)) (hp : p.IsPath) :
+    ∃ i, ∀ j (x : X), Sum.inr (j,x) ∈ p.support → j = i := by
+  cases p with
+  | nil => exact False.elim (st rfl)
+  | cons e q =>
+    obtain ⟨hq,hs⟩ := (Walk.cons_isPath_iff e q).mp hp
+    obtain ⟨i,hi⟩ := oneTerminalPathSheet separate q hq (fun k kt => by
+      have eq : k = s := by cases k <;> cases s <;> cases t <;> simp_all
+      simpa [eq] using hs)
+    exact ⟨i, fun j x hx => hi j x (by simpa using hx)⟩
+
+private theorem missedTerminalSheet {X : Type*} {K : SimpleGraph (Bool ⊕ (Bool × X))}
+    (separate : ∀ i j (x y : X), K.Adj (.inr (i,x)) (.inr (j,y)) → i = j)
+    {w} (c : K.Walk w w) (hc : c.IsCycle) {t : Bool} (miss : Sum.inl t ∉ c.support) :
+    ∃ i, ∀ j (x : X), Sum.inr (j,x) ∈ c.support → j = i := by
+  classical
+  by_cases other : Sum.inl (!t) ∈ c.support
+  · let d := c.rotate (.inl (!t)) other
+    have hd : d.IsCycle := hc.rotate other
+    have miss' : Sum.inl t ∉ d.support := by simpa [d] using miss
+    suffices h : ∃ i, ∀ j (x : X), Sum.inr (j,x) ∈ d.support → j = i by simpa [d] using h
+    generalize hD : d = r at hd miss' ⊢
+    cases r with
+    | nil => exact False.elim (hd.not_nil .nil)
+    | cons e q =>
+      have hq := (Walk.cons_isCycle_iff _ _).mp hd |>.1
+      obtain ⟨i,hi⟩ := oneTerminalPathSheet separate q hq (fun k hk => by
+        have eq : k = t := by cases k <;> cases t <;> simp_all
+        exact fun h => miss' (List.mem_cons_of_mem _ (eq ▸ h)))
+      exact ⟨i, fun j x hx => hi j x (by simpa using hx)⟩
+  · apply freeWalkOneSheet separate c
+    intro k
+    have opt : k = t ∨ k = !t := by cases k <;> cases t <;> decide
+    rcases opt with rfl | rfl <;> assumption
+
+private theorem oneSheetInjective {V : Type*} {a b : V} (ab : a ≠ b) {S : Set V}
+    (ha : a ∉ S) (hb : b ∉ S) (L : List (Bool ⊕ (Bool × S)))
+    (one : ∃ i, ∀ j (x : S), Sum.inr (j,x) ∈ L → j = i) :
+    Set.InjOn (Sum.elim (fun t : Bool => if t then b else a) (fun p : Bool × S => p.2.val))
+      {z | z ∈ L} := by
+  obtain ⟨i,hi⟩ := one
+  intro u hu v hv eq
+  rcases u with s | ⟨j,x⟩ <;> rcases v with t | ⟨k,y⟩
+  · cases s <;> cases t <;> simp_all
+  · cases s <;> simp_all [Subtype.coe_prop]
+  · cases t
+    · exact (ha ((show x.val = a from eq) ▸ x.property)).elim
+    · exact (hb ((show x.val = b from eq) ▸ x.property)).elim
+  · have jk := (hi j x hu).trans (hi k y hv).symm
+    exact congrArg Sum.inr (Prod.ext jk (Subtype.ext eq))
+
+private theorem pathMapOn {U V : Type*} {K : SimpleGraph U} {G : SimpleGraph V} (f : K →g G)
+    {u v} (p : K.Walk u v) (hp : p.IsPath) (inj : Set.InjOn f {x | x ∈ p.support}) :
+    (p.map f).IsPath := by
+  apply Walk.IsPath.mk'
+  rw [Walk.support_map]
+  exact hp.support_nodup.map_on (fun a ha b hb => @inj a ha b hb)
+
+private theorem cycleMapOn {U V : Type*} {K : SimpleGraph U} {G : SimpleGraph V} (f : K →g G)
+    {u} (p : K.Walk u u) (hp : p.IsCycle) (inj : Set.InjOn f {x | x ∈ p.support}) :
+    (p.map f).IsCycle := by
+  rw [Walk.isCycle_iff_isPath_tail_and_le_length]
+  refine ⟨?_,by simpa using hp.three_le_length⟩
+  cases p with
+  | nil => exact False.elim (hp.not_nil .nil)
+  | cons e q =>
+    have hq := ((Walk.cons_isCycle_iff _ _).mp hp).1
+    simpa using pathMapOn f q hq (fun x hx y hy =>
+      @inj x (List.mem_cons_of_mem _ hx) y (List.mem_cons_of_mem _ hy))
+
+/-- A simple cycle in two copies of a bank glued at two terminals projects to a
+cycle of the same length, or to two nontrivial terminal paths in the bank whose
+lengths add to the cycle length. The projected paths may coincide. -/
+theorem doubleCycle {V : Type*} (G : SimpleGraph V) {a b : V} (ab : a ≠ b)
+    (S : Set V) (ha : a ∉ S) (hb : b ∉ S) (K : SimpleGraph (Bool ⊕ (Bool × S)))
+    (project : ∀ u v, K.Adj u v → G.Adj
+      (Sum.elim (fun t : Bool => if t then b else a) (fun p : Bool × S => p.2.val) u)
+      (Sum.elim (fun t : Bool => if t then b else a) (fun p : Bool × S => p.2.val) v))
+    (separate : ∀ i j (x y : S), K.Adj (.inr (i,x)) (.inr (j,y)) → i = j)
+    {w} (c : K.Walk w w) (hc : c.IsCycle) :
+    (∃ v, ∃ d : G.Walk v v, d.IsCycle ∧ d.length = c.length) ∨
+    ∃ p q : G.Walk a b, p.IsPath ∧ q.IsPath ∧ 2 ≤ p.length ∧ 2 ≤ q.length ∧
+      p.length + q.length = c.length ∧
+      (∀ x ∈ p.support, x ≠ a → x ≠ b → x ∈ S) ∧
+      (∀ x ∈ q.support, x ≠ a → x ≠ b → x ∈ S) := by
+  classical
+  let f : K →g G := ⟨Sum.elim (fun t : Bool => if t then b else a) (fun z : Bool × S => z.2.val),
+    fun {u v} => project u v⟩
+  by_cases one : ∃ i, ∀ j (x : S), Sum.inr (j,x) ∈ c.support → j = i
+  · exact Or.inl ⟨f w,c.map f,cycleMapOn f c hc (oneSheetInjective ab ha hb _ one),by simp⟩
+  have allTerm (t : Bool) : Sum.inl t ∈ c.support :=
+    by_contra fun missing => one (missedTerminalSheet separate c hc missing)
+  let d := c.rotate (.inl false) (allTerm false)
+  have hd : d.IsCycle := hc.rotate (allTerm false)
+  have bmem : Sum.inl true ∈ d.support := by simpa [d] using allTerm true
+  let P := d.takeUntil (.inl true) bmem
+  let Q := d.dropUntil (.inl true) bmem
+  have decomp : P.append Q = d := Walk.take_spec d bmem
+  have hp : P.IsPath := hd.isPath_takeUntil bmem
+  have hq : Q.IsPath :=
+    (show (P.append Q).IsCycle from decomp ▸ hd).isPath_of_append_right
+      (Walk.not_nil_of_ne (by simp))
+  let p : G.Walk a b := P.map f
+  let q : G.Walk a b := (Q.map f).reverse
+  have ip := oneSheetInjective ab ha hb _ (terminalPathSheet separate (by decide) P hp)
+  have iq := oneSheetInjective ab ha hb _ (terminalPathSheet separate (by decide) Q hq)
+  have ph : p.IsPath := pathMapOn f P hp ip
+  have qh : q.IsPath := (pathMapOn f Q hq iq).reverse
+  have sum : p.length + q.length = c.length := by
+    have lp : p.length = P.length := Walk.length_map f P
+    have lq : q.length = Q.length := (Walk.length_reverse (Q.map f)).trans (Walk.length_map f Q)
+    calc
+      p.length + q.length = (P.append Q).length := by rw [lp,lq,Walk.length_append]
+      _ = c.length := by rw [decomp]; exact Walk.length_rotate _ _ _
+  have nonzero (r : G.Walk a b) : r.length ≠ 0 :=
+    fun h => ab (Walk.length_eq_zero_iff.mp h).eq
+  have small (r s : G.Walk a b) (hs : s.IsPath) (one : r.length = 1)
+      (sum : r.length + s.length = c.length) :
+      ∃ v, ∃ e : G.Walk v v, e.IsCycle ∧ e.length = c.length := by
+    let edge := Walk.adj_of_length_eq_one one
+    let e := s.cons edge.symm
+    have size : e.length = c.length := by simpa [e,one,Nat.add_comm] using sum
+    refine ⟨b,e,Walk.isCycle_iff_isPath_tail_and_le_length.mpr ⟨?_,size ▸ hc.three_le_length⟩,size⟩
+    simpa [e] using hs
+  by_cases po : p.length = 1
+  · exact Or.inl (small p q qh po sum)
+  by_cases qo : q.length = 1
+  · exact Or.inl (small q p ph qo (Nat.add_comm _ _ ▸ sum))
+  have bank {u v} (r : K.Walk u v) :
+      ∀ x ∈ (r.map f).support, x ≠ a → x ≠ b → x ∈ S := by
+    intro x hx xa xb
+    rw [Walk.support_map,List.mem_map] at hx
+    obtain ⟨t,_,rfl⟩ := hx
+    rcases t with t | ⟨j,y⟩
+    · cases t
+      · exact (xa rfl).elim
+      · exact (xb rfl).elim
+    · exact y.property
+  refine Or.inr ⟨p,q,ph,qh,?_,?_,sum,bank P,?_⟩
+  · have := nonzero p
+    omega
+  · have := nonzero q
+    omega
+  · intro x hx
+    have eq : q.support = (Q.map f).support.reverse := Walk.support_reverse (Q.map f)
+    exact bank Q x (List.mem_reverse.mp (eq ▸ hx))
+
+
+/-- Doubling a bank strictly smaller than half the graph after removing the terminals
+forces two proper detours of complementary lengths in a minimal counterexample. -/
+theorem forcedBankDetours {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (block : ∀ (z : V) (S : Set V), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : G.Adj a b) (C : Set V) (ne : C.Nonempty) (ca : a ∉ C) (cb : b ∉ C)
+    (bound : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b)
+    (deg : ∀ u : C, 3 ≤ G.degree u.val) (small : 2*C.ncard+2 < Fintype.card V)
+    (absent : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (smaller : ∀ (W : Type) [Fintype W] (K : SimpleGraph W) [DecidableRel K.Adj],
+      Fintype.card W < Fintype.card V → 3 ≤ K.minDegree →
+      (∀ (z : W) (S : Set W), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+        ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, K.Adj x y) →
+      ∃ (k : ℕ) (w : W) (c : K.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k) :
+    ∃ (k : ℕ) (p q : G.Walk a b), 2 ≤ k ∧ p.IsPath ∧ q.IsPath ∧ 2 ≤ p.length ∧
+      2 ≤ q.length ∧ p.length + q.length = 2^k ∧
+      (∀ x ∈ p.support, x ≠ a → x ≠ b → x ∈ C) ∧
+      (∀ x ∈ q.support, x ≠ a → x ≠ b → x ∈ C) := by
+  classical
+  obtain ⟨K,proj,sep,low,blk,order⟩ := doubleBank G block ab C ne ca cb bound deg
+  have lt : Fintype.card (Bool ⊕ (Bool × C)) < Fintype.card V := by
+    rw [order, Set.fintypeCard_eq_ncard, Nat.add_comm]
+    exact small
+  let : Nonempty (Bool ⊕ (Bool × C)) := ⟨Sum.inl false⟩
+  obtain ⟨k,w,c,hk,hc,len⟩ := smaller _ K lt (K.le_minDegree_of_forall_le_degree 3 low) blk
+  rcases doubleCycle G ab.ne C ca cb K proj sep c hc with
+    ⟨v,d,hd,eq⟩ | ⟨p,q,hp,hq,lp,lq,sum,pc,qc⟩
+  · exact (absent ⟨k,v,d,hk,hd,eq.trans len⟩).elim
+  · exact ⟨k,p,q,hk,hp,hq,lp,lq,sum.trans len,pc,qc⟩
+
+
+theorem closeMarkedDetour {V : Type*} {G : SimpleGraph V} {a b : V}
+    (ab : G.Adj a b) (p : G.Walk a b) (hp : p.IsPath) (long : 2 ≤ p.length) :
+    ∃ c : G.Walk b b, c.IsCycle ∧ c.length = p.length + 1 ∧ s(a,b) ∈ c.edges := by
+  refine ⟨.cons ab.symm p, ?_, rfl, ?_⟩
+  · apply Walk.isCycle_iff_isPath_tail_and_le_length.mpr
+    constructor
+    · rw [Walk.tail_cons]
+      exact (Walk.isPath_copy _ _ _).mpr hp
+    · simp only [Walk.length_cons]
+      omega
+  · rw [show s(a,b) = s(b,a) from Sym2.eq_swap]
+    simp
+
+/-- At an uncovered edge in a counterexample, a proper detour has length
+neither a power of two nor one less than a power of two. -/
+theorem markedDetourAvoids {V : Type*} {G : SimpleGraph V} {a b : V}
+    (ab : G.Adj a b)
+    (absent : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (uncov : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w),
+      1 ≤ k ∧ c.IsCycle ∧ c.length = 2^k+1 ∧ s(a,b) ∈ c.edges)
+    (p : G.Walk a b) (hp : p.IsPath) (long : 2 ≤ p.length) :
+    (∀ k : ℕ, 1 ≤ k → p.length ≠ 2^k) ∧
+      (∀ k : ℕ, 2 ≤ k → p.length+1 ≠ 2^k) ∧ 5 ≤ p.length := by
+  obtain ⟨c,cyc,len,mark⟩ := closeMarkedDetour ab p hp long
+  have plain (k : ℕ) (hk : 1 ≤ k) (h : p.length = 2^k) : False :=
+    uncov ⟨k,b,c,hk,cyc,by omega,mark⟩
+  have succ (k : ℕ) (hk : 2 ≤ k) (h : p.length+1 = 2^k) : False :=
+    absent ⟨k,b,c,hk,cyc,len.trans h⟩
+  refine ⟨plain,succ,?_⟩
+  have h₂ := plain 1 (by decide)
+  have h₃ := succ 2 (by decide)
+  have h₄ := plain 2 (by decide)
+  norm_num at h₂ h₃ h₄
+  omega
+
+theorem separatedSumAvoids {V : Type*} {G : SimpleGraph V} {a b : V}
+    (absent : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    {C D : Set V} (dis : Disjoint C D) (p q : G.Walk a b) (hp : p.IsPath) (hq : q.IsPath)
+    (pc : ∀ x ∈ p.support, x ≠ a → x ≠ b → x ∈ C)
+    (qd : ∀ x ∈ q.support, x ≠ a → x ≠ b → x ∈ D)
+    {k : ℕ} (hk : 2 ≤ k) : p.length + q.length ≠ 2^k := by
+  intro eq
+  have enough : 4 ≤ 2^k := (Nat.pow_le_pow_right (by decide : 0 < 2) hk : 2^2 ≤ 2^k)
+  obtain ⟨c,hc,len⟩ := joinTerminalPaths p q hp hq (by
+    intro x xp xq
+    by_contra! h
+    exact Set.disjoint_left.mp dis (pc x xp h.1 h.2) (qd x xq h.1 h.2)) (by omega)
+  exact absent ⟨k,a,c,hk,hc,len.trans eq⟩
+
+theorem detourLengthBound {V : Type*} [Finite V] {G : SimpleGraph V} {a b : V}
+    {C : Set V} (p : G.Walk a b) (hp : p.IsPath)
+    (pc : ∀ x ∈ p.support, x ≠ a → x ≠ b → x ∈ C) : p.length ≤ C.ncard + 1 := by
+  classical
+  have sub : (↑p.support.toFinset : Set V) ⊆ insert a (insert b C) := by
+    intro x hx
+    by_cases h : x = a
+    · exact Or.inl h
+    by_cases h' : x = b
+    · exact Or.inr (Or.inl h')
+    · exact Or.inr (Or.inr (pc x (by simpa using hx) h h'))
+  have lower := Set.ncard_le_ncard sub
+  have upper₁ := Set.ncard_insert_le a (insert b C)
+  have upper₂ := Set.ncard_insert_le b C
+  rw [Set.ncard_coe_finset,List.toFinset_card_of_nodup hp.support_nodup,p.length_support] at lower
+  omega
+
+/-- A dyadic sum of two admissible private path lengths first occurs
+at scale sixteen. The two lengths straddle the preceding power of two,
+and both miss that power by at least two. -/
+theorem privatePairGap {p q k : ℕ} (hp : 5 ≤ p) (hq : 5 ≤ q) (hk : 2 ≤ k)
+    (pDyadic : ∀ j : ℕ, 2 ≤ j → p ≠ 2^j)
+    (pBefore : ∀ j : ℕ, 2 ≤ j → p+1 ≠ 2^j)
+    (qBefore : ∀ j : ℕ, 2 ≤ j → q+1 ≠ 2^j)
+    (sum : p+q = 2^k) :
+    4 ≤ k ∧ min p q + 2 ≤ 2^(k-1) ∧ 2^(k-1)+2 ≤ max p q := by
+  have scale : 4 ≤ k := by
+    by_contra! h
+    have e : k = 2 ∨ k = 3 := by omega
+    rcases e with rfl | rfl <;> omega
+  have next : 2^k = 2^(k-1) * 2 := by
+    conv_lhs => rw [show k = (k-1)+1 by omega,pow_succ]
+  have h1 := pDyadic (k-1) (by omega)
+  have h2 := pBefore (k-1) (by omega)
+  have h3 := qBefore (k-1) (by omega)
+  refine ⟨scale,?_⟩
+  rcases le_total p q with h | h
+  · rw [min_eq_left h,max_eq_right h]
+    omega
+  · rw [min_eq_right h,max_eq_left h]
+    omega
+
+
+/-- The two lengths forced by a doubled bank are exclusive to that bank:
+a realization of either length outside it would complete a dyadic cycle. -/
+theorem exclusiveDetours {V : Type*} [Finite V] {G : SimpleGraph V} {a b : V}
+    (ab : G.Adj a b)
+    (absent : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (uncov : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w),
+      1 ≤ k ∧ c.IsCycle ∧ c.length = 2^k+1 ∧ s(a,b) ∈ c.edges)
+    (C : Set V)
+    (witness : ∃ (k : ℕ) (p q : G.Walk a b), 2 ≤ k ∧ p.IsPath ∧ q.IsPath ∧
+      2 ≤ p.length ∧ 2 ≤ q.length ∧ p.length + q.length = 2^k ∧
+      (∀ x ∈ p.support, x ≠ a → x ≠ b → x ∈ C) ∧
+      (∀ x ∈ q.support, x ≠ a → x ≠ b → x ∈ C)) :
+    let realizes (D : Set V) (l : ℕ) := ∃ p : G.Walk a b, p.IsPath ∧ p.length = l ∧
+      ∀ x ∈ p.support, x ≠ a → x ≠ b → x ∈ D
+    9 ≤ C.ncard ∧ ∃ (k s t : ℕ), 4 ≤ k ∧ 5 ≤ s ∧ s+2 ≤ 2^(k-1) ∧ 2^(k-1)+2 ≤ t ∧ s+t = 2^k ∧
+      realizes C s ∧ realizes C t ∧
+      ∀ D : Set V, Disjoint C D → ¬ realizes D s ∧ ¬ realizes D t := by
+  classical
+  dsimp only
+  obtain ⟨k,p,q,hk,hp,hq,plen,qlen,sum,pc,qc⟩ := witness
+  obtain ⟨pd,ps,p5⟩ := markedDetourAvoids ab absent uncov p hp plen
+  obtain ⟨_,qs,q5⟩ := markedDetourAvoids ab absent uncov q hq qlen
+  obtain ⟨k4,low,high⟩ := privatePairGap p5 q5 hk
+    (fun j hj => pd j (by omega)) ps qs sum
+  have mid : (2:ℕ)^3 ≤ 2^(k-1) := Nat.pow_le_pow_right (by decide) (by omega)
+  have lp := detourLengthBound p hp pc
+  have lq := detourLengthBound q hq qc
+  have privateP (D : Set V) (dis : Disjoint C D) :
+      ¬ ∃ r : G.Walk a b, r.IsPath ∧ r.length = p.length ∧
+        ∀ x ∈ r.support, x ≠ a → x ≠ b → x ∈ D := by
+    rintro ⟨r,hr,eq,rD⟩
+    exact separatedSumAvoids absent dis q r hq hr qc rD hk (by omega)
+  have privateQ (D : Set V) (dis : Disjoint C D) :
+      ¬ ∃ r : G.Walk a b, r.IsPath ∧ r.length = q.length ∧
+        ∀ x ∈ r.support, x ≠ a → x ≠ b → x ∈ D := by
+    rintro ⟨r,hr,eq,rD⟩
+    exact separatedSumAvoids absent dis p r hp hr pc rD hk (by omega)
+  rcases le_total p.length q.length with lt | gt
+  · rw [min_eq_left lt] at low
+    rw [max_eq_right lt] at high
+    exact ⟨by omega,k,p.length,q.length,k4,p5,low,high,sum,⟨p,hp,rfl,pc⟩,⟨q,hq,rfl,qc⟩,
+      fun D dis => ⟨privateP D dis,privateQ D dis⟩⟩
+  · rw [min_eq_right gt] at low
+    rw [max_eq_left gt] at high
+    exact ⟨by omega,k,q.length,p.length,k4,q5,low,high,by omega,⟨q,hq,rfl,qc⟩,⟨p,hp,rfl,pc⟩,
+      fun D dis => ⟨privateQ D dis,privateP D dis⟩⟩
+
+
+/-- Retaining an arbitrary collection of regions at an adjacent pair preserves
+the no-cut-vertex property. No connectedness assumption on the interior is needed. -/
+theorem inducedBankBlock {V : Type*} {G : SimpleGraph V}
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : G.Adj a b) (C : Set V)
+    (boundary : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b) :
+    let U := insert a (insert b C)
+    ∀ (z : U) (S : Set U), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, (G.induce U).Adj x y := by
+  classical
+  intro U
+  let A : U := ⟨a, Set.mem_insert ..⟩
+  let B : U := ⟨b, Set.mem_insert_of_mem a (Set.mem_insert ..)⟩
+  intro z S zs xin yout
+  obtain ⟨t,tz,term⟩ : ∃ t : U, t ≠ z ∧ (t = A ∨ t = B) := by
+    by_cases az : A = z
+    · exact ⟨B,fun h => ab.ne (congrArg Subtype.val (az.trans h.symm)),Or.inr rfl⟩
+    · exact ⟨A,az,Or.inl rfl⟩
+  let f (v : V) : U := if hv : v ∈ U then ⟨v,hv⟩ else t
+  have ff (u : U) : f u.val = u := dif_pos u.property
+  have fo {u : V} (h : u ∉ U) : f u = t := dif_neg h
+  have stays {x : V} (h : x ≠ z.val) : f x ≠ z := by
+    by_cases hx : x ∈ U
+    · intro eq
+      exact h (congrArg Subtype.val ((ff ⟨x,hx⟩).symm.trans eq))
+    · exact (fo hx) ▸ tz
+  have terminal {u v : V} (hu : u ∈ U) (hv : v ∉ U) (e : G.Adj u v) :
+      (⟨u,hu⟩ : U) = A ∨ (⟨u,hu⟩ : U) = B := by
+    have h : u = a ∨ u = b ∨ u ∈ C := by simpa [U] using hu
+    rcases h with ha | hb | hc
+    · exact Or.inl (Subtype.ext ha)
+    · exact Or.inr (Subtype.ext hb)
+    · rcases boundary u hc v e with vc | va | vb
+      · exact (hv (Set.mem_insert_of_mem a (Set.mem_insert_of_mem b vc))).elim
+      · exact (hv (va ▸ A.property)).elim
+      · exact (hv (vb ▸ B.property)).elim
+  have terminalEdge {u v : U} (hu : u = A ∨ u = B) (hv : v = A ∨ v = B)
+      (ne : u ≠ v) : (G.induce U).Adj u v := by
+    rcases hu with rfl | rfl <;> rcases hv with rfl | rfl
+    · exact (ne rfl).elim
+    · exact ab
+    · exact ab.symm
+    · exact (ne rfl).elim
+  have maps {x y : V} (xy : G.Adj x y) (ne : f x ≠ f y) : (G.induce U).Adj (f x) (f y) := by
+    by_cases hx : x ∈ U <;> by_cases hy : y ∈ U
+    · rw [ff ⟨x,hx⟩,ff ⟨y,hy⟩]
+      exact xy
+    · exact terminalEdge ((ff ⟨x,hx⟩).symm ▸ terminal hx hy xy) ((fo hy).symm ▸ term) ne
+    · exact terminalEdge ((fo hx).symm ▸ term) ((ff ⟨y,hy⟩).symm ▸ terminal hy hx xy.symm) ne
+    · exact (ne ((fo hx).trans (fo hy).symm)).elim
+  obtain ⟨p,ps,pz⟩ := xin
+  obtain ⟨q,qs⟩ := yout
+  let T := {v : V | f v ∈ S}
+  have inT {u : U} : u.val ∈ T ↔ u ∈ S := by simp only [T, Set.mem_ofPred_eq, ff]
+  obtain ⟨x,hx,xz,y,hy,xy⟩ := block z.val T (inT.mpr zs)
+    ⟨p.val,inT.mpr ps,fun eq => pz (Subtype.ext eq)⟩ ⟨q.val,fun h => qs (inT.mp h)⟩
+  exact ⟨f x,hx,stays xz,f y,hy,maps xy (fun e => hy (e ▸ hx : f y ∈ S))⟩
+
+
+/-- In a smallest counterexample among blocks, the terminals of a proper
+closed side cannot both have two distinct neighbors in its interior. -/
+theorem thinBankTerminal {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (small : ∀ (W : Type) [Fintype W] (K : SimpleGraph W) [DecidableRel K.Adj],
+      Fintype.card W < Fintype.card V → 3 ≤ K.minDegree →
+      (∀ (t : W) (S : Set W), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+        ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, K.Adj x y) →
+      ∃ (k : ℕ) (v : W) (c : K.Walk v v), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (none : ¬ ∃ (k : ℕ) (v : V) (c : G.Walk v v), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : G.Adj a b) (C : Set V) (ca : a ∉ C) (cb : b ∉ C)
+    (bound : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b)
+    (degree : ∀ u ∈ C, 3 ≤ G.degree u) (proper : C.ncard + 2 < Fintype.card V) :
+    ¬ ((∃ x ∈ C, ∃ y ∈ C, x ≠ y ∧ G.Adj a x ∧ G.Adj a y) ∧
+       (∃ x ∈ C, ∃ y ∈ C, x ≠ y ∧ G.Adj b x ∧ G.Adj b y)) := by
+  classical
+  let U : Set V := insert a (insert b C)
+  let K := G.induce U
+  have mem {x : V} (h : x ∈ C) : x ∈ U := by simp [U,h]
+  let A : U := ⟨a,by simp [U]⟩
+  let B : U := ⟨b,by simp [U]⟩
+  have cardU : Fintype.card U < Fintype.card V := by
+    rw [Set.fintypeCard_eq_ncard]
+    exact lt_of_le_of_lt ((Set.ncard_insert_le a (insert b C)).trans
+      (by have := Set.ncard_insert_le b C; omega)) proper
+  have three {t u v w : U} (tu : K.Adj t u) (tv : K.Adj t v) (tw : K.Adj t w)
+      (uv : u ≠ v) (uw : u ≠ w) (vw : v ≠ w) : 3 ≤ K.degree t := by
+    have sub : ({u,v,w} : Finset U) ⊆ K.neighborFinset t := by
+      intro x hx
+      simp only [Finset.mem_insert,Finset.mem_singleton] at hx
+      rcases hx with rfl | rfl | rfl <;> simpa
+    simpa [uv,uw,vw,card_neighborFinset_eq_degree] using Finset.card_le_card sub
+  have atEnd (t u : U) (tu : K.Adj t u) (out : u.val ∉ C)
+      (two : ∃ x ∈ C, ∃ y ∈ C, x ≠ y ∧ G.Adj t.val x ∧ G.Adj t.val y) : 3 ≤ K.degree t := by
+    obtain ⟨x,cx,y,cy,xy,tx,ty⟩ := two
+    let X : U := ⟨x,mem cx⟩
+    let Y : U := ⟨y,mem cy⟩
+    exact three (v := X) (w := Y) tu tx ty
+      (fun e => out ((congrArg Subtype.val e : u.val = x) ▸ cx))
+      (fun e => out ((congrArg Subtype.val e : u.val = y) ▸ cy))
+      (fun e => xy (congrArg Subtype.val e))
+  rintro ⟨atA,atB⟩
+  have allDeg (t : U) : 3 ≤ K.degree t := by
+    rcases show t.val = a ∨ t.val = b ∨ t.val ∈ C from t.property with ha | hb | hc
+    · rw [show t = A from Subtype.ext ha]
+      exact atEnd A B ab cb atA
+    · rw [show t = B from Subtype.ext hb]
+      exact atEnd B A ab.symm ca atB
+    · have inside : G.neighborSet t.val ⊆ U := by
+        intro v tv
+        rcases bound _ hc _ tv with h | h | h <;> simp [U,h]
+      let neighborLift (y : V) : U := if hy : y ∈ U then ⟨y,hy⟩ else A
+      have project {v : V} (tv : G.Adj t.val v) : (neighborLift v).val = v := by
+        simp [neighborLift,inside tv]
+      have kept {v : V} (tv : G.Adj t.val v) : K.Adj t (neighborLift v) := by
+        change G.Adj t.val (neighborLift v).val
+        rwa [project tv]
+      have count := Finset.card_le_card_of_injOn (s := G.neighborFinset t.val)
+        (t := K.neighborFinset t) neighborLift
+        (fun v h => (K.mem_neighborFinset ..).mpr (kept ((G.mem_neighborFinset ..).mp h)))
+        (fun v hv w hw eq => (project ((G.mem_neighborFinset ..).mp hv)).symm.trans
+          ((congrArg Subtype.val eq).trans (project ((G.mem_neighborFinset ..).mp hw))))
+      exact (degree _ hc).trans (by simpa only [card_neighborFinset_eq_degree] using count)
+  let : Nonempty U := ⟨A⟩
+  obtain ⟨k,v,c,hk,hc,hl⟩ := small U K cardU (K.le_minDegree_of_forall_le_degree 3 allDeg) (inducedBankBlock block ab C bound)
+  let lift := (Embedding.induce (G := G) U).toHom
+  exact none ⟨k,v.val,c.map lift,hk,hc.map Subtype.val_injective,(c.length_map _).trans hl⟩
+
+
+/-- At an adjacent two-vertex cut of a smallest block counterexample, each
+proper nonempty region has connected interior and a terminal with exactly one
+neighbor there. This includes equal-size sides. -/
+theorem bankTopology {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (small : ∀ (W : Type) [Fintype W] (K : SimpleGraph W) [DecidableRel K.Adj],
+      Fintype.card W < Fintype.card V → 3 ≤ K.minDegree →
+      (∀ (t : W) (S : Set W), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+        ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, K.Adj x y) →
+      ∃ (k : ℕ) (v : W) (c : K.Walk v v), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (none : ¬ ∃ (k : ℕ) (v : V) (c : G.Walk v v), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : G.Adj a b) (C : Set V) (live : C.Nonempty) (ca : a ∉ C) (cb : b ∉ C)
+    (bound : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b)
+    (degree : ∀ u ∈ C, 3 ≤ G.degree u) (proper : C.ncard + 2 < Fintype.card V) :
+    (G.induce C).Connected ∧ ((∃! x : C, G.Adj a x.val) ∨ (∃! x : C, G.Adj b x.val)) := by
+  classical
+  have thin := thinBankTerminal G small none block ab C ca cb bound degree proper
+  refine ⟨thinBankConnected block ab.ne C live ca cb bound thin,?_⟩
+  obtain ⟨v,hv⟩ := live
+  obtain ⟨⟨x,_,ax⟩,⟨y,_,by'⟩⟩ := componentSeesBoth block ab.ne C ⟨v,hv⟩ ca cb bound
+  have two {t : V} (u : C) (tu : G.Adj t u.val) (h : ¬ ∃! z : C, G.Adj t z.val) :
+      ∃ i ∈ C, ∃ j ∈ C, i ≠ j ∧ G.Adj t i ∧ G.Adj t j := by
+    by_contra missing
+    apply h
+    refine ⟨u,tu,?_⟩
+    intro z tz
+    by_contra ne
+    exact missing ⟨z,z.property,u,u.property,fun e => ne (Subtype.ext e),tz,tu⟩
+  by_contra! missing
+  exact thin ⟨two x ax missing.1,two y by' missing.2⟩
+
+
+/-- If a terminal has only one neighbor inside a bank, suppressing the
+terminal induces a block with a virtual edge from that neighbor to the other
+terminal. Every remaining interior vertex retains its minimum degree. -/
+theorem suppressedBankStrong {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (block : ∀ (z : V) (S : Set V), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, G.Adj x y)
+    {a b x : V} (C : Set V) (xc : x ∈ C) (bc : b ∉ C)
+    (bound : ∀ u ∈ C, ∀ v, G.Adj u v → v ∈ C ∨ v = a ∨ v = b)
+    (unique : ∀ y ∈ C, G.Adj a y → y = x) (deg : ∀ u : C, 3 ≤ G.degree u.val) :
+    let W := {v : V // v ∈ insert b C}
+    let X : W := ⟨x,Or.inr xc⟩
+    let B : W := ⟨b,Or.inl rfl⟩
+    let D : Set W := {w | w.val ∈ C ∧ w.val ≠ x}
+    ∃ H : SimpleGraph W, H.Adj X B ∧
+      (∀ u v, H.Adj u v → G.Adj u.val v.val ∨ (u = X ∧ v = B) ∨ (u = B ∧ v = X)) ∧
+      (∀ u : D, 3 ≤ H.degree u.val) ∧
+      (∀ (z : W) (S : Set W), z ∈ S → (∃ u ∈ S, u ≠ z) → (∃ v, v ∉ S) →
+        ∃ u ∈ S, u ≠ z ∧ ∃ v ∉ S, H.Adj u v) ∧
+      (∀ u ∈ D, ∀ v : W, H.Adj u v → v ∈ D ∨ v = X ∨ v = B) ∧
+      D.ncard + 1 = C.ncard ∧ (∀ u v : W, G.Adj u.val v.val → H.Adj u v) := by
+  classical
+  let W := {v : V // v ∈ insert b C}
+  let X : W := ⟨x,Or.inr xc⟩
+  let B : W := ⟨b,Or.inl rfl⟩
+  let D : Set W := {w | w.val ∈ C ∧ w.val ≠ x}
+  let R := C \ {x}
+  have xb : x ≠ b := fun e => bc (e ▸ xc)
+  have border (u : V) (ur : u ∈ R) (v : V) (uv : G.Adj u v) : v ∈ R ∨ v = x ∨ v = b := by
+    rcases bound u ur.1 v uv with vc | rfl | rfl
+    · by_cases vx : v = x
+      · exact .inr (.inl vx)
+      · exact .inl ⟨vc,vx⟩
+    · exact (ur.2 (unique u ur.1 uv.symm)).elim
+    · exact .inr (.inr rfl)
+  let H : SimpleGraph W := {
+    Adj := fun u v => G.Adj u.val v.val ∨ (u = X ∧ v = B) ∨ (u = B ∧ v = X)
+    symm := ⟨fun _ _ h => h.elim (fun e => .inl e.symm)
+      (fun h => .inr (h.elim (fun e => .inr e.symm) (fun e => .inl e.symm)))⟩
+    loopless := ⟨fun u h => h.elim (fun e => e.ne rfl) (fun h => h.elim
+      (fun e => xb (congrArg Subtype.val (e.1.symm.trans e.2)))
+      (fun e => xb (congrArg Subtype.val (e.2.symm.trans e.1))))⟩ }
+  let : DecidableRel H.Adj := fun _ _ => Classical.propDecidable _
+  have XB : H.Adj X B := Or.inr (Or.inl ⟨rfl,rfl⟩)
+  have classify (v : W) : v ∈ D ∨ v = X ∨ v = B := by
+    rcases v.property with vb | vc
+    · exact .inr (.inr (Subtype.ext vb))
+    · by_cases vx : v.val = x
+      · exact .inr (.inl (Subtype.ext vx))
+      · exact .inl ⟨vc,vx⟩
+  refine ⟨H,XB,fun _ _ e => e,?_,?_,fun _ _ v _ => classify v,?_,fun _ _ e => Or.inl e⟩
+  · intro u
+    let lift (v : V) : W := if h : v ∈ insert b C then ⟨v,h⟩ else B
+    have maps (v : V) (uv : G.Adj u.val.val v) : H.Adj u.val (lift v) ∧ (lift v).val = v := by
+      have vr : v ∈ insert b C := by
+        rcases border u.val.val u.property v uv with h | rfl | rfl
+        · exact .inr h.1
+        · exact .inr xc
+        · exact .inl rfl
+      simp only [lift,dif_pos vr]
+      exact ⟨.inl uv,trivial⟩
+    have count := Finset.card_le_card_of_injOn (s := G.neighborFinset u.val.val)
+      (t := H.neighborFinset u.val) lift
+      (fun v hv => (H.mem_neighborFinset ..).2 (maps v ((G.mem_neighborFinset ..).1 hv)).1)
+      (fun v hv w hw e => (maps v ((G.mem_neighborFinset ..).1 hv)).2.symm.trans
+        ((congrArg Subtype.val e).trans (maps w ((G.mem_neighborFinset ..).1 hw)).2))
+    exact (deg ⟨u.val.val,u.property.1⟩).trans (by simpa only [card_neighborFinset_eq_degree] using count)
+  · intro z S hz inner outer
+    by_contra! none
+    have agree (u v : W) (uz : u ≠ z) (vz : v ≠ z) (uv : H.Adj u v) : u ∈ S ↔ v ∈ S := by
+      constructor
+      · intro hu
+        by_contra hv
+        exact none u hu uz v hv uv
+      · intro hv
+        by_contra hu
+        exact none v hv vz u hu uv.symm
+    let anchor := if X = z then B else X
+    let P (w : W) := ¬ (w ∈ S ↔ anchor ∈ S)
+    have px (nz : X ≠ z) : ¬ P X := by simp [P,anchor,nz]
+    have pb (nz : B ≠ z) : ¬ P B := by
+      by_cases xz : X = z
+      · simp [P,anchor,xz]
+      · simpa [P,anchor,xz] using agree B X nz xz XB.symm
+    let f (t : R) : W := ⟨t.val,Or.inr t.property.1⟩
+    have quiet := sheetQuiet block xb R (fun h => h.2 rfl) (fun h => bc h.1) border X B z f z.val
+      (fun _ => ⟨fun e => congrArg Subtype.val e, fun e => Subtype.ext e⟩)
+      (fun e => congrArg Subtype.val e) (fun e => congrArg Subtype.val e)
+      (fun _ _ e => Or.inl e) (fun _ e => Or.inl e) (fun _ e => Or.inl e) P
+      (fun u v uz vz uv h eq => h ((agree u v uz vz uv).trans eq)) px pb
+    have clear (w : W) (wz : w ≠ z) : ¬P w := by
+      rcases classify w with mem | rfl | rfl
+      · exact quiet ⟨w.val,mem⟩ wz
+      · exact px wz
+      · exact pb wz
+    obtain ⟨u,hu,uz⟩ := inner
+    obtain ⟨v,hv⟩ := outer
+    have vz : v ≠ z := fun e => hv (e ▸ hz)
+    exact hv ((Classical.not_not.mp (clear v vz)).mpr ((Classical.not_not.mp (clear u uz)).mp hu))
+  · have im : Subtype.val '' D = R := by
+      ext v
+      exact ⟨fun ⟨w,hw,e⟩ => e ▸ hw,fun h => ⟨⟨v,Or.inr h.1⟩,h,rfl⟩⟩
+    rw [← Set.ncard_image_of_injective D Subtype.val_injective,im]
+    exact Set.ncard_sdiff_singleton_add_one xc
+
+
+/-- A virtual edge between the marked endpoint and the unique bank neighbor can be
+expanded to two edges. Any longer lift contains the original marked edge. -/
+theorem suppressedBankCycle {V W : Type*} (G : SimpleGraph V) (H : SimpleGraph W)
+    (f : W ↪ V) (x b : W) {a : V} (ab : G.Adj a (f b)) (ax : G.Adj a (f x))
+    (miss : ∀ t, f t ≠ a)
+    (real : ∀ u v, H.Adj u v → G.Adj (f u) (f v) ∨ (u = x ∧ v = b) ∨ (u = b ∧ v = x))
+    {w : W} (c : H.Walk w w) (hc : c.IsCycle) :
+    ∃ v, ∃ d : G.Walk v v, d.IsCycle ∧
+      (d.length = c.length ∨ (d.length = c.length + 1 ∧ s(a,f b) ∈ d.edges)) := by
+  apply liftMergedCycle G H f b ab miss _ _ c hc
+  · intro u v ub vb edge
+    rcases real u v edge with e | ⟨_,eq⟩ | ⟨eq,_⟩
+    · exact e
+    · exact (vb eq).elim
+    · exact (ub eq).elim
+  · intro u edge
+    rcases real b u edge with e | ⟨_,eq⟩ | ⟨_,eq⟩
+    · exact Or.inr e
+    · exact (edge.ne eq.symm).elim
+    · exact Or.inl (eq ▸ ax)
+
+
+/-- At an uncovered edge of a smallest block counterexample, each end has
+exactly one neighbor in every proper nonempty side. Suppressing a terminal
+with a unique neighbor would otherwise leave a smaller minimum-degree-three
+block, in which a dyadic cycle lifts unchanged or to a covered marked edge. -/
+theorem bankTopologyUncovered {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (small : ∀ (W : Type) [Fintype W] (K : SimpleGraph W) [DecidableRel K.Adj],
+      Fintype.card W < Fintype.card V → 3 ≤ K.minDegree →
+      (∀ (t : W) (S : Set W), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+        ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, K.Adj x y) →
+      ∃ (k : ℕ) (v : W) (c : K.Walk v v), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (none : ¬ ∃ (k : ℕ) (v : V) (c : G.Walk v v), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : G.Adj a b) (C : Set V) (live : C.Nonempty) (ca : a ∉ C) (cb : b ∉ C)
+    (bound : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b)
+    (degree : ∀ u ∈ C, 3 ≤ G.degree u) (proper : C.ncard + 2 < Fintype.card V)
+    (uncov : ¬ ∃ (k : ℕ) (v : V) (c : G.Walk v v), 1 ≤ k ∧ c.IsCycle ∧
+      c.length = 2^k+1 ∧ s(a,b) ∈ c.edges) :
+    (G.induce C).Connected ∧ (∃! x : C, G.Adj a x.val) ∧ (∃! x : C, G.Adj b x.val) := by
+  classical
+  obtain ⟨conn,thin⟩ := bankTopology G small none block ab C live ca cb bound degree proper
+  have other {s t : V} (st : G.Adj s t) (cs : s ∉ C) (ct : t ∉ C)
+      (ends : ∀ u ∈ C, ∀ v, G.Adj u v → v ∈ C ∨ v = s ∨ v = t)
+      (unmarked : ¬ ∃ (k : ℕ) (v : V) (c : G.Walk v v), 1 ≤ k ∧ c.IsCycle ∧
+        c.length = 2^k+1 ∧ s(s,t) ∈ c.edges)
+      (atS : ∃! x : C, G.Adj s x.val) : ∃! y : C, G.Adj t y.val := by
+    obtain ⟨x,sx,only⟩ := atS
+    obtain ⟨_,y,_,ty⟩ := componentSeesBoth block st.ne C x cs ct ends
+    refine ⟨y,ty,?_⟩
+    intro v tv
+    by_contra vy
+    have xt : ¬ G.Adj x.val t := by
+      intro e
+      let c : G.Walk s s := .cons st (.cons e.symm (.cons sx.symm .nil))
+      have hc : c.IsCycle := by
+        apply Walk.isCycle_iff_isPath_tail_and_le_length.mpr
+        constructor
+        · simp [c,Walk.cons_isPath_iff,st.ne.symm,sx.ne.symm,e.ne.symm]
+        · exact (by decide : 3 ≤ 3)
+      exact unmarked ⟨1,s,c,by decide,hc,rfl,by simp [c]⟩
+    let W := {i : V // i ∈ insert t C}
+    let X : W := ⟨x.val,Or.inr x.property⟩
+    let T : W := ⟨t,Or.inl rfl⟩
+    let into (i : C) : W := ⟨i.val,Or.inr i.property⟩
+    obtain ⟨H,XT,real,off,blockH,_,_,embed⟩ :=
+      suppressedBankStrong G block C x.property ct ends
+        (fun i hi si => congrArg Subtype.val (only ⟨i,hi⟩ si)) (fun i => degree i.val i.property)
+    let : DecidableRel H.Adj := fun _ _ => Classical.propDecidable _
+    have three {i j l m : W} (ij : H.Adj i j) (il : H.Adj i l) (im : H.Adj i m)
+        (jl : j ≠ l) (jm : j ≠ m) (lm : l ≠ m) : 3 ≤ H.degree i := by
+      have sub : ({j,l,m} : Finset W) ⊆ H.neighborFinset i := by
+        intro w hw
+        simp only [Finset.mem_insert,Finset.mem_singleton] at hw
+        rcases hw with rfl | rfl | rfl <;> simpa
+      simpa [jl,jm,lm,card_neighborFinset_eq_degree] using Finset.card_le_card sub
+    have project {u w : W} (e : u = w) : u.val = w.val := congrArg (fun z : W => z.val) e
+    have different {u : C} (tu : G.Adj t u.val) (e : X = into u) : False := by
+      have eq : x.val = u.val := project e
+      exact xt (eq.symm ▸ tu.symm)
+    have out {u : C} (e : T = into u) : False := by
+      have eq : t = u.val := project e
+      exact ct (eq.symm ▸ u.property)
+    have atT : 3 ≤ H.degree T := three (j := X) (l := into v) (m := into y)
+      XT.symm (embed _ _ tv) (embed _ _ ty)
+      (different tv) (different ty) (fun eq => vy (Subtype.ext (project eq)))
+    have depth : 1 < ((G.neighborFinset x.val).erase s).card := by
+      rw [Finset.card_erase_of_mem ((G.mem_neighborFinset ..).2 sx.symm),card_neighborFinset_eq_degree]
+      have := degree x.val x.property
+      omega
+    obtain ⟨i,hi,j,hj,ij⟩ := Finset.one_lt_card.mp depth
+    have inside {u : V} (hu : u ∈ (G.neighborFinset x.val).erase s) :
+        u ∈ C ∧ G.Adj x.val u := by
+      obtain ⟨us,hu⟩ := Finset.mem_erase.mp hu
+      have edge := (G.mem_neighborFinset ..).1 hu
+      exact ⟨(ends x.val x.property u edge).resolve_right (fun h =>
+        h.elim us (fun eq => xt (eq ▸ edge))),edge⟩
+    obtain ⟨ci,xi⟩ := inside hi
+    obtain ⟨cj,xj⟩ := inside hj
+    have atX : 3 ≤ H.degree X := three (j := T) (l := into ⟨i,ci⟩) (m := into ⟨j,cj⟩)
+      XT (embed _ _ xi) (embed _ _ xj)
+      out out (fun eq => ij (project eq))
+    have allDeg (w : W) : 3 ≤ H.degree w := by
+      rcases w.property with wt | wc
+      · rw [show w = T from Subtype.ext wt]
+        exact atT
+      · by_cases h : w.val = x.val
+        · rw [show w = X from Subtype.ext h]
+          exact atX
+        · exact off ⟨w,wc,h⟩
+    have reduced : Fintype.card W < Fintype.card V := by
+      change Fintype.card (insert t C : Set V) < _
+      rw [Set.fintypeCard_eq_ncard]
+      have := Set.ncard_insert_le t C
+      omega
+    let : Nonempty W := ⟨T⟩
+    obtain ⟨k,w,c,hk,hc,hl⟩ := small W H reduced (H.le_minDegree_of_forall_le_degree 3 allDeg) blockH
+    let f : W ↪ V := ⟨Subtype.val,Subtype.val_injective⟩
+    have miss (i : W) : f i ≠ s := fun h => i.property.elim
+      (fun e => st.ne (h.symm.trans e)) (fun e => cs (h ▸ e))
+    obtain ⟨u,d,hd,eq | ⟨eq,marked⟩⟩ := suppressedBankCycle G H f X T st sx miss real c hc
+    · exact none ⟨k,u,d,hk,hd,eq.trans hl⟩
+    · exact unmarked ⟨k,u,d,by omega,hd,by omega,marked⟩
+  refine ⟨conn,?_⟩
+  rcases thin with h | h
+  · exact ⟨h,other ab ca cb bound uncov h⟩
+  · have reverseUncov : ¬ ∃ (k : ℕ) (v : V) (c : G.Walk v v), 1 ≤ k ∧ c.IsCycle ∧
+        c.length = 2^k+1 ∧ s(b,a) ∈ c.edges := by
+      rintro ⟨k,v,c,hk,hc,hl,edge⟩
+      exact uncov ⟨k,v,c,hk,hc,hl,(Sym2.eq_swap ..) ▸ edge⟩
+    exact ⟨other ab.symm cb ca (fun u hu v uv => (bound u hu v uv).imp_right Or.symm) reverseUncov h,h⟩
+
+
+/-- If each terminal has just one neighbor in each of its two complementary
+regions, both ends of the separating edge have degree three. -/
+theorem terminalDegrees {V : Type*} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    {a b : V} (ab : G.Adj a b)
+    (bank : ∀ C : Set V, C.Nonempty → a ∉ C → b ∉ C →
+      (∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b) →
+      C.ncard + 2 < Fintype.card V →
+      (∃! x : C, G.Adj a x.val) ∧ (∃! x : C, G.Adj b x.val))
+    (S : Set V) (ha : a ∈ S) (hb : b ∈ S) (inside : ∃ x ∈ S, x ≠ a ∧ x ≠ b)
+    (outside : ∃ y, y ∉ S)
+    (gap : ∀ x ∈ S, x ≠ a → x ≠ b → ∀ y ∉ S, ¬ G.Adj x y) :
+    G.degree a = 3 ∧ G.degree b = 3 := by
+  classical
+  let C := {v : V | v ∈ S ∧ v ≠ a ∧ v ≠ b}
+  let D := Sᶜ
+  obtain ⟨i,hi,ia,ib⟩ := inside
+  obtain ⟨j,hj⟩ := outside
+  have proper (T : Set V) (ta : a ∉ T) (tb : b ∉ T)
+      (u : V) (ut : u ∉ T) (ua : u ≠ a) (ub : u ≠ b) :
+      T.ncard + 2 < Fintype.card V := by
+    have out : u ∉ insert a (insert b T) := by simp [ua,ub,ut]
+    have lt := Set.ncard_lt_ncard (show insert a (insert b T) ⊂ Set.univ from
+      ⟨Set.subset_univ _,fun back => out (back (Set.mem_univ u))⟩)
+    rw [Set.ncard_insert_of_notMem (by simp [ab.ne,ta]),Set.ncard_insert_of_notMem tb,
+      Set.ncard_univ,Nat.card_eq_fintype_card] at lt
+    omega
+  have ca : a ∉ C := fun h => h.2.1 rfl
+  have cb : b ∉ C := fun h => h.2.2 rfl
+  have da : a ∉ D := fun h => h ha
+  have db : b ∉ D := fun h => h hb
+  obtain ⟨auc,buc⟩ := bank C ⟨i,hi,ia,ib⟩ ca cb (by
+    intro x hx y xy
+    by_contra! miss
+    exact gap x hx.1 hx.2.1 hx.2.2 y (fun h => miss.1 ⟨h,miss.2⟩) xy)
+    (proper C ca cb j (fun h => hj h.1) (fun eq => hj (eq ▸ ha)) (fun eq => hj (eq ▸ hb)))
+  obtain ⟨aud,bud⟩ := bank D ⟨j,hj⟩ da db (by
+    intro x hx y xy
+    by_contra! miss
+    exact gap y (by simpa [D] using miss.1) miss.2.1 miss.2.2 x hx xy.symm)
+    (proper D da db i (fun h => h hi) ia ib)
+  have deg (t u : V) (tu : G.Adj t u) (uc : u ∉ C) (ud : u ∉ D)
+      (parts : ∀ v, v ≠ t → v ≠ u → v ∈ C ∨ v ∈ D)
+      (hc : ∃! x : C, G.Adj t x.val) (hd : ∃! y : D, G.Adj t y.val) : G.degree t = 3 := by
+    obtain ⟨x,tx,ux⟩ := hc
+    obtain ⟨y,ty,uy⟩ := hd
+    have xy : x.val ≠ y.val := fun eq => y.property (eq ▸ x.property.1)
+    rw [← G.card_neighborFinset_eq_degree]
+    apply Finset.card_eq_three.mpr
+    refine ⟨u,x.val,y.val,fun eq => uc (eq ▸ x.property),fun eq => ud (eq ▸ y.property),xy,?_⟩
+    ext v
+    simp only [mem_neighborFinset,Finset.mem_insert,Finset.mem_singleton]
+    constructor
+    · intro tv
+      by_cases vu : v = u
+      · exact .inl vu
+      rcases parts v tv.ne.symm vu with cv | dv
+      · exact .inr (.inl (congrArg Subtype.val (ux ⟨v,cv⟩ tv)))
+      · exact .inr (.inr (congrArg Subtype.val (uy ⟨v,dv⟩ tv)))
+    · rintro (rfl | rfl | rfl)
+      · exact tu
+      · exact tx
+      · exact ty
+  have parts (v : V) (va : v ≠ a) (vb : v ≠ b) : v ∈ C ∨ v ∈ D := by
+    by_cases hs : v ∈ S
+    · exact Or.inl ⟨hs,va,vb⟩
+    · exact Or.inr hs
+  exact ⟨deg a b ab cb db parts auc aud,
+    deg b a ab.symm ca da (fun v vb va => parts v va vb) buc bud⟩
+
+
+/-- When both attachments to a bank are unique, replace the outside
+three-edge route by its virtual chord. All interior degrees are preserved
+as lower bounds, and deleting any vertex keeps the bank connected. -/
+theorem doubleSuppressedBank {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (block : ∀ (z : V) (S : Set V), z ∈ S → (∃ u ∈ S, u ≠ z) → (∃ v, v ∉ S) →
+      ∃ u ∈ S, u ≠ z ∧ ∃ v ∉ S, G.Adj u v)
+    {a b x y : V} (C : Set V) (ca : a ∉ C) (cb : b ∉ C) (cx : x ∈ C) (cy : y ∈ C)
+    (xy : x ≠ y) (noChord : ¬ G.Adj x y)
+    (bound : ∀ u ∈ C, ∀ v, G.Adj u v → v ∈ C ∨ v = a ∨ v = b)
+    (left : ∀ u ∈ C, G.Adj a u → u = x) (right : ∀ u ∈ C, G.Adj b u → u = y)
+    (ab : a ≠ b) (deg : ∀ u : C, 3 ≤ G.degree u.val) :
+    let X : C := ⟨x,cx⟩
+    let Y : C := ⟨y,cy⟩
+    ∃ K : SimpleGraph C,
+      (∀ u v, K.Adj u v → G.Adj u.val v.val ∨ (u = X ∧ v = Y) ∨ (u = Y ∧ v = X)) ∧
+      (∀ u : C, 3 ≤ K.degree u) ∧
+      (∀ (z : C) (S : Set C), z ∈ S → (∃ u ∈ S, u ≠ z) → (∃ v, v ∉ S) →
+        ∃ u ∈ S, u ≠ z ∧ ∃ v ∉ S, K.Adj u v) := by
+  classical
+  let X : C := ⟨x,cx⟩
+  let Y : C := ⟨y,cy⟩
+  let J : SimpleGraph V := {
+    Adj := fun u v => G.Adj u v ∨ (u = x ∧ v = y) ∨ (u = y ∧ v = x)
+    symm := ⟨fun _ _ h => h.elim (fun e => .inl e.symm)
+      (fun h => .inr (h.elim (fun e => .inr e.symm) (fun e => .inl e.symm)))⟩
+    loopless := ⟨fun _ h => h.elim (fun e => e.ne rfl) (fun h => h.elim
+      (fun e => xy (e.1.symm.trans e.2)) (fun e => xy (e.2.symm.trans e.1)))⟩ }
+  let K := J.induce C
+  let : DecidableRel K.Adj := fun _ _ => Classical.propDecidable _
+  refine ⟨K,?_,?_,?_⟩
+  · intro u v h
+    rcases h with real | ⟨hx,hy⟩ | ⟨hy,hx⟩
+    · exact .inl real
+    · exact .inr (.inl ⟨Subtype.ext hx,Subtype.ext hy⟩)
+    · exact .inr (.inr ⟨Subtype.ext hy,Subtype.ext hx⟩)
+  · intro u
+    let f (v : V) : C := if h : v ∈ C then ⟨v,h⟩ else if v = a then Y else X
+    let g (w : C) : V :=
+      if u.val = x ∧ w.val = y then a else if u.val = y ∧ w.val = x then b else w.val
+    have maps (v : V) (uv : G.Adj u.val v) : K.Adj u (f v) ∧ g (f v) = v := by
+      rcases bound u.val u.property v uv with vc | rfl | rfl
+      · have n : ¬ (u.val = x ∧ v = y) := fun ⟨h,e⟩ => noChord (h ▸ e ▸ uv)
+        have n' : ¬ (u.val = y ∧ v = x) := fun ⟨h,e⟩ => noChord (h ▸ e ▸ uv.symm)
+        exact ⟨(by simpa only [f,dif_pos vc] using
+          (show K.Adj u (⟨v,vc⟩ : C) from Or.inl uv)),by simp [f,g,vc,n,n']⟩
+      · have ux := left u.val u.property uv.symm
+        have e : K.Adj u Y := Or.inr (Or.inl ⟨ux,rfl⟩)
+        exact ⟨by simpa [f,ca] using e,by simp [f,g,ca,Y,ux]⟩
+      · have uy := right u.val u.property uv.symm
+        have e : K.Adj u X := Or.inr (Or.inr ⟨uy,rfl⟩)
+        exact ⟨by simpa [f,cb,ab.symm] using e,by simp [f,g,cb,ab.symm,X,uy,xy.symm]⟩
+    have count := Finset.card_le_card_of_injOn (s := G.neighborFinset u.val)
+      (t := K.neighborFinset u) f
+      (fun v hv => (K.mem_neighborFinset ..).2 (maps v ((G.mem_neighborFinset ..).1 hv)).1)
+      (fun v hv w hw e => (maps v ((G.mem_neighborFinset ..).1 hv)).2.symm.trans
+        ((congrArg g e).trans (maps w ((G.mem_neighborFinset ..).1 hw)).2))
+    exact (deg u).trans (by simpa only [card_neighborFinset_eq_degree] using count)
+  · have blk (z : V) (S : Set V) (zs : z ∈ S) (i : ∃ u ∈ S, u ≠ z) (o : ∃ v, v ∉ S) :
+        ∃ u ∈ S, u ≠ z ∧ ∃ v ∉ S, J.Adj u v := by
+      obtain ⟨u,us,uz,v,vs,e⟩ := block z S zs i o
+      exact ⟨u,us,uz,v,vs,Or.inl e⟩
+    let R : Set V := {t | t ∈ C ∧ t ≠ x ∧ t ≠ y}
+    have closed (u : V) (ur : u ∈ R) (v : V) (e : J.Adj u v) : v ∈ R ∨ v = x ∨ v = y := by
+      rcases e with real | ⟨ux,_⟩ | ⟨uy,_⟩
+      · rcases bound u ur.1 v real with vc | rfl | rfl
+        · by_cases vx : v = x
+          · exact .inr (.inl vx)
+          by_cases vy : v = y
+          · exact .inr (.inr vy)
+          · exact .inl ⟨vc,vx,vy⟩
+        · exact (ur.2.1 (left u ur.1 real.symm)).elim
+        · exact (ur.2.2 (right u ur.1 real.symm)).elim
+      · exact (ur.2.1 ux).elim
+      · exact (ur.2.2 uy).elim
+    have eq : insert x (insert y R) = C := by
+      ext v
+      constructor
+      · rintro (rfl | rfl | h)
+        · exact cx
+        · exact cy
+        · exact h.1
+      · intro h
+        by_cases vx : v = x
+        · exact .inl vx
+        by_cases vy : v = y
+        · exact .inr (.inl vy)
+        · exact .inr (.inr ⟨h,vx,vy⟩)
+    have h := inducedBankBlock blk (show J.Adj x y from Or.inr (Or.inl ⟨rfl,rfl⟩)) R closed
+    dsimp only at h
+    rwa [eq] at h
+
+
+/-- Removing a specified edge from a simple cycle gives a simple path between
+its ends with exactly one fewer edge. -/
+theorem deleteCycleEdge {W : Type*} {K : SimpleGraph W} {x y w : W}
+    (c : K.Walk w w) (hc : c.IsCycle) (used : s(x,y) ∈ c.edges) :
+    ∃ r : K.Walk x y, r.IsPath ∧ r.length + 1 = c.length ∧ s(x,y) ∉ r.edges := by
+  classical
+  have mx := c.fst_mem_support_of_mem_edges used
+  have my := c.snd_mem_support_of_mem_edges used
+  have xy := (c.adj_of_mem_edges used).ne
+  let d := c.rotate x mx
+  have hd : d.IsCycle := hc.rotate mx
+  have edge : s(x,y) ∈ d.edges := (c.rotate_edges x mx).mem_iff.mpr used
+  have ym : y ∈ d.support := by simpa [d] using my
+  let P := d.takeUntil y ym
+  let Q := d.dropUntil y ym
+  have eq : P.append Q = d := Walk.take_spec d ym
+  have hp : P.IsPath := hd.isPath_takeUntil ym
+  have hq : Q.IsPath := (show (P.append Q).IsCycle from eq ▸ hd).isPath_of_append_right
+    (Walk.not_nil_of_ne xy)
+  have sum : P.length + Q.length = c.length := by
+    rw [← Walk.length_append,eq]
+    exact c.length_rotate x mx
+  have lo := hc.three_le_length
+  rw [← eq,Walk.edges_append,List.mem_append] at edge
+  rcases edge with p | q
+  · have lp := hp.length_eq_one_of_mem_edges p
+    have reverse : Q.reverse.length = Q.length := Walk.length_reverse Q
+    refine ⟨Q.reverse,hq.reverse,by omega,fun h => ?_⟩
+    have := hq.reverse.length_eq_one_of_mem_edges h
+    omega
+  · have lq := hq.length_eq_one_of_mem_edges (Sym2.eq_swap ▸ q)
+    refine ⟨P,hp,by omega,fun h => ?_⟩
+    have := hp.length_eq_one_of_mem_edges h
+    omega
+
+/-- If a dyadic cycle becomes possible after inserting one virtual edge into
+an embedded graph, deleting that edge and appending the two actual terminal
+edges yields a successor-length terminal path in the original graph. -/
+theorem detourFromVirtualCycle {V W : Type*} (G : SimpleGraph V) (H : SimpleGraph W)
+    (f : W ↪ V) {a b : V} {x y : W} (ab : a ≠ b) (ax : G.Adj a (f x))
+    (byEdge : G.Adj b (f y)) (missA : ∀ t, f t ≠ a) (missB : ∀ t, f t ≠ b)
+    (real : ∀ u v, H.Adj u v → G.Adj (f u) (f v) ∨ (u = x ∧ v = y) ∨ (u = y ∧ v = x))
+    (absent : ¬ ∃ (k : ℕ) (v : V) (c : G.Walk v v), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    {w} (c : H.Walk w w) (hc : c.IsCycle) {k : ℕ} (len : c.length = 2^k) (hk : 2 ≤ k) :
+    ∃ p : G.Walk a b, p.IsPath ∧ p.length = 2^k+1 ∧
+      (∀ z ∈ p.support, z ≠ a → z ≠ b → z ∈ Set.range f) := by
+  let F := G.comap f
+  let hom : F →g G := ⟨f,fun e => e⟩
+  have genuine {u v : W} (p : H.Walk u v) (avoid : s(x,y) ∉ p.edges) :
+      ∀ e ∈ p.edges, e ∈ F.edgeSet := by
+    rintro ⟨i,j⟩ mem
+    rcases real i j (p.edges_subset_edgeSet mem) with e | ⟨rfl,rfl⟩ | ⟨rfl,rfl⟩
+    · exact e
+    · exact (avoid mem).elim
+    · exact (avoid (Sym2.eq_swap ▸ mem)).elim
+  have used : s(x,y) ∈ c.edges := by
+    by_contra avoid
+    let d := (c.transfer F (genuine c avoid)).map hom
+    exact absent ⟨k,f w,d,hk,(hc.transfer _).map f.injective,by simpa [d] using len⟩
+  obtain ⟨r,hr,l,avoid⟩ := deleteCycleEdge c hc used
+  let q := (r.transfer F (genuine r avoid)).map hom
+  have hq : q.IsPath := (hr.transfer _).map f.injective
+  have ql : q.length = r.length := by simp [q]
+  have vertices : q.support = r.support.map f := by
+    rw [show q.support = _ from Walk.support_map hom _, Walk.support_transfer]
+    rfl
+  have inside {z : V} (h : z ∈ q.support) : z ∈ Set.range f := by
+    rw [vertices] at h
+    obtain ⟨t,_,e⟩ := List.mem_map.mp h
+    exact ⟨t,e⟩
+  have qa : a ∉ q.support := fun h => (inside h).elim fun i e => missA i e
+  have qb : b ∉ q.support := fun h => (inside h).elim fun i e => missB i e
+  let p := (q.concat byEdge.symm).cons ax
+  refine ⟨p,(hq.concat qb _).cons (by simp [qa,ab]),?_,?_⟩
+  · simp only [p,Walk.length_cons,Walk.length_concat]
+    omega
+  · intro v hv va vb
+    exact inside (by simpa [p,va,vb] using hv)
+
+
+/-- Every proper nonempty bank at an uncovered edge of a smallest block
+counterexample contains a terminal path of length one more than a power of two. -/
+theorem allBankDetour {V : Type} [Fintype V] (G : SimpleGraph V) [DecidableRel G.Adj]
+    (block : ∀ (z : V) (S : Set V), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, G.Adj x y)
+    {a b : V} (ab : G.Adj a b) (C : Set V) (ne : C.Nonempty) (ca : a ∉ C) (cb : b ∉ C)
+    (bound : ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b)
+    (deg : ∀ u : C, 3 ≤ G.degree u.val) (proper : C.ncard+2 < Fintype.card V)
+    (absent : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k)
+    (uncov : ¬ ∃ (k : ℕ) (w : V) (c : G.Walk w w),
+      1 ≤ k ∧ c.IsCycle ∧ c.length = 2^k+1 ∧ s(a,b) ∈ c.edges)
+    (smaller : ∀ (W : Type) [Fintype W] (K : SimpleGraph W) [DecidableRel K.Adj],
+      Fintype.card W < Fintype.card V → 3 ≤ K.minDegree →
+      (∀ (z : W) (S : Set W), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
+        ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, K.Adj x y) →
+      ∃ (k : ℕ) (w : W) (c : K.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k) :
+    ∃ (k : ℕ) (p : G.Walk a b), 2 ≤ k ∧ p.IsPath ∧ p.length = 2^k+1 ∧
+      (∀ i ∈ p.support, i ≠ a → i ≠ b → i ∈ C) := by
+  classical
+  obtain ⟨_,⟨x,ax,uniqueX⟩,y,byEdge,uniqueY⟩ :=
+    bankTopologyUncovered G smaller absent block ab C ne ca cb bound
+      (fun u hu => deg ⟨u,hu⟩) proper uncov
+  have ax' : a ≠ x.val := ax.ne
+  have ay : a ≠ y.val := fun e => ca (e.symm ▸ y.property)
+  have xb : x.val ≠ b := fun e => cb (e ▸ x.property)
+  have yb : y.val ≠ b := byEdge.ne.symm
+  have xy : x.val ≠ y.val := by
+    intro eq
+    let r : G.Walk a b := .cons ax (.cons (eq ▸ byEdge.symm) .nil)
+    have path : r.IsPath := by simp [r,Walk.cons_isPath_iff,ax',xb,ab.ne]
+    have long := (markedDetourAvoids ab absent uncov r path (show 2 ≤ 2 from le_rfl)).2.2
+    exact (by decide : ¬5 ≤ 2) long
+  have noChord : ¬ G.Adj x.val y.val := by
+    intro edge
+    let r : G.Walk a b := .cons ax (.cons edge (.cons byEdge.symm .nil))
+    have path : r.IsPath := by simp [r,Walk.cons_isPath_iff,ax',ay,ab.ne,xy,xb,yb]
+    have long := (markedDetourAvoids ab absent uncov r path (show 2 ≤ 3 by decide)).2.2
+    exact (by decide : ¬5 ≤ 3) long
+  obtain ⟨K,real,low,cut⟩ :=
+    doubleSuppressedBank G block C ca cb x.property y.property xy noChord bound
+      (fun u hu h => congrArg Subtype.val (uniqueX ⟨u,hu⟩ h))
+      (fun u hu h => congrArg Subtype.val (uniqueY ⟨u,hu⟩ h)) ab.ne deg
+  let : Nonempty C := ⟨x⟩
+  let : DecidableRel K.Adj := fun _ _ => Classical.propDecidable _
+  have lt : Fintype.card C < Fintype.card V := by rw [Set.fintypeCard_eq_ncard]; omega
+  obtain ⟨k,w,c,hk,hc,len⟩ := smaller C K lt (K.le_minDegree_of_forall_le_degree 3 low) cut
+  let f : C ↪ V := ⟨Subtype.val,Subtype.val_injective⟩
+  obtain ⟨p,hp,pl,within⟩ := detourFromVirtualCycle G K f (x := x) (y := y) ab.ne ax byEdge
+    (fun z e => ca (e ▸ z.property)) (fun z e => cb (e ▸ z.property)) real absent c hc len hk
+  refine ⟨k,p,hk,hp,pl,?_⟩
+  intro i hi ia ib
+  obtain ⟨z,e⟩ := within i hi ia ib
+  exact e ▸ z.property
+
+
+/-- If a spanning block uses covered edges and uncovered edges are incident
+only to vertices of degree at most three, the uncovered edges form a matching. -/
+theorem uncoveredMatching {V : Type*} [Fintype V] (G H : SimpleGraph V)
+    [DecidableRel G.Adj] (covered : V → V → Prop) (sub : H ≤ G)
+    (block : ∀ (t : V) (S : Set V), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+      ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, H.Adj x y)
+    (cert : ∀ a b, H.Adj a b → covered a b)
+    (cubic : ∀ a b, G.Adj a b → ¬ covered a b → G.degree a ≤ 3) :
+    ∀ a b c, G.Adj a b → ¬ covered a b → G.Adj a c → ¬ covered a c → b = c := by
+  classical
+  intro a b c ab nb ac nc
+  by_contra neq
+  have extra (x y : V) (ax : a ≠ x) (ay : a ≠ y) (yx : y ≠ x) :
+      ∃ t, H.Adj a t ∧ t ≠ x := by
+    obtain ⟨v,hv,ne,t,ht,edge⟩ := block x {x,a} (by simp)
+      ⟨a,by simp,ax⟩ ⟨y,by simp [yx,ay.symm]⟩
+    have va : v = a := by simpa [ne] using hv
+    subst v
+    exact ⟨t,edge,fun h => ht (by simp [h])⟩
+  obtain ⟨d,ad,db⟩ := extra b c ab.ne ac.ne (Ne.symm neq)
+  obtain ⟨e,ae,ed⟩ := extra d b ad.ne ab.ne db.symm
+  have bd : b ≠ d := db.symm
+  have be : b ≠ e := fun h => nb (h ▸ cert a e ae)
+  have cd : c ≠ d := fun h => nc (h ▸ cert a d ad)
+  have ce : c ≠ e := fun h => nc (h ▸ cert a e ae)
+  have de := ed.symm
+  have four : ({b,c,d,e} : Finset V) ⊆ G.neighborFinset a := by
+    intro v hv
+    simp only [Finset.mem_insert,Finset.mem_singleton] at hv
+    apply (G.mem_neighborFinset ..).2
+    rcases hv with rfl | rfl | rfl | rfl
+    · exact ab
+    · exact ac
+    · exact sub ad
+    · exact sub ae
+  have count : 4 ≤ G.degree a := by
+    simpa [neq,bd,be,cd,ce,de,card_neighborFinset_eq_degree] using Finset.card_le_card four
+  have := cubic a b ab nb
+  omega
+
 /-- Blocks in which every edge is on a cycle one longer than a power of two. -/
 def H1 : Prop :=
   ∀ (V : Type) (G : SimpleGraph V) [Fintype V] [DecidableRel G.Adj],
@@ -659,22 +2424,33 @@ def H1 : Prop :=
       1 ≤ k ∧ c.IsCycle ∧ c.length = 2 ^ k + 1 ∧ s(a,b) ∈ c.edges) →
     ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2 ^ k
 
-/-- Every uncovered edge is a separating pair. The covered edges contain a biconnected
-spanning subgraph with at least n+2 edges on n vertices. The covering cycles are in G. -/
+/-- At an uncovered edge the graph separates. The covered spanning block and
+the shapes and path lengths of the separated regions constrain this case. -/
 def H2 : Prop :=
   ∀ (V : Type) (G : SimpleGraph V) [Fintype V] [DecidableRel G.Adj],
+    let n := Fintype.card V
     let covered (a b : V) := ∃ (k : ℕ) (w : V) (c : G.Walk w w),
-      1 ≤ k ∧ c.IsCycle ∧ c.length = 2 ^ k + 1 ∧ s(a,b) ∈ c.edges
-    3 ≤ G.minDegree →
-    (∃ a b, G.Adj a b ∧ ¬ covered a b) →
-    (∀ a b, G.Adj a b → ¬ covered a b → ∃ S : Set V, a ∈ S ∧ b ∈ S ∧
-      (∃ x ∈ S, x ≠ a ∧ x ≠ b) ∧ (∃ y, y ∉ S) ∧
-      ∀ x ∈ S, x ≠ a → x ≠ b → ∀ y ∉ S, ¬ G.Adj x y) →
-    (∃ H : SimpleGraph V, H ≤ G ∧ Fintype.card V + 2 ≤ H.edgeFinset.card ∧
+      1 ≤ k ∧ c.IsCycle ∧ c.length = 2^k+1 ∧ s(a,b) ∈ c.edges
+    let bad (a b : V) := G.Adj a b ∧ ¬ covered a b
+    let bank (a b : V) (C : Set V) := C.Nonempty ∧ a ∉ C ∧ b ∉ C ∧ C.ncard+2 < n ∧
+      ∀ x ∈ C, ∀ y, G.Adj x y → y ∈ C ∨ y = a ∨ y = b
+    let path (a b : V) (C : Set V) (l : ℕ) := ∃ p : G.Walk a b, p.IsPath ∧ p.length = l ∧
+      ∀ x ∈ p.support, x ≠ a → x ≠ b → x ∈ C
+    3 ≤ G.minDegree → (∃ a b, bad a b) →
+    (∀ a b, bad a b → G.degree a = 3 ∧ (∀ c, bad a c → b = c) ∧
+      ∃ S : Set V, a ∈ S ∧ b ∈ S ∧ (∃ x ∈ S, x ≠ a ∧ x ≠ b) ∧ (∃ y, y ∉ S) ∧
+        ∀ x ∈ S, x ≠ a → x ≠ b → ∀ y ∉ S, ¬ G.Adj x y) →
+    (∃ H : SimpleGraph V, H ≤ G ∧ n+7 ≤ H.edgeFinset.card ∧
+      14 ≤ (Finset.univ.filter (fun v => 3 ≤ H.degree v)).card ∧
       (∀ (z : V) (S : Set V), z ∈ S → (∃ x ∈ S, x ≠ z) → (∃ y, y ∉ S) →
-        ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, H.Adj x y) ∧
-      ∀ a b, H.Adj a b → covered a b) →
-    ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2 ^ k
+        ∃ x ∈ S, x ≠ z ∧ ∃ y ∉ S, H.Adj x y) ∧ ∀ a b, H.Adj a b → covered a b) →
+    (∀ a b, bad a b → ∀ C, bank a b C →
+      (G.induce C).Connected ∧ (∃! x : C, G.Adj a x.val) ∧ (∃! x : C, G.Adj b x.val) ∧
+      (∃ k : ℕ, 2 ≤ k ∧ path a b C (2^k+1)) ∧
+      (2*C.ncard+2 < n → 9 ≤ C.ncard ∧ ∃ (k s t : ℕ), 4 ≤ k ∧ 5 ≤ s ∧
+        s+2 ≤ 2^(k-1) ∧ 2^(k-1)+2 ≤ t ∧ s+t = 2^k ∧ path a b C s ∧ path a b C t ∧
+        ∀ D : Set V, Disjoint C D → ¬ path a b D s ∧ ¬ path a b D t)) →
+    ∃ (k : ℕ) (w : V) (c : G.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k
 
 theorem main : H1 → H2 → OMA.R_Erdos64_erdos_64_R3.H1 := by
   intro full separated
@@ -710,30 +2486,62 @@ theorem main : H1 → H2 → OMA.R_Erdos64_erdos_64_R3.H1 := by
       by_cases allCovered : ∀ a b, G.Adj a b → covered a b
       · exact none (full V G low block allCovered)
       · push Not at allCovered
+        have smaller (W : Type) [Fintype W] (K : SimpleGraph W) [DecidableRel K.Adj]
+            (lt : Fintype.card W < Fintype.card V) (lowK : 3 ≤ K.minDegree)
+            (blockK : ∀ (t : W) (S : Set W), t ∈ S → (∃ x ∈ S, x ≠ t) → (∃ y, y ∉ S) →
+              ∃ x ∈ S, x ≠ t ∧ ∃ y ∉ S, K.Adj x y) :
+            ∃ (k : ℕ) (w : W) (c : K.Walk w w), 2 ≤ k ∧ c.IsCycle ∧ c.length = 2^k :=
+          ih _ (lt.trans_eq size) W K rfl lowK blockK
+        have floor (u : V) := low.trans (G.minDegree_le_degree u)
+        have cut (a b : V) (ab : G.Adj a b) (uncov : ¬ covered a b) :
+            ∃ S : Set V, a ∈ S ∧ b ∈ S ∧ (∃ x ∈ S, x ≠ a ∧ x ≠ b) ∧ (∃ y, y ∉ S) ∧
+              ∀ x ∈ S, x ≠ a → x ≠ b → ∀ y ∉ S, ¬ G.Adj x y := by
+          have h : ¬ good a b := fun safe => uncov (cert a b ab safe)
+          unfold good at h
+          push Not at h
+          exact h
+        have cubic (a b : V) (ab : G.Adj a b) (uncov : ¬ covered a b) : G.degree a = 3 := by
+          obtain ⟨S,ha,hb,ins,out,gap⟩ := cut a b ab uncov
+          exact (terminalDegrees G ab (fun C live ca cb bound proper =>
+            (bankTopologyUncovered G smaller none block ab C live ca cb bound
+              (fun u _ => floor u) proper uncov).2) S ha hb ins out gap).1
+        let D := SimpleGraph.fromRel (fun a b => G.Adj a b ∧ covered a b)
+        let : DecidableRel D.Adj := fun _ _ => Classical.propDecidable _
+        have inD (a b : V) (ab : G.Adj a b) (p : good a b) : D.Adj a b :=
+          ⟨ab.ne, Or.inl ⟨ab,cert a b ab p⟩⟩
+        have fromD (a b : V) (d : D.Adj a b) : G.Adj a b ∧ covered a b := by
+          rcases d.2 with h | ⟨ba,k,w,c,hk,hc,hl,he⟩
+          · exact h
+          · exact ⟨ba.symm,k,w,c,hk,hc,hl,(Sym2.eq_swap ..) ▸ he⟩
+        have subD : D ≤ G := fun {a b} e => (fromD a b e).1
+        have certD (a b : V) (e : D.Adj a b) := (fromD a b e).2
+        have blockD (t : V) (S : Set V) (ht : t ∈ S) (i : ∃ x ∈ S, x ≠ t) (o : ∃ y, y ∉ S) :
+            ∃ a ∈ S, a ≠ t ∧ ∃ b ∉ S, D.Adj a b := by
+          obtain ⟨J,sub,bJ,edges⟩ := spanningNonseparatingEdges G block
+          obtain ⟨a,ha,at',b,hb,edge⟩ := bJ t S ht i o
+          exact ⟨a,ha,at',b,hb,inD a b (sub edge) (edges a b edge)⟩
         apply none
         apply separated V G low allCovered
-        · intro a b ab uncovered
-          have split : ¬ good a b := fun safe => uncovered (cert a b ab safe)
-          unfold good at split
-          push Not at split
-          exact split
-        · obtain ⟨x,y,xy,_⟩ := allCovered
-          have : Nonempty V := ⟨x⟩
-          let D := SimpleGraph.fromRel (fun a b => G.Adj a b ∧ covered a b)
-          let : DecidableRel D.Adj := fun _ _ => Classical.propDecidable _
-          have inD (a b : V) (ab : G.Adj a b) (p : good a b) : D.Adj a b :=
-            ⟨ab.ne, Or.inl ⟨ab,cert a b ab p⟩⟩
-          have fromD (a b : V) (d : D.Adj a b) : G.Adj a b ∧ covered a b := by
-            rcases d.2 with h | ⟨ba,k,w,c,hk,hc,hl,he⟩
-            · exact h
-            · exact ⟨ba.symm,k,w,c,hk,hc,hl,(Sym2.eq_swap ..) ▸ he⟩
-          have count := card_of_nonseparating_edges G D (fun t => low.trans (G.minDegree_le_degree t))
-            block inD
-          obtain ⟨J,sub,blockJ,edges⟩ := spanningNonseparatingEdges G block
-          refine ⟨D,fun {a b} e => (fromD a b e).1,count,?_,fun a b e => (fromD a b e).2⟩
-          intro t S ht i o
-          obtain ⟨a,ha,at',b,hb,edge⟩ := blockJ t S ht i o
-          exact ⟨a,ha,at',b,hb,inD a b (sub edge) (edges a b edge)⟩
+        · rintro a b ⟨ab,uncov⟩
+          refine ⟨cubic a b ab uncov,?_,cut a b ab uncov⟩
+          rintro c ⟨ac,noC⟩
+          exact uncoveredMatching G D covered subD blockD certD
+            (fun u v uv h => (cubic u v uv h).le) a b c ab uncov ac noC
+        · obtain ⟨a,b,ab,uncov⟩ := allCovered
+          obtain ⟨S,ha,hb,i,o,gap⟩ := cut a b ab uncov
+          obtain ⟨high,count⟩ := twoBankCore G D floor
+            (noDyadic_commonNeighbor_unique none) block inD ab S ha hb i o gap
+          exact ⟨D,subD,count,high,blockD,certD⟩
+        · rintro a b ⟨ab,uncov⟩ C ⟨live,ca,cb,proper,bound⟩
+          have shape := bankTopologyUncovered G smaller none block ab C live ca cb bound
+            (fun u _ => floor u) proper uncov
+          obtain ⟨k,p,hk,hp,len,pc⟩ := allBankDetour G block ab C live ca cb bound
+            (fun u => floor u.val) proper none uncov smaller
+          refine ⟨shape.1,shape.2.1,shape.2.2,⟨k,hk,p,hp,len,pc⟩,?_⟩
+          intro small
+          exact exclusiveDetours ab none uncov C
+            (forcedBankDetours G block ab C live ca cb bound (fun u => floor u.val)
+              small none smaller)
   intro V G finite dec
   exact descend _ V G rfl
 
