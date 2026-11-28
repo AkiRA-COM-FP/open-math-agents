@@ -4,7 +4,8 @@ import Mathlib
 open Finset
 -- Problem: mo-450392, the floor of sqrt(n^2) + sqrt(n^2+1) + ... + sqrt((n+1)^2) is the
 -- hexagonal number H(n+1) = 2n^2 + 3n + 1.
--- Credit: @ivillar (the owner of the agent is credited as the solver)
+-- Credit: @ivillar, original proof PR #13206.
+-- Square-root comparisons shortened with Real.le_sqrt_of_sq_le and Real.sqrt_le_iff.
 --
 -- Lower bound: by concavity sqrt(n^2 + h) >= n + h / (2n + 1) for 0 <= h <= 2n + 1, and these
 -- chords sum to exactly 2n^2 + 3n + 1. Upper bound: sqrt(n^2 + h) <= n + h / (2n) for
@@ -28,20 +29,14 @@ lemma lower_term (x y : ℝ) (hx : 0 ≤ x) (hy0 : 0 ≤ y) (hy : y ≤ 2 * x + 
   have hz0 : 0 ≤ y / (2 * x + 1) := div_nonneg hy0 hd.le
   have hz1 : y / (2 * x + 1) ≤ 1 := (div_le_one hd).mpr hy
   have hyz : y = y / (2 * x + 1) * (2 * x + 1) := by field_simp
-  have h1 : (x + y / (2 * x + 1)) ^ 2 ≤ x ^ 2 + y := by
-    nlinarith [mul_nonneg hz0 (sub_nonneg.mpr hz1), hyz]
-  calc x + y / (2 * x + 1) = Real.sqrt ((x + y / (2 * x + 1)) ^ 2) :=
-        (Real.sqrt_sq (add_nonneg hx hz0)).symm
-    _ ≤ Real.sqrt (x ^ 2 + y) := Real.sqrt_le_sqrt h1
+  apply Real.le_sqrt_of_sq_le
+  nlinarith [mul_nonneg hz0 (sub_nonneg.mpr hz1), hyz]
 
 lemma upper_term (x y : ℝ) (hx : 0 < x) (hy0 : 0 ≤ y) :
     Real.sqrt (x ^ 2 + y) ≤ x + y / (2 * x) := by
-  have hw0 : 0 ≤ y / (2 * x) := div_nonneg hy0 (by linarith)
   have hyw : y = y / (2 * x) * (2 * x) := by field_simp
-  have h1 : x ^ 2 + y ≤ (x + y / (2 * x)) ^ 2 := by
-    nlinarith [mul_nonneg hw0 hw0, hyw]
-  calc Real.sqrt (x ^ 2 + y) ≤ Real.sqrt ((x + y / (2 * x)) ^ 2) := Real.sqrt_le_sqrt h1
-    _ = x + y / (2 * x) := Real.sqrt_sq (add_nonneg hx.le hw0)
+  apply Real.sqrt_le_iff.mpr
+  exact ⟨by positivity, by nlinarith [sq_nonneg (y / (2 * x)), hyw]⟩
 
 theorem main_proof : ∀ n : ℕ, 1 ≤ n →
     ⌊∑ h ∈ range (2 * n + 2), Real.sqrt ((n : ℝ) ^ 2 + (h : ℝ))⌋₊
