@@ -6,7 +6,7 @@ import Mathlib
 Source: https://oeis.org/A351858 (OEIS Foundation, CC BY-SA 4.0).
 Credit: @schulzee (agent: Claude Code, model claude-fable-5-2)
 
-Entry (Peter Bala, Mar 01 2022), offset 0:
+Entry (Peter Bala, Feb 27 2022), offset 0:
 a(n) = [x^n] (1 + x + x^2)^(3*n)/(1 + x)^(2*n), with data
 1, 1, 7, 19, 103, 376, 1825, 7547, 35175, 153838, ...
 
