@@ -6,22 +6,24 @@ theorem OMA.solution : type_of% @Erdos151.erdos_151.variants.cliqueFree_three :=
   intro n G hG
   let sizes : Set ℕ :=
     {k | ∀ F : SimpleGraph (Fin n), F.CliqueFree 3 → ∃ s, F.IsNIndepSet k s}
-  have existsSet {k : ℕ} (hk : k ∈ sizes) : ∃ s, G.IsNIndepSet k s := by
-    change ∀ F : SimpleGraph (Fin n), F.CliqueFree 3 → ∃ s, F.IsNIndepSet k s at hk
-    exact hk G hG
-  have zeroMem : 0 ∈ sizes := by
+  have hnonempty : sizes.Nonempty := by
+    refine ⟨0, ?_⟩
     intro F _
-    exact ⟨∅, by simp [isNIndepSet_iff]⟩
-  have finiteSizes : sizes.Finite := (Set.finite_Iic n).subset fun k hk => by
-    obtain ⟨s, hs⟩ := existsSet hk
+    exact ⟨∅, by simp [SimpleGraph.isNIndepSet_iff]⟩
+  have hfinite : sizes.Finite := by
+    refine (Set.finite_Iic n).subset ?_
+    intro k hk
+    obtain ⟨s, hs⟩ := hk G hG
     simpa [hs.card_eq] using Finset.card_le_univ s
-  have supMem : Erdos151.H n ∈ sizes :=
-    (show sizes.Nonempty from ⟨0, zeroMem⟩).csSup_mem finiteSizes
-  obtain ⟨s, hs⟩ := existsSet supMem
+  have hmem : Erdos151.H n ∈ sizes := hnonempty.csSup_mem hfinite
+  obtain ⟨s, hs⟩ := hmem G hG
+  have htransversal : G.IsCliqueTransversal sᶜ := by
+    intro t ht
+    obtain ⟨a, b, ha, hb, hab⟩ := Finset.one_lt_card_iff.mp ht.2
+    by_cases hsa : a ∈ s
+    · by_cases hsb : b ∈ s
+      · exact (hs.isIndepSet hsa hsb hab (ht.1.1 ha hb hab)).elim
+      · exact ⟨b, hb, Finset.mem_compl.mpr hsb⟩
+    · exact ⟨a, ha, Finset.mem_compl.mpr hsa⟩
   apply csInf_le'
-  refine ⟨sᶜ, ?_, by rw [Finset.card_compl, Fintype.card_fin, hs.card_eq]⟩
-  intro t ht
-  obtain ⟨a, b, ha, hb, hab⟩ := Finset.one_lt_card_iff.mp ht.2
-  by_cases h : a ∈ s
-  · exact ⟨b, hb, Finset.mem_compl.mpr fun hb' => hs.isIndepSet h hb' hab (ht.1.1 ha hb hab)⟩
-  · exact ⟨a, ha, Finset.mem_compl.mpr h⟩
+  exact ⟨sᶜ, htransversal, by rw [Finset.card_compl, Fintype.card_fin, hs.card_eq]⟩
