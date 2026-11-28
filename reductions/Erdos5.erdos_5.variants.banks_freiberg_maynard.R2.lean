@@ -14,7 +14,7 @@ def H1 : Prop := ∀ (n : ℕ) (a : Fin 9 → ℕ), StrictMono a →
     ∃ i j, i < j ∧ (a j : ℝ) / ((n : ℝ) + 1) - (a i : ℝ) / ((n : ℝ) + 1) ∈
       Erdos5.limitPointSet
 
--- Approximate even tuples with repeated real coordinates by strictly ordered grids.
+-- A weakly ordered tuple can have repeated coordinates.
 def H2 : Prop := ∀ (β : Fin 9 → ℝ), (∀ i, 0 ≤ β i) → Monotone β →
     ∃ a : ℕ → Fin 9 → ℕ, (∀ n, StrictMono (a n)) ∧
       Tendsto (fun n : ℕ => fun i : Fin 9 => (a n i : ℝ) / ((n : ℝ) + 1)) atTop (𝓝 β)
@@ -44,5 +44,60 @@ theorem main : H1 → H2 → type_of% @Erdos5.erdos_5.variants.banks_freiberg_ma
   obtain ⟨a, ha, hlim⟩ := hApprox β hβ hMono
   apply isClosed_bfm_configurations.mem_of_tendsto hlim
   exact Filter.Eventually.of_forall fun n => hGrid n (a n) (ha n)
+
+private theorem grid_mesh_tendsto_zero :
+    Tendsto (fun n : ℕ => 1 / ((n : ℝ) + 1)) atTop (𝓝 0) := by
+  have h : Tendsto (fun n : ℕ => (n : ℝ) + 1) atTop atTop :=
+    tendsto_atTop_add_const_right _ _ tendsto_natCast_atTop_atTop
+  simpa only [one_div, Function.comp_def] using tendsto_inv_atTop_zero.comp h
+
+private lemma grid_approx (β : Fin 9 → ℝ) (hβ : ∀ i, 0 ≤ β i)
+    (hmono : Monotone β) :
+    ∃ a : ℕ → Fin 9 → ℕ, (∀ n, Monotone (a n)) ∧
+      Tendsto (fun n : ℕ => fun i : Fin 9 => (a n i : ℝ) / ((n : ℝ) + 1)) atTop (𝓝 β) := by
+  let a (n : ℕ) (i : Fin 9) := ⌊β i * ((n : ℝ) + 1)⌋₊
+  refine ⟨a, ?_, ?_⟩
+  · intro n i j hij
+    exact Nat.floor_mono (mul_le_mul_of_nonneg_right (hmono hij) (add_nonneg (Nat.cast_nonneg n) zero_le_one))
+  · apply tendsto_pi_nhds.mpr
+    intro i
+    have tiny : Tendsto (fun n : ℕ => 1 / ((n : ℝ) + 1)) atTop (𝓝 0) :=
+      grid_mesh_tendsto_zero
+    have base : Tendsto (fun _ : ℕ => β i) atTop (𝓝 (β i)) := tendsto_const_nhds
+    have low : Tendsto (fun n : ℕ => β i - 1 / ((n : ℝ) + 1)) atTop (𝓝 (β i)) := by
+      simpa only [sub_zero] using base.sub tiny
+    apply tendsto_of_tendsto_of_tendsto_of_le_of_le low base
+    · intro n
+      have hd : 0 < (n : ℝ) + 1 := add_pos_of_nonneg_of_pos (Nat.cast_nonneg n) zero_lt_one
+      apply (le_div_iff₀ hd).mpr
+      rw [sub_mul, div_mul_cancel₀ _ hd.ne']
+      have ht : β i * ((n : ℝ) + 1) < (a n i : ℝ) + 1 := by
+        simpa only [a, Nat.cast_add, Nat.cast_one] using
+          Nat.lt_floor_add_one (β i * ((n : ℝ) + 1))
+      exact (sub_le_iff_le_add).mpr ht.le
+    · intro n
+      have hd : 0 < (n : ℝ) + 1 := add_pos_of_nonneg_of_pos (Nat.cast_nonneg n) zero_lt_one
+      exact (div_le_iff₀ hd).mpr (Nat.floor_le (mul_nonneg (hβ i) hd.le))
+
+/-- Adding the index to each rounded coordinate preserves convergence and separates ties. -/
+theorem strict_grid_approx : H2 := by
+  intro β hβ hmono
+  obtain ⟨a, ha, hlim⟩ := grid_approx β hβ hmono
+  refine ⟨fun n i => a n i + i.val, ?_, ?_⟩
+  · intro n i j hij
+    exact Nat.add_lt_add_of_le_of_lt (ha n hij.le) (Fin.lt_def.mp hij)
+  · apply tendsto_pi_nhds.mpr
+    intro i
+    have tiny : Tendsto (fun n : ℕ => 1 / ((n : ℝ) + 1)) atTop (𝓝 0) :=
+      grid_mesh_tendsto_zero
+    have drift : Tendsto (fun n : ℕ => (i.val : ℝ) / ((n : ℝ) + 1)) atTop (𝓝 0) := by
+      simpa only [div_eq_mul_inv, one_mul, mul_zero] using tiny.const_mul (i.val : ℝ)
+    have coord : Tendsto (fun n : ℕ => (a n i : ℝ) / ((n : ℝ) + 1)) atTop (𝓝 (β i)) :=
+      tendsto_pi_nhds.mp hlim i
+    simpa only [Nat.cast_add, add_div, add_zero] using coord.add drift
+
+/-- Only the strictly increasing rational-grid sieve input remains. -/
+theorem of_grid (h : H1) : type_of% @Erdos5.erdos_5.variants.banks_freiberg_maynard :=
+  main h strict_grid_approx
 
 end OMA.R_Erdos5_erdos_5_variants_banks_freiberg_maynard_R2
