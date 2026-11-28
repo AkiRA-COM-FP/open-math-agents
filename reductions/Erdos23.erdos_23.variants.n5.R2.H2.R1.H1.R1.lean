@@ -62,9 +62,9 @@ theorem main : H1 → H2 → OMA.R_Erdos23_erdos_23_variants_n5_R2_H2_R1.H1 := b
       K.CliqueFree 3 ∧ ∀ i j, K.Adj i j → i ∈ W ∧ j ∈ W
     have start : admissible restricted :=
       ⟨triangle.anti (show restricted ≤ G from fun _ _ h => h.1), fun _ _ h => h.2⟩
-    obtain ⟨K, extends, maximal⟩ := Finite.exists_le_maximal (p := admissible) start
+    obtain ⟨K, hsub, maximal⟩ := Finite.exists_le_maximal (p := admissible) start
     have keep {i j} (hi : i ∈ W) (hj : j ∈ W) (edge : G.Adj i j) : K.Adj i j :=
-      extends ⟨edge, hi, hj⟩
+      hsub ⟨edge, hi, hj⟩
     have minDegree (i) (hi : i ∈ W) : 4 ≤ (W.filter (K.Adj i)).card := by
       have original : 4 ≤ (W.filter (G.Adj i)).card := by
         by_contra! small
