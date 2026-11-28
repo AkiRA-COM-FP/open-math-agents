@@ -6,12 +6,10 @@ distinct minimal primes. Each prime in the sequence certifies the base
 condition. The original proof was submitted by @harshshah1618.
 -/
 
-open MinimalPrime
-
 theorem OMA.solution : type_of% @MinimalPrime.minimal_primes_finite_in_every_base := by
   intro b
   by_contra infinite
-  let e := (show {p : ℕ | IsMinimalPrimeInBase b p}.Infinite from infinite).natEmbedding _
+  let e := Set.Infinite.natEmbedding _ infinite
   have higman := (Finset.range b).partiallyWellOrderedOn.partiallyWellOrderedOn_sublistForall₂ Eq
   obtain ⟨i, j, ij, sublist⟩ := higman.exists_lt (f := fun i => Nat.digits b (e i))
     (fun i d hd => Finset.mem_range.mpr (Nat.digits_lt_base (e i).2.1 hd))
