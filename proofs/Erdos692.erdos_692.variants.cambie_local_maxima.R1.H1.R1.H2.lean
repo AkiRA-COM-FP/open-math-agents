@@ -1374,5 +1374,5 @@ end Cambie692Density
 theorem OMA.solution : OMA.R_Erdos692_erdos_692_variants_cambie_local_maxima_R1_H1_R1.H2 := by
   intro k δ hδ
   filter_upwards [Cambie692Density.density_estimate k δ hδ] with n hn
-  intro p hp hlo hhi
+  intro t p hp hlo hhi
   exact ⟨Cambie692Rise.deltaZero n p, Cambie692Rise.deltaZero_density n p, hn p hp hlo hhi⟩
