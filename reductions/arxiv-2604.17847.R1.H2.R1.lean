@@ -35,7 +35,10 @@ def H3 : Prop :=
         q ∣ (ordCompl[q] (ordCompl[2*q+1] (2*Nat.fib (h+1) - Nat.fib h))).totient)) → q % 15 = 8 →
     let t := pisano q/4
     q ^ 2 ∣ (if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t) → (2*q+1).Prime →
-    ¬ (rankOfApparition (2*q+1)).Coprime (2*(q+1)/pisano q) →
+    let c := 2*(q+1)/pisano q
+    ¬ (rankOfApparition (2*q+1)).Coprime c →
+    ¬ (3 ∣ c ∧ (rankOfApparition (2*q+1)).Coprime (c/3) ∧
+      ∃ x : ZMod (2*q+1), x^3 + 3*x = 1) →
     (if Even t then 1 else 5) * ((if Even t then 2*Nat.fib (t+1)-Nat.fib t else Nat.fib t)/q^2)^2 ≡ 32 [MOD (2*q+1)]
 
 -- Consecutive values form a finite reversible orbit for every positive modulus.
@@ -1385,6 +1388,82 @@ lemma companion_quarter_iff {q : ℕ} (hq : q.Prime) (hl : 53 < q) (residue : q%
       quarter_quotient hq.pos ((half_quarter_square_iff hq (by omega) residue).mp square)] at test
   exact test
 
+-- Cubing the two roots of Y²-xY-1 recovers the Fibonacci roots.
+lemma cubic_rank_descent {p : ℕ} (hp : p.Prime) (hl : 5 < p) (three : 3 ∣ p+1)
+    (zero : p ∣ Nat.fib (p+1)) (x : ZMod p) (cubic : x^3+3*x=1) :
+    rankOfApparition p ∣ (p+1)/3 := by
+  let : Fact p.Prime := ⟨hp⟩
+  let K := AlgebraicClosure (ZMod p)
+  let X : K := algebraMap (ZMod p) K x
+  have trace : X^3+3*X=1 := by
+    simpa [X, map_ofNat] using congrArg (algebraMap (ZMod p) K) cubic
+  have fixed : X^p=X := by
+    simp [X, ← map_pow, ZMod.pow_card]
+  have two : (2 : K) ≠ 0 := CharP.cast_ne_zero_of_ne_of_prime K Nat.prime_two (show p ≠ 2 by omega)
+  obtain ⟨s,hs⟩ := IsAlgClosed.exists_pow_nat_eq (X^2+4) (by decide : 0 < 2)
+  let u := (X+s)/2
+  let v := X-u
+  have twice : u*2=X+s := div_mul_cancel₀ _ two
+  have quad : u^2=X*u+1 := by
+    apply mul_left_cancel₀ (pow_ne_zero 2 two)
+    linear_combination (2*u+ s-X)*twice + hs
+  have prod : u*v = -1 := by dsimp [v]; linear_combination -quad
+  have sum : u^3+v^3=1 := by
+    dsimp [v]
+    linear_combination trace + 3*X*quad
+  have cubeprod : u^3*v^3 = -1 := by rw [←mul_pow, prod]; norm_num
+  have a : (u^3)^2=u^3+1 := by linear_combination u^3*sum - cubeprod
+  have b : (v^3)^2=v^3+1 := by linear_combination v^3*sum - cubeprod
+  have diff : u^3-v^3 ≠ 0 := by
+    intro same
+    have five : (5 : K) ≠ 0 := CharP.cast_ne_zero_of_ne_of_prime K (by decide : Nat.Prime 5) (show p ≠ 5 by omega)
+    apply five
+    linear_combination (2*u^3-1)*sum + (2*u^3-1)*same - 4*a
+  have conj : v^p = X-u^p := by simp [v, sub_pow_char, fixed]
+  have roots : (u^p-u)*(u^p-v)=0 := by
+    have h := congrArg (fun z : K => z^p) quad
+    simp only [add_pow_char, mul_pow, one_pow, fixed] at h
+    rw [←pow_mul, Nat.mul_comm, pow_mul] at h
+    dsimp only [v]
+    linear_combination h - quad
+  have swap : u^p=v := by
+    rcases mul_eq_zero.mp roots with fix | swap
+    · have fu := sub_eq_zero.mp fix
+      have fv : v^p=v := by rw [conj, fu]
+      have hz : (Nat.fib (p+1) : K) = 0 := (CharP.cast_eq_zero_iff K p _).mpr zero
+      have eq := fib_root_difference a b (p+1)
+      have cube_fixed (z : K) (fz : z^p=z) : (z^3)^p=z^3 := by
+        rw [←pow_mul, Nat.mul_comm 3 p, pow_mul, fz]
+      rw [hz, zero_mul, pow_succ (u^3) p, pow_succ (v^3) p,
+          cube_fixed u fu, cube_fixed v fv] at eq
+      exact (diff (by linear_combination -eq - a + b)).elim
+    · exact sub_eq_zero.mp swap
+  have swapv : v^p=u := by rw [conj,swap]; dsimp [v]; ring
+  have eq : u^(p+1)=v^(p+1) := by rw [pow_succ, pow_succ, swap, swapv, mul_comm]
+  have third : 3*((p+1)/3)=p+1 := Nat.mul_div_cancel' three
+  have h := fib_root_difference a b ((p+1)/3)
+  rw [← pow_mul, ← pow_mul, third, eq, sub_self] at h
+  exact rank_dvd_index (by omega) ((CharP.cast_eq_zero_iff K p _).mp ((mul_eq_zero.mp h).resolve_right diff))
+
+-- A cubic root certificate strips one factor of three even if three divides the rank.
+lemma alignment_of_cubic_cofactor {q : ℕ} (hq : q.Prime) (hl : 5 < q)
+    (residue : q%15 = 8) (hp : (2*q+1).Prime) :
+    let c := 2*(q+1)/pisano q
+    3 ∣ c → (rankOfApparition (2*q+1)).Coprime (c/3) →
+      (∃ x : ZMod (2*q+1), x^3 + 3*x = 1) → 2*q+1 ∣ Nat.fib (pisano q) := by
+  intro c three cop root
+  obtain ⟨x, hx⟩ := root
+  have full := (nonsplit_period_cofactor hq hl (by omega)).1
+  have whole : pisano q*c = 2*(q+1) := Nat.mul_div_cancel' full
+  have times : 3*(pisano q*(c/3)) = 2*q+1+1 := by
+    calc 3*(pisano q*(c/3)) = pisano q*(3*(c/3)) := by ring
+         _ = 2*q+1+1 := by rw [Nat.mul_div_cancel' three, whole]; omega
+  have zero := zero_at_selected_neighbor hp (by omega)
+  rw [if_neg (by omega)] at zero
+  have rank := cubic_rank_descent hp (by omega) (by rw [←times]; exact dvd_mul_right ..) zero x hx
+  rw [←times, Nat.mul_div_cancel_left _ (by decide : 0 < 3)] at rank
+  exact (rank_test_at_period hp hq).mp (cop.dvd_of_dvd_mul_right rank)
+
 -- When the reduced totient is prime to q, only the canonical witness can work.
 lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
     ∀ q : ℕ, q.Prime → 53 < q → pisano (q^2) = pisano q →
@@ -1405,8 +1484,13 @@ lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
     refine ⟨hp, ?_⟩
     by_cases cop : (rankOfApparition (2*q+1)).Coprime (2*(q+1)/pisano q)
     · exact alignment_of_coprime_cofactor hq (by omega) residue hp cop
-    · exact (companion_quarter_iff hq hl residue halfSquare hp).mpr
-        (align q hq large long halves residue quarter hp cop)
+    · let c := 2*(q+1)/pisano q
+      by_cases certificate : 3 ∣ c ∧ (rankOfApparition (2*q+1)).Coprime (c/3) ∧
+          ∃ x : ZMod (2*q+1), x^3 + 3*x = 1
+      · exact alignment_of_cubic_cofactor hq (by omega) residue hp
+          certificate.1 certificate.2.1 certificate.2.2
+      · exact (companion_quarter_iff hq hl residue halfSquare hp).mpr
+          (align q hq large long halves residue quarter hp cop certificate)
   · intro canonical
     refine ⟨?_, ?_, ?_⟩
     · intro q hq large _ h noLarge outside square
@@ -1418,7 +1502,7 @@ lemma canonical_companion_iff : (H1 ∧ H2 ∧ H3) ↔
       have noFull := mt (other_witness_half_tests hq (by omega)).mp noLarge
       have square := (half_quarter_square_iff hq (by omega) residue).mpr quarter
       exact (canonical q hq (by omega) ((stable_residue_half_iff hq (by omega) residue).mpr square) noFull).1
-    · intro q hq large _ h noLarge residue t quarter hp _
+    · intro q hq large _ h noLarge residue t quarter hp c _ _
       have noFull := mt (other_witness_half_tests hq (by omega)).mp noLarge
       have square := (half_quarter_square_iff hq (by omega) residue).mpr quarter
       have stable := (stable_residue_half_iff hq (by omega) residue).mpr square
