@@ -7,7 +7,7 @@ Credit: @wispiANt. The coefficient tables, small cases, and finite
 non-divisibility check come from R8 (PR #20438). The second seed is from
 note #92063. The descent subtracts a nonempty group of large summands chosen for each target.
 All summands in the group lie within a factor of two.
-Each finite cap may use its own finite support and its own base.
+Each finite cap may use its own compatible seed and list of overlapping translations.
 The smaller finite base uses 176 indices and the larger one uses 256. The tail can restrict every new term
 to a chosen support and test cross-divisibility only against possible terms in that support.
 The primitive-window comparison uses the condition reported by @Jwolf52 in note #95249.
@@ -23,26 +23,17 @@ namespace OMA.R_oeis_a000009_R10
 
 open OMA.S_oeis_a000009
 
-/-- For each cap choose a finite support containing one certified base. All tail
-steps through that cap select their new summands and remainder terms from this support. -/
+/-- Start from a checked seed interval and add compatible values in right-to-left
+list order. Each translation must touch the cumulative interval. Descent handles
+targets above the resulting endpoint through the chosen cap. -/
 def H1 : Prop :=
-  ∀ cap : ℕ, ∃ extended : Bool,
-  let seed := List.range' 40 19 ++ List.range' 60 8 ++ List.range' 69 4 ++
-    List.range' 74 17 ++ List.range' 92 4
-  let indices : List ℕ := seed ++ [124, 133,
-      142, 151, 161, 171, 181, 192, 203, 214, 225, 237, 249, 261, 274, 287, 300, 314, 328, 342,
-      356, 371, 386, 401, 417, 433, 449, 466, 483, 500, 517, 535, 553, 571, 590, 608, 627, 646,
-      665, 685, 705, 726, 747, 768, 789, 811, 833, 855, 878, 900, 923, 945, 969, 993, 1017, 1040,
-      1065, 1090, 1116, 1142, 1168, 1194, 1221, 1248, 1274, 1302, 1330, 1358, 1386, 1415, 1444, 1473, 1503, 1533,
-      1562, 1591, 1622, 1653, 1684, 1716, 1748, 1779, 1812, 1845, 1876, 1909, 1943, 1976, 2010, 2045, 2080, 2114,
-      2149] ++ List.range' 2166 18 ++ [2185, 2186, 2187, 2188, 2189, 2190, 2191, 2192, 2193, 2194, 2197, 2199, 2200] ++ (if extended then [2367, 2404, 2441, 2479, 2517, 2556, 2595, 2634, 2674, 2714, 2754, 2794, 2835, 2876,
-      2917, 2957, 2998, 3040, 3082, 3125, 3168, 3211, 3255, 3299, 3343, 3387, 3432, 3477,
-      3521, 3567, 3613, 3659, 3706, 3753, 3800, 3847, 3895, 3943, 3991, 4039, 4086, 4135,
-      4184, 4233, 4283, 4333, 4384, 4435, 4486, 4536, 4588, 4640, 4692, 4744, 4797, 4849,
-      4903, 4957, 5008, 5062, 5117, 5172, 5226, 5282, 5338, 5394, 5448, 5505, 5561, 5618,
-      5676, 5734, 5792, 5850, 5909, 5968, 6027, 6086, 6146, 6200] else [])
-  ∃ pool : Finset ℕ, (∀ i ∈ indices, strictPartitionCount i ∈ pool) ∧
-  ∀ n : ℕ, (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834) < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
+  ∀ cap : ℕ, ∃ seed xs : List ℕ, ∃ pool : Finset ℕ,
+  let members := xs ++ seed
+  let st := xs.foldr (fun a (v : ℕ × Bool) => (v.1+a, v.2 && decide (a ≤ v.1+1-20301))) (3069181,true)
+  members.Nodup ∧ (∀ s ∈ members, 1000 ≤ s ∧ s ∈ pool ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
+  (∀ x ∈ members, ∀ y ∈ members, x ≠ y → ¬ x ∣ y) ∧
+  ((seed.foldr (fun a b => b ||| b <<< a) 1) >>> 20301) % 2^3048881 = 2^3048881-1 ∧ st.2 = true ∧
+  ∀ n : ℕ, st.1 < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
     A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
     (∀ z ∈ A, 1000 ≤ z ∧ z ∈ pool ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m)) ∧
     (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
@@ -1259,34 +1250,6 @@ theorem finite_support (indices : List ℕ) (f : ℕ → ℕ) (Q keep : ℕ → 
   exact ⟨(values z hz).1, mem_union_right _ (mem_filter.mpr
     ⟨mem_range.mpr (by omega),(values z hz).2.1⟩), (values z hz).2.2⟩
 
-/-- Choosing all values recovers the previous unrestricted descent condition. -/
-theorem H1_of_unrestricted (tail : ∀ n : ℕ, 60041801547539377118140226416919083619432043396280785479393 < n → ∃ A : Finset ℕ, ∃ r : ℕ,
-    A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
-    (∀ z ∈ A, 1000 ≤ z ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m)) ∧
-    (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
-    ∀ z ∈ A, ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) →
-      (s = r ∨ s + 1000 ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s) : H1 := by
-  intro cap
-  refine ⟨true, finite_support _ _ _ (fun _ => True) _ _ _ cap (fun _ _ => trivial) ?_⟩
-  intro n hn _
-  obtain ⟨A,r,ne,total,lo,terms,band,safe⟩ := tail n hn
-  exact ⟨A,r,ne,total,lo,fun z hz => ⟨(terms z hz).1,trivial,(terms z hz).2⟩,
-    band,fun z hz s hs qs => safe z hz s hs qs.2⟩
-
-/-- A singleton in the interval for a target supplies the entire descent witness. -/
-theorem H1_of_intervals (cover : ∀ n : ℕ, 60041801547539377118140226416919083619432043396280785479393 < n →
-    ∃ a : ℕ, (∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ 1000 ≤ a ∧
-      a+20301 ≤ n ∧ n < 2*a+1000 ∧ n ≠ 2*a ∧
-      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a) :
-    H1 := by
-  apply H1_of_unrestricted
-  intro n hn
-  obtain ⟨a,qa,big,lo,hi,ne,prim⟩ := cover n hn
-  refine ⟨{a},n-a,singleton_nonempty _,by simp; omega,by omega,?_,?_,?_⟩
-  · simpa using And.intro big qa
-  · simpa using (show a < 2*a by omega)
-  · simpa using primitive_step a (n-a) big prim (by omega) (by omega)
-
 /-- A finite sequence suffices up to cap when its last interval reaches cap. -/
 theorem finite_tail_of_spacing (Q : ℕ → Prop) (a : ℕ → ℕ) (B L U cap last : ℕ)
     (positive : 0 < B) (values : ∀ i ≤ last, B ≤ a i ∧ Q (a i))
@@ -1356,26 +1319,6 @@ theorem tail_of_supported_spacing (Q : ℕ → Prop) (a : ℕ → ℕ) (B L U : 
   obtain ⟨last,finish⟩ := unbounded n
   exact finite_tail_of_spacing Q a B L U n last positive (fun i _ => values i)
     (fun i _ => primitive i) start (fun i _ => spacing i) finish n hn le_rfl
-
-/-- Successive primitive values suffice when their unpunctured intervals touch. -/
-theorem H1_of_spacing (a : ℕ → ℕ)
-    (values : ∀ i, (∃ m : ℕ, 0 < m ∧ a i = strictPartitionCount m) ∧ 1000 ≤ a i ∧
-      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a i → ¬ s ∣ a i)
-    (start : a 0 + 20301 ≤ 60041801547539377118140226416919083619432043396280785479394)
-    (spacing : ∀ i, a (i+1) + 20301 ≤ 2*a i) (unbounded : ∀ n, ∃ i, n < 2*a i) : H1 := by
-  apply H1_of_unrestricted
-  exact tail_of_supported_spacing _ a 1000 20301 _ (by decide)
-    (fun i => ⟨(values i).2.1,(values i).1⟩) (fun i => (values i).2.2) start spacing unbounded
-
-/-- The primitive-window assumption reported for R9 in desk note #95249 implies H1. -/
-theorem H1_of_windows (windows : ∀ x : ℕ, 19290627658796608 / 2 + 1 ≤ x →
-    ∃ a : ℕ, (∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ x ≤ a ∧ 2*a ≤ 3*x ∧
-      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a) :
-    H1 := by
-  apply H1_of_intervals
-  intro n hn
-  obtain ⟨a,qa,lo,hi,h⟩ := windows (n/2+1) (by omega)
-  exact ⟨a,qa,by omega,by omega,by omega,by omega,h⟩
 
 /-- The greedy extension step: adding a new element `a ≤ U + 1 - L` to a set whose subset
 sums cover `[L, U]` yields a set whose subset sums cover `[L, U + a]`. -/
@@ -1460,7 +1403,7 @@ theorem triple_iff (P Q M : ℕ) (hP : 0 < P) (hM : 0 < M) :
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
 /-- The three coefficient lists are certified separately from the subset-sum and divisibility checks. -/
-theorem chain_coefficients :
+theorem chain_coefficients (withNext : Bool := false) :
     let initial : List ℕ := [40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 60, 61, 62, 63, 64, 65, 66, 67, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95]
     let seed : List ℕ := [1113, 1260, 1426, 1610, 1816, 2048, 2304, 2590, 2910, 3264, 3658, 4097, 4582, 5120, 5718, 6378, 7108, 7917, 8808, 10880, 12076, 13394, 14848, 16444, 18200, 20132, 22250, 27130, 29927, 32992, 36352, 44046, 48446, 53250, 58499, 64234, 70488, 77312, 84756, 92864, 101698, 111322, 121792, 133184, 145578, 159046, 173682, 189586, 225585, 245920, 267968, 291874]
     let earlier : List ℕ := [
@@ -1561,23 +1504,29 @@ theorem chain_coefficients :
       3949401902475447407037832941792146338306246285580941557752, 7797588330336638168452762081945635097782585000359481952640,
       15521982489439769174201559480094487075251892984927646423036, 28760948436164145408705288538638349951127885748752914972416]
     initial.map strictPartitionCount = seed ∧ earlier.map strictPartitionCount = middle ∧
-      extension.map strictPartitionCount = last := by
+      (if withNext then (extension ++ [6261]).map strictPartitionCount =
+        last ++ [57543569138488182544503530867339359792600248483006991925504]
+       else extension.map strictPartitionCount = last) := by
   intro initial seed earlier middle extension last
-  let mask := (2^(196*6201)-1)/(2^196-1)*2^195
-  let row := Nat.rec (motive := fun _ => ℕ) (2^((195+1)*6200)) (fun k b =>
-    let c := b + (b >>> (196*(k+1)))
+  let mask := (2^(197*6262)-1)/(2^197-1)*2^196
+  let row := Nat.rec (motive := fun _ => ℕ) (2^((196+1)*6261)) (fun k b =>
+    let c := b + (b >>> (197*(k+1)))
     if c &&& mask == 0 then c else 0)
-  let d (j : ℕ) := (row 6200 >>> (196*(6200-j))) % 2^196
-  have checked : row 6200 ≠ 0 ∧ initial.map d = seed ∧ earlier.map d = middle ∧ extension.map d = last := by
+  let d (j : ℕ) := (row 6261 >>> (197*(6261-j))) % 2^197
+  have checked : row 6261 ≠ 0 ∧ initial.map d = seed ∧ earlier.map d = middle ∧ extension.map d = last ∧ d 6261 = 57543569138488182544503530867339359792600248483006991925504 := by
     decide +kernel
-  have digit (j : ℕ) (hj : j ≤ 6200) : strictPartitionCount j = d j :=
-    strictPartitionCount_of_reverse 195 6200 (by decide) row mask (guard_mask_eq 196 6201 (2^195) (by decide)).symm
+  have digit (j : ℕ) (hj : j ≤ 6261) : strictPartitionCount j = d j :=
+    strictPartitionCount_of_reverse 196 6261 (by decide) row mask (guard_mask_eq 197 6262 (2^196) (by decide)).symm
       rfl (fun _ => rfl) checked.1 j hj
-  have decode (ms vs : List ℕ) (limits : ∀ i ∈ ms, i ≤ 6200) (eq : ms.map d = vs) :
+  have decode (ms vs : List ℕ) (limits : ∀ i ∈ ms, i ≤ 6261) (eq : ms.map d = vs) :
       ms.map strictPartitionCount = vs :=
     (List.map_congr_left fun i hi => digit i (limits i hi)).trans eq
-  exact ⟨decode _ _ (by decide +kernel) checked.2.1, decode _ _ (by decide +kernel) checked.2.2.1,
-    decode _ _ (by decide +kernel) checked.2.2.2⟩
+  have old := decode extension last (by decide +kernel) checked.2.2.2.1
+  have next := (digit 6261 le_rfl).trans checked.2.2.2.2
+  refine ⟨decode _ _ (by decide +kernel) checked.2.1,decode _ _ (by decide +kernel) checked.2.2.1,?_⟩
+  cases withNext
+  · exact old
+  · simp only [if_true,List.map_append,List.map_cons,List.map_nil,old,next]
 
 /-- Test each unordered pair once. For positive unequal values only the smaller
 can divide the larger; equality itself fails the remainder test. -/
@@ -1620,7 +1569,7 @@ theorem checked_antichain (l : List ℕ) (pos : ∀ x ∈ l, 0 < x) :
 
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem bounded_base_choice (extended : Bool) (keep : ℕ → Prop)
+theorem certified_chain_choice (extended : Bool) (keep : ℕ → Prop)
     (allowed : ∀ i ∈ ([40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
       58, 60, 61, 62, 63, 64, 65, 66, 67, 69, 70, 71, 72, 74, 75, 76, 77, 78,
       79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95, 124, 133,
@@ -1636,9 +1585,12 @@ theorem bounded_base_choice (extended : Bool) (keep : ℕ → Prop)
       4184, 4233, 4283, 4333, 4384, 4435, 4486, 4536, 4588, 4640, 4692, 4744, 4797, 4849,
       4903, 4957, 5008, 5062, 5117, 5172, 5226, 5282, 5338, 5394, 5448, 5505, 5561, 5618,
       5676, 5734, 5792, 5850, 5909, 5968, 6027, 6086, 6146, 6200] else []) : List ℕ), keep (strictPartitionCount i))
-    (n : ℕ) (lo : 20301 ≤ n) (hi : n ≤ (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834)) :
-    ∃ T : Finset ℕ, (∀ s ∈ T, 1000 ≤ s ∧ keep s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
-      (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n := by
+    : ∃ seed xs : List ℕ,
+    let members := xs ++ seed
+  let st := xs.foldr (fun a (v : ℕ × Bool) => (v.1+a, v.2 && decide (a ≤ v.1+1-20301))) (3069181,true)
+  members.Nodup ∧ (∀ s ∈ members, 1000 ≤ s ∧ keep s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
+  (∀ x ∈ members, ∀ y ∈ members, x ≠ y → ¬ x ∣ y) ∧
+  ((seed.foldr (fun a b => b ||| b <<< a) 1) >>> 20301) % 2^3048881 = 2^3048881-1 ∧ st.2 = true ∧ st.1 = (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834) := by
   let initial : List ℕ := [40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 60, 61, 62, 63, 64, 65, 66, 67, 69, 70, 71, 72, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95]
   let earlier : List ℕ := [
     124, 133, 142, 151, 161, 171, 181, 192, 203, 214, 225, 237, 249, 261, 274, 287, 300, 314, 328,
@@ -1686,23 +1638,168 @@ theorem bounded_base_choice (extended : Bool) (keep : ℕ → Prop)
     cases extended <;> decide +kernel
   have lookup : ms.map strictPartitionCount = as := by cases extended <;> simp only [ms,as,List.map_append] <;> rfl
   have limits : ∀ m ∈ initial ++ ms, 0 < m := by cases extended <;> decide +kernel
-  obtain ⟨T,sub,total⟩ := translate_chain 20301 3069181 seed as.reverse
-    (fun t hl hu => (testBit_foldr seed (List.nodup_append.mp nodup).2.1 t).mp
-      (testBit_of_mask _ _ _ start t hl (by omega))) nodup check.1 n lo (check.2.symm ▸ hi)
-  have member {x : ℕ} (hx : x ∈ T) : x ∈ pool := List.mem_toFinset.mp (sub hx)
-  refine ⟨T, ?_, fun x hx y hy ne dv =>
-    anti x (member hx) y (member hy) ne (Nat.mod_eq_zero_of_dvd dv), total⟩
+  refine ⟨seed,as.reverse,nodup,?_,fun x hx y hy ne dv => anti x hx y hy ne (Nat.mod_eq_zero_of_dvd dv),
+    start,check⟩
   intro x hx
-  refine ⟨terms x (member hx), ?_⟩
+  refine ⟨terms x hx,?_⟩
   have witnessed (m : ℕ) (hm : m ∈ initial ++ ms) (val : x = strictPartitionCount m) :
       keep x ∧ ∃ j : ℕ, 0 < j ∧ x = strictPartitionCount j :=
     ⟨val ▸ allowed m (by cases extended <;> exact hm),m,limits m hm,val⟩
-  rcases List.mem_append.mp (member hx) with ha | hs
+  rcases List.mem_append.mp hx with ha | hs
   · rw [List.mem_reverse, ← lookup] at ha
     obtain ⟨m,hm,eq⟩ := List.mem_map.mp ha
     exact witnessed m (List.mem_append_right _ hm) eq.symm
   · obtain ⟨m,hm,eq⟩ := List.mem_map.mp hs
     exact witnessed m (List.mem_append_left _ hm) eq.symm
+
+/-- The seed bit mask certifies each integer in the starting interval. -/
+theorem seed_interval (seed : List ℕ) (nd : seed.Nodup)
+    (start : ((seed.foldr (fun a b => b ||| b <<< a) 1) >>> 20301) % 2^3048881 = 2^3048881-1) :
+    ∀ t, 20301 ≤ t → t ≤ 3069181 → ∃ T ⊆ seed.toFinset, (∑ x ∈ T, x) = t := by
+  intro t hl hu
+  exact (testBit_foldr seed nd t).mp (testBit_of_mask _ _ _ start t hl (by omega))
+
+/-- Each endpoint is the initial upper bound plus every translation. -/
+theorem chain_endpoint (L U : ℕ) (xs : List ℕ) :
+    (xs.foldr (fun a (v : ℕ × Bool) => (v.1+a,v.2 && decide (a ≤ v.1+1-L))) (U,true)).1 =
+      U + xs.sum := by
+  induction xs with
+  | nil => simp
+  | cons a xs ih =>
+    simp only [List.foldr_cons,List.sum_cons]
+    rw [ih]; omega
+
+/-- Compatible translation lists with arbitrarily large sums suffice for H1.
+A list reaching a given cap leaves no tail obligations for that cap. -/
+theorem H1_of_cumulative_chains (chains : ∀ cap : ℕ, ∃ seed xs : List ℕ,
+    (xs ++ seed).Nodup ∧
+    (∀ s ∈ xs ++ seed, 1000 ≤ s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
+    (∀ x ∈ xs ++ seed, ∀ y ∈ xs ++ seed, x ≠ y → ¬ x ∣ y) ∧
+    ((seed.foldr (fun a b => b ||| b <<< a) 1) >>> 20301) % 2^3048881 = 2^3048881-1 ∧
+    (xs.foldr (fun a (v : ℕ × Bool) => (v.1+a,v.2 && decide (a ≤ v.1+1-20301))) (3069181,true)).2 = true ∧
+    cap ≤ 3069181 + xs.sum) : H1 := by
+  intro cap
+  obtain ⟨seed,xs,nd,terms,anti,start,fit,reach⟩ := chains cap
+  refine ⟨seed,xs,(xs++seed).toFinset,nd,fun s h => ⟨(terms s h).1,List.mem_toFinset.mpr h,(terms s h).2⟩,
+    anti,start,fit,?_⟩
+  intro n hn hc
+  rw [chain_endpoint] at hn
+  omega
+
+/-- Every target in the cumulative interval has a representation using only the listed values. -/
+theorem cumulative_base (seed xs : List ℕ) (keep : ℕ → Prop)
+    (nd : (xs ++ seed).Nodup)
+    (terms : ∀ s ∈ xs ++ seed, 1000 ≤ s ∧ keep s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m)
+    (anti : ∀ x ∈ xs ++ seed, ∀ y ∈ xs ++ seed, x ≠ y → ¬ x ∣ y)
+    (start : ((seed.foldr (fun a b => b ||| b <<< a) 1) >>> 20301) % 2^3048881 = 2^3048881-1) :
+    let st := xs.foldr (fun a (v : ℕ × Bool) => (v.1+a, v.2 && decide (a ≤ v.1+1-20301))) (3069181,true)
+    st.2 = true → ∀ n : ℕ, 20301 ≤ n → n ≤ st.1 →
+    ∃ T : Finset ℕ, (∀ s ∈ T, 1000 ≤ s ∧ keep s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
+      (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n := by
+  intro st fits n lo hi
+  obtain ⟨T,sub,sum⟩ := translate_chain 20301 3069181 seed xs
+    (seed_interval seed (List.nodup_append.mp nd).2.1 start) nd fits n lo hi
+  have member {x : ℕ} (hx : x ∈ T) := List.mem_toFinset.mp (sub hx)
+  exact ⟨T,fun x hx => terms x (member hx),fun x hx y hy => anti x (member hx) y (member hy),sum⟩
+
+theorem bounded_base_choice (extended : Bool) (keep : ℕ → Prop)
+    (allowed : ∀ i ∈ ([40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+      58, 60, 61, 62, 63, 64, 65, 66, 67, 69, 70, 71, 72, 74, 75, 76, 77, 78,
+      79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 92, 93, 94, 95, 124, 133,
+      142, 151, 161, 171, 181, 192, 203, 214, 225, 237, 249, 261, 274, 287, 300, 314, 328, 342,
+      356, 371, 386, 401, 417, 433, 449, 466, 483, 500, 517, 535, 553, 571, 590, 608, 627, 646,
+      665, 685, 705, 726, 747, 768, 789, 811, 833, 855, 878, 900, 923, 945, 969, 993, 1017, 1040,
+      1065, 1090, 1116, 1142, 1168, 1194, 1221, 1248, 1274, 1302, 1330, 1358, 1386, 1415, 1444, 1473, 1503, 1533,
+      1562, 1591, 1622, 1653, 1684, 1716, 1748, 1779, 1812, 1845, 1876, 1909, 1943, 1976, 2010, 2045, 2080, 2114,
+      2149, 2166, 2167, 2168, 2169, 2170, 2171, 2172, 2173, 2174, 2175, 2176, 2177, 2178, 2179, 2180, 2181, 2182,
+      2183, 2185, 2186, 2187, 2188, 2189, 2190, 2191, 2192, 2193, 2194, 2197, 2199, 2200] ++ (if extended then [2367, 2404, 2441, 2479, 2517, 2556, 2595, 2634, 2674, 2714, 2754, 2794, 2835, 2876,
+      2917, 2957, 2998, 3040, 3082, 3125, 3168, 3211, 3255, 3299, 3343, 3387, 3432, 3477,
+      3521, 3567, 3613, 3659, 3706, 3753, 3800, 3847, 3895, 3943, 3991, 4039, 4086, 4135,
+      4184, 4233, 4283, 4333, 4384, 4435, 4486, 4536, 4588, 4640, 4692, 4744, 4797, 4849,
+      4903, 4957, 5008, 5062, 5117, 5172, 5226, 5282, 5338, 5394, 5448, 5505, 5561, 5618,
+      5676, 5734, 5792, 5850, 5909, 5968, 6027, 6086, 6146, 6200] else []) : List ℕ), keep (strictPartitionCount i))
+    (n : ℕ) (lo : 20301 ≤ n) (hi : n ≤ (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834)) :
+    ∃ T : Finset ℕ, (∀ s ∈ T, 1000 ≤ s ∧ keep s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
+      (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n := by
+  obtain ⟨seed,xs,nd,terms,anti,start,fits,eq⟩ := certified_chain_choice extended keep allowed
+  exact cumulative_base seed xs keep nd terms anti start fits n lo (eq.symm ▸ hi)
+
+/-- The two fixed bases are instances of the cumulative certificate. -/
+theorem H1_of_fixed_bases (previous : ∀ cap : ℕ, ∃ extended : Bool,
+  let seed := List.range' 40 19 ++ List.range' 60 8 ++ List.range' 69 4 ++
+    List.range' 74 17 ++ List.range' 92 4
+  let indices : List ℕ := seed ++ [124, 133,
+      142, 151, 161, 171, 181, 192, 203, 214, 225, 237, 249, 261, 274, 287, 300, 314, 328, 342,
+      356, 371, 386, 401, 417, 433, 449, 466, 483, 500, 517, 535, 553, 571, 590, 608, 627, 646,
+      665, 685, 705, 726, 747, 768, 789, 811, 833, 855, 878, 900, 923, 945, 969, 993, 1017, 1040,
+      1065, 1090, 1116, 1142, 1168, 1194, 1221, 1248, 1274, 1302, 1330, 1358, 1386, 1415, 1444, 1473, 1503, 1533,
+      1562, 1591, 1622, 1653, 1684, 1716, 1748, 1779, 1812, 1845, 1876, 1909, 1943, 1976, 2010, 2045, 2080, 2114,
+      2149] ++ List.range' 2166 18 ++ [2185, 2186, 2187, 2188, 2189, 2190, 2191, 2192, 2193, 2194, 2197, 2199, 2200] ++ (if extended then [2367, 2404, 2441, 2479, 2517, 2556, 2595, 2634, 2674, 2714, 2754, 2794, 2835, 2876,
+      2917, 2957, 2998, 3040, 3082, 3125, 3168, 3211, 3255, 3299, 3343, 3387, 3432, 3477,
+      3521, 3567, 3613, 3659, 3706, 3753, 3800, 3847, 3895, 3943, 3991, 4039, 4086, 4135,
+      4184, 4233, 4283, 4333, 4384, 4435, 4486, 4536, 4588, 4640, 4692, 4744, 4797, 4849,
+      4903, 4957, 5008, 5062, 5117, 5172, 5226, 5282, 5338, 5394, 5448, 5505, 5561, 5618,
+      5676, 5734, 5792, 5850, 5909, 5968, 6027, 6086, 6146, 6200] else [])
+  ∃ pool : Finset ℕ, (∀ i ∈ indices, strictPartitionCount i ∈ pool) ∧
+  ∀ n : ℕ, (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834) < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
+    A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
+    (∀ z ∈ A, 1000 ≤ z ∧ z ∈ pool ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m)) ∧
+    (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
+    ∀ z ∈ A, ∀ s, 1000 ≤ s → (s ∈ pool ∧ (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m)) →
+      (s = r ∨ s + 1000 ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s) : H1 := by
+  intro cap
+  obtain ⟨extended,pool,allowed,tail⟩ := previous cap
+  obtain ⟨seed,xs,nd,terms,anti,start,fits,eq⟩ := certified_chain_choice extended (· ∈ pool) allowed
+  exact ⟨seed,xs,pool,nd,terms,anti,start,fits,fun n hn => tail n (eq ▸ hn)⟩
+
+/-- Choosing all values recovers the previous unrestricted descent condition. -/
+theorem H1_of_unrestricted (tail : ∀ n : ℕ, 60041801547539377118140226416919083619432043396280785479393 < n → ∃ A : Finset ℕ, ∃ r : ℕ,
+    A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
+    (∀ z ∈ A, 1000 ≤ z ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m)) ∧
+    (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
+    ∀ z ∈ A, ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) →
+      (s = r ∨ s + 1000 ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s) : H1 := by
+  apply H1_of_fixed_bases
+  intro cap
+  refine ⟨true, finite_support _ _ _ (fun _ => True) _ _ _ cap (fun _ _ => trivial) ?_⟩
+  intro n hn _
+  obtain ⟨A,r,ne,total,lo,terms,band,safe⟩ := tail n hn
+  exact ⟨A,r,ne,total,lo,fun z hz => ⟨(terms z hz).1,trivial,(terms z hz).2⟩,
+    band,fun z hz s hs qs => safe z hz s hs qs.2⟩
+
+/-- A singleton in the interval for a target supplies the entire descent witness. -/
+theorem H1_of_intervals (cover : ∀ n : ℕ, 60041801547539377118140226416919083619432043396280785479393 < n →
+    ∃ a : ℕ, (∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ 1000 ≤ a ∧
+      a+20301 ≤ n ∧ n < 2*a+1000 ∧ n ≠ 2*a ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a) :
+    H1 := by
+  apply H1_of_unrestricted
+  intro n hn
+  obtain ⟨a,qa,big,lo,hi,ne,prim⟩ := cover n hn
+  refine ⟨{a},n-a,singleton_nonempty _,by simp; omega,by omega,?_,?_,?_⟩
+  · simpa using And.intro big qa
+  · simpa using (show a < 2*a by omega)
+  · simpa using primitive_step a (n-a) big prim (by omega) (by omega)
+
+/-- Successive primitive values suffice when their unpunctured intervals touch. -/
+theorem H1_of_spacing (a : ℕ → ℕ)
+    (values : ∀ i, (∃ m : ℕ, 0 < m ∧ a i = strictPartitionCount m) ∧ 1000 ≤ a i ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a i → ¬ s ∣ a i)
+    (start : a 0 + 20301 ≤ 60041801547539377118140226416919083619432043396280785479394)
+    (spacing : ∀ i, a (i+1) + 20301 ≤ 2*a i) (unbounded : ∀ n, ∃ i, n < 2*a i) : H1 := by
+  apply H1_of_unrestricted
+  exact tail_of_supported_spacing _ a 1000 20301 _ (by decide)
+    (fun i => ⟨(values i).2.1,(values i).1⟩) (fun i => (values i).2.2) start spacing unbounded
+
+/-- The primitive-window assumption reported for R9 in desk note #95249 implies H1. -/
+theorem H1_of_windows (windows : ∀ x : ℕ, 19290627658796608 / 2 + 1 ≤ x →
+    ∃ a : ℕ, (∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m) ∧ x ≤ a ∧ 2*a ≤ 3*x ∧
+      ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → 2*s ≤ a → ¬ s ∣ a) :
+    H1 := by
+  apply H1_of_intervals
+  intro n hn
+  obtain ⟨a,qa,lo,hi,h⟩ := windows (n/2+1) (by omega)
+  exact ⟨a,qa,by omega,by omega,by omega,by omega,h⟩
 
 /-- The original support and cutoff remain available. -/
 theorem bounded_base_supported (keep : ℕ → Prop)
@@ -1728,6 +1825,49 @@ theorem bounded_base (n : ℕ) (lo : 20301 ≤ n) (hi : n ≤ 600418015475393771
   obtain ⟨T,good,anti,total⟩ := bounded_base_choice true (fun _ => True) (fun _ _ => trivial) n lo hi
   exact ⟨T,fun s hs => ⟨(good s hs).1,(good s hs).2.2⟩,anti,total⟩
 
+set_option maxRecDepth 100000 in
+set_option maxHeartbeats 0 in
+/-- One more compatible value fits the full interval even though it fails the
+last-witness spacing test. -/
+theorem cumulative_6261 (n : ℕ) (lo : 20301 ≤ n)
+    (hi : n ≤ 117585370686027559662643757284258443412032291879287777404897) :
+    ∃ T : Finset ℕ, (∀ s ∈ T, 1000 ≤ s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
+      (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n := by
+  let U := 60041801547539377118140226416919083619432043396280785479393
+  by_cases small : n ≤ U
+  · exact bounded_base n lo small
+  let a := strictPartitionCount 6261
+  have last_value (xs vs : List ℕ) (i v : ℕ) (h : xs.map strictPartitionCount = vs)
+      (he : (xs ++ [i]).map strictPartitionCount = vs ++ [v]) : strictPartitionCount i = v := by
+    rw [List.map_append,h] at he
+    simpa using he
+  have val : a = 57543569138488182544503530867339359792600248483006991925504 :=
+    last_value _ _ _ _ (chain_coefficients false).2.2 (chain_coefficients true).2.2
+  have approved (first mid last x y z : List ℕ)
+      (h₁ : first.map strictPartitionCount = x) (h₂ : mid.map strictPartitionCount = y)
+      (h₃ : last.map strictPartitionCount = z)
+      (ok : ∀ b ∈ x ++ y ++ z, ¬ b ∣ 57543569138488182544503530867339359792600248483006991925504 ∧ ¬ 57543569138488182544503530867339359792600248483006991925504 ∣ b)
+      (i : ℕ) (hi : i ∈ (first ++ mid) ++ last) : ¬ strictPartitionCount i ∣ a ∧ ¬ a ∣ strictPartitionCount i := by
+    have h : strictPartitionCount i ∈ ((first ++ mid) ++ last).map strictPartitionCount :=
+      List.mem_map.mpr ⟨i,hi,rfl⟩
+    rw [List.map_append,List.map_append,h₁,h₂,h₃] at h
+    rw [val]; exact ok _ h
+  obtain ⟨T,good,anti,total⟩ := bounded_base_choice true (fun s => ¬ s ∣ a ∧ ¬ a ∣ s)
+    (approved _ _ _ _ _ _ chain_coefficients.1 chain_coefficients.2.1 chain_coefficients.2.2 (by decide +kernel)) (n-a) (by dsimp only [U] at small; omega)
+    (by change n-a ≤ 60041801547539377118140226416919083619432043396280785479393; omega)
+  have fresh : a ∉ T := fun h => (good a h).2.1.1 dvd_rfl
+  refine ⟨insert a T,?_,?_,by rw [sum_insert fresh,total]; dsimp only [U] at small; omega⟩
+  · intro s hs
+    rcases mem_insert.mp hs with eq | ht
+    · rw [eq]; exact ⟨by omega,6261,by decide,rfl⟩
+    · exact ⟨(good s ht).1,(good s ht).2.2⟩
+  · intro x hx y hy ne
+    rcases mem_insert.mp hx with ex | xt <;> rcases mem_insert.mp hy with ey | yt
+    · exact (ne (ex.trans ey.symm)).elim
+    · rw [ex]; exact (good y yt).2.1.2
+    · rw [ey]; exact (good x xt).2.1.1
+    · exact anti x xt y yt ne
+
 theorem main : H1 → H2 → type_of% @OMA.S_oeis_a000009.main := by
   intro localTail residual
   refine ⟨?_, fun n hn => ?_⟩
@@ -1736,9 +1876,9 @@ theorem main : H1 → H2 → type_of% @OMA.S_oeis_a000009.main := by
     · obtain ⟨T,g,anti,total⟩ := H1_le n hn (by omega)
       obtain ⟨k,a,ga,hs,ha⟩ := rep_of_finset T g anti
       exact ⟨k,a,ga,hs.trans total,ha⟩
-    obtain ⟨extended,pool,allowed,tail⟩ := localTail n
+    obtain ⟨seed,xs,pool,nd,terms,anti,start,fits,tail⟩ := localTail n
     obtain ⟨T,g,anti,total⟩ := descent (fun a => a ∈ pool ∧ ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m)
-      1000 20301 (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834) n (by decide) (bounded_base_choice extended (· ∈ pool) allowed)
+      1000 20301 _ n (by decide) (cumulative_base seed xs (· ∈ pool) nd terms anti start fits)
       tail n (by omega) le_rfl
     obtain ⟨k,a,ga,hs,ha⟩ := rep_of_finset T (fun x hx => (g x hx).2.2) anti
     exact ⟨k,a,ga,hs.trans total,ha⟩
