@@ -26,8 +26,9 @@ private theorem erh_prime_cover_card (K : Type) [Field K] [NumberField K]
   have hT : (T : Set (Ideal (𝓞 K))) = J.primesOver (𝓞 K) :=
     IsDedekindDomain.coe_primesOverFinset hJ (𝓞 K)
   have hcard : T.card = Fintype.card (J.primesOver (𝓞 K)) := by
-    rw [← Set.ncard_coe_finset, hT, Set.ncard_eq_toFinset_card]
-    simp
+    calc
+      T.card = Fintype.card (T : Set (Ideal (𝓞 K))) := by simp
+      _ = _ := Fintype.card_congr (Equiv.setCongr hT)
   change T.card ≤ _
   rw [hcard, ← Ideal.sum_ramification_inertia_eq_finrank J (𝓞 K)]
   calc
@@ -96,7 +97,7 @@ theorem OMA.solution : OMA.R_ERH_extended_riemann_hypothesis_R1_H2_R1_H2_R1.H1 :
   classical
   intro K _ _ P N a ε hε
   let d := Module.finrank ℤ (𝓞 K)
-  obtain ⟨C, hC⟩ := erh_distinct_factor_bound ((2 : ℝ)^d) (by positivity) ε hε
+  obtain ⟨C, hC⟩ := erh_distinct_factor_bound ((2 : ℝ)^d) (one_le_pow₀ (by norm_num)) ε hε
   apply IsBigO.of_bound C
   filter_upwards [eventually_ge_atTop (1 : ℕ)] with n hn
   let U := n.primeFactors.biUnion
