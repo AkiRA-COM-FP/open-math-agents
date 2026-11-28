@@ -1,6 +1,6 @@
 import FormalConjectures.LittProblems.«1»
 
-/-! Shorter proof of `LamLitt.lam_litt.variants.eisenstein`. -/
+/-! Eisenstein theorem proof, following @LordMike (#706) and @joshuadc11 (#15808). -/
 
 open PowerSeries Polynomial
 
@@ -24,13 +24,11 @@ theorem OMA.solution : type_of% @LamLitt.lam_litt.variants.eisenstein := by
   have hD : Pm.derivative.eval f ≠ 0 := by
     rw [hPm, Polynomial.derivative_map, Polynomial.eval_map, ← Polynomial.aeval_def]; exact hDa
   set D := Pm.derivative.eval f
-  have hex : ∃ n, PowerSeries.coeff n D ≠ 0 := by
-    by_contra h; push Not at h; exact hD (by ext n; simpa using h n)
-  set m := Nat.find hex
+  set m := D.order.toNat
   set u0 := PowerSeries.coeff m D
-  have hu0 : u0 ≠ 0 := Nat.find_spec hex
-  have hlt : ∀ i < m, PowerSeries.coeff i D = 0 := fun i hi => by
-    have := Nat.find_min hex hi; push Not at this; exact this
+  have hu0 : u0 ≠ 0 := PowerSeries.coeff_order hD
+  have hlt : ∀ i < m, PowerSeries.coeff i D = 0 :=
+    fun i hi => PowerSeries.coeff_of_lt_order_toNat i hi
   set s0 : Finset ℚ := P.support.biUnion fun i => (P.coeff i).support.image (P.coeff i).coeff with hs0
   set s : Finset ℚ := insert 0 (insert u0⁻¹ (s0 ∪ (Finset.range (m + 1)).image (PowerSeries.coeff · f))) with hs
   have hspos : (∏ q ∈ s, q.den) ≠ 0 := Finset.prod_ne_zero_iff.mpr fun q _ => q.den_nz
@@ -40,17 +38,15 @@ theorem OMA.solution : type_of% @LamLitt.lam_litt.variants.eisenstein := by
   have hRmem : ∀ q ∈ s, q ∈ R := fun q hq => by
     obtain ⟨c, hc⟩ := Finset.dvd_prod_of_mem (fun x : ℚ => x.den) hq
     have hq' : q = ((q.num * c : ℤ) : ℚ) * (1 / N) := by
-      have hd : (q.den : ℚ) ≠ 0 := by exact_mod_cast q.den_nz
-      have hN' : (N : ℚ) ≠ 0 := by exact_mod_cast hspos
-      have h1 : (q.den : ℚ) * q = q.num := by rw [mul_comm]; exact Rat.mul_den_eq_num q
       have hcN : (N : ℚ) = q.den * c := by exact_mod_cast hc
-      rw [hcN] at hN' ⊢; push_cast; field_simp
-      have : (c : ℚ) ≠ 0 := right_ne_zero_of_mul hN'
-      rw [← h1]; field_simp
+      rw [mul_one_div, eq_div_iff (by exact_mod_cast hspos : (N : ℚ) ≠ 0),
+        hcN, ← mul_assoc, Rat.mul_den_eq_num]
+      push_cast
+      rfl
     exact hq' ▸ Subalgebra.mul_mem _ (Subalgebra.intCast_mem _ _) (Algebra.subset_adjoin rfl)
   let serR : Subring ℚ⟦X⟧ := (PowerSeries.map R.subtype).range
   have mser {p : ℚ⟦X⟧} : p ∈ serR ↔ ∀ n, PowerSeries.coeff n p ∈ R :=
-    ⟨by rintro ⟨q, rfl⟩ n; simp, fun h => ⟨PowerSeries.mk fun n => ⟨PowerSeries.coeff n p, h n⟩, by ext; simp⟩⟩
+    ⟨by rintro ⟨q, rfl⟩ n; simp, fun h => ⟨p.toSubring R h, p.map_toSubring R h⟩⟩
   have hPcoef (i : ℕ) : Pm.coeff i ∈ serR := mser.2 fun n => by
     rw [hPm, Polynomial.coeff_map, show PowerSeries.coeff n (algebraMap ℚ[X] ℚ⟦X⟧ (P.coeff i)) =
       (P.coeff i).coeff n from Polynomial.coeff_coe _ _]

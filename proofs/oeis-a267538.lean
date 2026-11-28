@@ -5,46 +5,28 @@ namespace OMA.S_oeis_a267538
 
 
 
+/-- Rule 143 is on when the left cell is off or both other cells are on. -/
+private lemma rule_truth_table (l c r : Bool) : rule l c r = (!l || (c && r)) := by
+  cases l <;> cases c <;> cases r <;> decide
+
 /-- One step from a single ON cell (relative position `d`). -/
 lemma step0 (d : ℤ) :
     rule (decide (d - 1 = 0)) (decide (d = 0)) (decide (d + 1 = 0)) = decide (d ≠ 1) := by
-  rcases (by omega : d ≤ -2 ∨ d = -1 ∨ d = 0 ∨ d = 1 ∨ d = 2 ∨ 3 ≤ d) with h | h | h | h | h | h
-  · rw [decide_eq_false (by omega : ¬ d - 1 = 0), decide_eq_false (by omega : ¬ d = 0),
-      decide_eq_false (by omega : ¬ d + 1 = 0), decide_eq_true (by omega : d ≠ 1)]; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_false (by omega : ¬ d - 1 = 0), decide_eq_false (by omega : ¬ d = 0),
-      decide_eq_false (by omega : ¬ d + 1 = 0), decide_eq_true (by omega : d ≠ 1)]; decide
+  simp only [rule_truth_table, ← decide_not, ← Bool.decide_and, ← Bool.decide_or, decide_eq_decide]
+  omega
 
 /-- One step from a single OFF cell at relative position 0 on an ON background. -/
 lemma step1 (d : ℤ) :
     rule (decide (d - 1 ≠ 0)) (decide (d ≠ 0)) (decide (d + 1 ≠ 0)) = decide (d ≠ -1 ∧ d ≠ 0) := by
-  rcases (by omega : d ≤ -2 ∨ d = -1 ∨ d = 0 ∨ d = 1 ∨ 2 ≤ d) with h | h | h | h | h
-  · rw [decide_eq_true (by omega : d - 1 ≠ 0), decide_eq_true (by omega : d ≠ 0),
-      decide_eq_true (by omega : d + 1 ≠ 0), decide_eq_true (by omega : d ≠ -1 ∧ d ≠ 0)]; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_true (by omega : d - 1 ≠ 0), decide_eq_true (by omega : d ≠ 0),
-      decide_eq_true (by omega : d + 1 ≠ 0), decide_eq_true (by omega : d ≠ -1 ∧ d ≠ 0)]; decide
+  simp only [rule_truth_table, ← decide_not, ← Bool.decide_and, ← Bool.decide_or, decide_eq_decide]
+  omega
 
 /-- One step from an OFF pair at relative positions 0, 1 on an ON background. -/
 lemma step2 (d : ℤ) :
     rule (decide (d - 1 ≠ 0 ∧ d - 1 ≠ 1)) (decide (d ≠ 0 ∧ d ≠ 1)) (decide (d + 1 ≠ 0 ∧ d + 1 ≠ 1)) =
       decide (d ≠ -1 ∧ d ≠ 0) := by
-  rcases (by omega : d ≤ -2 ∨ d = -1 ∨ d = 0 ∨ d = 1 ∨ d = 2 ∨ 3 ≤ d) with h | h | h | h | h | h
-  · rw [decide_eq_true (by omega : d - 1 ≠ 0 ∧ d - 1 ≠ 1), decide_eq_true (by omega : d ≠ 0 ∧ d ≠ 1),
-      decide_eq_true (by omega : d + 1 ≠ 0 ∧ d + 1 ≠ 1),
-      decide_eq_true (by omega : d ≠ -1 ∧ d ≠ 0)]; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_true (by omega : d - 1 ≠ 0 ∧ d - 1 ≠ 1), decide_eq_true (by omega : d ≠ 0 ∧ d ≠ 1),
-      decide_eq_true (by omega : d + 1 ≠ 0 ∧ d + 1 ≠ 1),
-      decide_eq_true (by omega : d ≠ -1 ∧ d ≠ 0)]; decide
+  simp only [rule_truth_table, ← decide_not, ← Bool.decide_and, ← Bool.decide_or, decide_eq_decide]
+  omega
 
 lemma s1 (i : ℤ) : state 1 i = decide (i ≠ 1) := step0 i
 

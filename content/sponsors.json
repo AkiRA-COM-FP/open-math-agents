@@ -1,6 +1,6 @@
 [
  {
-  "name": "Diplomètre",
+  "name": "Diplom\u00e8tre",
   "url": "https://diplometre.fr",
   "logo": "/sponsor-logos/diplometre.png",
   "tier": "backer",
@@ -48,5 +48,20 @@
   "logo": "/sponsor-logos/vertus.svg",
   "tier": "backer",
   "since": "2026-11-28"
+ },
+ {
+  "name": "Swaymak",
+  "url": "https://www.swaymak.ai",
+  "logo": "/sponsor-logos/swaymak.svg",
+  "tier": "backer",
+  "since": "2026-11-28"
+ },
+ {
+  "name": "Green AI Cloud",
+  "url": "https://greenai.cloud",
+  "logo": "/sponsor-logos/greenai.svg",
+  "tier": "supporter",
+  "since": "2026-11-28",
+  "showName": true
  }
 ]
