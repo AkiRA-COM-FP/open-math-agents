@@ -5,7 +5,8 @@ The cube interval-growth bound leaves four possible maxima. Single-value and pai
 relations remove vertices and edges from the residual graph. Three forced vertices
 either fail the pair tests or sum to a relation on their own. For larger candidate
 sets, check only triangles satisfying the moment, rank-span and modular support
-bounds. A surviving triangle has four signed sums to inspect up to sign. -/
+bounds. The 306th distinct subset sum must lie within the maximum of the 158th.
+A surviving triangle has four signed sums to inspect up to sign. -/
 
 namespace OMA.R_Erdos1_erdos_1_variants_least_N_9_R2_H1_R1
 open Finset
@@ -198,7 +199,10 @@ lemma table8 : ∀ i j : Fin (256+1), (fun j : ℕ => if j=158 then 306 else 0) 
 lemma count_growth (r K gap : ℕ) (positive : 0<K) (topBound : K≤2^r) (M : ℕ) (A : Finset ℕ) (hc : A.card=r) (hA : IsSumDistinctSet A M)
     (growth : ∀ (C : Finset ℕ → ℤ → ℕ), (∀ B, Monotone (C B)) → (∀ B z, C B z ≤ 2^B.card) →
       (∀ B a, a∉B → ∀ z, C (insert a B) z = C B z + C B (z-a)) →
-      ∀ B : Finset ℕ, B.card=r → (∀ a∈B, a≤M) → ∀ z, C B z=K → K+gap≤C B (z+M)) : gap ≤ M ∧ gap ≤ (A.powerset.image (fun S ↦ S.sum id % M)).card := by
+      ∀ B : Finset ℕ, B.card=r → (∀ a∈B, a≤M) → ∀ z, C B z=K → K+gap≤C B (z+M)) : gap ≤ M ∧ gap ≤ (A.powerset.image (fun S ↦ S.sum id % M)).card ∧
+    ∃ t ∈ A.powerset.image (fun S ↦ S.sum id),
+      ((A.powerset.image (fun S ↦ S.sum id)).filter (· ≤ t)).card = K ∧
+      K + gap ≤ ((A.powerset.image (fun S ↦ S.sum id)).filter (· ≤ t+M)).card := by
   classical
   let val (X : Finset ℕ) : ℤ := (X.sum id : ℕ)
   let P (B : Finset ℕ) (z : ℤ) := B.powerset.filter (fun X => val X ≤ z)
@@ -271,25 +275,52 @@ lemma count_growth (r K gap : ℕ) (positive : 0<K) (topBound : K≤2^r) (M : �
   have large := growth C monoC sizeC stepC A hc (fun a ha => (mem_Icc.mp (hA.1 ha)).2) t hit
   have short := diff (t:ℤ) M
   refine ⟨by omega, ?_⟩
-  let W := P A ((t:ℤ)+M) \ P A (t:ℤ)
-  have window {S} (hs : S ∈ W) :
-      (t:ℤ) < (S.sum id : ℕ) ∧ ((S.sum id : ℕ) : ℤ) ≤ t+M := by
-    obtain ⟨hi,lo⟩ := mem_sdiff.mp hs
-    obtain ⟨hS,hhi⟩ := mem_filter.mp hi
-    exact ⟨lt_of_not_ge (fun h ↦ lo (mem_filter.mpr ⟨hS,h⟩)),hhi⟩
-  have hw (S) (hs : S ∈ W) : S ∈ A.powerset :=
-    (mem_filter.mp (mem_sdiff.mp hs).1).1
-  have hmod : Set.InjOn (fun S : Finset ℕ ↦ S.sum id % M) (W : Set (Finset ℕ)) := by
-    intro X hx Y hy hh
-    have hX := window hx
-    have hY := window hy
-    have heq : X.sum id = Y.sum id := Nat.ModEq.eq_of_abs_lt hh (abs_lt.mpr (by omega))
-    exact congrArg Subtype.val (@hA.2 ⟨X,hw _ hx⟩ ⟨Y,hw _ hy⟩ heq)
-  have hsize := card_le_card (image_subset_image (f := fun S : Finset ℕ ↦ S.sum id % M) hw)
-  rw [card_image_of_injOn hmod] at hsize
-  have hcard := card_sdiff_add_card_eq_card (sub A (show (t:ℤ) ≤ t+M by omega))
-  change W.card + C A t = C A ((t:ℤ)+M) at hcard
-  omega
+  constructor
+  · let W := P A ((t:ℤ)+M) \ P A (t:ℤ)
+    have window {S} (hs : S ∈ W) :
+        (t:ℤ) < (S.sum id : ℕ) ∧ ((S.sum id : ℕ) : ℤ) ≤ t+M := by
+      obtain ⟨hi,lo⟩ := mem_sdiff.mp hs
+      obtain ⟨hS,hhi⟩ := mem_filter.mp hi
+      exact ⟨lt_of_not_ge (fun h ↦ lo (mem_filter.mpr ⟨hS,h⟩)),hhi⟩
+    have hw (S) (hs : S ∈ W) : S ∈ A.powerset :=
+      (mem_filter.mp (mem_sdiff.mp hs).1).1
+    have hmod : Set.InjOn (fun S : Finset ℕ ↦ S.sum id % M) (W : Set (Finset ℕ)) := by
+      intro X hx Y hy hh
+      have hX := window hx
+      have hY := window hy
+      have heq : X.sum id = Y.sum id := Nat.ModEq.eq_of_abs_lt hh (abs_lt.mpr (by omega))
+      exact congrArg Subtype.val (@hA.2 ⟨X,hw _ hx⟩ ⟨Y,hw _ hy⟩ heq)
+    have hsize := card_le_card (image_subset_image (f := fun S : Finset ℕ ↦ S.sum id % M) hw)
+    rw [card_image_of_injOn hmod] at hsize
+    have hcard := card_sdiff_add_card_eq_card (sub A (show (t:ℤ) ≤ t+M by omega))
+    change W.card + C A t = C A ((t:ℤ)+M) at hcard
+    omega
+  · let V := A.powerset.image (fun S ↦ S.sum id)
+    have hmem : t ∈ V := by
+      by_contra hh
+      have incl : P A (t:ℤ) ⊆ P A ((t:ℤ)-1) := by
+        intro S hS
+        obtain ⟨hs,hb⟩ := mem_filter.mp hS
+        have hn : S.sum id ≠ t := fun he ↦ hh (mem_image.mpr ⟨S,hs,he⟩)
+        change ((S.sum id : ℕ) : ℤ) ≤ t at hb
+        exact mem_filter.mpr ⟨hs,show ((S.sum id : ℕ) : ℤ) ≤ (t:ℤ)-1 by omega⟩
+      have hc := card_le_card incl
+      change C A t ≤ C A ((t:ℤ)-1) at hc
+      omega
+    have counts (u : ℕ) : (V.filter (· ≤ u)).card = C A (u:ℤ) := by
+      have he : V.filter (· ≤ u) = (P A (u:ℤ)).image (fun S ↦ S.sum id) := by
+        ext n
+        simp only [V,P,val,mem_filter,mem_image,Nat.cast_le]
+        constructor
+        · rintro ⟨⟨S,hs,rfl⟩,hb⟩
+          exact ⟨S,⟨hs,hb⟩,rfl⟩
+        · rintro ⟨S,⟨hs,hb⟩,rfl⟩
+          exact ⟨⟨S,hs,rfl⟩,hb⟩
+      have hinj : Set.InjOn (fun S : Finset ℕ ↦ S.sum id) (P A (u:ℤ)) := by
+        intro X hx Y hy hh
+        exact congrArg Subtype.val (@hA.2 ⟨X,(mem_filter.mp hx).1⟩ ⟨Y,(mem_filter.mp hy).1⟩ hh)
+      rw [he,card_image_of_injOn hinj]
+    exact ⟨t,hmem,(counts t).trans hit,by rwa [counts,Nat.cast_add]⟩
 lemma all_growth (C : Finset ℕ → ℤ → ℕ) (M : ℕ)
     (monoC : ∀ A, Monotone (C A)) (sizeC : ∀ A z, C A z ≤ 2^A.card)
     (stepC : ∀ A a, a∉A → ∀ z, C (insert a A) z = C A z + C A (z-a)) :
@@ -802,7 +833,6 @@ private theorem forced_triangle (C : Finset ℕ) (D : Finset ℤ) (hD : 0 ∈ D)
   have hpos := hpositive x hx
   have hsum : x+y=z := by omega
   refine ⟨{z},mem_powerset.mpr (singleton_subset_iff.mpr hz),?_⟩
-  change ((({z} : Finset ℕ).sum id : ℕ) : ℤ) - ((C \ {z}).sum id : ℕ) ∈ D
   rw [← heq]
   have hrem : ({x,y,z} : Finset ℕ) \ {z} = {x,y} := by
     ext t
@@ -834,6 +864,8 @@ def H1 : Prop :=
       let V := (W.powersetCard k).image (fun s ↦ s.sum id)
       ∀ hv : V.Nonempty, W.card.choose k ≤ V.max' hv + 1 - V.min' hv) →
     148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % 148)).card →
+    (let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
+     ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+148)).card) →
     (∀ x ∈ R, ∀ y ∈ R, x < y → (y : ℤ) - x ∉ D ∧ (y : ℤ) + x ∉ D) →
     ∃ J ∈ R.powerset, ((J.sum id : ℕ) : ℤ) - ((R \ J).sum id : ℕ) ∈ D
 
@@ -853,6 +885,8 @@ def H2 : Prop :=
       let V := (W.powersetCard k).image (fun s ↦ s.sum id)
       ∀ hv : V.Nonempty, W.card.choose k ≤ V.max' hv + 1 - V.min' hv) →
     148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % 149)).card →
+    (let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
+     ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+149)).card) →
     (∀ x ∈ R, ∀ y ∈ R, x < y → (y : ℤ) - x ∉ D ∧ (y : ℤ) + x ∉ D) →
     ∃ J ∈ R.powerset, ((J.sum id : ℕ) : ℤ) - ((R \ J).sum id : ℕ) ∈ D
 
@@ -872,6 +906,8 @@ def H3 : Prop :=
       let V := (W.powersetCard k).image (fun s ↦ s.sum id)
       ∀ hv : V.Nonempty, W.card.choose k ≤ V.max' hv + 1 - V.min' hv) →
     148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % 150)).card →
+    (let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
+     ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+150)).card) →
     (∀ x ∈ R, ∀ y ∈ R, x < y → (y : ℤ) - x ∉ D ∧ (y : ℤ) + x ∉ D) →
     ∃ J ∈ R.powerset, ((J.sum id : ℕ) : ℤ) - ((R \ J).sum id : ℕ) ∈ D
 
@@ -891,6 +927,8 @@ def H4 : Prop :=
       let V := (W.powersetCard k).image (fun s ↦ s.sum id)
       ∀ hv : V.Nonempty, W.card.choose k ≤ V.max' hv + 1 - V.min' hv) →
     148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % 151)).card →
+    (let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
+     ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+151)).card) →
     (∀ x ∈ R, ∀ y ∈ R, x < y → (y : ℤ) - x ∉ D ∧ (y : ℤ) + x ∉ D) →
     ∃ J ∈ R.powerset, ((J.sum id : ℕ) : ℤ) - ((R \ J).sum id : ℕ) ∈ D
 
@@ -1012,18 +1050,21 @@ theorem main : H1 → H2 → H3 → H4 → OMA.R_Erdos1_erdos_1_variants_least_N
           · exact (hsmall _ h _ hm).le
         · intro S T heq
           exact Subtype.ext (hiq _ (mem_powerset.mp S.property) _ (mem_powerset.mp T.property) heq)
+      have hgrowth := CubeWindow.count_growth 9 158 148 (by decide) (by decide) M A hc hd
+        (fun g mono sz step ↦ (CubeWindow.all_growth g M mono sz step).2.2.2.2.2.2.2.2)
       have hres : 148 ≤ ((B ∪ R).powerset.image (fun S ↦ S.sum id % M)).card := by
-        rw [hRAeq]
-        exact (CubeWindow.count_growth 9 158 148 (by decide) (by decide) M A hc hd
-          (fun g mono sz step ↦ (CubeWindow.all_growth g M mono sz step).2.2.2.2.2.2.2.2)).2
+        rw [hRAeq]; exact hgrowth.2.1
+      let V := (B ∪ R).powerset.image (fun S ↦ S.sum id)
+      have hwin : ∃ t ∈ V, (V.filter (· ≤ t)).card = 158 ∧ 306 ≤ (V.filter (· ≤ t+M)).card := by
+        simpa only [V,hRAeq] using hgrowth.2.2
       have hbig : 3 < C.card := by omega
       have htr : R ∈ C.powersetCard 3 := mem_powersetCard.mpr ⟨hRC,hrc⟩
       clear_value M
       interval_cases M
-      · exact case148 B hboundM hm hcB hprior htwo hBi hbig R htr hq hrank hres edges
-      · exact case149 B hboundM hm hcB hprior htwo hBi hbig R htr hq hrank hres edges
-      · exact case150 B hboundM hm hcB hprior htwo hBi hbig R htr hq hrank hres edges
-      · exact case151 B hboundM hm hcB hprior htwo hBi hbig R htr hq hrank hres edges
+      · exact case148 B hboundM hm hcB hprior htwo hBi hbig R htr hq hrank hres hwin edges
+      · exact case149 B hboundM hm hcB hprior htwo hBi hbig R htr hq hrank hres hwin edges
+      · exact case150 B hboundM hm hcB hprior htwo hBi hbig R htr hq hrank hres hwin edges
+      · exact case151 B hboundM hm hcB hprior htwo hBi hbig R htr hq hrank hres hwin edges
   obtain ⟨J,hJ,hbad⟩ := result
   have hne : J ≠ R \ J := by
     intro hh
