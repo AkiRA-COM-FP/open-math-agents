@@ -18,9 +18,9 @@ def H1 : Prop :=
           ∑ k ∈ S, Complex.exp (2 * Real.pi * Complex.I * (γ₁ - γ₂) * (k : ℝ)) = 0) →
       ∃ (N : ℕ) (_ : NeZero N) (Λ : Finset (ZMod N)), Λ.card = p ∧
         ∀ S ∈ 𝒜, Set.InjOn (fun k : ℤ => (k : ZMod N)) (↑S : Set ℤ) ∧
-          ∀ λ₁ ∈ Λ, ∀ λ₂ ∈ Λ, λ₁ ≠ λ₂ →
+          ∀ ξ₁ ∈ Λ, ∀ ξ₂ ∈ Λ, ξ₁ ≠ ξ₂ →
             ∑ k ∈ S, Complex.exp (2 * Real.pi * Complex.I *
-              (((λ₁.val : ℝ) - (λ₂.val : ℝ)) * ((k : ZMod N).val : ℝ) / (N : ℝ))) = 0
+              (((ξ₁.val : ℝ) - (ξ₂.val : ℝ)) * ((k : ZMod N).val : ℝ) / (N : ℝ))) = 0
 
 /-- Universal tiling for finite cyclic groups. -/
 def H2 : Prop :=
@@ -28,9 +28,9 @@ def H2 : Prop :=
     ∀ (Λ : Finset (ZMod N)) (ℬ : Finset (Finset (ZMod N))),
       Λ.card = p →
       (∀ S ∈ ℬ, S.card = p ∧
-        ∀ λ₁ ∈ Λ, ∀ λ₂ ∈ Λ, λ₁ ≠ λ₂ →
+        ∀ ξ₁ ∈ Λ, ∀ ξ₂ ∈ Λ, ξ₁ ≠ ξ₂ →
           ∑ k ∈ S, Complex.exp (2 * Real.pi * Complex.I *
-            (((λ₁.val : ℝ) - (λ₂.val : ℝ)) * (k.val : ℝ) / (N : ℝ))) = 0) →
+            (((ξ₁.val : ℝ) - (ξ₂.val : ℝ)) * (k.val : ℝ) / (N : ℝ))) = 0) →
       ∃ B : Finset (ZMod N), ∀ S ∈ ℬ, ∀ m : ZMod N,
         ∃! q : {k // k ∈ S} × {b // b ∈ B}, q.1.1 + q.2.1 = m
 
@@ -41,18 +41,18 @@ theorem main : H1 → H2 → OMA.R_Fuglede_FugledeConjecture_variants_dim_1_R1.H
   let residue : ℤ → ZMod N := fun k => k
   let ℬ := 𝒜.image (fun S => S.image residue)
   have hℬ : ∀ U ∈ ℬ, U.card = p ∧
-      ∀ λ₁ ∈ Λ, ∀ λ₂ ∈ Λ, λ₁ ≠ λ₂ →
+      ∀ ξ₁ ∈ Λ, ∀ ξ₂ ∈ Λ, ξ₁ ≠ ξ₂ →
         ∑ k ∈ U, Complex.exp (2 * Real.pi * Complex.I *
-          (((λ₁.val : ℝ) - (λ₂.val : ℝ)) * (k.val : ℝ) / (N : ℝ))) = 0 := by
+          (((ξ₁.val : ℝ) - (ξ₂.val : ℝ)) * (k.val : ℝ) / (N : ℝ))) = 0 := by
     intro U hU
     obtain ⟨S, hS, rfl⟩ := Finset.mem_image.mp hU
     have hinj := (hmod S hS).1
     constructor
     · rw [Finset.card_image_of_injOn hinj]
       exact (h𝒜 S hS).1
-    · intro λ₁ hλ₁ λ₂ hλ₂ hne
+    · intro ξ₁ hξ₁ ξ₂ hξ₂ hne
       rw [Finset.sum_image hinj]
-      exact (hmod S hS).2 λ₁ hλ₁ λ₂ hλ₂ hne
+      exact (hmod S hS).2 ξ₁ hξ₁ ξ₂ hξ₂ hne
   obtain ⟨B, hB⟩ := hcyclic N hN p hp Λ ℬ hΛ hℬ
   let T : Set ℤ := {t | residue t ∈ B}
   refine ⟨T, ?_⟩
