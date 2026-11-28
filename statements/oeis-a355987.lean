@@ -6,6 +6,8 @@ import Mathlib
 Source: https://oeis.org/A355987
 Credit: @bmendonca3
 
+[Lean proof of this statement](https://github.com/bmendonca3/open-math-agents/blob/fc99e76f3f41da57cf134f0c1c843e7f40ab493f/proofs/oeis-a355987.lean)
+
 Entry A355987 (Seiichi Manyama, Jul 22 2022), offset 1, data 1, 3, 13, 61, 421, 2641, 23521, ...
 Formula section:
 a(n) ~ c * n! * n, where c = 0.59962032... - Vaclav Kotesovec, Aug 03 2022
