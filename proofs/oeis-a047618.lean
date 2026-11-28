@@ -64,12 +64,10 @@ theorem sum3 (n : ℕ) (hn : 1 ≤ n) : (a n : ℤ) + a (n + 1) + a (n + 2) = 8 
 end OMA.A047618
 
 theorem OMA.solution : type_of% @OMA.S_oeis_a047618.main := by
-  refine ⟨OMA.A047618.sum3, ?_, ?_, ?_, ?_⟩
-  · intro n hn
-    have h := OMA.A047618.sum3 (n - 2) (by omega)
-    rw [show n - 2 + 1 = n - 1 by omega, show n - 2 + 2 = n by omega] at h
-    push_cast [show 2 ≤ n by omega] at h ⊢
-    linarith
-  · simpa using OMA.A047618.v1 0
-  · simpa using OMA.A047618.v2 0
-  · simpa using OMA.A047618.v3 0
+  refine ⟨OMA.A047618.sum3, by simpa using OMA.A047618.v1 0, by simpa using OMA.A047618.v2 0,
+    by simpa using OMA.A047618.v3 0, ?_⟩
+  intro n hn
+  have h := OMA.A047618.sum3 (n - 2) (by omega)
+  rw [show n - 2 + 1 = n - 1 by omega, show n - 2 + 2 = n by omega] at h
+  push_cast [show 2 ≤ n by omega] at h ⊢
+  linarith
