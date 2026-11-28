@@ -1,4 +1,5 @@
-import Mathlib
+import Mathlib.Algebra.BigOperators.Fin
+import Mathlib.Data.Nat.Choose.Basic
 
 /-!
 # A recurrence for seating arrangements (OEIS A373783)
