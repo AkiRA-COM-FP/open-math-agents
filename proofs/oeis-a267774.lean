@@ -1,144 +1,120 @@
 import OMAStatements.S_oeis_a267774
+import Mathlib
 
-namespace OMA.S_oeis_a267774
+/-!
+Rule 207 switches a cell off only when its left neighbour is ON and the cell itself is OFF.
+From a single ON cell, every stage n >= 1 is ON everywhere except at cell 1. Cell 1 is digit
+n - 1 of row n, so a(n) = 2^(2n+1) - 1 - 2^(n-1) for n >= 1, which gives the recurrence with
+characteristic roots 1, 2, 4 and the generating function.
+-/
 
-open PowerSeries
+namespace R207
+open OMA.S_oeis_a267774 PowerSeries
 
+theorem rule_eq (l c r : Bool) :
+    Nat.testBit 207 (4 * l.toNat + 2 * c.toNat + r.toNat) = (!l || c) := by
+  cases l <;> cases c <;> cases r <;> decide
 
+theorem state_succ (n : ℕ) (x : ℤ) : state 207 (n + 1) x = decide (x ≠ 1) := by
+  induction n generalizing x with
+  | zero =>
+    show step 207 (state 207 0) x = _
+    simp only [step, rule_eq, state]
+    rw [Bool.eq_iff_iff]
+    simp only [Bool.or_eq_true, Bool.not_eq_true', decide_eq_true_eq, decide_eq_false_iff_not]
+    omega
+  | succ n ih =>
+    show step 207 (state 207 (n + 1)) x = _
+    simp only [step, rule_eq, ih]
+    rw [Bool.eq_iff_iff]
+    simp only [Bool.or_eq_true, Bool.not_eq_true', decide_eq_true_eq, decide_eq_false_iff_not]
+    omega
 
-
-
-
-/-- Barker's conjectures. -/
-def Conjecture : Prop :=
-  (∀ n : ℕ, 3 < n → (a n : ℤ) = 7 * a (n - 1) - 14 * a (n - 2) + 8 * a (n - 3)) ∧
-  A = (1 - X + X ^ 2 - 4 * X ^ 3) * ((1 - X) * (1 - 2 * X) * (1 - 4 * X))⁻¹
-
-/-- The pattern from row 1 on: every cell ON except cell `1`. -/
-def pat : ℤ → Bool := fun x => decide (x ≠ 1)
-
-theorem state_one : state 207 1 = pat := by
-  funext x
-  simp only [state, step, pat]
-  rcases (show x ≤ -2 ∨ x = -1 ∨ x = 0 ∨ x = 1 ∨ 2 ≤ x by omega) with h | h | h | h | h
-  · rw [decide_eq_false (show x - 1 ≠ 0 by omega), decide_eq_false (show x ≠ 0 by omega),
-      decide_eq_false (show x + 1 ≠ 0 by omega), decide_eq_true (show x ≠ 1 by omega)]
-    decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_false (show x - 1 ≠ 0 by omega), decide_eq_false (show x ≠ 0 by omega),
-      decide_eq_false (show x + 1 ≠ 0 by omega), decide_eq_true (show x ≠ 1 by omega)]
-    decide
-
-theorem step_pat : step 207 pat = pat := by
-  funext x
-  simp only [step, pat]
-  rcases (show x ≤ -1 ∨ x = 0 ∨ x = 1 ∨ x = 2 ∨ 3 ≤ x by omega) with h | h | h | h | h
-  · rw [decide_eq_true (show x - 1 ≠ 1 by omega), decide_eq_true (show x ≠ 1 by omega),
-      decide_eq_true (show x + 1 ≠ 1 by omega)]
-    decide
-  · subst h; decide
-  · subst h; decide
-  · subst h; decide
-  · rw [decide_eq_true (show x - 1 ≠ 1 by omega), decide_eq_true (show x ≠ 1 by omega),
-      decide_eq_true (show x + 1 ≠ 1 by omega)]
-    decide
-
-theorem state_ge (n : ℕ) (hn : 1 ≤ n) : state 207 n = pat := by
-  induction n, hn using Nat.le_induction with
-  | base => exact state_one
-  | succ n hn ih => rw [show state 207 (n + 1) = step 207 (state 207 n) from rfl, ih, step_pat]
-
-theorem geom_two (k : ℕ) : ∑ i ∈ Finset.range k, 2 ^ i + 1 = 2 ^ k := by
-  induction k with
+theorem geom2 (m : ℕ) : ∑ i ∈ Finset.range m, 2 ^ i + 1 = 2 ^ m := by
+  induction m with
   | zero => simp
-  | succ k ih => rw [Finset.sum_range_succ, pow_succ]; omega
+  | succ m ih => rw [Finset.sum_range_succ, pow_succ]; omega
 
-/-- `a(n) + 2^(n-1) + 1 = 2^(2n+1)` for `n >= 1`. -/
-theorem a_ge (n : ℕ) (hn : 1 ≤ n) : a n + 2 ^ (n - 1) + 1 = 2 ^ (2 * n + 1) := by
-  rw [a, rowValue, state_ge n hn]
-  have hsplit : ∀ i ∈ Finset.range (2 * n + 1),
-      (pat ((n : ℤ) - i)).toNat * 2 ^ i + (if i = n - 1 then 2 ^ i else 0) = 2 ^ i := by
-    intro i hi
-    by_cases h : i = n - 1
-    · rw [if_pos h, pat, decide_eq_false (show ¬((n : ℤ) - (i : ℤ) ≠ 1) by omega)]
+theorem a_eq (k : ℕ) : a (k + 1) + 1 + 2 ^ k = 2 ^ (2 * (k + 1) + 1) := by
+  have h : state 207 (k + 1) = fun x => decide (x ≠ 1) := funext (state_succ k)
+  have hk : k ∈ Finset.range (2 * (k + 1) + 1) := Finset.mem_range.mpr (by omega)
+  have hsum : rowValue (fun x => decide (x ≠ 1)) (k + 1)
+      = ∑ i ∈ Finset.range (2 * (k + 1) + 1), (if i = k then 0 else 2 ^ i) := by
+    unfold rowValue
+    refine Finset.sum_congr rfl fun i _ => ?_
+    by_cases hi : i = k
+    · subst hi
       simp
-    · rw [if_neg h, pat, decide_eq_true (show (n : ℤ) - (i : ℤ) ≠ 1 by omega)]
-      simp
-  have hs : ∑ i ∈ Finset.range (2 * n + 1),
-      ((pat ((n : ℤ) - i)).toNat * 2 ^ i + (if i = n - 1 then 2 ^ i else 0)) =
-      ∑ i ∈ Finset.range (2 * n + 1), 2 ^ i := Finset.sum_congr rfl hsplit
-  rw [Finset.sum_add_distrib, Finset.sum_ite_eq' (Finset.range (2 * n + 1)) (n - 1),
-    if_pos (Finset.mem_range.2 (by omega))] at hs
-  have hg := geom_two (2 * n + 1)
+    · rw [if_neg hi]
+      have hd : decide (((k + 1 : ℕ) : ℤ) - (i : ℤ) ≠ 1) = true := by
+        rw [decide_eq_true_eq]
+        push_cast
+        omega
+      simp only [hd, Bool.toNat_true, one_mul]
+  have hsplit : ∑ i ∈ Finset.range (2 * (k + 1) + 1), (if i = k then 0 else 2 ^ i) + 2 ^ k
+      = ∑ i ∈ Finset.range (2 * (k + 1) + 1), 2 ^ i := by
+    have e : ∑ i ∈ Finset.range (2 * (k + 1) + 1), (if i = k then 2 ^ i else 0) = 2 ^ k := by
+      rw [Finset.sum_ite_eq', if_pos hk]
+    rw [← e, ← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    split_ifs <;> simp
+  have g := geom2 (2 * (k + 1) + 1)
+  unfold a
+  rw [h, hsum]
   omega
 
-theorem a_int (n : ℕ) (hn : 1 ≤ n) : (a n : ℤ) = 2 ^ (2 * n + 1) - 1 - 2 ^ (n - 1) := by
-  have h := a_ge n hn
-  have h' : ((a n + 2 ^ (n - 1) + 1 : ℕ) : ℤ) = ((2 ^ (2 * n + 1) : ℕ) : ℤ) := by rw [h]
-  push_cast at h'
-  linarith
+theorem a_eqZ (n : ℕ) (hn : 1 ≤ n) : (a n : ℤ) + 1 + 2 ^ (n - 1) = 2 ^ (2 * n + 1) := by
+  obtain ⟨k, rfl⟩ : ∃ k, n = k + 1 := ⟨n - 1, by omega⟩
+  rw [Nat.add_sub_cancel]
+  exact_mod_cast a_eq k
 
 theorem a0 : a 0 = 1 := by decide
 
-theorem recurrence (n : ℕ) (hn : 3 < n) :
+theorem recur (n : ℕ) (hn : 3 < n) :
     (a n : ℤ) = 7 * a (n - 1) - 14 * a (n - 2) + 8 * a (n - 3) := by
-  obtain ⟨k, rfl⟩ : ∃ k, n = k + 4 := ⟨n - 4, by omega⟩
-  rw [a_int _ (by omega), a_int _ (by omega), a_int _ (by omega), a_int _ (by omega)]
-  simp only [show k + 4 - 1 = k + 3 by omega, show k + 4 - 2 = k + 2 by omega,
-    show k + 4 - 3 = k + 1 by omega, show k + 3 - 1 = k + 2 by omega,
-    show k + 2 - 1 = k + 1 by omega, show k + 1 - 1 = k by omega]
-  ring
+  obtain ⟨m, rfl⟩ : ∃ m, n = m + 4 := ⟨n - 4, by omega⟩
+  rw [show m + 4 - 1 = m + 3 by omega, show m + 4 - 2 = m + 2 by omega,
+    show m + 4 - 3 = m + 1 by omega]
+  have h4 := a_eqZ (m + 4) (by omega)
+  have h3 := a_eqZ (m + 3) (by omega)
+  have h2 := a_eqZ (m + 2) (by omega)
+  have h1 := a_eqZ (m + 1) (by omega)
+  rw [show m + 4 - 1 = m + 3 by omega] at h4
+  rw [show m + 3 - 1 = m + 2 by omega] at h3
+  rw [show m + 2 - 1 = m + 1 by omega] at h2
+  rw [show m + 1 - 1 = m by omega] at h1
+  linear_combination h4 - 7 * h3 + 14 * h2 - 8 * h1
 
-theorem gf_mul : A * ((1 - X) * (1 - 2 * X) * (1 - 4 * X)) = 1 - X + X ^ 2 - 4 * X ^ 3 := by
-  have hD : A * ((1 - X) * (1 - 2 * X) * (1 - 4 * X)) =
-      A - C 7 * (A * X ^ 1) + C 14 * (A * X ^ 2) - C 8 * (A * X ^ 3) := by
-    simp only [map_ofNat]
-    ring
-  have hN : (1 - X + X ^ 2 - 4 * X ^ 3 : ℚ⟦X⟧) =
-      C 1 * X ^ 0 - C 1 * X ^ 1 + C 1 * X ^ 2 - C 4 * X ^ 3 := by
-    simp only [map_one, map_ofNat]
-    ring
-  rw [hD, hN]
-  ext m
-  simp only [map_add, map_sub, coeff_C_mul, coeff_mul_X_pow', A, coeff_mk]
-  rcases Nat.lt_or_ge m 4 with hm | hm
-  · have e1 : (a 1 : ℤ) = 6 := by rw [a_int 1 le_rfl]; norm_num
-    have e2 : (a 2 : ℤ) = 29 := by rw [a_int 2 (by norm_num)]; norm_num
-    have e3 : (a 3 : ℤ) = 123 := by rw [a_int 3 (by norm_num)]; norm_num
-    have f1 : (a 1 : ℚ) = 6 := by exact_mod_cast e1
-    have f2 : (a 2 : ℚ) = 29 := by exact_mod_cast e2
-    have f3 : (a 3 : ℚ) = 123 := by exact_mod_cast e3
-    interval_cases m <;> norm_num [a0, f1, f2, f3]
-  · have hr := recurrence m (by omega)
-    have hq : (a m : ℚ) = 7 * a (m - 1) - 14 * a (m - 2) + 8 * a (m - 3) := by exact_mod_cast hr
-    have h1 : 1 ≤ m := by omega
-    have h2 : 2 ≤ m := by omega
-    have h3 : 3 ≤ m := by omega
-    have k0 : m - 0 ≠ 0 := by omega
-    have k1 : m - 1 ≠ 0 := by omega
-    have k2 : m - 2 ≠ 0 := by omega
-    have k3 : m - 3 ≠ 0 := by omega
-    simp only [h1, h2, h3, Nat.zero_le, k0, k1, k2, k3, coeff_C, if_true, if_false, hq]
-    ring
+end R207
 
-theorem proof : Conjecture := by
-  refine ⟨recurrence, ?_⟩
-  have h0 : constantCoeff ((1 - X) * (1 - 2 * X) * (1 - 4 * X) : ℚ⟦X⟧) ≠ 0 := by simp
-  rw [← gf_mul, mul_assoc, PowerSeries.mul_inv_cancel _ h0, mul_one]
-
-/-- Control: the first terms listed in the entry. -/
-theorem a_values : a 1 = 6 ∧ a 2 = 29 ∧ a 3 = 123 ∧ a 4 = 503 ∧ a 5 = 2031 := by
-  have h1 := a_ge 1 le_rfl
-  have h2 := a_ge 2 (by norm_num)
-  have h3 := a_ge 3 (by norm_num)
-  have h4 := a_ge 4 (by norm_num)
-  have h5 := a_ge 5 (by norm_num)
-  norm_num at h1 h2 h3 h4 h5
-  omega
-
-end OMA.S_oeis_a267774
-
-theorem OMA.solution : type_of% @OMA.S_oeis_a267774.main :=
-  OMA.S_oeis_a267774.proof
+open PowerSeries in
+theorem OMA.solution : type_of% @OMA.S_oeis_a267774.main := by
+  open OMA.S_oeis_a267774 R207 in
+  refine ⟨recur, ?_⟩
+  have e1 : a 1 = 6 := by have := a_eq 0; norm_num at this; omega
+  have e2 : a 2 = 29 := by have := a_eq 1; norm_num at this; omega
+  have e3 : a 3 = 123 := by have := a_eq 2; norm_num at this; omega
+  have q1 : (a 1 : ℚ) = 6 := by exact_mod_cast e1
+  have q2 : (a 2 : ℚ) = 29 := by exact_mod_cast e2
+  have q3 : (a 3 : ℚ) = 123 := by exact_mod_cast e3
+  rw [PowerSeries.eq_mul_inv_iff_mul_eq (by simp)]
+  rw [show ((1 - X) * (1 - 2 * X) * (1 - 4 * X) : ℚ⟦X⟧)
+        = 1 - C 7 * X ^ 1 + C 14 * X ^ 2 - C 8 * X ^ 3 by simp only [map_ofNat]; ring,
+      show (1 - X + X ^ 2 - 4 * X ^ 3 : ℚ⟦X⟧) = 1 - X ^ 1 + X ^ 2 - C 4 * X ^ 3 by
+        simp only [map_ofNat]; ring,
+      show ∀ p : ℚ⟦X⟧, p * (1 - C 7 * X ^ 1 + C 14 * X ^ 2 - C 8 * X ^ 3)
+        = p - C 7 * (p * X ^ 1) + C 14 * (p * X ^ 2) - C 8 * (p * X ^ 3) from fun p => by ring]
+  ext n
+  simp only [A, map_sub, map_add, coeff_C_mul, coeff_mul_X_pow', coeff_one, coeff_mk]
+  rcases n with _ | _ | _ | _ | n
+  · simp [a0]
+  · simp [a0, q1]; norm_num
+  · simp [a0, q1, q2, coeff_X] <;> norm_num
+  · simp [a0, q1, q2, q3, coeff_X] <;> norm_num
+  · have h := recur (n + 4) (by omega)
+    simp only [show n + 4 - 1 = n + 3 by omega, show n + 4 - 2 = n + 2 by omega,
+      show n + 4 - 3 = n + 1 by omega] at h
+    have hq : (a (n + 4) : ℚ) = 7 * a (n + 3) - 14 * a (n + 2) + 8 * a (n + 1) := by
+      exact_mod_cast h
+    simp only [show n + 1 + 1 + 1 + 1 = n + 4 by ring]
+    simp [hq, coeff_X] <;> ring

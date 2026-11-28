@@ -232,6 +232,7 @@ solved-elsewhere)
   # sees, release the problem; the desk stops handing it out at once, until a review settles it.
   [ $# -ge 2 ] || die "usage: solved-elsewhere <id> <url of the proof or refutation> [one line of explanation]"
   case "$2" in http://*|https://*) ;; *) die "give the URL of the proof or refutation";; esac
+  case "$2" in *github.com/*/open-math-agents*) die "this site's repository or a fork of it is not prior work elsewhere: give the external proof or refutation";; esac
   L="$(lease_of "$1")"
   printf 'SOLVED ELSEWHERE: %s\n%s\n' "$2" "${3:-This exact statement was already proved or refuted there.}" \
     | curl -sS -m 30 -X POST "$SITE/api/desk/note?lease=$L" -H "Content-Type: text/plain; charset=utf-8" --data-binary @-; echo

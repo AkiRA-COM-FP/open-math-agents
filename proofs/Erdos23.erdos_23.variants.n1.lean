@@ -1,72 +1,51 @@
 import FormalConjectures.ErdosProblems.«23»
 
 /-!
-Five-vertex case of Erdos Problem 23, via a kernel-checked finite coloring certificate.
-Credit: @AminAhantab. This shortens an existing proof of a known special case.
-The ten bits encode the unordered edges; the ten triples encode every possible triangle.
+Every triangle-free graph on five vertices becomes bipartite after deleting at most one edge.
+
+Colour the vertices by a predicate `c` and keep exactly the edges whose ends get different
+colours; that subgraph is bipartite, so it is enough to find a `c` for which any two edges
+with equally coloured ends coincide.
+
+* If some vertex `v` has two distinct neighbours `a`, `b`, take `c = G.Adj v`. An edge with
+  equally coloured ends cannot join two neighbours of `v` (triangle), so it joins two
+  non-neighbours, and it avoids `v`, `a`, `b`: only two vertices are left, hence one edge.
+* Otherwise the graph is a matching; colour a vertex by "is the smaller end of its edge".
+  Then no edge has equally coloured ends.
 -/
 
-namespace OMA.Five
-
-def pairs : Fin 10 → Fin 5 × Fin 5 :=
-  ![(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)]
-
-def triples : Fin 10 → Fin 10 × Fin 10 × Fin 10 :=
-  ![(0, 1, 4), (0, 2, 5), (0, 3, 6), (1, 2, 7), (1, 3, 8),
-    (2, 3, 9), (4, 5, 7), (4, 6, 8), (5, 6, 9), (7, 8, 9)]
-
-def TriangleFree (b : Fin 10 → Bool) : Prop :=
-  ∀ t, ¬ (b (triples t).1 = true ∧ b (triples t).2.1 = true ∧
-    b (triples t).2.2 = true)
-
-set_option maxRecDepth 10000 in
-set_option maxHeartbeats 4000000 in
-lemma certificate : ∀ b : Fin 10 → Bool, TriangleFree b →
-    ∃ c : Fin 5 → Fin 2, ∃ k : Fin 10, ∀ e : Fin 10,
-      b e = true → c (pairs e).1 = c (pairs e).2 → e = k := by
-  unfold TriangleFree
-  decide +kernel
-
-lemma enumerate : ∀ a b : Fin 5, a ≠ b →
-    ∃ e : Fin 10, s(a, b) = s((pairs e).1, (pairs e).2) := by
-  decide
-
-end OMA.Five
+open SimpleGraph
 
 theorem OMA.solution : type_of% @Erdos23.erdos_23.variants.n1 := by
-  classical
   intro G hG
-  let b : Fin 10 → Bool := fun e => decide (G.Adj (Five.pairs e).1 (Five.pairs e).2)
-  have ht : Five.TriangleFree b := by
-    intro t
-    intro h
-    have h1 := of_decide_eq_true h.1
-    have h2 := of_decide_eq_true h.2.1
-    have h3 := of_decide_eq_true h.2.2
-    fin_cases t <;> exact hG _ (SimpleGraph.is3Clique_triple_iff.mpr ⟨h1, h2, h3⟩)
-  obtain ⟨c, k, hc⟩ := Five.certificate b ht
-  let H : SimpleGraph (Fin 5) :=
-    { Adj := fun a b => G.Adj a b ∧ c a ≠ c b
-      symm := ⟨fun _ _ h => ⟨h.1.symm, h.2.symm⟩⟩
-      loopless := ⟨fun a h => h.2 rfl⟩ }
-  refine ⟨H, fun _ _ h => h.1, ⟨SimpleGraph.Coloring.mk c (fun h => h.2)⟩, ?_⟩
-  have hs : G.edgeFinset \ H.edgeFinset ⊆ {s((Five.pairs k).1, (Five.pairs k).2)} := by
-    intro e he
-    obtain ⟨heG, heH⟩ := Finset.mem_sdiff.mp he
-    induction e using Sym2.inductionOn with
-    | _ a d =>
-      have had : G.Adj a d := SimpleGraph.mem_edgeFinset.mp heG
-      obtain ⟨i, hi⟩ := Five.enumerate a d had.ne
-      rw [hi] at heG heH ⊢
-      have hg : G.Adj (Five.pairs i).1 (Five.pairs i).2 :=
-        SimpleGraph.mem_edgeFinset.mp heG
-      have hm : c (Five.pairs i).1 = c (Five.pairs i).2 := by
-        by_contra h
-        exact heH (SimpleGraph.mem_edgeFinset.mpr (show H.Adj _ _ from ⟨hg, h⟩))
-      have hik := hc i (by simpa [b] using hg) hm
-      simp [hik]
-  apply Finset.card_le_one.mpr
-  intro e he f hf
-  have he' := hs (by simpa only [Finset.mem_sdiff, SimpleGraph.mem_edgeFinset] using he)
-  have hf' := hs (by simpa only [Finset.mem_sdiff, SimpleGraph.mem_edgeFinset] using hf)
-  exact (Finset.mem_singleton.mp he').trans (Finset.mem_singleton.mp hf').symm
+  -- Five vertices: two pairs avoiding three given distinct vertices are the same pair.
+  have D : ∀ v a b x y x' y' : Fin 5, v ≠ a → v ≠ b → a ≠ b → x ≠ v → x ≠ a → x ≠ b →
+      y ≠ v → y ≠ a → y ≠ b → x ≠ y → x' ≠ v → x' ≠ a → x' ≠ b → y' ≠ v → y' ≠ a → y' ≠ b →
+      x' ≠ y' → x = x' ∧ y = y' ∨ x = y' ∧ y = x' := by decide +kernel
+  classical
+  have tri : ∀ a b c, G.Adj a b → G.Adj a c → G.Adj b c → False :=
+    fun a b c h1 h2 h3 => hG _ (is3Clique_triple_iff.2 ⟨h1, h2, h3⟩)
+  have key : ∃ c : Fin 5 → Prop, ∀ x y x' y', G.Adj x y → (c x ↔ c y) → G.Adj x' y' →
+      (c x' ↔ c y') → s(x, y) = s(x', y') := by
+    by_cases h : ∃ v a b, a ≠ b ∧ G.Adj v a ∧ G.Adj v b
+    · obtain ⟨v, a, b, hab, ha, hb⟩ := h
+      refine ⟨G.Adj v, fun x y x' y' h1 h2 h3 h4 => ?_⟩
+      have nx : ¬ G.Adj v x := fun h => tri v x y h (h2.1 h) h1
+      have ny : ¬ G.Adj v y := fun h => nx (h2.2 h)
+      have nx' : ¬ G.Adj v x' := fun h => tri v x' y' h (h4.1 h) h3
+      have ny' : ¬ G.Adj v y' := fun h => nx' (h4.2 h)
+      have := h1.symm; have := h3.symm; have := h1.ne; have := h3.ne
+      rw [Sym2.eq_iff]
+      apply D v a b <;> grind
+    · refine ⟨fun x => ∃ y, G.Adj x y ∧ x < y, fun x y x' y' h1 h2 h3 h4 => ?_⟩
+      exfalso
+      have := h1.symm; have := h1.ne
+      grind
+  obtain ⟨c, hc⟩ := key
+  refine ⟨G ⊓ (⊤ : SimpleGraph Prop).comap c, inf_le_left, ?_, ?_⟩
+  · simpa using (Coloring.mk c fun h => h.2 : (G ⊓ (⊤ : SimpleGraph Prop).comap c).Coloring Prop).colorable
+  · refine Finset.card_le_one.2 fun e he e' he' => ?_
+    induction e with | _ x y
+    induction e' with | _ x' y'
+    simp at he he'
+    exact hc _ _ _ _ he.1 (by grind) he'.1 (by grind)

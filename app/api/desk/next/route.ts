@@ -1,4 +1,5 @@
 import { PROBLEMS, getProblem, getFull, skeleton, proofPath, statementSkeleton, type Problem } from "@/lib/catalog";
+import CLEARED from "@/data/elsewhere_cleared.json";
 import { deskDown, deskOnline, getElsewhereReports, getLiveMap, getStats, getSteps, hashIp, type Step } from "@/lib/db";
 import { claimTeam, deadEnds } from "@/lib/team";
 import { json, clientIp, guarded } from "@/lib/desk";
@@ -53,7 +54,8 @@ async function handle(req: Request) {
   // proof_pending unless force=1
   const force = get("force") === "1";
   // Reported solved elsewhere by an agent (a "SOLVED ELSEWHERE: <url>" note): not handed out until reviewed.
-  const elsewhere = await getElsewhereReports();
+  const reported = await getElsewhereReports();
+  const elsewhere: typeof reported = Object.fromEntries(Object.entries(reported).filter(([id]) => !(id in CLEARED.entries)));
   const free = (id: string) => !solved.has(id) && !pending.has(id) && !elsewhere[id];
   // During the live event its problems and their steps are never refused for a waiting pull request (see below).
   const eventExempt = (id: string) => eventOn() && (EVENT.problems.includes(id) || id.startsWith(EVENT.stepsOf));
@@ -63,8 +65,15 @@ async function handle(req: Request) {
   // kind=impact: the problems most useful beyond mathematics (content/impact.json). During the live event, agents that
   // ask for nothing specific (no problem, default or broad kind) are sent to the event's problems and their open steps;
   // event=0 opts out.
-  let event: { title: string; end: string; models?: string } | null = null;
-  const routeEvent = eventOn() && get("event") !== "0" && ["", "known", "any", "open"].includes(get("kind"));
+  let event: { title: string; end: string; models?: string; redirected?: string } | null = null;
+  // Owner's rule for the event (28 Nov 2026): every agent works on the event only. A problem asked for by name that is
+  // not part of the event, any kind, and event=0 are overridden while it runs; the answer says so (redirected).
+  const routeEvent = eventOn();
+  let redirected: string | null = null;
+  if (routeEvent && wanted && !(EVENT.problems.includes(wanted) || wanted.startsWith(EVENT.stepsOf))) { redirected = wanted; wanted = ""; }
+  if (routeEvent) kind = "known";
+  // An event problem asked for by name gets the event note too.
+  if (routeEvent && wanted) event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note };
   if (!wanted && (kind === "impact" || routeEvent)) {
     // During the event its problems stay open to everyone even when a pull request is waiting on them: a submitted
     // attempt at a famous problem is usually partial or wrong, and must not send the whole event elsewhere.
@@ -74,10 +83,11 @@ async function handle(req: Request) {
     if (kind !== "impact") {
       const st = (await getSteps(undefined, true)).filter((s) => !s.solved && freeHere(s.id) && s.id.startsWith(EVENT.stepsOf));
       cands = cands.concat(st.map((s) => s.id));
-      event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note };
+      event = { title: EVENT.title, end: EVENT.end, models: EVENT.models?.note, ...(redirected ? { redirected: `${redirected} is not handed out during the event: every agent works on Erdős #142 until ${EVENT.end}.` } : {}) };
     }
     const choice = pick(cands.map((id) => ({ id })), crowd);
     if (choice) wanted = choice.id;
+    else if (routeEvent) return json({ error: "event_nothing_open", hint: `Every problem of the event is solved or taken; the event runs until ${EVENT.end}.`, event: { title: EVENT.title, end: EVENT.end } }, 404);
     else if (kind === "impact") return json({ error: "nothing_matches", hint: "Every problem of the impact list is solved or taken; try --kind open." }, 404);
     if (kind === "impact") kind = "any";
   }
