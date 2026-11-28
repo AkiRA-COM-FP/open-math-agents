@@ -11,6 +11,24 @@ namespace OMA.R_Erdos723_erdos_723_variants_leq_11_R1_H2_R2_H3_R1_H2_R1_H2_R1_H1
 open Finset
 open scoped Classical
 
+private lemma filtered_map_card {α β : Type*} (f : α ↪ β) (u : Finset α)
+    (P : β → Prop) [DecidablePred P] :
+    ((u.map f).filter P).card = (u.filter fun p => P (f p)).card := by
+  classical
+  rw [Finset.filter_map, Finset.card_map]
+  congr 1
+
+private lemma split_filter_count {α : Type*} [Fintype α] [DecidableEq α] (u : Finset α)
+    (P : α → Prop) [DecidablePred P] :
+    (u.filter P).card + (uᶜ.filter P).card = (univ.filter P).card := by
+  classical
+  have disj : Disjoint (u.filter P) (uᶜ.filter P) := by
+    apply Finset.disjoint_left.mpr
+    intro x hx hy
+    exact (Finset.mem_compl.mp (Finset.mem_filter.mp hy).1) (Finset.mem_filter.mp hx).1
+  rw [← Finset.card_union_of_disjoint disj, ← Finset.filter_union]
+  simp
+
 def H1 : Prop :=
   ∀ E : Fin 8 → Fin 111 → Bool,
     let d (p : Fin 111) := (univ.filter fun a => E a p = true).card
@@ -34,24 +52,6 @@ def H2 : Prop :=
     (∀ r : R, (v.filter fun x => r ∈ x).card + (c.filter fun k => r ∈ k).card = 11) ∧
     (∀ r t : R, r ≠ t → (v.filter fun x => r ∈ x ∧ t ∈ x).card +
       (c.filter fun k => r ∈ k ∧ t ∈ k).card = 1)
-
-private lemma filtered_map_card {α β : Type*} (f : α ↪ β) (u : Finset α)
-    (P : β → Prop) [DecidablePred P] :
-    ((u.map f).filter P).card = (u.filter fun p => P (f p)).card := by
-  classical
-  rw [Finset.filter_map, Finset.card_map]
-  congr 1
-
-private lemma split_filter_count {α : Type*} [Fintype α] [DecidableEq α] (u : Finset α)
-    (P : α → Prop) [DecidablePred P] :
-    (u.filter P).card + (uᶜ.filter P).card = (univ.filter P).card := by
-  classical
-  have disj : Disjoint (u.filter P) (uᶜ.filter P) := by
-    apply Finset.disjoint_left.mpr
-    intro x hx hy
-    exact (Finset.mem_compl.mp (Finset.mem_filter.mp hy).1) (Finset.mem_filter.mp hx).1
-  rw [← Finset.card_union_of_disjoint disj, ← Finset.filter_union]
-  simp
 
 theorem main : H1 → H2 → OMA.R_Erdos723_erdos_723_variants_leq_11_R1_H2_R2_H3_R1_H2_R1_H2_R1_H1_R1.H1 := by
   classical
