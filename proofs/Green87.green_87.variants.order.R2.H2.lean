@@ -266,8 +266,9 @@ theorem pref_period (x : Fin J → ℝ) (hx : ∏ j, x j = 1) (n : ℕ) :
 theorem pref_cast (x : Fin J → ℝ) (hx : ∏ j, x j = 1) (n : ℕ) :
     pref x ((n : Fin J).val) = pref x n := by
   change pref x (n%J) = pref x n
-  induction n using Nat.strong_induction_on with
-  | ind n ih =>
+  induction n using Nat.strong_induction_on
+  rename_i n ih
+  ·
     by_cases h : n < J
     · rw [Nat.mod_eq_of_lt h]
     · have hj := NeZero.pos J
@@ -403,7 +404,7 @@ theorem factorial_upper (J : ℕ) (hJ : 0 < J) :
   rw [Stirling.stirlingSeq_one, Stirling.stirlingSeq] at h
   have hh := (div_le_iff₀ (by positivity)).mp h
   rw [Real.sqrt_mul (by norm_num)] at hh
-  convert hh using 1
+  convert (preTransparency := .instances) hh using 1
   field_simp
 
 theorem factorial_lower (J : ℕ) :
@@ -624,7 +625,7 @@ theorem av_cs (l : List LengthLaw) :
       (fun d hd' ↦ mul_nonneg (μ.nonneg d hd') (he d)) (by
         intro d _
         rw [mul_pow]
-        convert mul_le_mul_of_nonneg_left (ih (Bool × α) (extend f d)) (sq_nonneg (μ.weight d)) using 1 <;> ring)
+        convert (preTransparency := .instances) mul_le_mul_of_nonneg_left (ih (Bool × α) (extend f d)) (sq_nonneg (μ.weight d)) using 1 <;> ring)
     rw [← sum_mul,μ.norm,one_mul] at hc
     simpa [av,pow_succ,mul_assoc] using hc
 
@@ -659,7 +660,7 @@ theorem blockMass_lower (i : ℕ) : log 2 ≤ blockMass i := by
     (show a ≤ 2*a by omega)
   unfold blockMass block
   rw [pow_succ, Nat.mul_comm (2^i)]
-  convert he using 1
+  convert (preTransparency := .instances) he using 1
   rw [integral_inv]
   · push_cast
     congr 1
@@ -818,7 +819,7 @@ theorem scale_le_central (J : ℕ) [NeZero J] :
     calc
       _ = ∏ i, (log 2)^(b i) := by rw [prod_pow_eq_pow_sum,(mem_paths b).mp hb]
       _ ≤ _ := ?_
-    apply prod_le_prod₀
+    first | apply prod_le_prod₀ | apply Finset.prod_le_prod
     · intro i _; positivity
     · intro i _; exact pow_le_pow_left₀ hl.le (blockMass_lower i.val) _
   have hmass : 0 ≤ mass b := by unfold mass; positivity
@@ -832,7 +833,7 @@ theorem central_lower (J : ℕ) [NeZero J] :
   have hl := log_pos (by norm_num : (1:ℝ)<2)
   refine le_trans ?_ (scale_le_central J)
   rw [← green_dyadic_power]
-  convert div_le_div_of_nonneg_right (blockScale_bounds J).1 (show 0 ≤ 1+2/log 2 by positivity) using 1
+  convert (preTransparency := .instances) div_le_div_of_nonneg_right (blockScale_bounds J).1 (show 0 ≤ 1+2/log 2 by positivity) using 1
   rw [div_div]; congr 1; ring
 end Green87Blocks
 namespace Green87Blocks
@@ -991,7 +992,7 @@ theorem dyadic_lower_of_slice {J : ℕ} [NeZero J]
   have hcentral : centralSum J ≤ exp 1*poissonSlice J := by
     apply (mul_le_mul_iff_right₀ (show 0 < (2:ℝ)^J by positivity)).mp
     rw [hcount]
-    convert mul_le_mul_of_nonneg_right hfac ha using 1; ring
+    convert (preTransparency := .instances) mul_le_mul_of_nonneg_right hfac ha using 1; ring
   refine le_trans ?_ (slice_le_E J)
   rw [mul_comm (exp 1),← div_div]
   apply (div_le_iff₀ (exp_pos 1)).mpr
@@ -1210,7 +1211,7 @@ theorem all_lower (k : ℕ) (hk : 0 < k) :
   have hS : sqrt J ≤ 2*sqrt K := by
     nlinarith [sqrt_nonneg (J:ℝ),sqrt_nonneg K,sq_sqrt hj.le,sq_sqrt (show 0 ≤ K by linarith)]
   have hC : (J:ℝ)*sqrt J ≤ 4*(K*sqrt K) := by
-    convert mul_le_mul hJ hS (sqrt_nonneg _) (by linarith : 0 ≤ 2*K) using 1; ring
+    convert (preTransparency := .instances) mul_le_mul hJ hS (sqrt_nonneg _) (by linarith : 0 ≤ 2*K) using 1; ring
   have hex : 0 ≤ 1-EFG.delta := by
     dsimp [EFG.delta]; rw [sub_sub_cancel]
     apply div_nonneg _ hl.le
@@ -1255,7 +1256,7 @@ theorem lower_bigO :
   rw [Real.rpow_neg hx.le,show (3/2:ℝ)=1+1/2 by norm_num,Real.rpow_add hx,Real.rpow_one,← Real.sqrt_eq_rpow,← div_eq_mul_inv]
   apply (div_le_iff₀ (by positivity)).mpr
   have h := (div_le_iff₀ (mul_pos hc (mul_pos hx (sqrt_pos.2 hx)))).mp (all_lower k hk)
-  linarith only [show (k:ℝ)^(-EFG.delta) ≤ (c*(EFG.E k/(k:ℝ)))*((1+log k)*sqrt (1+log k)) by convert h using 1; ring]
+  linarith only [show (k:ℝ)^(-EFG.delta) ≤ (c*(EFG.E k/(k:ℝ)))*((1+log k)*sqrt (1+log k)) by convert (preTransparency := .instances) h using 1; ring]
 end Green87Blocks
 open Real Asymptotics Filter
 theorem Green87Blocks.h2_lower :
@@ -1276,7 +1277,7 @@ theorem layer_hasSum {k : ℕ} (f : (Fin k → ℕ) → ℝ) (z : ℝ) (h : HasS
     HasSum (fun q ↦ ∑ a ∈ layer q, f a) z := by
   classical
   have h' := h.tsum_fiberwise (fun a : Fin k → ℕ ↦ ∑ i, a i)
-  convert h' using 1
+  convert (preTransparency := .instances) h' using 1
   funext q
   have hs : ((fun a : Fin k → ℕ ↦ ∑ i, a i) ⁻¹' {q}) = (↑(layer (k:=k) q) : Set (Fin k → ℕ)) := by
     ext a; simp [mem_layer]
@@ -1487,7 +1488,7 @@ theorem lemma51 (k r : ℕ) (hk : 0 < k) :
         rw [sum_mul]; apply sum_congr rfl; intro a _
         rw [mul_right_comm,cell_mass hk]; ring
       _ ≤ _ := by
-        convert mul_le_mul_of_nonneg_right h (pow_nonneg (H_pos hk).le r) using 1
+        convert (preTransparency := .instances) mul_le_mul_of_nonneg_right h (pow_nonneg (H_pos hk).le r) using 1
         dsimp [C]; rw [mul_pow]; ring
   · exact fun σ _ ↦ hG σ
   · exact fun a _ ↦ hF a
@@ -1554,7 +1555,7 @@ theorem layer_eq (k r : ℕ) :
   rw [hsum] at h
   simp_rw [← weight_flat,← mul_assoc] at h
   have hh : (r.factorial:ℝ)⁻¹ * Lsum k r = exp (H k) * ∑ a ∈ EFG.layer r, (EFG.N (k:=k) a:ℝ)*EFG.weight a := by
-    rw [mul_sum]; convert h using 1
+    rw [mul_sum]; convert (preTransparency := .instances) h using 1
     apply sum_congr rfl; intro a _; unfold H; ring
   rw [exp_neg]; unfold H at *
   field_simp at hh ⊢
@@ -1603,7 +1604,7 @@ theorem ae_coords (r : ℕ) : ∀ᵐ x : Fin r → ℝ, Function.Injective x := 
       simpa [LinearMap.mem_ker,l,Pi.single_eq_of_ne h.symm] using hm
     have hh := Measure.addHaar_submodule volume _ hn
     rw [ae_iff]
-    convert hh using 2
+    convert (preTransparency := .instances) hh using 2
     ext x; simp [l,LinearMap.mem_ker,sub_eq_zero]
   change ∀ᵐ x : Fin r → ℝ, ∀ ⦃i j : Fin r⦄, x i = x j → i = j
   apply ae_all_iff.mpr; intro i
@@ -1627,7 +1628,7 @@ theorem simplex_vol (r : ℕ) : (r.factorial:ℝ) * volume.real (simplex r) = 1 
       · change (simplex r).indicator (fun _ ↦ (1:ℝ)) (permute _ x) = 1
         refine Set.indicator_of_mem ?_ _
         rw [permute_eq]
-        exact ⟨⟨fun i ↦ hc.1 _, fun i ↦ hc.2 _⟩,Tuple.monotone_sort _⟩
+        exact ⟨⟨fun i ↦ hc.1 (Tuple.sort x i), fun i ↦ hc.2 (Tuple.sort x i)⟩,Tuple.monotone_sort _⟩
       · intro σ _ hn
         change (simplex r).indicator (fun _ ↦ (1:ℝ)) (permute σ x) = 0
         refine Set.indicator_of_notMem ?_ _
@@ -1645,7 +1646,7 @@ theorem simplex_vol (r : ℕ) : (r.factorial:ℝ) * volume.real (simplex r) = 1 
   have h := integral_congr_ae he
   rw [integral_finsetSum _ (fun σ _ ↦ hi σ),integral_indicator_const _ (show MeasurableSet (cube r) from measurableSet_Icc)] at h
   have hg' (σ) : ∫ x, G σ x = volume.real (simplex r) := by
-    rw [show ∫ x, G σ x = ∫ x, g x from (volume_measurePreserving_piCongrLeft (fun _ : Fin r ↦ ℝ) σ.symm).integral_comp (permute σ).measurableEmbedding _]
+    rw [show ∫ x, G σ x = ∫ x, g x from (volume_measurePreserving_piCongrLeft (fun _ : Fin r ↦ ℝ) σ.symm).integral_comp (permute σ).measurableEmbedding g]
     simp [g,integral_indicator_const _ (simplex_closed r).measurableSet]
   simpa [hg',Fintype.card_perm,cube,Measure.real,Real.volume_Icc_pi] using h
 end
@@ -1882,7 +1883,7 @@ def B := 2*∑' n, G n
 
 theorem Gsum : Summable G := by
   have h : ‖(3/4:ℝ)‖ < 1 := by norm_num
-  convert ((summable_pow_mul_geometric_of_norm_lt_one 2 h).add
+  convert (preTransparency := .instances) ((summable_pow_mul_geometric_of_norm_lt_one 2 h).add
     ((summable_pow_mul_geometric_of_norm_lt_one 1 h).mul_left 2)).add
     ((summable_geometric_of_norm_lt_one h).mul_left 2) using 1
   funext n; dsimp [G]; ring
@@ -1897,7 +1898,7 @@ theorem Wsum (m R : ℕ) : ∑ r ∈ range R, W m r ≤ B := by
   have hf : ∑ r ∈ range m, W m r = ∑ n ∈ range m, G n := by
     rw [← sum_range_reflect (W m) m]; apply sum_congr rfl; intro n hn
     have h := mem_range.mp hn
-    have h1 : m-1-n<m := by omega
+    have h1 : m-1-n < m := by omega
     have h2 : m-1-(m-1-n)=n := by omega
     have h3 : ((m-1-n:ℕ):ℝ) = (m:ℝ)-1-n := by rw [Nat.cast_sub (by omega),Nat.cast_sub (by omega),Nat.cast_one]
     simp [W,kernelW,h1,h2,h3,G]; ring
@@ -1980,7 +1981,7 @@ theorem dyadic {D : ℝ} (hd : 0 ≤ D) (hf : Ford D) (m : ℕ) :
     calc
       _ ≤ y*sqrt y*(D*∑ r ∈ range (cutoff k), F m r x) := mul_le_mul_of_nonneg_left (ford_finite hf m) (by positivity)
       _ = D*(y*sqrt y*∑ r ∈ range (cutoff k), F m r x) := by ring
-      _ ≤ _ := by convert mul_le_mul_of_nonneg_left (scalar m (cutoff k) t x h1 h2 hx) hd using 1; dsimp [Z,y]; ring
+      _ ≤ _ := by convert (preTransparency := .instances) mul_le_mul_of_nonneg_left (scalar m (cutoff k) t x h1 h2 hx) hd using 1; dsimp [Z,y]; ring
   have hbig : y*sqrt y*E k ≤ exp 1 * exp (-x) * ((2*D*B+4*exp 8)*Z) := by
     apply (mul_le_mul_of_nonneg_left (eq54 k hk) (show 0 ≤ y*sqrt y by positivity)).trans
     rw [← (simplex_summable k hk).sum_add_tsum_nat_add (cutoff k)]
@@ -2173,7 +2174,7 @@ theorem ford_of_window {D : ℝ} (hf : WindowFord D) : Ford (max 8 D) := by
       · exact (hf _ _ hr (by omega) hw).trans (mul_le_mul_of_nonneg_right (le_max_right ..) (Mnonneg _ _))
       · push_neg at hw
         exact (low_easy hw.1 hw.2).trans (le_mul_of_one_le_left (Mnonneg _ _) ((by norm_num : (1:ℝ)≤8).trans (le_max_left ..)))
-  convert h using 1 <;> unfold M <;> ring
+  convert (preTransparency := .instances) h using 1 <;> unfold M <;> ring
 
 theorem h2_of_window {D : ℝ} (hf : WindowFord D) :
     (fun k : ℕ ↦ (∑' a : Fin k → ℕ,
@@ -2275,7 +2276,7 @@ theorem w_nonneg (j : ℕ) : 0 ≤ w j := by unfold w p; positivity
 theorem w_sum : Summable w := by
   have h : ‖(1/2:ℝ)‖ < 1 := by norm_num
   have poly (i : ℕ) := summable_pow_mul_geometric_of_norm_lt_one i h
-  convert (((poly 3).add ((poly 2).mul_left 18)).add ((poly 1).mul_left 108)).add ((poly 0).mul_left 216) using 1
+  convert (preTransparency := .instances) (((poly 3).add ((poly 2).mul_left 18)).add ((poly 1).mul_left 108)).add ((poly 0).mul_left 216) using 1
   funext j; dsimp [w,p]; rw [one_div,inv_pow]; ring
 
 theorem geom_exact (n d : ℕ) : envelope n d/(2:ℝ)^n = w (gap n d)/(2:ℝ)^d := by
@@ -2462,7 +2463,7 @@ theorem dyadic_proxy {D : ℝ} (hd : 0 ≤ D) (hf : Ford D) (m : ℕ) :
     calc
       _ ≤ y*sqrt y*(D*∑ r ∈ range (cutoff k), F m r x) := mul_le_mul_of_nonneg_left (ford_finite hf m) (by positivity)
       _ = D*(y*sqrt y*∑ r ∈ range (cutoff k), F m r x) := by ring
-      _ ≤ _ := by convert mul_le_mul_of_nonneg_left (scalar m (cutoff k) t x h1 h2 hx) hd using 1; dsimp [Z,y]; ring
+      _ ≤ _ := by convert (preTransparency := .instances) mul_le_mul_of_nonneg_left (scalar m (cutoff k) t x h1 h2 hx) hd using 1; dsimp [Z,y]; ring
 
   have hbig : y*sqrt y*proxy k ≤ (exp 1/((k:ℝ)+1))*((2*D*B+4*exp 8)*Z) := by
     unfold proxy
@@ -2578,7 +2579,7 @@ theorem Y_le (m r n : ℕ) : Y m r n ≤ 2048*(1+((m:ℝ)-r)^2)*envelope n (r-m)
   let v := 1+((m:ℝ)-r)^2
   have hv : 1 ≤ v := by dsimp [v]; nlinarith [sq_nonneg ((m:ℝ)-r)]
   have hd : (d:ℝ) ≤ v := by
-    by_cases h : m≤r
+    by_cases h : m ≤ r
     · dsimp [d,v]; rw [Nat.cast_sub h]; nlinarith [sq_nonneg ((r:ℝ)-m-1/2)]
     · simp [d,Nat.sub_eq_zero_of_le (le_of_not_ge h)]; linarith
   have hj : 0 ≤ (j:ℝ) := by positivity
@@ -2601,7 +2602,7 @@ theorem Y_le (m r n : ℕ) : Y m r n ≤ 2048*(1+((m:ℝ)-r)^2)*envelope n (r-m)
     have hden : (4:ℝ)^(d-n) ≤ 1024 := (pow_le_pow_right₀ (by norm_num : (1:ℝ) ≤ 4) ha).trans_eq (by norm_num)
     have hpos : 0 ≤ (n:ℝ)+6+m-r := by apply sub_nonneg.mpr; exact_mod_cast (by omega : r ≤ n+6+m)
     have hh : ((n:ℝ)+6+m-r)^2*((n:ℝ)+2) ≤ 2*v*p j := by
-      by_cases h : m≤r
+      by_cases h : m ≤ r
       · have hd' : (d:ℝ) = r-m := by dsimp [d]; rw [Nat.cast_sub h]
         have h1 : (n:ℝ)+6+m-r ≤ j+6 := by linarith
         have h2 : (n:ℝ)+2 ≤ 2*v*(j+6) := by nlinarith [mul_le_mul_of_nonneg_right hv hj]
@@ -2699,8 +2700,8 @@ def R (r m u b t : ℕ) := S r m u ∩ {x | ∃ i : Fin r, ∃ hb : b ≤ i.val,
   u+m*x i ≤ (i.val:ℝ)+2 ∧
   (i.val:ℝ)+1 ≤ u+t+m*x ⟨i.val-b,lt_of_le_of_lt (Nat.sub_le ..) i.isLt⟩}
 def base (r m g : ℕ) : Set (Fin r → ℝ) := if r ≤ m+g+5 then S r m (g+5) else ∅
-def vs (r m g : ℕ) := (range (r+1)).filter (fun u ↦ g+5<u ∧ r<m+u)
-def ss (r u g : ℕ) := (range r).filter (fun s ↦ u-g-3 ≤ s ∧ 2^s<r)
+def vs (r m g : ℕ) := (range (r+1)).filter (fun u ↦ g+5<u ∧ r < m+u)
+def ss (r u g : ℕ) := (range r).filter (fun s ↦ u-g-3 ≤ s ∧ 2^s < r)
 theorem powval (m u : ℕ) (x : ℝ) : (2:ℝ)^u * ((2^m:ℕ):ℝ)^x = (2:ℝ)^((u:ℝ)+m*x) := by
   rw [rpow_add (by norm_num),rpow_natCast,rpow_natCast_mul (by norm_num)]
   push_cast; rfl
@@ -2711,9 +2712,9 @@ theorem barrier_linear {r m u} {x : Fin r → ℝ} (h : barrier m u x) :
   rw [powval,← rpow_natCast (2:ℝ) (i.val+1),rpow_le_rpow_left_iff (by norm_num)] at hh
   exact_mod_cast hh
 
-theorem cover {r m g} (hm : 0<m) {x} (hx : x ∈ T r m g) (hopen : ∀ i, x i < 1) :
+theorem cover {r m g} (hm : 0 < m) {x} (hx : x ∈ T r m g) (hopen : ∀ i, x i < 1) :
     x ∈ base r m g ∪ ⋃ u ∈ vs r m g, ⋃ s ∈ ss r u g, R r m u (2^s) (2*s) := by
-  have valid (u : ℕ) (h : barrier m u x) : r=0 ∨ r<m+u := by
+  have valid (u : ℕ) (h : barrier m u x) : r=0 ∨ r < m+u := by
     by_cases hr : r=0
     · exact Or.inl hr
     right
@@ -2722,7 +2723,7 @@ theorem cover {r m g} (hm : 0<m) {x} (hx : x ∈ T r m g) (hopen : ∀ i, x i < 
     have hi : (i.val:ℝ)+1 = r := by exact_mod_cast (show i.val+1=r by dsimp [i];omega)
     rw [hi] at hh
     have := mul_lt_mul_of_pos_left (hopen i) (show 0<(m:ℝ) by exact_mod_cast hm)
-    exact_mod_cast (show (r:ℝ)<m+u by linarith)
+    exact_mod_cast (show (r:ℝ) < m+u by linarith)
   rcases barrier_or_cluster (u:=g+5) hx (le_refl _) with h | ⟨u,hu,hur,hb,i,hi,s,hs,hsi,hsx⟩
   · left; rw [base,if_pos (by have := valid _ h; omega)]
     exact ⟨hx.1,barrier_linear h⟩
@@ -2736,7 +2737,7 @@ theorem cover {r m g} (hm : 0<m) {x} (hx : x ∈ T r m g) (hopen : ∀ i, x i < 
   · rw [show (4:ℝ)^s*2^g=(2:ℝ)^(2*s+g) by rw [pow_add,pow_mul]; norm_num,powval,←rpow_natCast (2:ℝ) (i.val+1),rpow_le_rpow_left_iff (by norm_num)] at hsx
     push_cast at hsx ⊢; nlinarith only [hsx,show (g:ℝ) ≤ u by exact_mod_cast hu.le.trans' (Nat.le_add_right ..)]
 
-theorem cover_volume {r m g} (hm : 0<m) :
+theorem cover_volume {r m g} (hm : 0 < m) :
     volume.real (T r m g) ≤ volume.real (base r m g) +
       ∑ u ∈ vs r m g, ∑ s ∈ ss r u g, volume.real (R r m u (2^s) (2*s)) := by
   let V := ⋃ u ∈ vs r m g, ⋃ s ∈ ss r u g, R r m u (2^s) (2*s)
@@ -2748,7 +2749,7 @@ theorem cover_volume {r m g} (hm : 0<m) :
     · exact fun _ h ↦ h.1.1
     · exact Set.empty_subset _
   have he := Measure.univ_pi_Ioo_ae_eq_Icc (f:=(0:Fin r → ℝ)) (g:=1) (μ:=fun _ ↦ volume)
-  have hs : T r m g ≤ᵐ[volume] base r m g ∪ V := by
+  have hs : ∀ᵐ x ∂volume, x ∈ T r m g → x ∈ (base r m g ∪ V) := by
     filter_upwards [he] with x hx
     intro h
     have hi : x ∈ Set.univ.pi (fun _ : Fin r ↦ Set.Ioo (0:ℝ) 1) := hx.mpr h.1.1
@@ -2812,18 +2813,18 @@ theorem poly_bound (r m n u s : ℕ) (hu : u ≤ n+s+6) (hl : r ≤ m+u) :
   let A := ((j:ℝ)+6)*((s:ℝ)+8)
   have hj : n ≤ d+j := by dsimp [j,gap]; omega
   have hdiff : (m:ℝ)-r = (e:ℝ)-d := by
-    by_cases h : r≤m
+    by_cases h : r ≤ m
     · simp [e,d,Nat.cast_sub h,Nat.sub_eq_zero_of_le h]
     · simp [e,d,Nat.cast_sub (le_of_not_ge h),Nat.sub_eq_zero_of_le (le_of_not_ge h)]
   have hj' : (n:ℝ) ≤ d+j := by exact_mod_cast hj
   have hu' : (u:ℝ) ≤ n+s+6 := by exact_mod_cast hu
   have hl' : (r:ℝ) ≤ m+u := by exact_mod_cast hl
-  have hA : (j:ℝ)+s+7 ≤ A := by dsimp [A]; nlinarith [mul_nonneg (Nat.cast_nonneg j : (0:ℝ)≤j) (Nat.cast_nonneg s : (0:ℝ)≤s)]
+  have hA : (j:ℝ)+s+7 ≤ A := by dsimp [A]; nlinarith [mul_nonneg (Nat.cast_nonneg j : (0:ℝ)≤j) (Nat.cast_nonneg s : (0:ℝ) ≤ s)]
   have hA1 : 1 ≤ A := by linarith [show 0 ≤ (j:ℝ) by positivity,show 0 ≤ (s:ℝ) by positivity]
   have hp1 : (u:ℝ)+1 ≤ ((d:ℝ)+1)*A := by nlinarith [mul_le_mul_of_nonneg_left hA1 (Nat.cast_nonneg d : (0:ℝ) ≤d)]
   have hp2 : (u:ℝ)+1+m-r ≤ ((e:ℝ)+1)*A := by nlinarith [mul_le_mul_of_nonneg_left hA1 (Nat.cast_nonneg e : (0:ℝ) ≤e)]
   have hde : ((d:ℝ)+1)*((e:ℝ)+1)^2 ≤ 2*(1+((m:ℝ)-r)^2) := by
-    by_cases h : r≤m
+    by_cases h : r ≤ m
     · simp [e,d,Nat.cast_sub h,Nat.sub_eq_zero_of_le h]; nlinarith [sq_nonneg ((m:ℝ)-r-1)]
     · simp [d,e,Nat.sub_eq_zero_of_le (le_of_not_ge h),Nat.cast_sub (le_of_not_ge h)]
       nlinarith [sq_nonneg ((r:ℝ)-m-1)]
@@ -2843,7 +2844,7 @@ theorem Z4_sum : Summable Z4 := by
   let f (n : ℕ) := (n:ℝ)^4 * (1/2:ℝ)^n
   have hf : Summable f := summable_pow_mul_geometric_of_norm_lt_one 4 (by norm_num : ‖(1/2:ℝ)‖<1)
   have h : Summable (fun s : ℕ ↦ f (s+8)) := (summable_nat_add_iff 8).2 hf
-  convert h.mul_left ((2:ℝ)^8) using 1
+  convert (preTransparency := .instances) h.mul_left ((2:ℝ)^8) using 1
   funext s; dsimp [Z4,f]; push_cast; rw [one_div,inv_pow,pow_add]; ring
 
 theorem count_sum (r m n : ℕ) :
@@ -2854,13 +2855,13 @@ theorem count_sum (r m n : ℕ) :
   apply le_trans _ (Z4_sum.sum_le_tsum (range r) (fun i _ ↦ by unfold Z4; positivity))
   apply sum_le_sum; intro s _
   rw [←sum_filter,sum_const,nsmul_eq_mul]
-  have hsub : ((vs r m (n+1)).filter (fun u ↦ u-(n+1)-3≤s ∧ 2^s<r)) ⊆ Ioc (n+1) (n+1+3+s) := by
+  have hsub : ((vs r m (n+1)).filter (fun u ↦ u-(n+1)-3 ≤ s ∧ 2^s < r)) ⊆ Ioc (n+1) (n+1+3+s) := by
     intro u hu; obtain ⟨hv,hh⟩ := mem_filter.mp hu
     have h1 := (mem_filter.mp (show u ∈ (range (r+1)).filter _ from hv)).2
     exact mem_Ioc.mpr ⟨by omega,by omega⟩
   have hh := card_le_card hsub
   rw [Nat.card_Ioc] at hh
-  have hz : (((vs r m (n+1)).filter (fun u ↦ u-(n+1)-3≤s ∧ 2^s<r)).card:ℝ) ≤ (s:ℝ)+8 := by
+  have hz : (((vs r m (n+1)).filter (fun u ↦ u-(n+1)-3 ≤ s ∧ 2^s < r)).card:ℝ) ≤ (s:ℝ)+8 := by
     exact_mod_cast (by omega)
   unfold Z Z4; calc
     _ ≤ ((s:ℝ)+8)*(((s:ℝ)+8)^3/2^s) := mul_le_mul_of_nonneg_right hz (by positivity)
@@ -2929,8 +2930,8 @@ theorem volume_of_ballot_clusters {C D : ℝ} (hc : 0 ≤ C) (hd : 0 ≤ D)
     apply (hR r m u s hr hu1 hs1).trans
     have hh := mul_le_mul hm hp (by dsimp [poly]; positivity) (by positivity)
     have ht := div_le_div_of_nonneg_right (mul_le_mul_of_nonneg_left hh hd) (show 0≤F by dsimp [F]; positivity)
-    convert ht using 1 <;> dsimp [H,E,F,P,d,envelope,Z] <;> ring
-  apply (cover_volume (r:=r) (g:=n+1) (show 0<m by omega)).trans
+    convert (preTransparency := .instances) ht using 1 <;> dsimp [H,E,F,P,d,envelope,Z] <;> ring
+  apply (cover_volume (r:=r) (g:=n+1) (show 0 < m by omega)).trans
   calc
     _ ≤ (2*4096*8^3*C)*H + ∑ u ∈ vs r m (n+1), ∑ s ∈ ss r u (n+1), (512*D*L*H)*Z s :=
       add_le_add hbase (sum_le_sum fun u hu ↦ sum_le_sum fun s hs ↦ hsingle u hu s hs)
@@ -3046,7 +3047,7 @@ theorem exact_volume (n : ℕ) {a u t : ℝ} (ha : 0 ≤ a) (hu : u ≤ a)
       dsimp [F,f]
       have h := (hasDerivAt_id y).add_const u
       have hprod := ((h.pow (n+1)).mul (h.sub_const (((n:ℝ)+1+1)*a))).div_const ((n+2).factorial:ℝ)
-      convert hprod using 1
+      convert (preTransparency := .instances) hprod using 1
       dsimp; simp only [Pi.pow_apply,Pi.mul_apply,id_eq,Nat.add_sub_cancel,one_mul,mul_one,Nat.cast_add,Nat.cast_one,Nat.factorial_succ (n+1),Nat.cast_mul,pow_succ]
       push_cast; field_simp; ring
     calc
@@ -3078,7 +3079,7 @@ theorem upper_volume (n : ℕ) {a u t : ℝ} (ha : 0 ≤ a)
       dsimp [F,f]
       have h := (hasDerivAt_id y).add_const u
       have hprod := ((h.pow (n+1)).mul (h.sub_const (((n:ℝ)+1+1)*a))).div_const ((n+2).factorial:ℝ)
-      convert hprod using 1
+      convert (preTransparency := .instances) hprod using 1
       dsimp; simp only [Pi.pow_apply,Pi.mul_apply,id_eq,Nat.add_sub_cancel,one_mul,mul_one,Nat.cast_add,Nat.cast_one,Nat.factorial_succ (n+1),Nat.cast_mul,pow_succ]
       push_cast; field_simp; ring
     have hF : 0 ≤ F (max 0 b) := by
@@ -3111,7 +3112,7 @@ open MeasureTheory Set Real Green87Measure
 namespace Green87Ball
 noncomputable section
 theorem eq_region {r m u : ℕ} (hm : 0 < m) : S r m u = region r (1/m) (u/m) 1 := by
-  have hm' : (0:ℝ)<m := by exact_mod_cast hm
+  have hm' : (0:ℝ) < m := by exact_mod_cast hm
   ext x
   constructor
   · rintro ⟨⟨⟨h0,h1⟩,hmo⟩,hh⟩
@@ -3121,30 +3122,30 @@ theorem eq_region {r m u : ℕ} (hm : 0 < m) : S r m u = region r (1/m) (u/m) 1 
     refine ⟨⟨⟨fun i ↦ (le_max_left ..).trans (h i).1,fun i ↦ (h i).2⟩,hmo⟩,fun i ↦ ?_⟩
     have hi := (le_max_right ..).trans (h i).1
     field_simp at hi; nlinarith
-theorem S_exact (n m u : ℕ) (hm : 0<m) (hu : u≤1) (hr : n+1≤m+u) :
+theorem S_exact (n m u : ℕ) (hm : 0 < m) (hu : u≤1) (hr : n+1 ≤ m+u) :
     volume.real (S (n+1) m u) =
       (1+(u:ℝ)/m)^n * ((m+u-(n+1):ℝ)/m) / (n+1).factorial := by
-  have hp : (0:ℝ)<m := by exact_mod_cast hm
+  have hp : (0:ℝ) < m := by exact_mod_cast hm
   rw [eq_region hm,exact_volume]
   · congr 2; field_simp
   · positivity
   · gcongr; exact_mod_cast hu
   · have : (n:ℝ)+1 ≤ m+u := by exact_mod_cast hr
     field_simp; linarith
-theorem S_upper (n m u : ℕ) (hm : 0<m) (hr : n+1≤m+u) :
+theorem S_upper (n m u : ℕ) (hm : 0 < m) (hr : n+1 ≤ m+u) :
     volume.real (S (n+1) m u) ≤
       (1+(u:ℝ)/m)^n * ((m+u-(n+1):ℝ)/m) / (n+1).factorial := by
-  have hp : (0:ℝ)<m := by exact_mod_cast hm
+  have hp : (0:ℝ) < m := by exact_mod_cast hm
   have hsl : (n:ℝ)+1 ≤ m+u := by exact_mod_cast hr
   rw [eq_region hm]
   apply (upper_volume n (by positivity) (max_le zero_le_one (by field_simp; linarith))).trans_eq
   congr 2; field_simp
 /-- The ballot inequality in the first two offset layers, uniformly in r and m. -/
-theorem small_offset (r m u : ℕ) (hr : 0<r) (hw : r<2*m) (hu : u≤1) (hsl : r≤m+u) :
+theorem small_offset (r m u : ℕ) (hr : 0 < r) (hw : r<2*m) (hu : u≤1) (hsl : r ≤ m+u) :
     volume.real (S r m u) ≤ (2*exp 2)*poly r m u/(r+1).factorial := by
   obtain ⟨n,rfl⟩ := Nat.exists_eq_succ_of_ne_zero hr.ne'
-  have hm : 0<m := by omega
-  have hp : (0:ℝ)<m := by exact_mod_cast hm
+  have hm : 0 < m := by omega
+  have hp : (0:ℝ) < m := by exact_mod_cast hm
   have hnr : (n:ℝ)+1+1 ≤ 2*m := by exact_mod_cast (show n+1+1≤2*m by omega)
   have hu' : (u:ℝ)≤1 := by exact_mod_cast hu
   let w : ℝ := m+u-((n:ℝ)+1)
@@ -3182,7 +3183,7 @@ def evalP (a u : ℝ) : ℕ → ℕ → ℝ → ℝ
       evalP a u r 1 (max 0 (((r:ℝ)+1)*a-u)) * term d t
 theorem deriv_term (d : ℕ) (t : ℝ) : HasDerivAt (term (d+1)) (term d t) t := by
   unfold term
-  convert ((hasDerivAt_pow (d+1) t).div_const ((d+1).factorial:ℝ)) using 1
+  convert (preTransparency := .instances) ((hasDerivAt_pow (d+1) t).div_const ((d+1).factorial:ℝ)) using 1
   rw [Nat.factorial_succ]; push_cast; field_simp
 theorem deriv_P (a u : ℝ) (r d : ℕ) (t : ℝ) :
     HasDerivAt (evalP a u r (d+1)) (evalP a u r d t) t := by
@@ -3215,11 +3216,11 @@ theorem volume_P (r : ℕ) (a u t : ℝ) (ha : 0≤a)
         rw [integral_Icc_eq_integral_Ioc,← intervalIntegral.integral_of_le hb]
         exact intervalIntegral.integral_eq_sub_of_hasDerivAt (fun y _ ↦ deriv_P a u r 0 y) ((cont_P ..).intervalIntegrable ..)
       _ = _ := by simp [evalP,term,b]
-theorem S_P {r m u : ℕ} (hm : 0<m) (hsl : r≤m+u) :
+theorem S_P {r m u : ℕ} (hm : 0 < m) (hsl : r ≤ m+u) :
     volume.real (S r m u) = evalP (1/m) (u/m) r 0 1 := by
   rw [eq_region hm]; apply volume_P _ _ _ _ (by positivity)
-  have hp : (0:ℝ)<m := by exact_mod_cast hm
-  have hs : (r:ℝ)≤m+u := by exact_mod_cast hsl
+  have hp : (0:ℝ) < m := by exact_mod_cast hm
+  have hs : (r:ℝ) ≤ m+u := by exact_mod_cast hsl
   apply max_le zero_le_one; field_simp; linarith
 end
 end Green87Ball
@@ -3246,7 +3247,7 @@ theorem tail_step (a u : ℝ) (i d : ℕ) (t : ℝ) :
   let b := min t (knot a u (i+1))
   have hder (x : ℝ) : HasDerivAt (fun y ↦ P a u (i+1) y * term (d+1) (t-y))
       (P a u i x * term (d+1) (t-x) - P a u (i+1) x * term d (t-x)) x := by
-    convert (Pder a u i x).mul ((deriv_term d (t-x)).comp x ((hasDerivAt_id x).const_sub t)) using 1 <;> try rfl
+    convert (preTransparency := .instances) (Pder a u i x).mul ((deriv_term d (t-x)).comp x ((hasDerivAt_id x).const_sub t)) using 1 <;> try rfl
     simp only [Function.comp_apply,id_eq]; ring
   have he := intervalIntegral.integral_eq_sub_of_hasDerivAt (a:=b) (b:=t) (fun x _ ↦ hder x)
     (((ct a u i (d+1) t).sub (ct a u (i+1) d t)).intervalIntegrable ..)
@@ -3278,7 +3279,7 @@ theorem telescope (a u : ℝ) (r : ℕ) (t : ℝ) (hu : 0≤u) (ht : 0≤t) :
     | zero =>
       have he := intervalIntegral.integral_eq_sub_of_hasDerivAt (a:=(0:ℝ)) (b:=t)
         (f:=fun x ↦ -(term (d+1) (t-x))) (f':=fun x ↦ term d (t-x))
-        (fun x _ ↦ by convert ((deriv_term d (t-x)).comp x ((hasDerivAt_id x).const_sub t)).neg using 1 <;> first | rfl | simp | ring)
+        (fun x _ ↦ by convert (preTransparency := .instances) ((deriv_term d (t-x)).comp x ((hasDerivAt_id x).const_sub t)).neg using 1 <;> first | rfl | simp | ring)
         (((cont_term13 d).comp (continuous_const.sub continuous_id)).intervalIntegrable ..)
       simpa [tailM,crossings,term,knot,P,evalP,hu,ht,max_eq_left (neg_nonpos.mpr hu),min_eq_right ht] using he
     | succ i ih =>
@@ -3290,7 +3291,7 @@ theorem telescope (a u : ℝ) (r : ℕ) (t : ℝ) (hu : 0≤u) (ht : 0≤t) :
       have hh : (∑ j ∈ Finset.range i, crossM a u j (i-j+(d+1)) t) =
           ∑ j ∈ Finset.range i, crossM a u j (i-1-j+(d+1+1)) t := by
         apply Finset.sum_congr rfl; intro j hj; have := Finset.mem_range.mp hj; congr 1 <;> omega
-      rw [hh]; convert he using 1 <;> first | ring | congr 1 <;> omega
+      rw [hh]; convert (preTransparency := .instances) he using 1 <;> first | ring | congr 1 <;> omega
   have he := h r 0
   rw [tail_end] at he
   unfold crossings at *
@@ -3308,7 +3309,7 @@ theorem log_mid {z : ℝ} (hz : 1 ≤ z) : 2*(z-1)/(z+1) ≤ log z := by
   let f := fun x : ℝ ↦ log x - 2*(x-1)/(x+1)
   have hd (x : ℝ) (hx : 0<x) : HasDerivAt f ((x-1)^2/(x*(x+1)^2)) x := by
     have hh := (hasDerivAt_log hx.ne').sub (((((hasDerivAt_id x).sub_const 1).const_mul 2).div ((hasDerivAt_id x).add_const 1) (by dsimp; linarith)))
-    convert hh using 1
+    convert (preTransparency := .instances) hh using 1
     · rfl
     · simp only [id_eq]; field_simp; ring
   have h : MonotoneOn f (Ici 1) := by
@@ -3319,7 +3320,7 @@ theorem log_mid {z : ℝ} (hz : 1 ≤ z) : 2*(z-1)/(z+1) ≤ log z := by
   have he := h (by simp : (1:ℝ) ∈ Set.Ici 1) hz hz
   dsimp [f] at he; simp at he; linarith
 
-theorem kernel_ratio {x y m : ℝ} {d : ℕ} (hx : 0≤x) (hxy : x<y) (hm : 0<m)
+theorem kernel_ratio {x y m : ℝ} {d : ℕ} (hx : 0≤x) (hxy : x<y) (hm : 0 < m)
     (hmiddle : m*(x+y) ≤ 2*d) :
     exp (m*(y-x)) * term d x ≤ term d y := by
   have hy : 0<y := hx.trans_lt hxy
@@ -3359,10 +3360,10 @@ theorem cross_weight {a u s t A : ℝ} {j d : ℕ} (ha : 0≤a) (hs : s≤t)
     unfold term; exact mul_nonneg (hp x hx) (div_nonneg (pow_nonneg (sub_nonneg.mpr ht) _) (by positivity))
   change A*(∫ x in min s b..min s c, _) ≤ ∫ x in min t b..min t c, _
   rw [min_eq_right (hbc.trans hk),min_eq_right hk]
-  by_cases hbs : b≤s
+  by_cases hbs : b ≤ s
   · let e := min s c
     have hbe : b≤e := le_min hbs hbc
-    have hec : e≤c := min_le_right .. 
+    have hec : e ≤ c := min_le_right .. 
     rw [min_eq_right hbs,← intervalIntegral.integral_const_mul]
     have hle := intervalIntegral.integral_mono_on (μ:=volume) hbe
       ((continuous_const.mul (ct a u j d s)).intervalIntegrable ..) ((ct a u j d t).intervalIntegrable ..)
@@ -3376,11 +3377,11 @@ theorem cross_weight {a u s t A : ℝ} {j d : ℕ} (ha : 0≤a) (hs : s≤t)
     rw [min_eq_left hsb,min_eq_left (hsb.trans hbc),intervalIntegral.integral_same,mul_zero]
     exact intervalIntegral.integral_nonneg hbc fun x hx ↦ hpos x hx.1 (hx.2.trans hk)
 
-theorem reflected {r m u : ℕ} (hr : 0<r) (hm : 0<m) (hw : r≤m+u)
-    (w h s : ℝ) (ew : w=(m:ℝ)+u-r) (eh : h=2*(w+1)) (es : s=1-h/m) (hs : 0≤s) :
+theorem reflected {r m u : ℕ} (hr : 0 < r) (hm : 0 < m) (hw : r ≤ m+u)
+    (w h s : ℝ) (ew : w=(m:ℝ)+u-r) (eh : h=2*(w+1)) (es : s=1-h/m) (hs : 0 ≤ s) :
     volume.real (Green87Measure.S r m u) ≤ (1-exp h*s^r)/r.factorial := by
   obtain ⟨n,rfl⟩ := Nat.exists_eq_succ_of_ne_zero hr.ne'
-  have hm' : (0:ℝ)<m := by exact_mod_cast hm
+  have hm' : (0:ℝ) < m := by exact_mod_cast hm
   have w0 : 0≤w := by rw [ew]; exact sub_nonneg.mpr (by exact_mod_cast hw)
   have h0 : 0<h := by linarith
   have hs1 : s<1 := by rw [es]; linarith [div_pos h0 hm']
@@ -3389,7 +3390,7 @@ theorem reflected {r m u : ℕ} (hr : 0<r) (hm : 0<m) (hw : r≤m+u)
   have ha : 0≤a := by dsimp [a]; positivity
   have hv : 0≤v := by dsimp [v]; positivity
   have hk (i : ℕ) (hi : i ≤ n+1) : knot a v i ≤ 1 := by
-    unfold knot a v; apply max_le zero_le_one; field_simp; have : (i:ℝ)≤m+u := by exact_mod_cast hi.trans hw
+    unfold knot a v; apply max_le zero_le_one; field_simp; have : (i:ℝ) ≤ m+u := by exact_mod_cast hi.trans hw
     linarith
   have hsK : s < knot a v (n+1) := by
     apply lt_of_lt_of_le _ (le_max_right ..)
@@ -3423,25 +3424,25 @@ end Green87Ball
 open Green87Measure Green87Ball MeasureTheory Real Set
 namespace Green87Ball
 noncomputable section
-theorem phi_deficit {m u w h : ℝ} {r : ℕ} (hm : 0<m) (hu : 0≤u) (hw : 0≤w)
-    (ew : w=m+u-r) (eh : h=2*(w+1)) (hhalf : 2*h≤m) :
+theorem phi_deficit {m u w h : ℝ} {r : ℕ} (hm : 0 < m) (hu : 0≤u) (hw : 0≤w)
+    (ew : w=m+u-r) (eh : h=2*(w+1)) (hhalf : 2*h ≤ m) :
     1-exp h*(1-h/m)^r ≤ 2*h*(u+h)/m := by
   let s := 1-h/m
   have h0 : 0<h := by linarith
-  have hmh : 0<m-h := by linarith
-  have hs : 0<s := by dsimp [s]; rw [sub_pos,div_lt_one hm]; linarith
+  have hmh : 0 < m-h := by linarith
+  have hs : 0< s := by dsimp [s]; rw [sub_pos,div_lt_one hm]; linarith
   have hl := log_le_sub_one_of_pos (inv_pos.mpr hs)
   rw [log_inv] at hl
   have he : s⁻¹-1 = h/(m-h) := by dsimp [s]; field_simp <;> ring
   rw [he] at hl
-  have h1 := mul_le_mul_of_nonneg_left (show -(h/(m-h))≤log s by linarith) (Nat.cast_nonneg r : (0:ℝ)≤r)
+  have h1 := mul_le_mul_of_nonneg_left (show -(h/(m-h))≤log s by linarith) (Nat.cast_nonneg r : (0:ℝ) ≤ r)
   have h2 := add_one_le_exp (h+(r:ℝ)*log s)
   rw [exp_add,exp_nat_mul,exp_log hs] at h2
   change 1-exp h*s^r ≤ _
   apply le_trans (b:= (r:ℝ)*(h/(m-h))-h) (by linarith)
   have he2 : (r:ℝ)*(h/(m-h))-h = h*(u+h-w)/(m-h) := by field_simp; rw [ew]; ring
   rw [he2,div_le_div_iff₀ hmh hm]
-  nlinarith [mul_nonneg h0.le hw, mul_nonneg (mul_nonneg h0.le (by linarith : 0≤u+h)) (show 0≤m-2*h by linarith),mul_nonneg (mul_nonneg h0.le hw) hm.le]
+  nlinarith [mul_nonneg h0.le hw, mul_nonneg (mul_nonneg h0.le (by linarith : 0≤u+h)) (show 0 ≤ m-2*h by linarith),mul_nonneg (mul_nonneg h0.le hw) hm.le]
 
 theorem S_triv {n m u : ℕ} :
     volume.real (S (n+1) m u) ≤ 1/(n+1).factorial := by
@@ -3449,11 +3450,11 @@ theorem S_triv {n m u : ℕ} :
   apply (measureReal_mono (s₂:=region (n+1) 0 0 1) _ (finite_region (n+1) 0 0 1)).trans_eq (by simpa using he)
   intro x hx; exact ⟨hx.1.2, fun i ↦ ⟨by simpa using hx.1.1.1 i,hx.1.1.2 i⟩⟩
 
-theorem ballot_unconditional (r m u : ℕ) (hr : 0<r) (hmr : r<2*m) (hsl : r≤m+u) :
+theorem ballot_unconditional (r m u : ℕ) (hr : 0 < r) (hmr : r<2*m) (hsl : r ≤ m+u) :
     volume.real (S r m u) ≤ 64*poly r m u/(r+1).factorial := by
   obtain ⟨n,rfl⟩ := Nat.exists_eq_succ_of_ne_zero hr.ne'
-  have hm : 0<m := by omega
-  have hm' : (0:ℝ)<m := by exact_mod_cast hm
+  have hm : 0 < m := by omega
+  have hm' : (0:ℝ) < m := by exact_mod_cast hm
   let w : ℝ := m+u-((n+1:ℕ):ℝ)
   let h := 2*(w+1)
   have w0 : 0≤w := by dsimp [w]; exact sub_nonneg.mpr (by exact_mod_cast hsl)
@@ -3470,7 +3471,7 @@ theorem ballot_unconditional (r m u : ℕ) (hr : 0<r) (hmr : r<2*m) (hsl : r≤m
     rw [ep,Nat.factorial_succ (n+1),Nat.cast_mul,←div_div]
     rw [div_le_div_iff_of_pos_right (by positivity),le_div_iff₀ (by positivity)]
     push_cast; linarith
-  by_cases hh : 2*h≤m
+  by_cases hh : 2*h ≤ m
   · have hs : 0≤1-h/m := by rw [sub_nonneg,div_le_one hm']; linarith
     apply reduce _ (reflected hr hm hsl w h _ rfl rfl rfl hs)
     have hz := phi_deficit hm' hu w0 (r:=n+1) rfl rfl hh
@@ -3489,13 +3490,13 @@ end Green87Ball
 open MeasureTheory Real Set Green87Measure
 namespace Green87Ball
 noncomputable section
-theorem ballot_all (r m u : ℕ) (hsl : r≤m+u) :
+theorem ballot_all (r m u : ℕ) (hsl : r ≤ m+u) :
     volume.real (S r m u) ≤ 64*poly r m u/(r+1).factorial := by
   cases r with
   | zero =>
     have hs : S 0 m u = Set.univ := by ext x; simp [S,Green87Upper.simplex,Green87Upper.cube,Monotone,Set.ext_iff,Pi.le_def]
     rw [hs]; change (Measure.pi (fun _ : Fin 0 ↦ (volume : Measure ℝ)) Set.univ).toReal ≤ _
-    simp [poly]; nlinarith [sq_nonneg ((u:ℝ)+m),(Nat.cast_nonneg u : (0:ℝ)≤u),(Nat.cast_nonneg m : (0:ℝ)≤m),mul_nonneg (Nat.cast_nonneg u : (0:ℝ)≤u) (sq_nonneg ((u:ℝ)+1+m))]
+    simp [poly]; nlinarith [sq_nonneg ((u:ℝ)+m),(Nat.cast_nonneg u : (0:ℝ)≤u),(Nat.cast_nonneg m : (0:ℝ) ≤ m),mul_nonneg (Nat.cast_nonneg u : (0:ℝ)≤u) (sq_nonneg ((u:ℝ)+1+m))]
   | succ n =>
     by_cases h : n+1<2*m
     · exact ballot_unconditional _ _ _ (by omega) h hsl
@@ -3506,7 +3507,7 @@ theorem ballot_all (r m u : ℕ) (hsl : r≤m+u) :
     have h3 : 1 ≤ ((u:ℝ)+1+m-((n:ℝ)+1))^2 := by nlinarith [sq_nonneg ((m:ℝ)+u-(n+1))]
     unfold poly; push_cast
     nlinarith [mul_le_mul_of_nonneg_left h3 (show 0≤(u:ℝ)+1 by positivity)]
-theorem evalP_scale (r d : ℕ) (a u c t : ℝ) (hc : 0≤c) :
+theorem evalP_scale (r d : ℕ) (a u c t : ℝ) (hc : 0 ≤ c) :
     evalP (c*a) (c*u) r d (c*t) = c^(r+d)*evalP a u r d t := by
   induction r generalizing d t with
   | zero => simp [evalP,term,mul_pow,mul_div_assoc]
@@ -3516,10 +3517,10 @@ theorem evalP_scale (r d : ℕ) (a u c t : ℝ) (hc : 0≤c) :
       rw [mul_max_of_nonneg _ _ hc]; congr 1 <;> ring
     rw [hk,ih,ih]; unfold term; rw [mul_pow]
     rw [show r.succ+d = r+(d+1) by omega,show r+(d+1)=r+1+d by omega,pow_add c (r+1) d]; ring
-theorem prefix_volume {r m u L : ℕ} (hm : 0<m) (hL : 0<L) (hsl : r≤L+u) :
+theorem prefix_volume {r m u L : ℕ} (hm : 0 < m) (hL : 0<L) (hsl : r≤L+u) :
     volume.real (region r (1/m) (u/m) (L/m)) ≤
       ((L:ℝ)/m)^r * (64*poly r L u/(r+1).factorial) := by
-  have hm' : (0:ℝ)<m := by exact_mod_cast hm
+  have hm' : (0:ℝ) < m := by exact_mod_cast hm
   have hL' : (0:ℝ)<L := by exact_mod_cast hL
   have hs : (r:ℝ) ≤ L+u := by exact_mod_cast hsl
   rw [volume_P _ _ _ _ (by positivity) (max_le (by positivity) (by field_simp; linarith))]
@@ -3707,10 +3708,10 @@ def boxP (p b q m u t : ℕ) : Cell (p+(b+(1+q))) :=
     (rect (shifted ((l-u-t)/m) (region b 0 0 ((t+1)/m)))
     (rect (shifted ((l-u)/m) (region 1 0 0 (1/m)))
           (shifted ((l-u)/m) (region q (1/m) 0 ((m+u-l)/m)))))
-theorem atom_sub_box (p b q m u t : ℕ) (hm : 0<m) :
+theorem atom_sub_box (p b q m u t : ℕ) (hm : 0 < m) :
     atom (p+(b+(1+q))) m u b t p ⊆ boxP p b q m u t := by
   rintro x ⟨hx,i,hi,hb,hu,htop,hlo⟩
-  have hp : (0:ℝ)<m := by exact_mod_cast hm
+  have hp : (0:ℝ) < m := by exact_mod_cast hm
   have hiv : (i.val:ℝ)=p+b := by exact_mod_cast hi
   let left (j : Fin p) := j.castAdd (b+(1+q))
   let mid (j : Fin b) := Fin.natAdd p (j.castAdd (1+q))
@@ -3762,7 +3763,7 @@ noncomputable section
 def prefL (p b u : ℕ) := p+b+2-u
 def suffL (p b m u : ℕ) := m+u-(p+b+1)
 def factor (r m u b t : ℕ) := 65536*(b:ℝ)^2*poly r m u*((t:ℝ)+1)^b/b.factorial/(m:ℝ)^r
-theorem fixed_bound (p b q m u t : ℕ) (hb : 0<b) (hm : 0<m) (hr : p+(b+(1+q))<m+u)
+theorem fixed_bound (p b q m u t : ℕ) (hb : 0<b) (hm : 0 < m) (hr : p+(b+(1+q)) < m+u)
     (hu : u≤p+b+1) :
     volume.real (atom (p+(b+(1+q))) m u b t p) ≤
       factor (p+(b+(1+q))) m u b t * pair p q (prefL p b u) (suffL p b m u) := by
@@ -3816,11 +3817,11 @@ section
 open Green87Measure Green87Ball Green87Upper MeasureTheory Real Set Finset
 namespace Green87Cluster
 noncomputable section
-theorem coverR {r m u b t : ℕ} (hb : b<r) (hm : 0<m) :
+theorem coverR {r m u b t : ℕ} (hb : b < r) (hm : 0 < m) :
     volume.real (R r m u b t) ≤ ∑ p ∈ range (r-b), volume.real (atom r m u b t p) := by
   have he := Measure.univ_pi_Ioo_ae_eq_Icc (f:=(0:Fin r → ℝ)) (g:=1) (μ:=fun _ ↦ volume)
   let V := ⋃ p ∈ range (r-b), atom r m u b t p
-  have hs : R r m u b t ≤ᵐ[volume] V := by
+  have hs : ∀ᵐ x ∂volume, x ∈ R r m u b t → x ∈ V := by
     filter_upwards [he] with x hx
     rintro ⟨hS,i,hbi,hhi,hlo⟩
     have hi : x ∈ Set.univ.pi (fun _ : Fin r ↦ Set.Ioo (0:ℝ) 1) := hx.mpr hS.1.1
@@ -3837,16 +3838,16 @@ theorem coverR {r m u b t : ℕ} (hb : b<r) (hm : 0<m) :
     intro x hx; simp only [V,Set.mem_iUnion,exists_prop] at hx
     obtain ⟨_,_,hx⟩ := hx; exact hx.1.1.1
   exact (ENNReal.toReal_mono hf (measure_mono_ae hs)).trans (measureReal_biUnion_finset_le ..)
-theorem exp_ratio {m N : ℕ} (hm : 0<m) (hn : N≤2*m) :
+theorem exp_ratio {m N : ℕ} (hm : 0 < m) (hn : N≤2*m) :
     ((m:ℝ)+1)^N ≤ exp 2*(m:ℝ)^N := by
-  have hmp : (0:ℝ)<m := by exact_mod_cast hm
+  have hmp : (0:ℝ) < m := by exact_mod_cast hm
   have h1 : (m:ℝ)+1 ≤ exp (1/m)*m := by
     have hh := mul_le_mul_of_nonneg_right (add_one_le_exp (1/(m:ℝ))) hmp.le
-    convert hh using 1; field_simp; ring
+    convert (preTransparency := .instances) hh using 1; field_simp; ring
   have h2 := pow_le_pow_left₀ (by positivity) h1 N
   rw [mul_pow,←exp_nat_mul] at h2
   apply h2.trans; gcongr; rw [←mul_div_assoc,mul_one,div_le_iff₀ hmp]; exact_mod_cast hn
-theorem combine_bound {r m u b t N : ℕ} (hm : 0<m) (hr : r<2*m) (he : r=N+1+b) :
+theorem combine_bound {r m u b t N : ℕ} (hm : 0 < m) (hr : r<2*m) (he : r=N+1+b) :
     factor r m u b t * (K*((m:ℝ)+1)^N/(N+1).factorial) ≤
       (131072*K*exp 2)*(b:ℝ)^2*(10*((t:ℝ)+1))^b/b.factorial*poly r m u/(r+1).factorial := by
   have hK : 0≤K := by unfold K; have hh : 0≤∑' i, weight i := tsum_nonneg (fun i ↦ (show 0≤weight i by unfold weight;positivity)); positivity
@@ -3857,7 +3858,7 @@ theorem combine_bound {r m u b t N : ℕ} (hm : 0<m) (hr : r<2*m) (he : r=N+1+b)
     exact Nat.mul_le_mul_left _ ((Nat.ascFactorial_le_pow_add ..).trans (Nat.pow_le_pow_left (by omega) _))
   have hfac' : ((r+1).factorial:ℝ) ≤ ((N+1).factorial:ℝ)*(2*m:ℝ)^(b+1) := by exact_mod_cast hfac
   have h10 : (2:ℝ)^b ≤ 10^b := pow_le_pow_left₀ (by norm_num) (by norm_num) _
-  have hmp : (0:ℝ)<m := by exact_mod_cast hm
+  have hmp : (0:ℝ) < m := by exact_mod_cast hm
   let z := 65536*(b:ℝ)^2*poly r m u*((t:ℝ)+1)^b/(b.factorial:ℝ)*K
   have hz : 0≤z := by dsimp [z,poly]; positivity
   have hcore := mul_le_mul hrat hfac' (by positivity) (by positivity)
@@ -3878,11 +3879,11 @@ section
 open MeasureTheory Real Finset Green87Measure
 namespace Green87Cluster
 noncomputable section
-theorem cluster_volume {r m u b t : ℕ} (hr : r<2*m) (hu : r<m+u) (hb : 0<b) (hbr : b<r) :
+theorem cluster_volume {r m u b t : ℕ} (hr : r<2*m) (hu : r < m+u) (hb : 0<b) (hbr : b < r) :
     volume.real (R r m u b t) ≤ (131072*K*exp 2)*(b:ℝ)^2*(10*((t:ℝ)+1))^b/b.factorial*poly r m u/(r+1).factorial := by
   let N := r-b-1
   have he : r=N+1+b := by dsimp [N]; omega
-  have hm : 0<m := by omega
+  have hm : 0 < m := by omega
   let X := fun i : ℕ ↦ (prefL i b u : ℝ)
   let Y := fun i : ℕ ↦ (m:ℝ)+1-X i
   have hx (i : ℕ) : 0≤X i := Nat.cast_nonneg _
