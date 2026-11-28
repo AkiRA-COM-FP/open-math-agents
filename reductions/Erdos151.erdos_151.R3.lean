@@ -23,10 +23,17 @@ def H1 : Prop := ∀ (n : ℕ) (G R : SimpleGraph (Fin n)) (N : Finset (Fin n)),
       Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
       (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y
 
-/-- At the remaining Ramsey jumps there is a nonempty vertex set U. Every vertex
+/-- It suffices to treat graphs in which every nonedge has a common neighbor and
+every covered pair of neighborhoods leaves fewer than H vertices. At the remaining
+Ramsey jumps there is a nonempty vertex set U. Every vertex
 of U has a link inside U with at least eight nonisolated vertices and a
 triangle-free choice of edges which cannot be extended over that vertex. -/
 def H2 : Prop := ∀ (m : ℕ) (G : SimpleGraph (Fin (m+1))),
+  (∀ u v, u ≠ v → ¬ G.Adj u v → ∃ w, G.Adj u w ∧ G.Adj v w) →
+  (∀ (u v : Fin (m+1)) (C : Finset (Fin (m+1))),
+    (∀ x y, G.Adj u x → ¬ G.Adj v x → G.Adj v y → ¬ G.Adj u y →
+      G.Adj x y → x ∈ C ∨ y ∈ C) →
+    (univ.filter (fun x => (G.Adj u x ∨ G.Adj v x) ∧ x ∉ C)).card < Erdos151.H (m+1)) →
   Erdos151.H (m+1) ≠ 10 → Erdos151.H (m+1) ≠ 11 →
   Erdos151.H m < Erdos151.H (m+1) →
   (∀ v, (univ.filter (G.Adj v)).card < Erdos151.H (m+1)) →
@@ -36,6 +43,7 @@ def H2 : Prop := ∀ (m : ℕ) (G : SimpleGraph (Fin (m+1))),
   (∃ U : Finset (Fin (m+1)), U.Nonempty ∧ ∀ v ∈ U,
     let N := U.filter (G.Adj v)
     8 ≤ (N.filter fun x => ∃ y ∈ N, G.Adj x y).card ∧
+    (2 ≤ ∑ x ∈ N, ((N.filter (G.Adj x)).card - 2)) ∧
     ∃ R : SimpleGraph (Fin (m+1)), R ≤ G ∧ R.CliqueFree 3 ∧
       ¬ ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin (m+1))) ∧
         ∀ q : Finset (Fin (m+1)), q.Nonempty →
@@ -301,12 +309,11 @@ lemma extend_star {V : Type} [DecidableEq V] (G R : SimpleGraph V) (U : Finset V
       exact ⟨x,hx,y,hy,Or.inl e⟩
 
 /-- A least vertex set with no partial solution supplies a bad link at every vertex. -/
-lemma bad_core (hsmall : H1) {n : ℕ} (G : SimpleGraph (Fin n))
+lemma obstructed_links {n : ℕ} (G : SimpleGraph (Fin n))
     (nohit : ¬ ∃ F : SimpleGraph (Fin n), F.CliqueFree 3 ∧
       ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y) :
     ∃ U : Finset (Fin n), U.Nonempty ∧ ∀ v ∈ U,
       let N := U.filter (G.Adj v)
-      8 ≤ (N.filter fun x => ∃ y ∈ N, G.Adj x y).card ∧
       ∃ R : SimpleGraph (Fin n), R ≤ G ∧ R.CliqueFree 3 ∧
         ¬ ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin n)) ∧
           ∀ q : Finset (Fin n), q.Nonempty →
@@ -345,9 +352,27 @@ lemma bad_core (hsmall : H1) {n : ℕ} (G : SimpleGraph (Fin n))
           (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y := by
     rintro ⟨A,hA,hi,hl⟩
     exact bad (extend_star G R U v hv A hA hi sub tf supp hit hl)
-  exact ⟨by
-    by_contra! h
-    exact blocked (hsmall n G R N sub tf (by omega)), R,sub,tf,blocked⟩
+  exact ⟨R, sub, tf, blocked⟩
+
+/-- A least vertex set with no partial solution supplies a bad link at every vertex. -/
+lemma bad_core (hsmall : H1) {n : ℕ} (G : SimpleGraph (Fin n))
+    (nohit : ¬ ∃ F : SimpleGraph (Fin n), F.CliqueFree 3 ∧
+      ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y) :
+    ∃ U : Finset (Fin n), U.Nonempty ∧ ∀ v ∈ U,
+      let N := U.filter (G.Adj v)
+      8 ≤ (N.filter fun x => ∃ y ∈ N, G.Adj x y).card ∧
+      ∃ R : SimpleGraph (Fin n), R ≤ G ∧ R.CliqueFree 3 ∧
+        ¬ ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin n)) ∧
+          ∀ q : Finset (Fin n), q.Nonempty →
+            Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
+            (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y := by
+  obtain ⟨U, ne, core⟩ := obstructed_links G nohit
+  refine ⟨U, ne, ?_⟩
+  intro v hv N
+  obtain ⟨R, sub, tf, blocked⟩ := core v hv
+  refine ⟨?_, R, sub, tf, blocked⟩
+  by_contra! small
+  exact blocked (hsmall n G R N sub tf (by omega))
 
 /-- Complementing an open neighborhood gives a transversal of this exact size. -/
 lemma bound_by_degree {n : ℕ} (G : SimpleGraph (Fin n)) (v : Fin n) :
@@ -701,11 +726,374 @@ lemma threshold_eleven (small : H1) (localFacts : H3) (ram : H4) {n : ℕ}
   exact fail (by simpa [eleven] using three_in_block small ram.1 G hn A B ab a3 b19 guarded)
 
 
+/-- In a triangle, none of the three edges can be a newly added edge whose endpoints
+had no common neighbor. -/
+lemma old_triangle_side {V : Type} (G : SimpleGraph V) (u v : V)
+    (apart : ¬ ∃ w, G.Adj u w ∧ G.Adj v w) {x y z : V}
+    (xy : (G ⊔ edge u v).Adj x y) (xz : (G ⊔ edge u v).Adj x z)
+    (yz : (G ⊔ edge u v).Adj y z) : G.Adj x y := by
+  have xnz := xz.ne
+  have ynz := yz.ne
+  change G.Adj x y ∨ (edge u v).Adj x y at xy
+  change G.Adj x z ∨ (edge u v).Adj x z at xz
+  change G.Adj y z ∨ (edge u v).Adj y z at yz
+  rcases xy with old | added
+  · exact old
+  rcases (edge_adj ..).mp added with ⟨h | h, _⟩
+  · obtain ⟨rfl, rfl⟩ := h
+    have ax : G.Adj x z := xz.resolve_right (by simp [edge_adj, Ne.symm xnz, Ne.symm ynz])
+    have ay : G.Adj y z := yz.resolve_right (by simp [edge_adj, Ne.symm xnz, Ne.symm ynz])
+    exact (apart ⟨z, ax, ay⟩).elim
+  · obtain ⟨rfl, rfl⟩ := h
+    have ax : G.Adj x z := xz.resolve_right (by simp [edge_adj, Ne.symm xnz, Ne.symm ynz])
+    have ay : G.Adj y z := yz.resolve_right (by simp [edge_adj, Ne.symm xnz, Ne.symm ynz])
+    exact (apart ⟨z, ay, ax⟩).elim
+
+/-- Every graph has a spanning extension with the same triangles in which every
+nonedge has a common neighbor. Every original big maximal clique is still maximal. -/
+lemma saturate_triangles {n : ℕ} (G : SimpleGraph (Fin n)) :
+    ∃ F : SimpleGraph (Fin n), G ≤ F ∧
+      (∀ ⦃x y z⦄, F.Adj x y → F.Adj x z → F.Adj y z → G.Adj x y) ∧
+      (∀ t, G.IsBigMaximalClique t → F.IsBigMaximalClique t) ∧
+      (∀ u v, u ≠ v → ¬ F.Adj u v → ∃ w, F.Adj u w ∧ F.Adj v w) := by
+  let P (F : SimpleGraph (Fin n)) : Prop :=
+    ∀ ⦃x y z⦄, F.Adj x y → F.Adj x z → F.Adj y z → G.Adj x y
+  have base : P G := by
+    intro x y z h _ _
+    exact h
+  obtain ⟨F, gf, best⟩ := Finite.exists_le_maximal base
+  have old : P F := best.1
+  refine ⟨F, gf, old, ?_, ?_⟩
+  · intro t ht
+    refine ⟨⟨ht.1.1.mono gf, ?_⟩, ht.2⟩
+    intro s hs ts x hx
+    by_contra xt
+    have allAdj (y) (hy : y ∈ t) : G.Adj x y := by
+      obtain ⟨a, b, ha, hb, ab⟩ := one_lt_card_iff.mp ht.2
+      have third : ∃ z ∈ t, y ≠ z := by
+        by_cases ya : y = a
+        · exact ⟨b, hb, ya ▸ ab⟩
+        · exact ⟨a, ha, ya⟩
+      obtain ⟨z, hz, yz⟩ := third
+      exact old (hs hx (ts hy) (fun h => xt (h ▸ hy)))
+        (hs hx (ts hz) (fun h => xt (h ▸ hz))) (hs (ts hy) (ts hz) yz)
+    have bigger : G.IsClique (↑(insert x t) : Set (Fin n)) := by
+      rw [coe_insert]
+      exact ht.1.1.insert (fun y hy _ => allAdj y hy)
+    exact xt (ht.1.2 bigger (subset_insert _ _) (mem_insert_self _ _))
+  · intro u v uv missing
+    by_contra apart
+    have extP : P (F ⊔ edge u v) := by
+      intro x y z xy xz yz
+      exact old (old_triangle_side F u v apart xy xz yz)
+        (old_triangle_side F u v apart xz xy yz.symm)
+        (old_triangle_side F u v apart yz xy.symm xz.symm)
+    exact (lt_sup_edge F u v uv missing).not_ge (best.2 extP le_sup_left)
+
+lemma transversal_mono_cliques {n : ℕ} (G F : SimpleGraph (Fin n))
+    (keep : ∀ t, G.IsBigMaximalClique t → F.IsBigMaximalClique t) :
+    G.cliqueTransversalNumber ≤ F.cliqueTransversalNumber := by
+  have ex : {k | ∃ T : Finset (Fin n), F.IsCliqueTransversal T ∧ T.card = k}.Nonempty := by
+    refine ⟨univ.card, univ, ?_, rfl⟩
+    intro t ht
+    obtain ⟨x, _, hx, _, _⟩ := one_lt_card_iff.mp ht.2
+    exact ⟨x, hx, mem_univ _⟩
+  obtain ⟨T, hits, size⟩ := Nat.sInf_mem ex
+  exact csInf_le' ⟨T, (fun t ht => hits t (keep t ht)), size⟩
+
+/-- Guard several vertices simultaneously. Each protected vertex has a neighbor
+that extends every retained clique through it. The guards for different vertices
+may coincide. -/
+lemma common_neighbor_guards {V : Type} [DecidableEq V] (G : SimpleGraph V)
+    (A D : Finset V) (sep : Disjoint A D)
+    (witness : ∀ x ∈ A, ∃ v, G.Adj v x ∧
+      ∀ y, G.Adj x y → ¬ G.Adj v y → y ∈ D) :
+    ∀ t, G.IsBigMaximalClique t → (∃ x ∈ t, x ∈ A) → ∃ y ∈ t, y ∈ (A ∪ D) \ A := by
+  intro t ht ⟨x, xt, xa⟩
+  obtain ⟨v, vx, guard⟩ := witness x xa
+  by_contra miss
+  have extend (y) (yt : y ∈ t) : G.Adj v y := by
+    by_cases eq : x = y
+    · exact eq ▸ vx
+    by_contra vy
+    have yd := guard y (ht.1.1 xt yt eq) vy
+    exact miss ⟨y, yt, mem_sdiff.mpr
+      ⟨mem_union_right _ yd, fun ya => Finset.disjoint_left.mp sep ya yd⟩⟩
+  have bigger : G.IsClique (↑(insert v t) : Set V) := by
+    rw [coe_insert]
+    exact ht.1.1.insert (fun y hy _ => extend y hy)
+  have vt := ht.1.2 bigger (subset_insert _ _) (mem_insert_self _ _)
+  exact G.irrefl (extend v vt)
+
+/-- A big maximal clique escapes every open neighborhood. -/
+lemma escapes_neighbor {V : Type} [DecidableEq V] (G : SimpleGraph V)
+    (v : V) (t : Finset V) (ht : G.IsBigMaximalClique t) :
+    ∃ x ∈ t, ¬ G.Adj v x := by
+  by_contra! allAdj
+  have bigger : G.IsClique (↑(insert v t) : Set V) := by
+    rw [coe_insert]
+    exact ht.1.1.insert (fun x hx _ => allAdj x hx)
+  exact G.irrefl (allAdj v (ht.1.2 bigger (subset_insert _ _) (mem_insert_self _ _)))
+
+/-- Two neighborhoods may be kept together after covering the edges between their
+exclusive parts. Vertices in their intersection may all be kept. -/
+lemma union_of_two_neighbors {n : ℕ} (G : SimpleGraph (Fin n)) (u v : Fin n)
+    (C : Finset (Fin n))
+    (cover : ∀ x y, G.Adj u x → ¬ G.Adj v x → G.Adj v y → ¬ G.Adj u y →
+      G.Adj x y → x ∈ C ∨ y ∈ C) :
+    let S := univ.filter (fun x => (G.Adj u x ∨ G.Adj v x) ∧ x ∉ C)
+    G.cliqueTransversalNumber ≤ n - S.card := by
+  let S := univ.filter (fun x => (G.Adj u x ∨ G.Adj v x) ∧ x ∉ C)
+  have hits : G.IsCliqueTransversal Sᶜ := by
+    intro t ht
+    by_contra! miss
+    have inside (x) (hx : x ∈ t) : (G.Adj u x ∨ G.Adj v x) ∧ x ∉ C := by
+      have hs : x ∈ S := by simpa using miss x hx
+      exact (mem_filter.mp hs).2
+    obtain ⟨x, xt, xv⟩ := escapes_neighbor G v t ht
+    obtain ⟨y, yt, yu⟩ := escapes_neighbor G u t ht
+    obtain ⟨xu, xc⟩ := inside x xt
+    obtain ⟨yv, yc⟩ := inside y yt
+    have xy : x ≠ y := fun eq => yu (eq ▸ xu.resolve_right xv)
+    exact (cover x y (xu.resolve_right xv) xv (yv.resolve_left yu) yu (ht.1.1 xt yt xy)).elim xc yc
+  have bound : G.cliqueTransversalNumber ≤ Sᶜ.card := csInf_le' ⟨Sᶜ, hits, rfl⟩
+  rw [card_compl, Fintype.card_fin] at bound
+  exact bound
+
+
+/-- The degrees at an endpoint set bound its number of edge incidences.
+An allowance of one extra incidence still gives Hall's inequality by parity. -/
+lemma distinct_endpoints {V : Type} [Fintype V] (L : SimpleGraph V)
+    (small : ∀ t : Finset V, ∑ x ∈ t, Nat.card (L.neighborSet x) ≤ t.card * 2 + 1) :
+    ∃ f : L.edgeSet → V, Function.Injective f ∧ ∀ e, f e ∈ (e.val : Sym2 V) := by
+  classical
+  let ends (e : L.edgeSet) := e.val.toFinset
+  have hall (s : Finset L.edgeSet) : s.card ≤ (s.biUnion ends).card := by
+    let t := s.biUnion ends
+    let inc (e : L.edgeSet) (x : V) := x ∈ ends e
+    have two (e) (he : e ∈ s) : 2 ≤ (t.bipartiteAbove inc e).card := by
+      have eq : t.bipartiteAbove inc e = ends e := by
+        ext x
+        exact ⟨fun h => (mem_filter.mp h).2,
+          fun h => mem_filter.mpr ⟨mem_biUnion.mpr ⟨e, he, h⟩, h⟩⟩
+      rw [eq]
+      exact (Sym2.card_toFinset_of_not_isDiag _ (L.not_isDiag_of_mem_edgeSet e.property)).ge
+    have atMost (x : V) (_ : x ∈ t) : (s.bipartiteBelow inc x).card ≤ L.degree x := by
+      rw [← L.card_incidenceFinset_eq_degree]
+      apply card_le_card_of_injOn Subtype.val _ Subtype.val_injective.injOn
+      intro e he
+      apply (L.mem_incidenceFinset x e.val).mpr
+      exact ⟨e.property, Sym2.mem_toFinset.mp (mem_filter.mp he).2⟩
+    have count : s.card * 2 ≤ t.card * 2 + 1 := calc
+      s.card * 2 = ∑ _e ∈ s, 2 := by simp
+      _ ≤ ∑ e ∈ s, (t.bipartiteAbove inc e).card := sum_le_sum two
+      _ = ∑ x ∈ t, (s.bipartiteBelow inc x).card := sum_card_bipartiteAbove_eq_sum_card_bipartiteBelow inc
+      _ ≤ ∑ x ∈ t, L.degree x := sum_le_sum atMost
+      _ = ∑ x ∈ t, Nat.card (L.neighborSet x) := by
+        simp only [Nat.card_eq_fintype_card, L.card_neighborSet_eq_degree]
+      _ ≤ _ := small t
+    change s.card ≤ t.card
+    omega
+  obtain ⟨f, inj, good⟩ := (all_card_le_biUnion_card_iff_existsInjective' ends).mp hall
+  exact ⟨f, inj, fun e => Sym2.mem_toFinset.mp (good e)⟩
+
+set_option maxHeartbeats 2500000 in
+/-- A link with at most one incidence in excess of degree two extends every retained-edge choice.
+The representative of a retained edge is left out. The representative of every
+other edge and every isolated vertex can be included. -/
+lemma sparse_link_extension {n : ℕ} (G R : SimpleGraph (Fin n)) (N : Finset (Fin n))
+    (sub : R ≤ G) (small : ∑ x ∈ N, ((N.filter (G.Adj x)).card - 2) ≤ 1) :
+    ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin n)) ∧
+      ∀ q : Finset (Fin n), q.Nonempty →
+        Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
+        (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y := by
+  classical
+  let L : SimpleGraph (Fin n) := {
+    Adj := fun x y => x ∈ N ∧ y ∈ N ∧ G.Adj x y
+    symm := ⟨fun _ _ h => ⟨h.2.1, h.1, h.2.2.symm⟩⟩
+    loopless := ⟨fun _ h => G.irrefl h.2.2⟩ }
+  let cost (x : Fin n) := (N.filter (G.Adj x)).card - 2
+  have deg (x : Fin n) : L.degree x ≤ 2 + (if x ∈ N then cost x else 0) := by
+    rw [← L.card_neighborFinset_eq_degree]
+    by_cases hx : x ∈ N
+    · have incl : L.neighborFinset x ⊆ N.filter (G.Adj x) := by
+        intro y hy
+        have h : L.Adj x y := (L.mem_neighborFinset _ _).mp hy
+        exact mem_filter.mpr ⟨h.2.1, h.2.2⟩
+      have := card_le_card incl
+      simp only [if_pos hx, cost]
+      omega
+    · have empty : L.neighborFinset x = ∅ := by
+        apply eq_empty_iff_forall_notMem.mpr
+        intro y hy
+        have h : L.Adj x y := (L.mem_neighborFinset _ _).mp hy
+        exact hx h.1
+      simp [empty, hx]
+  have budget (t : Finset (Fin n)) : ∑ x ∈ t, L.degree x ≤ t.card * 2 + 1 := calc
+    _ ≤ ∑ x ∈ t, (2 + (if x ∈ N then cost x else 0)) := sum_le_sum fun x _ => deg x
+    _ = t.card * 2 + ∑ x ∈ t.filter (· ∈ N), cost x := by simp [sum_add_distrib, sum_filter]
+    _ ≤ t.card * 2 + ∑ x ∈ N, cost x := Nat.add_le_add_left (sum_le_sum_of_subset
+      (show t.filter (· ∈ N) ⊆ N from fun _ h => (mem_filter.mp h).2)) _
+    _ ≤ _ := Nat.add_le_add_left small _
+  have sizes (t : Finset (Fin n)) : ∑ x ∈ t, Nat.card (L.neighborSet x) ≤ t.card * 2 + 1 := by
+    simpa only [Nat.card_eq_fintype_card, L.card_neighborSet_eq_degree] using budget t
+  obtain ⟨f, inj, endpoint⟩ := distinct_endpoints L sizes
+  let A := N.filter (fun x => ¬ ∃ e : L.edgeSet, e.val ∈ R.edgeSet ∧ f e = x)
+  refine ⟨A, filter_subset _ _, ?_, ?_⟩
+  · intro x hx y hy _ red
+    have lx : L.Adj x y := ⟨(mem_filter.mp hx).1, (mem_filter.mp hy).1, sub red⟩
+    let e : L.edgeSet := ⟨s(x, y), lx⟩
+    have ends : f e = x ∨ f e = y := Sym2.mem_iff.mp (endpoint e)
+    rcases ends with left | right
+    · exact (mem_filter.mp hx).2 ⟨e, red, left⟩
+    · exact (mem_filter.mp hy).2 ⟨e, red, right⟩
+  · intro q ne maximal
+    obtain ⟨only, rfl⟩ | nontrivial := ne.exists_eq_singleton_or_nontrivial
+    · left
+      refine ⟨only, mem_singleton_self _, mem_filter.mpr ⟨maximal.1.1 (mem_singleton_self _), ?_⟩⟩
+      rintro ⟨e, _, h⟩
+      have oe : only ∈ e.val := h ▸ endpoint e
+      let y := Sym2.Mem.other oe
+      have ly : L.Adj only y := by
+        apply L.mem_edgeSet.mp
+        rw [show s(only, y) = e.val from Sym2.other_spec oe]
+        exact e.property
+      have cl : G.IsClique (({y, only} : Finset (Fin n)) : Set (Fin n)) := by
+        rw [coe_insert, coe_singleton]
+        exact isClique_pair.mpr (fun _ => ly.2.2.symm)
+      have subN : insert y {only} ⊆ N := insert_subset ly.2.1 maximal.1.1
+      have yo := maximal.2 ⟨subN, cl⟩ (subset_insert _ _) (mem_insert_self y _)
+      exact ly.ne ((mem_singleton.mp yo).symm)
+    · obtain ⟨x, xt, y, yt, xy⟩ := nontrivial
+      by_cases red : R.Adj x y
+      · exact Or.inr ⟨x, xt, y, yt, red⟩
+      have lx : L.Adj x y := ⟨maximal.1.1 xt, maximal.1.1 yt, maximal.1.2 xt yt xy⟩
+      let e : L.edgeSet := ⟨s(x, y), lx⟩
+      have ends : f e = x ∨ f e = y := Sym2.mem_iff.mp (endpoint e)
+      have inq : f e ∈ q := ends.elim (fun h => h ▸ xt) (fun h => h ▸ yt)
+      refine Or.inl ⟨f e, inq, mem_filter.mpr ⟨maximal.1.1 inq, ?_⟩⟩
+      rintro ⟨d, dr, same⟩
+      have de := inj same
+      subst d
+      exact red dr
+
+
+/-- Failure to extend through a vertex forces at least two incidences beyond
+degree two in its internal link. -/
+lemma link_excess_of_obstruction {n : ℕ} (G R : SimpleGraph (Fin n)) (N : Finset (Fin n))
+    (sub : R ≤ G)
+    (blocked : ¬ ∃ A ⊆ N, R.IsIndepSet (A : Set (Fin n)) ∧
+      ∀ q : Finset (Fin n), q.Nonempty →
+        Maximal (fun t : Finset (Fin n) => t ⊆ N ∧ G.IsClique (t : Set (Fin n))) q →
+        (∃ x ∈ q, x ∈ A) ∨ ∃ x ∈ q, ∃ y ∈ q, R.Adj x y) :
+    2 ≤ ∑ x ∈ N, ((N.filter (G.Adj x)).card - 2) := by
+  by_contra! small
+  exact blocked (sparse_link_extension G R N sub (by omega))
+
+/-- Every counterexample to the triangle-free hitting construction has an induced
+core with link excess at least two at every vertex. -/
+lemma dense_triangle_core {n : ℕ} (G : SimpleGraph (Fin n))
+    (nohit : ¬ ∃ F : SimpleGraph (Fin n), F.CliqueFree 3 ∧
+      ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y) :
+    ∃ U : Finset (Fin n), U.Nonempty ∧ ∀ v ∈ U,
+      let N := U.filter (G.Adj v)
+      2 ≤ ∑ x ∈ N, ((N.filter (G.Adj x)).card - 2) := by
+  obtain ⟨U, ne, core⟩ := obstructed_links G nohit
+  refine ⟨U, ne, ?_⟩
+  intro v hv N
+  obtain ⟨R, sub, _, blocked⟩ := core v hv
+  exact link_excess_of_obstruction G R N sub blocked
+
+/-- A removable vertex at every nonempty induced subgraph suffices. -/
+theorem bound_of_peelable_triangle_links {n : ℕ} (G : SimpleGraph (Fin n))
+    (peel : ∀ U : Finset (Fin n), U.Nonempty → ∃ v ∈ U,
+      let N := U.filter (G.Adj v)
+      ∑ x ∈ N, ((N.filter (G.Adj x)).card - 2) ≤ 1) :
+    G.cliqueTransversalNumber ≤ n - Erdos151.H n := by
+  by_cases good : ∃ F : SimpleGraph (Fin n), F.CliqueFree 3 ∧
+      ∀ q, G.IsBigMaximalClique q → ∃ x ∈ q, ∃ y ∈ q, F.Adj x y
+  · obtain ⟨F, tf, hits⟩ := good
+    exact bound_of_hitting G F tf hits
+  obtain ⟨U, ne, core⟩ := dense_triangle_core G good
+  obtain ⟨v, hv, low⟩ := peel U ne
+  exact (Nat.not_succ_le_self 1 ((core v hv).trans low)).elim
+
+/-- An all-orders sufficient condition: at any vertex, the incident edges' total
+excess above two triangles is at most one. -/
+theorem bound_of_sparse_triangle_links {n : ℕ} (G : SimpleGraph (Fin n))
+    (few : ∀ v, let N := univ.filter (G.Adj v)
+      ∑ x ∈ N, ((N.filter (G.Adj x)).card - 2) ≤ 1) :
+    G.cliqueTransversalNumber ≤ n - Erdos151.H n := by
+  apply bound_of_peelable_triangle_links G
+  intro U ne
+  obtain ⟨v, hv⟩ := ne
+  refine ⟨v, hv, ?_⟩
+  let N := U.filter (G.Adj v)
+  let W := univ.filter (G.Adj v)
+  have incl : N ⊆ W := by
+    intro x hx
+    exact mem_filter.mpr ⟨mem_univ _, (mem_filter.mp hx).2⟩
+  have cmp : ∑ x ∈ N, ((N.filter (G.Adj x)).card - 2) ≤
+      ∑ x ∈ W, ((W.filter (G.Adj x)).card - 2) := calc
+    _ ≤ ∑ x ∈ N, ((W.filter (G.Adj x)).card - 2) := sum_le_sum fun x _ =>
+      Nat.sub_le_sub_right (card_le_card (filter_subset_filter _ incl)) _
+    _ ≤ _ := sum_le_sum_of_subset incl
+  have low := few v
+  change ∑ x ∈ W, ((W.filter (G.Adj x)).card - 2) ≤ 1 at low
+  exact cmp.trans low
+
+/-- In particular, the original inequality holds at every Ramsey threshold
+whenever each edge belongs to at most two triangles. -/
+theorem bound_of_two_triangles_per_edge {n : ℕ} (G : SimpleGraph (Fin n))
+    (few : ∀ v x, G.Adj v x → (univ.filter (fun y => G.Adj v y ∧ G.Adj x y)).card ≤ 2) :
+    G.cliqueTransversalNumber ≤ n - Erdos151.H n := by
+  apply bound_of_sparse_triangle_links G
+  intro v N
+  have allZero (x) (hx : x ∈ N) : (N.filter (G.Adj x)).card - 2 = 0 := by
+    have eq : N.filter (G.Adj x) = univ.filter (fun y => G.Adj v y ∧ G.Adj x y) := by
+      ext y
+      simp [N]
+    rw [eq]
+    exact Nat.sub_eq_zero_of_le (few v x (mem_filter.mp hx).2)
+  rw [sum_eq_zero allZero]
+  decide
+
+/-- The leaf characterization of a finite forest is used for the edges in at
+least three triangles. An internal link at one of its leaves has at most one
+incidence beyond degree two. -/
+theorem bound_of_forest_three_triangle_edges {n : ℕ} (G : SimpleGraph (Fin n))
+    (few : ∀ v x, G.Adj v x →
+      ((univ.filter (G.Adj v)).filter (G.Adj x)).card ≤ 3)
+    (forest : ∀ U : Finset (Fin n), U.Nonempty → ∃ v ∈ U,
+      ((U.filter (G.Adj v)).filter (fun x =>
+        3 ≤ ((univ.filter (G.Adj v)).filter (G.Adj x)).card)).card ≤ 1) :
+    G.cliqueTransversalNumber ≤ n - Erdos151.H n := by
+  apply bound_of_peelable_triangle_links G
+  intro U ne
+  obtain ⟨v, hv, leaf⟩ := forest U ne
+  refine ⟨v, hv, ?_⟩
+  let N := U.filter (G.Adj v)
+  let W := univ.filter (G.Adj v)
+  have incl : N ⊆ W := fun x hx => mem_filter.mpr ⟨mem_univ _, (mem_filter.mp hx).2⟩
+  have costs (x) (hx : x ∈ N) : (N.filter (G.Adj x)).card - 2 ≤
+      (if 3 ≤ (W.filter (G.Adj x)).card then 1 else 0) := by
+    have cmp := card_le_card (filter_subset_filter (G.Adj x) incl)
+    have cap : (W.filter (G.Adj x)).card ≤ 3 := few v x (mem_filter.mp hx).2
+    split <;> omega
+  calc
+    ∑ x ∈ N, ((N.filter (G.Adj x)).card - 2) ≤
+        ∑ x ∈ N, (if 3 ≤ (W.filter (G.Adj x)).card then 1 else 0) := sum_le_sum costs
+    _ = (N.filter (fun x => 3 ≤ (W.filter (G.Adj x)).card)).card := by simp
+    _ ≤ 1 := leaf
+
+
 theorem main : H1 → H2 → H3 → H4 → type_of% @Erdos151.erdos_151 := by
   intro h1 h2 h3 h4 m
   induction m using Nat.strong_induction_on with
   | h m ih =>
-    intro G
+    intro original
+    obtain ⟨G, _, _, keeps, twoSteps⟩ := saturate_triangles original
+    apply (transversal_mono_cliques original G keeps).trans
     rcases m with _ | n
     · have : cliqueTransversalNumber G ≤ 0 := by
         apply csInf_le'
@@ -754,6 +1142,16 @@ theorem main : H1 → H2 → H3 → H4 → type_of% @Erdos151.erdos_151 := by
       · exact threshold_ten h1 h3 h4 G hten
       by_cases eleven : Erdos151.H (n + 1) = 11
       · exact threshold_eleven h1 h3 h4 G eleven
-      exact h2 n G hten eleven hjump hdeg hstrict (bad_core h1 G hgood)
+      by_contra fail
+      apply fail
+      apply h2 n G twoSteps ?_ hten eleven hjump hdeg hstrict ?_
+      · intro u v C cover
+        by_contra! large
+        exact fail ((union_of_two_neighbors G u v C cover).trans (Nat.sub_le_sub_left large _))
+      · obtain ⟨U, ne, core⟩ := bad_core h1 G hgood
+        refine ⟨U, ne, ?_⟩
+        intro v hv N
+        obtain ⟨eight, R, sub, tf, blocked⟩ := core v hv
+        exact ⟨eight, link_excess_of_obstruction G R N sub blocked, R, sub, tf, blocked⟩
 
 end OMA.R_Erdos151_erdos_151_R3
