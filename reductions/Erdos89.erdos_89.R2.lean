@@ -16,12 +16,16 @@ def H1 : Prop :=
 /-- Packing problem for disjoint collinear blocks. If each block contains
 k points and the family covers at most exp(k²) points, bound the number
 of blocks by a constant times the number of distances in their union plus one.
-Different blocks may lie on the same line or on lines of different slopes. -/
+Assume that any collection of at most k lines or circles contains fewer than
+half the points of the union. -/
 def H2 : Prop :=
   ∃ C : ℕ, ∀ (k : ℕ) (F : Finset (Finset ℝ²)), 0 < k →
     (F : Set (Finset ℝ²)).PairwiseDisjoint id →
     (∀ T ∈ F, T.card = k ∧ ∃ a b c : ℝ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p 0+b*p 1=c) →
     ((F.biUnion id).card : ℝ) ≤ Real.exp ((k : ℝ)^2) →
+    (∀ G : Finset (Finset ℝ²), G.card ≤ k →
+      (∀ T ∈ G, T ⊆ F.biUnion id ∧ (Collinear ℝ (T : Set ℝ²) ∨ Cospherical (T : Set ℝ²))) →
+      2*(G.biUnion id).card < (F.biUnion id).card) →
     F.card ≤ C * (distinctDistances (F.biUnion id)+1)
 
 section Bisectors
@@ -171,11 +175,113 @@ private theorem distances_mono {S T : Finset ℝ²} (h : S ⊆ T) :
   obtain ⟨hx,hy,hne⟩ := mem_offDiag.mp hxy
   exact mem_image.mpr ⟨(x,y),mem_offDiag.mpr ⟨h hx,h hy,hne⟩,rfl⟩
 
+/-- A positive-distance fiber on a line or circle through its pin has at most two points.
+The pin itself is excluded, which also handles circles of radius zero. -/
+private theorem fiber_card_le_two (curve : Set ℝ²) (p : ℝ²) (hp : p ∈ curve)
+    (hcurve : Collinear ℝ curve ∨ Cospherical curve)
+    (s : Finset ℝ²) (r : ℝ)
+    (hs : ∀ x ∈ s, x ∈ curve ∧ x ≠ p ∧ dist x p = r) : #s ≤ 2 := by
+  by_contra! h
+  obtain ⟨a, ha, b, hb, c, hc, hab, hac, hbc⟩ := Finset.two_lt_card.mp h
+  obtain ⟨haC, hap, har⟩ := hs a ha
+  obtain ⟨hbC, _, hbr⟩ := hs b hb
+  obtain ⟨hcC, _, hcr⟩ := hs c hc
+  rcases hcurve with hline | ⟨o, R, hcircle⟩
+  · have hcos : Cospherical (s : Set ℝ²) := ⟨p, r, fun x hx => (hs x hx).2.2⟩
+    have hind := hcos.affineIndependent_of_mem_of_ne ha hb hc hab hac hbc
+    apply (affineIndependent_iff_not_collinear_set.mp hind)
+    exact hline.subset (by simp [Set.insert_subset_iff, haC, hbC, hcC])
+  · have hpo : p ≠ o := by
+      rintro rfl
+      have hzero : R = 0 := by simpa using (hcircle p hp).symm
+      exact hap (dist_eq_zero.mp ((hcircle a haC).trans hzero))
+    have hdim : Module.finrank ℝ ℝ² = 2 := finrank_euclideanSpace_fin
+    rcases eq_of_dist_eq_of_dist_eq_of_finrank_eq_two hdim hpo hab
+        har hbr hcr (hcircle a haC) (hcircle b hbC) (hcircle c hcC) with he | he
+    · exact hac he.symm
+    · exact hbc he.symm
+
+private theorem card_on_curve (P : Finset ℝ²) (curve : Set ℝ²)
+    (hcurve : Collinear ℝ curve ∨ Cospherical curve) (s : Finset ℝ²)
+    (hsP : s ⊆ P) (hsC : ∀ x ∈ s, x ∈ curve) :
+    #s ≤ 2 * distinctDistances P + 1 := by
+  classical
+  rcases s.eq_empty_or_nonempty with rfl | ⟨p, hp⟩
+  · simp
+  have hmap : ∀ x ∈ s.erase p, dist x p ∈ distanceSet P := by
+    intro x hx
+    exact Finset.mem_image.mpr ⟨(x, p), Finset.mem_offDiag.mpr
+      ⟨hsP (mem_of_mem_erase hx), hsP hp, ne_of_mem_erase hx⟩, rfl⟩
+  have h := Finset.card_le_mul_card_image_of_maps_to hmap 2 (by
+    intro r _
+    apply fiber_card_le_two curve p (hsC p hp) hcurve _ r
+    intro x hx
+    obtain ⟨hx, hr⟩ := mem_filter.mp hx
+    exact ⟨hsC x (mem_of_mem_erase hx), ne_of_mem_erase hx, hr⟩)
+  change #(s.erase p) ≤ 2 * distinctDistances P at h
+  rw [← card_erase_add_one hp]
+  exact Nat.add_le_add_right h 1
+
+/-- Count blocks when at most k collinear or cospherical pieces contain half
+the points. Their distance values are measured in the entire union. -/
+private theorem curve_packing (k : ℕ) (hk : 0 < k) (F G : Finset (Finset ℝ²))
+    (hdis : (F : Set (Finset ℝ²)).PairwiseDisjoint id)
+    (hsize : ∀ T ∈ F, T.card = k) (hg : G.card ≤ k)
+    (hpieces : ∀ T ∈ G, T ⊆ F.biUnion id ∧
+      (Collinear ℝ (T : Set ℝ²) ∨ Cospherical (T : Set ℝ²)))
+    (hhalf : (F.biUnion id).card ≤ 2*(G.biUnion id).card) :
+    F.card ≤ 4*distinctDistances (F.biUnion id)+2 := by
+  classical
+  let S := F.biUnion id
+  let D := distinctDistances S
+  have hcov : (G.biUnion id).card ≤ k*(2*D+1) := calc
+    _ ≤ ∑ T ∈ G, T.card := card_biUnion_le
+    _ ≤ ∑ _T ∈ G, (2*D+1) := by
+      apply sum_le_sum
+      intro T hT
+      obtain ⟨hsub,hcurve⟩ := hpieces T hT
+      exact card_on_curve S (T : Set ℝ²) hcurve T hsub (fun _ hx => hx)
+    _ ≤ _ := by simpa using Nat.mul_le_mul_right (2*D+1) hg
+  have hs : S.card = F.card*k := by
+    dsimp [S]; rw [card_biUnion hdis]
+    calc
+      _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => hsize T hT
+      _ = _ := by simp
+  change F.card ≤ 4*D+2
+  apply Nat.le_of_mul_le_mul_right _ hk
+  calc
+    _ = S.card := hs.symm
+    _ ≤ 2*(G.biUnion id).card := hhalf
+    _ ≤ 2*(k*(2*D+1)) := Nat.mul_le_mul_left _ hcov
+    _ = _ := by ring
+
+/-- The remaining packing case implies the unrestricted block estimate. -/
+private theorem packing_from_curves (packing : H2) :
+  ∃ C : ℕ, ∀ (k : ℕ) (F : Finset (Finset ℝ²)), 0 < k →
+    (F : Set (Finset ℝ²)).PairwiseDisjoint id →
+    (∀ T ∈ F, T.card = k ∧ ∃ a b c : ℝ, (a ≠ 0 ∨ b ≠ 0) ∧ ∀ p ∈ T, a*p 0+b*p 1=c) →
+    ((F.biUnion id).card : ℝ) ≤ Real.exp ((k : ℝ)^2) →
+    F.card ≤ C * (distinctDistances (F.biUnion id)+1) := by
+  classical
+  obtain ⟨C,pack⟩ := packing
+  refine ⟨max C 4,?_⟩
+  intro k F hk hdis hline hcap
+  by_cases spread : (∀ G : Finset (Finset ℝ²), G.card ≤ k →
+      (∀ T ∈ G, T ⊆ F.biUnion id ∧ (Collinear ℝ (T : Set ℝ²) ∨ Cospherical (T : Set ℝ²))) →
+      2*(G.biUnion id).card < (F.biUnion id).card)
+  · exact (pack k F hk hdis hline hcap spread).trans
+      (Nat.mul_le_mul_right _ (le_max_left C 4))
+  push Not at spread
+  obtain ⟨G,hg,hpieces,hhalf⟩ := spread
+  have h := curve_packing k hk F G hdis (fun T hT => (hline T hT).1) hg hpieces hhalf
+  exact h.trans ((by omega : 4*distinctDistances (F.biUnion id)+2 ≤
+    4*(distinctDistances (F.biUnion id)+1)).trans (Nat.mul_le_mul_right _ (le_max_right C 4)))
+
 private theorem finite_bound (sparse : H1) (packing : H2) :
     ∃ C : ℕ, ∀ (S : Finset ℝ²) (k : ℕ), 0 < k → (S.card : ℝ) ≤ Real.exp ((k : ℝ)^2) →
       S.card ≤ k*(C+1)*(distinctDistances S+1) := by
   classical
-  obtain ⟨C,pack⟩ := packing
+  obtain ⟨C,pack⟩ := packing_from_curves packing
   refine ⟨C,?_⟩
   intro S k hk hsize
   obtain ⟨F,hdis,hline,hsub,hres⟩ := extract_blocks S k hk
