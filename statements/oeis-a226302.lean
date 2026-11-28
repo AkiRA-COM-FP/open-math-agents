@@ -8,12 +8,13 @@ Credit: @vivanpoddar
 
 The sequence (offset 2) begins 1, -1, 2, -4, 6, -14, 20, -48, 70, ...
 The entry gives the generating function
-  1/sqrt(1-4*x^2) - x/((1-2*x^2)*sqrt(1-4*x^2)), where W = 1 - 2*x^2 - 2*x*(1 - 2*x^2)^2*(2*k+1)/( 2*x*(1 - 2*x^2)*(2*k+1) - (k+1)/(1 - x/W(k+1) ))
-(Sergei N. Gladkovskii, Jun 13 2015), taken times x^2 so that the exponent of x is the index n of the entry. It is used here as the definition: a(n) is the coefficient of x^n of that series, where
+  1/sqrt(1-4*x^2) - x/((1-2*x^2)*sqrt(1-4*x^2))   (given there for offset 0)
+(see the entry), taken times x^2 so that the exponent of x is the index n of the entry.
+It is used here as the definition: a(n) is the coefficient of x^n of that series, where
 the square root is the power series with constant term 1 (the binomial series (1 + X)^(1/2) evaluated
 at the radicand minus 1). With R = 1 - 4*x^2 the series is, in normalised form,
-  (0 + (x^3 + x^2)*sqrt(R)) / (-4*x^3 - 2*x^2 + 2*x + 1),
-which is the expression used below (the division by x^0 is the shift of the index by 0).
+  (x^3 + x^2)*sqrt(R) / (-4*x^3 - 2*x^2 + 2*x + 1),
+which is the expression used below.
 Expanding it reproduces the data of the entry.
 
 The conjecture (R. J. Mathar, Nov 06 2013) reads
