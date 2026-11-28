@@ -300,6 +300,14 @@ slow_poll() {
         echo "merger: retried $(wc -l < "$ROOT/credit_todo.txt") credits in the background" ) &
       CPID=$!
     fi
+    # every 10 minutes: the numbers of the open pull requests (complete listings only), so the dispatcher drops queued
+    # runs of pull requests merged or closed since without spending two API calls on each
+    if [ $(( NOW - ${LAST_OPEN:-0} )) -ge 600 ]; then
+      LAST_OPEN=$NOW
+      gh api --paginate "repos/$REPO/pulls?state=open&per_page=100" --jq '.[].number' > open_nums.new 2>/dev/null \
+        && [ -s open_nums.new ] && sort -un open_nums.new > open_nums.tmp && mv open_nums.tmp open_nums.txt
+      rm -f open_nums.new
+    fi
     # every 15 minutes: the open pull requests to the site, so no agent is sent to a problem with a proof waiting
     if [ $(( NOW - LAST_PENDING )) -ge 900 ]; then LAST_PENDING=$NOW; publish_pending; fi
     # backlog: only when no pass is running, at most every 15 minutes, and with budget to spare for the verdicts
@@ -334,6 +342,10 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
     LAST_MERGE=$NOW; ls "$SPOOL"/c.* > spool.list
     { printf '%s\n' "${QL[@]:$QI}"; xargs -r cat < spool.list; } | awk -F'\t' 'NF >= 6 && !seen[$1]++' > all.tsv
     xargs -r rm -f < spool.list
+    # open pull requests as of the last complete listing (at most 20 minutes old); newer pull requests are kept
+    : > open_set.txt; OMAX=0
+    if [ -s open_nums.txt ] && [ $(( NOW - $(stat -c %Y open_nums.txt) )) -lt 1200 ]; then cp open_nums.txt open_set.txt; OMAX=$(tail -n 1 open_set.txt); fi
+    declare -A OPEN=(); while read -r n; do OPEN[$n]=1; done < open_set.txt; DROPPED=0
     : > next.tsv
     while IFS=$'\t' read -r ID SHA ATT URL UPD CONC TITLE MODE; do
       [ -n "$ID" ] || continue
@@ -342,9 +354,13 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
       [ -e "done/$ID.$ATT" ] && continue
       [ -s pending.txt ] && grep -qx "$SHA" pending.txt 2>/dev/null && { touch "done/$ID.$ATT"; continue; }   # an old verdict job reports it
       N=999999; [[ "$TITLE" =~ ([0-9]+)$ ]] && N=${BASH_REMATCH[1]}
+      if [ "$OMAX" -gt 0 ] && [ "$N" -le "$OMAX" ] && [ -z "${OPEN[$N]:-}" ] && [ -z "${MODE:-}" ]; then
+        touch "done/$ID.$ATT"; DROPPED=$((DROPPED + 1)); continue   # merged or closed since: nothing to report
+      fi
       printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' "$N" "$ID" "$SHA" "$ATT" "$URL" "$UPD" "$CONC" "$TITLE" "${MODE:-}" >> next.tsv
     done < all.tsv
     mapfile -t QL < <(sort -t$'\t' -k1,1n -k2,2n next.tsv | cut -f2-); QI=0
+    [ "$DROPPED" -gt 0 ] && echo "$(date -u +%H:%M:%S) queue: dropped $DROPPED runs of closed pull requests, ${#QL[@]} left" >> "$ROOT/merger_out.txt"
   fi
   # every free slot takes the next item at once
   BUSY=0
