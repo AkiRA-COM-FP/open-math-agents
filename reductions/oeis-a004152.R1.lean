@@ -48,7 +48,6 @@ private theorem center_error {n : ℕ} (hn : 2 ≤ n) :
     let D : ℝ := 9 / 2 * (((Nat.digits 10 n.factorial).length : ℝ) - padicValNat 5 n.factorial) -
       (c₁ * n * log n - (c₁ + 9 / 8) * n)
     0 ≤ D ∧ D ≤ ((9 + c₁) / log 2 + c₁ / 2 + 9 / 2 / log 5) * log (n : ℝ) := by
-  letI : Fact (Nat.Prime 5) := ⟨by decide⟩
   have hn₁ : 1 ≤ n := by omega
   have hn₀ : 0 < n := by omega
   let s := (Nat.digits 5 n).sum
@@ -56,15 +55,25 @@ private theorem center_error {n : ℕ} (hn : 2 ≤ n) :
     simpa only [s, Nat.ofDigits_digits] using
       (Nat.sum_le_ofDigits (Nat.digits 5 n) (by decide : 1 ≤ 5))
   have hz : (padicValNat 5 n.factorial : ℝ) = ((n : ℝ) - (s : ℝ)) / 4 := by
-    have h := sub_one_mul_padicValNat_factorial (p := 5) n
+    have hp : Fact (Nat.Prime 5) := ⟨by decide⟩
+    have h := sub_one_mul_padicValNat_factorial (p := 5) (hp := hp) n
     change 4 * padicValNat 5 n.factorial = n - s at h
     have he : 4 * padicValNat 5 n.factorial + s = n := by omega
     have heR : 4 * (padicValNat 5 n.factorial : ℝ) + (s : ℝ) = (n : ℝ) := by exact_mod_cast he
     linarith only [heR]
   have hs₀ : 0 ≤ (s : ℝ) := Nat.cast_nonneg _
   have hsUpper : (s : ℝ) ≤ (log (n : ℝ) / log 5 + 1) * 4 := by
-    have hsum : s ≤ (Nat.digits 5 n).length * 4 := by
-      simpa only [s, nsmul_eq_mul] using List.sum_le_card_nsmul (Nat.digits 5 n) 4
+    have sum_bound (digits : List ℕ) (h : ∀ d ∈ digits, d ≤ 4) :
+        digits.sum ≤ digits.length * 4 := by
+      induction digits with
+      | nil => simp
+      | cons d rest ih =>
+        have hd := h d List.mem_cons_self
+        have hrest := ih (fun x hx => h x (List.mem_cons_of_mem _ hx))
+        simp only [List.sum_cons, List.length_cons]
+        omega
+    have hsum : s ≤ (Nat.digits 5 n).length * 4 :=
+      sum_bound (Nat.digits 5 n)
         (fun d hd => Nat.le_of_lt_succ (Nat.digits_lt_base (by decide : 1 < 5) hd))
     have hsumR : (s : ℝ) ≤ ((Nat.digits 5 n).length : ℝ) * 4 := by exact_mod_cast hsum
     exact hsumR.trans (mul_le_mul_of_nonneg_right
@@ -74,6 +83,7 @@ private theorem center_error {n : ℕ} (hn : 2 ≤ n) :
   have hc₀ : 0 ≤ c₁ := by
     unfold c₁
     exact div_nonneg (by norm_num) (mul_nonneg (by norm_num) (log_pos (by norm_num)).le)
+  have hc₉ : 0 ≤ (9 : ℝ) + c₁ := add_nonneg (by norm_num) hc₀
   have hc : c₁ = (9 : ℝ) / 2 / log 10 := by simp only [c₁, div_div]
   intro D
   have hD : D =
@@ -98,7 +108,7 @@ private theorem center_error {n : ℕ} (hn : 2 ≤ n) :
           (mul_le_mul_of_nonneg_left hErr.2 hc₀)) (mul_le_mul_of_nonneg_left hsUpper (by norm_num))
       _ = (9 + c₁) * 1 + (c₁ / 2 + 9 / 2 / log 5) * log (n : ℝ) := by ring
       _ ≤ (9 + c₁) * (log (n : ℝ) / log 2) + (c₁ / 2 + 9 / 2 / log 5) * log (n : ℝ) :=
-        add_le_add_right (mul_le_mul_of_nonneg_left hOne (by linarith only [hc₀])) _
+        add_le_add (mul_le_mul_of_nonneg_left hOne hc₉) le_rfl
       _ = _ := by ring
 
 /-- Upper discrepancy from the center determined by the significant digit count. -/
