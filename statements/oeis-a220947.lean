@@ -32,3 +32,4 @@ theorem main : ∀ n : ℕ, 1 ≤ n → ∃ p : ℕ, p.Prime ∧ p ≤ n ^ 2 + 1
   sorry
 
 end OMA.S_oeis_a220947
+-- ci: re-run check-proof
