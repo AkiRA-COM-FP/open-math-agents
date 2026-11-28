@@ -4,16 +4,20 @@ import OMAStatements.S_arxiv_1812_05930
 namespace OMA.R_arxiv_1812_05930_R1
 open OMA.S_arxiv_1812_05930
 
-/-- Regular-graph density: a positive-degree d-regular graph on n vertices
-has an induced matching whose size is at least 2n/(5d). -/
+/-- Regular density outside the single-edge and small odd-cycle-transversal cases. -/
 def H1 : Prop :=
   ∀ (n d : ℕ) (G : SimpleGraph (Fin n)) [DecidableRel G.Adj],
-    0 < d → (∀ v, G.degree v = d) → ∃ M, inducedMatching G M ∧ 2*n ≤ 5*d*M.card
+    0 < d → (∀ v, G.degree v = d) → 5*d < 2*n →
+    (∀ A B : Finset (Fin n), Disjoint A B → G.IsIndepSet A → G.IsIndepSet B →
+      n < 10*(A ∪ B)ᶜ.card) →
+    ∃ M, inducedMatching G M ∧ 2*n ≤ 5*d*M.card
 
-/-- The fractional gap only on graphs having two different incidence-block sizes. -/
+/-- Mixed incidence widths, excluding bipartitions with a side of degree at most 5Δ/8. -/
 def H2 : Prop :=
-  ∃ C : ℝ, 0 ≤ C ∧ ∀ (n : ℕ) (G : SimpleGraph (Fin n)),
+  ∃ C : ℝ, 0 ≤ C ∧ ∀ (n : ℕ) (G : SimpleGraph (Fin n)) [DecidableRel G.Adj],
     (∃ e ∈ edges G, ∃ f ∈ edges G, (incidentBlock G e).card ≠ (incidentBlock G f).card) →
+    (∀ A B : Finset (Fin n), G.IsBipartiteWith A B →
+      ∃ u ∈ A, 5*degreeBound G < 8*G.degree u) →
     ∀ x, feasible G x → ∃ M, inducedMatching G M ∧
       (∑ e ∈ edges G, x e) ≤ ((5/8 : ℝ)*degreeBound G+C)*M.card
 
@@ -163,6 +167,264 @@ theorem project_induced_matching {n m} {G : SimpleGraph (Fin n)} {H : SimpleGrap
       apply noCross _ he f hf u (Sym2.mem_mk_left ..) w wf
       exact (cover u w).mpr (hw ▸ (cover u v).mp uv)
 
+/-- An inclusion-minimal cover of B by neighborhoods of A gives a private
+neighbor for each selected vertex, hence an induced matching of equal size. -/
+theorem induced_bipartite_private_cover {n r : ℕ} (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
+    (A B : Finset (Fin n)) (apart : Disjoint A B)
+    (left : ∀ u ∈ A, ∀ v ∈ A, ¬ G.Adj u v)
+    (right : ∀ u ∈ B, ∀ v ∈ B, ¬ G.Adj u v)
+    (live : ∀ v ∈ B, ∃ u ∈ A, G.Adj u v) (cap : ∀ u ∈ A, G.degree u ≤ r) :
+    ∃ M, inducedMatching G M ∧ B.card ≤ r*M.card := by
+  classical
+  let Covers (S : Finset (Fin n)) := ∀ v ∈ B, ∃ u ∈ S, G.Adj u v
+  let F := A.powerset.filter Covers
+  have mem (S) : S ∈ F ↔ S ⊆ A ∧ Covers S := by simp [F]
+  obtain ⟨S,hS,minS⟩ := F.exists_min_image Finset.card ⟨A,(mem _).mpr ⟨Finset.Subset.rfl,live⟩⟩
+  obtain ⟨sub,cover⟩ := (mem S).mp hS
+  have private_nbr (a : S) : ∃ v ∈ B, G.Adj a.val v ∧ ∀ u ∈ S, G.Adj u v → u = a.val := by
+    have indispensable : ¬Covers (S.erase a.val) := by
+      intro good
+      have small := minS _ ((mem _).mpr ⟨(Finset.erase_subset _ _).trans sub,good⟩)
+      exact (Finset.card_erase_lt_of_mem a.property).not_ge small
+    change ¬ ∀ v ∈ B, ∃ u ∈ S.erase a.val, G.Adj u v at indispensable
+    push Not at indispensable
+    obtain ⟨v,vb,excl⟩ := indispensable
+    have unique {u} (h : u ∈ S) (adj : G.Adj u v) : u = a.val := by
+      by_contra hne
+      exact excl u (Finset.mem_erase.mpr ⟨hne,h⟩) adj
+    obtain ⟨u,hu,uv⟩ := cover v vb
+    exact ⟨v,vb,(unique hu uv) ▸ uv,fun _ h adj => unique h adj⟩
+  choose y yB reaches priv using private_nbr
+  let edge (a : S) : Sym2 (Fin n) := s(a.val,y a)
+  let M := Finset.univ.image edge
+  have aA (a : S) : a.val ∈ A := sub a.property
+  have sep := Finset.disjoint_left.mp apart
+  have inj : Function.Injective edge := by
+    intro a b he
+    have hb : a.val ∈ edge b := he ▸ Sym2.mem_mk_left ..
+    rcases Sym2.mem_iff.mp hb with eq|eq
+    · exact Subtype.ext eq
+    · exact (sep (aA a) (eq ▸ yB b)).elim
+  have card : M.card = S.card := by simp [M,Finset.card_image_of_injective _ inj]
+  have induced : inducedMatching G M := by
+    apply induced_iff_endpoints.mpr
+    constructor
+    · intro e he
+      obtain ⟨a,_,rfl⟩ := Finset.mem_image.mp he
+      simpa [edge,edges] using reaches a
+    · intro e he f hf u ue v vf adj
+      obtain ⟨a,_,rfl⟩ := Finset.mem_image.mp he
+      obtain ⟨b,_,rfl⟩ := Finset.mem_image.mp hf
+      apply congrArg edge
+      apply Subtype.ext
+      rcases Sym2.mem_iff.mp ue with rfl|rfl <;> rcases Sym2.mem_iff.mp vf with rfl|rfl
+      · exact (left _ (aA a) _ (aA b) adj).elim
+      · exact priv b a.val a.property adj
+      · exact (priv a b.val b.property adj.symm).symm
+      · exact (right _ (yB a) _ (yB b) adj).elim
+  have includes : B ⊆ S.biUnion (fun a => G.neighborFinset a) := by
+    intro v hv
+    obtain ⟨a,ha,adj⟩ := cover v hv
+    exact Finset.mem_biUnion.mpr ⟨_,ha,(G.mem_neighborFinset a v).mpr adj⟩
+  refine ⟨M,induced,?_⟩
+  rw [card,Nat.mul_comm]
+  apply (Finset.card_le_card includes).trans
+  exact Finset.card_biUnion_le_card_mul _ _ _ (fun a ha => by simpa using cap a (sub ha))
+
+theorem induced_bipartite_order {n d : ℕ} (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
+    (A B : Finset (Fin n)) (apart : Disjoint A B)
+    (left : ∀ u ∈ A, ∀ v ∈ A, ¬ G.Adj u v)
+    (right : ∀ u ∈ B, ∀ v ∈ B, ¬ G.Adj u v)
+    (liveA : ∀ u ∈ A, ∃ v ∈ B, G.Adj v u)
+    (liveB : ∀ v ∈ B, ∃ u ∈ A, G.Adj u v) (cap : ∀ v, G.degree v ≤ d) :
+    ∃ M, inducedMatching G M ∧ A.card+B.card ≤ 2*d*M.card := by
+  by_cases h : A.card ≤ B.card
+  · obtain ⟨M,hm,cert⟩ := induced_bipartite_private_cover G A B apart left right liveB (fun u _ => cap u)
+    exact ⟨M,hm,by nlinarith only [h,cert]⟩
+  · obtain ⟨M,hm,cert⟩ := induced_bipartite_private_cover G B A apart.symm right left liveA (fun u _ => cap u)
+    exact ⟨M,hm,by nlinarith only [Nat.le_of_not_ge h,cert]⟩
+
+/-- Deleting t vertices to make a regular graph bipartite leaves an
+induced matching M with n ≤ 2d|M| + 2t. -/
+theorem bipartite_deletion_bound {n d : ℕ} (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
+    (pos : 0 < d) (reg : ∀ v, G.degree v = d)
+    (A B : Finset (Fin n)) (apart : Disjoint A B)
+    (left : G.IsIndepSet (A : Set (Fin n))) (right : G.IsIndepSet (B : Set (Fin n))) :
+    ∃ M, inducedMatching G M ∧ n ≤ 2*d*M.card + 2*(A ∪ B)ᶜ.card := by
+  classical
+  let S := A ∪ B
+  let L := S.filter (fun v => ∃ u ∈ S, G.Adj u v)
+  let I := S \ L
+  let X := Sᶜ
+  have live (v) : v ∈ L ↔ v ∈ S ∧ ∃ u ∈ S, G.Adj u v := Finset.mem_filter
+  have outside {u v} (hu : u ∈ I) (adj : G.Adj u v) : v ∈ X := by
+    obtain ⟨hs,hl⟩ := Finset.mem_sdiff.mp hu
+    exact Finset.mem_compl.mpr (fun hv => hl ((live u).mpr ⟨hs,v,hv,adj.symm⟩))
+  have many (u) (hu : u ∈ I) : d ≤ (X.bipartiteAbove G.Adj u).card := by
+    have eq : X.bipartiteAbove G.Adj u = G.neighborFinset u := by
+      ext v
+      simp only [Finset.mem_bipartiteAbove,G.mem_neighborFinset]
+      exact ⟨And.right,fun h => ⟨outside hu h,h⟩⟩
+    simp [eq,reg]
+  have few (v) (_ : v ∈ X) : (I.bipartiteBelow G.Adj v).card ≤ d := by
+    have sub : I.bipartiteBelow G.Adj v ⊆ G.neighborFinset v := by
+      intro u hu
+      exact (G.mem_neighborFinset v u).mpr (Finset.mem_filter.mp hu).2.symm
+    simpa [reg] using Finset.card_le_card sub
+  have isolated := Nat.le_of_mul_le_mul_right (Finset.card_mul_le_card_mul G.Adj many few) pos
+  have left' {u v} (hu : u ∈ A) (hv : v ∈ A) (h : G.Adj u v) : False :=
+    (G.isIndepSet_iff.mp left) hu hv h.ne h
+  have right' {u v} (hu : u ∈ B) (hv : v ∈ B) (h : G.Adj u v) : False :=
+    (G.isIndepSet_iff.mp right) hu hv h.ne h
+  have partner {u v} (hu : u ∈ S) (hv : v ∈ L) (adj : G.Adj u v) : u ∈ L :=
+    (live _).mpr ⟨hu,v,((live _).mp hv).1,adj.symm⟩
+  have inA (v) (hv : v ∈ B ∩ L) : ∃ u ∈ A ∩ L, G.Adj u v := by
+    obtain ⟨hb,hl⟩ := Finset.mem_inter.mp hv
+    obtain ⟨_,u,hu,adj⟩ := (live _).mp hl
+    exact ⟨u,Finset.mem_inter.mpr ⟨(Finset.mem_union.mp hu).resolve_right
+      (fun h => right' h hb adj),partner hu hl adj⟩,adj⟩
+  have inB (u) (hu : u ∈ A ∩ L) : ∃ v ∈ B ∩ L, G.Adj v u := by
+    obtain ⟨ha,hl⟩ := Finset.mem_inter.mp hu
+    obtain ⟨_,v,hv,adj⟩ := (live _).mp hl
+    exact ⟨v,Finset.mem_inter.mpr ⟨(Finset.mem_union.mp hv).resolve_left
+      (fun h => left' h ha adj),partner hv hl adj⟩,adj⟩
+  have sep : Disjoint (A ∩ L) (B ∩ L) :=
+    apart.mono (Finset.inter_subset_left) (Finset.inter_subset_left)
+  obtain ⟨M,hm,bound⟩ := induced_bipartite_order G (A ∩ L) (B ∩ L) sep
+    (fun _ hu _ hv => left' (Finset.mem_inter.mp hu).1 (Finset.mem_inter.mp hv).1)
+    (fun _ hu _ hv => right' (Finset.mem_inter.mp hu).1 (Finset.mem_inter.mp hv).1)
+    inB inA (fun v => (reg v).le)
+  have split : (A ∩ L) ∪ (B ∩ L) = L := by
+    rw [← Finset.union_inter_distrib_right]
+    exact Finset.inter_eq_right.mpr (Finset.filter_subset ..)
+  have active := Finset.card_union_of_disjoint sep
+  rw [split] at active
+  have sizes : I.card + L.card = S.card := Finset.card_sdiff_add_card_eq_card (Finset.filter_subset ..)
+  have total : X.card + S.card = n := by simp [X]
+  exact ⟨M,hm,by change n ≤ 2*d*M.card+2*X.card; omega⟩
+
+private theorem touches_right {n} (G : SimpleGraph (Fin n)) (A B : Finset (Fin n))
+    (cross : ∀ u v, G.Adj u v → (u ∈ A ∧ v ∈ B) ∨ (u ∈ B ∧ v ∈ A))
+    (e) (he : e ∈ edges G) : ∃ b ∈ B, b ∈ e := by
+  induction e using Sym2.inductionOn with
+  | _ u v =>
+    rcases cross u v (by simpa [edges] using he) with h|h
+    · exact ⟨v,h.2,Sym2.mem_mk_right ..⟩
+    · exact ⟨u,h.1,Sym2.mem_mk_left ..⟩
+
+/-- A low-degree side controls the LP gap even when the block sizes vary. -/
+theorem bipartite_side_gap {n r} (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
+    (A B : Finset (Fin n)) (apart : Disjoint A B)
+    (cross : ∀ u v, G.Adj u v → (u ∈ A ∧ v ∈ B) ∨ (u ∈ B ∧ v ∈ A))
+    (live : ∀ v ∈ B, ∃ u ∈ A, G.Adj u v) (cap : ∀ u ∈ A, G.degree u ≤ r)
+    (x) (hx : feasible G x) :
+    ∃ M, inducedMatching G M ∧ (∑ e ∈ edges G, x e) ≤ (r:ℝ)*M.card := by
+  classical
+  obtain ⟨M,hm,bound⟩ := induced_bipartite_private_cover G A B apart
+    (fun u hu v hv adj => (cross u v adj).elim
+      (fun q => Finset.disjoint_left.mp apart hv q.2) (fun q => Finset.disjoint_left.mp apart hu q.1))
+    (fun u hu v hv adj => (cross u v adj).elim
+      (fun q => Finset.disjoint_left.mp apart q.1 hu) (fun q => Finset.disjoint_left.mp apart q.2 hv))
+    live cap
+  refine ⟨M,hm,le_trans ?_ (by exact_mod_cast bound : (B.card:ℝ) ≤ (r:ℝ)*M.card)⟩
+  have load (b) (hb : b ∈ B) : ∑ e ∈ G.incidenceFinset b, x e ≤ 1 := by
+    obtain ⟨a,_,adj⟩ := live b hb
+    have sub : G.incidenceFinset b ⊆ incidentBlock G s(b,a) := by
+      intro f hf
+      rw [G.incidenceFinset_eq_filter] at hf
+      obtain ⟨ef,bf⟩ := Finset.mem_filter.mp hf
+      exact Finset.mem_filter.mpr ⟨by simpa [edges] using ef,
+        Finset.nonempty_iff_ne_empty.mp ⟨b,Finset.mem_inter.mpr
+          ⟨Sym2.mem_toFinset.mpr (Sym2.mem_mk_left ..),Sym2.mem_toFinset.mpr bf⟩⟩⟩
+    exact (Finset.sum_le_sum_of_subset_of_nonneg sub
+      (fun e he _ => hx.1 _ (Finset.mem_filter.mp he).1)).trans
+      (hx.2 _ (by simpa [edges] using adj.symm))
+  calc
+    _ ≤ ∑ e ∈ edges G, ∑ b ∈ B, if b ∈ e then x e else 0 := by
+      apply Finset.sum_le_sum
+      intro e he
+      obtain ⟨b,hb,be⟩ := touches_right G A B cross e he
+      have nn (v) (_ : v ∈ B) : 0 ≤ (if v ∈ e then x e else 0) := by
+        split <;> simp_all [hx.1 e he]
+      simpa only [if_pos be] using Finset.single_le_sum nn hb
+    _ = ∑ b ∈ B, ∑ e ∈ edges G, if b ∈ e then x e else 0 := Finset.sum_comm
+    _ ≤ ∑ _b ∈ B,(1:ℝ) := by
+      apply Finset.sum_le_sum
+      intro b hb
+      have star : (edges G).filter (fun e => b ∈ e) = G.incidenceFinset b := by
+        ext e
+        simp [G.incidenceFinset_eq_filter,edges]
+      rw [← Finset.sum_filter,star]
+      exact load b hb
+    _ = _ := by simp
+
+theorem single_edge_density {n d : ℕ} (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
+    (pos : 0 < d) (reg : ∀ v, G.degree v = d) (small : 2*n ≤ 5*d) :
+    ∃ M, inducedMatching G M ∧ 2*n ≤ 5*d*M.card := by
+  classical
+  by_cases hz : n = 0
+  · exact ⟨∅,by simp [inducedMatching],by simp [hz]⟩
+  let v : Fin n := ⟨0,Nat.pos_of_ne_zero hz⟩
+  obtain ⟨u,adj⟩ := (G.degree_pos_iff_exists_adj v).mp (by simpa [reg] using pos)
+  have edge : s(v,u) ∈ edges G := by simpa [edges] using adj
+  refine ⟨{s(v,u)},induced_iff_endpoints.mpr ⟨by simpa using edge,?_⟩,by simpa using small⟩
+  intros e he f hf a ha b hb _
+  exact (Finset.mem_singleton.mp he).trans (Finset.mem_singleton.mp hf).symm
+
+theorem near_bipartite_density {n d : ℕ} (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
+    (pos : 0 < d) (reg : ∀ v, G.degree v = d)
+    (A B : Finset (Fin n)) (apart : Disjoint A B)
+    (left : G.IsIndepSet (A : Set (Fin n))) (right : G.IsIndepSet (B : Set (Fin n)))
+    (nearby : 10*(A ∪ B)ᶜ.card ≤ n) :
+    ∃ M, inducedMatching G M ∧ 2*n ≤ 5*d*M.card := by
+  obtain ⟨M,hm,h⟩ := bipartite_deletion_bound G pos reg A B apart left right
+  exact ⟨M,hm,by nlinarith only [h,nearby]⟩
+
+theorem low_side_gap {n} (G : SimpleGraph (Fin n)) [DecidableRel G.Adj]
+    (A B : Finset (Fin n)) (part : G.IsBipartiteWith A B)
+    (low : ∀ u ∈ A, 8*G.degree u ≤ 5*degreeBound G) (x) (hx : feasible G x) :
+    ∃ M, inducedMatching G M ∧
+      (∑ e ∈ edges G, x e) ≤ ((5/8 : ℝ)*degreeBound G)*M.card := by
+  classical
+  let T := B.filter (fun v => 0 < G.degree v)
+  have live {u v} (h : G.Adj u v) (hv : v ∈ B) : v ∈ T :=
+    Finset.mem_filter.mpr ⟨hv,(G.degree_pos_iff_exists_adj _).mpr ⟨u,h.symm⟩⟩
+  have cross (u v) (h : G.Adj u v) :
+      (u ∈ A ∧ v ∈ T) ∨ (u ∈ T ∧ v ∈ A) := by
+    rcases part.mem_of_adj h with q|q
+    · exact Or.inl ⟨q.1,live h q.2⟩
+    · exact Or.inr ⟨live h.symm q.1,q.2⟩
+  have partner (v) (hv : v ∈ T) : ∃ u ∈ A, G.Adj u v := by
+    obtain ⟨hb,hp⟩ := Finset.mem_filter.mp hv
+    obtain ⟨u,adj⟩ := (G.degree_pos_iff_exists_adj v).mp hp
+    exact ⟨u,part.symm.mem_of_mem_adj hb adj,adj.symm⟩
+  let r := (5*degreeBound G)/8
+  have cap (u) (hu : u ∈ A) : G.degree u ≤ r := by
+    dsimp [r]
+    exact (Nat.le_div_iff_mul_le (by decide)).mpr (by simpa [Nat.mul_comm] using low u hu)
+  have apart : Disjoint A T := by
+    apply Finset.disjoint_left.mpr
+    intro v ha ht
+    exact Set.disjoint_left.mp part.disjoint ha (Finset.mem_filter.mp ht).1
+  obtain ⟨M,hm,bound⟩ := bipartite_side_gap G A T apart cross partner cap x hx
+  have coeff : r*8 ≤ 5*degreeBound G := Nat.div_mul_le_self .. 
+  have realcoeff : (r:ℝ)*8 ≤ 5*(degreeBound G:ℝ) := by exact_mod_cast coeff
+  refine ⟨M,hm,bound.trans (mul_le_mul_of_nonneg_right ?_ (Nat.cast_nonneg _))⟩
+  linarith
+
+private theorem regular_from_remaining (density : H1) (n d : ℕ)
+    (G : SimpleGraph (Fin n)) [DecidableRel G.Adj] (pos : 0 < d) (reg : ∀ v, G.degree v = d) :
+    ∃ M, inducedMatching G M ∧ 2*n ≤ 5*d*M.card := by
+  classical
+  by_cases dense : 2*n ≤ 5*d
+  · exact single_edge_density G pos reg dense
+  by_cases far : ∀ A B : Finset (Fin n), Disjoint A B → G.IsIndepSet A → G.IsIndepSet B →
+      n < 10*(A ∪ B)ᶜ.card
+  · exact density n d G pos reg (by omega) far
+  · push Not at far
+    obtain ⟨A,B,sep,hA,hB,nearby⟩ := far
+    exact near_bipartite_density G pos reg A B sep hA hB nearby
+
 /-- If every surviving clone sees total neighboring multiplicity R, the
 regular-graph density estimate transfers to the original graph. Zero fibers
 are allowed, including isolated vertices. -/
@@ -193,7 +455,7 @@ theorem weighted_regular_transfer
     have eq := Fintype.card_congr iso
     simp only [Fintype.card_sigma,Fintype.card_fin,SimpleGraph.card_neighborSet_eq_degree] at eq
     exact eq.trans (rows _ (Nat.zero_lt_of_lt (code.symm v).2.isLt))
-  obtain ⟨M,hm,cert⟩ := density N R H pos reg
+  obtain ⟨M,hm,cert⟩ := regular_from_remaining density N R H pos reg
   obtain ⟨inside,size⟩ := project_induced_matching p (fun _ _ => Iff.rfl) M hm
   refine ⟨_,inside,?_⟩
   rw [size]
@@ -303,8 +565,14 @@ theorem main : H1 → H2 → H3 → type_of% @OMA.S_arxiv_1812_05930.main := by
         exact ⟨M,hm,bound.trans (grow _ small _)⟩
       · push Not at width
         obtain ⟨f,hf,diff⟩ := width
-        obtain ⟨M,hm,bound⟩ := mixed n G ⟨f,hf,e,he,diff⟩ x hx
-        exact ⟨M,hm,bound.trans (grow _ cB _)⟩
+        by_cases hard : ∀ A T : Finset (Fin n), G.IsBipartiteWith A T →
+            ∃ u ∈ A, 5*degreeBound G < 8*G.degree u
+        · obtain ⟨M,hm,bound⟩ := mixed n G ⟨f,hf,e,he,diff⟩ hard x hx
+          exact ⟨M,hm,bound.trans (grow _ cB _)⟩
+        · push Not at hard
+          obtain ⟨A,T,part,low⟩ := hard
+          obtain ⟨M,hm,bound⟩ := low_side_gap G A T part low x hx
+          exact ⟨M,hm,bound.trans (by simpa using grow 0 (hC.trans cB) M.card)⟩
     · have empty := Finset.not_nonempty_iff_eq_empty.mp nonempty
       exact ⟨∅,by simp [inducedMatching,empty],by simp [empty]⟩
   · obtain ⟨M,hm,out,opt⟩ := algorithm n G
