@@ -5,12 +5,14 @@ import OMAStatements.S_oeis_a000009
 
 Credit: @wispiANt. The coefficient tables, small cases, and finite
 non-divisibility check come from R8 (PR #20438). The second seed is from
-note #92063. The descent subtracts one or two large summands chosen for each target.
+note #92063. The descent subtracts a nonempty group of large summands chosen for each target.
+All summands in the group lie within a factor of two.
 Their eligible divisors must exceed the remainder.
 
-Singleton intervals cover targets through 2*q(2200)-1. Adjoining q(2199)
-and q(2200) together reaches 2*q(2199)+q(2200)-1. The finite induction
-uses 52 seed values and 96 additional values of index at most 2200.
+The finite certificate uses 52 seed values and 124 additions of index at
+most 2200, including 28 further compatible values in the final factor-of-two
+band. Each translated interval meets the existing coverage, as in PR #17774.
+The certified upper endpoint is the sum of all 176 values minus 20301.
 -/
 -- uses note #92063
 
@@ -18,10 +20,10 @@ namespace OMA.R_oeis_a000009_R10
 
 open OMA.S_oeis_a000009
 
-/-- Subtract one or two large values. A divisor matters only when it can fit in the remainder. -/
+/-- Subtract a nonempty finite group of large values in one band. A divisor matters only when it can fit in the remainder. -/
 def H1 : Prop :=
-  ∀ n : ℕ, 15466266734994684260382085805896191 < n → ∃ A : Finset ℕ, ∃ r : ℕ,
-    A.Nonempty ∧ A.card ≤ 2 ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
+  ∀ n : ℕ, 120213635240125999281329002393675834 < n → ∃ A : Finset ℕ, ∃ r : ℕ,
+    A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
     (∀ z ∈ A, 1000 ≤ z ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m) ∧ r < z) ∧
     (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
     ∀ z ∈ A, ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) → s ∣ z → r < s
@@ -1026,18 +1028,6 @@ open Finset
 theorem band_nondiv {a b : ℕ} (pos : 0 < b) (near : b < 2*a) (ne : a ≠ b) : ¬ a ∣ b :=
   fun dv => ne (Nat.eq_of_dvd_of_lt_two_mul pos.ne' dv near).symm
 
-/-- A single old-style witness gives a one-element block. -/
-theorem singleton_move (Q : ℕ → Prop) (B L n a r : ℕ)
-    (eq : n = a+r) (ab : B ≤ a) (qa : Q a) (rl : L ≤ r) (ra : r < a)
-    (clean : ∀ s, B ≤ s → Q s → s ∣ a → r < s) :
-    ∃ A : Finset ℕ, ∃ r : ℕ, A.Nonempty ∧ A.card ≤ 2 ∧ n = (∑ z ∈ A, z)+r ∧ L ≤ r ∧
-      (∀ z ∈ A, B ≤ z ∧ Q z ∧ r < z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
-      ∀ z ∈ A, ∀ s, B ≤ s → Q s → s ∣ z → r < s := by
-  refine ⟨{a}, r, by simp, by simp, by simpa using eq, rl, ?_, ?_, ?_⟩
-  · simpa using And.intro ab (And.intro qa ra)
-  · simpa using (show a < 2*a by omega)
-  · simpa using clean
-
 /-- Distinct summands within a factor of two cannot divide one another.
 Any eligible divisor of a new summand must exceed the old total. -/
 theorem descent (Q : ℕ → Prop) (B L U cap : ℕ) (positive : 0 < B)
@@ -1045,7 +1035,7 @@ theorem descent (Q : ℕ → Prop) (B L U cap : ℕ) (positive : 0 < B)
       (∀ s ∈ T, B ≤ s ∧ Q s) ∧
       (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n)
     (tail : ∀ n, U < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
-      A.Nonempty ∧ A.card ≤ 2 ∧ n = (∑ z ∈ A, z)+r ∧ L ≤ r ∧
+      A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ L ≤ r ∧
       (∀ z ∈ A, B ≤ z ∧ Q z ∧ r < z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
       ∀ z ∈ A, ∀ s, B ≤ s → Q s → s ∣ z → r < s) :
     ∀ n, L ≤ n → n ≤ cap → ∃ T : Finset ℕ,
@@ -1057,7 +1047,7 @@ theorem descent (Q : ℕ → Prop) (B L U cap : ℕ) (positive : 0 < B)
     intro hn hcap
     by_cases hsmall : n ≤ U
     · exact base n hn hsmall
-    obtain ⟨A,r,⟨a,ha⟩,_,eq,rl,newTerm,near,clean⟩ := tail n (by omega) hcap
+    obtain ⟨A,r,⟨a,ha⟩,eq,rl,newTerm,near,clean⟩ := tail n (by omega) hcap
     have asum := single_le_sum (f := fun i : ℕ => i) (fun _ _ => Nat.zero_le _) ha
     have ab := (newTerm a ha).1
     obtain ⟨T,good,anti,hs⟩ := ih r (by omega) rl (by omega)
@@ -1082,23 +1072,39 @@ theorem descent (Q : ℕ → Prop) (B L U cap : ℕ) (positive : 0 < B)
       · exact fun dv => (Nat.not_lt_of_ge (bound xt)) (clean y ya x (good x xt).1 (good x xt).2 dv)
       · exact anti x xt y yt ne
 
-/-- Read successive intervals [a + L, 2a - 1]; only an overlapping
-interval may raise the upper endpoint. -/
-theorem window_union (L n : ℕ) (xs : List ℕ) : ∀ u, n ≤ xs.foldl
-    (fun v a => if a+L ≤ v+1 then max v (2*a-1) else v) u →
-    n ≤ u ∨ ∃ a ∈ xs, a+L ≤ n ∧ n < 2*a := by
+/-- The greedy extension step: adding a new element `a ≤ U + 1 - L` to a set whose subset
+sums cover `[L, U]` yields a set whose subset sums cover `[L, U + a]`. -/
+theorem extend_cover (S : Finset ℕ) (a L U : ℕ) (ha : a ∉ S)
+    (hcov : ∀ n, L ≤ n → n ≤ U → ∃ T ⊆ S, (∑ x ∈ T, x) = n)
+    (hle : a ≤ U + 1 - L) :
+    ∀ n, L ≤ n → n ≤ U + a → ∃ T ⊆ insert a S, (∑ x ∈ T, x) = n := by
+  intro n hLn hnU
+  by_cases h : n ≤ U
+  · obtain ⟨T, hT, hs⟩ := hcov n hLn h
+    exact ⟨T, hT.trans (Finset.subset_insert a S), hs⟩
+  · rw [not_le] at h
+    obtain ⟨T, hT, hs⟩ := hcov (n - a) (by omega) (by omega)
+    have haT : a ∉ T := fun h' => ha (hT h')
+    refine ⟨insert a T, Finset.insert_subset_insert a hT, ?_⟩
+    rw [Finset.sum_insert haT, hs]
+    omega
+
+/-- Extend an interval of subset sums by adding fresh values in order.
+The Boolean records whether each translated interval overlaps or touches. -/
+theorem translate_chain (L U : ℕ) (seed xs : List ℕ)
+    (base : ∀ n, L ≤ n → n ≤ U → ∃ T ⊆ seed.toFinset, (∑ z ∈ T, z) = n)
+    (nd : (xs ++ seed).Nodup) :
+    let st := xs.foldr (fun a (v : ℕ × Bool) => (v.1+a, v.2 && decide (a ≤ v.1+1-L))) (U,true)
+    st.2 = true → ∀ n, L ≤ n → n ≤ st.1 → ∃ T ⊆ (xs ++ seed).toFinset, (∑ z ∈ T, z) = n := by
   induction xs with
-  | nil => intro u hn; exact Or.inl hn
+  | nil => exact fun _ => base
   | cons a rest ih =>
-    intro u hn
-    obtain small | ⟨b, hb, fits⟩ := ih _ hn
-    · by_cases h : a+L ≤ u+1
-      · simp only [if_pos h] at small
-        by_cases done : n ≤ u
-        · exact Or.inl done
-        · exact Or.inr ⟨a, List.mem_cons_self .., by omega, by omega⟩
-      · simpa only [if_neg h] using Or.inl (b := ∃ b ∈ a::rest, b+L ≤ n ∧ n < 2*b) small
-    · exact Or.inr ⟨b, List.mem_cons_of_mem a hb, fits⟩
+    dsimp only
+    intro ok
+    obtain ⟨prior,fit⟩ := Bool.and_eq_true_iff.mp ok
+    obtain ⟨fresh,nodup⟩ := List.nodup_cons.mp nd
+    simpa only [List.cons_append, List.toFinset_cons, List.foldr_cons] using extend_cover (rest ++ seed).toFinset a L _ (fun h => fresh (List.mem_toFinset.mp h))
+      (ih nodup prior) (of_decide_eq_true fit)
 
 /-- A divisor test using two bounded residues, followed by exact cancellation. -/
 theorem residual_iff (q y M : ℕ) (hM : 0 < M) :
@@ -1148,11 +1154,19 @@ theorem triple_iff (P Q M : ℕ) (hP : 0 < P) (hM : 0 < M) :
 
 set_option maxRecDepth 100000 in
 set_option maxHeartbeats 0 in
-theorem bounded_base (n : ℕ) (lo : 20301 ≤ n) (hi : n ≤ 15466266734994684260382085805896191) :
+theorem bounded_base (n : ℕ) (lo : 20301 ≤ n) (hi : n ≤ 120213635240125999281329002393675834) :
     ∃ T : Finset ℕ, (∀ s ∈ T, 1000 ≤ s ∧ ∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) ∧
       (∀ x ∈ T, ∀ y ∈ T, x ≠ y → ¬ x ∣ y) ∧ (∑ s ∈ T, s) = n := by
   let seed : List ℕ := [1113, 1260, 1426, 1610, 1816, 2048, 2304, 2590, 2910, 3264, 3658, 4097, 4582, 5120, 5718, 6378, 7108, 7917, 8808, 10880, 12076, 13394, 14848, 16444, 18200, 20132, 22250, 27130, 29927, 32992, 36352, 44046, 48446, 53250, 58499, 64234, 70488, 77312, 84756, 92864, 101698, 111322, 121792, 133184, 145578, 159046, 173682, 189586, 225585, 245920, 267968, 291874]
-  let ms : List ℕ := [124, 133, 142, 151, 161, 171, 181, 192, 203, 214, 225, 237, 249, 261, 274, 287, 300, 314, 328, 342, 356, 371, 386, 401, 417, 433, 449, 466, 483, 500, 517, 535, 553, 571, 590, 608, 627, 646, 665, 685, 705, 726, 747, 768, 789, 811, 833, 855, 878, 900, 923, 945, 969, 993, 1017, 1040, 1065, 1090, 1116, 1142, 1168, 1194, 1221, 1248, 1274, 1302, 1330, 1358, 1386, 1415, 1444, 1473, 1503, 1533, 1562, 1591, 1622, 1653, 1684, 1716, 1748, 1779, 1812, 1845, 1876, 1909, 1943, 1976, 2010, 2045, 2080, 2114, 2149, 2185, 2199, 2200]
+  let ms : List ℕ := [
+    124, 133, 142, 151, 161, 171, 181, 192, 203, 214, 225, 237, 249, 261, 274, 287, 300, 314, 328,
+    342, 356, 371, 386, 401, 417, 433, 449, 466, 483, 500, 517, 535, 553, 571, 590, 608, 627, 646,
+    665, 685, 705, 726, 747, 768, 789, 811, 833, 855, 878, 900, 923, 945, 969, 993, 1017, 1040,
+    1065, 1090, 1116, 1142, 1168, 1194, 1221, 1248, 1274, 1302, 1330, 1358, 1386, 1415, 1444,
+    1473, 1503, 1533, 1562, 1591, 1622, 1653, 1684, 1716, 1748, 1779, 1812, 1845, 1876, 1909,
+    1943, 1976, 2010, 2045, 2080, 2114, 2149, 2166, 2167, 2168, 2169, 2170, 2171, 2172, 2173,
+    2174, 2175, 2176, 2177, 2178, 2179, 2180, 2181, 2182, 2183, 2185, 2186, 2187, 2188, 2189,
+    2190, 2191, 2192, 2193, 2194, 2197, 2199, 2200]
   let word : ℕ := Nat.rec (motive := fun _ => ℕ) 1 (fun K B => if ((B + (2 ^ ((114 + 1) * (K + 1)) * B) % 2 ^ ((114 + 1) * (2200 + 1))) &&& (List.replicate (2200 + 1) (2 ^ 114)).foldr (fun a acc => a + 2 ^ (114 + 1) * acc) 0) == 0 then B + (2 ^ ((114 + 1) * (K + 1)) * B) % 2 ^ ((114 + 1) * (2200 + 1)) else 0) 2200
   let d (j : ℕ) := word / 2 ^ (115*j) % 2 ^ 115
   have guard : word ≠ 0 := by decide +kernel
@@ -1177,68 +1191,53 @@ theorem bounded_base (n : ℕ) (lo : 20301 ≤ n) (hi : n ≤ 154662667349946842
     176399164530456252077526460, 350741742631318772385582430, 692632149839450032033159272,
     1358720023681540379617941670, 2709554728070710803686491766, 5367264525360833458692206290,
     10328159113745691088153035474, 19757024974832794901430315808, 39271931648224901602532811744,
-    77564687783000975558719979596, 152245211464478503515661835584,
-    303468944818089580243371962908, 601119078496968105240844836482,
-    1158781895436941400454219080758, 2316170889443722154127194213952,
-    4601150472448384542496370017042, 8720147493887027887169515613502,
-    17125122235360043981237309102106, 34122295129109726757172201549258,
-    66250476361820092866089672434520, 130500758305232545022214498828800,
-    260708483130336361445704424770194, 517825573584622961930450020039098,
-    1003110675762233960017588378359296, 1970615048942618101201014150229370,
-    3924616451803206622397933581141549, 5122673319178024297743108598313984, 5220920096638635664895868609268224]
-  let small (s : ℕ) := s ∈ seed ++ as
+    77564687783000975558719979596, 152245211464478503515661835584, 303468944818089580243371962908,
+    601119078496968105240844836482, 1158781895436941400454219080758,
+    2316170889443722154127194213952, 4601150472448384542496370017042,
+    8720147493887027887169515613502, 17125122235360043981237309102106,
+    34122295129109726757172201549258, 66250476361820092866089672434520,
+    130500758305232545022214498828800, 260708483130336361445704424770194,
+    517825573584622961930450020039098, 1003110675762233960017588378359296,
+    1970615048942618101201014150229370, 2730189046780230565216352391033856,
+    2782944698114717778427427165372650, 2836707450938719652759075016862144,
+    2891496298934917812574271524969138, 2947330589686561286495922675738294,
+    3004230031192170155185912537909504, 3062214698498721998695345515901472,
+    3121305040455450114757635634686810, 3181521886590420275371284875879978,
+    3242886454112091247959266251495074, 3305420355038103440786935453055146,
+    3369145603453579851856655156280206, 3434084622901264018061540697870528,
+    3500260253905860889063285152534608, 3567695761634988500456669586623526,
+    3636414843699191005803609796313196, 3706441638093507059784082442443890,
+    3777800731283131737958736774463626, 3924616451803206622397933581141549,
+    4000124569255080003904403193838496, 4077067982967062771640042697374910,
+    4155473648266740119900852854611456, 4235369020639694010031564061084928,
+    4316782064898767180813986633691570, 4399741264519412854917029197537024,
+    4484275631144102539847529636077830, 4570414714258816883142527366951504,
+    4658188611044698021214746026795904, 4931628582570689013431218105121792,
+    5122673319178024297743108598313984, 5220920096638635664895868609268224]
   have lookup : ms.map d = as := by decide +kernel
   have limits : ∀ m ∈ ms, 0 < m ∧ m ≤ 2200 := by decide +kernel
-  have seedGood : seed.Nodup ∧ (∀ x ∈ seed, 1000 ≤ x ∧ x ∈ (List.range 95).map (fun j => d (j+1))) ∧
-      (∀ x ∈ seed, ∀ y ∈ seed, x ≠ y → y % x ≠ 0) ∧
-      (((seed.foldr (fun a b => b ||| b <<< a) 1) >>> 20301) % 2^3048881 = 2^3048881-1) := by decide +kernel
-  have fit : (as.foldl (fun v a => if a+20301 ≤ v+1 then max v (2*a-1) else v) 3069181) = 10441840193277271329791737218536447 := by decide +kernel
-  have validate : as.all (fun a => decide (1000 ≤ a) &&
-      (seed ++ as).all (fun s => decide (1000 ≤ s → s < a → ¬ s ∣ a))) = true := by decide +kernel
-  have result := descent small 1000 20301 3069181 15466266734994684260382085805896191 (by decide) (fun t tl tu => ?_) (fun t tl tu => ?_) n lo hi
-  · obtain ⟨T, good, anti, total⟩ := result
-    refine ⟨T, ?_, anti, total⟩
-    intro x hx
-    obtain ⟨bound,member⟩ := good x hx
-    refine ⟨bound, ?_⟩
-    rcases List.mem_append.mp member with hs | ha
-    · obtain ⟨j,hj,eq⟩ := List.mem_map.mp (seedGood.2.1 x hs).2
-      exact ⟨j+1,by omega,eq.symm.trans (digit (j+1) (by have := List.mem_range.mp hj; omega)).symm⟩
-    · rw [← lookup] at ha
-      obtain ⟨m,hm,eq⟩ := List.mem_map.mp ha
-      exact ⟨m,(limits m hm).1,eq.symm.trans (digit m (limits m hm).2).symm⟩
-  · obtain ⟨T,hT,hs⟩ := (testBit_foldr seed seedGood.1 t).mp
-      (testBit_of_mask _ _ _ seedGood.2.2.2 t tl (by omega))
-    have member {x : ℕ} (hx : x ∈ T) := List.mem_toFinset.mp (hT hx)
-    refine ⟨T, ?_, fun x hx y hy ne dv =>
-      seedGood.2.2.1 x (member hx) y (member hy) ne (Nat.mod_eq_zero_of_dvd dv), hs⟩
-    intro x hx
-    exact ⟨(seedGood.2.1 x (member hx)).1, List.mem_append.mpr (Or.inl (member hx))⟩
-  · by_cases single : t ≤ 10441840193277271329791737218536447
-    · obtain old | ⟨a,ha,lb,ub⟩ := window_union 20301 t as 3069181 (fit.symm ▸ single)
-      · omega
-      have test := List.all_eq_true.mp validate a ha
-      simp only [Bool.and_eq_true, decide_eq_true_eq, List.all_eq_true] at test
-      apply singleton_move small 1000 20301 t a (t-a) (by omega) test.1
-        (List.mem_append.mpr (Or.inr ha)) (by omega) (by omega)
-      intro s hs member divides
-      by_contra! smallDiv
-      exact test.2 s member hs (by omega) divides
-    · let A : Finset ℕ := {5122673319178024297743108598313984, 5220920096638635664895868609268224}
-      have total : (∑ z ∈ A, z) = 10343593415816659962638977207582208 := by decide +kernel
-      have sub : A ⊆ as.toFinset := by decide +kernel
-      have lower : ∀ z ∈ A, 5122673319178024297743108598313984 ≤ z := by decide +kernel
-      refine ⟨A,t-10343593415816659962638977207582208,by decide,by decide,by rw [total]; omega,by omega,?_,by decide +kernel,?_⟩
-      · intro z hz
-        have mem := List.mem_toFinset.mp (sub hz)
-        have := lower z hz
-        exact ⟨by omega,List.mem_append.mpr (Or.inr mem),by omega⟩
-      · intro z hz s hs member divides
-        have test := List.all_eq_true.mp validate z (List.mem_toFinset.mp (sub hz))
-        simp only [Bool.and_eq_true, decide_eq_true_eq, List.all_eq_true] at test
-        have := lower z hz
-        by_contra! smallDiv
-        exact test.2 s member hs (by omega) divides
+  let pool := as.reverse ++ seed
+  have nodup : pool.Nodup := by decide +kernel
+  have terms : ∀ x ∈ pool, 1000 ≤ x := by decide +kernel
+  have anti : ∀ x ∈ pool, ∀ y ∈ pool, x ≠ y → y % x ≠ 0 := by decide +kernel
+  have first : ∀ x ∈ seed, x ∈ (List.range 95).map (fun j => d (j+1)) := by decide +kernel
+  have start : (((seed.foldr (fun a b => b ||| b <<< a) 1) >>> 20301) % 2^3048881 = 2^3048881-1) := by decide +kernel
+  let st := as.reverse.foldr (fun a (v : ℕ × Bool) => (v.1+a, v.2 && decide (a ≤ v.1+1-20301))) (3069181,true)
+  have check : st.2 = true ∧ st.1 = 120213635240125999281329002393675834 := by decide +kernel
+  obtain ⟨T,sub,total⟩ := translate_chain 20301 3069181 seed as.reverse
+    (fun t hl hu => (testBit_foldr seed (List.nodup_append.mp nodup).2.1 t).mp
+      (testBit_of_mask _ _ _ start t hl (by omega))) nodup check.1 n lo (check.2.symm ▸ hi)
+  have member {x : ℕ} (hx : x ∈ T) : x ∈ pool := List.mem_toFinset.mp (sub hx)
+  refine ⟨T, ?_, fun x hx y hy ne dv =>
+    anti x (member hx) y (member hy) ne (Nat.mod_eq_zero_of_dvd dv), total⟩
+  intro x hx
+  refine ⟨terms x (member hx), ?_⟩
+  rcases List.mem_append.mp (member hx) with ha | hs
+  · rw [List.mem_reverse, ← lookup] at ha
+    obtain ⟨m,hm,eq⟩ := List.mem_map.mp ha
+    exact ⟨m,(limits m hm).1,eq.symm.trans (digit m (limits m hm).2).symm⟩
+  · obtain ⟨j,hj,eq⟩ := List.mem_map.mp (first x hs)
+    exact ⟨j+1,by omega,eq.symm.trans (digit (j+1) (by have := List.mem_range.mp hj; omega)).symm⟩
 
 theorem main : H1 → H2 → type_of% @OMA.S_oeis_a000009.main := by
   intro tail residual
@@ -1249,7 +1248,7 @@ theorem main : H1 → H2 → type_of% @OMA.S_oeis_a000009.main := by
       obtain ⟨k,a,ga,hs,ha⟩ := rep_of_finset T g anti
       exact ⟨k,a,ga,hs.trans total,ha⟩
     obtain ⟨T,g,anti,total⟩ := descent (fun a => ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m)
-      1000 20301 15466266734994684260382085805896191 n (by decide) bounded_base
+      1000 20301 120213635240125999281329002393675834 n (by decide) bounded_base
       (fun m hm _ => tail m hm) n (by omega) le_rfl
     obtain ⟨k,a,ga,hs,ha⟩ := rep_of_finset T (fun x hx => (g x hx).2) anti
     exact ⟨k,a,ga,hs.trans total,ha⟩
