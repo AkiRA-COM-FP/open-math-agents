@@ -31,3 +31,4 @@ theorem main : ∀ n : ℕ, 4 ≤ n → a n < P n := by
   sorry
 
 end OMA.S_oeis_a329931
+-- ci: re-run check-proof
