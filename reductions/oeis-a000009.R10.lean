@@ -7,6 +7,7 @@ Credit: @wispiANt. The coefficient tables, small cases, and finite
 non-divisibility check come from R8 (PR #20438). The second seed is from
 note #92063. The descent subtracts a nonempty group of large summands chosen for each target.
 All summands in the group lie within a factor of two.
+Each finite cap may use its own finite support and its own base.
 The smaller finite base uses 176 indices and the larger one uses 256. The tail can restrict every new term
 to a chosen support and test cross-divisibility only against possible terms in that support.
 The primitive-window comparison uses the condition reported by @Jwolf52 in note #95249.
@@ -22,9 +23,10 @@ namespace OMA.R_oeis_a000009_R10
 
 open OMA.S_oeis_a000009
 
-/-- Subtract a nonempty finite group of large values in one band. Choose a support containing the certified base indices. Only its possible remainder terms can conflict. -/
+/-- For each cap choose a finite support containing one certified base. All tail
+steps through that cap select their new summands and remainder terms from this support. -/
 def H1 : Prop :=
-  ∃ extended : Bool,
+  ∀ cap : ℕ, ∃ extended : Bool,
   let seed := List.range' 40 19 ++ List.range' 60 8 ++ List.range' 69 4 ++
     List.range' 74 17 ++ List.range' 92 4
   let indices : List ℕ := seed ++ [124, 133,
@@ -39,12 +41,12 @@ def H1 : Prop :=
       4184, 4233, 4283, 4333, 4384, 4435, 4486, 4536, 4588, 4640, 4692, 4744, 4797, 4849,
       4903, 4957, 5008, 5062, 5117, 5172, 5226, 5282, 5338, 5394, 5448, 5505, 5561, 5618,
       5676, 5734, 5792, 5850, 5909, 5968, 6027, 6086, 6146, 6200] else [])
-  ∃ keep : ℕ → Prop, (∀ i ∈ indices, keep (strictPartitionCount i)) ∧
-  ∀ n : ℕ, (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834) < n → ∃ A : Finset ℕ, ∃ r : ℕ,
+  ∃ pool : Finset ℕ, (∀ i ∈ indices, strictPartitionCount i ∈ pool) ∧
+  ∀ n : ℕ, (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834) < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
     A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
-    (∀ z ∈ A, 1000 ≤ z ∧ keep z ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m)) ∧
+    (∀ z ∈ A, 1000 ≤ z ∧ z ∈ pool ∧ (∃ m : ℕ, 0 < m ∧ z = strictPartitionCount m)) ∧
     (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
-    ∀ z ∈ A, ∀ s, 1000 ≤ s → (keep s ∧ (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m)) →
+    ∀ z ∈ A, ∀ s, 1000 ≤ s → (s ∈ pool ∧ (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m)) →
       (s = r ∨ s + 1000 ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s
 
 def H2 : Prop :=
@@ -1228,6 +1230,35 @@ theorem primitive_step (a r : ℕ) (big : 1000 ≤ a)
   · exact primitive s bs qs h
   · exact band_nondiv (by omega) (by omega) ne
 
+/-- Through a fixed cap, every added term is at most the cap. Keep the required
+base values as well, even when the cap is below the certified interval. -/
+theorem finite_support (indices : List ℕ) (f : ℕ → ℕ) (Q keep : ℕ → Prop) (B L U cap : ℕ)
+    (base : ∀ i ∈ indices, keep (f i))
+    (tail : ∀ n, U < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
+      A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ L ≤ r ∧
+      (∀ z ∈ A, B ≤ z ∧ keep z ∧ Q z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
+      ∀ z ∈ A, ∀ s, B ≤ s → (keep s ∧ Q s) → (s = r ∨ s+B ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s) :
+    ∃ pool : Finset ℕ, (∀ i ∈ indices, f i ∈ pool) ∧
+      ∀ n, U < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
+      A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ L ≤ r ∧
+      (∀ z ∈ A, B ≤ z ∧ z ∈ pool ∧ Q z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
+      ∀ z ∈ A, ∀ s, B ≤ s → (s ∈ pool ∧ Q s) → (s = r ∨ s+B ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s := by
+  classical
+  let pool := (indices.map f).toFinset ∪ (range (cap+1)).filter keep
+  have kept {s : ℕ} (hs : s ∈ pool) : keep s := by
+    rcases mem_union.mp hs with h | h
+    · obtain ⟨i,hi,eq⟩ := List.mem_map.mp (List.mem_toFinset.mp h)
+      exact eq ▸ base i hi
+    · exact (mem_filter.mp h).2
+  refine ⟨pool,fun i hi => mem_union_left _ (List.mem_toFinset.mpr (List.mem_map.mpr ⟨i,hi,rfl⟩)),?_⟩
+  intro n hn hc
+  obtain ⟨A,r,ne,total,lo,values,band,clean⟩ := tail n hn hc
+  refine ⟨A,r,ne,total,lo,?_,band,fun z hz s hs hq => clean z hz s hs ⟨kept hq.1,hq.2⟩⟩
+  intro z hz
+  have small := single_le_sum (f := fun x : ℕ => x) (fun _ _ => Nat.zero_le _) hz
+  exact ⟨(values z hz).1, mem_union_right _ (mem_filter.mpr
+    ⟨mem_range.mpr (by omega),(values z hz).2.1⟩), (values z hz).2.2⟩
+
 /-- Choosing all values recovers the previous unrestricted descent condition. -/
 theorem H1_of_unrestricted (tail : ∀ n : ℕ, 60041801547539377118140226416919083619432043396280785479393 < n → ∃ A : Finset ℕ, ∃ r : ℕ,
     A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ 20301 ≤ r ∧
@@ -1235,8 +1266,9 @@ theorem H1_of_unrestricted (tail : ∀ n : ℕ, 60041801547539377118140226416919
     (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
     ∀ z ∈ A, ∀ s, 1000 ≤ s → (∃ m : ℕ, 0 < m ∧ s = strictPartitionCount m) →
       (s = r ∨ s + 1000 ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s) : H1 := by
-  refine ⟨true, fun _ => True, fun _ _ => trivial, ?_⟩
-  intro n hn
+  intro cap
+  refine ⟨true, finite_support _ _ _ (fun _ => True) _ _ _ cap (fun _ _ => trivial) ?_⟩
+  intro n hn _
   obtain ⟨A,r,ne,total,lo,terms,band,safe⟩ := tail n hn
   exact ⟨A,r,ne,total,lo,fun z hz => ⟨(terms z hz).1,trivial,(terms z hz).2⟩,
     band,fun z hz s hs qs => safe z hz s hs qs.2⟩
@@ -1255,6 +1287,60 @@ theorem H1_of_intervals (cover : ∀ n : ℕ, 6004180154753937711814022641691908
   · simpa using (show a < 2*a by omega)
   · simpa using primitive_step a (n-a) big prim (by omega) (by omega)
 
+/-- A finite sequence suffices up to cap when its last interval reaches cap. -/
+theorem finite_tail_of_spacing (Q : ℕ → Prop) (a : ℕ → ℕ) (B L U cap last : ℕ)
+    (positive : 0 < B) (values : ∀ i ≤ last, B ≤ a i ∧ Q (a i))
+    (primitive : ∀ i ≤ last, ∀ s, B ≤ s → Q s → 2*s ≤ a i → ¬ s ∣ a i)
+    (start : a 0 + L ≤ U+1) (spacing : ∀ i < last, a (i+1) + L ≤ 2*a i)
+    (finish : cap < 2*a last) :
+    ∀ n, U < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
+      A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ L ≤ r ∧
+      (∀ z ∈ A, B ≤ z ∧ Q z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
+      ∀ z ∈ A, ∀ s, B ≤ s → Q s → (s = r ∨ s+B ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s := by
+  intro n hn hc
+  have cover (k : ℕ) : k ≤ last → n < 2*a k → ∃ i ≤ k, a i+L ≤ n ∧ n < 2*a i := by
+    induction k with
+    | zero => exact fun _ h => ⟨0,le_rfl,by omega,h⟩
+    | succ k ih =>
+      intro hk h
+      by_cases prev : n < 2*a k
+      · obtain ⟨i,le,lo,hi⟩ := ih (by omega) prev
+        exact ⟨i,by omega,lo,hi⟩
+      · exact ⟨k+1,le_rfl,by have := spacing k (by omega); omega,h⟩
+  obtain ⟨i,ile,lo,hi⟩ := cover last le_rfl (by omega)
+  have pos := lt_of_lt_of_le positive (values i ile).1
+  refine ⟨{a i},n-a i,singleton_nonempty _,by simp; omega,by omega,?_,?_,?_⟩
+  · simpa using values i ile
+  · simpa using (show a i < 2*a i by omega)
+  · intro z hz s bs qs fit
+    obtain rfl := mem_singleton.mp hz
+    have lt : s < a i := by rcases fit with h | h <;> omega
+    refine ⟨?_,fun dv => (Nat.not_le_of_lt lt) (Nat.le_of_dvd (by omega) dv)⟩
+    by_cases h : 2*s ≤ a i
+    · exact primitive i ile s bs qs h
+    · exact band_nondiv pos (by omega) (Nat.ne_of_lt lt)
+
+/-- A finite antichain of certified base values and additional witnesses supplies
+both the support and every cross-divisibility test needed up to cap. -/
+theorem finite_tail_of_antichain (Q : ℕ → Prop) (seed : Finset ℕ) (a : ℕ → ℕ)
+    (B L U cap last : ℕ) (pos : 0 < B)
+    (values : ∀ i ≤ last, B ≤ a i ∧ Q (a i))
+    (start : a 0 + L ≤ U+1) (spacing : ∀ i < last, a (i+1)+L ≤ 2*a i)
+    (finish : cap < 2*a last) :
+    let pool := seed ∪ (range (last+1)).image a
+    (∀ x ∈ pool, ∀ y ∈ pool, x ≠ y → ¬ x ∣ y) →
+    ∀ n, U < n → n ≤ cap → ∃ A : Finset ℕ, ∃ r : ℕ,
+      A.Nonempty ∧ n = (∑ z ∈ A, z)+r ∧ L ≤ r ∧
+      (∀ z ∈ A, B ≤ z ∧ z ∈ pool ∧ Q z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
+      ∀ z ∈ A, ∀ s, B ≤ s → (s ∈ pool ∧ Q s) → (s = r ∨ s+B ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s := by
+  intro pool anti
+  have mem (i : ℕ) (hi : i ≤ last) : a i ∈ pool :=
+    mem_union_right _ (mem_image.mpr ⟨i,mem_range.mpr (by omega),rfl⟩)
+  apply finite_tail_of_spacing (fun s => s ∈ pool ∧ Q s) a B L U cap last pos
+    (fun i hi => ⟨(values i hi).1,mem i hi,(values i hi).2⟩) _ start spacing finish
+  intro i hi s bs hs small
+  exact anti s hs.1 (a i) (mem i hi) (by omega)
+
 /-- To construct the tail on a chosen support Q, only proper divisors in Q need
 to be excluded. The sequence and every summand in the induction belong to Q. -/
 theorem tail_of_supported_spacing (Q : ℕ → Prop) (a : ℕ → ℕ) (B L U : ℕ)
@@ -1267,27 +1353,9 @@ theorem tail_of_supported_spacing (Q : ℕ → Prop) (a : ℕ → ℕ) (B L U : 
       (∀ z ∈ A, B ≤ z ∧ Q z) ∧ (∀ x ∈ A, ∀ y ∈ A, y < 2*x) ∧
       ∀ z ∈ A, ∀ s, B ≤ s → Q s → (s = r ∨ s+B ≤ r) → ¬ s ∣ z ∧ ¬ z ∣ s := by
   intro n hn
-  have cover (k : ℕ) : n < 2*a k → ∃ i, a i+L ≤ n ∧ n < 2*a i := by
-    induction k with
-    | zero => exact fun h => ⟨0,by omega,h⟩
-    | succ k ih =>
-      intro h
-      by_cases prev : n < 2*a k
-      · exact ih prev
-      · exact ⟨k+1,by have := spacing k; omega,h⟩
-  obtain ⟨k,hk⟩ := unbounded n
-  obtain ⟨i,lo,hi⟩ := cover k hk
-  have pos := lt_of_lt_of_le positive (values i).1
-  refine ⟨{a i},n-a i,singleton_nonempty _,by simp; omega,by omega,?_,?_,?_⟩
-  · simpa using values i
-  · simpa using (show a i < 2*a i by omega)
-  · intro z hz s bs qs fit
-    obtain rfl := mem_singleton.mp hz
-    have lt : s < a i := by rcases fit with h | h <;> omega
-    refine ⟨?_,fun dv => (Nat.not_le_of_lt lt) (Nat.le_of_dvd (by omega) dv)⟩
-    by_cases h : 2*s ≤ a i
-    · exact primitive i s bs qs h
-    · exact band_nondiv pos (by omega) (Nat.ne_of_lt lt)
+  obtain ⟨last,finish⟩ := unbounded n
+  exact finite_tail_of_spacing Q a B L U n last positive (fun i _ => values i)
+    (fun i _ => primitive i) start (fun i _ => spacing i) finish n hn le_rfl
 
 /-- Successive primitive values suffice when their unpunctured intervals touch. -/
 theorem H1_of_spacing (a : ℕ → ℕ)
@@ -1661,16 +1729,17 @@ theorem bounded_base (n : ℕ) (lo : 20301 ≤ n) (hi : n ≤ 600418015475393771
   exact ⟨T,fun s hs => ⟨(good s hs).1,(good s hs).2.2⟩,anti,total⟩
 
 theorem main : H1 → H2 → type_of% @OMA.S_oeis_a000009.main := by
-  rintro ⟨extended,keep,allowed,tail⟩ residual
+  intro localTail residual
   refine ⟨?_, fun n hn => ?_⟩
   · intro n hn
     by_cases hsmall : n < 20301
     · obtain ⟨T,g,anti,total⟩ := H1_le n hn (by omega)
       obtain ⟨k,a,ga,hs,ha⟩ := rep_of_finset T g anti
       exact ⟨k,a,ga,hs.trans total,ha⟩
-    obtain ⟨T,g,anti,total⟩ := descent (fun a => keep a ∧ ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m)
-      1000 20301 (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834) n (by decide) (bounded_base_choice extended keep allowed)
-      (fun m hm _ => tail m hm) n (by omega) le_rfl
+    obtain ⟨extended,pool,allowed,tail⟩ := localTail n
+    obtain ⟨T,g,anti,total⟩ := descent (fun a => a ∈ pool ∧ ∃ m : ℕ, 0 < m ∧ a = strictPartitionCount m)
+      1000 20301 (if extended then 60041801547539377118140226416919083619432043396280785479393 else 120213635240125999281329002393675834) n (by decide) (bounded_base_choice extended (· ∈ pool) allowed)
+      tail n (by omega) le_rfl
     obtain ⟨k,a,ga,hs,ha⟩ := rep_of_finset T (fun x hx => (g x hx).2.2) anti
     exact ⟨k,a,ga,hs.trans total,ha⟩
   · by_cases hb : n ≤ 1000
