@@ -541,6 +541,107 @@ theorem blocked_colour_survives {I : Type} (R : I → I → Prop) (old : I → I
     omega
   · exact ⟨a,b,edge,ha,hb,by simpa [d,ha] using hit⟩
 
+/-- Extend unbounded vertex lists to a proper list colouring when every
+conflict neighbourhood is countable. Reachable vertices are indexed by finite
+walk codes, as in the component argument of the first reduction. -/
+private theorem component_list_colouring {I : Type} (F : I → I → Prop)
+    (sym : ∀ x y, F x y → F y x) (loop : ∀ x, ¬ F x x)
+    (small : ∀ x, Set.Countable {y | F x y}) (A : I → ℕ → Prop)
+    (unbounded : ∀ x m, ∃ n, m < n ∧ A x n) :
+    ∃ d : I → ℕ, (∀ x, A x (d x)) ∧ ∀ x y, F x y → d x ≠ d y := by
+  classical
+  let C (x : I) := {y | Relation.ReflTransGen F x y}
+  let step (x : I) := Set.enumerateCountable (small x) x
+  have size (x : I) : (C x).Countable := by
+    apply (Set.countable_range (fun w : List ℕ => w.foldl step x)).mono
+    intro y hy
+    induction hy with
+    | refl => exact ⟨[],rfl⟩
+    | @tail b c _ edge ih =>
+      obtain ⟨w,hw⟩ := ih
+      obtain ⟨n,hn⟩ := Set.subset_range_enumerate (small b) b edge
+      exact ⟨w ++ [n], by simpa [List.foldl_append,hw,step] using hn⟩
+  have assign (S : Set I) : ∃ g : I → ℕ, S.Countable →
+      (∀ x ∈ S, A x (g x)) ∧ Set.InjOn g S := by
+    by_cases hs : S.Countable
+    · let : Countable S := hs
+      let := Encodable.ofCountable S
+      let e : S ↪ ℕ := ⟨Encodable.encode, Encodable.encode_injective⟩
+      have next (k m : ℕ) : ∃ n, m < n ∧ ∀ x : S, e x = k → A x n := by
+        by_cases hit : ∃ x, e x = k
+        · obtain ⟨x,rfl⟩ := hit
+          obtain ⟨n,lt,ok⟩ := unbounded x m
+          exact ⟨n,lt,fun y eq => e.injective eq ▸ ok⟩
+        · exact ⟨m+1,by omega,fun x eq => (hit ⟨x,eq⟩).elim⟩
+      let seq : ℕ → ℕ := Nat.rec (next 0 0).choose (fun k v => (next (k+1) v).choose)
+      have mono : StrictMono seq := strictMono_nat_of_lt_succ fun k =>
+        (next (k+1) (seq k)).choose_spec.1
+      have valid (k : ℕ) : ∀ x : S, e x = k → A x (seq k) := by
+        cases k with
+        | zero => exact (next 0 0).choose_spec.2
+        | succ k => exact (next (k+1) (seq k)).choose_spec.2
+      refine ⟨fun x => if hx : x ∈ S then seq (e ⟨x,hx⟩) else 0, fun _ => ⟨?_,?_⟩⟩
+      · intro x hx
+        simpa only [dif_pos hx] using valid _ ⟨x,hx⟩ rfl
+      · intro x hx y hy eq
+        simp only [dif_pos hx,dif_pos hy] at eq
+        exact congrArg Subtype.val (e.injective (mono.injective eq))
+    · exact ⟨fun _ => 0,fun hc => (hs hc).elim⟩
+  choose g hg using assign
+  have self (x : I) : x ∈ C x := Relation.ReflTransGen.refl
+  refine ⟨fun x => g (C x) x,fun x => (hg _ (size x)).1 x (self x),?_⟩
+  intro x y edge
+  have eq : C y = C x := Set.ext fun _ => ⟨fun h => Relation.ReflTransGen.head edge h,
+    fun h => Relation.ReflTransGen.head (sym _ _ edge) h⟩
+  change g (C x) x ≠ g (C y) y
+  rw [eq]
+  intro same
+  exact loop x (((hg _ (size x)).2 (self x) (eq ▸ self y) same).symm ▸ edge)
+
+/-- In a blocked fibre, reserve the old colours 4n as probes. Restricting
+to vertices of uncountable degree in all but finitely many probe layers
+still blocks every assignment from the remaining old colours 4n+2. -/
+theorem blocked_high_degree {I : Type} (R : I → I → Prop) (loop : ∀ x, ¬ R x x)
+    (old : I → I → ℕ)
+    (blocked : ∀ d : I → ℕ, ∃ a b, R a b ∧ d a = d b ∧ old a b = 2*d a)
+    (h : I → ℕ) :
+    let near := fun x n => {y | (R x y ∧ old x y = 4*n) ∨ (R y x ∧ old y x = 4*n)}
+    let rich := fun x => ∃ m : ℕ, ∀ n > m, ¬ (near x n).Countable
+    ∃ a b, R a b ∧ rich a ∧ rich b ∧ h a = h b ∧ old a b = 4*h a+2 := by
+  classical
+  intro near rich
+  let L (x : I) (n : ℕ) := (near x n).Countable
+  let F (x y : I) := ¬rich x ∧ ¬rich y ∧ ∃ n, L x n ∧ L y n ∧ y ∈ near x n
+  have sym x y (e : F x y) : F y x := by
+    obtain ⟨hx,hy,n,lx,ly,xy⟩ := e
+    exact ⟨hy,hx,n,ly,lx,Or.symm xy⟩
+  have irr x (e : F x x) : False := by
+    obtain ⟨_,_,n,_,_,p | p⟩ := e <;> exact loop x p.1
+  have small x : Set.Countable {y | F x y} := by
+    let B (n : ℕ) : Set I := if L x n then near x n else ∅
+    have hb n : (B n).Countable := by
+      by_cases hl : L x n
+      · simpa [B,hl] using (show (near x n).Countable from hl)
+      · simp [B,hl]
+    apply (Set.countable_iUnion hb).mono
+    rintro y ⟨_,_,n,hx,_,hy⟩
+    exact Set.mem_iUnion.mpr ⟨n,by simpa [B,hx] using hy⟩
+  have unbd x m : ∃ n, m < n ∧ (rich x ∨ L x n) := by
+    by_cases hx : rich x
+    · exact ⟨m+1,by omega,Or.inl hx⟩
+    · by_contra! hn
+      exact hx ⟨m,fun n lt => (hn n lt).2⟩
+  obtain ⟨g,allowed,proper⟩ := component_list_colouring F sym irr small _ unbd
+  let d (x : I) := if rich x then 2*h x+1 else 2*g x
+  obtain ⟨a,b,ab,same,hit⟩ := blocked d
+  by_cases ha : rich a <;> by_cases hb : rich b <;> simp only [d,ha,hb,if_true,if_false] at same hit
+  · exact ⟨a,b,ab,ha,hb,by omega,by omega⟩
+  · omega
+  · omega
+  · have eq : g a = g b := by omega
+    exact (proper a b ⟨ha,hb,g a,(allowed a).resolve_left ha,
+      eq ▸ (allowed b).resolve_left hb,Or.inl ⟨ab,by omega⟩⟩ eq).elim
+
 /-- In every ordering of a fixed Ramsey witness by a well-order, some earlier
 neighbourhood splits into continuum many uncountably chromatic pieces. The
 pieces are automatically triangle-free if the witness is four-clique-free. -/
