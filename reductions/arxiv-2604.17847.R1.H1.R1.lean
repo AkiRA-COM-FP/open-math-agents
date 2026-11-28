@@ -13,7 +13,7 @@ open OMA.R_arxiv_2604_17847_R1 (finite_prime_cover_iff fixed_rank_family totient
 -- When the common factor is prime to q, exclude multiples of the normalized square rank.
 def H1 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
-    48 < r → (Odd r → 4 * q < Nat.fib r) →
+    ¬ pisano q ∣ 96 → 48 < r → (Odd r → 4 * q < Nat.fib r) →
     let g := r.gcd (pisano q)
     ¬ q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
       ¬ rankOfApparition (q ^ 2) / (rankOfApparition (q ^ 2)).gcd g ∣ t ∧
@@ -22,7 +22,7 @@ def H1 : Prop :=
 -- When the common factor supplies one copy of q, the multiplier must avoid q.
 def H2 : Prop :=
   ∀ q r : ℕ, q.Prime → 53 < q → r < pisano q → ¬ q ∣ (Nat.fib (pisano q)).totient →
-    48 < r → (Odd r → 4 * q < Nat.fib r) →
+    ¬ pisano q ∣ 96 → 48 < r → (Odd r → 4 * q < Nat.fib r) →
     let g := r.gcd (pisano q)
     q ∣ Nat.fib g → ∃ t : ℕ, 0 < t ∧ g * t ≡ r [MOD pisano q] ∧
       ¬ q ∣ t ∧
@@ -561,6 +561,178 @@ lemma positive_through_48 {q r : ℕ} (hq : q.Prime) (hl : 53 < q)
     · decide
     · rw [period_1103]; decide
 
+lemma rank_2207 : rankOfApparition 2207 = 32 := by
+  have hd : rankOfApparition 2207 ∣ 32 := rank_dvd_iff_fib.mpr (by decide)
+  have pos := Nat.pos_of_dvd_of_pos hd (by decide : 0 < 32)
+  have le := Nat.le_of_dvd (by decide : 0 < 32) hd
+  have table : ∀ j : Fin 33, 0 < j.val → 2207 ∣ Nat.fib j.val → j.val = 32 := by decide
+  exact table ⟨rankOfApparition 2207, Nat.lt_succ_of_le le⟩ pos (fib_at_rank 2207)
+
+lemma aligned_1103_iff {p : ℕ} :
+    (p.Prime ∧ p ≡ 1 [MOD 1103] ∧ rankOfApparition p ∣ pisano 1103) ↔ p = 2207 := by
+  rw [period_1103, rank_dvd_iff_fib]
+  let factors : List ℕ := [2, 3, 7, 23, 47, 769, 1103, 2207, 3167]
+  constructor
+  · rintro ⟨hp, hc, hd⟩
+    have bound : Nat.fib 96 ∣ factors.prod ^ 7 := by decide
+    have mem := OMA.R_arxiv_2604_17847_R1.prime_mem_of_dvd_product hp factors
+      (by norm_num [factors, List.forall_mem_cons]) (hp.dvd_of_dvd_pow (hd.trans bound))
+    have table : ∀ a ∈ factors, a ≡ 1 [MOD 1103] → a = 2207 := by decide
+    exact table p mem hc
+  · rintro rfl
+    exact ⟨by norm_num, by decide, by decide⟩
+
+-- At an index divisible by the least period, both coordinates return.
+lemma modulus_dvd_return_gcd {q n : ℕ} (hn : 0 < n) (hd : pisano q ∣ n) :
+    q ∣ (Nat.fib n).gcd (Nat.fib (n+1) - 1) := by
+  have pos := Nat.pos_of_dvd_of_pos hd hn
+  have ex := Nat.nonempty_of_pos_sInf (s := {k : ℕ | 0 < k ∧
+    ∀ i : ℕ, Nat.fib (i+k) ≡ Nat.fib i [MOD q]}) pos
+  have ret : ∀ i : ℕ, Nat.fib (i + pisano q) ≡ Nat.fib i [MOD q] := (Nat.sInf_mem ex).2
+  obtain ⟨t, rfl⟩ := hd
+  have repeat_ret (t i : ℕ) : Nat.fib (i + pisano q * t) ≡ Nat.fib i [MOD q] := by
+    induction t with
+    | zero => simp [Nat.ModEq]
+    | succ t ih => simpa only [Nat.mul_succ, ← Nat.add_assoc] using (ret (i + pisano q * t)).trans ih
+  have h0 : Nat.fib (pisano q * t) ≡ 0 [MOD q] := by simpa using repeat_ret t 0
+  have h1 : Nat.fib (pisano q * t + 1) ≡ 1 [MOD q] := by simpa [Nat.add_comm] using repeat_ret t 1
+  exact Nat.dvd_gcd (Nat.modEq_zero_iff_dvd.mp h0) h1.symm.dvd'
+
+lemma prime_period_dvd_96_iff {q : ℕ} (hq : q.Prime) :
+    pisano q ∣ 96 ↔ q ∈ ([2, 3, 7, 23, 47, 1103] : List ℕ) := by
+  let factors : List ℕ := [2, 3, 7, 23, 47, 1103]
+  constructor
+  · intro hp
+    have hd := modulus_dvd_return_gcd (by decide : 0 < 96) hp
+    have bound : (Nat.fib 96).gcd (Nat.fib 97 - 1) ∣ factors.prod ^ 6 := by decide
+    exact OMA.R_arxiv_2604_17847_R1.prime_mem_of_dvd_product hq factors
+      (by norm_num [factors, List.forall_mem_cons]) (hq.dvd_of_dvd_pow (hd.trans bound))
+  · intro hm
+    let rows : List (ℕ × ℕ) := [(2,3), (3,8), (7,16), (23,48), (47,32), (1103,96)]
+    have hm' : q ∈ rows.map Prod.fst := hm
+    obtain ⟨⟨p,P⟩, hrow, heq⟩ := List.mem_map.mp hm'
+    change p = q at heq
+    subst p
+    have data : ∀ row ∈ rows, let p := row.1; let T := row.2
+        (T ∣ 96 ∧ 0 < T ∧ Nat.fib T ≡ 0 [MOD p] ∧ Nat.fib (T + 1) ≡ 1 [MOD p]) ∧
+        ∀ j : Fin T, 0 < j.val → ¬ (Nat.fib j.val ≡ 0 [MOD p] ∧ Nat.fib (j.val + 1) ≡ 1 [MOD p]) := by decide
+    obtain ⟨⟨hd, hpos, h0, h1⟩, hmin⟩ := data _ hrow
+    rwa [OMA.R_arxiv_2604_17847_R1.pisano_eq_of_certificate hpos ⟨h0,h1⟩ hmin]
+
+lemma large_prime_period_dvd_96 {q : ℕ} (hq : q.Prime) (hl : 53 < q) :
+    pisano q ∣ 96 ↔ q = 1103 := by
+  rw [prime_period_dvd_96_iff hq]
+  simp only [List.mem_cons, List.mem_nil_iff, or_false]
+  omega
+
+set_option maxRecDepth 4000 in
+set_option maxHeartbeats 3000000 in
+lemma good_1103 : S 1103 = ({0, 32, 64} : Set ℕ) := by
+  ext r
+  change r ∈ S 1103 ↔ r = 0 ∨ r = 32 ∨ r = 64
+  constructor
+  · intro good
+    by_contra hn
+    have lt : r < 96 := period_1103 ▸ good.1
+    by_cases lo : r ≤ 48
+    · have pos : 0 < r := by omega
+      have h := (positive_through_48 (by norm_num : Nat.Prime 1103) (by decide) pos lo).mp good
+      omega
+    -- Index 94 passes the first test; index 190 handles the same class.
+    have prime1 : Nat.Prime 14736206161 := by
+      apply OMA.R_arxiv_2604_17847_R1.prime_of_predecessor_factors _ 7 [2, 2, 2, 2, 3, 3, 5, 13, 29, 233, 233] (by decide)
+      · norm_num [List.forall_mem_cons]
+      · reduce_mod_char
+      · simp only [List.forall_mem_cons]
+        repeat' apply And.intro
+        all_goals (reduce_mod_char; decide)
+    have prime2 : Nat.Prime 46165371073 := by
+      apply OMA.R_arxiv_2604_17847_R1.prime_of_predecessor_factors _ 7 [2, 2, 2, 2, 2, 2, 3, 2357, 102013] (by decide)
+      · norm_num [List.forall_mem_cons]
+      · reduce_mod_char
+      · simp only [List.forall_mem_cons]
+        repeat' apply And.intro
+        all_goals (reduce_mod_char; decide)
+    have prime3 : Nat.Prime 4531100550901 := by
+      apply OMA.R_arxiv_2604_17847_R1.prime_of_predecessor_factors _ 2 [2, 2, 3, 5, 5, 7, 11, 31, 47, 61, 2207] (by decide)
+      · norm_num [List.forall_mem_cons]
+      · reduce_mod_char
+      · simp only [List.forall_mem_cons]
+        repeat' apply And.intro
+        all_goals (reduce_mod_char; decide)
+    have prime4 : Nat.Prime 92180471494753 := by
+      apply OMA.R_arxiv_2604_17847_R1.prime_of_predecessor_factors _ 5 [2, 2, 2, 2, 2, 3, 3, 137, 179, 13051873] (by decide)
+      · norm_num [List.forall_mem_cons]
+      · reduce_mod_char
+      · simp only [List.forall_mem_cons]
+        repeat' apply And.intro
+        all_goals (reduce_mod_char; decide)
+    have prime5 : Nat.Prime 1665088321800481 := by
+      apply OMA.R_arxiv_2604_17847_R1.prime_of_predecessor_factors _ 11 [2, 2, 2, 2, 2, 3, 5, 59, 73, 89, 157, 57641] (by decide)
+      · norm_num [List.forall_mem_cons]
+      · reduce_mod_char
+      · simp only [List.forall_mem_cons]
+        repeat' apply And.intro
+        all_goals (reduce_mod_char; decide)
+    have prime6 : Nat.Prime 99194853094755497 := by
+      apply OMA.R_arxiv_2604_17847_R1.prime_of_predecessor_factors _ 3 [2, 2, 2, 13, 29, 211, 421, 370248451] (by decide)
+      · norm_num [List.forall_mem_cons]
+      · reduce_mod_char
+      · simp only [List.forall_mem_cons]
+        repeat' apply And.intro
+        all_goals (reduce_mod_char; decide)
+    let safe : List ℕ :=
+      [2, 3, 5, 7, 11, 13, 17, 19, 23,
+       29, 31, 37, 41, 43, 47, 53, 59, 61,
+       67, 71, 73, 79, 83, 89, 97, 101, 107,
+       109, 113, 137, 139, 149, 151, 157, 173, 181,
+       191, 199, 211, 233, 263, 269, 281, 307, 353,
+       421, 461, 521, 541, 557, 661, 761, 797, 829,
+       859, 881, 911, 953, 967, 1069, 1427, 1597, 1601,
+       2161, 2221, 2269, 2417, 2521, 2789, 3001, 3041, 3571,
+       4373, 4513, 4969, 5779, 6673, 6709, 9349, 9521, 9901,
+       14503, 18077, 19441, 19489, 19801, 28657, 29641, 41611, 54833,
+       59369, 63443, 90481, 103681, 109441, 116849, 135721, 141961, 144481,
+       275449, 474541, 514229, 741469, 988681, 1429913, 3010349, 4832521, 6168709,
+       6376021, 9375829, 29134601, 35239681, 54018521, 55945741, 67735001, 86020717, 87382901,
+       159607993, 230686501, 370248451, 433494437, 555003497, 2710260697, 3415914041, 3821263937, 14736206161,
+       46165371073, 4531100550901, 92180471494753, 1665088321800481, 99194853094755497]
+    have primes : ∀ p ∈ safe, Nat.Prime p := by
+      simp only [safe, List.forall_mem_cons, prime1, prime2, prime3, prime4, prime5, prime6, true_and]
+      norm_num
+    have residues : ∀ p ∈ safe, ¬ p ≡ 1 [MOD 1103] := by decide
+    have checks : ∀ p ∈ safe, Nat.Prime p ∧ ¬ p ≡ 1 [MOD 1103] := fun p h => ⟨primes p h, residues p h⟩
+    have data : ∀ j : Fin 96, 48 < j.val → j.val ≠ 64 →
+        let n := if j.val = 94 then j.val + 96 else j.val
+        0 < n ∧ n ≡ j.val [MOD 96] ∧ ¬ 1103 ^ 2 ∣ Nat.fib n ∧ Nat.fib n ∣ safe.prod ^ 8 := by decide
+    obtain ⟨hp, hc, hs, hd⟩ := data ⟨r, lt⟩ (Nat.lt_of_not_ge lo) (fun he => hn (Or.inr (Or.inr he)))
+    have bad := OMA.R_arxiv_2604_17847_R1.totient_exception_of_factors
+      (by norm_num : Nat.Prime 1103) hp safe checks hs hd
+    exact bad (good.2 (if r = 94 then r + 96 else r) (by rw [period_1103]; exact hc))
+  · intro h
+    apply OMA.R_arxiv_2604_17847_R1.good_residue_of_common_index (p := 2207) (d := 32)
+    · rw [period_1103]; omega
+    · norm_num
+    · decide
+    · decide
+    · rcases h with rfl | rfl | rfl <;> decide
+    · rw [period_1103]; decide
+
+lemma nonempty_at_divisors_of_96 {q : ℕ} (hq : q.Prime) (hodd : q ≠ 2) (hd : pisano q ∣ 96) :
+    (S q).Nonempty ↔ q = 3 ∨ q = 23 ∨ q = 1103 := by
+  by_cases low : q ≤ 53
+  · rw [OMA.R_arxiv_2604_17847_R1.nonempty_through_53 hq hodd low]
+    have choices := (prime_period_dvd_96_iff hq).mp hd
+    simp only [List.mem_cons, List.mem_nil_iff, or_false] at choices
+    omega
+  · obtain rfl := (large_prime_period_dvd_96 hq (Nat.lt_of_not_ge low)).mp hd
+    exact ⟨fun _ => Or.inr (Or.inr rfl), fun _ => ⟨0, by rw [good_1103]; exact Or.inl rfl⟩⟩
+
+lemma descent_at_1103 : 1103 ∣ (Nat.fib (pisano 1103)).totient := by
+  rw [period_1103]
+  apply (totient_witness_iff (by norm_num : Nat.Prime 1103) (by decide : 0 < 96)).mpr
+  exact Or.inr ⟨2207, by norm_num, by decide, by decide⟩
+
 lemma large_residue_of_failed_descent {q r : ℕ} (hq : q.Prime) (hl : 53 < q) (good : r ∈ S q)
     (hbad : ¬ q ∣ (Nat.fib (pisano q)).totient) : 48 < r := by
   by_contra! hb
@@ -568,10 +740,7 @@ lemma large_residue_of_failed_descent {q r : ℕ} (hq : q.Prime) (hl : 53 < q) (
   · subst r
     exact hbad (good.2 _ (Nat.modEq_zero_iff_dvd.mpr (dvd_refl _)))
   obtain ⟨rfl,rfl⟩ := (positive_through_48 hq hl (Nat.pos_of_ne_zero hz) hb).mp good
-  apply hbad
-  rw [period_1103]
-  apply (totient_witness_iff (by norm_num : Nat.Prime 1103) (by decide : 0 < 96)).mpr
-  exact Or.inr ⟨2207, by norm_num, by decide, by decide⟩
+  exact hbad descent_at_1103
 
 theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H1 := by
   intro first second q r hq hlarge hr _
@@ -582,14 +751,18 @@ theorem main : H1 → H2 → OMA.R_arxiv_2604_17847_R1.H1 := by
   have fail (t : ℕ) (ht : 0 < t) (hc : g * t ≡ r [MOD pisano q]) :=
     mt (quotient_exception_iff hq hP (Nat.gcd_dvd_right r _) ht hbad).mpr
       (not_not_intro (hr.2 _ hc))
+  have outside : ¬ pisano q ∣ 96 := by
+    intro hd
+    have eq := (large_prime_period_dvd_96 hq hlarge).mp hd
+    exact hbad (eq ▸ descent_at_1103)
   have large (h : Odd r) := odd_totient_lower_bound hq (by omega) h (hr.2 r rfl)
   have sieve (t : ℕ) := witness_sieve_iff (t := t) hq hP (Nat.gcd_dvd_right r _) hbad
   by_cases hd : q ∣ Nat.fib (r.gcd (pisano q))
-  · obtain ⟨t, ht, hc, hs, hp⟩ := second q r hq hlarge hr.1 hbad (large_residue_of_failed_descent hq hlarge hr hbad) large hd
+  · obtain ⟨t, ht, hc, hs, hp⟩ := second q r hq hlarge hr.1 hbad outside (large_residue_of_failed_descent hq hlarge hr hbad) large hd
     have hg := Nat.gcd_pos_of_pos_right r hP
     have no := mt (prime_dvd_quotient_iff hq hg hd t).mp hs
     exact fail t ht hc ⟨by simpa only [if_pos hd] using no, (sieve t).mpr hp⟩
-  · obtain ⟨t, ht, hc, hs, hp⟩ := first q r hq hlarge hr.1 hbad (large_residue_of_failed_descent hq hlarge hr hbad) large hd
+  · obtain ⟨t, ht, hc, hs, hp⟩ := first q r hq hlarge hr.1 hbad outside (large_residue_of_failed_descent hq hlarge hr hbad) large hd
     have no := mt (square_quotient_test (t := t) hq (Nat.gcd_pos_of_pos_right r hP) hd).mp hs
     exact fail t ht hc ⟨by simpa only [if_neg hd] using no, (sieve t).mpr hp⟩
 
@@ -609,13 +782,13 @@ lemma quotient_problems_of_cover (cover : OMA.R_arxiv_2604_17847_R1.H1) : H1 ∧
     obtain ⟨t, ht, hc, he⟩ := exception_multiplier missing
     exact ⟨t, ht, hc, (quotient_exception_iff hq hP (Nat.gcd_dvd_right r _) ht hbad).mp he⟩
   constructor
-  · intro q r hq hl hr hbad _ _
+  · intro q r hq hl hr hbad _ _ _
     dsimp only
     intro hd
     obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
     rw [if_neg hd, square_quotient_test hq (Nat.gcd_pos_of_pos_right r (Nat.zero_lt_of_lt hr)) hd] at hs
     exact ⟨t, ht, hc, hs, (witness_sieve_iff hq (Nat.zero_lt_of_lt hr) (Nat.gcd_dvd_right r _) hbad).mp hp⟩
-  · intro q r hq hl hr hbad _ _
+  · intro q r hq hl hr hbad _ _ _
     dsimp only
     intro hd
     obtain ⟨t, ht, hc, hs, hp⟩ := pick q r hq hl hr hbad
