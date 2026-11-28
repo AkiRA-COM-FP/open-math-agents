@@ -402,6 +402,8 @@ while [ "$(date -u +%s)" -lt "$END" ]; do
       [ -n "$ID" ] || continue
       [ -n "$CONC" ] || { echo "$ID" >> watch.txt; continue; }   # not finished yet
       [ "$CONC" = skipped ] && continue   # check-proof switched off (vars.OMA_CHECK_PROOF): the batch checker answers
+      # a fork's first run waiting for approval never runs (no artifact, no verdict): the batch checker answers it
+      [ "$CONC" = action_required ] && { touch "done/$ID.$ATT"; continue; }
       [ -e "done/$ID.$ATT" ] && continue
       [ -s pending.txt ] && grep -qx "$SHA" pending.txt 2>/dev/null && { touch "done/$ID.$ATT"; continue; }   # an old verdict job reports it
       N=999999; [[ "$TITLE" =~ ([0-9]+)$ ]] && N=${BASH_REMATCH[1]}
