@@ -73,16 +73,16 @@ private lemma two_tiles (k a b : Fin 3) (ra rb : Fin 4)
     (hset : Finset.univ.erase k = {a,b})
     (hmatch : side (tiles a) ra 1 = side (tiles b) rb 1) :
     Tiles tiles (Finset.univ.erase k) := by
-  let g (c : ℤ × ℤ) : Fin 3 × Fin 4 := if c.1 % 2 = 0 then (a,ra) else (b,rb)
+  let g (c : ℤ × ℤ) : Fin 3 × Fin 4 := if (2 : ℤ) ∣ c.1 then (a,ra) else (b,rb)
   have hside (i j : ℤ) :
       side (tiles (g (i,j)).1) (g (i,j)).2 1 = side (tiles a) ra 1 := by
-    by_cases hi : i % 2 = 0
+    by_cases hi : (2 : ℤ) ∣ i
     · simp [g,hi]
     · simp [g,hi,hmatch.symm]
   refine ⟨g,?_,?_,?_,?_⟩
   · intro c
     rw [hset]
-    by_cases h : c.1 % 2 = 0 <;> simp [g,h]
+    by_cases h : (2 : ℤ) ∣ c.1 <;> simp [g,h]
   · intro i j
     rw [← left_right]
     exact (hside i j).trans (hside (i+1) j).symm
@@ -93,10 +93,10 @@ private lemma two_tiles (k a b : Fin 3) (ra rb : Fin 4)
   · intro t ht
     rw [hset] at ht
     rcases Finset.mem_insert.mp ht with rfl | hb
-    · exact ⟨(0,0), by simp [g]⟩
+    · exact ⟨(0,0), by norm_num [g]⟩
     · have he := Finset.mem_singleton.mp hb
       subst t
-      exact ⟨(1,0), by simp [g]⟩
+      exact ⟨(1,0), by norm_num [g]⟩
 
 private lemma all_deletions (k : Fin 3) : Tiles tiles (Finset.univ.erase k) := by
   fin_cases k
