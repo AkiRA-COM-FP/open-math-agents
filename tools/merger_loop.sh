@@ -76,7 +76,9 @@ state_save() {
   cp "$ROOT/rejected.txt" "$D/rejected.txt" 2>/dev/null || : > "$D/rejected.txt"
   cp "$CREDIT_RETRY_FILE" "$D/credit_retry.txt" 2>/dev/null || : > "$D/credit_retry.txt"
   date -u +%s > "$D/saved"
-  T=$(for F in queue.tsv done.list remerge.tsv rejected.txt credit_retry.txt saved; do
+  tail -n 400 "$ROOT/vlog.txt" > "$D/vlog.txt" 2>/dev/null || : > "$D/vlog.txt"
+  { tail -n 40 "$ROOT/merger_out.txt" 2>/dev/null; } > "$D/status.txt"
+  T=$(for F in queue.tsv done.list remerge.tsv rejected.txt credit_retry.txt saved vlog.txt status.txt; do
         printf '100644 blob %s\t%s\n' "$($G hash-object -w "$D/$F")" "$F"; done | $G mktree) || return 0
   C=$($G -c user.name=oma-merger -c user.email=oma-merger@users.noreply.github.com commit-tree "$T" -m "merger state") || return 0
   timeout 60 $G push -q --force origin "$C:refs/heads/merger-state" 2>/dev/null && echo "merger: state saved ($(wc -l < "$D/queue.tsv") queued)"
@@ -100,6 +102,7 @@ JQ_RUN='[.id, .head_sha, .run_attempt, .html_url, .updated_at, (.conclusion // "
 remaining() { gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset)"' 2>/dev/null || echo "999 0"; }
 budget() {  # never let the repository run dry: other jobs (checks, deploys) need the API too; GraphQL is checked too
   local rem reset grem greset; read -r rem reset grem greset < <(gh api rate_limit --jq '"\(.resources.core.remaining) \(.resources.core.reset) \(.resources.graphql.remaining) \(.resources.graphql.reset)"' 2>/dev/null || echo "999 0 999 0")
+  echo "$(date -u +%H:%M:%S) budget: core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv"), busy $(cat "$ROOT/busy" 2>/dev/null || echo ?)/$SLOTS" >> "$ROOT/merger_out.txt"
   echo "budget: core $rem, graphql $grem, queue $(wc -l < "$ROOT/queue.tsv"), busy slots $(cat "$ROOT/busy" 2>/dev/null || echo ?)/$SLOTS, verdicts in 10 min $(awk -v t=$(( $(date -u +%s) - 600 )) '$1 >= t' "$ROOT/verdicts.log" 2>/dev/null | wc -l)"
   # the wait never runs past the end of this job, and the queue is saved first (the next merger resumes it)
   if [ "${rem:-999}" -lt 300 ]; then echo "API budget low ($rem left), waiting for the reset"; touch "$ROOT/budget_low"; nap $(( reset - $(date -u +%s) + 5 )); fi
@@ -201,7 +204,10 @@ verdict() {  # $1 run id, $2 head sha, $3 attempt, $4 url, $5 old (1/0), $6 slot
   fi
   ( cd "$W" && RELINT="$W/relint.json" RUN_ID="$ID" RUN_ATTEMPT="$ATT" HEAD_SHA="$SHA" RUN_URL="$URL" REMERGE="$RM" \
       timeout 900 bash "$B/tools/verdict_one.sh" ) > "$W/log.txt" 2>&1
-  echo "#$PR run $ID.$ATT: exit $? $(grep -m1 -oiE 'rate limit|ACCEPTED|REJECTED|FAULT|already on main' "$W/log.txt" || true)"
+  local RC=$? SUM; SUM="#$PR run $ID.$ATT: exit $RC $(grep -m1 -oiE 'rate limit|ACCEPTED|REJECTED|FAULT|already on main' "$W/log.txt" || true)"
+  echo "$SUM"
+  # readable while the job runs (the job log is not): the last lines of each verdict go to the saved state (state_save)
+  { echo "$(date -u +%H:%M:%S) $SUM"; [ "$RC" = 0 ] || tail -n 4 "$W/log.txt" | cut -c1-300 | sed 's/^/    /'; } >> "$ROOT/vlog.txt"
   grep -qE 'REJECTED|already on main' "$W/log.txt" && echo "$PR" >> "$ROOT/rejected.txt"
   # A rejection: verdict_one.sh writes its reason to reason.txt (the grep above only sees what it prints; the verdict
   # itself goes to a comment). The pull request leaves the pending list and its reason is published (publish_pending).
@@ -294,7 +300,7 @@ slow_poll() {
       ( cd "$B" && LANES=1 BACKLOG_MIN_BUDGET=800 timeout 3000 bash "$B/base/tools/backlog_pass.sh" 2>&1 | grep -E "merged|batch|done:|budget" | sed 's/^/backlog: /' ) &
       BPID=$!
     fi
-    [ $(( NOW - LAST_STATE )) -ge 300 ] && state_save
+    [ $(( NOW - LAST_STATE )) -ge 120 ] && state_save
     sleep 10
   done
 }
