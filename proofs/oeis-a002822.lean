@@ -7,6 +7,5 @@ import OMAStatements.S_oeis_a002822
 
 theorem OMA.disproof : ¬ (type_of% @OMA.S_oeis_a002822.main) := by
   intro h
-  have h63 := h 63 (by norm_num) ⟨by norm_num, by norm_num, by norm_num⟩
-  have h377 : ¬ Nat.Prime (6 * 63 - 1) := by norm_num
-  exact h377 h63.2.1
+  have hp := (h 63 (by decide) ⟨by decide, by norm_num, by norm_num⟩).2.1
+  norm_num at hp

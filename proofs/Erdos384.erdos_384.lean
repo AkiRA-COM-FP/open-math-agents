@@ -20,20 +20,15 @@ theorem OMA.core (m j : ℕ) (hkm : j + 2 ≤ m)
     obtain ⟨p, hp, ⟨c, rfl⟩, hpN⟩ := Nat.Prime.not_coprime_iff_dvd.mp h
     have h2 := hA p hp hpN
     have hc : c = 1 := by
-      rcases Nat.lt_or_ge c 2 with hc | hc
-      · by_contra h1; have h0 : c = 0 := by omega
-        subst h0; simp at ha0
-      · have h3 : p * 2 ≤ p * c := Nat.mul_le_mul_left p hc; omega
+      by_cases hc : 2 ≤ c
+      · have := Nat.mul_le_mul_left p hc
+        omega
+      · rcases c with _ | c
+        · simp at ha0
+        · omega
     exact hnp (by simpa [hc] using hp)
   have ev {a b : ℕ} (h4 : 4 ≤ a) (han : a ≤ n) (h2 : a % 2 = 0) (hd : a ∣ N * b) : a ∣ b :=
     cancel (by omega) han (fun hp => by rcases hp.eq_two_or_odd with h | h <;> omega) hd
-  have hne : m ≠ j + 2 := by
-    rintro rfl
-    have h2 : 2 ∣ N := by
-      have h3 := Nat.two_dvd_centralBinom_of_one_le (n := j + 2) (by omega)
-      rw [Nat.centralBinom_eq_two_mul_choose] at h3
-      rwa [show 2 * (j + 2) = n by omega] at h3
-    have := hA 2 Nat.prime_two h2; omega
   have I1 : n * (m + j + 1).choose (j + 1) = N * (j + 2) :=
     Nat.add_one_mul_choose_eq (m + j + 1) (j + 1)
   have I2 : N * (j + 2) = n.choose (j + 1) * (m + 1) := by
@@ -95,24 +90,21 @@ theorem OMA.core (m j : ℕ) (hkm : j + 2 ≤ m)
       by_contra h
       have h1 : (j + 3) * (j + 2) ≤ (j + 3) * (t + 2) := Nat.mul_le_mul_left _ (by omega)
       nlinarith
-    have hd : ((j + 3) * (t + 2) + j + 1) ∣ 2 * (t + 2) * (t + 1) := by
-      have h1 : ((j + 3) * (t + 2) + j + 1) ∣
-          ((j + 3) * (t + 2) + j + 1) * ((t + 3) * j + 2) + 2 * (t + 2) * (t + 1) := by
-        rw [show ((j + 3) * (t + 2) + j + 1) * ((t + 3) * j + 2) + 2 * (t + 2) * (t + 1) =
-          (t + 3) ^ 2 * ((j + 2) * (j + 1)) by ring]
-        exact Dvd.dvd.mul_left F4 _
-      exact (Nat.dvd_add_right (dvd_mul_right _ _)).mp h1
+    let D := (j + 3) * (t + 2) + j + 1
+    have hd : D ∣ 2 * (t + 2) * (t + 1) := by
+      apply (Nat.dvd_add_right (dvd_mul_right D ((t + 3) * j + 2))).mp
+      rw [show D * ((t + 3) * j + 2) + 2 * (t + 2) * (t + 1) =
+        (t + 3) ^ 2 * ((j + 2) * (j + 1)) by dsimp [D]; ring]
+      exact Dvd.dvd.mul_left F4 _
     obtain ⟨c, hc⟩ := hd
+    dsimp [D] at hc
     have hc1 : c = 1 := by
-      have hc0 : 1 ≤ c := by by_contra h; rw [show c = 0 by omega] at hc; nlinarith
-      have hc2 : c < 2 := by
-        by_contra h
-        have h1 : 2 ≤ c := by omega
-        have h2 : ((j + 3) * (t + 2) + j + 1) * 2 ≤ ((j + 3) * (t + 2) + j + 1) * c :=
-          Nat.mul_le_mul_left _ h1
-        have h3 : (t + 4) * (t + 2) ≤ (j + 3) * (t + 2) := Nat.mul_le_mul_right _ (by omega)
+      rcases c with _ | _ | c
+      · simp at hc
+      · rfl
+      · have hmul := Nat.mul_le_mul_left ((j + 3) * (t + 2) + j + 1) (show 2 ≤ c+2 by omega)
+        have hle' := Nat.mul_le_mul_right (t + 2) (show t + 4 ≤ j + 3 by omega)
         nlinarith
-      omega
     rw [hc1, mul_one] at hc
     have h6 : (t + 3) ∣ 6 := by
       have h1 : (t + 3) ∣ (t + 3) * (2 * t) + 6 := ⟨j + 3, by nlinarith⟩
