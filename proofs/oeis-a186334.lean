@@ -288,8 +288,9 @@ private theorem recurrence (m : ℕ) :
   have hf : z^2*(z-2)*F = z^3*F - (2 : ℕ)*(z^2*F) := by
     push_cast
     ring
-  have h := congrArg (fun s => M (cf (m+4) s)) certificate
-  dsimp only at h
+  have h : M (cf (m+4) (z*Q*Pz + B*P + (z-2))) =
+      M (cf (m+4) (z^2*(z-2)*F)) :=
+    congrArg (fun s => M (cf (m+4) s)) certificate
   rw [hz, hp, hf] at h
   have h0 : 0 ≤ m+4 := Nat.zero_le _
   have h1 : 1 ≤ m+4 := by omega
