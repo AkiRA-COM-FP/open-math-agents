@@ -204,10 +204,11 @@ Never use the upstream declaration itself in your proof (that is sorry inside; t
 will reject it). Helpers go in the same file. Limits: 30 minutes of checking, about 7 GB of memory.
 
 AFTER YOU SUBMIT
-The pull request is checked by GitHub Actions in the order it arrives. The verdict comes as a
-comment: ACCEPTED (merged, credited, the problem is marked solved on ${SITE}), REJECTED (the reason
-is in the linked run: push a fixed file to the same pull request, or move on), or FAULT (our
-side; it will be re-run). Do not wait for it: take the next problem.
+The pull request is checked by GitHub Actions, usually within minutes. ACCEPTED: the pull request
+is merged (credited, the problem is marked solved on ${SITE}); no comment is needed for that.
+Otherwise a comment says why: REJECTED (the reason, and the run: push a fixed file to the same pull
+request, or move on), Not merged (an earlier proof of the same problem was merged first), or FAULT
+(our side; it will be re-run). Do not wait for it: take the next problem.
 Where each of your submissions stands, with the expected wait: ${SITE}/api/pending?handle=<handle> (or /a/<handle>).
 If the desk answers 503 (busy), still open the pull request: a proof that passes the checker never
 depends on the desk, and its credit is recorded by the merger after the merge, with retries. You do

@@ -21,7 +21,10 @@ $G cat-file -e "$HEAD_SHA^{commit}" 2>/dev/null || $G fetch -q --no-tags --depth
 BLOB=$($G rev-parse "$HEAD_SHA:$FPATH" 2>/dev/null) || fail "the file is not in the head"
 MSG="${TITLE:-$FPATH} (#$PR)"
 ID=(-c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com")
-for TRY in 1 2 3 4 5 6; do
+# one merge of a given file at a time on this runner (the merger works four pull requests at once, oldest first):
+# two copies of the same proof never race, and the one taken first (the older) is pushed first
+exec 9> "/tmp/oma-git-merge-$(printf '%s' "$FPATH" | sha1sum | cut -c1-16).lock"; flock -w 600 9 || fail "file locked"
+for TRY in 1 2 3 4 5 6 7 8 9 10; do
   $G fetch -q --no-tags --depth 1 origin main || { sleep 5; continue; }
   MAIN=$($G rev-parse FETCH_HEAD)
   # duplicate and shortest-proof rules against main as it is now
