@@ -5,16 +5,19 @@ open Finset Filter EuclideanGeometry
 
 namespace OMA.R_Erdos89_erdos_89_R1_H2_R3
 
-/-- Squarefree diagonal counting in the remaining case. For every dense subset and assignment of occupied pins with
-vertical displacements divisible by m, some squared residue modulo d*m²
-contains more than k distinct (pin, horizontal column) pairs. -/
+/-- The remaining squarefree diagonal estimate. For every dense subset and
+assignment of occupied pins, any modulus compatible with the vertical progression
+in each pin-column pair puts more than k pairs in some form-value residue. -/
 def H1 : Prop :=
   ∃ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
-    (∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (m : ℤ), 0 < m →
-      ∀ p : ℤ × ℤ → ℤ × ℤ, (∀ x ∈ T, p x ∈ S ∧ m ∣ x.2-(p x).2) →
+    (∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (M : ℤ), 0 < M →
+      ∀ (p : ℤ × ℤ → ℤ × ℤ) (t s : (ℤ × ℤ) × ℤ → ℤ),
+      (∀ x ∈ T, let e := (p x,x.1)
+        p x ∈ S ∧ s e ∣ x.2-(p x).2-t e ∧
+        M ∣ (d:ℤ)*s e*(2*t e+s e) ∧ M ∣ 2*(d:ℤ)*(s e)^2) →
       ∃ r : ℤ, k < ((T.image fun x => (p x,x.1)).filter fun e =>
-        (e.2-e.1.1)^2 % ((d:ℤ)*m^2) = r).card) →
+        ((e.2-e.1.1)^2+(d:ℤ)*(t e)^2) % M = r).card) →
     let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
     S.card ≤ k*C*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1)
 
@@ -495,13 +498,32 @@ private theorem squarefree_model (a b c : ℤ) (ha : 0 < a) (hdisc : b^2 < 4*a*c
     obtain ⟨p,hp,t,ht,hne,rfl⟩ := (mem_values ..).mp hw
     exact ⟨_,Finset.mem_image_of_mem F hp,_,Finset.mem_image_of_mem F ht,hinj.ne hne,hval p t⟩
 
-/-- Targets may choose different pins. Vertical divisibility fixes the horizontal
-square modulo d*m²; all pins draw values from the same set of pair values. -/
-theorem assigned_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
-    (p : ℤ × ℤ → ℤ × ℤ) (m : ℤ) (hsub : T ⊆ S) (k : ℕ)
-    (pins : ∀ x ∈ T, p x ∈ S ∧ m ∣ x.2-(p x).2)
+/-- Exact divisibility test for the fixed divisor of a shifted quadratic progression. -/
+theorem progression_modulus (M d t s : ℤ) :
+    (∀ j : ℤ, M ∣ d*((t+s*j)^2-t^2)) ↔
+      M ∣ d*s*(2*t+s) ∧ M ∣ 2*d*s^2 := by
+  constructor
+  · intro h
+    refine ⟨?_,?_⟩
+    · convert h 1 using 1
+      ring
+    · have e : 2*d*s^2 = d*((t+s*1)^2-t^2) + d*((t+s*(-1))^2-t^2) := by ring
+      rw [e]
+      exact dvd_add (h 1) (h (-1))
+  · rintro ⟨⟨a,ha⟩,⟨b,hb⟩⟩ j
+    obtain ⟨u,hu⟩ := (Int.even_mul_pred_self j).two_dvd
+    refine ⟨a*j+b*u,?_⟩
+    linear_combination j*ha + u*hb + d*s^2*hu
+
+/-- Distinct pin-column pairs can occupy different vertical arithmetic
+progressions, provided each progression fixes a residue of the form. -/
+theorem shifted_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
+    (p : ℤ × ℤ → ℤ × ℤ) (M : ℤ) (t s : (ℤ × ℤ) × ℤ → ℤ) (hsub : T ⊆ S) (k : ℕ)
+    (pins : ∀ x ∈ T, let e := (p x,x.1)
+      p x ∈ S ∧ s e ∣ x.2-(p x).2-t e ∧
+      M ∣ (d:ℤ)*s e*(2*t e+s e) ∧ M ∣ 2*(d:ℤ)*(s e)^2)
     (hcap : ∀ r : ℤ, ((T.image fun x => (p x,x.1)).filter fun e =>
-      (e.2-e.1.1)^2 % ((d:ℤ)*m^2) = r).card ≤ k) :
+      ((e.2-e.1.1)^2+(d:ℤ)*(t e)^2) % M = r).card ≤ k) :
     let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
     T.card ≤ 2*k*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
   classical
@@ -509,7 +531,6 @@ theorem assigned_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
   let V := S.offDiag.image fun xy => q (xy.1-xy.2)
   let f := fun x : ℤ × ℤ => q (x-p x)
   let label := fun x : ℤ × ℤ => (p x,x.1)
-  let M := (d:ℤ)*m^2
   have hm : ∀ x ∈ T, f x ∈ insert 0 V := by
     intro x hx
     by_cases he : x=p x
@@ -521,17 +542,22 @@ theorem assigned_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
   have h := card_le_mul_card_image_of_maps_to hm (2*k) (by
     intro r _
     let U := T.filter fun x => f x=r
-    let C := (T.image label).filter fun e => (e.2-e.1.1)^2 % M = r % M
+    let C := (T.image label).filter fun e => ((e.2-e.1.1)^2+(d:ℤ)*(t e)^2) % M = r % M
     let g := fun x : ℤ × ℤ => (label x,decide ((p x).2 ≤ x.2))
     have eqv (x) (hx : x ∈ U) : (x.1-(p x).1)^2+(d:ℤ)*(x.2-(p x).2)^2 = r := (mem_filter.mp hx).2
     have sub : U.image g ⊆ C ×ˢ (univ : Finset Bool) := by
       intro z hz
       obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
       refine mem_product.mpr ⟨mem_filter.mpr ⟨mem_image_of_mem _ (mem_filter.mp hx).1,?_⟩,mem_univ _⟩
-      change (x.1-(p x).1)^2 % M = r % M
-      obtain ⟨t,ht⟩ := (pins x (mem_filter.mp hx).1).2
-      have e : r = (x.1-(p x).1)^2 + M*t^2 := by rw [← eqv x hx,ht]; dsimp [M]; ring
-      rw [e]
+      let e := label x
+      change ((x.1-(p x).1)^2+(d:ℤ)*(t e)^2) % M = r % M
+      obtain ⟨_,⟨j,hj⟩,h₁,h₂⟩ := pins x (mem_filter.mp hx).1
+      have hv : x.2-(p x).2 = t e+s e*j := by change x.2-(p x).2-t e=s e*j at hj; omega
+      obtain ⟨u,hu⟩ := (progression_modulus M d (t e) (s e)).2 ⟨h₁,h₂⟩ j
+      have val : r = ((x.1-(p x).1)^2+(d:ℤ)*(t e)^2)+M*u := by
+        rw [← eqv x hx,hv]
+        linear_combination hu
+      rw [val]
       simp
     have inj : Set.InjOn g (U : Set (ℤ × ℤ)) := by
       intro x hx y hy he
@@ -550,6 +576,22 @@ theorem assigned_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
     change U.card ≤ 2*k
     exact hc.trans (by simpa [mul_comm] using Nat.mul_le_mul_right 2 (hcap (r % M))))
   exact h.trans (Nat.mul_le_mul_left _ (card_insert_le ..))
+
+/-- Targets may choose different pins. Vertical divisibility fixes the horizontal
+square modulo d*m²; all pins draw values from the same set of pair values. -/
+theorem assigned_pin_bound (d : ℕ) (hd : 0 < d) (S T : Finset (ℤ × ℤ))
+    (p : ℤ × ℤ → ℤ × ℤ) (m : ℤ) (hsub : T ⊆ S) (k : ℕ)
+    (pins : ∀ x ∈ T, p x ∈ S ∧ m ∣ x.2-(p x).2)
+    (hcap : ∀ r : ℤ, ((T.image fun x => (p x,x.1)).filter fun e =>
+      (e.2-e.1.1)^2 % ((d:ℤ)*m^2) = r).card ≤ k) :
+    let q := fun v : ℤ × ℤ => v.1^2+(d:ℤ)*v.2^2
+    T.card ≤ 2*k*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  apply shifted_pin_bound d hd S T p ((d:ℤ)*m^2) (fun _ => 0) (fun _ => m) hsub k
+  · intro x hx
+    obtain ⟨hp,hm⟩ := pins x hx
+    exact ⟨hp,by simpa using hm,⟨1,by ring⟩,⟨2,by ring⟩⟩
+  · simpa using hcap
 
 /-- Each pinned value fixes the horizontal square residue. Within each column its
 targets are determined by the sign of their vertical displacement. -/
@@ -592,15 +634,18 @@ theorem integral_form_bound (arith : H1) :
   rw [card_image_of_injective _ (mul_right_injective₀ (by positivity : 4*a ≠ 0))] at hvals
   change A.card ≤ k*max C 4*((V Q A).card+1)
   rw [← hc,← hvals]
-  by_cases heavy : ∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (m : ℤ), 0 < m →
-      ∀ p : ℤ × ℤ → ℤ × ℤ, (∀ x ∈ T, p x ∈ S ∧ m ∣ x.2-(p x).2) →
+  by_cases heavy : ∀ T ⊆ S, S.card ≤ 2*T.card → ∀ (M : ℤ), 0 < M →
+      ∀ (p : ℤ × ℤ → ℤ × ℤ) (t s : (ℤ × ℤ) × ℤ → ℤ),
+      (∀ x ∈ T, let e := (p x,x.1)
+        p x ∈ S ∧ s e ∣ x.2-(p x).2-t e ∧
+        M ∣ (d:ℤ)*s e*(2*t e+s e) ∧ M ∣ 2*(d:ℤ)*(s e)^2) →
       ∃ r : ℤ, k < ((T.image fun x => (p x,x.1)).filter fun e =>
-        (e.2-e.1.1)^2 % ((d:ℤ)*m^2) = r).card
+        ((e.2-e.1.1)^2+(d:ℤ)*(t e)^2) % M = r).card
   · have h := hard d S k hd hsq hk (by rwa [hc]) heavy
     exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (le_max_left ..)))
   push Not at heavy
-  obtain ⟨T,hsub,half,m,_,p,pins,cap⟩ := heavy
-  have h := assigned_pin_bound d hd S T p m hsub k pins cap
+  obtain ⟨T,hsub,half,M,_,p,t,s,pins,cap⟩ := heavy
+  have h := shifted_pin_bound d hd S T p M t s hsub k pins cap
   calc
     _ ≤ 2*T.card := half
     _ ≤ 2*(2*k*((V q S).card+1)) := Nat.mul_le_mul_left _ h
