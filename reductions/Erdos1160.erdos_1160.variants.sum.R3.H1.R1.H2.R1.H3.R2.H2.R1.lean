@@ -1,4 +1,10 @@
 import OMAReductions.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2_R1_H3_R2
+import Mathlib.RepresentationTheory.Maschke
+import Mathlib.RingTheory.SimpleModule.Isotypic
+import Mathlib.LinearAlgebra.Dimension.Constructions
+import Mathlib.Algebra.MonoidAlgebra.Module
+
+import Mathlib.Algebra.Module.ZMod
 import Mathlib.GroupTheory.Rank
 import Mathlib.GroupTheory.SpecificGroups.ZGroup
 import Mathlib.CategoryTheory.IsomorphismClasses
@@ -29,7 +35,7 @@ def H1 : Prop :=
         (Nat.card H).Coprime ((c+2)^t) ∧
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
-          (∀ h v i, a h v i = χ i h (v i)) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
+          (((c+2).Prime ∧ ¬ (c+2) ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
         (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∧ ¬ IsZGroup G ∧
         (∀ p : ℕ, p.Prime → ∀ P : Sylow p G, IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
@@ -44,7 +50,7 @@ def H2 : Prop :=
         (Nat.card H).Coprime ((c+2)^t) ∧
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
-          (∀ h v i, a h v i = χ i h (v i)) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
+          (((c+2).Prime ∧ ¬ (c+2) ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))) ∨
         (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))) ∧ (∃ p : ℕ, p.Prime ∧ ∃ P : Sylow p G, ¬ IsMulCommutative P)}).ncard ≤
       2^(E*(r+1)^2) * ∏ p ∈ q.primeFactors, g (p^q.factorization p)
 
@@ -914,14 +920,155 @@ theorem diagonal_class_bound (C H : FiniteGrp.{0}) (t : ℕ) :
     simpa [Nat.card_fun, A] using Nat.card_le_card_of_injective χ hi
   · simpa [Nat.card_fun, A] using Nat.card_le_card_of_injective count inj
 
-/-- With a fixed cyclic coordinate group and dimension, sum the diagonal bound
-over all nilpotent complements of the specified coprime order. -/
-theorem diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l r : ℕ)
+/-- Restriction to the ground field bounds the length of an independent family of simple summands. -/
+lemma simple_summand_count (F A M : Type*) [Field F] [Ring A] [Algebra F A]
+    [AddCommGroup M] [Module A M] [Module F M] [IsScalarTower F A M] [Module.Finite F M]
+    (s : Set (Submodule A M)) (ind : sSupIndep s) (simple : ∀ m ∈ s, IsSimpleModule A m) :
+    s.Finite ∧ Nat.card s ≤ Module.finrank F M := by
+  classical
+  have nz (m : s) : ∃ v : M, v ∈ m.val ∧ v ≠ 0 := by
+    let _ := simple m.val m.property
+    let _ := IsSimpleModule.nontrivial A m.val
+    obtain ⟨v, hv⟩ := exists_ne (0 : m.val)
+    exact ⟨v, v.property, fun h => hv (Subtype.ext h)⟩
+  choose v hv hn using nz
+  have hind : iSupIndep (fun m : s => m.val.restrictScalars F) := by
+    apply iSupIndep_def.mpr
+    intro i
+    simpa only [← Submodule.restrictScalars_iSup, Submodule.disjoint_restrictScalars_iff] using
+      (iSupIndep_def.mp ((sSupIndep_iff s).mp ind) i)
+  have lin := hind.linearIndependent _ hv hn
+  let _ : Finite s := lin.finite
+  let _ := Fintype.ofFinite s
+  exact ⟨Set.toFinite _, by simpa [Nat.card_eq_fintype_card] using lin.fintype_card_le_finrank⟩
+
+/-- A catalogue of simple group-algebra modules, valid over a nonsplitting field. -/
+theorem simple_group_algebra_catalogue (F H : Type) [Field F] [Group H] [Finite H]
+    [NeZero (Nat.card H : F)] :
+    ∃ s : Finset (Ideal (MonoidAlgebra F H)), s.card ≤ Nat.card H ∧
+      (∀ I ∈ s, IsSimpleModule (MonoidAlgebra F H) I) ∧
+      ∀ (V : Type) [AddCommGroup V] [Module (MonoidAlgebra F H) V] [IsSimpleModule (MonoidAlgebra F H) V],
+        ∃ I ∈ s, Nonempty (V ≃ₗ[MonoidAlgebra F H] I) := by
+  classical
+  let A := MonoidAlgebra F H
+  let _ := Fintype.ofFinite H
+  let basis := MonoidAlgebra.basis H F
+  let _ : Module.Finite F A := Module.Finite.of_basis basis
+  obtain ⟨s, ind, top, simple⟩ := IsSemisimpleModule.exists_sSupIndep_sSup_simples_eq_top A A
+  obtain ⟨hs, size⟩ := simple_summand_count F A A s ind simple
+  refine ⟨hs.toFinset, ?_, fun I h => simple I (hs.mem_toFinset.mp h), ?_⟩
+  · have dim : Module.finrank F A = Fintype.card H := Module.finrank_eq_card_basis basis
+    simpa [← Set.ncard_eq_toFinset_card s hs, Set.ncard_def, dim,
+      Nat.card_eq_fintype_card] using size
+  · intro V _ _ _
+    obtain ⟨I, ⟨e⟩⟩ := IsSemisimpleRing.exists_linearEquiv_ideal_of_isSimpleModule A V
+    let _ : IsSimpleModule A I := e.isSimpleModule_iff.mp inferInstance
+    let _ (m : s) : IsSimpleModule A m := simple m.val m.property
+    obtain ⟨J, hJ, ⟨f⟩⟩ := I.linearEquiv_of_sSup_eq_top s top
+    exact ⟨J, hs.mem_toFinset.mpr hJ, ⟨e.trans f⟩⟩
+
+/-- Write a finite-dimensional module as a list of catalogue entries of length at most its dimension. -/
+lemma module_catalogue_code (F A V : Type) [Field F] [Ring A] [Algebra F A]
+    [AddCommGroup V] [Module A V] [Module F V] [IsScalarTower F A V] [Module.Finite F V]
+    [IsSemisimpleModule A V] (c : Finset (Ideal A))
+    (cover : ∀ (M : Type) [AddCommGroup M] [Module A M] [IsSimpleModule A M],
+      ∃ I ∈ c, Nonempty (M ≃ₗ[A] I)) :
+    ∃ n ≤ Module.finrank F V, ∃ f : Fin n → c, Nonempty (V ≃ₗ[A] ((i : Fin n) → (f i).val)) := by
+  classical
+  obtain ⟨s, e, ind, simple⟩ := IsSemisimpleModule.exists_linearEquiv_dfinsupp A V
+  obtain ⟨finite, bound⟩ := simple_summand_count F A V s ind (fun m hm => simple ⟨m,hm⟩)
+  let _ := finite.fintype
+  let _ (m : s) : IsSimpleModule A m.val := simple m
+  choose ideal mem iso using fun m : s => cover m.val
+  let b := Finite.equivFin s
+  let f (i : Fin (Nat.card s)) : c := ⟨ideal (b.symm i), mem _⟩
+  let u := (e.trans DFinsupp.linearEquivFunOnFintype).trans (LinearEquiv.piCongrRight fun m => (iso m).some)
+  exact ⟨_, bound, f, ⟨u.trans (LinearEquiv.piCongrLeft' A _ b)⟩⟩
+
+/-- Count pairwise nonisomorphic group-algebra modules of dimension at most t. -/
+theorem coprime_module_family_bound (F H : Type) [Field F] [Group H] [Finite H]
+    [NeZero (Nat.card H : F)] {ι : Type*} (V : ι → Type)
+    [∀ i, AddCommGroup (V i)] [∀ i, Module (MonoidAlgebra F H) (V i)]
+    [∀ i, Module F (V i)] [∀ i, IsScalarTower F (MonoidAlgebra F H) (V i)]
+    [∀ i, Module.Finite F (V i)] (t : ℕ) (dim : ∀ i, Module.finrank F (V i) ≤ t)
+    (distinct : ∀ i j, Nonempty (V i ≃ₗ[MonoidAlgebra F H] V j) → i = j) :
+    Finite ι ∧ Nat.card ι ≤ (Nat.card H + 1)^t := by
+  classical
+  let A := MonoidAlgebra F H
+  obtain ⟨c, size, _, cover⟩ := simple_group_algebra_catalogue F H
+  choose n hn f iso using fun i => module_catalogue_code F A (V i) c cover
+  let code (i : ι) : (k : Fin (t+1)) × (Fin k.val → c) :=
+    ⟨⟨n i, Nat.lt_succ_of_le ((hn i).trans (dim i))⟩, f i⟩
+  let model (z : (k : Fin (t+1)) × (Fin k.val → c)) := (j : Fin z.1.val) → z.2 j |>.val
+  have inj : Function.Injective code := by
+    intro i j h
+    have transport (z w : (k : Fin (t+1)) × (Fin k.val → c)) (hzw : z = w) :
+        Nonempty (model z ≃ₗ[A] model w) := by
+      subst w
+      exact ⟨LinearEquiv.refl A _⟩
+    have bridge := transport _ _ h
+    exact distinct i j ⟨(iso i).some.trans (bridge.some.trans (iso j).some.symm)⟩
+  have sum_bound (m : ℕ) : (∑ k : Fin (m+1), c.card^k.val) ≤ (c.card+1)^m := by
+    induction m with
+    | zero => simp
+    | succ m ih =>
+      rw [Fin.sum_univ_succ, pow_succ]
+      simp only [Fin.val_zero, pow_zero, Fin.val_succ, pow_succ, ← Finset.sum_mul]
+      have one : 1 ≤ (c.card+1)^m := Nat.pow_pos (by omega)
+      nlinarith [Nat.mul_le_mul_right c.card ih]
+  refine ⟨Finite.of_injective code inj, (Nat.card_le_card_of_injective code inj).trans ?_⟩
+  rw [Nat.card_sigma]
+  simpa only [Nat.card_fun, Nat.card_fin, Nat.card_eq_fintype_card (α := ↥c), Fintype.card_coe] using
+    (sum_bound t).trans (Nat.pow_le_pow_left (Nat.add_le_add_right size 1) t)
+
+/-- Fixed complement and elementary abelian kernel, including higher-dimensional irreducible representations. -/
+theorem elementary_kernel_classes (p t : ℕ) [Fact p.Prime] (H : FiniteGrp.{0})
+    [NeZero (Nat.card H : ZMod p)] :
+    (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+      {G : FiniteGrp.{0} | ∃ a : H →* MulAut (Multiplicative (Fin t → ZMod p)),
+        Nonempty (G ≃* SemidirectProduct _ H a)}).ncard ≤ (Nat.card H + 1)^t := by
+  classical
+  let V := Fin t → ZMod p
+  let K := Multiplicative V
+  let S := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
+    {G : FiniteGrp.{0} | ∃ a : H →* MulAut K, Nonempty (G ≃* SemidirectProduct K H a)}
+  let G (x : S) : FiniteGrp.{0} := x.property.choose
+  have rep (x : S) : Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) (G x) = x.val := x.property.choose_spec.2
+  choose a iso using fun x : S => x.property.choose_spec.1
+  let ρ (x : S) : Representation (ZMod p) H V :=
+    { toFun := fun h => (AddMonoidHom.toMultiplicative.symm ((a x h).toMonoidHom)).toZModLinearMap p
+      map_one' := by apply LinearMap.ext; intro v; change (a x 1) v = v; rw [map_one]; rfl
+      map_mul' := by intro h j; apply LinearMap.ext; intro v; change (a x (h*j)) v = (a x h) ((a x j) v); rw [map_mul]; rfl }
+  change Nat.card S ≤ _
+  apply (coprime_module_family_bound (ZMod p) H (fun x : S => (ρ x).asModule) t ?_ ?_).2
+  · intro x
+    rw [(ρ x).asModuleEquiv.finrank_eq]
+    simp [V]
+  · rintro x y ⟨e⟩
+    let add := (ρ x).asModuleEquiv.symm.toAddEquiv.trans (e.toAddEquiv.trans (ρ y).asModuleEquiv.toAddEquiv)
+    let f : K ≃* K := add.toMultiplicative
+    have equivariant (h : H) : (a x h).trans f = f.trans (a y h) := by
+      apply DFunLike.ext'
+      funext v
+      change add (ρ x h v) = ρ y h (add v)
+      apply (ρ y).asModuleEquiv.symm.injective
+      simp only [Representation.asModuleEquiv_symm_map_rho]
+      change e ((ρ x).asModuleEquiv.symm (ρ x h v)) = MonoidAlgebra.of (ZMod p) H h • e ((ρ x).asModuleEquiv.symm v)
+      exact (congrArg e ((ρ x).asModuleEquiv_symm_map_rho h (v : V))).trans (e.map_smul _ _)
+    let mid := SemidirectProduct.congr f (MulEquiv.refl H) equivariant
+    apply Subtype.ext
+    rw [← rep x, ← rep y]
+    exact Quotient.sound ⟨InducedCategory.isoMk (F := FiniteGrp.toGrp)
+      (((iso x).some.trans (mid.trans (iso y).some.symm)).toGrpIso)⟩
+
+/-- For a prime-order coordinate group every coprime action is allowed.
+For a composite coordinate order we count actions admitting diagonal coordinates. -/
+theorem elementary_or_diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l r : ℕ)
     (hl : 0 < l) (cop : l.Coprime (Nat.card C^t)) (hr : Nat.card C^t*l < 2^r) :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | ∃ H : FiniteGrp.{0}, Nat.card H = l ∧ Group.IsSolvable H ∧ Group.IsNilpotent H ∧
         ∃ (χ : Fin t → H →* MulAut C) (a : H →* MulAut (Fin t → C)),
-          (∀ h v i, a h v i = χ i h (v i)) ∧ Nonempty (G ≃* SemidirectProduct (Fin t → C) H a)}).ncard ≤
+          (((Nat.card C).Prime ∧ ¬ Nat.card C ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct (Fin t → C) H a)}).ncard ≤
       2^(r*r) * ∏ b ∈ (Nat.card C^t*l).primeFactors, g (b^(Nat.card C^t*l).factorization b) := by
   classical
   let k := Nat.card C^t
@@ -936,12 +1083,41 @@ theorem diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l r : ℕ)
   let _ := Fintype.ofFinite O
   let S (H : FiniteGrp.{0}) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
     {G : FiniteGrp.{0} | ∃ (χ : Fin t → H →* MulAut C) (a : H →* MulAut (Fin t → C)),
-      (∀ h v i, a h v i = χ i h (v i)) ∧ Nonempty (G ≃* SemidirectProduct (Fin t → C) H a)}
+      (((Nat.card C).Prime ∧ ¬ Nat.card C ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct (Fin t → C) H a)}
   have finite (x : O) : (S (K x)).Finite := (finite_classes (k*l)).subset (Set.image_mono (by
     rintro G ⟨χ,a,_,⟨e⟩⟩
     exact (Nat.card_congr e.toEquiv).trans (by simp [SemidirectProduct.card, Nat.card_fun, k, order])))
   have bound (x : O) : (S (K x)).ncard ≤ 2^(r*r) := by
-    apply (diagonal_class_bound C (K x) t).trans
+    by_cases hp : (Nat.card C).Prime ∧ ¬ Nat.card C ∣ Nat.card (K x)
+    · let p := Nat.card C
+      let _ : Fact p.Prime := ⟨hp.1⟩
+      let _ : NeZero (Nat.card (K x) : ZMod p) := ⟨fun h => hp.2 ((ZMod.natCast_eq_zero_iff ..).mp h)⟩
+      let u : C ≃* Multiplicative (ZMod p) := mulEquivOfCyclicCardEq (Nat.card_zmod p).symm
+      let tag : (Fin t → Multiplicative (ZMod p)) ≃* Multiplicative (Fin t → ZMod p) :=
+        { Equiv.refl _ with map_mul' := fun _ _ => rfl }
+      let f := (MulEquiv.piCongrRight fun _ : Fin t => u).trans tag
+      apply le_trans _ (le_trans (elementary_kernel_classes p t (K x)) ?_)
+      · apply Set.ncard_le_ncard _ ((finite_classes (k*l)).subset (Set.image_mono (by
+          rintro G ⟨a,⟨e⟩⟩
+          exact (Nat.card_congr e.toEquiv).trans (by
+            rw [SemidirectProduct.card, ← Nat.card_congr f.toEquiv, Nat.card_fun, Nat.card_fin, order]))))
+        rintro _ ⟨G, ⟨_,a,_,⟨e⟩⟩,rfl⟩
+        exact ⟨G, ⟨_, ⟨e.trans (SemidirectProduct.congr' f (MulEquiv.refl (K x)))⟩⟩, rfl⟩
+      · have ht : t ≤ r := by
+          have hpow : 2^t < 2^r := (Nat.pow_le_pow_left hp.1.two_le t).trans_lt
+            ((Nat.le_mul_of_pos_right k hl).trans_lt hr)
+          by_contra! bad
+          exact hpow.not_ge (Nat.pow_le_pow_right (by decide) bad.le)
+        have hlr := (Nat.le_mul_of_pos_left l hk).trans_lt hr
+        rw [order, pow_mul]
+        exact (Nat.pow_le_pow_left (show l+1 ≤ 2^r from hlr) _).trans
+          (Nat.pow_le_pow_right (by positivity) ht)
+    apply le_trans _ (le_trans (diagonal_class_bound C (K x) t) ?_)
+    · apply Set.ncard_le_ncard _ ((finite_classes (k*l)).subset (Set.image_mono (by
+        rintro G ⟨_,a,_,⟨e⟩⟩
+        exact (Nat.card_congr e.toEquiv).trans (by simp [SemidirectProduct.card, Nat.card_fun, k, order]))))
+      rintro _ ⟨G, ⟨χ,a,alt,e⟩,rfl⟩
+      exact ⟨G, ⟨χ,a,alt.resolve_left hp,e⟩,rfl⟩
     apply (min_le_left ..).trans
     let _ : Finite (MulAut C) := Finite.of_injective (fun a : MulAut C => (a : C → C))
       (fun _ _ h => DFunLike.ext' h)
@@ -976,21 +1152,21 @@ theorem diagonal_hall_bound (C : FiniteGrp.{0}) [IsCyclic C] (t l r : ℕ)
     let mid := SemidirectProduct.congr (φ₁ := a) (φ₂ := a.comp u.toMonoidHom) (MulEquiv.refl _) u.symm
       (fun h => by ext v; simp)
     exact Set.mem_iUnion.mpr ⟨x, G, ⟨fun j => (χ j).comp u.toMonoidHom, a.comp u.toMonoidHom,
-      fun h v j => diag (u h) v j, ⟨e.trans mid⟩⟩, rfl⟩
+      diag.imp (fun h => ⟨h.1, by simpa [order, hH] using h.2⟩) (fun hdiag h v j => hdiag (u h) v j), ⟨e.trans mid⟩⟩, rfl⟩
   · calc
       _ ≤ ∑ x : O, (S (K x)).ncard := Set.ncard_iUnion_le_of_fintype _
       _ ≤ ∑ _ : O, 2^(r*r) := Finset.sum_le_sum fun x _ => bound x
       _ = 2^(r*r)*O.ncard := by simp [← Nat.card_eq_fintype_card, Nat.mul_comm]
       _ ≤ _ := Nat.mul_le_mul_left _ parts
 
-/-- Sum the diagonal estimate over all nontrivial cyclic coordinate groups and positive dimensions. -/
-theorem diagonal_hall_union {q r : ℕ} (hr : q < 2^r) :
+/-- Count all elementary abelian Hall kernels with nilpotent complement together with the diagonal family. -/
+theorem elementary_or_diagonal_hall_union {q r : ℕ} (hr : q < 2^r) :
     (Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
       {G : FiniteGrp.{0} | Nat.card G = q ∧ (∃ c t : ℕ, 0 < t ∧ ∃ H : FiniteGrp.{0}, Group.IsSolvable H ∧ Group.IsNilpotent H ∧
         (Nat.card H).Coprime ((c+2)^t) ∧
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
-          (∀ h v i, a h v i = χ i h (v i)) ∧ Nonempty (G ≃* SemidirectProduct _ H a))}).ncard ≤
+          (((c+2).Prime ∧ ¬ (c+2) ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))}).ncard ≤
       2^((r+1)^2) * ∏ b ∈ q.primeFactors, g (b^q.factorization b) := by
   classical
   let J := Fin (q+1) × Fin (q+1)
@@ -1004,14 +1180,15 @@ theorem diagonal_hall_union {q r : ℕ} (hr : q < 2^r) :
   let S (i : I) := Quotient.mk (isIsomorphicSetoid FiniteGrp.{0}) ''
     {G : FiniteGrp.{0} | ∃ H : FiniteGrp.{0}, Nat.card H = q/k i.val ∧ Group.IsSolvable H ∧ Group.IsNilpotent H ∧
       ∃ (χ : Fin i.val.2.val → H →* MulAut (C i.val)) (a : H →* MulAut (Fin i.val.2.val → C i.val)),
-        (∀ h v j, a h v j = χ j h (v j)) ∧ Nonempty (G ≃* SemidirectProduct _ H a)}
+        (((i.val.1.val+2).Prime ∧ ¬ (i.val.1.val+2) ∣ Nat.card H) ∨ (∀ h v j, a h v j = χ j h (v j))) ∧ Nonempty (G ≃* SemidirectProduct _ H a)}
   let L := ∏ b ∈ q.primeFactors, g (b^q.factorization b)
   have cardpow (i : I) : Nat.card (C i.val)^i.val.2.val = k i.val := by rw [card]
   have bound (i : I) : (S i).ncard ≤ 2^(r*r)*L := by
     have eq := (congrArg (· * (q/k i.val)) (cardpow i)).trans i.property.2.2
-    have h := diagonal_hall_bound (C i.val) i.val.2.val (q/k i.val) r i.property.1
+    have h := elementary_or_diagonal_hall_bound (C i.val) i.val.2.val (q/k i.val) r i.property.1
       ((cardpow i).symm ▸ i.property.2.1) (eq.trans_lt hr)
-    simpa only [eq] using h
+    rw [eq] at h
+    simpa only [card] using h
   have finite (i : I) : (S i).Finite := (finite_classes q).subset (Set.image_mono (by
     rintro G ⟨H,hH,_,_,_,a,_,⟨e⟩⟩
     exact (Nat.card_congr e.toEquiv).trans (by
@@ -1070,7 +1247,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
         (Nat.card H).Coprime ((c+2)^t) ∧
         ∃ (χ : Fin t → H →* MulAut (Multiplicative (ZMod (c+2))))
           (a : H →* MulAut (Fin t → Multiplicative (ZMod (c+2)))),
-          (∀ h v i, a h v i = χ i h (v i)) ∧ Nonempty (G ≃* SemidirectProduct _ H a))
+          (((c+2).Prime ∧ ¬ (c+2) ∣ Nat.card H) ∨ (∀ h v i, a h v i = χ i h (v i))) ∧ Nonempty (G ≃* SemidirectProduct _ H a))
   let U (G : FiniteGrp.{0}) := U₁ G ∨ U₂ G
   let V (G : FiniteGrp.{0}) := (∃ N P : Subgroup G, N.Normal ∧ N.IsComplement' P ∧ Group.IsNilpotent N ∧ Group.IsNilpotent P ∧ Nat.card N ^ (Group.rank N * Group.rank P) ≤ 2^(r*r*2) ∧ (Nat.card N).Coprime (Nat.card P))
   let N (G : FiniteGrp.{0}) := U G ∨ V G
@@ -1151,7 +1328,7 @@ theorem main : H1 → H2 → OMA.R_Erdos1160_erdos_1160_variants_sum_R3_H1_R1_H2
       have fin (F : FiniteGrp.{0} → Prop) : (S F).Finite :=
         (finite_classes q).subset (Set.image_mono (fun _ h => h.1))
       have h₂ : (S U₂).ncard ≤ 2^m*L := by
-        apply le_trans _ (diagonal_hall_union hr)
+        apply le_trans _ (elementary_or_diagonal_hall_union hr)
         apply Set.ncard_le_ncard _ ((finite_classes q).subset (Set.image_mono (fun _ h => h.1)))
         rintro _ ⟨G, ⟨hg,_,h⟩,rfl⟩
         exact ⟨G,⟨hg,h⟩,rfl⟩
