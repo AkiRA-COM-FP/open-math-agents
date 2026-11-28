@@ -7,7 +7,7 @@ namespace OMA.R_Erdos89_erdos_89_R1_H2_R1
 
 /-- Packing for squarefree diagonal forms. Count disjoint collinear k-point
 blocks using all form values realized on their union, including cross-block
-differences. Assume any k lines cover less than half the union and, after each nonzero integral similarity below, its squared
+differences. Assume any k lines cover less than half the union and, after tilting and dividing out any common lattice scale, its squared
 horizontal span exceeds d times its vertical span times k when its height is positive.
 The constant is independent of the form and the block size. -/
 def H1 : Prop :=
@@ -21,8 +21,10 @@ def H1 : Prop :=
     (let S := F.biUnion id
      (∀ a b : ℤ, (a ≠ 0 ∨ b ≠ 0) →
       let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
-      ∀ p ∈ R, ∀ t ∈ R, p.2 < t.2 →
-        ∃ z ∈ R, ∃ u ∈ R, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)) →
+      ∀ (g : ℤ) (o : ℤ × ℤ) (B : Finset (ℤ × ℤ)), 0 < g →
+        B.image (fun z : ℤ × ℤ => (g*z.1+o.1,g*z.2+o.2)) = R →
+        ∀ p ∈ B, ∀ t ∈ B, p.2 < t.2 →
+        ∃ z ∈ B, ∃ u ∈ B, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)) →
     let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
     F.card ≤ C * (((F.biUnion id).offDiag.image fun xy => q (xy.1-xy.2)).card+1)
 
@@ -371,8 +373,8 @@ private theorem two_extreme_rows_bound (K : ℕ) (hK : 0 < K) (d : ℤ) (hd : 0 
 /-- Multiplication by a nonzero integral element scales all values of the diagonal
 form by its positive norm, preserving both cardinalities. -/
 private theorem tilted_values (d a b : ℤ) (hd : 0 < d) (hab : a ≠ 0 ∨ b ≠ 0)
-    (S : Finset (ℤ × ℤ)) :
-    let f := fun p : ℤ × ℤ => (a*p.1-d*b*p.2, b*p.1+a*p.2)
+    (o : ℤ × ℤ) (S : Finset (ℤ × ℤ)) :
+    let f := fun p : ℤ × ℤ => (a*p.1-d*b*p.2+o.1, b*p.1+a*p.2+o.2)
     let q := fun z : ℤ × ℤ => z.1^2+d*z.2^2
     let V := fun T : Finset (ℤ × ℤ) => T.offDiag.image fun xy => q (xy.1-xy.2)
     (S.image f).card = S.card ∧ (V (S.image f)).card = (V S).card := by
@@ -416,22 +418,29 @@ private theorem narrow_packing (d a b : ℤ) (hd : 0 < d) (hab : a ≠ 0 ∨ b �
     (hcard : ∀ T ∈ F, T.card = k) :
     let S := F.biUnion id
     let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
-    ∀ p ∈ R, ∀ t ∈ R, p.2 < t.2 →
-      (∀ z ∈ R, ∀ u ∈ R, (z.1-u.1)^2 ≤ d*(t.2-p.2)*k) →
+    ∀ (g : ℤ) (o : ℤ × ℤ) (B : Finset (ℤ × ℤ)), 0 < g →
+      B.image (fun z : ℤ × ℤ => (g*z.1+o.1,g*z.2+o.2)) = R →
+      ∀ p ∈ B, ∀ t ∈ B, p.2 < t.2 →
+      (∀ z ∈ B, ∀ u ∈ B, (z.1-u.1)^2 ≤ d*(t.2-p.2)*k) →
       F.card ≤ 4*(S.offDiag.image fun xy => (fun z : ℤ × ℤ => z.1^2+d*z.2^2) (xy.1-xy.2)).card := by
   classical
-  intro S R p hp t ht hpt hw
+  intro S R g o B hg hmodel p hp t ht hpt hw
   have hsize : S.card = F.card*k := by
     dsimp [S]; rw [card_biUnion hdis]
     calc
       _ = ∑ _T ∈ F, k := sum_congr rfl fun T hT => hcard T hT
       _ = _ := by simp
-  obtain ⟨hc,hv⟩ := tilted_values d a b hd hab S
-  have h := two_extreme_rows_bound k hk d hd R p t hp ht hpt hw
-  change (S.image _).card ≤ _ at h
-  rw [hc,hsize] at h
-  change F.card*k ≤ 4*k*((S.image _).offDiag.image _).card at h
-  rw [hv] at h
+  let V := fun T : Finset (ℤ × ℤ) => (T.offDiag.image fun xy =>
+    ((xy.1-xy.2).1)^2+d*((xy.1-xy.2).2)^2).card
+  have hTilt : R.card = S.card ∧ V R = V S := by
+    simpa [R,V] using tilted_values d a b hd hab (0,0) S
+  have hScale : R.card = B.card ∧ V R = V B := by
+    rw [← hmodel]
+    simpa [V] using tilted_values d g 0 hd (Or.inl hg.ne') o B
+  have h := two_extreme_rows_bound k hk d hd B p t hp ht hpt hw
+  change B.card ≤ 4*k*V B at h
+  rw [← hScale.1, hTilt.1, hsize, ← hScale.2, hTilt.2] at h
+  change F.card ≤ 4*V S
   apply Nat.le_of_mul_le_mul_right _ hk
   simpa only [Nat.mul_right_comm 4 k] using h
 
@@ -455,17 +464,19 @@ private theorem packing_from_width (packing : H1) :
   change F.card ≤ max C 4 * (D+1)
   by_cases hw : (∀ a b : ℤ, (a ≠ 0 ∨ b ≠ 0) →
       let R := S.image (fun p : ℤ × ℤ => (a*p.1-(d:ℤ)*b*p.2, b*p.1+a*p.2))
-      ∀ p ∈ R, ∀ t ∈ R, p.2 < t.2 →
-        ∃ z ∈ R, ∃ u ∈ R, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)
+      ∀ (g : ℤ) (o : ℤ × ℤ) (B : Finset (ℤ × ℤ)), 0 < g →
+        B.image (fun z : ℤ × ℤ => (g*z.1+o.1,g*z.2+o.2)) = R →
+        ∀ p ∈ B, ∀ t ∈ B, p.2 < t.2 →
+        ∃ z ∈ B, ∃ u ∈ B, (d:ℤ)*(t.2-p.2)*k < (z.1-u.1)^2)
   · exact (pack d k F hd hsq hk hdis hline hsize hspread hw).trans
       (Nat.mul_le_mul_right _ (le_max_left C 4))
   push Not at hw
   obtain ⟨a,b,hab,hbad⟩ := hw
   dsimp only at hbad
   push Not at hbad
-  obtain ⟨p,hp,t,ht,hpt,hwidth⟩ := hbad
+  obtain ⟨g,o,B,hg,hmodel,p,hp,t,ht,hpt,hwidth⟩ := hbad
   have h : F.card ≤ 4*D := narrow_packing d a b (by exact_mod_cast hd) hab k hk F hdis
-    (fun T hT => (hline T hT).1) p hp t ht hpt hwidth
+    (fun T hT => (hline T hT).1) g o B hg hmodel p hp t ht hpt hwidth
   exact h.trans (Nat.mul_le_mul (le_max_right C 4) (Nat.le_succ D))
 
 private theorem packing_from_spread (packing : H1) :
