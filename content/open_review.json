@@ -4280,6 +4280,1120 @@
     "https://oeis.org/A297402"
    ],
    "note": "Jackson's conjecture that the gcd over the first n odd primes equals the gcd over all odd primes. It is stated faithfully as initialGcd n | (p^n-1)/2 for every odd prime p (the reverse divisibility is automatic). Corneth's comments already show the gcd is a power of 2 and settle odd n. The even case is lifting-the-exponent with p = 3 among the first n primes. Routine."
+  },
+  "oeis-a195334": {
+   "date": "2026-11-28",
+   "pr": 21584,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A195334",
+    "https://oeis.org/A195334",
+    "https://oeis.org/A023194"
+   ],
+   "note": "Mathar's conjecture a(n) = 2*A023194(n). Odd k have even-divisor sum 0, and the even-divisor sum of 2m is 2*sigma(m), so the two sets correspond under k = 2m and Nat.nth matches. The statement is faithful (offset 1, Nat.nth at n-1). No prior public solution was found, but the argument is a two-line observation. Second review: Faithful and true. For odd k the even-divisor sum is 0, and for k=2m it is 2*sigma(m), so the two sets correspond by doubling, which preserves order. A one-line elementary argument, hence routine."
+  },
+  "oeis-a247173": {
+   "date": "2026-11-28",
+   "pr": 16283,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A247173",
+    "https://oeis.org/A247173"
+   ],
+   "note": "Mathar's conjectured D-finite recurrence. The power-series encoding (S^2 = P with S(0) = 1, and G*(2x^2+2x)*S = 1-3x^2-2x^3-S) determines G uniquely and matches the g.f. I checked the polynomial coefficients term by term against the entry. The proof derives an ODE from the algebraic g.f., the standard holonomic method. Second review: Faithful D-finite recurrence for an algebraic g.f.; true and checked. Standard holonomic-closure computation, hence routine."
+  },
+  "arxiv-1804.09594": {
+   "date": "2026-11-28",
+   "pr": 20738,
+   "routine": false,
+   "evidence": [
+    "https://arxiv.org/abs/1804.09594",
+    "https://github.com/Mapika/open-math-agents/tree/e394e79cf5a2af4160d853b5ae632b3c44abe4bb/research/arxiv-1804.09594",
+    "https://arxiv.org/abs/1804.09594",
+    "https://www.impan.pl/en/publishing-house/journals-and-series/acta-arithmetica/online/112727/structures-in-additive-sequences"
+   ],
+   "note": "This is Kuca's Conjecture 3.1 (2018): for n = 2^k+1 >= 5, the even terms of V(2,n) are exactly 2, 2n and 2n^2+2. The Lean greedy definition (unordered, not necessarily distinct, exactly one representation) matches the paper, and I recomputed n = 5, 9, 17, 33 up to 40000 ([2,10,52], [2,18,164], [2,34,580], [2,66,2180]). No prior proof turned up on arXiv, Zenodo (the 2026 Funayama note covers only U-sequences), trureturing, thatnealpatel/proofs, openai/math or Palomar. The proof is a substantial 3277-line argument via Sierpinski-type dyadic rows, marked 'STATUS: NEW'. Second review: Faithful statement of Kuca's Conjecture 3.1; no prior resolution found. A 3277-line kernel-checked proof using Lucas/Sierpinski parity structure; a genuine new result, not routine."
+  },
+  "oeis-a162481": {
+   "date": "2026-11-28",
+   "pr": 14061,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A162481",
+    "https://oeis.org/A162481"
+   ],
+   "note": "Mathar's conjectured order-4 recurrence for c(x/(1-x)^3)/(1-x)^3. The encoding reproduces the data, and the recurrence holds on all listed terms (checked). This is a standard holonomic derivation from an algebraic g.f. Second review: Faithful and true; a routine D-finite recurrence derived from the quadratic g.f."
+  },
+  "oeis-a129147": {
+   "date": "2026-11-28",
+   "pr": 14488,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A129147",
+    "https://oeis.org/A129147"
+   ],
+   "note": "Mathar's conjectured recurrence for c(x(1+2x)). The encoding 2x(1+2x)G = 1-S with S^2 = 1-4x-8x^2 matches the data, and the recurrence holds on the data. The method is the routine holonomic one. Second review: Faithful and true; a routine D-finite recurrence from an algebraic g.f."
+  },
+  "oeis-a154623": {
+   "date": "2026-11-28",
+   "pr": 13930,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A154623",
+    "https://oeis.org/A154623"
+   ],
+   "note": "Mathar's conjectured recurrence for 1+(x/(1-5x))c(x/(1-5x)). The encoding 2G = 3-T with T^2(1-5x) = 1-9x matches the data, and the recurrence was checked on the data. Routine. Second review: Faithful and true; a routine first-order-in-sqrt D-finite recurrence."
+  },
+  "oeis-a085267": {
+   "date": "2026-11-28",
+   "pr": 20080,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A085267",
+    "https://oeis.org/A085267",
+    "https://oeis.org/A085265",
+    "https://oeis.org/A085266",
+    "https://arxiv.org/abs/2010.15580"
+   ],
+   "note": "Greathouse's conjecture a(n) = n+11 for n > 50 (every m >= 62 has at least 2 representations as a nonzero square plus a squarefree number, and exactly 50 terms are <= 61). The statement is faithful (k > 0, n-k^2 squarefree, so >= 1). I confirmed it numerically to 2*10^5. The proof is a large but elementary sieve plus a kernel check below 1.2*10^7; I found no prior proof. Second review: Faithful. The proof combines a kernel-checked sieve up to 1.2e7 with an explicit elementary sieve bound above that, which is a genuine effective version of Estermann. Jimenez Urroz's explicit paper proves the weaker one-representation, zero-square-allowed statement, so the claim does not appear to be already settled."
+  },
+  "oeis-a391613": {
+   "date": "2026-11-28",
+   "pr": 17869,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A391613",
+    "https://oeis.org/A391613"
+   ],
+   "note": "The conjecture is that every n > 5 equals x^2+y+z with x >= 1, y >= z >= 1 and lcm(x^2,y,z) a square. The statement is faithful and reproduces the data a(1..25); I checked n < 3000, and the entry reports n <= 150000. The 2651-line proof combines elementary square-scaling families with Legendre's three-square theorem (formalized via Ankeny), a Minkowski determinant-1 lemma, CRT and a genus pigeonhole step. No prior proof was found; the conjecture dates from Jan 2026. Second review: Faithful statement of a recent (Jan 2026) Sun conjecture with no recorded proof. Elementary (three-square theorem plus casework) but not a short argument from the entry, so not routine."
+  },
+  "oeis-a060212": {
+   "date": "2026-11-28",
+   "pr": 19455,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A060212",
+    "https://oeis.org/A060212"
+   ],
+   "note": "It disproves White's 2023 heuristic a(n) ~ n log n log(n log n) log log n. A Selberg upper-bound sieve gives #{q <= x} << x/log^3 x, which forces a(n) >> n log^3 n, incompatible with the conjectured order n log^2 n log log n; if the sequence is finite the equivalence fails trivially. The sieve code is reused, with credit, from site PR 2394 (Enamakel). This is a standard sieve argument against an obviously mis-scaled conjecture. Second review: A correct, unconditional disproof by a formalized Selberg upper-bound sieve. The sieve code is credited to PR 2394 from the same site, which is fine. The conjecture was heuristically implausible but never refuted in print; the disproof is standard analytic number theory, not routine."
+  },
+  "oeis-a027116": {
+   "date": "2026-11-28",
+   "pr": 19369,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A027116",
+    "https://oeis.org/A027113",
+    "https://oeis.org/A027116",
+    "https://oeis.org/A027113"
+   ],
+   "note": "Barker's order-5 recurrence for the triangle diagonal T(n,n+3) of A027113, for n > 7. The Lean triangle reproduces the OEIS data, and the recurrence holds numerically to n = 60. The proof expresses the diagonal through tribonacci numbers, a routine linear-recurrence verification. Second review: Faithful and true. The left part of each row is tribonacci (Pirc's comment), which makes a(n) a linear-recurrence sequence; a routine verification."
+  },
+  "oeis-a372561": {
+   "date": "2026-11-28",
+   "pr": 19800,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A372561",
+    "https://oeis.org/A372555",
+    "https://oeis.org/A372560",
+    "https://oeis.org/A372561",
+    "https://oeis.org/A372560",
+    "https://oeis.org/A372555",
+    "https://oeis.org/A371094",
+    "https://oeis.org/A372443"
+   ],
+   "note": "Karttunen's three conjectures, stated faithfully: A372555 = 7 on the 13th antidiagonal from 933 on, A372555 = 9 on the 30th from 58325 on, and A372555(A372560(n,k)) symmetric for n,k > 1. The grid construction reproduces A372560 (27,165,41,...; 233,933,... and 911,58325,...), and minCoins matches the least-Jacobsthal-count definition. An exact DP confirms the small entries (933 and 14933 give 7; 58325 and 933205 give 9; symmetric pairs agree). The 372-line proof uses base-4 digit-sum lower bounds and explicit representations. No prior proof was found. Second review: Faithful to Karttunen's three conjectures (it correctly targets the global-minimum count). The proof certifies minimum counts by base-4 digit-sum lower bounds attained by shifted representations, a genuine structural argument, not a finite check."
+  },
+  "oeis-a221574": {
+   "date": "2026-11-28",
+   "pr": 21519,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A221574",
+    "https://oeis.org/A221574"
+   ],
+   "note": "Barker's g.f. and order-4 recurrence (stated for n>=5, where all indices are terms) follow from the cubic a(n)=n^3-n^2+3n-1, which the proof derives by direct counting. The definition matches the entry's array condition, and no prior proof was found. Second review: Faithful (the n>=5 range for the recurrence is the correct reading) and true. It is an elementary count giving a cubic polynomial, hence routine."
+  },
+  "OeisA179524.conjecture1": {
+   "date": "2026-11-28",
+   "pr": 21112,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A179524",
+    "https://arxiv.org/abs/0911.5665",
+    "https://arxiv.org/abs/2505.02767",
+    "https://oeis.org/A179524",
+    "https://arxiv.org/abs/0911.5665",
+    "https://arxiv.org/abs/1006.2776",
+    "https://arxiv.org/abs/2403.03301",
+    "https://arxiv.org/abs/2408.09776"
+   ],
+   "note": "The statement matches Sun's 2010 conjecture exactly (p prime, p = 1 or 9 mod 20, p = x^2+5y^2, sum_{k<p} a(k) = 4x^2-2p mod p^2). Searches turned up proofs of the analogous Apery-number case (Wang-Sun) but none for this sequence, and Sun's 2025/26 survey still lists sibling x^2+5y^2 congruences as conjectures. The 6.9k-line proof uses modular forms and eta quotients. Second review: Faithful, with no prior proof of this exact statement found. The 6899-line proof reduces the sum to a twisted truncated 3F2 and redoes a Beukers-style CM/modular-forms argument on Gamma0(2) at (1+sqrt-5)/2. The method and the companion F_p(-1/1024) supercongruence are known (Beukers 2024), so the novelty is the reduction plus formalization. Still a genuine, non-routine result."
+  },
+  "oeis-a247170": {
+   "date": "2026-11-28",
+   "pr": 16257,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A247170",
+    "https://oeis.org/A247170"
+   ],
+   "note": "Mathar's order-5 recurrence is checked against the g.f. defined by its algebraic equation, with the square-root branch fixed by its constant term. I checked the coefficients term by term against the entry and numerically (also at n=5, which uses the [x^0]=0 coefficient). D-finiteness of an algebraic g.f. makes this routine. Second review: Faithful and true; a routine D-finite recurrence for an algebraic g.f."
+  },
+  "oeis-a182088": {
+   "date": "2026-11-28",
+   "pr": 20847,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A182088",
+    "https://oeis.org/A182088"
+   ],
+   "note": "With m = 30(n-1), the factors are 1+m, 1+2m, 1+3m and 1+6m, so Korselt's criterion gives Carmichael whenever all four are prime (Chernick-type). The 'not only if' part needs a witness such as n=2 (91 = 7*13 composite, C(2) Carmichael), which I checked numerically. Routine. Second review: Faithful and true. Part 1 is a direct Korselt computation (a Chernick-type universal form); part 2 is a single explicit witness already implied by the entry's data. Routine."
+  },
+  "oeis-a001358": {
+   "date": "2026-11-28",
+   "pr": 20400,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A001358",
+    "https://arxiv.org/abs/2006.16491",
+    "https://oeis.org/A001358",
+    "https://math.colgate.edu/~integers/v122/v122.pdf",
+    "https://www.primepuzzles.net/conjectures/conj_108.htm"
+   ],
+   "note": "Rocchelli's second-order expansion of the n-th semiprime is a direct inversion of the known expansion pi_2(x) = x log log x/log x + M x/log x + o(x/log x) (Crisan-Erban, Integers 2021; Landau/Delange). The statement reads the conjecture with an o(1/log log n) error, which is the natural reading. The Lean work rebuilds Mertens and the PNT from earlier merged libraries, credited in the header. Second review: True, and faithful to the evident intent. It is a short inversion of the known two-term semiprime counting asymptotic (Crisan-Erban Thm 1), so mathematically routine despite the 5825-line formalization of the PNT-level inputs. Not a deep new result."
+  },
+  "oeis-a114194": {
+   "date": "2026-11-28",
+   "pr": 14398,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A114194",
+    "https://oeis.org/A114194"
+   ],
+   "note": "Mathar's order-4 recurrence for 1/(1+x(2-x)c(-2x)). The g.f. is encoded via sqrt(1+8x), the coefficients match the entry, and I checked numerically. Routine. Second review: Faithful and true; a routine D-finite recurrence for an algebraic g.f."
+  },
+  "oeis-a157328": {
+   "date": "2026-11-28",
+   "pr": 13814,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A157328",
+    "https://oeis.org/A157328"
+   ],
+   "note": "Mathar's order-2 recurrence for 1/(1-2x c(4x)). The encoding is correct and I checked the data and the recurrence numerically. Routine. Second review: Faithful and true; routine."
+  },
+  "oeis-a155051": {
+   "date": "2026-11-28",
+   "pr": 14546,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A155051",
+    "https://oeis.org/A155051"
+   ],
+   "note": "Mathar's recurrence for c(x^2)(1+x)/(1-x). The coefficients expand the entry's form correctly (I checked numerically, including the degenerate n=3 case). Routine. Second review: Faithful to one of the entry's two Mathar recurrences, and true; routine. If announced, say which of the two was proved."
+  },
+  "oeis-a056737": {
+   "date": "2026-11-28",
+   "pr": 19661,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A056737",
+    "https://oeis.org/A056737"
+   ],
+   "note": "The statement asserts only that some c>0 exists with sum_{n<=x} a(n) ~ sum c n/log n; Tooth's numerical value 1.7 is deliberately omitted, which is fine since it is only empirical. The proof is a 3.5k-line PNT-based analytic argument (PNT ported from PrimeNumberTheoremAnd, credited), and I found no prior proof of the average order. Not a trivial consequence of the definitions. Second review: Faithful up to dropping the imprecise 'approximately 1.7' (the true constant is zeta(2) ~ 1.645). The proof uses a PNT port (Kontorovich-Tao PNT+ project, credited) plus an elementary decomposition. A modest but genuine analytic result."
+  },
+  "oeis-a082957": {
+   "date": "2026-11-28",
+   "pr": 19480,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A082957",
+    "https://arxiv.org/abs/1904.10064",
+    "https://oeis.org/A325423",
+    "https://oeis.org/A082957",
+    "https://arxiv.org/abs/1904.10064",
+    "https://arxiv.org/abs/2311.00295",
+    "https://arxiv.org/abs/2408.00979"
+   ],
+   "note": "c is the reciprocal density of {k : sigma(2k) < sigma(2k+1)}. Kobayashi-Trudgian (2020) give only 18.20018 < c < 18.547, which is not enough for c < 18.5 (that needs density > 0.054054). The 5.3k-line proof establishes both the density and the sharper bound, and I found no later improvement (the 2023-24 follow-ups treat other progressions). This looks like a genuine new effective density bound. Second review: Faithful. The open content is only the upper bound c<18.5, i.e. density >1/18.5, which sharpens Kobayashi-Trudgian's 18.547. The 5285-line proof does this with an effective kernel-checked density computation. The announcement should say that existence and c>18.2 were already known."
+  },
+  "oeis-a192347": {
+   "date": "2026-11-28",
+   "pr": 19376,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A192347",
+    "https://oeis.org/A192347",
+    "https://oeis.org/A192232"
+   ],
+   "note": "p(n,x) is expanded correctly from (1/2)((x+d)^n+(x-d)^n) with d^2=x+2, and the reduction mod x^2-x-1 reproduces the data (checked to n=19). Barker's order-4 recurrence follows from a linear recurrence on the reduced pair. Routine. Second review: Faithful and true. Modulo x^2-x-1 the map x -> phi or psi turns p(n,x) into a combination of four geometric sequences, giving the order-4 recurrence. Routine."
+  },
+  "oeis-a193656": {
+   "date": "2026-11-28",
+   "pr": 19360,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A193656",
+    "https://oeis.org/A193656",
+    "https://oeis.org/A193649"
+   ],
+   "note": "The Q-residue and downstep follow the A193649 definition literally, and the closed form 3*5^n - 2*4^n matches the data. Mathar's closed form and g.f. follow by computing the residue of a geometric row. Routine. Second review: Faithful and true; a routine closed-form evaluation."
+  },
+  "oeis-a122122": {
+   "date": "2026-11-28",
+   "pr": 19325,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A122122",
+    "https://oeis.org/A122122"
+   ],
+   "note": "Mathar's two 2017 recurrences fail with the current indexing (for example -24 at n=2) because a(0)=1 was inserted in June 2022. The statement shifts indices by one to the 2017 numbering, and I checked numerically that both recurrences then hold. This is a correct, documented repair. Routine closed-form verification. Second review: Faithful to the recurrences as Mathar wrote them (2017 numbering); the shift is justified by the 2022 EXTENSIONS line. True and routine (hypergeometric closed form). When announcing, mention the renumbering."
+  },
+  "oeis-a355007": {
+   "date": "2026-11-28",
+   "pr": 19363,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A355007",
+    "https://oeis.org/A056856",
+    "https://oeis.org/A355007",
+    "https://oeis.org/A056856"
+   ],
+   "note": "Mathar's 2023 conjecture T(n,k) = n*A056856(n,k) is stated for 1 <= k <= n. A056856 is defined through its listed row formula (coefficient of y^(k-1) in prod_{j=1}^{n-1}(j + n y)), which reproduces the data (row 3 is 2, 9, 9). Given that formula the claim is immediate: the coefficient is n^(k-1) times the elementary symmetric function e_{n-k}(1..n-1), which is n^(k-1)|s(n,k)|. Trivial. Second review: Faithful and true; immediate from the rising-factorial generating function of unsigned Stirling numbers, given A056856's row formula. Routine."
+  },
+  "oeis-a308222": {
+   "date": "2026-11-28",
+   "pr": 20962,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A308222",
+    "https://oeis.org/A096033",
+    "https://oeis.org/A308222",
+    "https://oeis.org/A096033",
+    "https://math.stackexchange.com/a/3230072/121988"
+   ],
+   "note": "Kagey's conjectured formula a(n) = 2*A096033(n+2) is stated faithfully: isosceles sides a, a, b with 0 < b < 2a, gcd(a, b) = 1, Heron's 16K^2 = b^2(4a^2 - b^2), and A096033 from its definition as hypotenuse-minus-leg. I checked the identity for the first 63 terms. The proof uses Weimholt's characterization of A096033 (odd squares and 2t^2) and the classical halving of an isosceles Heronian triangle into two Pythagorean ones. Elementary and routine. Second review: Faithful and true. Halving the isosceles triangle gives a primitive Pythagorean triple, and the perimeters become 2*(odd squares >=9) union 2*(2n^2, n>=2), which is twice A096033 from its third term on. A short argument from facts already cited; routine."
+  },
+  "RefactorableNumber.infinitely_many_consecutive_refactorable_pairs": {
+   "date": "2026-11-28",
+   "pr": 20448,
+   "routine": false,
+   "evidence": [
+    "https://cs.uwaterloo.ca/journals/JIS/colton/joisol.html",
+    "https://oeis.org/A036898",
+    "https://en.wikipedia.org/wiki/Refactorable_number",
+    "https://en.wikipedia.org/wiki/Refactorable_number",
+    "https://oeis.org/A036898",
+    "https://cs.uwaterloo.ca/journals/JIS/VOL5/Zelinsky/zelinsky9.html",
+    "https://cs.uwaterloo.ca/journals/JIS/colton/joisol.html"
+   ],
+   "note": "The formal-conjectures statement is Colton's 1999 Conjecture 2 (infinitely many n with n and n+1 refactorable, i.e. d(n) | n and d(n+1) | n+1), and it is faithful. Wikipedia and A036898 still list it as open, and searches of arXiv, Palomar and the web found no earlier proof. The 15 KB proof is a CRT-plus-sieve construction: it forces n = 3^a u and n+1 = 2^(e+2) v-type factorizations, then counts residue classes so that the remaining cofactors have controlled divisor counts. Prime-power divisor-count lemmas follow a sibling site proof (Zelinsky's progression conjecture). Substantive. Second review: Faithful statement of a 1999 conjecture listed as unsolved, with no prior proof found. The proof is a short (336-line) elementary sieve construction. That is surprising for a conjecture open since 1999, but it is kernel-checked against the upstream statement, so worth a human read before announcing."
+  },
+  "oeis-a024719": {
+   "date": "2026-11-28",
+   "pr": 21480,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A024719",
+    "https://oeis.org/A024719",
+    "https://oeis.org/A024719/b024719.txt"
+   ],
+   "note": "Mathar's P-recurrence for the partial sums of C(3k,k), stated faithfully (offset 0, n >= 2, over Q). It follows from the hypergeometric ratio of C(3k,k) by telescoping. I checked it numerically for n <= 40. No earlier public proof was found, but this kind of holonomic recurrence is routine. Second review: Mathar-type holonomic recurrence for partial sums of C(3k,k); proof uses the ratio of consecutive central-type binomials and telescoping. True, faithful, routine."
+  },
+  "oeis-a265942": {
+   "date": "2026-11-28",
+   "pr": 21165,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A265942",
+    "https://oeis.org/A265942"
+   ],
+   "note": "Hanna's conjecture a(n) = 2 (mod 4) for n > 2, using the entry's own recursion with a(0) = 1. The definition reproduces the data, and I checked the congruence for n < 40. The proof is a short strong induction mod 4. Second review: Short elementary induction on the entry's recursion; true and faithful. Routine."
+  },
+  "oeis-a226187": {
+   "date": "2026-11-28",
+   "pr": 21063,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A226187",
+    "https://oeis.org/A002387",
+    "https://oeis.org/A226187",
+    "https://oeis.org/A002387",
+    "https://oeis.org/A004080"
+   ],
+   "note": "The conjecture is that a(n+1)/a(n) tends to exp(1/3), where a(n) is the least k with H_k > n/3. It follows from H_k = ln k + gamma + O(1/k), and the proof formalizes Hickerson-type bounds from A002387. The statement is faithful (firstAbove 0 = 1 only shifts one irrelevant term). This is standard asymptotics. Second review: True and faithful; it follows in a few lines from H_k = ln k + gamma + O(1/k). Routine."
+  },
+  "oeis-a371898": {
+   "date": "2026-11-28",
+   "pr": 20566,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A371898",
+    "https://oeis.org/A371898"
+   ],
+   "note": "Schulte's two conjectures: the column e.g.f. is k! t^k exp(t)/prod(1-it), and the signed row sums give the derangement numbers. The definition matches the name and the PARI rule. The proof converts the recurrence into E(k+1)(1-(k+1)t) = (k+1)t E(k) and telescopes the signed sum into d(n+1) = (n+1)d(n) - (-1)^n. These are standard generating-function manipulations. Second review: Both Schulte conjectures hold and are faithfully stated; they are e.g.f./recurrence identities provable from the defining recursion. Routine."
+  },
+  "oeis-a179648": {
+   "date": "2026-11-28",
+   "pr": 14152,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A179648",
+    "https://oeis.org/A179648",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's conjectured order-4 recurrence. The power-series encoding (T^2(1+4x-2x^2) = 1-2x^2, 2xG = 1-T) reproduces the OEIS data, and the Lean coefficients satisfy the recurrence on all listed terms (checked with sympy). The proof uses the standard algebraic-to-holonomic ODE method. Second review: Holonomic recurrence of an algebraic g.f.; true and faithful. Routine (a 'provable conjecture' in Zeilberger's sense)."
+  },
+  "oeis-a172062": {
+   "date": "2026-11-28",
+   "pr": 15104,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A172062",
+    "https://oeis.org/A172062",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's conjectured order-2 recurrence (k = 5). I checked the expanded cubic coefficients against the OEIS formula and the encoding against the data, and the recurrence holds on all terms. This is the standard D-finite derivation. Second review: Algebraic g.f. coefficient recurrence; true and faithful. Routine."
+  },
+  "oeis-a071264": {
+   "date": "2026-11-28",
+   "pr": 15962,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A071264",
+    "https://oeis.org/A071264",
+    "https://sites.math.rutgers.edu/~zeilberg/mamarim/mamarimhtml/mathar.html"
+   ],
+   "note": "Mathar's conjectured order-2 recurrence with large cubic coefficients. The expanded coefficients match the entry, the encoding G = (1+xc^4)c^3 matches the data, and the recurrence holds on all listed terms. This is a routine D-finite derivation. Second review: Algebraic g.f. recurrence; true and faithfully transcribed. Routine."
+  },
+  "oeis-a132864": {
+   "date": "2026-11-28",
+   "pr": 13807,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A132864",
+    "https://oeis.org/A132864"
+   ],
+   "note": "Mathar's conjectured recurrence for 1/(1-4x c(5x)). The encoding (10xc = 1-S, S^2 = 1-20x) matches the data, and the recurrence holds on the data. This is a routine holonomic derivation. Second review: True, faithful, routine algebraic-g.f. recurrence."
+  },
+  "oeis-a059992": {
+   "date": "2026-11-28",
+   "pr": 19945,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A059992",
+    "https://oeis.org/A002182",
+    "https://oeis.org/A059992",
+    "https://oeis.org/A033273",
+    "https://oeis.org/A002182"
+   ],
+   "note": "De Vlieger's conjecture (Jan 2025) is that every highly composite number other than 2 and 6 is a record for the number of nonprime divisors (d(n) - omega(n), counting 1). The statement is faithful, and I checked it for all 42 HCNs up to 3*10^6. The 1133-line proof uses exponent-vector exchange arguments, a central-binomial estimate for large supports, and certificates for ten residual cases. No prior proof was found in trureturing, thatnealpatel/proofs, Palomar or the OEIS entry. Second review: Faithful statement of De Vlieger's inclusion conjecture, numerically sound to 1e24, and the proof is a genuine argument rather than a finite check. Proof header thanks another site user for an earlier plan, which is internal credit, not prior literature."
+  },
+  "oeis-a192748": {
+   "date": "2026-11-28",
+   "pr": 19507,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A192748",
+    "https://oeis.org/A154691",
+    "https://oeis.org/A192748",
+    "https://oeis.org/A154691"
+   ],
+   "note": "This is Mathar's rational g.f. for the listed terms. The name says 'constant term', but the data and the Mathematica program use the x-coefficient of the reduction; the statement follows the data and notes this explicitly (I checked a(1..3) = 0, 1, 4). The proof tracks the remainder pair through a linear recurrence and compares coefficients. This is a routine linear-recurrence verification. Second review: True and faithful to the data; the entry's name/data inconsistency is documented in the statement and does not change Mathar's conjecture. Routine."
+  },
+  "oeis-a275027": {
+   "date": "2026-11-28",
+   "pr": 19429,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A275027",
+    "https://arxiv.org/abs/1610.03384",
+    "https://arxiv.org/abs/1201.6152",
+    "https://oeis.org/A275027",
+    "https://arxiv.org/abs/1610.03384",
+    "https://arxiv.org/abs/2012.05121",
+    "https://arxiv.org/abs/2111.08641"
+   ],
+   "note": "Sun's 2016 conjecture: for p > 5, (a(pn)-a(n))/(pn)^3 is a p-adic integer, where a(n) = Sum C(n,k)^2 C(n-k,k). The entry notes that Sun proved only the p^3 n^2 version. The statement is faithful (p does not divide the denominator of the rational quotient), and I spot-checked p = 7, 11, 13, 17. The 1300-line q-analogue proof uses cyclotomic root multiplicities and a q-WZ identity of Tauraso, reusing Gaussian-binomial lemmas from the site's A179524 proof. No prior proof of the full (pn)^3 statement was found. Second review: Faithful and apparently new: the closest literature result (Wang-Sun 2012.05121) treats a sibling sequence. Proof reuses Gaussian-binomial lemmas from another site proof (OeisA179524), which is internal reuse, and cites Tauraso for a q-identity it uses as a tool."
+  },
+  "oeis-a334603": {
+   "date": "2026-11-28",
+   "pr": 19382,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A334603",
+    "https://oeis.org/A334603"
+   ],
+   "note": "The statement is that the multiplicative order of 10 mod 11^n is 2*11^(n-1). It is textbook: 10 = -1 (mod 11) and 10^2 = 1 + 9*11 with 11 not dividing 9, so lifting the exponent gives the order. The statement covers only the p = 11 case, not the authors' general (false in general) p^n conjecture, and is faithful. Second review: True and faithful; an elementary lifting-the-exponent consequence that was only labelled conjectural in OEIS. Routine."
+  },
+  "oeis-a193661": {
+   "date": "2026-11-28",
+   "pr": 19361,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A193661",
+    "https://oeis.org/A193673",
+    "https://oeis.org/A193661",
+    "https://oeis.org/A193649",
+    "https://oeis.org/A193673"
+   ],
+   "note": "Mathar's rational g.f. for the Q-residue sequence. The statement follows A193673's data and formula, binomial(n,k)(1+3^(n-k))/2 as the coefficient of x^k, rather than its inconsistent name, and says so; that reading reproduces the data. The proof shows 2*residue(p) = p(2)+p(0), giving 4a(n) = 7^n+3^n+2, which I checked on all listed terms. Routine. Second review: Faithful to the data and definition chain; true. Routine."
+  },
+  "arxiv-2603.08876": {
+   "date": "2026-11-28",
+   "pr": 19334,
+   "routine": false,
+   "evidence": [
+    "https://arxiv.org/abs/2603.08876",
+    "https://github.com/nevmaric/lexicut",
+    "https://arxiv.org/abs/2603.08876"
+   ],
+   "note": "Maric's Conjecture 5.1: for n >= 7 and 1 < r < 2, an isolated cut C_k (k <= n/2) is a global maximum. The weights r^(N-i) match Definition 2.3. The existential form is equivalent to the conjecture on every threshold interval via the paper's proved Theorem 4.10, and ties at the thresholds are harmless. The paper (Mar 2026) gives only computational evidence and asks for a proof, and I found no follow-up. The 4565-line proof (prefix-score propagation plus interval certificates for n = 7..11) settles it. Second review: Faithful formalization of Maric's Conjecture 5.1 via the paper's own Theorem 4.10, numerically consistent, no prior resolution found."
+  },
+  "oeis-a364114": {
+   "date": "2026-11-28",
+   "pr": 21300,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A364114",
+    "https://oeis.org/A364118",
+    "https://github.com/rbajaj5/a183068-supercongruence/blob/main/related-results/BalaOeisSupercongruenceQueue.md",
+    "https://oeis.org/A364114",
+    "https://oeis.org/A364113",
+    "https://github.com/rbajaj5/a183068-supercongruence"
+   ],
+   "note": "The statement faithfully encodes Bala's four claims: the p^{3r} towers and shifted towers for p>=5, plus the two mod p^5 congruences for p>=7 (with a(n) written as the binomial sum equal to [x^n] P_n((1+x)/(1-x))^3/(1-x)). I found no prior proof. The rbajaj5 supercongruence census (Oct 2026) still lists the A364118 combination 3a(p)-11a(p-1) as open, and the 2026 Blanco Gomez families do not cover Legendre cubes. Substantive p-adic proof (Kazandzidis, Wolstenholme). Second review: Faithful and true as far as checked. Small residual risk: the triple-convolution form is not obviously covered by Coster's Theorem 4 or Osburn-Sahu-Straub, but I found no published theorem implying even parts 1-2, and parts 3-4 (mod p^5) look new."
+  },
+  "oeis-a027984": {
+   "date": "2026-11-28",
+   "pr": 20898,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A027984",
+    "https://oeis.org/A027984",
+    "https://oeis.org/A027960"
+   ],
+   "note": "T is the Lucas array exactly as in the A027960 PARI program, and the computed a(0..14) match the data. Barker's recurrence (n>=4) and g.f. follow from Fibonacci/Lucas closed forms (cf. Greubel's 2025 formula). Routine. Second review: True and faithful; rational-g.f. identity. Routine."
+  },
+  "oeis-a278613": {
+   "date": "2026-11-28",
+   "pr": 21173,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A278613",
+    "https://arxiv.org/abs/1509.05239",
+    "https://oeis.org/A278613",
+    "https://oeis.org/A278614",
+    "https://arxiv.org/abs/1509.05239"
+   ],
+   "note": "The TRIP-Stern maps follow Mathar's Maple convention for (e,e,132), and the definition reproduces the 20 listed terms (I checked 16 numerically). The column sums obey a linear 3x3 system with characteristic polynomial t^3-t^2-2t-6, which gives Mathar's g.f. Routine. Second review: True; linear maps make it an immediate rational g.f. Fidelity rests on the Maple-convention reading of the TRIP maps, which is confirmed by all 20 data terms. Routine."
+  },
+  "oeis-a158196": {
+   "date": "2026-11-28",
+   "pr": 14650,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A158196",
+    "https://oeis.org/A158196"
+   ],
+   "note": "Mathar's order-3 recurrence for an algebraic (Catalan-based) g.f. The square-root branch is fixed by its constant term, and I checked the coefficients and data numerically. Routine D-finite algebra. Second review: True, faithful, routine algebraic-g.f. recurrence (one of the two recurrences in the entry)."
+  },
+  "oeis-a103973": {
+   "date": "2026-11-28",
+   "pr": 16246,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A103973",
+    "https://oeis.org/A103973"
+   ],
+   "note": "Mathar's recurrence for an algebraic g.f. in sqrt(1-8x^2). The polynomial coefficients expand the entry's factored form correctly, and I checked the data and the recurrence numerically. Routine. Second review: True, faithful, routine."
+  },
+  "oeis-a239204": {
+   "date": "2026-11-28",
+   "pr": 14599,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A239204",
+    "https://oeis.org/A239204",
+    "https://arxiv.org/abs/2511.13446",
+    "https://arxiv.org/abs/2604.25731"
+   ],
+   "note": "Mathar's order-3 recurrence for an algebraic g.f. in sqrt(x^2-6x+1). I checked the data and the recurrence numerically. Routine. Second review: True, faithful, routine holonomic recurrence."
+  },
+  "oeis-a135052": {
+   "date": "2026-11-28",
+   "pr": 13615,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A135052",
+    "https://oeis.org/A135052"
+   ],
+   "note": "Mathar's order-5 recurrence for an algebraic g.f. in sqrt(1-4x+8x^3-4x^4). I checked the data and the recurrence numerically. Routine. Second review: True, faithful, routine algebraic-g.f. recurrence."
+  },
+  "oeis-a273386": {
+   "date": "2026-11-28",
+   "pr": 23281,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273386",
+    "https://oeis.org/A273386",
+    "https://oeis.org/A273386/b273386.txt"
+   ],
+   "note": "Barker's closed form, recurrence and g.f. for the partial sums of ON cells of 2D Rule 659, stated as in the entry (outer-totalistic bit 2k+c, background evolving, count in [-s,s]^2 as the program trims). My simulation reproduces all 129 b-file terms and satisfies all three formulas through n=125. Still marked conjecture; nothing found in formal-conjectures, Palomar, Epoch, trureturing/thatnealpatel lists or openai/math. Routine eventual-pattern induction. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 659). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a284351": {
+   "date": "2026-11-28",
+   "pr": 23246,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284351",
+    "https://oeis.org/A284351",
+    "https://oeis.org/A284351/b284351.txt"
+   ],
+   "note": "Barker's g.f., parity closed forms and recurrence for the left x-axis of 2D Rule 899 read in base 10, as in the entry's program. Simulation matches all 127 b-file terms and the formulas. No prior settlement found in the searched sources. Routine. Second review: Faithful and true. A284351 (Rule 899) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a280369": {
+   "date": "2026-11-28",
+   "pr": 23222,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A280369",
+    "https://oeis.org/A280369",
+    "https://oeis.org/A280369/b280369.txt"
+   ],
+   "note": "Barker's closed forms, recurrence (n>5) and g.f. for the left x-axis of 2D Rule 259 read in binary; conventions follow the entry's program. Simulation matches the 127 b-file terms and all formulas. No prior settlement found. Routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 259). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a282005": {
+   "date": "2026-11-28",
+   "pr": 23196,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282005",
+    "https://oeis.org/A282005",
+    "https://oeis.org/A282005/b282005.txt"
+   ],
+   "note": "Barker's conjectures for the right x-axis of 2D Rule 413 (origin most significant, as the program's FromDigits of center-to-right). Simulation matches the b-file (127 terms) and all four formulas. No prior settlement found. Routine. Second review: Faithful and true. A282005 (Rule 413) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a290661": {
+   "date": "2026-11-28",
+   "pr": 23104,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290661",
+    "https://oeis.org/A290661",
+    "https://oeis.org/A290661/b290661.txt"
+   ],
+   "note": "Wu's recurrence and g.f. for the diagonal of 2D Rule 899 read in base 10. The statement follows the name and the data (diagonal), not the printed program (middle row); my simulation of the diagonal matches all 127 b-file terms and both formulas. No prior settlement found. Routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 899). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a290682": {
+   "date": "2026-11-28",
+   "pr": 22898,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290682",
+    "https://oeis.org/A290682",
+    "https://oeis.org/A290682/b290682.txt"
+   ],
+   "note": "Barker's g.f., closed form and recurrence for the diagonal (corner first, binary) of 2D Rule 929; the statement follows the name and data rather than the printed middle-row program, and my diagonal simulation matches all 127 b-file terms and the formulas. No prior settlement found. Routine. Second review: Faithful and true. A290682 (Rule 929) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a287470": {
+   "date": "2026-11-28",
+   "pr": 22872,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A287470",
+    "https://oeis.org/A287470",
+    "https://oeis.org/A287470/b287470.txt"
+   ],
+   "note": "Barker's g.f., parity closed forms and recurrence for the diagonal (origin first, binary) of 2D Rule 276; follows name and data, simulation matches 127 b-file terms and all formulas. No prior settlement found. Routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 276). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a285474": {
+   "date": "2026-11-28",
+   "pr": 22858,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A285474",
+    "https://oeis.org/A285474",
+    "https://oeis.org/A285474/b285474.txt"
+   ],
+   "note": "Barker's g.f., closed form and recurrence for the diagonal of 2D Rule 3 read in base 10; follows name and data, simulation matches 127 b-file terms and all formulas. No prior settlement found. Routine. Second review: Faithful and true. A285474 (Rule 3) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a283216": {
+   "date": "2026-11-28",
+   "pr": 22260,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A283216",
+    "https://oeis.org/A283216",
+    "https://oeis.org/A283216/b283216.txt"
+   ],
+   "note": "Barker's g.f. and recurrence for the left x-axis of 2D Rule 597 read in binary, as in the entry's program; simulation matches all 127 b-file terms and both formulas. No prior settlement found. Routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 597). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a267270": {
+   "date": "2026-11-28",
+   "pr": 22825,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267270",
+    "https://oeis.org/A267270",
+    "https://oeis.org/A267270/b267270.txt"
+   ],
+   "note": "Keller's 2022 closed forms for the decimal reading of row n of Rule 115 (background evolving as CellularAutomaton[...,{{1},0}] does; cells -n..n). Exponents with natural division are the exact integer values. Simulation matches all 1001 b-file terms and both formulas. No prior settlement found. Routine. Second review: Faithful and true. A267270 (Rule 115) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine. The statement covers only Keller's 2022 closed forms, not Barker's empirical g.f. (which I also checked numerically)."
+  },
+  "oeis-a266449": {
+   "date": "2026-11-28",
+   "pr": 22788,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266449",
+    "https://oeis.org/A266449",
+    "https://oeis.org/A266449/b266449.txt"
+   ],
+   "note": "Barker's closed form, recurrence and g.f. for the OFF cells (cells -n..n) of Rule 25 with evolving background, as in the entry's program; simulation matches 1001 b-file terms and all formulas. No prior settlement found. Routine. Second review: Barker conjectures for the Rule 25 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
+  },
+  "oeis-a267057": {
+   "date": "2026-11-28",
+   "pr": 22751,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267057",
+    "https://oeis.org/A267057",
+    "https://oeis.org/A267057/b267057.txt"
+   ],
+   "note": "Barker's recurrence and g.f. for the decimal reading of row n of Rule 97; conventions follow the program, simulation matches 1001 b-file terms and both formulas. No prior settlement found. Routine. Second review: Faithful and true. A267057 (Rule 97) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine. The entry records (De Vlieger, 2022) the removal of an unjustified claim that the conjectures were correct, which confirms they were still open."
+  },
+  "oeis-a267054": {
+   "date": "2026-11-28",
+   "pr": 22739,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267054",
+    "https://oeis.org/A267054",
+    "https://oeis.org/A267054/b267054.txt"
+   ],
+   "note": "Barker's recurrence and g.f. for the decimal reading of row n of Rule 93; conventions follow the program, simulation matches 1001 b-file terms and both formulas. No prior settlement found. Routine. Second review: Barker conjectures for the Rule 93 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
+  },
+  "oeis-a266842": {
+   "date": "2026-11-28",
+   "pr": 22708,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266842",
+    "https://oeis.org/A266842",
+    "https://oeis.org/A266842/b266842.txt"
+   ],
+   "note": "Barker's recurrence and g.f. for the binary value of row n of Rule 69; conventions follow the program, simulation matches 1001 b-file terms and both formulas. No prior settlement found. Routine. Second review: Faithful and true. A266842 (Rule 69) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a266447": {
+   "date": "2026-11-28",
+   "pr": 22567,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266447",
+    "https://oeis.org/A266447",
+    "https://oeis.org/A266447/b266447.txt"
+   ],
+   "note": "Barker's closed form, recurrence and g.f. for the ON cells (cells -n..n) of Rule 25; simulation matches 1001 b-file terms and all formulas. No prior settlement found. Routine. Second review: Barker conjectures for the Rule 25 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
+  },
+  "oeis-a266724": {
+   "date": "2026-11-28",
+   "pr": 22128,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266724",
+    "https://oeis.org/A266724",
+    "https://oeis.org/A266724/b266724.txt"
+   ],
+   "note": "Barker's closed form, recurrence and g.f. for the OFF cells of Rule 59; simulation matches 1001 b-file terms and all formulas. No prior settlement found. Routine. Second review: Faithful and true. A266724 (Rule 59) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a286050": {
+   "date": "2026-11-28",
+   "pr": 22978,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286050",
+    "https://oeis.org/A286049",
+    "https://oeis.org/A286050",
+    "https://oeis.org/A286049",
+    "https://oeis.org/A286050/b286050.txt"
+   ],
+   "note": "Kimberling's conjecture 2n - a(n) in {0,1} for the zeros of the {110->1}-transform of Thue-Morse. Left-to-right StringReplace semantics are modelled faithfully; my simulation reproduces all 10000 b-file terms and the bound for 66665 zeros. No proof in the OEIS entries (A286049/50/51) and none found in formal-conjectures, Palomar, Zenodo or web search (Dekking proved similar sibling transforms, not this one). The sibling A286051 was solved later (PR 23143). Routine pairing argument on the Thue-Morse 01/10 blocks. Second review: Kimberling conjecture on the positions of 0 in the {110->1}-transform of Thue-Morse. Definition faithful and verified against the b-file; holds numerically. No earlier proof located (Walnut-provable type, but none published that I can find). The paired entry A286051 is a different (complementary) statement, not a duplicate."
+  },
+  "oeis-a391216": {
+   "date": "2026-11-28",
+   "pr": 22573,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A391216",
+    "https://oeis.org/A098026",
+    "https://oeis.org/A391216",
+    "https://oeis.org/A098026",
+    "https://oeis.org/history?seq=A391216"
+   ],
+   "note": "Disproof of Kotesovec's a(p) = A098026(p): for p = 11, k = 31# = 200560490130 has omega(k) = 11 and k+1 = 31#+1 prime (a classical primorial prime, Lucas-certified in the proof), so a(11) = 31#. Meanwhile A098026(11) = 239378649509 (31#-1 = 228737*876817 is not prime). So the entry's listed a(11) = 239378649509 is itself wrong. The statement is faithful (k >= 1, omega = distinct primes, squarefree p+1). This is a genuine counterexample and also exposes a data error. Second review: This is a disproof. k=31# gives omega(k)omega(k+1)=11*1, so a(11)<=31#, while A098026(11)>31# because 31#-1 is composite. That breaks the conjecture at p=11 and also shows the OEIS data term a(11)=239378649509 is wrong (it is not the least). Verified independently; no earlier report found. Routine (finite counterexample)."
+  },
+  "oeis-a279961": {
+   "date": "2026-11-28",
+   "pr": 23259,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A279961",
+    "https://oeis.org/A279961",
+    "https://oeis.org/A279961/b279961.txt"
+   ],
+   "note": "Barker's even/odd closed forms, order-4 recurrence (n>6) and g.f. for the left x-axis of 2D outer-totalistic Rule 221 are stated faithfully: rule bit 2k+c matches the entry's CAStep, background evolves on Z^2 as in the torus program, left edge is most significant. My simulation matches all 43 listed terms and the four claims hold to n=70. No prior public proof found; routine light-cone/periodicity argument. Second review: Faithful and true. A279961 (Rule 221) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a283506": {
+   "date": "2026-11-28",
+   "pr": 23241,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A283506",
+    "https://oeis.org/A283506",
+    "https://oeis.org/A283506/b283506.txt"
+   ],
+   "note": "Barker's g.f., closed forms 2^(n+1)-3 (n>0 even), 2^(n+1)-4 (n odd) and recurrence (n>3) for Rule 641 left x-axis, decimal of binary. Statement matches the entry's program; my simulation reproduces the data and all claims to n=70. No prior proof found; routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 641). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a282004": {
+   "date": "2026-11-28",
+   "pr": 23183,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282004",
+    "https://oeis.org/A282004",
+    "https://oeis.org/A282004/b282004.txt"
+   ],
+   "note": "Barker's conjectures (a=3 for n>0 even, 2^(n+1)-2 for odd n, order-4 recurrence for n>4, g.f.) for the Rule 413 left x-axis. Faithful to entry name, offset and program; my simulation matches data and the claims to n=70. No prior proof found; routine. Second review: Faithful and true. A282004 (Rule 413) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a282002": {
+   "date": "2026-11-28",
+   "pr": 23204,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A282002",
+    "https://oeis.org/A282002",
+    "https://oeis.org/A282002/b282002.txt"
+   ],
+   "note": "Base-10 companion of A282004 (Rule 413 left x-axis as binary digits). Barker's closed forms, recurrence (n>4) and g.f. are stated as in the entry; my simulation matches all listed terms and the claims to n=70. No prior proof found; routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 413). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a277797": {
+   "date": "2026-11-28",
+   "pr": 23140,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277797",
+    "https://oeis.org/A277797",
+    "https://oeis.org/A277797/b277797.txt"
+   ],
+   "note": "Barker's g.f., recurrence (n>3) and closed form for the Rule 1 left x-axis (binary digits read in base 10) are stated as in the entry, with the background evolving on Z^2 as in the program. My simulation matches all listed terms and the three claims to n=70. No prior proof found; routine. Second review: Faithful and true. A277797 (Rule 1) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a273337": {
+   "date": "2026-11-28",
+   "pr": 23090,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273337",
+    "https://oeis.org/A273337",
+    "https://oeis.org/A273337/b273337.txt"
+   ],
+   "note": "First differences of ON-cell counts in the trimmed (2n+1)^2 window for 2D Rule 657, as in the entry's program (background cells inside the window are counted). Barker's closed form 8(1+n) (n>2), recurrence (n>4) and g.f. match the entry; my simulation reproduces 54 terms and the claims. No prior proof found; routine. Second review: Faithful and true. A273337 (Rule 657) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a273387": {
+   "date": "2026-11-28",
+   "pr": 23023,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273387",
+    "https://oeis.org/A273387",
+    "https://oeis.org/A273387/b273387.txt"
+   ],
+   "note": "Same setup for 2D Rule 659, with Barker's a(n)=8(1+n) for n>2, the recurrence for n>4 and g.f. 4(1+x+3x^2-5x^3+2x^4)/(1-x)^2 stated faithfully. My simulation matches 54 terms and all claims. No prior proof found; routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 659). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a283590": {
+   "date": "2026-11-28",
+   "pr": 22919,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A283590",
+    "https://oeis.org/A283590",
+    "https://oeis.org/A283590/b283590.txt"
+   ],
+   "note": "Rule 657 x-axis from the origin to the right edge (origin most significant, binary digits in base 10), matching Range[i,2i-1] in the program. Barker's g.f., (10^n-1)/9 for n>2 and the recurrence for n>4 are stated faithfully, and my simulation matches the data and the claims. No prior proof found; routine. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 657). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a277929": {
+   "date": "2026-11-28",
+   "pr": 22867,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A277929",
+    "https://oeis.org/A277929",
+    "https://oeis.org/A277929/b277929.txt"
+   ],
+   "note": "Rule 5 x-axis from the origin to the right edge, read in binary with the origin most significant (Range[i,2i-1]). Barker's closed forms (n>1), the recurrence (n>5) and the g.f. are stated faithfully. My simulation matches all 43 listed terms and the claims to n=70. No prior proof found; routine. Second review: Faithful and true. A277929 (Rule 5) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a266793": {
+   "date": "2026-11-28",
+   "pr": 22724,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266793",
+    "https://oeis.org/A266793",
+    "https://oeis.org/A266793/b266793.txt"
+   ],
+   "note": "Cumulative ON count in the [-t,t] windows for elementary Rule 61 from a single cell, with the background evolving on Z as in CellularAutomaton. Barker's closed form (n>3), order-5 recurrence (n>8) and g.f. are stated as in the entry. My simulation matches 53 listed terms and all claims to n=80. No prior proof found; routine. Second review: Faithful and true. A266793 (Rule 61) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a266515": {
+   "date": "2026-11-28",
+   "pr": 22694,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266515",
+    "https://oeis.org/A266515",
+    "https://oeis.org/A266515/b266515.txt"
+   ],
+   "note": "Rule 29 elementary CA rows over [-n,n], read as binary digits in base 10 with the left cell most significant; the background evolves on Z. Barker's order-6 recurrence (n>5) and g.f., plus Keller's closed forms (odd and even n), are stated faithfully. My simulation matches all listed terms and the claims to n=80. No prior proof found; routine. Second review: Barker conjectures for the Rule 29 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
+  },
+  "oeis-a266590": {
+   "date": "2026-11-28",
+   "pr": 22688,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266590",
+    "https://oeis.org/A266590",
+    "https://oeis.org/A266590/b266590.txt"
+   ],
+   "note": "Rule 37 rows read in binary. Barker's recurrence (n>7) and g.f., and Keller's closed forms for odd and even n>1, are stated as in the entry. My simulation matches 28 listed terms and all claims to n=80. No prior proof found; routine. Second review: Faithful and true. A266590 (Rule 37) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a278760": {
+   "date": "2026-11-28",
+   "pr": 23116,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A278760",
+    "https://oeis.org/A278760/b278760.txt",
+    "https://oeis.org/A278760",
+    "https://oeis.org/A278760/b278760.txt"
+   ],
+   "note": "Rule 73 x-axis right (decimal), Wu: recurrence for n>7 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A278760 (Rule 73) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a273334": {
+   "date": "2026-11-28",
+   "pr": 23029,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A273334",
+    "https://oeis.org/A273334/b273334.txt",
+    "https://oeis.org/A273334",
+    "https://oeis.org/A273334/b273334.txt"
+   ],
+   "note": "Rule 657 ON-cell count in the (2n+1)^2 box, Barker: 4n(n+1) for n>2, recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 657). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a290662": {
+   "date": "2026-11-28",
+   "pr": 23017,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290662",
+    "https://oeis.org/A290662/b290662.txt",
+    "https://oeis.org/A290662",
+    "https://oeis.org/A290662/b290662.txt"
+   ],
+   "note": "Rule 899 diagonal (decimal), Wu: recurrence for n>3 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A290662 (Rule 899) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a284403": {
+   "date": "2026-11-28",
+   "pr": 22974,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284403",
+    "https://oeis.org/A284403/b284403.txt",
+    "https://oeis.org/A284403",
+    "https://oeis.org/A284403/b284403.txt"
+   ],
+   "note": "Rule 913 x-axis from the left edge (binary digits), Barker: g.f., (10^(n+1)-1)/9 for n>3 and recurrence for n>5. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 913). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a290683": {
+   "date": "2026-11-28",
+   "pr": 22944,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A290683",
+    "https://oeis.org/A290683/b290683.txt",
+    "https://oeis.org/A290683",
+    "https://oeis.org/A290683/b290683.txt"
+   ],
+   "note": "Rule 929 diagonal (decimal), Barker: g.f., 2^(n+1)-1 for n>3 and recurrence for n>5. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A290683 (Rule 929) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a284405": {
+   "date": "2026-11-28",
+   "pr": 22935,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284405",
+    "https://oeis.org/A284405/b284405.txt",
+    "https://oeis.org/A284405",
+    "https://oeis.org/A284405/b284405.txt"
+   ],
+   "note": "Rule 913 x-axis right (decimal), Barker: g.f., 2^(n+1)-1 for n>3 and recurrence for n>5. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 913). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a283591": {
+   "date": "2026-11-28",
+   "pr": 22890,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A283591",
+    "https://oeis.org/A283591/b283591.txt",
+    "https://oeis.org/A283591",
+    "https://oeis.org/A283591/b283591.txt"
+   ],
+   "note": "Rule 657 x-axis from the left edge (decimal), Barker: g.f., 2(2^n-1) for n>2 and recurrence for n>4. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A283591 (Rule 657) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a285473": {
+   "date": "2026-11-28",
+   "pr": 22849,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A285473",
+    "https://oeis.org/A285473/b285473.txt",
+    "https://oeis.org/A285473",
+    "https://oeis.org/A285473/b285473.txt"
+   ],
+   "note": "Rule 3 diagonal from corner to origin (binary digits), Barker: g.f., closed form for all n and recurrence for n>3. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 3). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a284238": {
+   "date": "2026-11-28",
+   "pr": 22291,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A284238",
+    "https://oeis.org/A284238/b284238.txt",
+    "https://oeis.org/A284238",
+    "https://oeis.org/A284238/b284238.txt"
+   ],
+   "note": "Rule 833 x-axis right (decimal), Wu: recurrence for n>5 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A284238 (Rule 833) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a287468": {
+   "date": "2026-11-28",
+   "pr": 22519,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A287468",
+    "https://oeis.org/A287468/b287468.txt",
+    "https://oeis.org/A287468",
+    "https://oeis.org/A287468/b287468.txt"
+   ],
+   "note": "Rule 276 diagonal from corner to origin (binary digits), Barker: g.f., even/odd closed forms and recurrence for n>3. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..126) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker/Wu conjectures for a Robert Price 2D CA entry (Rule 276). Definition matches the full b-file and all conjuncts hold numerically to n=170. No prior proof located. Routine: once the eventual CA pattern is established the claims are recurrence/g.f. identities."
+  },
+  "oeis-a266787": {
+   "date": "2026-11-28",
+   "pr": 23095,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266787",
+    "https://oeis.org/A266787/b266787.txt",
+    "https://oeis.org/A266787",
+    "https://oeis.org/A266787/b266787.txt"
+   ],
+   "note": "Elementary Rule 61 row (binary digits), Barker: recurrence for n>10 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A266787 (Rule 61) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a266788": {
+   "date": "2026-11-28",
+   "pr": 22821,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266788",
+    "https://oeis.org/A266788/b266788.txt",
+    "https://oeis.org/A266788",
+    "https://oeis.org/A266788/b266788.txt"
+   ],
+   "note": "Elementary Rule 61 row (decimal), Barker: recurrence for n>10 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker conjectures for the Rule 61 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
+  },
+  "oeis-a267293": {
+   "date": "2026-11-28",
+   "pr": 22814,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267293",
+    "https://oeis.org/A267293/b267293.txt",
+    "https://oeis.org/A267293",
+    "https://oeis.org/A267293/b267293.txt"
+   ],
+   "note": "Elementary Rule 121 row (binary digits), Barker: recurrence for n>12 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A267293 (Rule 121) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine."
+  },
+  "oeis-a267360": {
+   "date": "2026-11-28",
+   "pr": 22777,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267360",
+    "https://oeis.org/A267360/b267360.txt",
+    "https://oeis.org/A267360",
+    "https://oeis.org/A267360/b267360.txt"
+   ],
+   "note": "Elementary Rule 125 row (decimal), Barker: recurrence for n>8 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker conjectures for the Rule 125 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
+  },
+  "oeis-a267042": {
+   "date": "2026-11-28",
+   "pr": 22746,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A267042",
+    "https://oeis.org/A267042/b267042.txt",
+    "https://oeis.org/A267042",
+    "https://oeis.org/A267042/b267042.txt"
+   ],
+   "note": "Elementary Rule 91 row (decimal), Barker: recurrence for n>8 and g.f.. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Faithful and true. A267042 (Rule 91) and the conjectured formulas agree with an exact simulation of the Lean definition far beyond the b-file. The proof establishes an eventually periodic pattern by finite certified computation and derives the formulas, so it is routine. The entry records (De Vlieger, 2022) the removal of an unjustified claim that the conjectures were correct, which confirms they were still open."
+  },
+  "oeis-a266667": {
+   "date": "2026-11-28",
+   "pr": 22712,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A266667",
+    "https://oeis.org/A266667/b266667.txt",
+    "https://oeis.org/A266667",
+    "https://oeis.org/A266667/b266667.txt"
+   ],
+   "note": "Elementary Rule 51 row (binary digits), Barker closed form and g.f. plus Keller odd/even closed forms. The thresholds and coefficients match the entry word for word. The Z^2 (or Z) definition evolves the background for this odd/flickering rule, and it reproduces the whole b-file (n=0..1000) in my simulation; every conjectured identity holds on that range. Eventually periodic CA pattern, finite certificate; no prior solve found. Second review: Barker conjectures for the Rule 51 elementary CA. Definition reproduces the b-file and the identities hold numerically. No earlier proof found; routine (periodic CA pattern => linear recurrence/g.f.)."
+  },
+  "oeis-a286051": {
+   "date": "2026-11-28",
+   "pr": 23143,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A286051",
+    "https://oeis.org/A286049",
+    "https://oeis.org/A286051",
+    "https://oeis.org/A286049",
+    "https://oeis.org/A286051/b286051.txt"
+   ],
+   "note": "Kimberling's conjecture 2n - a(n) in {0,1} is faithful. The {110->1} StringReplace scan of Thue-Morse reproduces the A286049 and A286051 b-files (10^4 terms), and the conjecture holds numerically for about 2*10^4 terms. The proof uses the pair structure of Thue-Morse at even positions. The complement A286050 is a separate conjecture. Second review: Kimberling conjecture on the positions of 1 in the {110->1}-transform of Thue-Morse. Definition faithful and verified against the b-file; holds numerically. No earlier proof located (Walnut-provable type, but none published that I can find). The paired entry A286050 is a different (complementary) statement, not a duplicate."
+  },
+  "oeis-a285276": {
+   "date": "2026-11-28",
+   "pr": 22627,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A285276",
+    "https://oeis.org/A285274",
+    "https://oeis.org/A285276",
+    "https://oeis.org/A285274",
+    "https://oeis.org/A285276/b285276.txt"
+   ],
+   "note": "Kimberling's conjecture -2 < n*sqrt(2) - a(n) < 1 is faithful. The 0-limiting word is taken from the even iterates as A285274 describes, and it reproduces the 10^4-term b-file. Numerically, the observed range over 4.2*10^5 terms is (-1.9933, 0.9952). The proof is a 543-line discrepancy argument for the squared morphism; no prior solve found. Second review: Kimberling's discrepancy bound for the 1-positions of the 0-limiting word of 0->10, 1->0111. Definition matches the b-file and the bound holds numerically, with values coming close to both ends. No earlier proof found. Needs a structural argument about a Pisot morphism, so not routine."
+  },
+  "oeis-a394666": {
+   "date": "2026-11-28",
+   "pr": 10478,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A394666",
+    "https://oeis.org/A394666",
+    "https://oeis.org/A104275"
+   ],
+   "note": "The conjecture is stated for n >= 2. At n=1 the literal comment fails (a(1)=0 although n>5 is false), and the entry's own cross-reference treats n=1 as a zero, so the exclusion is a correct reading, not a weakening that the proof exploits. The proof is elementary: a prime 2n-1 > n does not divide n!, and for composite 2n-1 = d*e, d*e | n! (d=e handled via 2d <= n). Checked to n=3000. Second review: Elementary factorial-divisibility fact; no earlier written proof of this exact entry found, and the OEIS still calls it a conjecture. The n=1 exclusion is justified and matches the cross-reference. Routine."
   }
  },
  "flagged": {
@@ -5241,6 +6355,44 @@
     "https://oeis.org/A329725"
    ],
    "reason": "The statement is faithful, but it follows from the definition. Unfolding the recurrence twice gives a(10n+1) - a(10n-1) = 1 - p(10n+1) + p(10n), and appending a final digit 0 or 1 does not change the product of the nonzero digits. The proof is exactly this two-step unfolding."
+  },
+  "oeis-a243927": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A243927",
+    "https://oeis.org/A243925"
+   ],
+   "reason": "Second review: Mathematically fine, but it is the same statement as oeis-a243925, which the site already solved hours earlier. It should not be announced as a separate new solve; merge it with oeis-a243925."
+  },
+  "oeis-a192255": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A192255",
+    "https://oeis.org/A192254"
+   ],
+   "reason": "Second review: The site proves a corrected-offset version of Dresden's formula; the formula as printed is off by one and literally false. The corrected identity is immediate from x^k = F(k)x + F(k-1) mod x^2-x-1. Do not announce it as 'Dresden's conjecture proved'. At most it is a routine corrected identity, and the off-by-one should be stated."
+  },
+  "oeis-a274002": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A274002"
+   ],
+   "reason": "Second review: The formalization is faithful, but the 'conjecture' is a one-line consequence of x-1 | x^k-1 and contains no open content. It should not be announced as an open-problem solve."
+  },
+  "oeis-a068318": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A068318"
+   ],
+   "reason": "Second review: Not an open problem: the comment records two elementary observations, and the Goldbach part is a hypothesis-to-conclusion rewording. The formalization is faithful, but the item should not count as a solved open problem."
+  },
+  "oeis-a119651": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A119651",
+    "https://oeis.org/A119651/b119651.txt"
+   ],
+   "reason": "Second review: One of the three conjectured lines is false as written (the recurrence range n>2); the site silently-but-documented narrows it to n>8 and claims all three. The g.f. and closed form are true. It should be presented as 'g.f. and closed form proved; recurrence true only for n>8 (as written it is false)', not as a proof of Barker's conjectures."
   }
  },
  "known": {
@@ -11726,6 +12878,55 @@
     "https://oeis.org/A001077"
    ],
    "reason": "Second review: The 'conjecture' is a one-line linear-recurrence fact that the same contributor recorded as a plain formula in the companion entry A001077 in 2005, and that is standard continued-fraction theory. Not an open problem in any meaningful sense; at best confirmed-routine, I would not announce it."
+  },
+  "oeis-a211440": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A211440"
+   ],
+   "reason": "Second review: The OEIS entry already says the conjecture holds: Israel's 2019 closed form is stated to satisfy the conjectured g.f. and recurrence. The Lean proof only formalizes an elementary count. Do not present it as an open problem solved."
+  },
+  "oeis-a079291": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A079291",
+    "https://oeis.org/A001333"
+   ],
+   "reason": "Second review: Settled long before it was posed: it is the identity A001333(n)^2 - 2*Pell(n)^2 = (-1)^n. The formalization also drops the 'and only be' part of the comment. Should not be counted as a new solve."
+  },
+  "oeis-a356360": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A356360",
+    "https://zenodo.org/records/23506866",
+    "https://arxiv.org/abs/2509.09745"
+   ],
+   "reason": "Second review: The prime-or-one conjecture for A356360 is proved as Theorem 4.5 (case m=2, named in Remark 6.5) of Gracia Llorente's Zenodo preprint of 2026-10-20, five weeks before the site proof; the formula part is an immediate consequence of the same paper's Bouras formula and Lemma 6.1. The OEIS entry also equates the sequence with A128059/A145737 for n>5, whose entries state the 2n-1-if-prime formula."
+  },
+  "oeis-a071011": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A071011",
+    "https://oeis.org/A022544"
+   ],
+   "reason": "Second review: The same conjecture (Cloitre 2002, stated in both A071011 and A022544) is proved in the A022544 entry: Wilson 2005 gave the reason and Leduc posted a complete proof in March 2026. It is a textbook consequence of the sum-of-two-squares theorem. Known."
+  },
+  "oeis-a389863": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A389863",
+    "https://zenodo.org/records/23283015"
+   ],
+   "reason": "Second review: The conjecture was already settled in Lien-Hung Su's Zenodo preprint (2026-10-10), Corollary 3.2, which gives the complete set A389863 = {2p : p >= 7} U {15,16,21,27,30,36}. The site's proof (2026-11-27) is an independent Lean formalization but not a new result. Credit should go to Su, with the Lean proof presented as a formalization."
+  },
+  "oeis-a391566": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A391566",
+    "https://oeis.org/A391346",
+    "https://arxiv.org/abs/1401.3553"
+   ],
+   "reason": "Second review: Already known: Gawron (arXiv:1401.3553, 2014), Theorem 2.2(b), proves that B_n(-1/2) = 0 forces 5 | n, which is the whole conjecture. The site's proof uses the same idea (B(k,2) = k). In addition oeis-a391346 on the site is the same statement, so this result is counted twice."
   }
  },
  "reviewed": "2026-11-28"
