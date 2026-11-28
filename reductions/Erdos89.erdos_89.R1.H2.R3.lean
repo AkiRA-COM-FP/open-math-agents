@@ -14,6 +14,8 @@ fixed exponent r and density parameter t₀, chosen uniformly in the configurati
 def H1 : Prop :=
   ∃ r t₀ C : ℕ, ∀ (d : ℕ) (S : Finset (ℤ × ℤ)) (k : ℕ), 0 < d → Squarefree d →
     0 < k → (S.card : ℝ) ≤ Real.exp ((k:ℝ)^2) →
+    (d ≠ 1 ∨ ∀ (u : ℤ) (H : ℕ), (∀ z ∈ S, u ≤ z.1 ∧ z.1 < u+H) →
+      (t₀:ℝ)*k*S.card < (H:ℝ)^2*(1+Real.log ((H:ℝ)+1))) →
     (∀ p ∈ S, ∀ W : ℕ, (∀ z ∈ S, (z.1-p.1).natAbs ≤ W) →
       (t₀:ℝ)*k*S.card < (W:ℝ)^2*(1+Real.log (2*W+1))^2) →
     (d ≠ 1 ∨ ∀ (A : Finset (ℕ × ℕ)) (L : ℕ) (p : ℤ × ℤ) (s : ℤ), s ≠ 0 →
@@ -1084,7 +1086,7 @@ private theorem pin_count {α γ : Type*} [DecidableEq γ] (B : Finset α)
 private theorem collision_support_bound (d : ℕ) (hd : 0 < d) (T : Finset (ℕ × ℕ))
     (B : Finset ((ℕ × ℕ) × (ℕ × ℕ))) :
     let q := fun z : ℕ × ℕ => z.1^2+d*z.2^2
-    (∀ z w : ℕ × ℕ, z ∈ T → q w=q z → w.1<z.1 → (z,w) ∈ B) →
+    (∀ z w : ℕ × ℕ, z ∈ T → w ∈ T → q w=q z → w.1<z.1 → (z,w) ∈ B) →
     T.card^2 ≤ (T.image q).card*(T.card+2*B.card) := by
   classical
   intro q low
@@ -1094,7 +1096,7 @@ private theorem collision_support_bound (d : ℕ) (hd : 0 < d) (T : Finset (ℕ 
     obtain ⟨ht,e⟩ := mem_filter.mp h
     obtain ⟨hz,hw⟩ := mem_product.mp ht
     rcases lt_trichotomy z.1 w.1 with h|h|h
-    · exact mem_union_right _ (mem_union_right _ (mem_image.mpr ⟨(w,z),low w z hw e.symm h,rfl⟩))
+    · exact mem_union_right _ (mem_union_right _ (mem_image.mpr ⟨(w,z),low w z hw hz e.symm h,rfl⟩))
     · have he : z=w := by
         apply Prod.ext h
         change w.1^2+d*w.2^2=z.1^2+d*z.2^2 at e
@@ -1102,7 +1104,7 @@ private theorem collision_support_bound (d : ℕ) (hd : 0 < d) (T : Finset (ℕ 
         exact Nat.pow_left_injective (by decide : 2 ≠ 0) (Nat.eq_of_mul_eq_mul_left hd (Nat.add_left_cancel e.symm))
       subst w
       exact mem_union_left _ (mem_diag.mpr ⟨hz,rfl⟩)
-    · exact mem_union_right _ (mem_union_left _ (low z w hz e h))
+    · exact mem_union_right _ (mem_union_left _ (low z w hz hw e h))
   have ecard : E.card ≤ T.card+2*B.card := by
     have hu := (card_le_card sub).trans (card_union_le ..)
     have := card_union_le B (B.image Prod.swap)
@@ -1136,7 +1138,7 @@ theorem gap_collision_bound (d W : ℕ) (hd : 0 < d) (T : Finset (ℕ × ℕ))
       rw [Nat.mul_comm]; exact hb.trans (Nat.pow_le_pow_left (width z hz) 2))
   have cost : B.card ≤ ∑ h ∈ Ioc 0 (W^2/d), (d*h).divisors.card*h.divisors.card :=
     card_biUnion_le.trans (sum_le_sum fun h _ => card_image_le.trans (le_of_eq (card_product ..)))
-  exact (collision_support_bound d hd T B low).trans
+  exact (collision_support_bound d hd T B (fun z w hz _ => low z w hz)).trans
     (Nat.mul_le_mul_left _ (Nat.add_le_add_left (Nat.mul_le_mul_left 2 cost) _))
 
 private theorem coefficient_absorption (r : ℕ) : ∃ C : ℕ, ∀ d k : ℕ, 0 < d →
@@ -1239,6 +1241,44 @@ theorem polylog_coefficient_box (r : ℕ) : ∃ C : ℕ, ∀ d L k : ℕ,
     _ ≤ _ := e.trans (Nat.mul_le_mul_left _ cost)
     _ = _ := by dsimp [V,T]; ring
 
+private theorem unsigned_subset_support (d : ℕ) (S A : Finset (ℤ × ℤ)) (p : ℤ × ℤ)
+    (hp : p ∈ S) (sub : A ⊆ S) :
+    let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
+    let T := A.image fun z => ((z.1-p.1).natAbs,(z.2-p.2).natAbs)
+    A.card ≤ 4*T.card ∧ (T.image fun z => z.1^2+d*z.2^2).card ≤
+      (S.offDiag.image fun xy => q (xy.1-xy.2)).card+1 := by
+  classical
+  intro q _
+  let g := fun z : ℤ × ℤ => ((z.1-p.1).natAbs,(z.2-p.2).natAbs)
+  let T := A.image g
+  let f := fun z : ℕ × ℕ => z.1^2+d*z.2^2
+  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
+  let sign := fun z : ℤ × ℤ => (decide (p.1 ≤ z.1),decide (p.2 ≤ z.2))
+  have nT : A.card ≤ 4*T.card := by
+    have inj : Function.Injective (fun z => (g z,sign z)) := by
+      intro x y he
+      have h := congrArg Prod.fst he
+      have hs := congrArg Prod.snd he
+      simp [g,sign,Prod.mk.injEq] at h hs
+      exact Prod.ext (by omega) (by omega)
+    have sub : (A.image fun z => (g z,sign z)) ⊆ T ×ˢ (univ : Finset (Bool × Bool)) := by
+      intro z hz
+      obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
+      exact mem_product.mpr ⟨mem_image_of_mem _ hx,mem_univ _⟩
+    simpa [card_image_of_injective _ inj,Nat.mul_comm] using card_le_card sub
+  have vals : (T.image f).card ≤ V.card+1 := by
+    have sub : ((T.image f).image (Nat.cast : ℕ → ℤ)) ⊆ insert 0 V := by
+      intro z hz
+      obtain ⟨n,hn,rfl⟩ := mem_image.mp hz
+      obtain ⟨u,hu,rfl⟩ := mem_image.mp hn
+      obtain ⟨x,hx,rfl⟩ := mem_image.mp hu
+      by_cases h : x=p
+      · simp [h,f,g]
+      · exact mem_insert_of_mem (mem_image.mpr ⟨(x,p),mem_offDiag.mpr ⟨sub hx,hp,h⟩,by simp [f,g,q]⟩)
+    exact (by simpa only [card_image_of_injective _ Nat.cast_injective] using card_le_card sub :
+      (T.image f).card ≤ (insert 0 V).card).trans (card_insert_le ..)
+  exact ⟨nT,vals⟩
+
 private theorem unsigned_pin_support (d W : ℕ) (S : Finset (ℤ × ℤ)) (p : ℤ × ℤ)
     (hp : p ∈ S) (width : ∀ z ∈ S, (z.1-p.1).natAbs ≤ W) :
     let q := fun z : ℤ × ℤ => z.1^2+(d:ℤ)*z.2^2
@@ -1249,36 +1289,11 @@ private theorem unsigned_pin_support (d W : ℕ) (S : Finset (ℤ × ℤ)) (p : 
   intro q
   let g := fun z : ℤ × ℤ => ((z.1-p.1).natAbs,(z.2-p.2).natAbs)
   let T := S.image g
-  let f := fun z : ℕ × ℕ => z.1^2+d*z.2^2
-  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
-  let sign := fun z : ℤ × ℤ => (decide (p.1 ≤ z.1),decide (p.2 ≤ z.2))
-  have nT : S.card ≤ 4*T.card := by
-    have inj : Function.Injective (fun z => (g z,sign z)) := by
-      intro x y he
-      have h := congrArg Prod.fst he
-      have hs := congrArg Prod.snd he
-      simp [g,sign,Prod.mk.injEq] at h hs
-      exact Prod.ext (by omega) (by omega)
-    have sub : (S.image fun z => (g z,sign z)) ⊆ T ×ˢ (univ : Finset (Bool × Bool)) := by
-      intro z hz
-      obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
-      exact mem_product.mpr ⟨mem_image_of_mem _ hx,mem_univ _⟩
-    simpa [card_image_of_injective _ inj,Nat.mul_comm] using card_le_card sub
+  obtain ⟨nT,vals⟩ := unsigned_subset_support d S S p hp (fun _ h => h)
   have cols : ∀ z ∈ T, z.1 ≤ W := by
     intro z hz
     obtain ⟨x,hx,rfl⟩ := mem_image.mp hz
     exact width x hx
-  have vals : (T.image f).card ≤ V.card+1 := by
-    have sub : ((T.image f).image (Nat.cast : ℕ → ℤ)) ⊆ insert 0 V := by
-      intro z hz
-      obtain ⟨n,hn,rfl⟩ := mem_image.mp hz
-      obtain ⟨u,hu,rfl⟩ := mem_image.mp hn
-      obtain ⟨x,hx,rfl⟩ := mem_image.mp hu
-      by_cases h : x=p
-      · simp [h,f,g]
-      · exact mem_insert_of_mem (mem_image.mpr ⟨(x,p),mem_offDiag.mpr ⟨hx,hp,h⟩,by simp [f,g,q]⟩)
-    exact (by simpa only [card_image_of_injective _ Nat.cast_injective] using card_le_card sub :
-      (T.image f).card ≤ (insert 0 V).card).trans (card_insert_le ..)
   exact ⟨T,nT,card_image_le,cols,vals⟩
 
 /-- Uniform square-root logarithmic loss on horizontally dense strips in the
@@ -1356,7 +1371,7 @@ private theorem short_factor_collision (d W : ℕ) (hd : 0 < d) (T : Finset (ℕ
     _ ≤ ∑ ib ∈ R, (ib.1*ib.2).divisors.card := card_biUnion_le.trans (sum_le_sum fun _ _ => card_image_le)
     _ ≤ ∑ ib ∈ R, ib.1.divisors.card*ib.2.divisors.card := sum_le_sum fun ib _ => divisor_product_le ..
     _ = _ := by simp [R,sum_product,sum_mul,mul_sum]; exact sum_comm
-  simpa only [Nat.mul_assoc] using (collision_support_bound d hd T B low).trans
+  simpa only [Nat.mul_assoc] using (collision_support_bound d hd T B (fun z w hz _ => low z w hz)).trans
     (Nat.mul_le_mul_left _ (Nat.add_le_add_left (Nat.mul_le_mul_left 2 cost) _))
 
 open ArithmeticFunction in
@@ -1423,6 +1438,188 @@ theorem elongated_rectangle (d H L k t : ℕ) (S : Finset (ℤ × ℤ)) (u : ℤ
     nlinarith only [mul_le_mul_of_nonneg_left aspect (Nat.cast_nonneg H),
       mul_le_mul_of_nonneg_left de (Nat.cast_nonneg k)]
 
+
+/-- In a collision, divide the two differences by their gcd. The sums are
+multiples of the opposite reduced differences by a common factor s. -/
+private theorem primitive_collision {x y u v : ℕ} (hx : u < x)
+    (e : u^2+v^2=x^2+y^2) :
+    ∃ a b g s : ℕ, 0<a ∧ 0<b ∧ 0<g ∧ 0<s ∧
+      x-u=a*g ∧ v-y=b*g ∧ x+u=b*s ∧ v+y=a*s := by
+  have hv : y<v := by
+    by_contra! hn
+    have h₁ := Nat.pow_le_pow_left hn 2
+    have h₂ := Nat.pow_lt_pow_left hx (by decide : 2 ≠ 0)
+    omega
+  have eq : (x-u)*(x+u)=(v-y)*(v+y) := by
+    nlinarith only [e,congrArg (fun n : ℕ => n*(x+u)) (Nat.sub_add_cancel hx.le),
+      congrArg (fun n : ℕ => n*(v+y)) (Nat.sub_add_cancel hv.le)]
+  let g := (x-u).gcd (v-y)
+  obtain ⟨a,b,c,hi,hj⟩ := Nat.exists_coprime (x-u) (v-y)
+  change x-u=a*g at hi
+  change v-y=b*g at hj
+  have ag : 0<a*g := hi ▸ Nat.sub_pos_of_lt hx
+  have bg : 0<b*g := hj ▸ Nat.sub_pos_of_lt hv
+  have ha := Nat.pos_of_ne_zero (left_ne_zero_of_mul ag.ne')
+  have hg := Nat.pos_of_ne_zero (right_ne_zero_of_mul ag.ne')
+  have hb := Nat.pos_of_ne_zero (left_ne_zero_of_mul bg.ne')
+  have rel : a*(x+u)=b*(v+y) := by
+    apply Nat.eq_of_mul_eq_mul_left hg
+    rw [hi,hj] at eq
+    nlinarith only [eq]
+  have dvd := c.dvd_of_dvd_mul_left (show a ∣ b*(v+y) from ⟨_,rel.symm⟩)
+  obtain ⟨s,hs⟩ := dvd
+  have hh : x+u=b*s := by
+    apply Nat.eq_of_mul_eq_mul_left ha
+    rw [rel,hs]; ring
+  exact ⟨a,b,g,s,ha,hb,hg,by by_contra! h; simp [show s=0 by omega] at hs; omega,hi,hj,hh,hs⟩
+
+/-- When all long coordinates lie between D/2 and D, counting equal norms
+requires just one harmonic sum in the short-coordinate radius. -/
+private theorem far_collision (W D : ℕ) (T : Finset (ℕ × ℕ))
+    (bounds : ∀ z ∈ T, z.1 ≤ W ∧ D ≤ 2*z.2 ∧ z.2 ≤ D) :
+    let q := fun z : ℕ × ℕ => z.1^2+1*z.2^2
+    T.card^2 ≤ (T.image q).card*(T.card+8*W*(∑ a ∈ Ioc 0 W,W/a)) := by
+  classical
+  intro q
+  let R a := Ioc 0 (W/a) ×ˢ (Ioc 0 (2*W*a/D) ×ˢ Ioc 0 (2*D/a))
+  let F a := (R a).image fun z =>
+    let g := z.1
+    let b := z.2.1
+    let s := z.2.2
+    (((b*s+a*g)/2,(a*s-b*g)/2),((b*s-a*g)/2,(a*s+b*g)/2))
+  let B := (Ioc 0 W).biUnion F
+  have low (z w : ℕ × ℕ) (hz : z∈T) (hw' : w∈T) (e : q w=q z) (hw : w.1<z.1) : (z,w) ∈ B := by
+    obtain ⟨zw,zd,zD⟩ := bounds z hz
+    obtain ⟨ww,wd,wD⟩ := bounds w hw'
+    obtain ⟨a,b,g,s,ha,hb,hg,hs,hi,hj,hu,hv⟩ := primitive_collision hw (by simpa [q] using e)
+    have hlong : D ≤ w.2+z.2 := by omega
+    have posSum := Nat.mul_pos ha hs
+    have posDiff := Nat.mul_pos hb hg
+    have hD : 0<D := by omega
+    have hshort : a*g ≤ W := by omega
+    have h1 : a ≤ W := (Nat.le_mul_of_pos_right _ hg).trans hshort
+    have h2 : g ≤ W/a := (Nat.le_div_iff_mul_le ha).mpr (by simpa [mul_comm] using hshort)
+    have h3 : b ≤ 2*W*a/D := (Nat.le_div_iff_mul_le hD).mpr (by
+      calc
+        b*D ≤ b*(w.2+z.2) := Nat.mul_le_mul_left _ hlong
+        _ = (z.1+w.1)*a := by rw [hu,hv]; ring
+        _ ≤ _ := Nat.mul_le_mul_right _ (by omega))
+    have h4 : s ≤ 2*D/a := (Nat.le_div_iff_mul_le ha).mpr (by rw [Nat.mul_comm,← hv]; omega)
+    refine mem_biUnion.mpr ⟨a,mem_Ioc.mpr ⟨ha,h1⟩,mem_image.mpr ⟨(g,b,s),
+      mem_product.mpr ⟨mem_Ioc.mpr ⟨hg,h2⟩,mem_product.mpr ⟨mem_Ioc.mpr ⟨hb,h3⟩,mem_Ioc.mpr ⟨hs,h4⟩⟩⟩,?_⟩⟩
+    dsimp only
+    rw [← hu,← hv,← hi,← hj]
+    apply Prod.ext <;> apply Prod.ext <;> dsimp <;> omega
+  have cost : B.card ≤ 4*W*∑ a ∈ Ioc 0 W,W/a := by
+    rw [mul_sum]
+    apply card_biUnion_le.trans (sum_le_sum ?_)
+    intro a h
+    apply card_image_le.trans
+    simp only [R,card_product,Nat.card_Ioc,Nat.sub_zero]
+    have ha := (mem_Ioc.mp h).1
+    have pair : (2*W*a/D)*(2*D/a) ≤ 4*W := by
+      by_cases hD : D=0
+      · simp [hD]
+      apply Nat.le_of_mul_le_mul_right (c := D*a) _ (Nat.mul_pos (Nat.pos_of_ne_zero hD) ha)
+      calc
+        _ = ((2*W*a/D)*D)*((2*D/a)*a) := by ring
+        _ ≤ (2*W*a)*(2*D) := Nat.mul_le_mul (Nat.div_mul_le_self ..) (Nat.div_mul_le_self ..)
+        _ = _ := by ring
+    simpa only [Nat.mul_comm (4*W)] using Nat.mul_le_mul_left (W/a) pair
+  apply (collision_support_bound 1 (by decide) T B low).trans
+  exact Nat.mul_le_mul_left _ (Nat.add_le_add_left ((Nat.mul_le_mul_left 2 cost).trans_eq (by ring)) _)
+
+private theorem floor_sum_mean (W : ℕ) :
+    (↑(∑ a ∈ Ioc 0 W,W/a):ℝ) ≤ W*(1+Real.log ((W:ℝ)+1)) := by
+  have h := zeta_sum_bound 1 W
+  rw [pow_succ',ArithmeticFunction.sum_Ioc_mul_eq_sum_sum] at h
+  simp only [pow_one,ArithmeticFunction.sum_Ioc_zeta] at h
+  have eq : (∑ a ∈ Ioc 0 W,ArithmeticFunction.zeta a*(W/a)) = ∑ a ∈ Ioc 0 W,W/a :=
+    sum_congr rfl fun a ha => by rw [ArithmeticFunction.zeta_apply_ne (mem_Ioc.mp ha).1.ne',one_mul]
+  rwa [eq] at h
+
+/-- Choose one of the two extreme heights as the pin. At least half the set
+has vertical displacement between half the diameter and the diameter. -/
+private theorem far_half (S : Finset (ℤ × ℤ)) (hne : S.Nonempty) :
+    ∃ p ∈ S, ∃ A ⊆ S, ∃ D : ℕ, S.card ≤ 2*A.card ∧
+      ∀ z ∈ A, D ≤ 2*(z.2-p.2).natAbs ∧ (z.2-p.2).natAbs ≤ D := by
+  classical
+  obtain ⟨lo,hlo,minimal⟩ := S.exists_min_image Prod.snd hne
+  obtain ⟨hi,hhi,maximal⟩ := S.exists_max_image Prod.snd hne
+  let D := (hi.2-lo.2).natAbs
+  let targets (p : ℤ × ℤ) := S.filter fun z => D ≤ 2*(z.2-p.2).natAbs
+  have dis (z : ℤ × ℤ) (hz : z ∈ S) :
+      (z.2-lo.2).natAbs+(z.2-hi.2).natAbs=D := by
+    have a := minimal z hz
+    have b := maximal z hz
+    dsimp [D]; omega
+  have cover : S ⊆ targets lo ∪ targets hi := by
+    intro z hz
+    have := dis z hz
+    by_cases h : D ≤ 2*(z.2-lo.2).natAbs
+    · exact mem_union_left _ (mem_filter.mpr ⟨hz,h⟩)
+    · exact mem_union_right _ (mem_filter.mpr ⟨hz,by omega⟩)
+  have count := (card_le_card cover).trans (card_union_le ..)
+  by_cases h : S.card ≤ 2*(targets lo).card
+  · refine ⟨lo,hlo,targets lo,filter_subset ..,D,h,?_⟩
+    intro z hz
+    obtain ⟨hs,hg⟩ := mem_filter.mp hz
+    exact ⟨hg,by have := dis z hs; omega⟩
+  · refine ⟨hi,hhi,targets hi,filter_subset ..,D,by omega,?_⟩
+    intro z hz
+    obtain ⟨hs,hg⟩ := mem_filter.mp hz
+    exact ⟨hg,by have := dis z hs; omega⟩
+
+/-- Single-logarithm width estimate for squared Euclidean distances on an
+integer strip. The vertical diameter may be arbitrary, including zero. -/
+theorem euclidean_strip (H k t : ℕ) (S : Finset (ℤ × ℤ)) (u : ℤ)
+    (hk : 0 < k) (span : ∀ z ∈ S, u ≤ z.1 ∧ z.1 < u+H)
+    (small : (H:ℝ)^2*(1+Real.log ((H:ℝ)+1)) ≤ t*(k:ℝ)*S.card) :
+    let q := fun z : ℤ × ℤ => z.1^2+z.2^2
+    S.card ≤ k*(64*(1+8*t))*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  classical
+  intro q
+  obtain empty | ne := S.eq_empty_or_nonempty
+  · simp [empty]
+  obtain ⟨p,hp,A,sub,D,half,far⟩ := far_half S ne
+  let g (z : ℤ × ℤ) := ((z.1-p.1).natAbs,(z.2-p.2).natAbs)
+  let T := A.image g
+  let V := S.offDiag.image fun xy => q (xy.1-xy.2)
+  let f := fun z : ℕ × ℕ => z.1^2+1*z.2^2
+  obtain ⟨signs,vals⟩ := unsigned_subset_support 1 S A p hp sub
+  change A.card ≤ 4*T.card at signs
+  have vs : (T.image f).card ≤ V.card+1 := by simpa [T,g,f,V,q] using vals
+  have he := far_collision H D T (by
+    intro z hz
+    obtain ⟨w,hw,rfl⟩ := mem_image.mp hz
+    have h₁ := span w (sub hw)
+    have h₂ := span p hp
+    exact ⟨by dsimp [g]; omega,far w hw⟩)
+  change T.card^2 ≤ (T.image f).card*(T.card+8*H*(∑ a ∈ Ioc 0 H,H/a)) at he
+  have cost : 8*H*(∑ a ∈ Ioc 0 H,H/a) ≤ 8*t*k*S.card := by
+    have h := mul_le_mul_of_nonneg_left (floor_sum_mean H) (Nat.cast_nonneg H : 0 ≤ (H:ℝ))
+    exact_mod_cast (show 8*(H:ℝ)*(↑(∑ a ∈ Ioc 0 H,H/a):ℝ) ≤ 8*t*k*(S.card:ℝ) by nlinarith only [h,small])
+  have nT : S.card ≤ 8*T.card := by omega
+  have upper : T.card ≤ S.card := card_image_le.trans (card_le_card sub)
+  have full : T.card+8*H*(∑ a ∈ Ioc 0 H,H/a) ≤ S.card*k*(1+8*t) := by
+    nlinarith only [cost,upper,Nat.le_mul_of_pos_right S.card hk]
+  have fin : S.card*S.card ≤ S.card*(k*(64*(1+8*t))*(V.card+1)) := calc
+    _ ≤ (8*T.card)^2 := by simpa only [pow_two] using Nat.pow_le_pow_left nT 2
+    _ = 64*T.card^2 := by ring
+    _ ≤ 64*((V.card+1)*(S.card*k*(1+8*t))) := Nat.mul_le_mul_left _ (he.trans (Nat.mul_le_mul vs full))
+    _ = _ := by ring
+  exact Nat.le_of_mul_le_mul_left fin (card_pos.mpr ne)
+
+/-- A fixed-density rectangle needs only H(1+log(H+1)) ≤ kL. -/
+theorem intermediate_rectangle (H L k t : ℕ) (S : Finset (ℤ × ℤ)) (u : ℤ)
+    (hk : 0 < k) (span : ∀ z ∈ S, u ≤ z.1 ∧ z.1 < u+H)
+    (density : H*L ≤ t*S.card) (aspect : (H:ℝ)*(1+Real.log ((H:ℝ)+1)) ≤ k*(L:ℝ)) :
+    let q := fun z : ℤ × ℤ => z.1^2+z.2^2
+    S.card ≤ k*(64*(1+8*t))*((S.offDiag.image fun xy => q (xy.1-xy.2)).card+1) := by
+  apply euclidean_strip H k t S u hk span
+  have de : (H:ℝ)*L ≤ t*(S.card:ℝ) := by exact_mod_cast density
+  nlinarith only [mul_le_mul_of_nonneg_left aspect (Nat.cast_nonneg H),
+    mul_le_mul_of_nonneg_left de (Nat.cast_nonneg k)]
 
 /-- Linear distinct-value bound with a constant independent of d and S.
 Only the horizontal span is restricted; the selected heights can be arbitrary. -/
@@ -1626,7 +1823,7 @@ theorem integral_form_bound (arith : H1) (lr : H3) :
   obtain ⟨B,strip⟩ := polynomial_coefficient_strip r t₀
   obtain ⟨P,poly⟩ := polylog_coefficient_strip r t₀
   obtain ⟨G,grid⟩ := square_patch_bound lr t₀
-  let U := max (16*(1+4*t₀)) (max G (max C (max B P)))
+  let U := max (64*(1+8*t₀)) (max (16*(1+4*t₀)) (max G (max C (max B P))))
   refine ⟨max U 4,?_⟩
   intro a b c ha hdisc A k hk hsize Q
   let V := fun (q : ℤ × ℤ → ℤ) (T : Finset (ℤ × ℤ)) => T.offDiag.image fun xy => q (xy.1-xy.2)
@@ -1640,6 +1837,16 @@ theorem integral_form_bound (arith : H1) (lr : H3) :
   rw [card_image_of_injective _ (mul_right_injective₀ (by positivity : 4*a ≠ 0))] at hvals
   change A.card ≤ k*max U 4*((V Q A).card+1)
   rw [← hc,← hvals]
+  by_cases thin : d ≠ 1 ∨ ∀ (u : ℤ) (H : ℕ), (∀ z ∈ S, u ≤ z.1 ∧ z.1 < u+H) →
+      (t₀:ℝ)*k*S.card < (H:ℝ)^2*(1+Real.log ((H:ℝ)+1))
+  swap
+  · push Not at thin
+    obtain ⟨eqd,u,H,span,small⟩ := thin
+    subst d
+    have h := euclidean_strip H k t₀ S u hk span small
+    have sqeq : q = fun z : ℤ × ℤ => z.1^2+z.2^2 := by ext z; simp [q]
+    rw [sqeq]
+    exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (show 64*(1+8*t₀) ≤ max U 4 by dsimp [U]; omega)))
   by_cases wide : ∀ p ∈ S, ∀ W : ℕ, (∀ z ∈ S, (z.1-p.1).natAbs ≤ W) →
       (t₀:ℝ)*k*S.card < (W:ℝ)^2*(1+Real.log (2*W+1))^2
   swap
@@ -1687,7 +1894,7 @@ theorem integral_form_bound (arith : H1) (lr : H3) :
         min (min (X a).card (X b).card) (h.divisors.filter fun j =>
           j ≤ h/j ∧ h/j+j ≤ 2*W (min a b) ∧ h/j-j ≤ 2*W (max a b) ∧ j%2 = (h/j)%2).card
       0 < mass → k*mass^2 < S.card*cost
-    · have h := hard d S k hd hsq hk (by rwa [hc]) wide sparse outside heavy costly
+    · have h := hard d S k hd hsq hk (by rwa [hc]) thin wide sparse outside heavy costly
       exact h.trans (Nat.mul_le_mul_right _ (Nat.mul_le_mul_left k (show C ≤ max U 4 by dsimp [U]; omega)))
     dsimp only at costly
     push Not at costly
