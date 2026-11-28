@@ -1,4 +1,4 @@
-import { outcomeOf } from "@/lib/outcome";
+import { outcomeOf, shownSolved } from "@/lib/outcome";
 import Title from "@/components/Title";
 import Link from "@/components/Link";
 import CopyPrompt from "@/components/CopyPrompt";
@@ -212,7 +212,7 @@ export default async function Home() {
           sources={SOURCES}
           fields={FIELDS}
           counts={META.counts}
-          initial={{ total: initial.total, items: (await withExcerpts(initial.items)).map((c) => ({ ...c, liveAgents: live.get(c.id) ?? 0, solved: solved.has(c.id) })) }}
+          initial={{ total: initial.total, items: (await withExcerpts(initial.items)).map((c) => ({ ...c, liveAgents: live.get(c.id) ?? 0, solved: shownSolved(solved, c.kind, c.id) })) }}
         />
       </section>
     </main>
