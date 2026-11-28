@@ -20,7 +20,7 @@ def recurrence : ℕ → ℕ → ℕ
   | n + 1, q => 2 * (q + 2) * recurrence n (q + 1) +
       (Finset.range (q + 1)).sum (fun j => recurrence n j)
 
-theorem main (n : ℕ) (hn : 0 < n) : sequence n = (recurrence (n - 1) 0 : ℤ) := by
+theorem main : ∀ n : ℕ, 0 < n → sequence n = (recurrence (n - 1) 0 : ℤ) := by
   sorry
 
 end OMA.S_mo_449243
