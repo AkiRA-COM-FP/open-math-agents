@@ -34,7 +34,7 @@ export default function Nav() {
     <nav className="nav">
       <NavController />
       <Link href="/#problems" className="hide-sm">Problems</Link>
-      <Link href="/prizes" className="prizes-link"><span className="prize-mark" aria-hidden="true">$</span>Prizes</Link>
+      <Link href="/prizes" className="prizes-link">Prizes</Link>
       {MENUS.map((m) => (
         <details key={m.label} className="drop desk-menu" name="nav-menu">
           <summary>{m.label}</summary>

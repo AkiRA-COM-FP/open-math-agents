@@ -2,7 +2,10 @@ import OMAStatements.S_oeis_a228456
 
 -- Problem: A228456: Determinant of the (n+1) X (n+1) matrix with (i,j)-entry equal to A086618(i+j) for all i,j = 0,...,n.
 -- Upstream: formal-conjectures statements/oeis-a228456.lean:0 (declaration OMA.S_oeis_a228456.main)
--- Credit: Daniel Whorlow (@draonbioetl)
+-- Credit: Daniel Whorlow (@draonbioetl), original complete proof in PR #18403.
+-- This revision retains the construction and bounds, replacing the manual PSD Hadamard
+-- argument by Mathlib Gram-Schmidt and PSD factorization, using Mathlib Chebyshev
+-- polynomials, and shortening the integral Cauchy-Schwarz argument via discrim_le_zero.
 
 namespace OMA_A228456_Part1
 
@@ -2861,184 +2864,35 @@ private lemma quadForm_Hmat_nonneg {n : ℕ} (v : Fin (n + 1) → ℝ) :
   rw [← h0]
   exact exp2D_mono continuous_const ((continuous_poly_eval _).pow 2) fun x _ _ => sq_nonneg _
 
-/-- Elementary Hadamard inequality for symmetric PSD real matrices. -/
-private lemma hadamard_psd :
-    ∀ {m : ℕ} (M : Matrix (Fin m) (Fin m) ℝ),
-      M.IsSymm → (∀ v, 0 ≤ dotProduct v (M.mulVec v)) →
-      0 ≤ M.det ∧ M.det ≤ ∏ i : Fin m, M i i
-  | 0, M, _, _ => by
-    simp
-  | m + 1, M, hsymm, hpsd => by
-    let f : Unit ⊕ Fin m ≃ Fin (m + 1) :=
-      { toFun := Sum.elim (fun _ => 0) Fin.succ
-        invFun := fun i => Fin.cases (Sum.inl ()) Sum.inr i
-        left_inv := fun x => by cases x with | inl u => cases u; rfl | inr j => rfl
-        right_inv := fun i => Fin.cases rfl (fun _ => rfl) i }
-    let M' : Matrix (Unit ⊕ Fin m) (Unit ⊕ Fin m) ℝ := Matrix.reindex f.symm f.symm M
-    have hdetM : M.det = M'.det := (Matrix.det_reindex_self f.symm M).symm
-    let a0 : ℝ := M 0 0
-    let r : Fin m → ℝ := fun j => M 0 j.succ
-    let B : Matrix (Fin m) (Fin m) ℝ := Matrix.of fun i j => M i.succ j.succ
-    have hM'_eq : M' = Matrix.fromBlocks
-        (Matrix.of fun (_ _ : Unit) => a0)
-        (Matrix.of fun (_ : Unit) (j : Fin m) => r j)
-        (Matrix.of fun (i : Fin m) (_ : Unit) => r i)
-        B := by
-      ext x y
-      cases x with
-      | inl u =>
-        cases u
-        cases y with
-        | inl v => cases v; simp [M', f, a0]
-        | inr j => simp [M', f, r]
-      | inr i =>
-        cases y with
-        | inl v =>
-          cases v
-          simp only [M', Matrix.reindex_apply, Matrix.submatrix_apply, f,
-            Equiv.symm_symm, Equiv.coe_fn_mk, Sum.elim_inr, Sum.elim_inl,
-            Matrix.fromBlocks_apply₂₁, Matrix.of_apply, r]
-          have := congr_fun (congr_fun hsymm.eq 0) i.succ
-          simpa [Matrix.transpose_apply] using this
-        | inr j => simp [M', f, B]
-    have hdiag_nn : ∀ i : Fin (m + 1), 0 ≤ M i i := by
-      intro i
-      have h := hpsd (Pi.single i 1)
-      simpa [dotProduct, Matrix.mulVec, Pi.single_apply] using h
-    have ha0_nn : 0 ≤ a0 := hdiag_nn 0
-    have hprod_eq : ∏ i : Fin (m + 1), M i i = a0 * ∏ i : Fin m, B i i := by
-      rw [Fin.prod_univ_succ]
-      rfl
-    by_cases ha0 : a0 = 0
-    · have hr0 : ∀ j : Fin m, r j = 0 := by
-        intro j
-        by_contra hne
-        let t : ℝ := -(B j j + 1) / (2 * r j)
-        let v : Fin (m + 1) → ℝ := fun k =>
-          if k = 0 then t else if k = j.succ then 1 else 0
-        have hv := hpsd v
-        have hcalc : dotProduct v (M.mulVec v) =
-            t ^ 2 * a0 + 2 * t * r j + B j j := by
-          simp only [dotProduct, Matrix.mulVec, Fin.sum_univ_succ]
-          have hsum0 : ∑ x : Fin m, M 0 x.succ * v x.succ = r j := by
-            rw [Finset.sum_eq_single j]
-            · simp [v, r]
-            · intro b _ hb
-              simp [v, hb]
-            · intro hj; exact absurd (Finset.mem_univ j) hj
-          have hsumx : ∀ x : Fin m,
-              v x.succ * (M x.succ 0 * v 0 + ∑ y : Fin m, M x.succ y.succ * v y.succ) =
-              if x = j then r j * t + B j j else 0 := by
-            intro x
-            by_cases hxj : x = j
-            · subst hxj
-              have hs : ∑ y : Fin m, M x.succ y.succ * v y.succ = B x x := by
-                rw [Finset.sum_eq_single x]
-                · simp [v, B]
-                · intro b _ hb; simp [v, hb]
-                · intro hx; exact absurd (Finset.mem_univ x) hx
-              have hsym : M x.succ 0 = r x := by
-                have := congr_fun (congr_fun hsymm.eq 0) x.succ
-                simpa [Matrix.transpose_apply, r] using this
-              simp [v, hsym, B]
-            · simp [v, hxj]
-          simp_rw [hsumx]
-          rw [Finset.sum_ite_eq' _ _ _]
-          simp only [Finset.mem_univ, ↓reduceIte, hsum0, v, ↓reduceIte, a0]
-          ring
-        rw [hcalc, ha0] at hv
-        have ht : 2 * t * r j = -(B j j + 1) := by
-          dsimp [t]
-          field_simp [hne]
-        linarith
-      have hdet0 : M.det = 0 := by
-        rw [Matrix.det_eq_zero_of_row_eq_zero 0]
-        intro j
-        refine Fin.cases ?_ ?_ j
-        · exact ha0
-        · exact hr0
-      rw [hdet0, hprod_eq, ha0, zero_mul]
-      exact ⟨le_rfl, le_rfl⟩
-    · have ha0_pos : 0 < a0 := lt_of_le_of_ne ha0_nn (Ne.symm ha0)
-      let S : Matrix (Fin m) (Fin m) ℝ :=
-        Matrix.of fun i j => B i j - a0⁻¹ * r i * r j
-      have hS_symm : S.IsSymm := by
-        ext i j
-        simp only [S, Matrix.transpose_apply, Matrix.of_apply, B]
-        have := congr_fun (congr_fun hsymm.eq j.succ) i.succ
-        simp only [Matrix.transpose_apply] at this
-        rw [this]
-        ring
-      have hS_psd : ∀ w : Fin m → ℝ, 0 ≤ dotProduct w (S.mulVec w) := by
-        intro w
-        let t : ℝ := -a0⁻¹ * dotProduct r w
-        let v : Fin (m + 1) → ℝ := Fin.cases t w
-        have hv := hpsd v
-        have hcalc : dotProduct v (M.mulVec v) = dotProduct w (S.mulVec w) := by
-          simp only [dotProduct, Matrix.mulVec, Fin.sum_univ_succ, v, Fin.cases_zero, Fin.cases_succ]
-          have h1 : ∀ x : Fin m, M x.succ 0 = r x := fun x => by
-            have := congr_fun (congr_fun hsymm.eq 0) x.succ
-            simpa [Matrix.transpose_apply, r] using this
-          simp_rw [h1]
-          have hdot_rw : ∑ x : Fin m, M 0 x.succ * w x = dotProduct r w := rfl
-          have hdot_wr : ∑ x : Fin m, w x * (r x * t) = t * dotProduct r w := by
-            rw [dotProduct, Finset.mul_sum]
-            refine Finset.sum_congr rfl fun x _ => ?_
-            ring
-          have hS_expand :
-              ∑ x : Fin m, w x * ∑ y : Fin m, S x y * w y =
-              (∑ x : Fin m, w x * ∑ y : Fin m, B x y * w y) -
-              a0⁻¹ * (dotProduct r w) ^ 2 := by
-            simp only [S, Matrix.of_apply, sub_mul, Finset.sum_sub_distrib, mul_sub]
-            congr 1
-            rw [sq, dotProduct, Finset.sum_mul, Finset.mul_sum]
-            refine Finset.sum_congr rfl fun x _ => ?_
-            rw [Finset.mul_sum, Finset.mul_sum, Finset.mul_sum]
-            refine Finset.sum_congr rfl fun y _ => by ring
-          have hlin : ∀ x : Fin m,
-              w x * (r x * t + ∑ y : Fin m, M x.succ y.succ * w y) =
-              w x * (r x * t) + w x * ∑ y : Fin m, B x y * w y := fun x => by
-            simp [B, mul_add]
-          simp_rw [hlin, Finset.sum_add_distrib, hdot_wr, hdot_rw]
-          rw [hS_expand]
-          change t * (a0 * t + dotProduct r w) + (t * dotProduct r w +
-            (∑ x : Fin m, w x * ∑ y : Fin m, B x y * w y)) = _
-          dsimp [t]
-          have ha0ne : a0 ≠ 0 := ha0_pos.ne'
-          field_simp [ha0ne]
-          ring
-        linarith
-      have hdet_schur : M.det = a0 * S.det := by
-        rw [hdetM, hM'_eq]
-        let A1 : Matrix Unit Unit ℝ := Matrix.of fun _ _ => a0
-        have hA1_det : A1.det = a0 := by
-          simp [A1, Matrix.det_unique]
-        have hA1_unit : IsUnit A1.det := by
-          rw [hA1_det]; exact isUnit_iff_ne_zero.mpr ha0_pos.ne'
-        have : Invertible A1 := Matrix.invertibleOfIsUnitDet A1 hA1_unit
-        rw [Matrix.det_fromBlocks₁₁]
-        rw [hA1_det]
-        congr 1
-        have hinv : ⅟A1 = Matrix.of fun _ _ => a0⁻¹ := by
-          apply invOf_eq_right_inv
-          ext u v
-          cases u; cases v
-          simp [A1, Matrix.mul_apply, mul_inv_cancel₀ ha0_pos.ne']
-        congr 1
-        ext i j
-        simp [S, Matrix.mul_apply, mul_assoc]; ring
-      have hIH := hadamard_psd S hS_symm hS_psd
-      have hS_le : ∏ i : Fin m, S i i ≤ ∏ i : Fin m, B i i := by
-        refine Finset.prod_le_prod (fun i _ => ?_) (fun i _ => ?_)
-        · have h := hS_psd (Pi.single i 1)
-          simpa [dotProduct, Matrix.mulVec, Pi.single_apply] using h
-        · simp only [S, Matrix.of_apply]
-          have hnn : 0 ≤ a0⁻¹ * r i * r i := by
-            rw [mul_assoc]; exact mul_nonneg (inv_nonneg.mpr ha0_pos.le) (mul_self_nonneg _)
-          linarith
-      rw [hdet_schur, hprod_eq]
-      exact ⟨mul_nonneg ha0_pos.le hIH.1,
-        mul_le_mul_of_nonneg_left (hIH.2.trans hS_le) ha0_pos.le⟩
+/- Elementary Hadamard inequality for symmetric PSD real matrices. -/
+open InnerProductSpace WithLp
+open scoped InnerProductSpace MatrixOrder
+
+private lemma gram_det_le {n : ℕ} (v : Fin n → EuclideanSpace ℝ (Fin n)) :
+    (Matrix.gram ℝ v).det ≤ ∏ i, inner ℝ (v i) (v i) := by
+  let b := gramSchmidtOrthonormalBasis (𝕜 := ℝ) (by simp : Module.finrank ℝ (EuclideanSpace ℝ (Fin n)) = Fintype.card (Fin n)) v
+  have hg := Matrix.gram_eq_conjTranspose_mul b v
+  change Matrix.gram ℝ v = (b.toBasis.toMatrix v)ᴴ * b.toBasis.toMatrix v at hg
+  rw [hg, Matrix.det_mul, Matrix.det_conjTranspose]
+  change (b.toBasis.det v) * (b.toBasis.det v) ≤ _
+  rw [gramSchmidtOrthonormalBasis_det, ← Finset.prod_mul_distrib]
+  refine Finset.prod_le_prod (fun i _ => mul_self_nonneg _) fun i _ => ?_
+  simpa [real_inner_self_eq_norm_sq, b.orthonormal.1 i] using real_inner_mul_inner_self_le (b i) (v i)
+
+private lemma hadamard_psd {m : ℕ} (M : Matrix (Fin m) (Fin m) ℝ)
+    (hsymm : M.IsSymm) (hpsd : ∀ v, 0 ≤ dotProduct v (M.mulVec v)) :
+    0 ≤ M.det ∧ M.det ≤ ∏ i : Fin m, M i i := by
+  have hM : M.PosSemidef := .of_dotProduct_mulVec_nonneg (by simpa [Matrix.IsHermitian] using hsymm.eq) (by simpa using hpsd)
+  refine ⟨hM.det_nonneg, ?_⟩
+  obtain ⟨B, hB⟩ := CStarAlgebra.nonneg_iff_eq_star_mul_self.mp hM.nonneg
+  let v : Fin m → EuclideanSpace ℝ (Fin m) := fun i => toLp 2 (fun j => B j i)
+  have hg : Matrix.gram ℝ v = M := by
+    rw [hB]
+    ext i j
+    simp [Matrix.gram, v, EuclideanSpace.inner_toLp_toLp, Matrix.mul_apply, dotProduct, mul_comm]
+  simpa [← hg, Matrix.gram_apply] using gram_det_le v
+
+
 
 /-- Upper bound on Hankel determinant from any family of monic polynomials `p k` of degree `k`. -/
 private lemma Hmat_det_le_prod_monic (n : ℕ) (p : ℕ → Polynomial ℝ)
@@ -3252,25 +3106,11 @@ private lemma prod_le_Hmat_det (c : ℕ → ℝ) (hc_pos : ∀ k, 0 < c k)
 
 /-! ### Section 3: Monic Chebyshev T_k Upper Bound -/
 
-private noncomputable def chebT : ℕ → Polynomial ℝ
-  | 0 => 1
-  | 1 => Polynomial.X
-  | k + 2 => Polynomial.C 2 * Polynomial.X * chebT (k + 1) - chebT k
+private noncomputable abbrev chebT (k : ℕ) : Polynomial ℝ := Polynomial.Chebyshev.T ℝ k
+private lemma chebT_eval_cos (k : ℕ) (t : ℝ) :
+    (chebT k).eval (Real.cos t) = Real.cos ((k : ℝ) * t) := by
+  simpa [chebT] using Polynomial.Chebyshev.T_real_cos t (k : ℤ)
 
-private lemma chebT_eval_cos :
-    ∀ k : ℕ, ∀ t : ℝ, (chebT k).eval (Real.cos t) = Real.cos ((k : ℝ) * t)
-  | 0, t => by simp [chebT]
-  | 1, t => by simp [chebT]
-  | k + 2, t => by
-    simp only [chebT, Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_C,
-      Polynomial.eval_X, chebT_eval_cos (k + 1) t, chebT_eval_cos k t]
-    have h1 := Real.cos_add (((k + 1 : ℕ) : ℝ) * t) t
-    have h2 := Real.cos_sub (((k + 1 : ℕ) : ℝ) * t) t
-    have hadd : ((k + 1 : ℕ) : ℝ) * t + t = ((k + 2 : ℕ) : ℝ) * t := by push_cast; ring
-    have hsub : ((k + 1 : ℕ) : ℝ) * t - t = (k : ℝ) * t := by push_cast; ring
-    rw [hadd] at h1
-    rw [hsub] at h2
-    linarith
 
 private lemma abs_chebT_le_one (k : ℕ) {y : ℝ} (hy1 : -1 ≤ y) (hy2 : y ≤ 1) :
     |(chebT k).eval y| ≤ 1 := by
@@ -3278,45 +3118,12 @@ private lemma abs_chebT_le_one (k : ℕ) {y : ℝ} (hy1 : -1 ≤ y) (hy2 : y ≤
   rw [← hcos, chebT_eval_cos]
   exact Real.abs_cos_le_one _
 
-private lemma chebT_deg_lc :
-    ∀ k : ℕ, (chebT k).natDegree = k ∧
-      (chebT k).leadingCoeff = if k = 0 then 1 else (2 : ℝ) ^ (k - 1)
-  | 0 => by simp [chebT]
-  | 1 => by simp [chebT]
-  | k + 2 => by
-    have h1 := chebT_deg_lc (k + 1)
-    have h0 := chebT_deg_lc k
-    have hlc1 : (chebT (k + 1)).leadingCoeff = (2 : ℝ) ^ k := by
-      simpa using h1.2
-    have hne1 : chebT (k + 1) ≠ 0 := by
-      intro h; rw [h, Polynomial.leadingCoeff_zero] at hlc1
-      exact (by positivity : (0 : ℝ) < 2 ^ k).ne hlc1
-    set P1 : Polynomial ℝ := Polynomial.C 2 * Polynomial.X * chebT (k + 1)
-    have h2X_deg : (Polynomial.C (2 : ℝ) * Polynomial.X).natDegree = 1 := by
-      rw [Polynomial.natDegree_C_mul (by norm_num), Polynomial.natDegree_X]
-    have h2X_lc : (Polynomial.C (2 : ℝ) * Polynomial.X).leadingCoeff = 2 := by
-      rw [Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_C, Polynomial.leadingCoeff_X, mul_one]
-    have h2X_ne : Polynomial.C (2 : ℝ) * Polynomial.X ≠ 0 := by
-      intro h; rw [h, Polynomial.leadingCoeff_zero] at h2X_lc; norm_num at h2X_lc
-    have hP1_deg : P1.natDegree = k + 2 := by
-      dsimp [P1]
-      rw [Polynomial.natDegree_mul h2X_ne hne1, h2X_deg, h1.1]
-      omega
-    have hP1_lc : P1.leadingCoeff = (2 : ℝ) ^ (k + 1) := by
-      dsimp [P1]
-      rw [Polynomial.leadingCoeff_mul, h2X_lc, hlc1, pow_succ']
-    have hlt : (chebT k).natDegree < P1.natDegree := by rw [h0.1, hP1_deg]; omega
-    change (P1 - chebT k).natDegree = k + 2 ∧
-      (P1 - chebT k).leadingCoeff = if k + 2 = 0 then 1 else (2 : ℝ) ^ (k + 2 - 1)
-    have hdeg_sub : (P1 - chebT k).natDegree = k + 2 := by
-      rw [sub_eq_add_neg, Polynomial.natDegree_add_eq_left_of_natDegree_lt (by simpa using hlt),
-        hP1_deg]
-    have hlc_sub : (P1 - chebT k).leadingCoeff = (2 : ℝ) ^ (k + 1) := by
-      rw [sub_eq_add_neg, add_comm, Polynomial.leadingCoeff_add_of_degree_lt]
-      · exact hP1_lc
-      · rw [Polynomial.degree_neg]
-        exact Polynomial.degree_lt_degree hlt
-    exact ⟨hdeg_sub, by simpa using hlc_sub⟩
+private lemma chebT_deg_lc (k : ℕ) :
+    (chebT k).natDegree = k ∧
+      (chebT k).leadingCoeff = if k = 0 then 1 else (2 : ℝ) ^ (k - 1) := by
+  simp only [chebT, Polynomial.Chebyshev.natDegree_T, Polynomial.Chebyshev.leadingCoeff_T, Int.natAbs_natCast]
+  split_ifs with h <;> simp_all
+
 
 private noncomputable def monicCheb (k : ℕ) : Polynomial ℝ :=
   if k = 0 then 1
@@ -3422,63 +3229,15 @@ private lemma a_seq_upper_bound (n : ℕ) :
 
 /-! ### Section 4: Monic Chebyshev U_k Lower Bound on [-1, 1] and [a, b] -/
 
-private noncomputable def chebU : ℕ → Polynomial ℝ
-  | 0 => 1
-  | 1 => Polynomial.C 2 * Polynomial.X
-  | k + 2 => Polynomial.C 2 * Polynomial.X * chebU (k + 1) - chebU k
+private noncomputable abbrev chebU (k : ℕ) : Polynomial ℝ := Polynomial.Chebyshev.U ℝ k
+private lemma chebU_eval_cos_mul_sin (k : ℕ) (t : ℝ) :
+    (chebU k).eval (Real.cos t) * Real.sin t = Real.sin (((k + 1 : ℕ) : ℝ) * t) := by
+  simpa [chebU] using Polynomial.Chebyshev.U_real_cos t (k : ℤ)
+private lemma chebU_deg_lc (k : ℕ) :
+    (chebU k).natDegree = k ∧ (chebU k).leadingCoeff = (2 : ℝ) ^ k := by
+  simp [chebU]
 
-private lemma chebU_eval_cos_mul_sin :
-    ∀ k : ℕ, ∀ t : ℝ, (chebU k).eval (Real.cos t) * Real.sin t = Real.sin (((k + 1 : ℕ) : ℝ) * t)
-  | 0, t => by simp [chebU]
-  | 1, t => by
-    simp only [chebU, Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_X]
-    rw [show ((1 + 1 : ℕ) : ℝ) = 2 by norm_num, Real.sin_two_mul]
-    ring
-  | k + 2, t => by
-    simp only [chebU, Polynomial.eval_sub, Polynomial.eval_mul, Polynomial.eval_C, Polynomial.eval_X]
-    have h1 : (chebU (k + 1)).eval (Real.cos t) * Real.sin t = Real.sin (((k + 2 : ℕ) : ℝ) * t) :=
-      chebU_eval_cos_mul_sin (k + 1) t
-    have h0 := chebU_eval_cos_mul_sin k t
-    have hs1 := Real.sin_add (((k + 2 : ℕ) : ℝ) * t) t
-    have hs2 := Real.sin_sub (((k + 2 : ℕ) : ℝ) * t) t
-    have hadd : ((k + 2 : ℕ) : ℝ) * t + t = ((k + 2 + 1 : ℕ) : ℝ) * t := by push_cast; ring
-    have hsub : ((k + 2 : ℕ) : ℝ) * t - t = ((k + 1 : ℕ) : ℝ) * t := by push_cast; ring
-    rw [hadd] at hs1
-    rw [hsub] at hs2
-    linear_combination 2 * Real.cos t * h1 - h0 - hs1 - hs2
 
-private lemma chebU_deg_lc :
-    ∀ k : ℕ, (chebU k).natDegree = k ∧ (chebU k).leadingCoeff = (2 : ℝ) ^ k
-  | 0 => by simp [chebU]
-  | 1 => by
-    simp only [chebU, pow_one]
-    exact ⟨by rw [Polynomial.natDegree_C_mul (by norm_num), Polynomial.natDegree_X],
-      by rw [Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_C, Polynomial.leadingCoeff_X, mul_one]⟩
-  | k + 2 => by
-    have h1 := chebU_deg_lc (k + 1)
-    have h0 := chebU_deg_lc k
-    have hne1 : chebU (k + 1) ≠ 0 := by
-      intro h; rw [h, Polynomial.leadingCoeff_zero] at h1; exact (by positivity : (0 : ℝ) < 2 ^ (k + 1)).ne h1.2
-    set P1 : Polynomial ℝ := Polynomial.C 2 * Polynomial.X * chebU (k + 1)
-    have h2X_deg : (Polynomial.C (2 : ℝ) * Polynomial.X).natDegree = 1 := by
-      rw [Polynomial.natDegree_C_mul (by norm_num), Polynomial.natDegree_X]
-    have h2X_lc : (Polynomial.C (2 : ℝ) * Polynomial.X).leadingCoeff = 2 := by
-      rw [Polynomial.leadingCoeff_mul, Polynomial.leadingCoeff_C, Polynomial.leadingCoeff_X, mul_one]
-    have h2X_ne : Polynomial.C (2 : ℝ) * Polynomial.X ≠ 0 := by
-      intro h; rw [h, Polynomial.leadingCoeff_zero] at h2X_lc; norm_num at h2X_lc
-    have hP1_deg : P1.natDegree = k + 2 := by
-      dsimp [P1]
-      rw [Polynomial.natDegree_mul h2X_ne hne1, h2X_deg, h1.1]; omega
-    have hP1_lc : P1.leadingCoeff = (2 : ℝ) ^ (k + 2) := by
-      dsimp [P1]
-      rw [Polynomial.leadingCoeff_mul, h2X_lc, h1.2, pow_succ]; ring
-    have hlt : (chebU k).natDegree < P1.natDegree := by rw [h0.1, hP1_deg]; omega
-    change (P1 - chebU k).natDegree = k + 2 ∧ (P1 - chebU k).leadingCoeff = (2 : ℝ) ^ (k + 2)
-    refine ⟨?_, ?_⟩
-    · rw [sub_eq_add_neg, Polynomial.natDegree_add_eq_left_of_natDegree_lt (by simpa using hlt), hP1_deg]
-    · rw [sub_eq_add_neg, add_comm, Polynomial.leadingCoeff_add_of_degree_lt]
-      · exact hP1_lc
-      · rw [Polynomial.degree_neg]; exact Polynomial.degree_lt_degree hlt
 
 private lemma integral_cos_int_mul_zero_pi (d : ℤ) :
     ∫ t in (0 : ℝ)..Real.pi, Real.cos ((d : ℝ) * t) = if d = 0 then Real.pi else 0 := by
@@ -3690,25 +3449,10 @@ private lemma intervalIntegral_cauchy_schwarz {a b : ℝ} (hab : a ≤ b)
         (Continuous.intervalIntegrable (by fun_prop) _ _),
       intervalIntegral.integral_const_mul, intervalIntegral.integral_const_mul] at hnn
     exact hnn
-  have hC_nn : 0 ≤ C := intervalIntegral.integral_nonneg hab fun t _ => sq_nonneg _
-  by_cases hC : C = 0
-  · have hB : B = 0 := by
-      by_contra hBne
-      have h := hquad (-(A + 1) / (2 * B))
-      rw [hC, mul_zero, add_zero] at h
-      have hsimp : 2 * (-(A + 1) / (2 * B)) * B = -(A + 1) := by field_simp [hBne]
-      linarith
-    rw [hB, hC]; norm_num
-  · have hC_pos : 0 < C := lt_of_le_of_ne hC_nn (Ne.symm hC)
-    have h := hquad (-B / C)
-    have hcalc : A + 2 * (-B / C) * B + (-B / C) ^ 2 * C = (A * C - B ^ 2) / C := by
-      field_simp [hC_pos.ne']
-      ring
-    rw [hcalc] at h
-    have hnum : 0 ≤ A * C - B ^ 2 := by
-      have := mul_nonneg h hC_pos.le
-      rwa [div_mul_cancel₀ _ hC_pos.ne'] at this
-    linarith
+  have hd := discrim_le_zero (a := C) (b := 2 * B) (c := A)
+    (fun x => by nlinarith [hquad x])
+  dsimp only [discrim] at hd
+  nlinarith
 
 private lemma monic_L2_lower_unit (k : ℕ) (q : Polynomial ℝ)
     (hdeg : q.natDegree = k) (hmon : q.leadingCoeff = 1) :

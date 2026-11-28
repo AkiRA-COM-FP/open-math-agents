@@ -1,6 +1,7 @@
 import Link from "@/components/Link";
 import Title, { splitTitle } from "@/components/Title";
-import { prizeBoard, prizeOf, CLAY, CLAY_RULES, type Problem } from "@/lib/catalog";
+import { prizeBoard, prizeOf, getProblem, CLAY, CLAY_RULES, type Problem } from "@/lib/catalog";
+import { outcomeOf } from "@/lib/outcome";
 import { getSolved } from "@/lib/db";
 
 export const revalidate = 300;
@@ -61,7 +62,9 @@ function Row({ g, solved }: { g: Group; solved: Set<string> }) {
 
 export default async function Prizes() {
   const b = prizeBoard();
-  const solved = new Set((await getSolved()).map((s) => s.problem_id));
+  // Solved = a proof accepted by Lean AND confirmed by both statement reviews (content/open_review.json). A proof of a
+  // misstated or placeholder statement (Erdős 40 and 500: the answer slot filled with a restatement) is not a solution.
+  const solved = new Set((await getSolved()).map((s) => s.problem_id).filter((id) => outcomeOf(getProblem(id)?.kind, id) === "open"));
   const all = groups(b.list, solved);
   const open = all.filter((g) => !g.solved);
   const done = all.filter((g) => g.solved);

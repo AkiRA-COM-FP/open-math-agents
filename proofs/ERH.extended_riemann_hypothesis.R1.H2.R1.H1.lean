@@ -1,637 +1,238 @@
 import OMAReductions.R_ERH_extended_riemann_hypothesis_R1_H2_R1
+import Mathlib.NumberTheory.NumberField.DedekindZeta
+import Mathlib.NumberTheory.LSeries.Deriv
+import Mathlib.Analysis.Normed.Group.Tannery
+import Mathlib.Topology.Algebra.InfiniteSum.Ring
 
-/-! # The reciprocal Euler product over squarefree ideals
-
-The fixed Euler product proof is adapted from the merged Erdős 436 proof
-`proofs/Erdos436.erdos_436.variants.ge_four.R1.H2.lean` (commit b4688a0e).
-That proof credits Chris Birkbeck, Riccardo Brasca and the contributors to
-`CBirkbeck/chebotarev-density`, revision a00054a0e6bbc394b0e81de750db0cd2efc8bd88,
-and `flt-regular-bernoulli`, under Apache-2.0.
-
-Expanding its reciprocal and grouping finite prime-ideal sets by norm gives the
-signed squarefree-ideal series and the required product identity.
--/
-
--- Credit: @deepqntm
-
+/-! Signed squarefree prime-ideal expansion for the first step proposed in
+PR 12960. The finite prime sieve also proves the normalization of the product. -/
 noncomputable section
-
-open NumberField
-open scoped Topology nonZeroDivisors
-
-namespace OMA.DedekindInverse.EulerProduct
-
-section NumberFieldEulerProduct
-
-variable (L : Type*) [Field L] [NumberField L]
-
-abbrev NonzeroIdeal : Type _ := {I : Ideal (𝓞 L) // I ≠ ⊥}
-
-noncomputable def idealNormMultiplicity (n : ℕ) : ℕ :=
-  Nat.card {I : NonzeroIdeal L // Ideal.absNorm I.1 = n}
-
-lemma idealNormMultiplicity_zero : idealNormMultiplicity L 0 = 0 := by
-  unfold idealNormMultiplicity
-  rw [Nat.card_eq_zero]
-  exact Or.inl ⟨fun ⟨⟨I, hI⟩, hnorm⟩ ↦ hI (Ideal.absNorm_eq_zero_iff.mp hnorm)⟩
-
-lemma dedekindZeta_eq_tsum_idealNormMultiplicity {s : ℂ} (hs : 1 < s.re) :
-    NumberField.dedekindZeta L s =
-      ∑' n : ℕ, (idealNormMultiplicity L n : ℂ) * (n : ℂ) ^ (-s) := by
-  unfold NumberField.dedekindZeta LSeries
-  refine tsum_congr fun n ↦ ?_
-  unfold LSeries.term
-  rcases Nat.eq_zero_or_pos n with rfl | hn
-  · have hs0 : s ≠ 0 := by rintro rfl; norm_num at hs
-    simp [idealNormMultiplicity_zero, Complex.zero_cpow (neg_ne_zero.mpr hs0)]
-  · simp only [hn.ne', ↓reduceIte]
-    rw [Complex.cpow_neg, div_eq_mul_inv]
-    congr 1
-    unfold idealNormMultiplicity
-    have hequiv : {I : Ideal (𝓞 L) // Ideal.absNorm I = n} ≃
-        {I : NonzeroIdeal L // Ideal.absNorm I.1 = n} := by
-      refine {
-        toFun := fun ⟨I, hI⟩ ↦ ⟨⟨I, ?_⟩, hI⟩
-        invFun := fun ⟨⟨I, _⟩, hI⟩ ↦ ⟨I, hI⟩
-        left_inv := fun _ ↦ rfl
-        right_inv := fun _ ↦ rfl }
-      intro h
-      rw [h, Ideal.absNorm_bot] at hI
-      lia
-    exact_mod_cast Nat.card_congr hequiv
-
-lemma sum_idealNormMultiplicity_isBigO :
-    (fun n : ℕ ↦ ∑ k ∈ Finset.Icc 1 n, (idealNormMultiplicity L k : ℝ))
-      =O[Filter.atTop] (fun n : ℕ ↦ (n : ℝ) ^ (1 : ℝ)) := by
-  classical
-  have h_finite : ∀ (b : ℕ), {I : NonzeroIdeal L | Ideal.absNorm I.1 = b}.Finite := fun b ↦
-    Set.Finite.preimage (f := fun I : NonzeroIdeal L ↦ I.1) (fun _ _ _ _ ↦ Subtype.ext)
-      (Ideal.finite_setOfPred_absNorm_eq (S := 𝓞 L) b)
-  have h_sum_card : ∀ n : ℕ, ∑ k ∈ Finset.Icc 1 n, idealNormMultiplicity L k =
-      Nat.card {I : NonzeroIdeal L // Ideal.absNorm I.1 ≤ n} := fun n ↦ by
-    have key := Finset.card_preimage_eq_sum_card_image_eq (f := fun I : NonzeroIdeal L ↦
-      Ideal.absNorm I.1) (s := Finset.Icc 1 n) (fun b _ ↦ h_finite b)
-    rw [show ((fun I : NonzeroIdeal L ↦ Ideal.absNorm I.1) ⁻¹' ↑(Finset.Icc 1 n)) =
-        {I : NonzeroIdeal L | Ideal.absNorm I.1 ≤ n} by
-      ext ⟨I, hI⟩
-      simp only [Set.mem_preimage, Finset.coe_Icc, Set.mem_Icc, Set.mem_ofPred_eq]
-      exact ⟨fun h ↦ h.2, fun h ↦
-        ⟨Nat.one_le_iff_ne_zero.mpr (mt Ideal.absNorm_eq_zero_iff.mp hI), h⟩⟩] at key
-    exact key.symm
-  have h_card_bridge : ∀ n : ℕ,
-      Nat.card {I : NonzeroIdeal L // Ideal.absNorm I.1 ≤ n} =
-      Nat.card {I : (Ideal (𝓞 L))⁰ // ((Ideal.absNorm I.1 : ℕ) : ℝ) ≤ (n : ℝ)} :=
-    fun n ↦ Nat.card_congr
-      { toFun := fun ⟨⟨I, hI⟩, hn⟩ ↦
-          ⟨⟨I, mem_nonZeroDivisors_of_ne_zero hI⟩, by exact_mod_cast hn⟩
-        invFun := fun ⟨⟨I, hI⟩, hn⟩ ↦
-          ⟨⟨I, mem_nonZeroDivisors_iff_ne_zero.mp hI⟩, by exact_mod_cast hn⟩
-        left_inv := fun _ ↦ rfl
-        right_inv := fun _ ↦ rfl }
-  refine Asymptotics.isBigO_atTop_natCast_rpow_of_tendsto_div_rpow
-    (((NumberField.Ideal.tendsto_norm_le_div_atTop₀ L).comp
-      tendsto_natCast_atTop_atTop).congr' ?_)
-  filter_upwards with n
-  simp only [Function.comp_apply, Real.rpow_one]
-  rw [← Nat.cast_sum, h_sum_card n, h_card_bridge n]
-  push_cast
-  rfl
-
-lemma summable_idealNormMultiplicity_mul_cpow_neg {s : ℂ} (hs : 1 < s.re) :
-    Summable fun n : ℕ ↦ ‖(idealNormMultiplicity L n : ℂ) * (n : ℂ) ^ (-s)‖ := by
-  classical
-  have h_lss : LSeriesSummable (fun n : ℕ ↦ ((idealNormMultiplicity L n : ℝ) : ℂ)) s :=
-    LSeriesSummable_of_sum_norm_bigO_and_nonneg
-      (f := fun n ↦ (idealNormMultiplicity L n : ℝ))
-      (sum_idealNormMultiplicity_isBigO L) (fun _ ↦ Nat.cast_nonneg _) zero_le_one
-      (by exact_mod_cast hs)
-  have h_term_eq : LSeries.term (fun n : ℕ ↦ ((idealNormMultiplicity L n : ℝ) : ℂ)) s =
-      fun n ↦ (idealNormMultiplicity L n : ℂ) * (n : ℂ) ^ (-s) := by
-    funext n
-    simp only [LSeries.term]
-    split_ifs with hn
-    · subst hn
-      simp [idealNormMultiplicity_zero]
-    · simp [Complex.cpow_neg, div_eq_mul_inv]
-  exact (h_term_eq ▸ h_lss :
-    Summable fun n ↦ (idealNormMultiplicity L n : ℂ) * (n : ℂ) ^ (-s)).norm
-
-private noncomputable def insertPiEquiv {ι : Type*} [DecidableEq ι] (a : ι) (s : Finset ι)
-    (ha : a ∉ s) : ({i // i ∈ insert a s} → ℕ) ≃ ℕ × ({i // i ∈ s} → ℕ) :=
-  ((Finset.subtypeInsertEquivOption ha).arrowCongr (Equiv.refl ℕ)).trans Equiv.piOptionEquivProd
-
-@[simp] private lemma insertPiEquiv_fst {ι : Type*} [DecidableEq ι] (a : ι) (s : Finset ι)
-    (ha : a ∉ s) (e : {i // i ∈ insert a s} → ℕ) :
-    (insertPiEquiv a s ha e).1 = e ⟨a, Finset.mem_insert_self a s⟩ := rfl
-
-@[simp] private lemma insertPiEquiv_snd {ι : Type*} [DecidableEq ι] (a : ι) (s : Finset ι)
-    (ha : a ∉ s) (e : {i // i ∈ insert a s} → ℕ) (i : {i // i ∈ s}) :
-    (insertPiEquiv a s ha e).2 i = e ⟨i.1, Finset.mem_insert_of_mem i.2⟩ := rfl
-
-private lemma prodInsertAttach {ι : Type*} [DecidableEq ι] (g : ι → ℂ) (a : ι) (s : Finset ι)
-    (ha : a ∉ s) (e : {i // i ∈ insert a s} → ℕ) :
-    ∏ i ∈ (insert a s).attach, g i.1 ^ e i =
-      g a ^ (insertPiEquiv a s ha e).1 *
-        ∏ i ∈ s.attach, g i.1 ^ (insertPiEquiv a s ha e).2 i := by
-  rw [insertPiEquiv_fst]
-  conv_rhs => rw [show (∏ i ∈ s.attach, g i.1 ^ (insertPiEquiv a s ha e).2 i)
-    = ∏ i ∈ s.attach, g i.1 ^ e ⟨i.1, Finset.mem_insert_of_mem i.2⟩ from
-    Finset.prod_congr rfl fun i _ ↦ by rw [insertPiEquiv_snd]]
-  rw [Finset.attach_insert, Finset.prod_insert, Finset.prod_image]
-  · exact fun x _ y _ h ↦ Subtype.ext (Subtype.mk.inj h)
-  · simpa only [Finset.mem_image, Finset.mem_attach, Subtype.mk.injEq, true_and,
-      Subtype.exists, exists_prop, exists_eq_right] using ha
-
-private lemma finsetGeometricProd_summable_and_hasSum {ι : Type*} (g : ι → ℂ)
-    (hg : ∀ i, ‖g i‖ < 1) (s : Finset ι) :
-    (Summable fun e : {i // i ∈ s} → ℕ ↦ ‖∏ i ∈ s.attach, g i.1 ^ e i‖) ∧
-      HasSum (fun e : {i // i ∈ s} → ℕ ↦ ∏ i ∈ s.attach, g i.1 ^ e i)
-        (∏ i ∈ s, (1 - g i)⁻¹) := by
-  classical
-  induction s using Finset.induction with
-  | empty =>
-    rw [Finset.prod_empty]
-    refine ⟨?_, ?_⟩
-    · have h1 : (fun e : {i // i ∈ (∅ : Finset ι)} → ℕ ↦ ‖∏ i ∈ Finset.attach ∅, g i.1 ^ e i‖)
-          = fun _ ↦ (1 : ℝ) := by
-        funext e
-        simp [Finset.attach_empty]
-      rw [h1]
-      exact (hasSum_unique (fun _ : {i // i ∈ (∅ : Finset ι)} → ℕ ↦ (1 : ℝ))).summable
-    · have h1 : (fun e : {i // i ∈ (∅ : Finset ι)} → ℕ ↦ ∏ i ∈ Finset.attach ∅, g i.1 ^ e i)
-          = fun _ ↦ (1 : ℂ) := by
-        funext e
-        simp [Finset.attach_empty]
-      rw [h1]
-      exact hasSum_unique (fun _ : {i // i ∈ (∅ : Finset ι)} → ℕ ↦ (1 : ℂ))
-  | insert a s ha ih =>
-    obtain ⟨ihsum, ihhas⟩ := ih
-    rw [Finset.prod_insert ha]
-    have hgeo : HasSum (fun n : ℕ ↦ g a ^ n) (1 - g a)⁻¹ :=
-      hasSum_geometric_of_norm_lt_one (hg a)
-    have hgeosum : Summable (fun n : ℕ ↦ ‖g a ^ n‖) := by
-      simp_rw [norm_pow]
-      exact summable_geometric_of_lt_one (norm_nonneg _) (hg a)
-    have hprodsum : Summable (fun x : ℕ × ({i // i ∈ s} → ℕ) ↦
-        g a ^ x.1 * ∏ i ∈ s.attach, g i.1 ^ x.2 i) :=
-      summable_mul_of_summable_norm (f := fun n : ℕ ↦ g a ^ n)
-        (g := fun e : {i // i ∈ s} → ℕ ↦ ∏ i ∈ s.attach, g i.1 ^ e i) hgeosum ihsum
-    have hHsum : Summable (fun x : ℕ × ({i // i ∈ s} → ℕ) ↦
-        ‖g a ^ x.1 * ∏ i ∈ s.attach, g i.1 ^ x.2 i‖) :=
-      Summable.mul_norm (f := fun n : ℕ ↦ g a ^ n)
-        (g := fun e : {i // i ∈ s} → ℕ ↦ ∏ i ∈ s.attach, g i.1 ^ e i) hgeosum ihsum
-    have hHhas : HasSum (fun x : ℕ × ({i // i ∈ s} → ℕ) ↦
-        g a ^ x.1 * ∏ i ∈ s.attach, g i.1 ^ x.2 i) ((1 - g a)⁻¹ * ∏ i ∈ s, (1 - g i)⁻¹) :=
-      HasSum.mul (f := fun n : ℕ ↦ g a ^ n)
-        (g := fun e : {i // i ∈ s} → ℕ ↦ ∏ i ∈ s.attach, g i.1 ^ e i) hgeo ihhas hprodsum
-    refine ⟨?_, ?_⟩
-    · have heq : (fun e : {i // i ∈ insert a s} → ℕ ↦ ‖∏ i ∈ (insert a s).attach, g i.1 ^ e i‖)
-          = (fun x : ℕ × ({i // i ∈ s} → ℕ) ↦
-              ‖g a ^ x.1 * ∏ i ∈ s.attach, g i.1 ^ x.2 i‖) ∘ insertPiEquiv a s ha := by
-        funext e
-        rw [Function.comp_apply, prodInsertAttach g a s ha e]
-      rw [heq]
-      exact (insertPiEquiv a s ha).summable_iff.mpr hHsum
-    · have heq : (fun e : {i // i ∈ insert a s} → ℕ ↦ ∏ i ∈ (insert a s).attach, g i.1 ^ e i)
-          = (fun x : ℕ × ({i // i ∈ s} → ℕ) ↦
-              g a ^ x.1 * ∏ i ∈ s.attach, g i.1 ^ x.2 i) ∘ insertPiEquiv a s ha := by
-        funext e
-        rw [Function.comp_apply, prodInsertAttach g a s ha e]
-      rw [heq]
-      exact (insertPiEquiv a s ha).hasSum_iff.mpr hHhas
-
-private lemma prod_natCast_cpow {ι : Type*} (S : Finset ι) (m : ι → ℕ) (z : ℂ) :
-    (∏ i ∈ S, (m i : ℂ) ^ z) = ((∏ i ∈ S, m i : ℕ) : ℂ) ^ z := by
-  classical
-  induction S using Finset.induction with
-  | empty => simp
-  | insert a s ha ih =>
-    rw [Finset.prod_insert ha, Finset.prod_insert ha, ih, Nat.cast_mul,
-      Complex.natCast_mul_natCast_cpow]
-
-lemma norm_absNorm_cpow_neg_lt_one {s : ℂ} (hs : 1 < s.re)
-    (𝔭 : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}) :
-    ‖(Ideal.absNorm 𝔭.1 : ℂ) ^ (-s)‖ < 1 := by
-  have hne0 : Ideal.absNorm 𝔭.1 ≠ 0 := fun h ↦ 𝔭.2.2 (Ideal.absNorm_eq_zero_iff.mp h)
-  have hne1 : Ideal.absNorm 𝔭.1 ≠ 1 := fun h ↦ 𝔭.2.1.ne_top (Ideal.absNorm_eq_one_iff.mp h)
-  have h2 : 2 ≤ Ideal.absNorm 𝔭.1 := by lia
-  rw [Complex.norm_natCast_cpow_of_pos (by lia), Complex.neg_re]
-  exact Real.rpow_lt_one_of_one_lt_of_neg (by exact_mod_cast h2.trans_lt' one_lt_two) (by linarith)
-
-theorem absNorm_prod_pow_of_primeIdeal
-    (S : Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}) (e : S → ℕ) :
-    Ideal.absNorm (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ e 𝔭) =
-      ∏ 𝔭 ∈ S.attach, Ideal.absNorm 𝔭.1.1 ^ e 𝔭 := by
-  rw [map_prod]
-  exact Finset.prod_congr rfl fun 𝔭 _ ↦ map_pow Ideal.absNorm 𝔭.1.1 (e 𝔭)
-
-theorem prod_absNorm_cpow_eq_absNorm_prod_pow_cpow {s : ℂ}
-    (S : Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}) (e : S → ℕ) :
-    (∏ 𝔭 ∈ S.attach, (Ideal.absNorm 𝔭.1.1 : ℂ) ^ (-(e 𝔭 : ℂ) * s)) =
-      (Ideal.absNorm (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ e 𝔭) : ℂ) ^ (-s) := by
-  have hinner : ∀ 𝔭 ∈ S.attach,
-      (Ideal.absNorm 𝔭.1.1 : ℂ) ^ (-(e 𝔭 : ℂ) * s) =
-        ((Ideal.absNorm 𝔭.1.1 ^ e 𝔭 : ℕ) : ℂ) ^ (-s) := fun 𝔭 _ ↦ by
-    rw [Nat.cast_pow, ← Complex.natCast_cpow_natCast_mul]
-    ring_nf
-  rw [Finset.prod_congr rfl hinner, prod_natCast_cpow, absNorm_prod_pow_of_primeIdeal]
-
-private instance instFiniteAbsNormFiber (n : ℕ) :
-    Finite {I : NonzeroIdeal L // Ideal.absNorm I.1 = n} :=
-  Set.Finite.to_subtype <| Set.Finite.of_finite_image (f := fun I : NonzeroIdeal L ↦ I.1)
-    ((Ideal.finite_setOfPred_absNorm_eq (S := 𝓞 L) n).subset (by rintro _ ⟨⟨I, _⟩, rfl, rfl⟩; rfl))
-    (fun _ _ _ _ ↦ Subtype.ext)
-
-private lemma tsum_absNormFiber {M : Type*} [AddCommGroup M] [TopologicalSpace M] [T2Space M]
-    [IsTopologicalAddGroup M] (n : ℕ) (g : ℕ → M) :
-    (∑' y : {I : NonzeroIdeal L // Ideal.absNorm I.1 = n}, g (Ideal.absNorm y.1.1))
-      = idealNormMultiplicity L n • g n :=
-  (tsum_congr fun y : {I : NonzeroIdeal L // Ideal.absNorm I.1 = n} ↦ by rw [y.2]).trans
-    (tsum_const (g n))
-
-theorem hasSum_nonzeroIdeal_absNorm_cpow {s : ℂ} (hs : 1 < s.re) :
-    HasSum (fun I : NonzeroIdeal L ↦ (Ideal.absNorm I.1 : ℂ) ^ (-s))
-      (NumberField.dedekindZeta L s) := by
-  classical
-  set e := Equiv.sigmaFiberEquiv (fun I : NonzeroIdeal L ↦ Ideal.absNorm I.1)
-  have hval : ∀ n : ℕ, (∑' y : {I : NonzeroIdeal L // Ideal.absNorm I.1 = n},
-      (Ideal.absNorm (y.1).1 : ℂ) ^ (-s)) = (idealNormMultiplicity L n : ℂ) * (n : ℂ) ^ (-s) :=
-    fun n ↦ by rw [tsum_absNormFiber L n fun k ↦ (k : ℂ) ^ (-s), nsmul_eq_mul]
-  have hnorm : ∀ n : ℕ, (∑' y : {I : NonzeroIdeal L // Ideal.absNorm I.1 = n},
-      ‖(Ideal.absNorm (y.1).1 : ℂ) ^ (-s)‖) = ‖(idealNormMultiplicity L n : ℂ) * (n : ℂ) ^ (-s)‖ :=
-    fun n ↦ by
-      rw [tsum_absNormFiber L n fun k ↦ ‖(k : ℂ) ^ (-s)‖, nsmul_eq_mul, norm_mul,
-        Complex.norm_natCast]
-  have hsummable : Summable fun I : NonzeroIdeal L ↦ ‖(Ideal.absNorm I.1 : ℂ) ^ (-s)‖ := by
-    rw [← e.summable_iff]
-    refine (summable_sigma_of_nonneg (fun _ ↦ norm_nonneg _)).mpr ⟨fun _ ↦ Summable.of_finite, ?_⟩
-    exact (summable_idealNormMultiplicity_mul_cpow_neg L hs).congr fun n ↦ (hnorm n).symm
-  have hsummable_sigma : Summable fun p : Σ n, {I : NonzeroIdeal L // Ideal.absNorm I.1 = n} ↦
-      (Ideal.absNorm (e p).1 : ℂ) ^ (-s) :=
-    (e.summable_iff (f := fun I : NonzeroIdeal L ↦ (Ideal.absNorm I.1 : ℂ) ^ (-s))).mpr
-      hsummable.of_norm
-  have hval_sum : (∑' I : NonzeroIdeal L, (Ideal.absNorm I.1 : ℂ) ^ (-s))
-      = NumberField.dedekindZeta L s := by
-    rw [dedekindZeta_eq_tsum_idealNormMultiplicity L hs,
-      ← e.tsum_eq (fun I ↦ (Ideal.absNorm I.1 : ℂ) ^ (-s)), hsummable_sigma.tsum_sigma]
-    exact tsum_congr hval
-  exact hval_sum ▸ hsummable.of_norm.hasSum
-
-open UniqueFactorizationMonoid in
-
-private theorem factorization_primePow_apply
-    (𝔭 𝔮 : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}) (n : ℕ) :
-    factorization (𝔭.1 ^ n) 𝔮.1 = if 𝔮 = 𝔭 then n else 0 := by
-  rw [factorization_pow, Finsupp.smul_apply, smul_eq_mul, factorization_eq_count,
-    normalizedFactors_irreducible (Ideal.prime_of_isPrime 𝔭.2.2 𝔭.2.1).irreducible,
-    normalize_eq, Multiset.count_singleton]
-  split_ifs <;> simp_all [Subtype.ext_iff]
-
-open UniqueFactorizationMonoid in
-
-private theorem factorization_prod_primePow_apply
-    (S : Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥})
-    (e : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥} → ℕ)
-    (𝔮 : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}) :
-    factorization (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ e 𝔭.1) 𝔮.1 =
-      ∑ 𝔭 ∈ S.attach, factorization (𝔭.1.1 ^ e 𝔭.1) 𝔮.1 := by
-  classical
-  induction S using Finset.induction with
-  | empty => rw [Finset.attach_empty, Finset.prod_empty, Finset.sum_empty, factorization_one,
-      Finsupp.coe_zero, Pi.zero_apply]
-  | insert a s ha ih =>
-    rw [Finset.attach_insert, Finset.prod_insert, Finset.sum_insert,
-      factorization_mul (pow_ne_zero _ a.2.2)
-        (Finset.prod_ne_zero_iff.mpr (fun 𝔭 _ ↦ pow_ne_zero _ 𝔭.1.2.2)), Finsupp.add_apply,
-      Finset.prod_image (fun x _ y _ h ↦ Subtype.ext (by simpa using h)),
-      Finset.sum_image (fun x _ y _ h ↦ Subtype.ext (by simpa using h)), ih] <;>
-    · rw [Finset.mem_image]
-      rintro ⟨x, -, hx⟩
-      exact ha ((Subtype.mk.inj hx) ▸ x.2)
-
-open UniqueFactorizationMonoid in
-
-private theorem factorization_prod_primePow_eq
-    (S : Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥})
-    (e : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥} → ℕ)
-    (𝔮 : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}) :
-    factorization (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ e 𝔭.1) 𝔮.1 = if 𝔮 ∈ S then e 𝔮 else 0 := by
-  classical
-  rw [factorization_prod_primePow_apply L S e 𝔮]
-  simp_rw [factorization_primePow_apply L]
-  by_cases h𝔮 : 𝔮 ∈ S
-  · rw [if_pos h𝔮, Finset.sum_eq_single (⟨𝔮, h𝔮⟩ : {x // x ∈ S})]
-    · rw [if_pos rfl]
-    · rintro b _ hb
-      rw [if_neg (fun h ↦ hb (Subtype.ext h.symm))]
-    · exact fun h ↦ absurd (Finset.mem_attach S _) h
-  · rw [if_neg h𝔮, Finset.sum_eq_zero]
-    rintro ⟨b, hb⟩ -
-    rw [if_neg (fun h : 𝔮 = b ↦ h𝔮 (h.symm ▸ hb))]
-
-open UniqueFactorizationMonoid in
-
-private noncomputable def primeFactorsOf (𝔞 : NonzeroIdeal L) :
-    Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥} :=
-  (normalizedFactors 𝔞.1).toFinset.attach.map
-    (⟨fun p : {x // x ∈ (normalizedFactors 𝔞.1).toFinset} ↦ (⟨p.1, by
-        have hp := p.2
-        rw [Multiset.mem_toFinset] at hp
-        exact ⟨Ideal.isPrime_of_prime (prime_of_normalized_factor p.1 hp),
-          (prime_of_normalized_factor p.1 hp).ne_zero⟩⟩ :
-        {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}),
-      fun a b h ↦ Subtype.ext (congrArg
-        (fun x : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥} ↦ (x : Ideal (𝓞 L))) h)⟩ :
-      {x // x ∈ (normalizedFactors 𝔞.1).toFinset} ↪ {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥})
-
-open UniqueFactorizationMonoid in
-
-private theorem mem_primeFactorsOf (𝔞 : NonzeroIdeal L) (p : Ideal (𝓞 L))
-    (hp : p ∈ normalizedFactors 𝔞.1) :
-    ∃ 𝔭 ∈ primeFactorsOf L 𝔞, 𝔭.1 = p := by
-  refine ⟨⟨p, ⟨Ideal.isPrime_of_prime (prime_of_normalized_factor p hp),
-      (prime_of_normalized_factor p hp).ne_zero⟩⟩, ?_, rfl⟩
-  rw [primeFactorsOf, Finset.mem_map]
-  exact ⟨⟨p, by rwa [Multiset.mem_toFinset]⟩, Finset.mem_attach _ _, rfl⟩
-
-open UniqueFactorizationMonoid in
-private theorem factorization_idealOfExp_eq
-    (S : Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}) (f : S →₀ ℕ) (𝔮 : S) :
-    factorization (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ f 𝔭) 𝔮.1.1 = f 𝔮 := by
-  classical
-  have hprod : (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ (fun q ↦ if h : q ∈ S then f ⟨q, h⟩ else 0) 𝔭.1)
-      = ∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ f 𝔭 :=
-    Finset.prod_congr rfl fun 𝔭 _ ↦ by simp only [dif_pos 𝔭.2]
-  rw [← hprod, factorization_prod_primePow_eq L S
-    (fun q ↦ if h : q ∈ S then f ⟨q, h⟩ else 0) 𝔮.1, if_pos 𝔮.2, dif_pos 𝔮.2]
-
-open UniqueFactorizationMonoid in
-private theorem prod_primePow_count_eq (S : Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥})
-    (𝔞 : NonzeroIdeal L) (hsupp : ∀ p ∈ normalizedFactors 𝔞.1, ∃ 𝔭 ∈ S, 𝔭.1 = p) :
-    (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ (normalizedFactors 𝔞.1).count 𝔭.1.1) = 𝔞.1 := by
-  classical
-  rw [show (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ (normalizedFactors 𝔞.1).count 𝔭.1.1)
-      = ∏ p ∈ S.image (fun 𝔭 ↦ 𝔭.1), p ^ (normalizedFactors 𝔞.1).count p by
-    rw [Finset.prod_image (fun x _ y _ h ↦ Subtype.ext h), ← Finset.prod_attach S
-      (fun p ↦ p.1 ^ (normalizedFactors 𝔞.1).count p.1)]]
-  rw [← Finset.prod_subset (s₁ := (normalizedFactors 𝔞.1).toFinset)
-    (s₂ := S.image (fun 𝔭 ↦ 𝔭.1))
-    (fun p hp ↦ by
-      rw [Multiset.mem_toFinset] at hp
-      obtain ⟨𝔭, h𝔭S, rfl⟩ := hsupp p hp
-      exact Finset.mem_image.mpr ⟨𝔭, h𝔭S, rfl⟩)
-    (fun p _ hp ↦ by
-      rw [Multiset.mem_toFinset] at hp
-      rw [Multiset.count_eq_zero_of_notMem hp, pow_zero])]
-  conv_rhs => rw [← finprod_pow_count_eq_of_subsingleton_units 𝔞.2]
-  exact (finprod_eq_finsetProd_of_mulSupport_subset _ (by
-    intro p hp
-    simp only [Function.mem_mulSupport] at hp
-    rw [Finset.mem_coe, Multiset.mem_toFinset]
-    by_contra hc
-    rw [Multiset.count_eq_zero_of_notMem hc, pow_zero] at hp
-    exact hp rfl)).symm
-
-omit [NumberField L] in
-
-private theorem weight_prod_primePow (w : Ideal (𝓞 L) → ℂ) (hw_one : w ⊤ = 1)
-    (hw_mul : ∀ {𝔞 𝔟 : Ideal (𝓞 L)}, 𝔞 ≠ ⊥ → 𝔟 ≠ ⊥ → w (𝔞 * 𝔟) = w 𝔞 * w 𝔟)
-    (S : Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}) (e : S → ℕ) :
-    w (∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ e 𝔭) = ∏ 𝔭 ∈ S.attach, (w 𝔭.1.1) ^ e 𝔭 := by
-  classical
-  have wpow : ∀ (𝔭 : Ideal (𝓞 L)) (_ : 𝔭 ≠ ⊥) (k : ℕ), w (𝔭 ^ k) = (w 𝔭) ^ k := by
-    intro 𝔭 h𝔭 k
-    induction k with
-    | zero => simpa using hw_one
-    | succ n ih => rw [pow_succ, hw_mul (pow_ne_zero _ h𝔭) h𝔭, ih, pow_succ]
-  have key : ∀ T : Finset S, w (∏ 𝔭 ∈ T, 𝔭.1.1 ^ e 𝔭) = ∏ 𝔭 ∈ T, (w 𝔭.1.1) ^ e 𝔭 := by
-    intro T
-    induction T using Finset.induction with
-    | empty => simpa using hw_one
-    | insert a t ha ih =>
-      rw [Finset.prod_insert ha, Finset.prod_insert ha,
-        hw_mul (pow_ne_zero _ a.1.2.2)
-          (Finset.prod_ne_zero_iff.mpr (fun 𝔭 _ ↦ pow_ne_zero _ 𝔭.1.2.2)),
-        wpow a.1.1 a.1.2.2, ih]
-  exact key S.attach
-
-private theorem weighted_prod_eulerFactor_eq_tsum {s : ℂ} (hs : 1 < s.re)
-    (w : Ideal (𝓞 L) → ℂ) (hw_one : w ⊤ = 1)
-    (hw_mul : ∀ {𝔞 𝔟 : Ideal (𝓞 L)}, 𝔞 ≠ ⊥ → 𝔟 ≠ ⊥ → w (𝔞 * 𝔟) = w 𝔞 * w 𝔟)
-    (hw_norm : ∀ 𝔞, ‖w 𝔞‖ ≤ 1)
-    (S : Finset {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥})
-    (idealOfExp : (S →₀ ℕ) → NonzeroIdeal L)
-    (hidealOfExp : ∀ e : S →₀ ℕ,
-      (idealOfExp e).1 = ∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ e 𝔭)
-    (hinj : Function.Injective idealOfExp) :
-    (∏ 𝔭 ∈ S, (1 - w 𝔭.1 * (Ideal.absNorm 𝔭.1 : ℂ) ^ (-s))⁻¹)
-      = ∑' 𝔞 : Set.range idealOfExp,
-          w 𝔞.1.1 * (Ideal.absNorm 𝔞.1.1 : ℂ) ^ (-s) := by
-  classical
-  have hg : ∀ 𝔭 : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥},
-      ‖w 𝔭.1 * (Ideal.absNorm 𝔭.1 : ℂ) ^ (-s)‖ < 1 := fun 𝔭 ↦
-    ((norm_mul_le_of_le (hw_norm _) le_rfl).trans_eq (one_mul _)).trans_lt
-      (norm_absNorm_cpow_neg_lt_one L hs 𝔭)
-  have hHS := (finsetGeometricProd_summable_and_hasSum
-    (fun 𝔭 : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥} ↦
-      w 𝔭.1 * (Ideal.absNorm 𝔭.1 : ℂ) ^ (-s)) hg S).2
-  have hsummand : ∀ e : S →₀ ℕ,
-      (∏ 𝔭 ∈ S.attach, (w 𝔭.1.1 * (Ideal.absNorm 𝔭.1.1 : ℂ) ^ (-s)) ^ e 𝔭)
-        = w (idealOfExp e).1 * (Ideal.absNorm (idealOfExp e).1 : ℂ) ^ (-s) := fun e ↦ by
-    simp_rw [mul_pow]
-    rw [Finset.prod_mul_distrib,
-      show (∏ 𝔭 ∈ S.attach, ((Ideal.absNorm 𝔭.1.1 : ℂ) ^ (-s)) ^ e 𝔭)
-        = ∏ 𝔭 ∈ S.attach, (Ideal.absNorm 𝔭.1.1 : ℂ) ^ (-(e 𝔭 : ℂ) * s) from
-      Finset.prod_congr rfl fun 𝔭 _ ↦ by
-        rw [← Complex.cpow_nat_mul]
-        ring_nf,
-      prod_absNorm_cpow_eq_absNorm_prod_pow_cpow L S (fun 𝔭 ↦ e 𝔭),
-      ← weight_prod_primePow L w hw_one hw_mul S (fun 𝔭 ↦ e 𝔭), hidealOfExp e]
-  have hHS' : HasSum
-      (fun e : S →₀ ℕ ↦ w (idealOfExp e).1 * (Ideal.absNorm (idealOfExp e).1 : ℂ) ^ (-s))
-      (∏ 𝔭 ∈ S, (1 - w 𝔭.1 * (Ideal.absNorm 𝔭.1 : ℂ) ^ (-s))⁻¹) := by
-    have hbase := (Finsupp.equivFunOnFinite (α := S) (M := ℕ)).hasSum_iff.mpr hHS
-    refine hbase.congr_fun fun e ↦ ?_
-    simp only [Function.comp_apply, Finsupp.equivFunOnFinite_apply]
-    exact (hsummand e).symm
-  rw [← hHS'.tsum_eq]
-  exact (tsum_range
-    (fun 𝔞 : NonzeroIdeal L ↦ w 𝔞.1 * (Ideal.absNorm 𝔞.1 : ℂ) ^ (-s)) hinj).symm
-
-open UniqueFactorizationMonoid in
-
-theorem weighted_eulerProduct_eq_tsum {s : ℂ} (hs : 1 < s.re)
-    (w : Ideal (𝓞 L) → ℂ) (hw_one : w ⊤ = 1)
-    (hw_mul : ∀ {𝔞 𝔟 : Ideal (𝓞 L)}, 𝔞 ≠ ⊥ → 𝔟 ≠ ⊥ → w (𝔞 * 𝔟) = w 𝔞 * w 𝔟)
-    (hw_norm : ∀ 𝔞, ‖w 𝔞‖ ≤ 1) :
-    (∏' 𝔭 : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥},
-        (1 - w 𝔭.1 * (Ideal.absNorm 𝔭.1 : ℂ) ^ (-s))⁻¹)
-      = ∑' 𝔞 : NonzeroIdeal L, w 𝔞.1 * (Ideal.absNorm 𝔞.1 : ℂ) ^ (-s) := by
-  classical
-  set P := {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥}
-  set Dw : NonzeroIdeal L → ℂ := fun 𝔞 ↦ w 𝔞.1 * (Ideal.absNorm 𝔞.1 : ℂ) ^ (-s) with hDw
-  set idealOfExp : (S : Finset P) → (S →₀ ℕ) → NonzeroIdeal L :=
-    fun S e ↦ ⟨∏ 𝔭 ∈ S.attach, 𝔭.1.1 ^ e 𝔭,
-      Finset.prod_ne_zero_iff.mpr (fun 𝔭 _ ↦ pow_ne_zero _ 𝔭.1.2.2)⟩ with hidealOfExp
-  have hnormD : Summable fun 𝔞 : NonzeroIdeal L ↦ ‖Dw 𝔞‖ := by
-    refine ((hasSum_nonzeroIdeal_absNorm_cpow L hs).summable.norm).of_nonneg_of_le
-      (fun _ ↦ norm_nonneg _) (fun 𝔞 ↦ ?_)
-    rw [hDw]
-    exact (norm_mul_le_of_le (hw_norm _) le_rfl).trans_eq (one_mul _)
-  have hinj : ∀ S : Finset P, Function.Injective (idealOfExp S) := by
-    intro S e e' h
-    rw [hidealOfExp, Subtype.mk.injEq] at h
-    ext 𝔮
-    rw [← factorization_idealOfExp_eq L S e 𝔮, ← factorization_idealOfExp_eq L S e' 𝔮, h]
-  have hmem : ∀ (S : Finset P) (𝔞 : NonzeroIdeal L),
-      (∀ p ∈ normalizedFactors 𝔞.1, ∃ 𝔭 ∈ S, 𝔭.1 = p) →
-      𝔞 ∈ Set.range (idealOfExp S) := by
-    intro S 𝔞 hsupp
-    refine ⟨Finsupp.onFinset S.attach
-      (fun 𝔭 ↦ (normalizedFactors 𝔞.1).count 𝔭.1.1) (by simp), ?_⟩
-    rw [hidealOfExp, Subtype.ext_iff]
-    simpa only [Finsupp.onFinset_apply] using prod_primePow_count_eq L S 𝔞 hsupp
-  have hpartial : ∀ S : Finset P,
-      (∏ 𝔭 ∈ S, (1 - w 𝔭.1 * (Ideal.absNorm 𝔭.1 : ℂ) ^ (-s))⁻¹)
-        = ∑' 𝔞 : Set.range (idealOfExp S), Dw 𝔞.1 := by
-    intro S
-    exact weighted_prod_eulerFactor_eq_tsum L hs w hw_one hw_mul hw_norm S (idealOfExp S)
-      (fun e ↦ rfl) (hinj S)
-  refine HasProd.tprod_eq ?_
-  rw [HasProd, SummationFilter.unconditional, Metric.tendsto_atTop]
-  intro ε hε
-  obtain ⟨F, hF⟩ := ((tendsto_tsum_compl_atTop_zero (fun 𝔞 ↦ ‖Dw 𝔞‖)).eventually
-    (gt_mem_nhds hε)).exists
-  refine ⟨F.biUnion (primeFactorsOf L), fun S hS ↦ ?_⟩
-  have hF_sub : ∀ 𝔞 ∈ F, 𝔞 ∈ Set.range (idealOfExp S) := by
-    intro 𝔞 h𝔞F
-    refine hmem S 𝔞 fun p hp ↦ ?_
-    obtain ⟨𝔭, h𝔭, rfl⟩ := mem_primeFactorsOf L 𝔞 p hp
-    exact ⟨𝔭, hS (Finset.mem_biUnion.mpr ⟨𝔞, h𝔞F, h𝔭⟩), rfl⟩
-  rw [dist_eq_norm, hpartial S]
-  have hsplit : ∑' 𝔞 : NonzeroIdeal L, Dw 𝔞 =
-      (∑' 𝔞 : Set.range (idealOfExp S), Dw 𝔞.1) +
-        ∑' 𝔞 : ↥(Set.range (idealOfExp S))ᶜ, Dw 𝔞.1 :=
-    (hnormD.of_norm.tsum_subtype_add_tsum_subtype_compl _).symm
-  rw [hsplit, sub_add_cancel_left, norm_neg]
-  refine (norm_tsum_le_tsum_norm (hnormD.subtype _)).trans_lt ?_
-  refine lt_of_le_of_lt ?_ hF
-  refine (hnormD.subtype _).tsum_le_tsum_of_inj
-    (fun 𝔞 : ↥(Set.range (idealOfExp S))ᶜ ↦
-      (⟨𝔞.1, fun h ↦ 𝔞.2 (hF_sub 𝔞.1 h)⟩ : {x // x ∉ F}))
-    (fun x y h ↦ Subtype.ext (congrArg (fun z : {x // x ∉ F} ↦ (z : NonzeroIdeal L)) h))
-    (fun _ _ ↦ norm_nonneg _) (fun _ ↦ le_rfl) (hnormD.subtype _)
-
-open UniqueFactorizationMonoid in
-
-theorem dedekindZeta_eq_tprod_primeIdeal {s : ℂ} (hs : 1 < s.re) :
-    NumberField.dedekindZeta L s =
-      ∏' 𝔭 : {𝔭 : Ideal (𝓞 L) // 𝔭.IsPrime ∧ 𝔭 ≠ ⊥},
-        (1 - (Ideal.absNorm 𝔭.1 : ℂ) ^ (-s))⁻¹ := by
-  have hw := weighted_eulerProduct_eq_tsum L hs (fun _ ↦ 1) (by simp) (by simp) (by simp)
-  simp only [one_mul] at hw
-  exact (hw.trans (hasSum_nonzeroIdeal_absNorm_cpow L hs).tsum_eq).symm
-
-end NumberFieldEulerProduct
-end OMA.DedekindInverse.EulerProduct
-end
-
-namespace OMA.DedekindInverse
-
-open Complex Filter Set NumberField MeasureTheory Asymptotics
-open scoped Topology NNReal ENNReal NumberField
+namespace OMA.SquarefreeStep
+open Complex Filter Set NumberField Asymptotics
+open scoped NumberField Topology NNReal ENNReal Classical
 
 variable (K : Type*) [Field K] [NumberField K]
 
-abbrev PrimeIdeal := {I : Ideal (𝓞 K) // I.IsPrime ∧ I ≠ ⊥}
+abbrev ideals := Ideal (𝓞 K)
+abbrev fiber (n : ℕ) := {I : ideals K // Ideal.absNorm I = n}
+abbrev a (n : ℕ) := Nat.card (fiber K n)
 
-noncomputable def primeTerm (s : ℂ) (p : PrimeIdeal K) : ℂ :=
-  (Ideal.absNorm p.1 : ℂ) ^ (-s)
+-- The coefficient estimate is the one used in the earlier Mellin audit.
+theorem coeff_mean :
+    Tendsto (fun n : ℕ => (∑ k ∈ Finset.Icc 1 n, (a K k : ℝ)) / n) atTop
+      (𝓝 (dedekindZeta_residue K)) := by
+  refine ((Ideal.tendsto_norm_le_div_atTop₀ K).comp tendsto_natCast_atTop_atTop).congr fun n => ?_
+  simp only [Function.comp_apply, Nat.cast_le, ← Nat.cast_sum, a, fiber]
+  congr
+  rw [← add_left_inj 1, ← Ideal.card_norm_le_eq_card_norm_le_add_one,
+    show Finset.Icc 1 n = Finset.Ioc 0 n from Finset.Icc_succ_left_eq_Ioc _ _,
+    show 1 = Nat.card {I : Ideal (𝓞 K) // Ideal.absNorm I = 0} by simp [Ideal.absNorm_eq_zero_iff],
+    Finset.sum_Ioc_add_eq_sum_Icc (n.zero_le),
+    ← Finset.card_preimage_eq_sum_card_image_eq (fun k _ => Ideal.finite_setOfPred_absNorm_eq k)]
+  simp [Set.coe_eq_subtype]
 
-theorem summable_primeTerm (s : ℂ) (hs : 1 < s.re) :
-    Summable fun p : PrimeIdeal K => ‖-primeTerm K s p‖ := by
-  let i (p : PrimeIdeal K) : EulerProduct.NonzeroIdeal K := ⟨p.1, p.2.2⟩
-  have hi : Function.Injective i := fun _ _ h =>
-    Subtype.ext (congrArg (fun J : EulerProduct.NonzeroIdeal K => J.1) h)
-  simpa only [norm_neg, Function.comp_def, i, primeTerm] using
-    ((EulerProduct.hasSum_nonzeroIdeal_absNorm_cpow K hs).summable.norm.comp_injective hi)
+theorem series_summable {s : ℂ} (hs : 1 < s.re) :
+    LSeriesSummable (fun n => (a K n : ℂ)) s := by
+  have h := LSeriesSummable_of_sum_norm_bigO_and_nonneg (f := fun n => (a K n : ℝ))
+    (r := 1) (isBigO_atTop_natCast_rpow_of_tendsto_div_rpow (by simpa using coeff_mean K))
+    (fun n => Nat.cast_nonneg _) zero_le_one hs
+  simpa only [ofReal_natCast] using h
 
-/-- The Euler product for the reciprocal converges to a nonzero limit. -/
-theorem inverse_eulerProduct {s : ℂ} (hs : 1 < s.re) :
-    (dedekindZeta K s)⁻¹ = ∏' p : PrimeIdeal K, (1 + -primeTerm K s p) ∧
-      (∏' p : PrimeIdeal K, (1 + -primeTerm K s p)) ≠ 0 := by
-  have hsum := summable_primeTerm K s hs
-  have hfactor (p : PrimeIdeal K) : 1 + -primeTerm K s p ≠ 0 := by
-    rw [← sub_eq_add_neg, sub_ne_zero]
-    intro heq
-    have hlt := EulerProduct.norm_absNorm_cpow_neg_lt_one K hs p
-    change ‖primeTerm K s p‖ < 1 at hlt
-    simp [← heq] at hlt
-  have hprod := tprod_one_add_ne_zero_of_summable hfactor hsum
-  have hinv := (multipliable_one_add_of_summable hsum).tprod_inv₀ hprod
-  refine ⟨?_, hprod⟩
-  rw [EulerProduct.dedekindZeta_eq_tprod_primeIdeal K hs]
-  change (∏' p : PrimeIdeal K, (1 - primeTerm K s p)⁻¹)⁻¹ = _
-  simp only [sub_eq_add_neg, hinv, inv_inv]
+def weight (s : ℂ) (I : ideals K) : ℂ := (Ideal.absNorm I : ℂ) ^ (-s)
 
-theorem zeta_ne_zero {s : ℂ} (hs : 1 < s.re) : dedekindZeta K s ≠ 0 := by
-  obtain ⟨heq, hn⟩ := inverse_eulerProduct K hs
-  exact fun hz => hn (heq.symm.trans (by simp [hz]))
+theorem weight_mul (s : ℂ) (I J : ideals K) :
+    weight K s (I * J) = weight K s I * weight K s J := by
+  simp only [weight, map_mul, Nat.cast_mul, natCast_mul_natCast_cpow]
 
-noncomputable def primeSetNorm (S : Finset (PrimeIdeal K)) : ℕ :=
-  ∏ p ∈ S, Ideal.absNorm p.1
+theorem term_eq {s : ℂ} (hs : s ≠ 0) (n : ℕ) :
+    LSeries.term (fun k => (a K k : ℂ)) s n = (a K n : ℂ) * (n : ℂ) ^ (-s) := by
+  rw [LSeries.term_of_ne_zero' hs, cpow_neg, div_eq_mul_inv]
 
-theorem finite_primeSetsOfNorm (n : ℕ) : ((primeSetNorm K) ⁻¹' {n}).Finite := by
+private abbrev fiberFintype (n : ℕ) : Fintype (fiber K n) :=
+  (Ideal.finite_setOfPred_absNorm_eq (S := 𝓞 K) n).fintype
+
+theorem fiber_sum {s : ℂ} (hs : s ≠ 0) (n : ℕ) :
+    (∑' I : fiber K n, weight K s I.val) = LSeries.term (fun k => (a K k : ℂ)) s n := by
+  let _ := fiberFintype K n
+  rw [term_eq K hs, tsum_fintype]
+  simp [weight, fun I : fiber K n => I.property, a, Nat.card_eq_fintype_card, nsmul_eq_mul]
+
+theorem fiber_norm {s : ℂ} (hs : s ≠ 0) (n : ℕ) :
+    (∑' I : fiber K n, ‖weight K s I.val‖) = ‖LSeries.term (fun k => (a K k : ℂ)) s n‖ := by
+  let _ := fiberFintype K n
+  rw [term_eq K hs, tsum_fintype, norm_mul]
+  simp [weight, fun I : fiber K n => I.property, a, Nat.card_eq_fintype_card, nsmul_eq_mul]
+
+theorem norm_summable {s : ℂ} (hs : 1 < s.re) : Summable fun I => ‖weight K s I‖ := by
+  have hs0 : s ≠ 0 := by rintro rfl; norm_num at hs
+  let F (n : ℕ) : Set (ideals K) := {I | Ideal.absNorm I = n}
+  apply (summable_partition (s := F) (fun I => norm_nonneg _) ?_).2
+  · refine ⟨fun n => ?_, ?_⟩
+    · let _ := fiberFintype K n
+      change Summable fun I : fiber K n => ‖weight K s I.val‖
+      exact Summable.of_finite
+    · change Summable fun n => ∑' I : fiber K n, ‖weight K s I.val‖
+      simp_rw [fiber_norm K hs0]
+      exact (series_summable K hs).norm
+  · exact fun I => ⟨Ideal.absNorm I, rfl, fun _ h => h.symm⟩
+
+theorem sum_eq_zeta {s : ℂ} (hs : 1 < s.re) : (∑' I, weight K s I) = dedekindZeta K s := by
+  have hs0 : s ≠ 0 := by rintro rfl; norm_num at hs
+  have h := ((norm_summable K hs).of_norm.hasSum.tsum_fiberwise (fun I : ideals K => Ideal.absNorm I)).tsum_eq
+  exact h.symm.trans (tsum_congr fun n => fiber_sum K hs0 n)
+
+abbrev primeIdeals := {P : ideals K // P.IsPrime ∧ P ≠ ⊥}
+
+theorem primeElement (p : primeIdeals K) : Prime p.val := (Ideal.prime_iff_isPrime p.property.2).mpr p.property.1
+
+def sift (s : ℂ) (S : Finset (primeIdeals K)) (I : ideals K) : ℂ := by
   classical
-  let P := {p : PrimeIdeal K | Ideal.absNorm p.1 ≤ n}
-  have hP : P.Finite :=
-    (Ideal.finite_setOfPred_absNorm_le (S := 𝓞 K) n).preimage Subtype.val_injective.injOn
-  refine hP.toFinset.powerset.finite_toSet.subset ?_
-  intro S hS
-  apply Finset.mem_powerset.mpr
-  intro p hp
-  apply hP.mem_toFinset.mpr
-  have hpos : 0 < primeSetNorm K S := Finset.prod_pos fun q _ =>
-    Nat.pos_of_ne_zero (fun h => q.2.2 (Ideal.absNorm_eq_zero_iff.mp h))
-  exact (Nat.le_of_dvd hpos (Finset.dvd_prod_of_mem (fun q : PrimeIdeal K => Ideal.absNorm q.1) hp)).trans_eq
-    (show primeSetNorm K S = n from hS)
+  exact if ∀ p ∈ S, ¬p.val ∣ I then weight K s I else 0
 
-/-- Signed count of squarefree ideal products having norm n. -/
-noncomputable def reciprocalCoeff (n : ℕ) : ℂ :=
-  ∑' S : (primeSetNorm K) ⁻¹' {n}, (-1 : ℂ) ^ S.1.card
-
-private theorem prod_primeTerm (S : Finset (PrimeIdeal K)) (s : ℂ) :
-    ∏ p ∈ S, -primeTerm K s p = (-1 : ℂ) ^ S.card * (primeSetNorm K S : ℂ) ^ (-s) := by
+theorem norm_sift_le (s : ℂ) (S : Finset (primeIdeals K)) (I : ideals K) :
+    ‖sift K s S I‖ ≤ ‖weight K s I‖ := by
   classical
-  rw [Finset.prod_neg]
-  congr 1
-  unfold primeSetNorm primeTerm
+  unfold sift
+  split <;> simp
+
+theorem sift_mul (s : ℂ) {S : Finset (primeIdeals K)} {p : primeIdeals K} (hp : p ∉ S)
+    (I : ideals K) : sift K s S (p.val * I) = weight K s p.val * sift K s S I := by
+  classical
+  have he : (∀ q ∈ S, ¬q.val ∣ p.val * I) ↔ (∀ q ∈ S, ¬q.val ∣ I) := by
+    constructor
+    · intro h q hq hI
+      exact h q hq (dvd_mul_of_dvd_right hI _)
+    · intro h q hq hmul
+      rcases (primeElement K q).dvd_or_dvd hmul with hqp | hqI
+      · have heq : q = p := Subtype.ext (associated_iff_eq.mp ((primeElement K q).associated_of_dvd (primeElement K p) hqp))
+        exact hp (heq ▸ hq)
+      · exact h q hq hqI
+  simp only [sift, he, weight_mul]
+  split <;> simp
+
+theorem sift_insert {s : ℂ} (hs : 1 < s.re) (S : Finset (primeIdeals K)) (p : primeIdeals K)
+    (hp : p ∉ S) :
+    (∑' I, sift K s (insert p S) I) = (1 - weight K s p.val) * (∑' I, sift K s S I) := by
+  classical
+  let omitted (I : ideals K) := if p.val ∣ I then sift K s S I else 0
+  have hS := (norm_summable K hs).of_norm_bounded (norm_sift_le K s S)
+  have hO : Summable omitted := (norm_summable K hs).of_norm_bounded fun I => by
+    dsimp [omitted]; split
+    · exact norm_sift_le K s S I
+    · simp
+  have hdiff (I : ideals K) : sift K s (insert p S) I = sift K s S I - omitted I := by
+    by_cases h : p.val ∣ I <;> simp [sift, omitted, h]
+  have hi : Function.Injective (fun I : ideals K => p.val * I) := mul_right_injective₀ (primeElement K p).ne_zero
+  have hsupp : Function.support omitted ⊆ Set.range (fun I : ideals K => p.val * I) := by
+    intro I hI
+    by_contra h
+    have hn : ¬p.val ∣ I := fun ⟨d, hd⟩ => h ⟨d, hd.symm⟩
+    exact hI (if_neg hn)
+  have hsum : (∑' I, omitted I) = weight K s p.val * (∑' I, sift K s S I) := by
+    rw [← hi.tsum_eq hsupp, ← tsum_mul_left]
+    apply tsum_congr
+    intro I
+    simpa [omitted] using sift_mul K s hp I
+  simp_rw [hdiff]
+  rw [hS.tsum_sub hO, hsum, sub_mul, one_mul]
+
+theorem sift_limit {s : ℂ} (hs : 1 < s.re) :
+    Tendsto (fun S : Finset (primeIdeals K) => ∑' I, sift K s S I) atTop (𝓝 1) := by
+  classical
+  let g (I : ideals K) : ℂ := if I = 1 then 1 else 0
+  have hg : (∑' I, g I) = 1 := by simp [g]
+  rw [← hg]
+  apply tendsto_tsum_of_dominated_convergence (norm_summable K hs)
+  · intro I
+    refine (tendsto_congr' ?_).2 (tendsto_const_nhds (x := g I))
+    by_cases h1 : I = 1
+    · subst I
+      exact Filter.Eventually.of_forall fun S => by
+        have h : ∀ q ∈ S, ¬(q : primeIdeals K).val ∣ (1 : ideals K) := fun q _ => (primeElement K q).not_dvd_one
+        change (if ∀ q ∈ S, ¬q.val ∣ (1 : ideals K) then weight K s 1 else 0) = g 1
+        rw [if_pos h]
+        simp [weight, g]
+    · by_cases h0 : I = 0
+      · subst I
+        have hs' : -s ≠ 0 := neg_ne_zero.mpr (by rintro rfl; norm_num at hs)
+        exact Filter.Eventually.of_forall fun S => by simp [sift, weight, g, zero_cpow hs']
+      · have hu : ¬IsUnit I := fun h => h1 (by simpa only [Ideal.one_eq_top] using Ideal.isUnit_iff.mp h)
+        obtain ⟨P, hirr, hd⟩ := WfDvdMonoid.exists_irreducible_factor hu h0
+        have hP : P ≠ ⊥ := by simpa only [Ideal.zero_eq_bot] using hirr.prime.ne_zero
+        let p : primeIdeals K := ⟨P,(Ideal.prime_iff_isPrime hP).mp hirr.prime,hP⟩
+        filter_upwards [eventually_finset_mem_atTop p] with S hS
+        have hbad : ¬∀ q ∈ S, ¬q.val ∣ I := fun h => (h p hS) hd
+        change (if ∀ q ∈ S, ¬q.val ∣ I then weight K s I else 0) = if I = 1 then 1 else 0
+        rw [if_neg hbad, if_neg h1]
+  · exact Filter.Eventually.of_forall fun S I => norm_sift_le K s S I
+
+/-- Dedekind zeta is nonzero in the half-plane of absolute convergence. -/
+
+def prodIdeal (S : Finset (primeIdeals K)) : ideals K := ∏ p ∈ S, p.val
+def normProduct (S : Finset (primeIdeals K)) : ℕ := ∏ p ∈ S, Ideal.absNorm p.val
+def coeff (n : ℕ) : ℂ := ∑' S : normProduct K ⁻¹' {n}, (-1:ℂ)^S.val.card
+
+theorem dvd_prod_iff (p : primeIdeals K) (S : Finset (primeIdeals K)) :
+    p.val ∣ prodIdeal K S ↔ p ∈ S := by
   induction S using Finset.induction_on with
-  | empty => simp
-  | insert p S hp ih =>
-    rw [Finset.prod_insert hp, Finset.prod_insert hp, ih, Nat.cast_mul,
-      Complex.natCast_mul_natCast_cpow]
+  | empty =>
+    simp only [prodIdeal,Finset.prod_empty,Finset.notMem_empty,iff_false]
+    exact (primeElement K p).not_dvd_one
+  | @insert q S hq ih =>
+    rw [prodIdeal,Finset.prod_insert hq,(primeElement K p).dvd_mul,Finset.mem_insert]
+    change (p.val ∣ q.val ∨ p.val ∣ prodIdeal K S) ↔ _
+    rw [ih]
+    have hpq : p.val ∣ q.val ↔ p=q := by
+      constructor
+      · intro h; exact Subtype.ext (associated_iff_eq.mp ((primeElement K p).associated_of_dvd (primeElement K q) h))
+      · rintro rfl; exact dvd_refl _
+    rw [hpq]
 
-theorem reciprocal_hasSum {s : ℂ} (hs : 1 < s.re) :
-    HasSum (LSeries.term (reciprocalCoeff K) s) (dedekindZeta K s)⁻¹ := by
-  have hsum := summable_finsetProd_of_summable_norm (summable_primeTerm K s hs)
-  have h := hsum.hasSum
-  rw [← tprod_one_add hsum, ← (inverse_eulerProduct K hs).1] at h
-  refine (h.tsum_fiberwise (primeSetNorm K)).congr_fun fun n => ?_
-  have hfiber : (∑' S : (primeSetNorm K) ⁻¹' {n}, ∏ p ∈ S.1, -primeTerm K s p) =
-      reciprocalCoeff K n * (n : ℂ) ^ (-s) := by
-    rw [reciprocalCoeff, ← tsum_mul_right]
-    exact tsum_congr fun S => by rw [prod_primeTerm, show primeSetNorm K S.1 = n from S.2]
-  rw [hfiber]
-  rcases eq_or_ne n 0 with rfl | hn
-  · have hs0 : s ≠ 0 := fun h => by rw [h] at hs; norm_num at hs
-    simp [LSeries.term, zero_cpow (neg_ne_zero.mpr hs0)]
-  · rw [LSeries.term_of_ne_zero hn, cpow_neg, div_eq_mul_inv]
+theorem prod_injective : Function.Injective (prodIdeal K) := by
+  intro S T h
+  ext p
+  rw [← dvd_prod_iff K p S,h,dvd_prod_iff]
 
-end OMA.DedekindInverse
+theorem prod_weight (s : ℂ) (S : Finset (primeIdeals K)) :
+    weight K s (prodIdeal K S) = ∏ p ∈ S, weight K s p.val := by
+  induction S using Finset.induction_on with
+  | empty => simp [prodIdeal,weight]
+  | @insert p S hp ih =>
+    rw [prodIdeal,Finset.prod_insert hp,weight_mul,Finset.prod_insert hp,← ih]; rfl
 
-open OMA.DedekindInverse NumberField
+theorem reciprocal_expansion (s : ℂ) (hs : 1 < s.re) :
+    ∃ w : ℂ, HasSum (LSeries.term (coeff K) s) w ∧ dedekindZeta K s*w=1 := by
+  classical
+  let W (S : Finset (primeIdeals K)) := ∏ p ∈ S, -weight K s p.val
+  have hw (S : Finset (primeIdeals K)) : W S=(-1:ℂ)^S.card*weight K s (prodIdeal K S) := by
+    simp only [W,Finset.prod_neg,prod_weight]
+  have hsum : Summable W := by
+    apply Summable.of_norm
+    apply ((norm_summable K hs).comp_injective (prod_injective K)).congr
+    intro S
+    simp only [hw,norm_mul,norm_pow,norm_neg,norm_one,one_pow,one_mul,Function.comp_apply]
+  refine ⟨∑' S,W S,?_,?_⟩
+  · have hf (n : ℕ) : (∑' S : normProduct K ⁻¹' {n}, W S.val) = LSeries.term (coeff K) s n := by
+      rw [LSeries.term_of_ne_zero' (ne_zero_of_re_pos (zero_lt_one.trans hs)),div_eq_mul_inv,← cpow_neg,coeff,← tsum_mul_right]
+      apply tsum_congr
+      intro S
+      have hn : Ideal.absNorm (prodIdeal K S.val)=n := by
+        simpa only [prodIdeal,map_prod,normProduct] using (show normProduct K S.val=n from S.property)
+      rw [hw,weight,hn]
+    have H := hsum.hasSum.tsum_fiberwise (normProduct K)
+    simpa only [hf] using H
+  · have hp := hasProd_one_add_of_hasSum_prod (f := fun p : primeIdeals K => -weight K s p.val) hsum.hasSum
+    have he (S : Finset (primeIdeals K)) :
+        dedekindZeta K s * (∏ p ∈ S, (1 + -weight K s p.val)) = ∑' I, sift K s S I := by
+      induction S using Finset.induction_on with
+      | empty => simpa [sift] using (sum_eq_zeta K hs).symm
+      | @insert p S hP ih =>
+        rw [Finset.prod_insert hP,sift_insert K hs S p hP,← ih,sub_eq_add_neg]; ring
+    exact tendsto_nhds_unique_of_eventuallyEq (hp.const_mul (dedekindZeta K s)) (sift_limit K hs)
+      (Eventually.of_forall he)
+
+end OMA.SquarefreeStep
 
 theorem OMA.solution : OMA.R_ERH_extended_riemann_hypothesis_R1_H2_R1.H1 := by
-  intro K _ _ P N a s hs
-  exact ⟨(dedekindZeta K s)⁻¹, reciprocal_hasSum K hs, mul_inv_cancel₀ (zeta_ne_zero K hs)⟩
+  intro K _ _
+  exact OMA.SquarefreeStep.reciprocal_expansion K

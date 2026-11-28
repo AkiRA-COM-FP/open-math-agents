@@ -37,7 +37,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           OUT: ${{ runner.temp }}/bcensus
-          MAX_SHARDS: "32"
+          MAX_SHARDS: "96"
         run: bash tools/batch_census.sh
       - uses: actions/upload-artifact@v4
         with:
@@ -47,18 +47,19 @@ jobs:
   check:
     needs: census
     runs-on: ubuntu-latest
-    timeout-minutes: 165
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95]
     env:
       ELAN_HOME: /mnt/oma/elan
       OMA_FC: /mnt/oma/fc
       BC: /mnt/oma/batch
       SHARD: ${{ matrix.shard }}
-      SHARDS: "32"
-      LANES: "3"
+      SHARDS: "96"
+      LANES: "2"
+      CHECK_MEM: "6G"
       PUBLISH_EVERY: "180"   # each upload costs the merger one API call to read: 16 shards, one upload each 3 minutes at most
       PUBLISH_WAIT: "240"
     steps:
@@ -114,7 +115,7 @@ jobs:
       - name: Start the worker
         run: |
           export WS="$GITHUB_WORKSPACE"
-          export BATCH_DEADLINE=$(( $(date -u +%s) + 120 * 60 ))
+          export BATCH_DEADLINE=$(( $(date -u +%s) + 45 * 60 ))
           nohup setsid bash "$BC/batch_check.sh" worker > "$BC/worker.log" 2>&1 < /dev/null &
           echo "BV_STARTED=1" >> "$GITHUB_ENV"
           sleep 5; cat "$BC/worker.log"
