@@ -391,6 +391,157 @@ theorem count_of_indexed {i q : Nat} (h : Nat.nth Nat.Prime (i^2-1) = q) :
   rw [← h]
   exact Nat.count_nth_of_infinite Nat.infinite_setOfPred_prime _
 
+/-- Packed multiples that start in this interval at or beyond the square of d. -/
+def segmentMarked (lo hi d : Nat) : Nat :=
+  let k := max d (lo ⌈/⌉ d)
+  progression d (((hi-lo)/d).log2 + 1) <<< (d*k-lo)
+
+theorem segmentMarked_bit (lo hi d j : Nat) (hd : 0 < d) (hj : lo+j ≤ hi) :
+    (segmentMarked lo hi d).testBit j = true ↔ d*d ≤ lo+j ∧ d ∣ lo+j := by
+  let k := max d (lo ⌈/⌉ d)
+  have hstart : lo ≤ d*k := (ceilDiv_le_iff_le_mul hd).mp (le_max_right _ _)
+  have hsq : d*d ≤ d*k := Nat.mul_le_mul_left _ (le_max_left _ _)
+  change (progression d (((hi-lo)/d).log2 + 1) <<< (d*k-lo)).testBit j = true ↔ _
+  rw [Nat.testBit_shiftLeft, Bool.and_eq_true, decide_eq_true_eq, progression_bit]
+  constructor
+  · rintro ⟨hle,t,_,ht⟩
+    refine ⟨by omega,k+t,?_⟩
+    rw [Nat.mul_add]
+    omega
+  · rintro ⟨hs, t, ht⟩
+    have hkt : k ≤ t := max_le ((Nat.le_of_mul_le_mul_left (ht ▸ hs) hd))
+      ((ceilDiv_le_iff_le_mul hd).mpr (by omega))
+    have hm : d*k ≤ d*t := Nat.mul_le_mul_left _ hkt
+    have he : d*(t-k) = d*t-d*k := Nat.mul_sub_left_distrib _ _ _
+    have hbound : t-k ≤ (hi-lo)/d := (Nat.le_div_iff_mul_le hd).mpr (by
+      rw [Nat.mul_comm, he]; omega)
+    have hpow := Nat.lt_log2_self (n := (hi-lo)/d)
+    exact ⟨by omega,t-k,by omega,by omega⟩
+
+def segmentComposite (lo hi : Nat) : List Nat → Nat
+  | [] => 0
+  | d :: ds =>
+    (if 2 ≤ d ∧ d.minFac = d then segmentMarked lo hi d else 0) ||| segmentComposite lo hi ds
+
+theorem segmentComposite_bit (lo hi j : Nat) (hj : lo+j ≤ hi) (ds : List Nat) :
+    (segmentComposite lo hi ds).testBit j = (compositeMask hi ds).testBit (lo+j) := by
+  induction ds with
+  | nil => simp [segmentComposite, compositeMask]
+  | cons d ds ih =>
+    simp only [segmentComposite, compositeMask, Nat.testBit_or, ih]
+    split
+    next h =>
+      congr 1
+      apply Bool.eq_iff_iff.mpr
+      rw [segmentMarked_bit lo hi d j (by omega) hj, marked_bit hi d _ (by omega) hj]
+    next => simp
+
+def segmentSieve (lo hi : Nat) : Nat :=
+  ((1 <<< (hi-lo+1))-1) ^^^ (segmentComposite lo hi (List.range (hi.sqrt+1)) ||| (3 >>> lo))
+
+theorem segmentSieve_bit (lo hi j : Nat) (hj : lo+j ≤ hi) :
+    (segmentSieve lo hi).testBit j = (sieve hi).testBit (lo+j) := by
+  simp only [segmentSieve, sieve, nonprimeMask, Nat.testBit_xor, Nat.testBit_or,
+    Nat.testBit_shiftRight, segmentComposite_bit lo hi j hj, Nat.shiftLeft_eq, Nat.one_mul,
+    Nat.testBit_two_pow_sub_one, show j < hi-lo+1 by omega, show lo+j < hi+1 by omega]
+theorem checkRanks_congr (hi m n a i : Nat) (qs : List Nat)
+    (h : ∀ j, a ≤ j → j ≤ hi → m.testBit j = n.testBit j) :
+    checkRanks hi m a i qs = checkRanks hi n a i qs := by
+  induction qs generalizing a i with
+  | nil => rfl
+  | cons q qs ih =>
+    by_cases hr : a ≤ q ∧ q ≤ hi
+    · have hbit := h q hr.1 hr.2
+      have hcount : rankBits (m >>> a) (q-a) = rankBits (n >>> a) (q-a) := by
+        rw [rankBits_eq, rankBits_eq]
+        apply count_congr_lt
+        intro j hj
+        rw [Nat.testBit_shiftRight, Nat.testBit_shiftRight, h (a+j) (by omega) (by omega)]
+      rw [checkRanks, checkRanks, hbit, hcount, ih q (i+1) (fun j hq hj => h j (by omega) hj)]
+    · simp [checkRanks, hr]
+
+def alignedSegment (lo hi : Nat) : Nat := segmentSieve lo hi <<< lo
+
+theorem indexedWeights_of_segment (hi lo i : Nat) (qs : List Nat)
+    (hcount : Nat.count Nat.Prime lo = (i-1)^2-1)
+    (h : checkRanks hi (alignedSegment lo hi) lo i qs = true) : IndexedWeights i qs := by
+  apply indexedWeights_of_check hi lo i qs hcount
+  rw [← checkRanks_congr hi (alignedSegment lo hi) (sieve hi) lo i qs]
+  · exact h
+  · intro j hj hhi
+    simp only [alignedSegment, Nat.testBit_shiftLeft, decide_eq_true hj, Bool.true_and]
+    rw [segmentSieve_bit lo hi (j-lo) (by omega), show lo+(j-lo) = j by omega]
+/-- Four bits per byte value suffice to store its population count, including eight. -/
+def bytePop (x : BitVec 8) : Nat :=
+  (0x8776766576656554766565546554544376656554655454436554544354434332766565546554544365545443544343326554544354434332544343324332322176656554655454436554544354434332655454435443433254434332433232216554544354434332544343324332322154434332433232214332322132212110 >>> (4*x.toNat)) &&& 15
+
+set_option maxRecDepth 4096 in
+set_option maxHeartbeats 2000000 in
+theorem bytePop_correct : ∀ x : BitVec 8, bytePop x = x.cpop.toNat := by
+  decide +kernel
+
+theorem popSplit (w len : Nat) (x : BitVec (w+len)) :
+    x.cpop.toNat = (x.extractLsb' len w).cpop.toNat + (x.extractLsb' 0 len).cpop.toNat := by
+  calc
+    _ = (x.extractLsb' len w ++ x.extractLsb' 0 len).cpop.toNat :=
+      congrArg (fun v : BitVec (w+len) => v.cpop.toNat) BitVec.extractLsb'_append_extractLsb'.symm
+    _ = _ := BitVec.toNat_cpop_append
+
+def wordPop16 (x : BitVec 16) : Nat :=
+  bytePop (x.extractLsb' 8 8) + bytePop (x.extractLsb' 0 8)
+
+theorem wordPop16_correct (x : BitVec 16) : wordPop16 x = x.cpop.toNat := by
+  simp only [wordPop16, bytePop_correct]
+  exact (popSplit 8 8 x).symm
+
+def wordPop32 (x : BitVec 32) : Nat :=
+  wordPop16 (x.extractLsb' 16 16) + wordPop16 (x.extractLsb' 0 16)
+
+theorem wordPop32_correct (x : BitVec 32) : wordPop32 x = x.cpop.toNat := by
+  simp only [wordPop32, wordPop16_correct]
+  exact (popSplit 16 16 x).symm
+
+theorem countWord32_correct (m n : Nat) (hn : n ≤ 32) :
+    wordPop32 ((BitVec.ofNat n m).setWidth 32) = rankBits m n := by
+  rw [wordPop32_correct, BitVec.toNat_cpop_setWidth_eq_of_le hn, rankBits, if_pos hn]
+
+def fastRank (m len : Nat) : Nat :=
+  if len ≤ 32 then wordPop32 ((BitVec.ofNat len m).setWidth 32)
+  else
+    let half := len / 2
+    fastRank (trim m half) half + fastRank (m >>> half) (len-half)
+termination_by len
+decreasing_by all_goals omega
+
+theorem fastRank_eq (m len : Nat) : fastRank m len = rankBits m len := by
+  by_cases h : len ≤ 32
+  · rw [fastRank, if_pos h, countWord32_correct m len h]
+  · rw [fastRank, if_neg h, rankBits, if_neg h]
+    dsimp only
+    rw [fastRank_eq (trim m (len/2)) (len/2), fastRank_eq (m >>> (len/2)) (len-len/2)]
+termination_by len
+decreasing_by all_goals omega
+
+def checkFast (bound bits : Nat) (a i : Nat) : List Nat → Bool
+  | [] => true
+  | q :: qs =>
+    decide (a ≤ q ∧ q ≤ bound) &&
+      bits.testBit q &&
+      decide (fastRank (bits >>> a) (q-a) = (i^2-1) - ((i-1)^2-1)) &&
+      checkFast bound bits q (i+1) qs
+
+theorem checkFast_eq (bound bits a i : Nat) (qs : List Nat) :
+    checkFast bound bits a i qs = checkRanks bound bits a i qs := by
+  induction qs generalizing a i with
+  | nil => rfl
+  | cons q qs ih => simp only [checkFast, checkRanks, fastRank_eq, ih]
+
+theorem indexedWeights_of_fastSegment (hi lo i : Nat) (qs : List Nat)
+    (hcount : Nat.count Nat.Prime lo = (i-1)^2-1)
+    (h : checkFast hi (alignedSegment lo hi) lo i qs = true) : IndexedWeights i qs := by
+  apply indexedWeights_of_segment hi lo i qs hcount
+  rwa [← checkFast_eq]
+
 def weights00 : List Nat := [
   2, 7, 23, 53, 97, 151, 227, 311, 419, 541, 661, 827,
   1009, 1193, 1427, 1619, 1879, 2143, 2437, 2741, 3083, 3461, 3803, 4211,
@@ -407,7 +558,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify00 (hcount : Nat.count Nat.Prime 0 = 0^2-1) :
     IndexedWeights 1 weights00 := by
-  apply indexedWeights_of_check 100169 0
+  apply indexedWeights_of_fastSegment 100169 0
   · exact hcount
   · decide +kernel
 
@@ -421,7 +572,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify01 (hcount : Nat.count Nat.Prime 100169 = 98^2-1) :
     IndexedWeights 99 weights01 := by
-  apply indexedWeights_of_check 199673 100169
+  apply indexedWeights_of_fastSegment 199673 100169
   · exact hcount
   · decide +kernel
 
@@ -435,7 +586,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify02 (hcount : Nat.count Nat.Prime 199673 = 134^2-1) :
     IndexedWeights 135 weights02 := by
-  apply indexedWeights_of_check 303053 199673
+  apply indexedWeights_of_fastSegment 303053 199673
   · exact hcount
   · decide +kernel
 
@@ -448,7 +599,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify22 (hcount : Nat.count Nat.Prime 303053 = 162^2-1) :
     IndexedWeights 163 weights22 := by
-  apply indexedWeights_of_check 399941 303053
+  apply indexedWeights_of_fastSegment 399941 303053
   · exact hcount
   · decide +kernel
 
@@ -463,7 +614,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify03 (hcount : Nat.count Nat.Prime 399941 = 184^2-1) :
     IndexedWeights 185 weights03 := by
-  apply indexedWeights_of_check 596569 399941
+  apply indexedWeights_of_fastSegment 596569 399941
   · exact hcount
   · decide +kernel
 
@@ -477,7 +628,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify04 (hcount : Nat.count Nat.Prime 596569 = 221^2-1) :
     IndexedWeights 222 weights04 := by
-  apply indexedWeights_of_check 800663 596569
+  apply indexedWeights_of_fastSegment 800663 596569
   · exact hcount
   · decide +kernel
 
@@ -491,7 +642,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify05 (hcount : Nat.count Nat.Prime 800663 = 253^2-1) :
     IndexedWeights 254 weights05 := by
-  apply indexedWeights_of_check 998561 800663
+  apply indexedWeights_of_fastSegment 998561 800663
   · exact hcount
   · decide +kernel
 
@@ -505,7 +656,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify06 (hcount : Nat.count Nat.Prime 998561 = 280^2-1) :
     IndexedWeights 281 weights06 := by
-  apply indexedWeights_of_check 1201241 998561
+  apply indexedWeights_of_fastSegment 1201241 998561
   · exact hcount
   · decide +kernel
 
@@ -518,7 +669,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify07 (hcount : Nat.count Nat.Prime 1201241 = 305^2-1) :
     IndexedWeights 306 weights07 := by
-  apply indexedWeights_of_check 1397491 1201241
+  apply indexedWeights_of_fastSegment 1397491 1201241
   · exact hcount
   · decide +kernel
 
@@ -531,7 +682,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify08 (hcount : Nat.count Nat.Prime 1397491 = 327^2-1) :
     IndexedWeights 328 weights08 := by
-  apply indexedWeights_of_check 1599583 1397491
+  apply indexedWeights_of_fastSegment 1599583 1397491
   · exact hcount
   · decide +kernel
 
@@ -544,7 +695,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify09 (hcount : Nat.count Nat.Prime 1599583 = 348^2-1) :
     IndexedWeights 349 weights09 := by
-  apply indexedWeights_of_check 1794647 1599583
+  apply indexedWeights_of_fastSegment 1794647 1599583
   · exact hcount
   · decide +kernel
 
@@ -557,7 +708,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify10 (hcount : Nat.count Nat.Prime 1794647 = 367^2-1) :
     IndexedWeights 368 weights10 := by
-  apply indexedWeights_of_check 2000939 1794647
+  apply indexedWeights_of_fastSegment 2000939 1794647
   · exact hcount
   · decide +kernel
 
@@ -570,7 +721,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify11 (hcount : Nat.count Nat.Prime 2000939 = 386^2-1) :
     IndexedWeights 387 weights11 := by
-  apply indexedWeights_of_check 2195989 2000939
+  apply indexedWeights_of_fastSegment 2195989 2000939
   · exact hcount
   · decide +kernel
 
@@ -583,7 +734,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify12 (hcount : Nat.count Nat.Prime 2195989 = 403^2-1) :
     IndexedWeights 404 weights12 := by
-  apply indexedWeights_of_check 2401537 2195989
+  apply indexedWeights_of_fastSegment 2401537 2195989
   · exact hcount
   · decide +kernel
 
@@ -596,7 +747,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify13 (hcount : Nat.count Nat.Prime 2401537 = 420^2-1) :
     IndexedWeights 421 weights13 := by
-  apply indexedWeights_of_check 2590349 2401537
+  apply indexedWeights_of_fastSegment 2590349 2401537
   · exact hcount
   · decide +kernel
 
@@ -609,7 +760,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify14 (hcount : Nat.count Nat.Prime 2590349 = 435^2-1) :
     IndexedWeights 436 weights14 := by
-  apply indexedWeights_of_check 2800601 2590349
+  apply indexedWeights_of_fastSegment 2800601 2590349
   · exact hcount
   · decide +kernel
 
@@ -622,7 +773,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify15 (hcount : Nat.count Nat.Prime 2800601 = 451^2-1) :
     IndexedWeights 452 weights15 := by
-  apply indexedWeights_of_check 2991421 2800601
+  apply indexedWeights_of_fastSegment 2991421 2800601
   · exact hcount
   · decide +kernel
 
@@ -635,7 +786,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify16 (hcount : Nat.count Nat.Prime 2991421 = 465^2-1) :
     IndexedWeights 466 weights16 := by
-  apply indexedWeights_of_check 3188761 2991421
+  apply indexedWeights_of_fastSegment 3188761 2991421
   · exact hcount
   · decide +kernel
 
@@ -648,7 +799,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify17 (hcount : Nat.count Nat.Prime 3188761 = 479^2-1) :
     IndexedWeights 480 weights17 := by
-  apply indexedWeights_of_check 3392723 3188761
+  apply indexedWeights_of_fastSegment 3392723 3188761
   · exact hcount
   · decide +kernel
 
@@ -661,7 +812,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify18 (hcount : Nat.count Nat.Prime 3392723 = 493^2-1) :
     IndexedWeights 494 weights18 := by
-  apply indexedWeights_of_check 3589693 3392723
+  apply indexedWeights_of_fastSegment 3589693 3392723
   · exact hcount
   · decide +kernel
 
@@ -674,7 +825,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify19 (hcount : Nat.count Nat.Prime 3589693 = 506^2-1) :
     IndexedWeights 507 weights19 := by
-  apply indexedWeights_of_check 3790547 3589693
+  apply indexedWeights_of_fastSegment 3790547 3589693
   · exact hcount
   · decide +kernel
 
@@ -687,7 +838,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify20 (hcount : Nat.count Nat.Prime 3790547 = 519^2-1) :
     IndexedWeights 520 weights20 := by
-  apply indexedWeights_of_check 3998191 3790547
+  apply indexedWeights_of_fastSegment 3998191 3790547
   · exact hcount
   · decide +kernel
 
@@ -699,7 +850,7 @@ set_option maxRecDepth 32768 in
 set_option maxHeartbeats 2500000 in
 theorem certify21 (hcount : Nat.count Nat.Prime 3998191 = 532^2-1) :
     IndexedWeights 533 weights21 := by
-  apply indexedWeights_of_check 4194167 3998191
+  apply indexedWeights_of_fastSegment 4194167 3998191
   · exact hcount
   · decide +kernel
 
