@@ -27,3 +27,4 @@ theorem main : ∀ n : ℕ, 4 < n → ∃ p q : ℕ, IsA136207 p ∧ IsA136207 q
   sorry
 
 end OMA.S_oeis_a254041
+-- ci: re-run check-proof
