@@ -17,10 +17,18 @@ open Finset
 
 private def used {N : ℕ} (D : Digraph N) : Finset (Fin N) := univ.biUnion D
 
+private theorem card_difference {α : Type*} [DecidableEq α] {s t : Finset α} (h : s⊆t) :
+    (t \ s).card=t.card-s.card := by
+  first
+  | exact Finset.card_sdiff h
+  | rw [Finset.card_sdiff,Finset.inter_eq_left.mpr h]
+
+private theorem ncard_finset {α : Type*} (s : Finset α) : (s : Set α).ncard=s.card := by simp
+
 private theorem source_formula {N : ℕ} (D : Digraph N) :
     sourceCount D=N-(used D).card := by
   unfold sourceCount used
-  rw [card_sdiff (subset_univ _),card_univ,Fintype.card_fin]
+  rw [card_difference (subset_univ _),card_univ,Fintype.card_fin]
 
 private theorem powerset_bound {N : ℕ} (D : Digraph N) (hi : Function.Injective D) :
     N ≤ 2^(used D).card := by
@@ -213,7 +221,7 @@ private theorem height_count (n : ℕ) (hn : 0 < n) :
   have h : Set.Icc n.log2 (n-1) = (Finset.Icc n.log2 (n-1) : Set ℕ) := by
     ext k
     simp
-  rw [h,Set.ncard_coe_Finset,Nat.card_Icc]
+  rw [h,ncard_finset,Nat.card_Icc]
   omega
 
 private theorem nonpower_count (n : ℕ) :
@@ -262,7 +270,7 @@ private theorem nonpower_count (n : ℕ) :
         refine ⟨hk,?_⟩
         rintro ⟨e,rfl⟩
         exact hn ⟨e,(Nat.le_log2 h).2 hk,rfl⟩
-    rw [he,Set.ncard_coe_Finset,card_sdiff hsub,hcard,Nat.card_Iic]
+    rw [he,ncard_finset,card_difference hsub,hcard,Nat.card_Iic]
     omega
 
 
