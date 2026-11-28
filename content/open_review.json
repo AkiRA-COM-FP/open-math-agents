@@ -13365,6 +13365,305 @@
     "https://oeis.org/A229446"
    ],
    "note": "Row 3 of A229445 (3 X n arrays, encoded as a list of columns with the roles of the conditions swapped correctly): the cubic n^3/3 + 8n/3 + 5, Barker's g.f. and his recurrence (n > 4). My brute force for n <= 6 matches the data. Routine transfer count; no prior proof found. Second review: Hardin/Barker polynomial count of lex-ordered arrays; faithful and verified, with no prior proof. Routine."
+  },
+  "oeis-a202460": {
+   "date": "2026-11-28",
+   "pr": 25384,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A202460",
+    "https://oeis.org/A202461",
+    "https://oeis.org/A202460"
+   ],
+   "note": "Barker's g.f. and recurrence for (n+2) x 9 binary arrays in which consecutive 3-bit windows, read as binary numbers, are nondecreasing in every row and every column (column 7 of A202461). The statement is faithful: windowsOK compares each window with the next, on rows and on columns. My 3-row-state DP matches the data for n<=6, and a brute force agrees on 3x4 and 4x4. The count is polynomial in n, and the proof is a routine structural count. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful, true, and no earlier proof found. This is the width-9 window case, which is absent from the isitsolved width-4 to width-7 rounds. Routine transfer-matrix result."
+  },
+  "oeis-a202943": {
+   "date": "2026-11-28",
+   "pr": 26805,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A202943",
+    "https://oeis.org/A202944",
+    "https://oeis.org/A000695",
+    "https://oeis.org/A202943"
+   ],
+   "note": "Hanna's conjecture: a(n) mod 2 has g.f. (1+x)(1+x^2)(1+x^8) Sum x^(32 m), m in Moser-de Bruijn. The entry writes Sum_{n>0} with A000695 (offset 0); read literally this drops m=0 and fails at a(0)=1. The statement keeps m=0, the only consistent reading, and quantifies over integer cube roots with constant term 1 (one exists: I computed 120 integral terms, matching the data). Mod 2 the series is just 1+x, and the RHS equals 1/prod(1+x^(4^k)) = (1+x)^(1/3). I checked 120 terms. The proof is elementary but not mechanical, and I found no prior proof. Second review: Faithful and true. The reason is short: F = 1+x mod 2, so A = (1+x)^(1/3), and the 2-adic digits of 1/3 give Hanna's product. No earlier proof found. Routine."
+  },
+  "oeis-a203150": {
+   "date": "2026-11-28",
+   "pr": 24996,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203150",
+    "https://oeis.org/A000034",
+    "https://oeis.org/A203150"
+   ],
+   "note": "Berselli's closed form ((6rn+(1+3(1-r)n)(1-(-1)^n)) r^(n-1))/8, with r = sqrt 2, for e_{n-1}(1,2,1,2,...). The products recursion (p,e) -> (pd, ed+p) is the (n-1)-st elementary symmetric function, and it reproduces all 37 data terms. I checked the formula to 80 digits for n<60. It follows by splitting into even and odd n; routine. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; e_{n-1} = product * sum of reciprocals, so it is immediate. Routine."
+  },
+  "oeis-a203230": {
+   "date": "2026-11-28",
+   "pr": 26508,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203230",
+    "https://oeis.org/A010684",
+    "https://oeis.org/A203230"
+   ],
+   "note": "Mathar's recurrence a(n) = 6a(n-2)-9a(n-4) (n>4) and g.f. x(1+4x+x^2)/(1-3x^2)^2 for e_{n-1} of the first n terms of 1,3,1,3,... The definition reproduces the data, and I checked the recurrence to n=80. Routine. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; immediate. Routine."
+  },
+  "oeis-a203234": {
+   "date": "2026-11-28",
+   "pr": 24847,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203234",
+    "https://oeis.org/A203235",
+    "https://oeis.org/A203234"
+   ],
+   "note": "Mathar's recurrence a(n) = 4a(n-4)-4a(n-8) (n>8) and the g.f. over (1-2x^4)^2 for e_{n-1} of the first n terms of 1,1,1,2 repeated. The definition reproduces all 45 terms, and I checked the recurrence to n=80. Routine. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; immediate. Routine."
+  },
+  "oeis-a203292": {
+   "date": "2026-11-28",
+   "pr": 25218,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203292",
+    "https://oeis.org/A203291",
+    "https://oeis.org/A203292"
+   ],
+   "note": "Barker's parity-split cubics (24a(n) = 24+32n+6n^2+4n^3 for even n, 30+... for odd n) and g.f. for nondecreasing 4-tuples in -n..n with sum 0 and as many positive as negative entries. Faithful; my brute force matches the data for n<=19. Elementary case count, routine. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; elementary counting. No earlier proof found. Routine."
+  },
+  "oeis-a203298": {
+   "date": "2026-11-28",
+   "pr": 10561,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A203298",
+    "https://oeis.org/A203298"
+   ],
+   "note": "Barker's parity-split quartics (over 192) and order-8 recurrence (n>9) for the second elementary symmetric function of 1,2,2,3,3,... The term floor((k+2)/2) and the sum over i<j are faithful, and they reproduce the data. This is a routine polynomial summation. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; polynomial identity. Routine."
+  },
+  "oeis-a204558": {
+   "date": "2026-11-28",
+   "pr": 26756,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A204558",
+    "https://oeis.org/A045975",
+    "https://oeis.org/A035328",
+    "https://oeis.org/A204558"
+   ],
+   "note": "Barker's closed form n^2(n^2-(-1)^n)/2 and g.f. for the row sums of A045975. Rows are built from the next n multiples of n with the parity of n, beyond the previous row's last term; the Nat.nth encoding matches, and it reproduces the data. I checked the closed form for n<200. Zumkeller's 2012 comment gives the same formula with no proof: n*A035328(n/2), and n*A005917((n+1)/2) for odd n, where the A005817 in the comment is a typo for A005917. Routine induction on the first term of each row. Second review: Faithful and true; Zumkeller's row-sum comment already gives it. Routine."
+  },
+  "oeis-a204983": {
+   "date": "2026-11-28",
+   "pr": 27597,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A204983",
+    "https://oeis.org/A204892",
+    "https://oeis.org/A007733",
+    "https://oeis.org/A204983"
+   ],
+   "note": "Porter's conjecture a(n) = 2^v2(n) (2^ord(oddpart n) - 1), where a(n) is the least difference of distinct powers 2^b-2^a (a>=0) divisible by n. The minimum-value reading matches Kimberling's 'least k' pairing: both pick a=v2(n), b-a=ord. It reproduces the data, and I checked it for n<70. This is an elementary lemma on 2-adic valuation and multiplicative order (routine), with no proof in the entry or in sisters A204979/A204984. Second review: Faithful and true; elementary. Routine."
+  },
+  "oeis-a207067": {
+   "date": "2026-11-28",
+   "pr": 25282,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207067",
+    "https://oeis.org/A207068",
+    "https://oeis.org/A207067",
+    "https://isitsolved.com/journal/849ff39de7ae"
+   ],
+   "note": "Barker's g.f. 31x(...)/(1-x)^8 and recurrence (n>8) for n x 7 binary arrays avoiding 001,010 horizontally and 001,101 vertically. The statement is faithful: the windows, the ranges and the recurrence offsets match the entry. My two-row-state DP from the literal definition matches the data for n<=15. The polynomial growth comes from the forced structure, and the proof is a routine structural count. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true. The site's proof (2026-11-28 09:49 UTC) predates the only other claim I found, isitsolved.com iis:2611.00300 (2026-11-28 11:52 UTC), so priority is the site's. Routine."
+  },
+  "oeis-a207255": {
+   "date": "2026-11-28",
+   "pr": 15013,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207255",
+    "https://oeis.org/A207254",
+    "https://oeis.org/A207255",
+    "https://isitsolved.com/journal/e9039b327f56"
+   ],
+   "note": "Barker's g.f. 10x(1+5x-3x^2-x^3)/(1-x)^5 and recurrence (n>5) for 4 x n binary arrays avoiding 001,101 horizontally and 010,101 vertically. The statement is faithful: the windows, the ranges and the recurrence offsets match the entry. My two-row-state DP from the literal definition matches the data for n<=15. The polynomial growth comes from the forced structure, and the proof is a routine structural count. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true. The site's proof (2026-11-28 00:01 UTC) predates the only other claim I found, isitsolved.com iis:2611.00264 (2026-11-28 08:32 UTC), so priority is the site's. Routine."
+  },
+  "oeis-a207318": {
+   "date": "2026-11-28",
+   "pr": 25937,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207318",
+    "https://oeis.org/A000172",
+    "https://oeis.org/A207318"
+   ],
+   "note": "Mathar's order-3 P-recurrence (n>=3) for the alternating partial sums of the Franel numbers. Faithful (franel(k) = Sum C(k,j)^3). I checked the recurrence for n<200. It follows from the Franel recurrence by holonomic closure; routine. The Blanco Gomez Zenodo notes on alternating Franel sums prove Sun's congruences, not this recurrence. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; standard creative-telescoping/holonomic result. No earlier proof found. Routine."
+  },
+  "oeis-a207319": {
+   "date": "2026-11-28",
+   "pr": 26733,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A207319",
+    "https://oeis.org/A000172",
+    "https://oeis.org/A207319"
+   ],
+   "note": "Mathar's order-4 P-recurrence (n>=4) for Sum_{k<n} (-1)^k k A000172(k). Faithful, and checked for n<200. This is routine holonomic closure from the Franel recurrence. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; no earlier proof found. Routine."
+  },
+  "oeis-a204707": {
+   "date": "2026-11-28",
+   "pr": 27693,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A204707",
+    "https://oeis.org/A204713",
+    "https://oeis.org/A204707",
+    "https://oeis.org/A183682"
+   ],
+   "note": "Barker's g.f. x(13+7x-24x^2)/((1-x)(1-x-4x^2)) and sqrt(17) closed form for (n+1) x 3 binary arrays in which every 2x2 permanent is equal and nonzero. Faithful (there is p != 0 with every block permanent = p). My brute force matches the data for n<=5. Zabolotskii's comment in A204713 (A183688+1) is an unproven Sequence Machine observation. Routine transfer count. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; no earlier proof. Trivially equivalent to the still-open site id oeis-a183682 (shift by 1), so a proof of one gives the other. Routine."
+  },
+  "oeis-a205220": {
+   "date": "2026-11-28",
+   "pr": 24942,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A205220",
+    "https://oeis.org/A205226",
+    "https://oeis.org/A205220"
+   ],
+   "note": "Barker's g.f. 4x(5+8x)/(1-x-4x^2) and sqrt(17) closed form for (n+1) x 3 binary arrays. In them the 2x2-block count [diagonal equal]+[antidiagonal equal] differs from each horizontal and vertical neighbor block, and new values appear in row-major order. The Lean Cond and RowMajorNew are faithful; my brute force matches the data for n<=5. Routine transfer-matrix argument. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful under the reading that reproduces the data; true; no earlier proof found. Routine."
+  },
+  "oeis-a205329": {
+   "date": "2026-11-28",
+   "pr": 25058,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A205329",
+    "https://oeis.org/A205335",
+    "https://oeis.org/A205329"
+   ],
+   "note": "Barker's g.f. 18x(4+9x)/(1-6x-18x^2) and closed form for the 0..2 version of A205220 ((n+1) x 3, neighboring block counts differ, row-major new values). The definition is faithful, and my brute force matches the data for n<=3. Routine transfer-matrix argument. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; no earlier proof found. Routine."
+  },
+  "oeis-a205354": {
+   "date": "2026-11-28",
+   "pr": 24946,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A205354",
+    "https://oeis.org/A205361",
+    "https://oeis.org/A205354"
+   ],
+   "note": "Barker's g.f. 2x(7-10x)/((1-x)(1-4x)) and a(n) = 2+3*4^n for (n+1) x 2 arrays over 0..2 in which every 2x2 block has the same count of equal diagonal and antidiagonal pairs, with new values in row-major order. Faithful, and my brute force matches the data for n<=5. Routine. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; no earlier proof found. Routine."
+  },
+  "oeis-a206170": {
+   "date": "2026-11-28",
+   "pr": 27105,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A206170",
+    "https://oeis.org/A206169",
+    "https://oeis.org/A206170"
+   ],
+   "note": "Barker's g.f. and closed form (9+3*2^n+2*6^n+2*9^n)/3 for 2 x (n+1) arrays over 0..3 in which all 2x2 blocks in the single block row have equal counts, with new values in row-major order. The adjacent-block-rows clause is vacuous for 2 rows, in Lean as in the entry. My brute force matches the data for n<=4. Routine. Nothing found in the entry, the parent table (no proofs added), Palomar, the Lean libraries, Blanco Gomez, Fried or Epoch. Second review: Faithful and true; no earlier proof found. Routine."
+  },
+  "oeis-a113572": {
+   "date": "2026-11-28",
+   "pr": 27571,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A113572",
+    "https://oeis.org/A113572",
+    "statements/oeis-a113573.lean (repo, same theorem)"
+   ],
+   "note": "The formalization (leading digit 1; r-th digit from the left prime iff r prime, composite (4,6,8,9) otherwise; n | m) matches the entry. The exclusion n=5t with t>1 is exactly the trivial zero case noted in the entry. A residue-DP check finds a solution for every other n<200. The proof is a real covering argument (2-adic part from the low digits, then additive generation mod the odd part), and I found no earlier proof. Second review: Faithful and true by a subset-sum argument (digits 2/3 and 8/9 differ by one, with powers of 10 adjusting the residue). No earlier proof found. oeis-a113573 is the same theorem and can be closed with this proof."
+  },
+  "oeis-a113956": {
+   "date": "2026-11-28",
+   "pr": 26157,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A113956",
+    "https://oeis.org/A113956"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the formal G = S/((1-4x)c(S-x^2c)) with S=sqrt(1-4x) is the entry's expression times S/S. My series reproduces the data, and all 7 coefficients match (n>=6). Nothing found in the entry, A113955 or the proof collections. Second review: Faithful and true; no earlier proof found. Routine holonomic recurrence."
+  },
+  "oeis-a114976": {
+   "date": "2026-11-28",
+   "pr": 27369,
+   "routine": false,
+   "evidence": [
+    "https://oeis.org/A114976",
+    "https://math.stackexchange.com/questions/293966",
+    "https://oeis.org/A114976"
+   ],
+   "note": "Both observations are stated faithfully: a(n)=2 iff n prime, and a(n) odd iff n square, for n>=1. My DP reproduces the data (n<=60) and both claims. The parity part follows from the Putnam 2002 A3 involution S <-> S xor {d} on the subsets with mean d other than {d}, which gives a(n) == d(n) (mod 2). The prime part is elementary: {d-1,d+1} has mean d for any proper divisor d. So it is easy, but I found no write-up for this sequence. Second review: Faithful and true; an elementary argument (only {1},{n} for prime n; reflection pairing for parity). The entry offered these only as observations. No earlier proof found."
+  },
+  "oeis-a116388": {
+   "date": "2026-11-28",
+   "pr": 14714,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A116388",
+    "https://oeis.org/A116388",
+    "https://isitsolved.com/journal/64b8fcb12863"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; M = Motzkin via 2x^2M=1-x-S and G=1/((1+x(1-M))S) reproduce the data. The coefficients 7-7n, 8n-18, 25n-58, 65-18n, 199-52n, 135-31n, 30-6n match (n>=7). No prior proof found. Second review: Faithful and true. The site's proof (2026-11-27 22:21 UTC) predates the only other claim I found, isitsolved.com iis:2611.00211 (superseding 00209, filed after 02:19) (2026-11-28 02:37 UTC), so priority is the site's. Routine."
+  },
+  "oeis-a116391": {
+   "date": "2026-11-28",
+   "pr": 14712,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A116391",
+    "https://oeis.org/A116391"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; G((1+x)(S-x))=1 with S=sqrt(1-4x^2) reproduces the data, and the recurrence matches (n>=5). No prior proof found. Second review: Faithful and true; no earlier proof found. Routine."
+  },
+  "oeis-a116409": {
+   "date": "2026-11-28",
+   "pr": 13593,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A116409",
+    "https://oeis.org/A116409",
+    "https://isitsolved.com/journal/64b8fcb12863"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; The cleared g.f. reproduces the data, and the coefficients 4-6n, 8n-10, 6n-12, 18-9n match (n>=4). No prior proof found. Second review: Faithful and true. The site's proof (2026-11-27 22:21 UTC) predates the only other claim I found, isitsolved.com iis:2611.00211 (superseding 00209, filed after 02:19) (2026-11-28 02:37 UTC), so priority is the site's. Routine."
+  },
+  "oeis-a117119": {
+   "date": "2026-11-28",
+   "pr": 26140,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A117119",
+    "https://oeis.org/A002375",
+    "https://oeis.org/A061345",
+    "https://oeis.org/A117119"
+   ],
+   "note": "The formalization (odd prime powers including 1, per A061345 and the entry's a(1)=a(2)=1; A002375 as unordered odd-prime pairs) reproduces all 90 data terms. The strict inequality a(n) > A002375(n) fails at n=164 (both equal 10). By my computation it also fails at 281 and 1043. The data stop at n=90, so the counterexample is not visible in the entry, and I found no record of it. Second review: Valid disproof of the strict-inequality half of Zumkeller's conjecture by a finite check (n=164). The a(n)>0 half, a weak Goldbach-type claim, is untouched, so announce it as 'a(n) > A002375(n) is false'. No earlier report found. Routine."
+  },
+  "oeis-a117549": {
+   "date": "2026-11-28",
+   "pr": 27619,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A117549",
+    "https://oeis.org/A117549"
+   ],
+   "note": "very(5,r), correlation and the AZ(3A)ZA construction (Z = n-1 zeros, 3A taken mod 5) are encoded faithfully, for r=1 and r=4 and length 5n-2. The proof splits correlations at block borders, giving factors 11, 6 and 1, all congruent to 1 mod 5. Layman's linked page is dead, and no proof is recorded in the entry. Second review: Faithful and true; a short autocorrelation computation (the zero gaps isolate block overlaps, and 1+9+1 = 1 mod 5). No earlier proof found. Routine."
+  },
+  "oeis-a118974": {
+   "date": "2026-11-28",
+   "pr": 25003,
+   "routine": true,
+   "evidence": [
+    "https://oeis.org/A118974",
+    "https://oeis.org/A118974"
+   ],
+   "note": "Mathar's D-finite recurrence for an algebraic g.f.; the rationalized g.f. equals the entry's z^2*C*F*(1+C-zC)/(1-z) as a series (checked) and reproduces the data. The coefficients are exactly Mathar's expanded. The statement starts at n=4 because at n=3 the left side is -144. That is the usual 'for n large' reading of Mathar's recurrences, not a weakening. No prior proof found. Second review: Faithful (with the necessary n>=4 range, stated openly) and true; no earlier proof found. Routine."
   }
  },
  "flagged": {
@@ -28935,6 +29234,118 @@
     "https://zenodo.org/records/23617232"
    ],
    "reason": "Second review: Faithful, but proved a month earlier by an AI-agent Zenodo preprint (Lin Shi / DeepSeek, Zenodo 23768236, 29 Oct 2026) with its own Lean proof. The site's solve is not new."
+  },
+  "oeis-a202730": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A202730",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00233 on isitsolved.com, submitted 2026-11-28 04:57 UTC, before the site's Lean proof (2026-11-28 09:45 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a202752": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A202752",
+    "https://isitsolved.com/journal/216940add78a"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00271 on isitsolved.com, submitted 2026-11-28 09:04 UTC, before the site's Lean proof (2026-11-28 10:03 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a202753": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A202753",
+    "https://isitsolved.com/journal/5512caf326aa"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00284 on isitsolved.com, submitted 2026-11-28 09:48 UTC, before the site's Lean proof (2026-11-28 10:29 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a202807": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A202807",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00233 on isitsolved.com, submitted 2026-11-28 04:57 UTC, before the site's Lean proof (2026-11-28 09:39 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a202808": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A202808",
+    "https://isitsolved.com/journal/216940add78a"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00271 on isitsolved.com, submitted 2026-11-28 09:04 UTC, before the site's Lean proof (2026-11-28 09:58 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a202919": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A202919",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00233 on isitsolved.com, submitted 2026-11-28 04:57 UTC, before the site's Lean proof (2026-11-28 09:41 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a207064": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A207064",
+    "https://isitsolved.com/journal/e9039b327f56"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00264 on isitsolved.com, submitted 2026-11-28 08:32 UTC, before the site's Lean proof (2026-11-28 09:44 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a207106": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A207106",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00233 on isitsolved.com, submitted 2026-11-28 04:57 UTC, before the site's Lean proof (2026-11-28 10:17 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a207165": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A207165",
+    "https://isitsolved.com/journal/e9039b327f56"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00264 on isitsolved.com, submitted 2026-11-28 08:32 UTC, before the site's Lean proof (2026-11-28 09:46 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a207118": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A207118",
+    "https://isitsolved.com/journal/df182c39e7cd"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00233 on isitsolved.com, submitted 2026-11-28 04:57 UTC, before the site's Lean proof (2026-11-28 08:21 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a206687": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A206687",
+    "https://isitsolved.com/journal/d7e3cd59d1bb"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00246 on isitsolved.com, submitted 2026-11-28 05:39 UTC, before the site's Lean proof (2026-11-28 09:25 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a115967": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A115967",
+    "https://isitsolved.com/journal/64b8fcb12863"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00211 on isitsolved.com, submitted 2026-11-28 02:37 UTC, before the site's Lean proof (2026-11-28 10:18 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a116363": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A116363",
+    "https://isitsolved.com/journal/c70942720d40"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00226 on isitsolved.com, submitted 2026-11-28 04:01 UTC, before the site's Lean proof (2026-11-28 06:06 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
+  },
+  "oeis-a116406": {
+   "date": "2026-11-28",
+   "evidence": [
+    "https://oeis.org/A116406",
+    "https://isitsolved.com/journal/64b8fcb12863"
+   ],
+   "reason": "Second review: The statement is faithful and the claim is true (independently checked numerically). But an earlier public claim of the same proof exists: iis:2611.00211 on isitsolved.com, submitted 2026-11-28 02:37 UTC, before the site's Lean proof (2026-11-28 10:04 UTC commit). That source is an unreviewed AI-agent preprint and gives a computational, not Lean, proof. Still, the site was not first. Routine transfer-matrix or holonomic result in any case."
   }
  },
  "reviewed": "2026-11-28"
