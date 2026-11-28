@@ -27,6 +27,7 @@ set_option maxRecDepth 4096 in
 set_option maxHeartbeats 4000000 in
 private theorem rowsChecked : (List.range 90).all checkRow = true := by decide +kernel
 
+/-- Every start in this interval descends within the same finite step bound. -/
 theorem descendsWithin (n : ℕ) (hn : 1000 ≤ n) (hn' : n < 10000) :
     ∃ i ≤ 132, collatzStep^[i] n < n := by
   let q := (n - 1000) / 100
