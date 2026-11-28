@@ -4,7 +4,7 @@ import Mathlib
 # Rational points on the Picard curve `y³ = x⁴ + x + 1`
 
 Source: https://mathoverflow.net/questions/415812 (Bogdan Grechuk)
-Credit: @SudharsanAnimations
+Credit: Sudharsan Rajendiran
 
 What are (a) the integer and (b) the rational solutions of `y³ = x⁴ + x + 1`? There are the obvious
 solutions `(x, y) = (-1, 1)` and `(0, 1)`; are they the only ones?
